@@ -176,8 +176,8 @@
     "collabora_integration": true,
     "db_invalidation_control_enabled": false,
     "configuration_signature_keys": {
-        "0": "MCowBQYDK2VwAyEAs+61FW9LNh1nrbKyyjiWLfGmu1zNq2JvpQY2gHZwkUg=",
-        "1": "MCowBQYDK2VwAyEADxZHnqshgLAjIOvSMPVdwRxAcPh4QzvchnaVUDMseBc="
+        "0": "MCowBQYDK2VwAyEAxPrvUdt+531eDcnAFfLAv9K9gkxPDBMVEz75BkNgd1E=",
+        "1": "MCowBQYDK2VwAyEAA3lA6/1j+VJNKUsbHdlmTcjIOtjdnxzG4TkYr4nEFJw="
     },
     "enforce_configuration_signature": true,
     "nomad_profiles_enabled": false,

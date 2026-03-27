@@ -193,6 +193,7 @@ class GroupVideoCall : BaseUiTest() {
             }
         }
 
+
         step("And I verify GroupVideoCall conversation is visible and start new conversation flow") {
             pages.conversationListPage.apply {
                 assertGroupConversationVisible("GroupVideoCall")

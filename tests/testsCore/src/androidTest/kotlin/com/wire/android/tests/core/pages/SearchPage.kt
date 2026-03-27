@@ -62,7 +62,8 @@ data class SearchPage(private val device: UiDevice) {
         )
         val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
         field.click()
-        field.text = uniqueUserName.uniqueUsername.orEmpty()
+        UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text =
+            uniqueUserName.uniqueUsername.orEmpty()
         return this
     }
 
@@ -77,7 +78,7 @@ data class SearchPage(private val device: UiDevice) {
         )
         val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
         field.click()
-        field.text = userName
+        UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text = userName
         return this
     }
 }

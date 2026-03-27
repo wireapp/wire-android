@@ -22,9 +22,9 @@ import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.wire.android.ui.AppLockActivity
+import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-abstract class CallActivity : AppCompatActivity() {
+abstract class CallActivity : BaseActivity() {
 
     @Inject
     lateinit var switchAccountObserver: SwitchAccountObserver

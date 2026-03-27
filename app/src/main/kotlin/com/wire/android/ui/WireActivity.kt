@@ -53,6 +53,16 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.LogManagementScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewWelcomeEmptyStartScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfDevicesScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.utils.destination
 import com.ramcosta.composedestinations.utils.route
@@ -87,16 +97,6 @@ import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.LogManagementScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewWelcomeEmptyStartScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfDevicesScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EICertificateRevokedDialog
 import com.wire.android.ui.home.E2EIRequiredDialog
@@ -138,7 +138,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 @Suppress("TooManyFunctions", "LargeClass")
-class WireActivity : AppCompatActivity() {
+class WireActivity : BaseActivity() {
 
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager

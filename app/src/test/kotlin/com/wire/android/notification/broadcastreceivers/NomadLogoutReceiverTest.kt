@@ -162,7 +162,6 @@ class NomadLogoutReceiverTest {
         fun arrange(): Arrangement {
             receiver.coreLogic = coreLogic
             receiver.currentSession = currentSession
-            receiver.deleteSession = deleteSession
             receiver.accountSwitch = accountSwitch
             receiver.switchAccountObserver = switchAccountObserver
             receiver.nomadProfilesFeatureConfig = nomadProfilesFeatureConfig

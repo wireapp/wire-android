@@ -404,6 +404,11 @@ class WireActivityViewModel @Inject constructor(
                     return@launch
                 }
 
+                if (serverLinks?.isProductionApi() == true) {
+                    appLogger.w("Nomad login ignored: resolved backend is Wire production")
+                    return@launch
+                }
+
                 if (!isNomadProfilesFlowEnabled(serverLinks)) {
                     return@launch
                 }
@@ -803,3 +808,7 @@ internal data class OnCustomBackendLogin(
 internal data class OnOpenUserProfile(val result: DeepLinkResult.OpenOtherUserProfile) : WireActivityViewAction
 internal data class OnSSOLogin(val result: DeepLinkResult.SSOLogin) : WireActivityViewAction
 internal data class ShowToast(val messageResId: Int) : WireActivityViewAction
+
+// TODO: replace with the kalium `ServerConfig.isProductionApi()` once it is made public and supports `Links`
+internal fun ServerConfig.Links.isProductionApi(): Boolean =
+    ServerConfig.PRODUCTION.api.contains(java.net.URI(api).host ?: "")

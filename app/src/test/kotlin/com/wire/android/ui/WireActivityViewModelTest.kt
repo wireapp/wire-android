@@ -82,6 +82,7 @@ import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -900,6 +901,27 @@ class WireActivityViewModelTest {
     }
 
     @Test
+    fun `given resolved backend is Wire production, when handling nomad intent, then login is ignored`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withAutomatedLoginIntent(
+                ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
+                backendConfig = "url"
+            )
+            .withProductionServerConfig()
+            .arrange()
+
+        viewModel.actions.test {
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+            advanceUntilIdle()
+
+            assertTrue(handled)
+            assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+            coVerify(exactly = 0) { arrangement.isNomadProfilesEnabledUseCase.invoke() }
+            expectNoEvents()
+        }
+    }
+
+    @Test
     fun `given nomad profiles disabled, when handling sharing intent, then import media screen is still shown`() = runTest {
         val (_, viewModel) = Arrangement()
             .withNomadProfilesEnabled(false)
@@ -1296,6 +1318,10 @@ class WireActivityViewModelTest {
 
         fun withCanUseNewLogin(canUseNewLogin: Boolean): Arrangement = apply {
             coEvery { loginTypeSelector.canUseNewLogin(any()) } returns canUseNewLogin
+        }
+
+        fun withProductionServerConfig(): Arrangement = apply {
+            coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(ServerConfig.PRODUCTION)
         }
 
         fun arrange() = this to viewModel

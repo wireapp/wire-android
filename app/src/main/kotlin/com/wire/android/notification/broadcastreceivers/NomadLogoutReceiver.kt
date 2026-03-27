@@ -62,6 +62,11 @@ class NomadLogoutReceiver : CoroutineReceiver() {
 
         appLogger.i("$TAG Received logout broadcast")
 
+        if (!coreLogic.getGlobalScope().doesValidNomadAccountExist()) {
+            appLogger.i("$TAG Logout ignored: current session is not a nomad account")
+            return
+        }
+
         @Suppress("TooGenericExceptionCaught")
         try {
             performLogout()

@@ -44,8 +44,12 @@ import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateUseCase
 import com.wire.kalium.logic.feature.backup.SetLastDeviceIdResult
 import com.wire.kalium.logic.feature.backup.SetLastDeviceIdUseCase
+import android.database.sqlite.SQLiteException
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
+import java.io.IOException
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -650,6 +654,9 @@ class NewLoginViewModelTest {
         lateinit var deleteSessionUseCase: DeleteSessionUseCase
 
         @MockK
+        lateinit var doesValidSessionExistUseCase: DoesValidSessionExistUseCase
+
+        @MockK
         lateinit var setLastDeviceIdUseCase: SetLastDeviceIdUseCase
 
         init {
@@ -871,6 +878,16 @@ class NewLoginViewModelTest {
         fun withRevertSSOSessionSuccess() = apply {
             coEvery { logoutUseCase(any(), any()) } returns Unit
             coEvery { deleteSessionUseCase(any()) } returns DeleteSessionUseCase.Result.Success
+        }
+
+        fun withRestoreCryptoStateThrowing(exception: Throwable) = apply {
+            every { coreLogic.getSessionScope(any()).backup.restoreCryptoState } returns restoreCryptoStateUseCase
+            coEvery { restoreCryptoStateUseCase() } throws exception
+        }
+
+        fun withSessionStillValid(valid: Boolean) = apply {
+            every { coreLogic.getGlobalScope().doesValidSessionExist } returns doesValidSessionExistUseCase
+            coEvery { doesValidSessionExistUseCase(any()) } returns DoesValidSessionExistResult.Success(valid)
         }
 
         private var defaultSSOCodeConfig: String = String.EMPTY
@@ -1227,6 +1244,85 @@ class NewLoginViewModelTest {
                 assertInstanceOf<NewLoginFlowState.Error.DialogError.GenericError>(viewModel.state.flowState)
                 coVerify(exactly = 1) { arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true) }
                 coVerify(exactly = 1) { arrangement.deleteSessionUseCase(userId) }
+            }
+        }
+
+    @Test
+    fun `given Nomad enabled and crypto restore throws IllegalStateException with session gone, when handling SSO result, then abort silently without reverting`() =
+        runTest(dispatchers.main()) {
+            val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
+            val userId = UserId("user-id", "domain")
+            val (arrangement, viewModel) = Arrangement()
+                .withEstablishSSOSessionSuccess(userId)
+                .withNomadEnabled(true)
+                .withRestoreCryptoStateThrowing(IllegalStateException("attempt to re-open an already-closed object"))
+                .withSessionStillValid(false)
+                .arrange()
+
+            viewModel.handleSSOResult(ssoDeepLinkResult)
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { arrangement.logoutUseCase(any(), any()) }
+            coVerify(exactly = 0) { arrangement.deleteSessionUseCase(any()) }
+        }
+
+    @Test
+    fun `given Nomad enabled and crypto restore throws IOException with session gone, when handling SSO result, then abort silently without reverting`() =
+        runTest(dispatchers.main()) {
+            val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
+            val userId = UserId("user-id", "domain")
+            val (arrangement, viewModel) = Arrangement()
+                .withEstablishSSOSessionSuccess(userId)
+                .withNomadEnabled(true)
+                .withRestoreCryptoStateThrowing(IOException("session files deleted"))
+                .withSessionStillValid(false)
+                .arrange()
+
+            viewModel.handleSSOResult(ssoDeepLinkResult)
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { arrangement.logoutUseCase(any(), any()) }
+            coVerify(exactly = 0) { arrangement.deleteSessionUseCase(any()) }
+        }
+
+    @Test
+    fun `given Nomad enabled and crypto restore throws SQLiteException with session gone, when handling SSO result, then abort silently without reverting`() =
+        runTest(dispatchers.main()) {
+            val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
+            val userId = UserId("user-id", "domain")
+            val (arrangement, viewModel) = Arrangement()
+                .withEstablishSSOSessionSuccess(userId)
+                .withNomadEnabled(true)
+                .withRestoreCryptoStateThrowing(SQLiteException("database is locked"))
+                .withSessionStillValid(false)
+                .arrange()
+
+            viewModel.handleSSOResult(ssoDeepLinkResult)
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { arrangement.logoutUseCase(any(), any()) }
+            coVerify(exactly = 0) { arrangement.deleteSessionUseCase(any()) }
+        }
+
+    @Test
+    fun `given Nomad enabled and restore failure and revert throws with session gone, when handling SSO result, then show error without crashing`() =
+        runTest(dispatchers.main()) {
+            val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
+            val userId = UserId("user-id", "domain")
+            val (_, viewModel) = Arrangement()
+                .withEstablishSSOSessionSuccess(userId)
+                .withNomadEnabled(true)
+                .withRestoreCryptoStateReturning(RestoreCryptoStateResult.Failure)
+                .withSessionStillValid(false)
+                .apply { coEvery { logoutUseCase(any(), any()) } throws IllegalStateException("already closed") }
+                .arrange()
+
+            viewModel.actions.test {
+                viewModel.handleSSOResult(ssoDeepLinkResult)
+                advanceUntilIdle()
+
+                expectNoEvents()
+                assertInstanceOf<NewLoginFlowState.Error.DialogError.GenericError>(viewModel.state.flowState)
             }
         }
 

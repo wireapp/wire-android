@@ -66,7 +66,7 @@ class NomadLogoutReceiver : CoroutineReceiver() {
                 appLogger.i("$TAG nomadProfilesFeatureConfig is not enabled ignoring")
             }
 
-            !coreLogic.getGlobalScope().doesValidNomadAccountExist() -> {
+            !coreLogic.getGlobalScope().isCurrentSessionNomadAccount() -> {
                 appLogger.i("$TAG Logout ignored: current session is not a nomad account")
             }
 

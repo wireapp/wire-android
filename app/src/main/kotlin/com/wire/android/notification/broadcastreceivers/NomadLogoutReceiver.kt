@@ -57,21 +57,34 @@ class NomadLogoutReceiver : CoroutineReceiver() {
     lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
 
     public override suspend fun receive(context: Context, intent: Intent) {
-        if (!nomadProfilesFeatureConfig.isEnabled()) return
-        if (intent.action != ACTION_LOGOUT) return
-
-        appLogger.i("$TAG Received logout broadcast")
-
-        @Suppress("TooGenericExceptionCaught")
-        try {
-            performLogout()
-            CoroutineScope(Dispatchers.Default).launch {
-                AppBackgroundManager.moveAppToBackground()
+        when {
+            intent.action != ACTION_LOGOUT -> {
+                appLogger.i("$TAG not a logout intent is passed ignore")
             }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (t: Exception) {
-            appLogger.e("$TAG Logout failed", t)
+
+            !nomadProfilesFeatureConfig.isEnabled() -> {
+                appLogger.i("$TAG nomadProfilesFeatureConfig is not enabled ignoring")
+            }
+
+            !coreLogic.getGlobalScope().isCurrentSessionNomadAccount() -> {
+                appLogger.i("$TAG Logout ignored: current session is not a nomad account")
+            }
+
+            else -> {
+                appLogger.i("$TAG Received logout broadcast")
+
+                @Suppress("TooGenericExceptionCaught")
+                try {
+                    performLogout()
+                    CoroutineScope(Dispatchers.Default).launch {
+                        AppBackgroundManager.moveAppToBackground()
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (t: Exception) {
+                    appLogger.e("$TAG Logout failed", t)
+                }
+            }
         }
     }
 

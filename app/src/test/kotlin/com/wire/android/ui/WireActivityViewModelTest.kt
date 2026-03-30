@@ -102,7 +102,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -871,7 +870,7 @@ class WireActivityViewModelTest {
 
             assertEquals(true, handled)
             assertEquals(false, arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
-            verify(exactly = 1) { arrangement.intentsProcessor(any()) }
+            coVerify(exactly = 1) { arrangement.intentsProcessor(any()) }
             coVerify(exactly = 0) { arrangement.isNomadProfilesEnabledUseCase.invoke() }
             coVerify(exactly = 0) { arrangement.observeSessionsUseCase.invoke() }
             expectNoEvents()
@@ -1021,7 +1020,7 @@ class WireActivityViewModelTest {
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
-            every { intentsProcessor(any()) } returns null
+            coEvery { intentsProcessor(any()) } returns null
             coEvery { observeSessionsUseCase.invoke() } returns flowOf(GetAllSessionsResult.Failure.NoSessionFound)
             every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
             every { observeSyncStateUseCase() } returns emptyFlow()
@@ -1298,7 +1297,7 @@ class WireActivityViewModelTest {
             ssoCode: String? = null,
             backendConfig: String? = null,
         ): Arrangement = apply {
-            every { intentsProcessor(any()) } returns when {
+            coEvery { intentsProcessor(any()) } returns when {
                 ssoCode == null || backendConfig == null -> null
                 else -> AutomatedLoginViaSSO(
                     ssoCode = ssoCode,

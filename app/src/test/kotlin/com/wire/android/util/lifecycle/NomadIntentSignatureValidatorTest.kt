@@ -17,6 +17,7 @@
  */
 package com.wire.android.util.lifecycle
 
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -28,28 +29,28 @@ import java.util.Base64
 class NomadIntentSignatureValidatorTest {
 
     @Test
-    fun `given null parameter and null signature, returns true`() {
+    fun `given null parameter and null signature, returns true`() = runTest {
         val validator = Arrangement().arrange()
 
         assertTrue(validator.isValid(parameter = null, signature = null))
     }
 
     @Test
-    fun `given null parameter and non-null signature, returns false`() {
+    fun `given null parameter and non-null signature, returns false`() = runTest {
         val validator = Arrangement().arrange()
 
         assertFalse(validator.isValid(parameter = null, signature = "signature"))
     }
 
     @Test
-    fun `given non-null parameter and null signature, returns false`() {
+    fun `given non-null parameter and null signature, returns false`() = runTest {
         val validator = Arrangement().arrange()
 
         assertFalse(validator.isValid(parameter = FAKE_NOMAD_PROFILES_HOST, signature = null))
     }
 
     @Test
-    fun `given skip token when signature enforcement is disabled, returns true`() {
+    fun `given skip token when signature enforcement is disabled, returns true`() = runTest {
         val validator = Arrangement().arrange()
 
         assertTrue(
@@ -61,7 +62,7 @@ class NomadIntentSignatureValidatorTest {
     }
 
     @Test
-    fun `given skip token when signature enforcement is enabled, returns false`() {
+    fun `given skip token when signature enforcement is enabled, returns false`() = runTest {
         val validator = Arrangement()
             .withConfigurationSignatureEnforced(true)
             .arrange()
@@ -75,7 +76,7 @@ class NomadIntentSignatureValidatorTest {
     }
 
     @Test
-    fun `given valid Ed25519 signature, returns true`() {
+    fun `given valid Ed25519 signature, returns true`() = runTest {
         val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
         val validator = Arrangement()
             .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
@@ -90,7 +91,7 @@ class NomadIntentSignatureValidatorTest {
     }
 
     @Test
-    fun `given invalid Ed25519 signature, returns false`() {
+    fun `given invalid Ed25519 signature, returns false`() = runTest {
         val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
         val invalidSignature = Base64.getEncoder()
             .encodeToString(
@@ -111,7 +112,7 @@ class NomadIntentSignatureValidatorTest {
     }
 
     @Test
-    fun `given malformed base64 signature, returns false`() {
+    fun `given malformed base64 signature, returns false`() = runTest {
         val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
         val validator = Arrangement()
             .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
@@ -126,7 +127,7 @@ class NomadIntentSignatureValidatorTest {
     }
 
     @Test
-    fun `given configured key with invalid raw key length, returns false`() {
+    fun `given configured key with invalid raw key length, returns false`() = runTest {
         val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
         val invalidLengthKey = Base64.getEncoder().encodeToString(ByteArray(12 + 31))
         val validator = Arrangement()
@@ -142,7 +143,7 @@ class NomadIntentSignatureValidatorTest {
     }
 
     @Test
-    fun `given configured key with invalid der header, returns false`() {
+    fun `given configured key with invalid der header, returns false`() = runTest {
         val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
         val invalidHeaderKey = Base64.getEncoder()
             .encodeToString(

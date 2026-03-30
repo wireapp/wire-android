@@ -1,7 +1,6 @@
 [versions]
 # Gradle - Remind to change in `gradle-wrapper.properties` file as well!
 androidJunit5 = "1.14.0.0"
-libsodiumBindings = "0.9.5"
 
 # Kotlin
 grgitCore = "5.3.2"
@@ -152,8 +151,6 @@ wire-versionizer = { id = "com.wire.android.versionizer" }
 [libraries]
 # Kotlin Gradle Plugin
 android-junit5 = { module = "de.mannodermaus.gradle.plugins:android-junit5", version.ref = "androidJunit5" }
-libsodiumBindingsMP = { module = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings", version.ref = "libsodiumBindings" }
-libsodiumBindingsJvm = { module = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings-jvm", version.ref = "libsodiumBindings" }
 grgit-core = { module = "org.ajoberstar.grgit:grgit-core", version.ref = "grgitCore" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android-gradlePlugin" }

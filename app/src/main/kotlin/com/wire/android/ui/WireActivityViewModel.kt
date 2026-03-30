@@ -389,7 +389,7 @@ class WireActivityViewModel @Inject constructor(
 
     // Returns whether an intent was handled, or if there was nothing to do
     @Suppress("ReturnCount")
-    fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
+    suspend fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
         val result = intentsProcessor.get().invoke(intent)
         if (result != null) {
             if (!nomadProfilesFeatureConfig.isEnabled()) {

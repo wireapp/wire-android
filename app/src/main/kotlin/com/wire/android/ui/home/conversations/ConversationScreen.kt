@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
@@ -83,6 +82,14 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.MessageDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.ramcosta.composedestinations.result.NavResult.Canceled
 import com.ramcosta.composedestinations.result.NavResult.Value
 import com.ramcosta.composedestinations.result.OpenResultRecipient
@@ -93,7 +100,6 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.mapper.MessageDateTimeGroup
@@ -102,6 +108,7 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.HandleActions
@@ -129,13 +136,6 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.MessageDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldShowHeader
@@ -183,10 +183,10 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.normalizeLink
+import com.wire.android.util.openDownloadFolder
 import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.openDownloadFolder
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
@@ -493,8 +493,8 @@ fun ConversationScreen(
                     navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
                 } else {
                     (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId.let {
-                    navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(mentionUserId, it)))
-                }
+                        navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(mentionUserId, it)))
+                    }
                 }
             }
         },
@@ -662,6 +662,9 @@ fun ConversationScreen(
             )
         },
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow,
+        onReachedOldestMessage = {
+            conversationMessagesViewModel.fetchOlderMessagesIfNeeded()
+        },
         onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
@@ -929,6 +932,7 @@ private fun ConversationScreen(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
+    onReachedOldestMessage: () -> Unit = {},
     isWireCellsEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -1026,6 +1030,7 @@ private fun ConversationScreen(
                         onLinkClick = onLinkClick,
                         onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
                         currentTimeInMillisFlow = currentTimeInMillisFlow,
+                        onReachedOldestMessage = onReachedOldestMessage,
                         openDrawingCanvas = openDrawingCanvas,
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
@@ -1114,6 +1119,7 @@ private fun ConversationScreenContent(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
+    onReachedOldestMessage: () -> Unit = {},
     showHistoryLoadingIndicator: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
@@ -1160,6 +1166,7 @@ private fun ConversationScreenContent(
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
+                onReachedOldestMessage = onReachedOldestMessage,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
                 isBubbleUiEnabled = isBubbleUiEnabled,
                 isWireCellsEnabled = isWireCellsEnabled,
@@ -1245,9 +1252,11 @@ fun MessageList(
     showHistoryLoadingIndicator: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
+    onReachedOldestMessage: () -> Unit = {},
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
+    val shouldTriggerOldestMessageFetch = remember { mutableStateOf(true) }
     val currentTime by currentTimeInMillisFlow.collectAsState(initial = System.currentTimeMillis())
     val isPrependLoading = lazyPagingMessages.loadState.prepend is LoadState.Loading
     val isPrependCompleted = lazyPagingMessages.loadState.prepend.endOfPaginationReached
@@ -1282,6 +1291,18 @@ fun MessageList(
                 readLastMessageAtStartTriggered.value = true
             }
             updateLastReadMessage(lastVisibleMessage, lastUnreadMessageInstant, onUpdateConversationReadDate)
+        }
+    }
+
+    LaunchedEffect(lazyListState.isScrollInProgress, lazyPagingMessages.itemCount) {
+        if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
+            val reachedOldest = !lazyListState.canScrollForward
+            if (reachedOldest && shouldTriggerOldestMessageFetch.value) {
+                onReachedOldestMessage()
+                shouldTriggerOldestMessageFetch.value = false // triggered only once, to avoid multiple calls for the same end of the list
+            } else if (!reachedOldest) {
+                shouldTriggerOldestMessageFetch.value = true
+            }
         }
     }
 

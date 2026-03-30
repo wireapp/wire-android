@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,18 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling.ongoing.fullscreen
+package com.wire.android.util.lifecycle
 
-import com.wire.kalium.logger.obfuscateId
-import com.wire.kalium.logic.data.user.UserId
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
-data class SelectedParticipant(
-    val userId: UserId,
-    val clientId: String,
-    val isSelfUser: Boolean
-) {
+object AppBackgroundManager {
 
-    fun toLogString(): String {
-        return "SelectedParticipant(userId=${userId.toLogString()}, clientId=${clientId.obfuscateId()}, isSelfUser=$isSelfUser)"
+    private val _backgroundFlow = MutableSharedFlow<Unit>()
+    val backgroundFlow = _backgroundFlow.asSharedFlow()
+
+    suspend fun moveAppToBackground() {
+        _backgroundFlow.emit(Unit)
     }
 }

@@ -24,6 +24,7 @@ import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
+import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -33,6 +34,7 @@ import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
+import com.wire.kalium.logic.feature.session.IsCurrentSessionNomadAccountUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -68,6 +70,7 @@ class NomadLogoutReceiverTest {
             arrangement.deleteSession(userId)
             arrangement.accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
         }
+        verify(exactly = 1) { arrangement.switchAccountObserver.noOtherAccountToSwitch() }
     }
 
     @Test
@@ -112,6 +115,26 @@ class NomadLogoutReceiverTest {
         verify(exactly = 0) { arrangement.context.startActivity(any()) }
     }
 
+    @Test
+    fun `when current session is not a nomad account then logout broadcast is ignored`() = runTest {
+        val userId = UserId("user", "domain")
+        val arrangement = Arrangement()
+            .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(userId)))
+            .withCurrentSessionNomadAccount(false)
+            .arrange()
+
+        val intent = mockk<Intent> { every { action } returns NomadLogoutReceiver.ACTION_LOGOUT }
+        arrangement.receiver.receive(arrangement.context, intent)
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) {
+            arrangement.currentSession()
+            arrangement.logoutUseCase(any(), any())
+            arrangement.deleteSession(any())
+            arrangement.accountSwitch(any())
+        }
+    }
+
     private class Arrangement {
 
         @MockK
@@ -127,6 +150,9 @@ class NomadLogoutReceiverTest {
         lateinit var accountSwitch: AccountSwitchUseCase
 
         @MockK
+        lateinit var switchAccountObserver: SwitchAccountObserver
+
+        @MockK
         lateinit var userSessionScope: UserSessionScope
 
         @MockK
@@ -134,6 +160,9 @@ class NomadLogoutReceiverTest {
 
         @MockK
         lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
+
+        @MockK
+        lateinit var isCurrentSessionNomadAccount: IsCurrentSessionNomadAccountUseCase
 
         val context = mockk<Context>(relaxed = true)
         val receiver = NomadLogoutReceiver()
@@ -148,6 +177,9 @@ class NomadLogoutReceiverTest {
             every { userSessionScope.logout } returns logoutUseCase
             coEvery { logoutUseCase(any(), any()) } returns Unit
             coEvery { deleteSession(any()) } returns DeleteSessionUseCase.Result.Success
+            every { coreLogic.getGlobalScope().deleteSession } returns deleteSession
+            every { coreLogic.getGlobalScope().isCurrentSessionNomadAccount } returns isCurrentSessionNomadAccount
+            coEvery { isCurrentSessionNomadAccount() } returns true
             coEvery { accountSwitch(any()) } returns SwitchAccountResult.NoOtherAccountToSwitch
             every { coreLogic.getSessionScope(any()) } returns userSessionScope
             every { nomadProfilesFeatureConfig.isEnabled() } returns true
@@ -156,8 +188,8 @@ class NomadLogoutReceiverTest {
         fun arrange(): Arrangement {
             receiver.coreLogic = coreLogic
             receiver.currentSession = currentSession
-            receiver.deleteSession = deleteSession
             receiver.accountSwitch = accountSwitch
+            receiver.switchAccountObserver = switchAccountObserver
             receiver.nomadProfilesFeatureConfig = nomadProfilesFeatureConfig
             return this
         }
@@ -168,6 +200,10 @@ class NomadLogoutReceiverTest {
 
         fun withNomadProfilesEnabled(enabled: Boolean) = apply {
             every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
+        }
+
+        fun withCurrentSessionNomadAccount(isNomad: Boolean) = apply {
+            coEvery { isCurrentSessionNomadAccount() } returns isNomad
         }
     }
 }

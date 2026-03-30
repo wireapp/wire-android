@@ -43,7 +43,7 @@ jobs:
           distribution: 'temurin'
           cache: gradle
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5
+        uses: gradle/actions/wrapper-validation@v6
       - name: Run Linter
         env:
           GRADLE_OPTS: "-Xmx6G -XX:+UseParallelGC -XX:MaxMetaspaceSize=2g"
@@ -71,7 +71,7 @@ jobs:
           distribution: 'temurin'
           cache: gradle
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5
+        uses: gradle/actions/wrapper-validation@v6
       - name: Run Detekt
         run: |
           ./gradlew detektAll

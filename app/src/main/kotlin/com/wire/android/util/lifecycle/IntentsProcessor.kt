@@ -18,7 +18,6 @@
 package com.wire.android.util.lifecycle
 
 import android.content.Intent
-import com.wire.android.config.NomadProfilesFeatureConfig
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URI
@@ -29,15 +28,10 @@ data class AutomatedLoginViaSSO(
     val backendConfig: String? = null,
     val ssoCode: String? = null,
     val nomadProfilesHost: String? = null,
-) {
-    val isEmpty = backendConfig.isNullOrEmpty() &&
-        ssoCode.isNullOrEmpty() &&
-        nomadProfilesHost.isNullOrEmpty()
-}
+)
 
 @Singleton
 class IntentsProcessor @Inject internal constructor(
-    private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
     private val nomadIntentSignatureValidator: NomadIntentSignatureValidator
 ) {
 
@@ -62,7 +56,7 @@ class IntentsProcessor @Inject internal constructor(
                 ?.let { Json.decodeFromString<Parameters>(it) }
         }.getOrNull() ?: return null
 
-        if (!nomadProfilesFeatureConfig.isEnabled() || parsed.nomadProfilesHost.isNullOrEmpty()) {
+        if (parsed.nomadProfilesHost.isNullOrEmpty()) {
             return null
         }
 
@@ -70,20 +64,22 @@ class IntentsProcessor @Inject internal constructor(
             return null
         }
 
+        val signedPayload = createSignedPayload(
+            backendConfig = parsed.backendConfig,
+            nomadProfilesHost = parsed.nomadProfilesHost
+        )
+        if (!nomadIntentSignatureValidator.isValid(signedPayload, parsed.signatureNomadProfilesHost)) {
+            return null
+        }
+
         return AutomatedLoginViaSSO(
             parsed.backendConfig,
             parsed.ssoCode,
             parsed.nomadProfilesHost,
-        )
-            .takeIf { !it.isEmpty }
-            ?.takeIf {
-                val validBackend = parsed.backendConfig == null || isValidHttpsUrl(parsed.backendConfig)
+        ).takeIf {
+                val validBackend = isValidHttpsUrl(parsed.backendConfig)
                 val validNomadProfileHost = isValidHttpsUrl(parsed.nomadProfilesHost)
-                val validSignature = nomadIntentSignatureValidator.isValid(
-                    parsed.nomadProfilesHost,
-                    parsed.signatureNomadProfilesHost
-                )
-                validBackend && validNomadProfileHost && validSignature
+                validBackend && validNomadProfileHost
             }
     }
 
@@ -92,4 +88,9 @@ class IntentsProcessor @Inject internal constructor(
         val uri = runCatching { URI(url) }.getOrNull()
         return uri?.scheme?.lowercase() == "https" && !uri.host.isNullOrEmpty()
     }
+
+    private fun createSignedPayload(
+        backendConfig: String,
+        nomadProfilesHost: String
+    ): String = "wire=$backendConfig,nomad=$nomadProfilesHost"
 }

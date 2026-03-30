@@ -55,7 +55,7 @@ compose-constraint = "1.1.1"
 compose-navigation = "2.9.5" # aligned with compose-destinations 2.3.0
 compose-destinations = "2.3.0"
 screenshot = "0.0.1-alpha13"
-jetbrains-compose = "1.10.1"
+jetbrains-compose = "1.10.2"
 # TODO(KMP): switch Compose MPP material3 to stable when available for this stack.
 jetbrains-compose-material3 = "1.10.0-alpha05"
 

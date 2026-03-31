@@ -186,6 +186,7 @@ dependencies {
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")
     implementation("com.wire.kalium:kalium-core-libsodium")
+    testRuntimeOnly(libs.libsodium.bindings.jvm)
     androidTestImplementation("com.wire.kalium:kalium-mocks")
     androidTestImplementation("com.wire.kalium:kalium-network")
 

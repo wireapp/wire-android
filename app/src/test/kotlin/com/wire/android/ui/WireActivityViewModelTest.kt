@@ -82,6 +82,7 @@ import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -101,7 +102,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -870,7 +870,7 @@ class WireActivityViewModelTest {
 
             assertEquals(true, handled)
             assertEquals(false, arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
-            verify(exactly = 1) { arrangement.intentsProcessor(any()) }
+            coVerify(exactly = 1) { arrangement.intentsProcessor(any()) }
             coVerify(exactly = 0) { arrangement.isNomadProfilesEnabledUseCase.invoke() }
             coVerify(exactly = 0) { arrangement.observeSessionsUseCase.invoke() }
             expectNoEvents()
@@ -895,6 +895,27 @@ class WireActivityViewModelTest {
             assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
             coVerify(exactly = 1) { arrangement.isNomadProfilesEnabledUseCase.invoke() }
             coVerify(exactly = 0) { arrangement.observeSessionsUseCase.invoke() }
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `given resolved backend is Wire production, when handling nomad intent, then login is ignored`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withAutomatedLoginIntent(
+                ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
+                backendConfig = "url"
+            )
+            .withProductionServerConfig()
+            .arrange()
+
+        viewModel.actions.test {
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+            advanceUntilIdle()
+
+            assertTrue(handled)
+            assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+            coVerify(exactly = 0) { arrangement.isNomadProfilesEnabledUseCase.invoke() }
             expectNoEvents()
         }
     }
@@ -999,7 +1020,7 @@ class WireActivityViewModelTest {
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
-            every { intentsProcessor(any()) } returns null
+            coEvery { intentsProcessor(any()) } returns null
             coEvery { observeSessionsUseCase.invoke() } returns flowOf(GetAllSessionsResult.Failure.NoSessionFound)
             every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
             every { observeSyncStateUseCase() } returns emptyFlow()
@@ -1276,7 +1297,7 @@ class WireActivityViewModelTest {
             ssoCode: String? = null,
             backendConfig: String? = null,
         ): Arrangement = apply {
-            every { intentsProcessor(any()) } returns when {
+            coEvery { intentsProcessor(any()) } returns when {
                 ssoCode == null || backendConfig == null -> null
                 else -> AutomatedLoginViaSSO(
                     ssoCode = ssoCode,
@@ -1296,6 +1317,10 @@ class WireActivityViewModelTest {
 
         fun withCanUseNewLogin(canUseNewLogin: Boolean): Arrangement = apply {
             coEvery { loginTypeSelector.canUseNewLogin(any()) } returns canUseNewLogin
+        }
+
+        fun withProductionServerConfig(): Arrangement = apply {
+            coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(ServerConfig.PRODUCTION)
         }
 
         fun arrange() = this to viewModel

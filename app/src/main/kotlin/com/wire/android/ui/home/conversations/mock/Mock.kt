@@ -344,7 +344,6 @@ fun mockAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = U
         assetExtension = "ZIP",
         assetId = UserAssetId(assetId, "domain"),
         assetSizeInBytes = 21957335,
-        assetDataPath = null,
     ),
     messageFooter = mockEmptyFooter,
     source = MessageSource.Self
@@ -408,7 +407,6 @@ fun mockedVideo(width: Int = 800, height: Int = 600, assetName: String = "video.
     assetSizeInBytes = 123456,
     assetName = assetName,
     assetExtension = "mp4",
-    assetDataPath = null,
     params = VisualMediaParams(width, height),
     duration = 12412412,
 )

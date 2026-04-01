@@ -6,11 +6,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.applyIf
@@ -40,6 +46,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMess
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import okio.Path.Companion.toPath
 
 @Composable
 internal fun UIMessage.Regular.MessageContentAndStatus(
@@ -143,21 +150,67 @@ private fun MessageContent(
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
+            val viewModel: AssetLocalPathViewModel =
+                hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(
+                    AssetLocalPathArgs(message.conversationId, message.header.messageId)
+                )
+            var rememberedAssetDataPath by rememberSaveable(message.header.messageId) {
+                mutableStateOf<String?>(null)
+            }
+
+            LaunchedEffect(viewModel.localAssetPath) {
+                if (viewModel.localAssetPath != null) {
+                    rememberedAssetDataPath = viewModel.localAssetPath
+                }
+            }
+
+            LaunchedEffect(assetStatus, rememberedAssetDataPath) {
+                viewModel.resolveIfNeeded(
+                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                    initialAssetDataPath = rememberedAssetDataPath,
+                    downloadIfNeeded = true
+                )
+            }
+
             MessageImage(
-                asset = messageContent.asset,
+                asset = null,
                 imgParams = messageContent.params,
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onImageClick = onImageClick,
-                messageStyle = messageStyle
+                messageStyle = messageStyle,
+                assetPath = (rememberedAssetDataPath ?: viewModel.localAssetPath)?.toPath(normalize = true)
             )
         }
 
         is UIMessageContent.VideoMessage -> {
+            val viewModel: AssetLocalPathViewModel =
+                hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(
+                    AssetLocalPathArgs(message.conversationId, message.header.messageId)
+                )
+            var rememberedAssetDataPath by rememberSaveable(message.header.messageId) {
+                mutableStateOf<String?>(null)
+            }
+
+            LaunchedEffect(viewModel.localAssetPath) {
+                if (viewModel.localAssetPath != null) {
+                    rememberedAssetDataPath = viewModel.localAssetPath
+                }
+            }
+
+            LaunchedEffect(assetStatus, rememberedAssetDataPath) {
+                viewModel.resolveIfNeeded(
+                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                    initialAssetDataPath = rememberedAssetDataPath,
+                    downloadIfNeeded = false
+                )
+            }
+
+            val assetDataPath = rememberedAssetDataPath ?: viewModel.localAssetPath
             VideoMessage(
                 assetSize = messageContent.assetSizeInBytes,
                 assetName = messageContent.assetName,
                 assetExtension = messageContent.assetExtension,
-                assetDataPath = messageContent.assetDataPath,
+                assetDataPath = assetDataPath,
                 params = messageContent.params,
                 duration = messageContent.duration,
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
@@ -251,11 +304,34 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AssetMessage -> {
+            val viewModel: AssetLocalPathViewModel =
+                hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(
+                    AssetLocalPathArgs(message.conversationId, message.header.messageId)
+                )
+            var rememberedAssetDataPath by rememberSaveable(message.header.messageId) {
+                mutableStateOf<String?>(null)
+            }
+
+            LaunchedEffect(viewModel.localAssetPath) {
+                if (viewModel.localAssetPath != null) {
+                    rememberedAssetDataPath = viewModel.localAssetPath
+                }
+            }
+
+            LaunchedEffect(assetStatus, rememberedAssetDataPath) {
+                viewModel.resolveIfNeeded(
+                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                    initialAssetDataPath = rememberedAssetDataPath,
+                    downloadIfNeeded = false
+                )
+            }
+
+            val assetDataPath = rememberedAssetDataPath ?: viewModel.localAssetPath
             MessageAsset(
                 assetName = messageContent.assetName,
                 assetExtension = messageContent.assetExtension,
                 assetSizeInBytes = messageContent.assetSizeInBytes,
-                assetDataPath = messageContent.assetDataPath,
+                assetDataPath = assetDataPath,
                 assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onAssetClick = onAssetClick,
                 messageStyle = messageStyle

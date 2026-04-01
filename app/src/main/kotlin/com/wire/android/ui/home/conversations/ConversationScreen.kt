@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.home.conversations
 
@@ -28,6 +29,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -1267,6 +1269,7 @@ fun MessageList(
                     && lazyListState.firstVisibleItemIndex > 0
                     && lazyListState.firstVisibleItemIndex <= MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS
             if (canScrollToLastMessage) {
+                lazyListState.stopScroll()
                 lazyListState.animateScrollToItem(0)
             }
             prevItemCount.value = lazyPagingMessages.itemCount
@@ -1474,8 +1477,13 @@ private fun BoxScope.ScrollDateOverlay(
         derivedStateOf {
             if (!lazyListState.isScrollInProgress) return@derivedStateOf null
 
-            val maxVisibleIndex = lazyListState.layoutInfo.visibleItemsInfo.maxOfOrNull { it.index } ?: return@derivedStateOf null
-            val message = lazyPagingMessages[maxVisibleIndex] ?: return@derivedStateOf null
+            val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
+            var message: UIMessage? = null
+            for (index in visibleItems.lastIndex downTo 0) {
+                message = lazyPagingMessages.peekOrNull(visibleItems[index].index)
+                if (message != null) break
+            }
+            message ?: return@derivedStateOf null
             val messageDate = message.header.messageTime.utcISO.serverDate() ?: return@derivedStateOf null
 
             DateUtils.formatDateTime(
@@ -1508,9 +1516,12 @@ private fun BoxScope.ScrollDateOverlay(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-        } 
+        }
     }
 }
+
+private fun LazyPagingItems<UIMessage>.peekOrNull(index: Int): UIMessage? =
+    if (index in 0 until itemCount) peek(index) else null
 
 @Composable
 private fun MessageGroupDateTime(
@@ -1639,7 +1650,12 @@ fun JumpToLastMessageButton(
         exit = scaleOut(),
     ) {
         SmallFloatingActionButton(
-            onClick = { coroutineScope.launch { lazyListState.animateScrollToItem(0) } },
+            onClick = {
+                coroutineScope.launch {
+                    lazyListState.stopScroll()
+                    lazyListState.animateScrollToItem(0)
+                }
+            },
             containerColor = MaterialTheme.wireColorScheme.secondaryText,
             contentColor = MaterialTheme.wireColorScheme.onPrimaryButtonEnabled,
             shape = CircleShape,

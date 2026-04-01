@@ -39,7 +39,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,7 +57,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import coil3.compose.SubcomposeAsyncImage
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.StatusBox
@@ -62,6 +69,9 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
+import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModel
+import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModelImpl
 import com.wire.android.ui.home.conversations.messages.item.highlighted
 import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.messages.item.textColor
@@ -75,7 +85,9 @@ import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import okio.Path.Companion.toPath
 
 private const val TEXT_QUOTE_MAX_LINES = 7
 
@@ -493,15 +505,12 @@ private fun QuotedImage(
             style = style,
             modifier = modifier,
             endContent = {
-                Image(
-                    painter = asset.paint(),
-                    contentDescription = stringResource(R.string.content_description_image_message),
+                QuotedImageThumbnail(
+                    asset = asset,
                     modifier = Modifier
                         .width(imageDimension)
                         .height(imageDimension)
-                        .clip(RoundedCornerShape(dimensions().spacing8x)),
-                    alignment = Alignment.Center,
-                    contentScale = ContentScale.Crop
+                        .clip(RoundedCornerShape(dimensions().spacing8x))
                 )
             },
             startContent = {
@@ -592,9 +601,8 @@ private fun AutosizeContainer(
         ) {
             content()
         }
-        Image(
-            painter = asset.paint(),
-            contentDescription = stringResource(R.string.content_description_image_message),
+        QuotedImageThumbnail(
+            asset = asset,
             modifier = Modifier
                 .constrainAs(rightSide) {
                     top.linkTo(leftSide.top)
@@ -604,14 +612,58 @@ private fun AutosizeContainer(
                     height = Dimension.fillToConstraints
                 }
                 .clip(RoundedCornerShape(dimensions().spacing8x))
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.outline,
-                    shape = RoundedCornerShape(dimensions().spacing8x)
-                ),
+        )
+    }
+}
+
+@Composable
+private fun QuotedImageThumbnail(
+    asset: ImageAsset.PrivateAsset,
+    modifier: Modifier = Modifier
+) {
+    val viewModel: AssetLocalPathViewModel =
+        hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(
+            AssetLocalPathArgs(asset.conversationId, asset.messageId)
+        )
+    var rememberedAssetDataPath by rememberSaveable(asset.uniqueKey) {
+        mutableStateOf<String?>(null)
+    }
+
+    LaunchedEffect(viewModel.localAssetPath) {
+        if (viewModel.localAssetPath != null) {
+            rememberedAssetDataPath = viewModel.localAssetPath
+        }
+    }
+
+    LaunchedEffect(rememberedAssetDataPath) {
+        viewModel.resolveIfNeeded(
+            transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+            initialAssetDataPath = rememberedAssetDataPath,
+            downloadIfNeeded = true
+        )
+    }
+
+    val assetDataPath = rememberedAssetDataPath ?: viewModel.localAssetPath
+
+    if (assetDataPath != null) {
+        SubcomposeAsyncImage(
+            model = assetDataPath.toPath(normalize = true).toFile(),
+            contentDescription = stringResource(R.string.content_description_image_message),
+            modifier = modifier,
             alignment = Alignment.Center,
             contentScale = ContentScale.Crop
         )
+    } else {
+        Box(
+            modifier = modifier.background(MaterialTheme.wireColorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_gallery),
+                contentDescription = stringResource(R.string.content_description_image_message),
+                tint = MaterialTheme.wireColorScheme.secondaryText
+            )
+        }
     }
 }
 

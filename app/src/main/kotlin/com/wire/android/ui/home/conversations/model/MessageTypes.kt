@@ -24,6 +24,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -83,7 +84,6 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_FOUND
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOAD_IN_PROGRESS
-import com.wire.kalium.logic.data.asset.isSaved
 import kotlinx.collections.immutable.PersistentList
 import okio.Path
 
@@ -218,8 +218,10 @@ fun MessageImage(
     messageStyle: MessageStyle,
     transferStatus: AssetTransferStatus,
     onImageClick: Clickable,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    assetPath: Path? = null,
 ) {
+    val imageSize = imgParams.normalizedSize().size()
     Box(
         modifier
             .applyIf(!messageStyle.isBubble()) {
@@ -243,61 +245,84 @@ fun MessageImage(
             ),
         contentAlignment = Alignment.Center
     ) {
-        val alignCenterModifier = Modifier.align(Alignment.Center)
-        asset?.let {
-            DisplayableImageMessage(
-                imageData = it,
-                size = imgParams.normalizedSize().size(),
-                messageStyle = messageStyle,
-                modifier = alignCenterModifier
+        MessageImageContent(asset = asset, assetPath = assetPath, size = imageSize, messageStyle = messageStyle)
+        MessageImageOverlay(
+            hasImageSource = asset != null || assetPath != null,
+            size = imageSize,
+            transferStatus = transferStatus,
+            messageStyle = messageStyle
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.MessageImageContent(
+    asset: ImageAsset.Remote?,
+    assetPath: Path?,
+    size: DpSize,
+    messageStyle: MessageStyle,
+) {
+    val alignCenterModifier = Modifier.align(Alignment.Center)
+    when {
+        assetPath != null -> AsyncImageMessage(
+            assetPath = assetPath,
+            size = size,
+            messageStyle = messageStyle,
+            modifier = alignCenterModifier
+        )
+
+        asset != null -> DisplayableImageMessage(
+            imageData = asset,
+            size = size,
+            messageStyle = messageStyle,
+            modifier = alignCenterModifier
+        )
+    }
+}
+
+@Composable
+private fun MessageImageOverlay(
+    hasImageSource: Boolean,
+    size: DpSize,
+    transferStatus: AssetTransferStatus,
+    messageStyle: MessageStyle,
+) {
+    when (transferStatus) {
+        UPLOAD_IN_PROGRESS, DOWNLOAD_IN_PROGRESS -> {
+            ImageMessageInProgress(
+                size = size,
+                isDownloading = transferStatus == DOWNLOAD_IN_PROGRESS,
+                color = colorsScheme().onScrim,
             )
         }
 
-        val shouldAddScrimBg = asset != null && transferStatus.isSaved()
-        Box(
-            Modifier
-                .applyIf(shouldAddScrimBg) {
-                    background(colorsScheme().scrim)
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            when (transferStatus) {
-                UPLOAD_IN_PROGRESS, DOWNLOAD_IN_PROGRESS -> {
-                    ImageMessageInProgress(
-                        size = imgParams.normalizedSize().size(),
-                        isDownloading = transferStatus == DOWNLOAD_IN_PROGRESS,
-                        color = colorsScheme().onScrim,
-                    )
-                }
-
-                NOT_FOUND -> {
-                    ImageMessageFailed(
-                        size = imgParams.normalizedSize().size(),
-                        isDownloadFailure = true,
-                        errorColor = if (shouldAddScrimBg) {
-                            colorsScheme().onScrim
-                        } else {
-                            messageStyle.error()
-                        }
-                    )
-                }
-
-                // Show error placeholder
-                FAILED_UPLOAD, FAILED_DOWNLOAD -> {
-                    ImageMessageFailed(
-                        size = imgParams.normalizedSize().size(),
-                        isDownloadFailure = transferStatus == FAILED_DOWNLOAD,
-                        errorColor = if (shouldAddScrimBg) {
-                            colorsScheme().onScrim
-                        } else {
-                            messageStyle.error()
-                        }
-                    )
-                }
-
-                else -> {}
+        AssetTransferStatus.NOT_DOWNLOADED -> {
+            if (!hasImageSource) {
+                ImageMessageInProgress(
+                    size = size,
+                    isDownloading = true,
+                    color = messageStyle.textColor(),
+                )
             }
         }
+
+        NOT_FOUND -> {
+            ImageMessageFailed(
+                size = size,
+                isDownloadFailure = true,
+                errorColor = messageStyle.error()
+            )
+        }
+
+        FAILED_UPLOAD, FAILED_DOWNLOAD -> {
+            ImageMessageFailed(
+                size = size,
+                isDownloadFailure = transferStatus == FAILED_DOWNLOAD,
+                errorColor = messageStyle.error()
+            )
+        }
+
+        else -> Unit
     }
 }
 
@@ -348,7 +373,7 @@ fun MediaAssetImage(
             }
 
             assetPath != null -> {
-                AsyncImageMessage(assetPath, size)
+                AsyncImageMessage(assetPath, size, messageStyle)
             }
 
             asset != null -> {

@@ -39,6 +39,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 import javax.inject.Inject
 
 @ViewModelScopedPreview
@@ -58,7 +60,9 @@ class AudioMessageViewModelImpl @Inject constructor(
 
     private val args: AudioMessageArgs = savedStateHandle.scopedArgs()
 
-    override var state: AudioMessageState by mutableStateOf(AudioMessageState())
+    override var state: AudioMessageState by mutableStateOf(
+        AudioMessageState(wavesMask = cachedWavesMasks[args.key])
+    )
         private set
 
     init {
@@ -92,9 +96,15 @@ class AudioMessageViewModelImpl @Inject constructor(
     }
 
     private fun preloadAudioMessage() {
+        if (preloadStates.putIfAbsent(args.key, PreloadState.InFlight) != null) return
         viewModelScope.launch {
-            // calls preload to initially fetch the audio asset data to be ready and schedule waves mask generation if needed
-            audioMessagePlayer.preloadAudioMessage(args.conversationId, args.messageId)
+            try {
+                // calls preload to initially fetch the audio asset data to be ready and schedule waves mask generation if needed
+                audioMessagePlayer.preloadAudioMessage(args.conversationId, args.messageId)
+                preloadStates[args.key] = PreloadState.Succeeded
+            } catch (_: Throwable) {
+                preloadStates.remove(args.key, PreloadState.InFlight)
+            }
         }
     }
 
@@ -110,7 +120,10 @@ class AudioMessageViewModelImpl @Inject constructor(
                 }
                 .distinctUntilChanged()
                 .firstOrNull { it != null } // wait for the first non-null value
-                .let { state = state.copy(wavesMask = it) }
+                ?.let {
+                    cachedWavesMasks[args.key] = it
+                    state = state.copy(wavesMask = it)
+                }
         }
     }
 
@@ -130,6 +143,16 @@ class AudioMessageViewModelImpl @Inject constructor(
         viewModelScope.launch {
             audioMessagePlayer.setSpeed(audioSpeed)
         }
+    }
+
+    private companion object {
+        val cachedWavesMasks = ConcurrentHashMap<String, List<Int>>()
+        val preloadStates: ConcurrentMap<String, PreloadState> = ConcurrentHashMap()
+    }
+
+    private enum class PreloadState {
+        InFlight,
+        Succeeded,
     }
 }
 

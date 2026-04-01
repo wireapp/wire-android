@@ -87,7 +87,7 @@ tasks.register("staticCodeAnalysis") {
 tasks.register("testCoverage") {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase."
-    dependsOn("koverXmlReport")
+    dependsOn("koverXmlReportDevDebug")
 
     val validSubprojects = setOf("core", "features")
     rootProject.subprojects {

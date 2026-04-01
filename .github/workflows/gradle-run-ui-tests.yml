@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   ui-tests:
-    runs-on: ghcr.io/cirruslabs/ubuntu-runner-amd64:24.04-md
+    runs-on: ghcr.io/cirruslabs/ubuntu-runner-amd64:24.04-lg
     strategy:
       matrix:
         api-level: [ 29 ]

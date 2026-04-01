@@ -28,7 +28,7 @@ concurrency:
 jobs:
   # Inline simple quality check jobs for better check names
   lint:
-    runs-on: buildjet-8vcpu-ubuntu-2204
+    runs-on: warp-ubuntu-2204-x64-8x
     # Override JVM args from gradle.properties which sets 10GB heap
     steps:
       - name: Checkout

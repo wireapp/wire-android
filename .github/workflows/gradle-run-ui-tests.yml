@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   ui-tests:
-    runs-on: warp-ubuntu-2204-x64-8x
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         api-level: [ 29 ]
@@ -40,7 +40,7 @@ jobs:
           df -h
 
       - name: Set up JDK 17
-        uses: buildjet/setup-java@v4
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -50,7 +50,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@v6
 
       - name: AVD cache
-        uses: buildjet/cache@v4
+        uses: actions/cache@v4
         id: avd-cache
         with:
           path: |

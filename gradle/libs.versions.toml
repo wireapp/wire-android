@@ -1,7 +1,6 @@
 [versions]
 # Gradle - Remind to change in `gradle-wrapper.properties` file as well!
 androidJunit5 = "1.14.0.0"
-libsodiumBindings = "0.9.5"
 
 # Kotlin
 grgitCore = "5.3.2"
@@ -14,6 +13,7 @@ ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.8.1"
 koin = "3.5.3"
 datafaker = "1.9.0"
+libsodiumBindings = "0.9.5"
 
 # Android Core / Architecture
 detekt = "1.23.8"
@@ -27,7 +27,7 @@ resaca = "3.0.0"
 bundlizer = "0.8.0"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
-kover = "0.7.6"
+kover = "0.9.8"
 
 # AndroidX
 androidx-appcompat = "1.7.1"
@@ -152,8 +152,6 @@ wire-versionizer = { id = "com.wire.android.versionizer" }
 [libraries]
 # Kotlin Gradle Plugin
 android-junit5 = { module = "de.mannodermaus.gradle.plugins:android-junit5", version.ref = "androidJunit5" }
-libsodiumBindingsMP = { module = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings", version.ref = "libsodiumBindings" }
-libsodiumBindingsJvm = { module = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings-jvm", version.ref = "libsodiumBindings" }
 grgit-core = { module = "org.ajoberstar.grgit:grgit-core", version.ref = "grgitCore" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android-gradlePlugin" }
@@ -166,6 +164,7 @@ kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", ver
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }
+libsodium-bindings-jvm = { module = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings-jvm", version.ref = "libsodiumBindings" }
 
 ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 ksp-symbol-processing-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }

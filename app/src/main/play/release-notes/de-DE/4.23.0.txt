@@ -1,0 +1,9 @@
+Neu
+- Drive: Filtern, sortieren und suchen
+
+Verbessert
+- Fehlerbericht über Wire teilen
+
+Behoben
+- Problem bei der SSO-Anmeldung bei Verwendung eines Deep-Links
+- Fehlende Nachrichten nach der Migration zu MLS

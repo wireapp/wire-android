@@ -185,12 +185,14 @@ dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")
-    implementation(libs.libsodiumBindingsMP)
+    implementation("com.wire.kalium:kalium-core-libsodium")
+    testRuntimeOnly(libs.libsodium.bindings.jvm)
     androidTestImplementation("com.wire.kalium:kalium-mocks")
     androidTestImplementation("com.wire.kalium:kalium-network")
 
     fun implementationWithCoverage(dependency: ProjectDependency) {
         implementation(dependency)
+        kover(dependency)
     }
     implementationWithCoverage(projects.core.uiCommon)
     implementationWithCoverage(projects.core.di)
@@ -319,7 +321,6 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.okio.fakeFileSystem)
     testImplementation(libs.robolectric)
-    testRuntimeOnly(libs.libsodiumBindingsJvm)
     testRuntimeOnly(libs.junit5.vintage.engine)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.androidx.paging.testing)

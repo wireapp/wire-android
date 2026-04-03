@@ -1,6 +1,9 @@
+import android.content.ContentValues
 import android.graphics.Bitmap
-import android.os.Environment
 import android.graphics.Color
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.google.zxing.BarcodeFormat
@@ -38,10 +41,14 @@ fun deleteDownloadedFilesContaining(keyword: String, dir: String = DOWNLOAD_DIR)
     }
 }
 
-@Suppress("MagicNumber")
+@Suppress("MagicNumber", "ThrowsCount", "TooGenericExceptionCaught")
 object QrCodeTestUtils {
+    /**
+     * Generates a QR PNG and stores it in the device Downloads folder so test flows can pick it from DocumentsUI.
+     */
     fun createQrImageInDeviceDownloadsFolder(text: String): File {
         val size = 500
+        val fileName = "$text.png"
         val bitMatrix = QRCodeWriter().encode(
             text,
             BarcodeFormat.QR_CODE,
@@ -55,17 +62,45 @@ object QrCodeTestUtils {
             }
         }
 
-        val downloads = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_DOWNLOADS
-        )
+        val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         if (!downloads.exists()) downloads.mkdirs()
 
-        val file = File(downloads, "$text.png")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Android Q+ requires writing shared files through MediaStore (scoped storage).
+            val resolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                // Keep the item hidden until writing is complete.
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
 
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                ?: throw IOException("Failed to create MediaStore entry for $fileName")
+
+            try {
+                resolver.openOutputStream(uri)?.use { output ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
+                } ?: throw IOException("Failed to open output stream for $uri")
+
+                // Publish file to Downloads once fully written.
+                values.clear()
+                values.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                resolver.update(uri, values, null, null)
+            } catch (e: Exception) {
+                // Avoid leaving broken entries in MediaStore on partial write failures.
+                resolver.delete(uri, null, null)
+                throw e
+            }
+
+            return File(downloads, fileName)
+        }
+
+        val file = File(downloads, fileName)
         FileOutputStream(file).use { fos ->
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
         }
-
         return file
     }
 }

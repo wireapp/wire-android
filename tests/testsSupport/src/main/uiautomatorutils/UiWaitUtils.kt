@@ -19,6 +19,7 @@ package uiautomatorutils
 
 import android.graphics.Rect
 import android.os.SystemClock
+import android.view.accessibility.AccessibilityEvent
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
@@ -29,6 +30,8 @@ import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import java.io.IOException
 import java.util.regex.Pattern
+import junit.framework.TestCase.assertTrue
+
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
 
 data class UiSelectorParams(
@@ -100,7 +103,7 @@ object UiWaitUtils {
         device.waitForIdle(500)
 
         // 2) Stabilize: refetch until bounds are stable & usable
-        val end = SystemClock.uptimeMillis() + 1_500
+        val end = SystemClock.uptimeMillis() + 3_000
         var lastBounds: Rect? = null
 
         while (SystemClock.uptimeMillis() < end) {
@@ -173,6 +176,76 @@ object UiWaitUtils {
             if (seconds > 20) {
                 stopPinging()
             }
+        }
+    }
+
+    fun waitUntilVisible(
+        params: UiSelectorParams,
+        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
+        errorMessage: String
+    ) {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        try {
+            val sel = params.toBySelector()
+            if (!device.wait(Until.hasObject(sel), timeoutMs)) {
+                throw AssertionError()
+            }
+        } catch (e: AssertionError) {
+            throw AssertionError(errorMessage, e)
+        }
+    }
+
+    fun waitUntilToastIsDisplayed(
+        message: String,
+        timeoutMs: Long = 5_000
+    ) {
+        waitUntilVisible(
+            params = UiSelectorParams(textContains = message),
+            timeoutMs = timeoutMs,
+            errorMessage = "Toast message containing '$message' was not displayed within ${timeoutMs}ms."
+        )
+    }
+
+    fun iSeeSystemMessage(
+        message: String,
+        timeoutMs: Long = 5_000
+    ) {
+        waitUntilVisible(
+            params = UiSelectorParams(textContains = message),
+            timeoutMs = timeoutMs,
+            errorMessage = "System message containing '$message' was not displayed within ${timeoutMs}ms."
+        )
+    }
+
+    @Suppress("MagicNumber")
+    fun assertToastDisplayed(text: String, trigger: () -> Unit, timeoutMs: Long = 5_000L) {
+        var toastDisplayed = false
+        val startTimeMs = System.currentTimeMillis()
+
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+
+        uiAutomation.setOnAccessibilityEventListener { event ->
+            if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
+                val className = event.className?.toString().orEmpty()
+                val eventText = event.text?.joinToString(" ").orEmpty()
+
+                if (className.contains("android.widget.Toast") && eventText.contains(text, ignoreCase = true)) {
+                    toastDisplayed = true
+                }
+            }
+        }
+
+        try {
+            // IMPORTANT: trigger AFTER listener is set
+            trigger()
+
+            while (!toastDisplayed && System.currentTimeMillis() - startTimeMs < timeoutMs) {
+                Thread.sleep(50)
+            }
+
+            assertTrue("Toast with text '$text' not found within ${timeoutMs}ms", toastDisplayed)
+        } finally {
+            uiAutomation.setOnAccessibilityEventListener(null)
         }
     }
 }

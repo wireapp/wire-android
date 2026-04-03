@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UICallParticipantMapper

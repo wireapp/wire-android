@@ -113,7 +113,33 @@ class ExpiringMapTest {
         val map = withTestExpiringMap()
 
         // when
+        map.putWithExpireIn("testKey", "testValue", 500)
+        advanceTimeBy(301) // advance past default expiration
+
+        // then
+        assertEquals("testValue", map["testKey"])
+    }
+
+    @Test
+    fun `check item can be put with custom expiration timestamp`() = runTest {
+        // given
+        val map = withTestExpiringMap()
+
+        // when
         map.putWithExpireAt("testKey", "testValue", currentTime + 500)
+        advanceTimeBy(301) // advance past default expiration
+
+        // then
+        assertEquals("testValue", map["testKey"])
+    }
+
+    @Test
+    fun `check item can be put with no expiration`() = runTest {
+        // given
+        val map = withTestExpiringMap()
+
+        // when
+        map.putNonExpiring("testKey", "testValue")
         advanceTimeBy(301) // advance past default expiration
 
         // then

@@ -39,14 +39,25 @@ class ExpiringMap<K, V>(
 
     fun putWithExpireAt(key: K, value: V, expireAt: Long): V? {
         return delegate.put(key, value).also {
-            timestamps.put(key, expireAt)
+            timestamps[key] = expireAt
             scheduleCleanup()
         }
     }
 
+    fun putWithExpireIn(key: K, value: V, expireInMs: Long): V? {
+        return delegate.put(key, value).also {
+            timestamps[key] = currentTime() + expireInMs
+            scheduleCleanup()
+        }
+    }
+
+    fun putNonExpiring(key: K, value: V): V? {
+        return delegate.put(key, value)
+    }
+
     override fun put(key: K, value: V): V? {
         return delegate.put(key, value).also {
-            timestamps.put(key, currentTime() + expirationMs)
+            timestamps[key] = currentTime() + expirationMs
             scheduleCleanup()
         }
     }
@@ -60,7 +71,7 @@ class ExpiringMap<K, V>(
 
     private fun scheduleCleanup() {
         cleanupJob?.cancel()
-        timestamps.values.sorted().firstOrNull()?.let { nextExpiration ->
+        timestamps.values.minOrNull()?.let { nextExpiration ->
             val delayToNext = nextExpiration - currentTime()
             cleanupJob = scope.launch {
                 delay(delayToNext)

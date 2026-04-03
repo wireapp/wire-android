@@ -81,8 +81,6 @@ internal fun DebugToolsOptions(
                 onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange,
                 onResendFCMToken = onResendFCMToken,
             )
-        } else {
-            ProductionDebugToolsOptions(onResendFCMToken = onResendFCMToken)
         }
     }
 }
@@ -109,18 +107,6 @@ private fun PrivateBuildDebugToolsOptions(
         ForceUpdateApiVersionsButton(onClick = onForceUpdateApiVersions)
         EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
         RegisterFCMPushTokenButton(onClick = onResendFCMToken)
-    }
-}
-
-@Composable
-private fun ProductionDebugToolsOptions(
-    onResendFCMToken: () -> Unit,
-) {
-    if (LocalContext.current.isGoogleServicesAvailable()) {
-        Column {
-            SectionHeader(stringResource(R.string.label_debug_tools_title))
-            RegisterFCMPushTokenButton(onClick = onResendFCMToken)
-        }
     }
 }
 

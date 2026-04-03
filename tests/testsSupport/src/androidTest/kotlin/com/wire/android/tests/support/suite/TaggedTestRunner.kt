@@ -33,11 +33,20 @@ class TaggedTestRunner : AllureAndroidJUnitRunner() {
         val category = arguments.getString("category")
         val tagKey = arguments.getString("tagKey")
         val tagValue = arguments.getString("tagValue")
+        val rerunMode = arguments.getString(RetryContract.ARG_ENABLE_RERUN_MODE)
+        val rerunAttempt = arguments.getString(RetryContract.ARG_RERUN_ATTEMPT)
+        val rerunListPath = arguments.getString(RetryContract.ARG_RERUN_LIST_PATH)
+        val rerunListInline = arguments.getString(RetryContract.ARG_RERUN_LIST_INLINE)
+        val rerunListInlinePartCount = arguments.keySet()
+            .count { key -> key.startsWith(RetryContract.ARG_RERUN_LIST_INLINE_PART_PREFIX) }
 
         Log.i(
             "TaggedTestRunner",
             "onCreate called. " +
-                    "testCaseId=$filterId, category=$category, tagKey=$tagKey, tagValue=$tagValue"
+                    "testCaseId=$filterId, category=$category, tagKey=$tagKey, tagValue=$tagValue, " +
+                    "rerunMode=$rerunMode, rerunAttempt=$rerunAttempt, " +
+                    "rerunListPath=$rerunListPath, rerunListInlineLength=${rerunListInline?.length ?: 0}, " +
+                    "rerunListInlinePartCount=$rerunListInlinePartCount"
         )
 
         super.onCreate(arguments)

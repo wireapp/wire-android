@@ -18,14 +18,25 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.StaleObjectException
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
 data class DocumentsUIPage(private val device: UiDevice) {
     private val sendButton = UiSelectorParams(text = "Send")
+    private val downloadsOption = UiSelectorParams(textContains = "Download")
+    private val showRootsButton = UiSelectorParams(description = "Show roots")
 
     fun iSeeQrCodeImage(fileName: String = "my-test-qr.png"): DocumentsUIPage {
         val qrCodeImage = UiSelectorParams(text = fileName)
+
+        // Picker may open in Recent folder; switch to Downloads so the generated QR file is visible.
+        if (UiWaitUtils.findElementOrNull(qrCodeImage) == null) {
+            if (!clickWithRetry(downloadsOption)) {
+                clickWithRetry(showRootsButton)
+                clickWithRetry(downloadsOption)
+            }
+        }
 
         try {
             UiWaitUtils.waitElement(qrCodeImage)
@@ -33,6 +44,20 @@ data class DocumentsUIPage(private val device: UiDevice) {
             throw AssertionError("QR code '$fileName' is not visible", e)
         }
         return this
+    }
+
+    private fun clickWithRetry(selector: UiSelectorParams, attempts: Int = 3): Boolean {
+        repeat(attempts) {
+            try {
+                UiWaitUtils.waitElement(selector, timeoutMillis = 1500).click()
+                return true
+            } catch (_: StaleObjectException) {
+                // Retry with a fresh node.
+            } catch (_: AssertionError) {
+                // Selector not present in current picker pane.
+            }
+        }
+        return false
     }
 
     fun iOpenDisplayedQrCodeImage(fileName: String = "my-test-qr.png"): DocumentsUIPage {

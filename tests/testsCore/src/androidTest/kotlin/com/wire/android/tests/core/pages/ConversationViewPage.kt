@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
@@ -55,6 +56,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val saveButton = UiSelectorParams(text = "Save")
 
     private val openButton = UiSelectorParams(text = "Open")
+    private val cancelButton = UiSelectorParams(text = "Cancel")
 
     private val downloadButtonOnVideoFile = UiSelectorParams(text = "Tap to download")
     private val videoDurationLocator = UiSelectorParams(text = "00:03")
@@ -63,6 +65,7 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private fun conversationDetails1On1(userName: String) = UiSelector().className("android.widget.TextView").text(userName)
 
+    private fun conversationDetailsGroup(userName: String) = UiSelectorParams(text = userName)
     private val sendButton = UiSelectorParams(description = "Send")
 
     private val backButton = UiSelectorParams(description = "Go back to conversation list")
@@ -71,6 +74,16 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val selfDeletingMessageLabel = UiSelectorParams(description = " Self-deleting message")
 
+    private val pingButton = UiSelectorParams(description = "Ping")
+
+    private val pingButtonOnModal = UiSelectorParams(text = "Ping")
+
+    private val mlsUpgradeMessageSelectors = listOf(
+        UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
+        UiSelectorParams(textContains = "Layer Security (MLS) protocol"),
+        UiSelectorParams(textContains = "latest version of Wire on your devices")
+    )
+
     private fun selfDeleteOption(label: String): UiSelectorParams {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
     }
@@ -78,6 +91,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private fun sharingOption(label: String): UiSelectorParams {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
     }
+
     private fun fileWithName(name: String): UiSelectorParams {
         return UiSelectorParams(text = name)
     }
@@ -174,10 +188,24 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertFileActionModalIsVisible(): ConversationViewPage {
-        val modalText = UiWaitUtils.waitElement(modalTextLocator)
-        assertTrue("The file action modal is not visible.", !modalText.visibleBounds.isEmpty)
-        return this
+    fun assertFileActionModalIsVisible(timeoutMs: Long = 8_000): ConversationViewPage {
+        val modalAnchors = listOf(modalTextLocator, saveButtonLocator, openButton, cancelButton)
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            val isVisible = modalAnchors
+                .asSequence()
+                .mapNotNull(UiWaitUtils::findElementOrNull)
+                .any { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) }
+
+            if (isVisible) {
+                return this
+            }
+
+            SystemClock.sleep(150)
+        }
+
+        throw AssertionError("The file action modal was not visible within ${timeoutMs}ms.")
     }
 
     fun tapSaveButtonOnModal(): ConversationViewPage {
@@ -225,8 +253,20 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickSaveButtonOnDownloadModal(): ConversationViewPage {
-        UiWaitUtils.waitElement(saveButton).click()
+    fun clickSaveButtonOnDownloadModal(timeoutMs: Long = 8_000): ConversationViewPage {
+        val save = UiWaitUtils.waitElement(saveButton, timeoutMillis = timeoutMs)
+        val bounds = runCatching { save.visibleBounds }.getOrNull()
+
+        runCatching { save.click() }
+        device.waitForIdle(300)
+
+        val stillVisible = UiWaitUtils.findElementOrNull(saveButton)
+            ?.let { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) } == true
+
+        if (stillVisible && bounds != null && !bounds.isEmpty) {
+            device.click(bounds.centerX(), bounds.centerY())
+        }
+
         return this
     }
 
@@ -268,7 +308,7 @@ data class ConversationViewPage(private val device: UiDevice) {
 
             // Perform fling (fast scroll) to the bottom
             val success = scrollable.flingToEnd(10)
-            println("✅ Scrolled to bottom: $success")
+            println(" Scrolled to bottom: $success")
         } catch (e: Exception) {
             println("Failed to scroll: ${e.message}")
         }
@@ -294,8 +334,9 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun typeMessageInInputField(message: String): ConversationViewPage {
-        UiWaitUtils.waitElement(messageInputField).click()
-        device.type(message)
+        val field = UiWaitUtils.waitElement(messageInputField)
+        field.click()
+        field.text = message
         return this
     }
 
@@ -412,12 +453,51 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun waitUntilConversationTurnsMls(
+        timeoutMs: Long = 20_000,
+        settleAfterDetectedMs: Long = 0
+    ): ConversationViewPage {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            val mlsMarker = mlsUpgradeMessageSelectors
+                .asSequence()
+                .mapNotNull(UiWaitUtils::findElementOrNull)
+                .firstOrNull { !it.visibleBounds.isEmpty }
+
+            if (mlsMarker != null) {
+                // MLS banner can appear slightly before the conversation is fully ready for a first outbound message.
+                if (settleAfterDetectedMs > 0) {
+                    SystemClock.sleep(settleAfterDetectedMs)
+                }
+                return this
+            }
+
+            SystemClock.sleep(200)
+        }
+
+        throw AssertionError("MLS upgrade system message was not visible within ${timeoutMs}ms.")
+    }
+
     fun click1On1ConversationDetails(userName: String): ConversationViewPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val userName = device.findObject(conversationDetails1On1(userName))
         if (!userName.exists()) throw AssertionError("User '$userName' not found in current conversation")
         userName.click()
 
+        return this
+    }
+
+    fun clickOnGroupConversationDetails(userName: String): ConversationViewPage {
+        val params = conversationDetailsGroup(userName)
+
+        UiWaitUtils.waitUntilVisible(
+            params = params,
+            timeoutMs = 5_000,
+            errorMessage = "Group conversation details for user '$userName' not visible"
+        )
+
+        UiWaitUtils.waitElement(params).click()
         return this
     }
 
@@ -466,6 +546,28 @@ data class ConversationViewPage(private val device: UiDevice) {
             UiWaitUtils.waitElement(messageSelector)
         } catch (e: AssertionError) {
             throw AssertionError("Message '$message' was not found or not visible in the conversation.", e)
+        }
+
+        return this
+    }
+
+    fun tapPingButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(pingButton).click()
+        return this
+    }
+
+    fun tapPingButtonModal(): ConversationViewPage {
+        UiWaitUtils.waitElement(pingButtonOnModal).click()
+        return this
+    }
+
+    fun iSeePingModalWithText(message: String): ConversationViewPage {
+        val messageSelector = UiSelectorParams(text = message)
+
+        try {
+            UiWaitUtils.waitElement(messageSelector)
+        } catch (e: AssertionError) {
+            throw AssertionError("Message '$message' is not not visible on ping modal.", e)
         }
 
         return this

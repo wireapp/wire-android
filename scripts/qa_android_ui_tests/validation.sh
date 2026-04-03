@@ -4,7 +4,7 @@ set -euo pipefail
 # Validation and selector utilities used by qa-android-ui-tests workflow.
 
 usage() {
-  echo "Usage: $0 {validate-upgrade-inputs|resolve-selector-from-tags|print-resolved-values}" >&2
+  echo "Usage: $0 {validate-upgrade-inputs|validate-rerun-inputs|resolve-selector-from-tags|print-resolved-values}" >&2
   exit 2
 }
 
@@ -15,6 +15,28 @@ trim() {
 validate_upgrade_inputs() {
   if [[ "${IS_UPGRADE:-}" == "true" && -z "${OLD_BUILD_NUMBER:-}" ]]; then
     echo "ERROR: oldBuildNumber is REQUIRED when isUpgrade=true"
+    exit 1
+  fi
+}
+
+validate_rerun_inputs() {
+  local enabled="${RERUN_FAILED_ENABLED:-true}"
+  local count="${RERUN_FAILED_COUNT:-1}"
+  local count_num=0
+
+  if [[ ! "${enabled}" =~ ^(true|false)$ ]]; then
+    echo "ERROR: rerunFailedEnabled must be true or false."
+    exit 1
+  fi
+
+  if [[ ! "${count}" =~ ^[0-9]+$ ]]; then
+    echo "ERROR: rerunFailedCount must be a whole number >= 0."
+    exit 1
+  fi
+
+  count_num=$((10#${count}))
+  if (( count_num > 3 )); then
+    echo "ERROR: rerunFailedCount must be <= 3."
     exit 1
   fi
 }
@@ -66,6 +88,9 @@ print_resolved_values() {
 case "${1:-}" in
   validate-upgrade-inputs)
     validate_upgrade_inputs
+    ;;
+  validate-rerun-inputs)
+    validate_rerun_inputs
     ;;
   resolve-selector-from-tags)
     resolve_selector_from_tags

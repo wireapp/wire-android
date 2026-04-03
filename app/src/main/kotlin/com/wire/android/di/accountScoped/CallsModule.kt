@@ -223,4 +223,9 @@ class CallsModule {
     @Provides
     fun provideSetCallQualityIntervalUseCase(callsScope: CallsScope) =
         callsScope.setCallQualityInterval
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveCallModerationActionsUseCase(callsScope: CallsScope) =
+        callsScope.observeCallModerationActions
 }

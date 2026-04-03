@@ -75,7 +75,6 @@ import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.details.CallDetailsBottomSheet
 import com.wire.android.ui.calling.ongoing.details.CallDetailsButton
 import com.wire.android.ui.calling.ongoing.details.CallDetailsSheetState
-import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactionsPanel
@@ -85,6 +84,8 @@ import com.wire.android.ui.calling.ongoing.incallreactions.drawInCallReactions
 import com.wire.android.ui.calling.ongoing.incallreactions.rememberInCallReactionsState
 import com.wire.android.ui.calling.ongoing.participantsview.FloatingSelfUserTile
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
+import com.wire.android.ui.calling.ongoing.toast.InCallToast
+import com.wire.android.ui.calling.ongoing.toast.InCallToastPanel
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
@@ -199,7 +200,6 @@ fun OngoingCallScreen(
     OngoingCallContent(
         callState = sharedCallingViewModel.callState,
         inCallReactionsState = inCallReactionsState,
-        shouldShowDoubleTapToast = ongoingCallViewModel.state.shouldShowDoubleTapToast,
         toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
         toggleMute = sharedCallingViewModel::toggleMute,
         hangUpCall = sharedCallingViewModel::hangUpCall,
@@ -211,7 +211,6 @@ fun OngoingCallScreen(
         requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
         onSelectedParticipant = ongoingCallViewModel::onSelectedParticipant,
         selectedParticipantForFullScreen = ongoingCallViewModel.state.selectedParticipant,
-        hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
         onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
         onReactionClick = ongoingCallViewModel::onReactionClick,
         participants = ongoingCallViewModel.state.participants,
@@ -222,6 +221,8 @@ fun OngoingCallScreen(
             callDetailsBottomSheetState.show(CallDetailsSheetState.Details)
         },
         othersVideosDisabled = ongoingCallViewModel.state.othersVideosDisabled,
+        toasts = ongoingCallViewModel.toasts.values.toSet(),
+        onToastClick = ongoingCallViewModel::dismissToast,
     )
     ObserveRotation(sharedCallingViewModel::setUIRotation)
 
@@ -347,7 +348,6 @@ private fun HandleSendingVideoFeed(
 private fun OngoingCallContent(
     callState: CallState,
     inCallReactionsState: InCallReactionsState,
-    shouldShowDoubleTapToast: Boolean,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
@@ -357,7 +357,6 @@ private fun OngoingCallContent(
     clearVideoPreview: () -> Unit,
     onCollapse: () -> Unit,
     onOpenCallDetails: () -> Unit,
-    hideDoubleTapToast: () -> Unit,
     onCameraPermissionPermanentlyDenied: () -> Unit,
     onReactionClick: (String) -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
@@ -368,6 +367,8 @@ private fun OngoingCallContent(
     inPictureInPictureMode: Boolean,
     callQuality: CallQualityData.Quality,
     othersVideosDisabled: Boolean,
+    toasts: Set<InCallToast>,
+    onToastClick: (toastId: String) -> Unit,
     inCallReactionsEnabled: Boolean = BuildConfig.CALL_REACTIONS_ENABLED,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {
@@ -449,7 +450,6 @@ private fun OngoingCallContent(
                         }
 
                         uiCallParticipantToShowOnFullScreen?.let { uiCallParticipantToShowOnFullScreen ->
-                            hideDoubleTapToast()
                             FullScreenTile(
                                 callState = callState,
                                 selectedParticipant = uiCallParticipantToShowOnFullScreen,
@@ -484,13 +484,16 @@ private fun OngoingCallContent(
                                 flipCamera = flipCamera,
                                 othersVideosDisabled = othersVideosDisabled,
                             )
-                            DoubleTapToast(
-                                modifier = Modifier.align(Alignment.TopCenter),
-                                enabled = shouldShowDoubleTapToast,
-                                text = stringResource(id = R.string.calling_ongoing_double_tap_for_full_screen),
-                                onTap = hideDoubleTapToast
-                            )
                         }
+
+                        InCallToastPanel(
+                            items = toasts,
+                            onToastClick = onToastClick,
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(dimensions().spacing4x)
+                        )
+
                         if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
                             val selfUser = participants.first { it.isSelfUser }
                             FloatingSelfUserTile(
@@ -666,7 +669,11 @@ private fun CallingControls(
 
 @Suppress("EmptyFunctionBlock")
 @Composable
-fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>, inCallReactionsPanelVisible: Boolean = false) {
+fun PreviewOngoingCallContent(
+    participants: PersistentList<UICallParticipant>,
+    inCallReactionsPanelVisible: Boolean = false,
+    toasts: Set<InCallToast> = emptySet()
+) {
     OngoingCallContent(
         callState = CallState(
             conversationId = ConversationId("conversationId", "domain"),
@@ -681,7 +688,6 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>, i
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
         ),
         inCallReactionsState = PreviewInCallReactionState,
-        shouldShowDoubleTapToast = false,
         toggleSpeaker = {},
         toggleMute = {},
         hangUpCall = {},
@@ -690,7 +696,6 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>, i
         setVideoPreview = {},
         clearVideoPreview = {},
         onCollapse = {},
-        hideDoubleTapToast = {},
         onCameraPermissionPermanentlyDenied = {},
         onReactionClick = {},
         requestVideoStreams = {},
@@ -704,6 +709,8 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>, i
         callQuality = CallQualityData.Quality.NORMAL,
         onOpenCallDetails = {},
         othersVideosDisabled = true,
+        toasts = toasts,
+        onToastClick = {},
     )
 }
 
@@ -740,6 +747,18 @@ fun PreviewOngoingCallScreen_WithInCallReactionsPanel() = WireTheme {
 @Composable
 fun PreviewOngoingCallScreenConnecting() = WireTheme {
     PreviewOngoingCallContent(participants = persistentListOf())
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewOngoingCallScreen_WithToasts() = WireTheme {
+    PreviewOngoingCallContent(
+        participants = buildPreviewParticipantsList(2),
+        toasts = setOf(
+            InCallToast.Fullscreen(0L, InCallToast.Fullscreen.Type.DoubleTapToOpen),
+            InCallToast.ModerationAction(1L, "1", "Alice", InCallToast.ModerationAction.Type.Muted)
+        ),
+    )
 }
 
 @PreviewMultipleThemes

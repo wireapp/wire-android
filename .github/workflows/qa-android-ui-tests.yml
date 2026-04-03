@@ -194,7 +194,7 @@ jobs:
         run: bash scripts/qa_android_ui_tests/execution_setup.sh install-apks-on-devices
 
       - name: Install 1Password CLI
-        uses: 1password/install-cli-action@v2
+        uses: 1password/install-cli-action@v3
 
       # Fetch runtime secrets only for this run.
       - name: Fetch secrets.json (runtime only)

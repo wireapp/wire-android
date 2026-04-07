@@ -52,7 +52,7 @@ jobs:
               });
               core.info(`Discovered repository-level runners: ${repoData.data.runners.length}`);
 
-              const orgData = await github.rest.actions.listSelfHostedRunnersInOrg({
+              const orgData = await github.rest.actions.listSelfHostedRunnersForOrg({
                 org: context.repo.owner
               });
               core.info(`Discovered organization-level runners: ${orgData.data.runners.length}`);

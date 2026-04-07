@@ -30,6 +30,7 @@ jobs:
       - id: pick
         uses: actions/github-script@v8
         with:
+          github-token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
           script: |
             const fallback = ['${{ inputs.fallback-label }}'];
             try {

@@ -50,6 +50,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo
               });
+              core.info(`Runners details: ${JSON.stringify(data.runners)}`);
 
               const idleMatchingRunners = data.runners.filter((runner) => {
                 if (runner.status !== "online" || runner.busy) return false;

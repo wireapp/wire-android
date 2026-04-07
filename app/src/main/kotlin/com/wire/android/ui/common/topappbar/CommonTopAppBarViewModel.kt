@@ -68,8 +68,8 @@ class CommonTopAppBarViewModel @Inject constructor(
                 when (syncState) {
                     // Waiting is a pure pre-initialization state: the sync worker has not been
                     // scheduled yet. It carries no information about network health, so map it
-                    // to Connected (no banner) rather than WaitingConnection or Connecting.
-                    is Waiting -> Connectivity.Connected
+                    // to Idle (no banner) rather than WaitingConnection or Connecting.
+                    is Waiting -> Connectivity.Idle
                     is Failed -> Connectivity.WaitingConnection(syncState.cause, syncState.retryDelay)
                     is GatheringPendingEvents,
                     is SlowSync -> Connectivity.Connecting
@@ -87,7 +87,8 @@ class CommonTopAppBarViewModel @Inject constructor(
                 // Pass through immediately so the banner is dismissed without delay
                 // once sync finishes, and any pending debounce timer in the per-session
                 // debounce below is canceled before it can show a stale banner.
-                Connectivity.Connected -> 0L
+                Connectivity.Connected,
+                Connectivity.Idle -> 0L
                 // Hold Connecting / WaitingConnection for the full debounce window.
                 // If sync or network recovers within that window the timer is canceled
                 // and no banner is ever shown.
@@ -181,7 +182,8 @@ class CommonTopAppBarViewModel @Inject constructor(
         return if (canDisplayConnectivityIssues) {
             when (connectivity) {
                 Connectivity.Connecting -> ConnectivityUIState.Connecting
-                Connectivity.Connected -> ConnectivityUIState.None
+                Connectivity.Connected,
+                Connectivity.Idle -> ConnectivityUIState.None
                 is Connectivity.WaitingConnection -> ConnectivityUIState.WaitingConnection(
                     connectivity.cause,
                     connectivity.retryDelay,

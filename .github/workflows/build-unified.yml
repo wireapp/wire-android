@@ -29,7 +29,7 @@ jobs:
   lint-runner-selection:
     uses: ./.github/workflows/select-runner.yml
     secrets:
-      runner-token: ${{ secrets.OTTO_THE_BOT_GH_TOKEN }}
+      runner-token: ${{ secrets.ZENKINS_WORKFLOW_PAT }}
     with:
       required-labels: '["self-hosted"]'
       min-idle-runners: 2
@@ -98,7 +98,7 @@ jobs:
     name: "UI Tests"
     uses: ./.github/workflows/gradle-run-ui-tests.yml
     secrets:
-      runner-token: ${{ secrets.OTTO_THE_BOT_GH_TOKEN }}
+      runner-token: ${{ secrets.ZENKINS_WORKFLOW_PAT }}
     with:
       artifact-suffix: ${{ inputs.concurrency-group-suffix }}
 
@@ -106,7 +106,7 @@ jobs:
     name: "Unit Tests"
     uses: ./.github/workflows/gradle-run-unit-tests.yml
     secrets:
-      runner-token: ${{ secrets.OTTO_THE_BOT_GH_TOKEN }}
+      runner-token: ${{ secrets.ZENKINS_WORKFLOW_PAT }}
     with:
       artifact-suffix: ${{ inputs.concurrency-group-suffix }}
 

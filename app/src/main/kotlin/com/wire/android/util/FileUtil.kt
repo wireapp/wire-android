@@ -63,6 +63,7 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.util.Locale
+import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("MagicNumber")
@@ -73,9 +74,12 @@ suspend fun Uri.toByteArray(context: Context, dispatcher: DispatcherProvider = D
 }
 
 fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
-    val file = attachmentPath.toFile()
+    val file = context.providerCacheFile(
+        directory = FILE_PROVIDER_WRITABLE_DIR,
+        displayName = attachmentPath.name
+    )
     file.setWritable(true)
-    return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
+    return FileProvider.getUriForFile(context, context.getProviderAuthority(), file, attachmentPath.name)
 }
 
 suspend fun createPemFile(
@@ -188,10 +192,11 @@ private fun Context.saveFileDataToMediaFolder(assetName: String, downloadedDataP
     return insertedUri
 }
 
-fun Context.fromNioPathToContentUri(nioPath: java.nio.file.Path): Uri = this.pathToUri(nioPath.toOkioPath(), null)
+fun Context.fromNioPathToContentUri(nioPath: java.nio.file.Path): Uri =
+    this.copyToProviderUri(nioPath.toOkioPath(), null, FILE_PROVIDER_IMPORTED_DIR)
 
 fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =
-    FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile(), assetName ?: assetDataPath.name)
+    copyToProviderUri(assetDataPath, assetName, FILE_PROVIDER_EXPORTED_DIR)
 
 fun Uri.getMimeType(context: Context): String? {
     val mimeType: String? = if (this.scheme == ContentResolver.SCHEME_CONTENT) {
@@ -264,23 +269,21 @@ private fun Context.getContentFileName(uri: Uri): String? = runCatching {
 }.getOrNull()
 
 fun Context.startFileShareIntent(path: Path, assetName: String?) {
-    val assetDisplayName = assetName ?: path.name
-    val fileURI = FileProvider.getUriForFile(
-        this,
-        getProviderAuthority(),
-        path.toFile(),
-        assetDisplayName
-    )
-    val shareIntent = Intent(Intent.ACTION_SEND)
-    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-    shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    shareIntent.putExtra(Intent.EXTRA_SUBJECT, resources.getString(R.string.export_media_subject_title))
+    runCatching {
+        val fileURI = pathToUri(path, assetName)
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, resources.getString(R.string.export_media_subject_title))
 
-    shareIntent.putExtra(Intent.EXTRA_STREAM, fileURI)
-    assetName?.let { shareIntent.putExtra(Intent.EXTRA_SUBJECT, it) }
-    shareIntent.type = fileURI.getMimeType(context = this)
-    startActivity(shareIntent)
+        shareIntent.putExtra(Intent.EXTRA_STREAM, fileURI)
+        assetName?.let { shareIntent.putExtra(Intent.EXTRA_SUBJECT, it) }
+        shareIntent.type = fileURI.getMimeType(context = this)
+        startActivity(shareIntent)
+    }.onFailure {
+        appLogger.e("Failed to create staged file share intent", it)
+    }
 }
 
 fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataSize: Long, context: Context): Uri? =
@@ -302,12 +305,12 @@ fun Context.getUrisOfFilesInDirectory(dir: File): ArrayList<Uri> {
     val files = ArrayList<Uri>()
 
     dir.listFiles()?.map {
-        val uri = FileProvider.getUriForFile(
-            this,
-            getProviderAuthority(),
-            it
-        )
-        files.add(uri)
+        runCatching {
+            copyToProviderUri(it.toOkioPath(), it.name, FILE_PROVIDER_EXPORTED_DIR)
+        }.onSuccess(files::add)
+            .onFailure { error ->
+                appLogger.e("Failed to stage file ${it.absolutePath} for external sharing", error)
+            }
     }
 
     return files
@@ -334,6 +337,9 @@ fun openAssetFileWithExternalApp(
         context.startActivity(intent)
     } catch (e: java.lang.IllegalArgumentException) {
         appLogger.e("The file couldn't be found on the internal storage \n$e")
+        onError()
+    } catch (e: IOException) {
+        appLogger.e("The file couldn't be staged for external opening \n$e")
         onError()
     } catch (noActivityFoundException: ActivityNotFoundException) {
         appLogger.e("Couldn't find a proper app to process the asset")
@@ -380,6 +386,9 @@ fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetNa
         context.startActivity(intent)
     } catch (e: java.lang.IllegalArgumentException) {
         appLogger.e("The file couldn't be found on the internal storage \n$e")
+        onError()
+    } catch (e: IOException) {
+        appLogger.e("The file couldn't be staged for external sharing \n$e")
         onError()
     } catch (noActivityFoundException: ActivityNotFoundException) {
         appLogger.e("Couldn't find a proper app to process the asset")
@@ -465,6 +474,48 @@ suspend fun Context.getDependenciesVersion(): Map<String, String?> = withContext
 }
 
 fun Context.getProviderAuthority() = "$packageName.provider"
+
+private fun Context.copyToProviderUri(assetDataPath: Path, assetName: String?, directory: String): Uri {
+    val sourceFile = assetDataPath.toFile()
+    require(sourceFile.exists()) { "The file couldn't be found on the internal storage" }
+
+    val displayName = assetName ?: sourceFile.name
+    val stagedFile = providerCacheFile(directory, displayName)
+    sourceFile.copyTo(stagedFile, overwrite = true)
+
+    return FileProvider.getUriForFile(this, getProviderAuthority(), stagedFile, displayName)
+}
+
+private fun Context.providerCacheFile(directory: String, displayName: String): File {
+    cleanUpProviderDirectory(directory)
+
+    val providerDirectory = File(cacheDir, "$FILE_PROVIDER_ROOT_DIR/$directory").apply { mkdirs() }
+    val randomFileName = buildString {
+        append(UUID.randomUUID())
+        displayName.substringAfterLast('.', missingDelimiterValue = "")
+            .takeIf { it.isNotEmpty() }
+            ?.let {
+                append('.')
+                append(it)
+            }
+    }
+
+    return File(providerDirectory, randomFileName)
+}
+
+private fun Context.cleanUpProviderDirectory(directory: String) {
+    val now = System.currentTimeMillis()
+    File(cacheDir, "$FILE_PROVIDER_ROOT_DIR/$directory")
+        .listFiles()
+        ?.filter { now - it.lastModified() > FILE_PROVIDER_MAX_AGE_IN_MILLIS }
+        ?.forEach(File::delete)
+}
+
+private const val FILE_PROVIDER_ROOT_DIR = "file-provider"
+private const val FILE_PROVIDER_EXPORTED_DIR = "exported"
+private const val FILE_PROVIDER_IMPORTED_DIR = "imported"
+private const val FILE_PROVIDER_WRITABLE_DIR = "writable"
+private const val FILE_PROVIDER_MAX_AGE_IN_MILLIS = 60 * 60 * 1000L
 
 @VisibleForTesting
 fun findFirstUniqueName(dir: File, desiredName: String): String {

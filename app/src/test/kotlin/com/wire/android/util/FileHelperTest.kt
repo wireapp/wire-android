@@ -29,6 +29,7 @@ import androidx.core.content.FileProvider
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
+import io.mockk.slot
 import io.mockk.mockkStatic
 import io.mockk.verify
 import io.mockk.verifyOrder
@@ -37,6 +38,7 @@ import okio.Path.Companion.toOkioPath
 import org.junit.Rule
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -150,6 +152,45 @@ class FileHelperTest {
         }
     }
 
+    @Test
+    fun `given internal file when creating share uri then stage it under cache provider directory`() {
+        val sourceFile = tempDir.newFile("secret.mp4").apply {
+            writeText("video payload")
+        }
+        val cacheDir = tempDir.newFolder("cache")
+        val stagedFile = slot<File>()
+        val stagedDisplayName = slot<String>()
+        val arrangement = Arrangement()
+            .withCacheDir(cacheDir)
+            .withStagedFileCapture(stagedFile, stagedDisplayName)
+            .arrange()
+
+        arrangement.context.pathToUri(sourceFile.toOkioPath(), "visible.mp4")
+
+        assertEquals("visible.mp4", stagedDisplayName.captured)
+        assertEquals("exported", stagedFile.captured.parentFile?.name)
+        assertEquals("file-provider", stagedFile.captured.parentFile?.parentFile?.name)
+        assertEquals("video payload", stagedFile.captured.readText())
+        assertNotEquals(sourceFile.absolutePath, stagedFile.captured.absolutePath)
+    }
+
+    @Test
+    fun `given source file when creating writable attachment uri then use provider writable cache directory`() {
+        val cacheDir = tempDir.newFolder("cache")
+        val stagedFile = slot<File>()
+        val stagedDisplayName = slot<String>()
+        val arrangement = Arrangement()
+            .withCacheDir(cacheDir)
+            .withStagedFileCapture(stagedFile, stagedDisplayName)
+            .arrange()
+
+        getTempWritableAttachmentUri(arrangement.context, tempDir.newFile("camera.jpg").toOkioPath())
+
+        assertEquals("camera.jpg", stagedDisplayName.captured)
+        assertEquals("writable", stagedFile.captured.parentFile?.name)
+        assertEquals("file-provider", stagedFile.captured.parentFile?.parentFile?.name)
+    }
+
     inner class Arrangement {
 
         @MockK
@@ -164,16 +205,20 @@ class FileHelperTest {
         @MockK
         lateinit var uri: Uri
 
+        private var cacheDirectory: File = tempDir.root
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkStatic(Environment::class)
             mockkStatic(FileProvider::class)
             mockkStatic("com.wire.android.util.FileUtilKt")
             coEvery { context.packageName } returns "com.wire"
+            coEvery { context.cacheDir } returns cacheDirectory
             coEvery { context.contentResolver } returns contentResolver
             coEvery { context.getSystemService(Context.DOWNLOAD_SERVICE) } returns downloadManager
             coEvery { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) } returns tempDir.root
             coEvery { FileProvider.getUriForFile(any(), any(), any()) } returns uri
+            coEvery { FileProvider.getUriForFile(any(), any(), any(), any()) } returns uri
             coEvery { contentResolver.insert(any(), any()) } returns uri
             coEvery { downloadManager.addCompletedDownload(any(), any(), any(), any(), any(), any(), any()) } returns 1L
             coEvery { contentResolver.copyFile(any(), any()) } returns Unit
@@ -182,6 +227,15 @@ class FileHelperTest {
 
         fun withUriMimeType(mimeType: String?) = apply {
             coEvery { uri.getMimeType(context) } returns mimeType
+        }
+
+        fun withCacheDir(cacheDir: File) = apply {
+            cacheDirectory = cacheDir
+            coEvery { context.cacheDir } returns cacheDirectory
+        }
+
+        fun withStagedFileCapture(fileSlot: io.mockk.CapturingSlot<File>, displayNameSlot: io.mockk.CapturingSlot<String>) = apply {
+            coEvery { FileProvider.getUriForFile(any(), any(), capture(fileSlot), capture(displayNameSlot)) } returns uri
         }
 
         fun arrange() = this

@@ -30,7 +30,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import okio.Path
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.OutputStream
+import java.util.UUID
 import javax.inject.Inject
 
 class FileHelper @Inject constructor(
@@ -80,6 +82,8 @@ class FileHelper @Inject constructor(
             context.startActivity(intent)
         } catch (e: java.lang.IllegalArgumentException) {
             onError()
+        } catch (_: IOException) {
+            onError()
         } catch (noActivityFoundException: ActivityNotFoundException) {
             onError()
         }
@@ -99,6 +103,8 @@ class FileHelper @Inject constructor(
             }
             context.startActivity(intent)
         } catch (e: java.lang.IllegalArgumentException) {
+            onError()
+        } catch (_: IOException) {
             onError()
         } catch (noActivityFoundException: ActivityNotFoundException) {
             onError()
@@ -147,5 +153,36 @@ class FileHelper @Inject constructor(
     private fun Context.getProviderAuthority() = "$packageName.provider"
 
     private fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =
-        FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile(), assetName ?: assetDataPath.name)
+        copyToProviderUri(assetDataPath, assetName)
+
+    private fun Context.copyToProviderUri(assetDataPath: Path, assetName: String?): Uri {
+        val sourceFile = assetDataPath.toFile()
+        require(sourceFile.exists()) { "The file couldn't be found on the internal storage" }
+
+        val displayName = assetName ?: sourceFile.name
+        val providerDirectory = File(
+            cacheDir,
+            "$FILE_PROVIDER_ROOT_DIR/$FILE_PROVIDER_EXPORTED_DIR"
+        ).apply { mkdirs() }
+        val stagedFile = File(
+            providerDirectory,
+            buildString {
+                append(UUID.randomUUID())
+                displayName.substringAfterLast('.', missingDelimiterValue = "")
+                    .takeIf { it.isNotEmpty() }
+                    ?.let {
+                        append('.')
+                        append(it)
+                    }
+            }
+        )
+
+        sourceFile.copyTo(stagedFile, overwrite = true)
+        return FileProvider.getUriForFile(this, getProviderAuthority(), stagedFile, displayName)
+    }
+
+    private companion object {
+        const val FILE_PROVIDER_ROOT_DIR = "file-provider"
+        const val FILE_PROVIDER_EXPORTED_DIR = "exported"
+    }
 }

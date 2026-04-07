@@ -20,7 +20,6 @@
 <paths>
     <cache-path
             name="cached_files"
-            path="." />
-    <files-path name="files" path="." />
+            path="file-provider/" />
     <external-path name="external_files" path="."/>
 </paths>

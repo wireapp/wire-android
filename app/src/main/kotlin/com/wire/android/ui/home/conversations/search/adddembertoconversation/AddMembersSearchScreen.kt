@@ -26,12 +26,10 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
-import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.BotService
 
@@ -47,9 +45,6 @@ fun AddMembersSearchScreen(
     if (addMembersToConversationViewModel.newGroupState.isCompleted) {
         navigator.navigateBack()
     }
-
-    // WPB-21835: Apps tab visibility controlled by feature flag
-    val isAppsTabVisible = computeAppsVisible(navArgs)
 
     SearchUsersAndAppsScreen(
         searchTitle = stringResource(id = R.string.label_add_participants),
@@ -67,19 +62,9 @@ fun AddMembersSearchScreen(
         },
         screenType = SearchPeopleScreenType.CONVERSATION_DETAILS,
         selectedContacts = addMembersToConversationViewModel.newGroupState.selectedContacts,
-        isAppsTabVisible = isAppsTabVisible,
+        isAppsTabVisible = navArgs.isSelfPartOfATeam,
         isUserAllowedToCreateChannels = false,
         shouldShowChannelPromotion = false,
-        isConversationAppsEnabled = true, // navArgs.isConversationAppsEnabled,
+        isConversationAppsEnabled = navArgs.isConversationAppsEnabled
     )
 }
-
-@Composable
-private fun computeAppsVisible(navArgs: AddMembersSearchNavArgs) =
-    if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
-        // current logic: based on protocol (isConversationAppsEnabled represents non-MLS)
-        navArgs.isConversationAppsEnabled
-    } else {
-        // new logic: based on team membership
-        navArgs.isSelfPartOfATeam
-    }

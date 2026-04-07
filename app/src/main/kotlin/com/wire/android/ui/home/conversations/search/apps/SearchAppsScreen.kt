@@ -50,7 +50,6 @@ import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -159,13 +158,8 @@ private fun rememberAppsContentState(
     result: ImmutableList<Contact>
 ): State<AppsContentState> = remember(isConversationAppsEnabled, isLoading, isTeamAllowedToUseApps, searchQuery, result) {
     derivedStateOf {
-        // WPB-21835: Apps availability checks controlled by feature flag
-        if (!FeatureVisibilityFlags.AppsBasedOnProtocol) {
-            // new logic: check team and conversation settings first
-            if (!isTeamAllowedToUseApps) return@derivedStateOf AppsContentState.TEAM_NOT_ALLOWED
-            if (!isConversationAppsEnabled) return@derivedStateOf AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
-        }
-        // current logic: protocol-based, skip the above checks (screen shouldn't be accessible if apps disabled)
+        if (!isTeamAllowedToUseApps) return@derivedStateOf AppsContentState.TEAM_NOT_ALLOWED
+        if (!isConversationAppsEnabled) return@derivedStateOf AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
 
         when {
             isLoading -> AppsContentState.LOADING
@@ -186,7 +180,6 @@ private fun AppsList(
     LazyColumn(
         state = lazyListState,
         modifier = Modifier
-
     ) {
         sectionWithElements(
             header = null as String?,

@@ -25,7 +25,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -108,10 +107,9 @@ class UpdateAppsAccessViewModel @Inject constructor(
                 val canSelfPerformAdminActions = isSelfAnAdmin || isSelfChannelTeamAdmin
 
                 // WPB-21835: Apps availability logic controlled by feature flag
-                val isMLSConversation = conversationDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
-                val isAppAccessAllowed = computeAppsEnabledStatus(conversationDetails, isMLSConversation, isTeamAllowedToUseApps)
+                val isAppAccessAllowed = computeAppsEnabledStatus(conversationDetails, isTeamAllowedToUseApps)
                 val isUpdatingAppAccessAllowed =
-                    computeAppsAllowedStatus(canSelfPerformAdminActions, isMLSConversation, isTeamAllowedToUseApps)
+                    computeAppsAllowedStatus(canSelfPerformAdminActions, isTeamAllowedToUseApps)
 
                 updateAppsAccessState = updateAppsAccessState.copy(
                     isAppAccessAllowed = isAppAccessAllowed,
@@ -129,15 +127,8 @@ class UpdateAppsAccessViewModel @Inject constructor(
      */
     private fun computeAppsEnabledStatus(
         conversationDetails: ConversationDetails,
-        isMLSConversation: Boolean,
         isTeamAllowedToUseApps: Boolean
-    ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
-        // New logic: based on protocol (apps disabled for MLS)o
-        conversationDetails.conversation.isServicesAllowed() && !isMLSConversation
-    } else {
-        // Old logic: based on team settings and feature flags
-        conversationDetails.conversation.isServicesAllowed() && isTeamAllowedToUseApps
-    }
+    ) = conversationDetails.conversation.isServicesAllowed() && isTeamAllowedToUseApps
 
     /**
      * Determine apps visibility based on feature flag and team settings
@@ -145,15 +136,8 @@ class UpdateAppsAccessViewModel @Inject constructor(
      */
     private fun computeAppsAllowedStatus(
         canSelfPerformAdminActions: Boolean,
-        isMLSConversation: Boolean,
         isTeamAllowedToUseApps: Boolean
-    ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
-        // New logic: based on protocol
-        canSelfPerformAdminActions && !isMLSConversation
-    } else {
-        // Old logic: based on permissions and team settings
-        canSelfPerformAdminActions && isTeamAllowedToUseApps
-    }
+    ) = canSelfPerformAdminActions && isTeamAllowedToUseApps
 
     private data class CombineFour(
         val isAppsUsageAllowed: Boolean,

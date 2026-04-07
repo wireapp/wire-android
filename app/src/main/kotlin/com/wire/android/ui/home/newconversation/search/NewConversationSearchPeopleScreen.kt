@@ -32,7 +32,6 @@ import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProf
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
-import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @WireNewConversationDestination(
@@ -66,8 +65,11 @@ fun NewConversationSearchPeopleScreen(
         onClose = navigator::navigateBack,
         screenType = SearchPeopleScreenType.NEW_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
-        isAppsTabVisible = newConversationViewModel.newGroupState.groupProtocol != CreateConversationParam.Protocol.MLS,
-        onAppClicked = { }
+        isAppsTabVisible = newConversationViewModel.groupOptionsState.isTeamAllowedToUseApps,
+        onAppClicked = { contact ->
+            OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
+                .let { navigator.navigate(NavigationCommand(it)) }
+        }
     )
 
     if (showCreateTeamDialog.value) {

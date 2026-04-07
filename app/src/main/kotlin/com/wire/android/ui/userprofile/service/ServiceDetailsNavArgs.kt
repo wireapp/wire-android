@@ -26,7 +26,7 @@ import com.wire.kalium.logic.data.user.BotService
 
 data class ServiceDetailsNavArgs(
     val botService: BotService,
-    val conversationId: ConversationId
+    val conversationId: ConversationId?
 )
 
 @NavTypeSerializer

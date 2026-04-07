@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +20,12 @@ package com.wire.android.di.accountScoped
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.feature.app.AppScope
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
-import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
-import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
-import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
-import com.wire.kalium.logic.feature.service.ServiceScope
+import com.wire.kalium.logic.feature.app.GetAppByIdUseCase
+import com.wire.kalium.logic.feature.app.ObserveAllAppsUseCase
+import com.wire.kalium.logic.feature.app.ObserveIsAppMemberUseCase
+import com.wire.kalium.logic.feature.app.SearchAppsByNameUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,37 +34,32 @@ import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
 @InstallIn(ViewModelComponent::class)
-class ServicesModule {
+class AppsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideServiceScope(
+    fun provideAppScope(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
-    ): ServiceScope = coreLogic.getSessionScope(currentAccount).service
+    ): AppScope = coreLogic.getSessionScope(currentAccount).apps
 
     @ViewModelScoped
     @Provides
-    fun provideObserveIsServiceMemberUseCase(serviceScope: ServiceScope): ObserveIsServiceMemberUseCase =
-        serviceScope.observeIsServiceMember
+    fun provideGetAppByIdUseCase(appScope: AppScope): GetAppByIdUseCase =
+        appScope.getAppById
 
     @ViewModelScoped
     @Provides
-    fun provideGetServiceByIdUseCase(serviceScope: ServiceScope): GetServiceByIdUseCase =
-        serviceScope.getServiceById
+    fun provideObserveIsAppMemberUseCase(appScope: AppScope): ObserveIsAppMemberUseCase =
+        appScope.observeIsAppMember
 
     @ViewModelScoped
     @Provides
-    fun provideObserveAllServicesUseCase(serviceScope: ServiceScope): ObserveAllServicesUseCase =
-        serviceScope.observeAllServices
+    fun provideSearchAppsByNameUseCase(appScope: AppScope): SearchAppsByNameUseCase =
+        appScope.searchAppsByName
 
     @ViewModelScoped
     @Provides
-    fun provideSearchServicesByNameUseCase(serviceScope: ServiceScope): SearchServicesByNameUseCase =
-        serviceScope.searchServicesByName
-
-    @ViewModelScoped
-    @Provides
-    fun provideObserveIsAppsAllowedForUsage(serviceScope: ServiceScope) =
-        serviceScope.observeIsAppsAllowedForUsage
+    fun provideObserveAllAppsUseCase(appScope: AppScope): ObserveAllAppsUseCase =
+        appScope.observeAllApps
 }

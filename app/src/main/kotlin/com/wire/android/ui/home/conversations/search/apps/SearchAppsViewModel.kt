@@ -26,8 +26,9 @@ import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
-import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
+import com.wire.kalium.logic.feature.app.ObserveAllAppsUseCase
+import com.wire.kalium.logic.feature.app.SearchAppsByNameUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
@@ -48,8 +49,10 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchAppsViewModel @Inject constructor(
     private val getAllServices: ObserveAllServicesUseCase,
+    private val getAllApps: ObserveAllAppsUseCase,
     private val contactMapper: ContactMapper,
     private val searchServicesByName: SearchServicesByNameUseCase,
+    private val searchAppsByName: SearchAppsByNameUseCase,
     private val isAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
     private val observeSelfUser: ObserveSelfUserUseCase
 ) : ViewModel() {
@@ -64,8 +67,7 @@ class SearchAppsViewModel @Inject constructor(
                 isAppsAllowedForUsage(),
                 searchQueryTextFlow.onStart { emit(String.EMPTY) }
             ) { selfUser, isEnabled, query ->
-                val effectiveIsEnabled = computeAppsEnabledStatus(isEnabled)
-                Triple(selfUser, effectiveIsEnabled, query)
+                Triple(selfUser, isEnabled, query)
             }.debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE).collectLatest { (selfUser, isEnabled, query) ->
                 state = state.copy(isTeamAllowedToUseApps = isEnabled, isSelfATeamAdmin = selfUser.userType.isTeamAdmin())
                 if (isEnabled) {
@@ -77,21 +79,6 @@ class SearchAppsViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Determine apps visibility based on feature flag and team settings
-     * Or just should be protocol based in case of current logic
-     */
-    private fun computeAppsEnabledStatus(isEnabled: Boolean): Boolean {
-        val effectiveIsEnabled = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
-            // current logic: always enabled here (protocol check happens elsewhere)
-            true
-        } else {
-            // new logic: use team feature flag
-            isEnabled
-        }
-        return effectiveIsEnabled
-    }
-
     fun searchQueryChanged(searchQuery: String) {
         viewModelScope.launch {
             searchQueryTextFlow.emit(searchQuery)
@@ -100,11 +87,13 @@ class SearchAppsViewModel @Inject constructor(
 
     private fun search(query: String) {
         viewModelScope.launch {
-            val result = if (query.isEmpty()) {
-                getAllServices().first()
-            } else {
-                searchServicesByName(query).first()
-            }
+            val result = when {
+                state.isTeamAllowedToUseApps && query.isEmpty() -> getAllApps()
+                state.isTeamAllowedToUseApps -> searchAppsByName(query)
+                query.isEmpty() -> getAllServices()
+                else -> searchServicesByName(query)
+            }.first()
+
             state = state.copy(isLoading = false, searchQuery = query, result = result.map(contactMapper::fromService).toImmutableList())
         }
     }

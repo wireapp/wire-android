@@ -481,7 +481,9 @@ class CellFileActionsMenuTest {
             contentHash = null,
             contentUrl = null,
             previewUrl = null,
-            publicLinkId = null
+            publicLinkId = null,
+            userHandle = null,
+            ownerUserId = null,
         )
         val folderNode = CellNodeUi.Folder(
             name = "folder",
@@ -489,7 +491,9 @@ class CellFileActionsMenuTest {
             userName = "user",
             conversationName = "conversation",
             modifiedTime = "time",
-            size = 1
+            size = 1,
+            userHandle = null,
+            ownerUserId = null,
         )
     }
 }

@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.channels
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -27,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -69,7 +69,7 @@ private fun Content(
                     isSearchActive = true,
                     searchBarHint = stringResource(id = R.string.label_search_public_channels),
                     searchQueryTextState = searchQueryTextState,
-                    isLoading = false
+                    isLoading = false,
                 )
             }
         },

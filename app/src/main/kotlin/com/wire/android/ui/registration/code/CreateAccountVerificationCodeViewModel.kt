@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.BuildConfig
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.di.ClientScopeProvider
@@ -33,10 +34,10 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
@@ -162,11 +163,13 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
                 }
             }
             val storedUserId = addAuthenticatedUser(
-                authTokens = registerResult.authData,
-                ssoId = registerResult.ssoID,
-                serverConfigId = registerResult.serverConfigId,
-                proxyCredentials = registerResult.proxyCredentials,
-                isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                StoreSessionParam(
+                    accountTokens = registerResult.authData,
+                    ssoId = registerResult.ssoID,
+                    serverConfigId = registerResult.serverConfigId,
+                    proxyCredentials = registerResult.proxyCredentials,
+                    isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                ),
                 replace = false
             ).let {
                 when (it) {
@@ -273,6 +276,9 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
             CreateAccountCodeResult.Error.DialogError.GenericError(this.genericFailure)
 
         AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists ->
+            CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError
+
+        AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation ->
             CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError
     }
 

@@ -7,7 +7,6 @@ plugins {
 dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

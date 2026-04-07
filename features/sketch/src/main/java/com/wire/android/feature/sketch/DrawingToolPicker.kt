@@ -38,7 +38,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButtonColors
 import androidx.compose.material3.OutlinedIconToggleButton
 import androidx.compose.runtime.Composable

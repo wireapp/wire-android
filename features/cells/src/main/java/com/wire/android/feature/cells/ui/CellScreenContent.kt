@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -88,10 +90,12 @@ internal fun CellScreenContent(
     onRefresh: () -> Unit,
     isRestoreInProgress: Boolean,
     isDeleteInProgress: Boolean,
-    isAllFiles: Boolean,
-    isRecycleBin: Boolean,
+    modifier: Modifier = Modifier,
+    isRecycleBin: Boolean = false,
+    isAllFiles: Boolean = false,
     isSearchResult: Boolean = false,
-    isFiltering: Boolean = false,
+    isPullToRefreshEnabled: Boolean = true,
+    lazyListState: LazyListState = rememberLazyListState(),
     retryEditNodeError: (String) -> Unit = {},
     showVersionHistoryScreen: (String, String) -> Unit = { _, _ -> },
 ) {
@@ -109,24 +113,28 @@ internal fun CellScreenContent(
     val downloadFile by downloadFileState.collectAsState()
 
     when {
-        pagingListItems.isLoading() -> LoadingScreen()
+        pagingListItems.isLoading() -> LoadingScreen(modifier = modifier)
         pagingListItems.isError() -> {
             val error = (pagingListItems.loadState.refresh as? LoadState.Error)?.error
             ErrorScreen(
+                modifier = modifier,
                 isConnectionError = (error as? FileListLoadError)?.isConnectionError ?: false,
                 onRetry = { pagingListItems.retry() }
             )
         }
 
         pagingListItems.itemCount == 0 -> EmptyScreen(
+            modifier = modifier,
             isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
             isRecycleBin = isRecycleBin,
-            isFiltering = isFiltering,
         )
 
         else ->
             CellFilesScreen(
+                modifier = modifier,
+                isPullToRefreshEnabled = isPullToRefreshEnabled,
+                lazyListState = lazyListState,
                 cellNodes = pagingListItems,
                 onItemClick = { sendIntent(CellViewIntent.OnItemClick(it)) },
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
@@ -257,13 +265,13 @@ internal fun CellScreenContent(
 
 @Composable
 private fun EmptyScreen(
+    modifier: Modifier = Modifier,
     isSearchResult: Boolean = false,
     isAllFiles: Boolean = true,
     isRecycleBin: Boolean = false,
-    isFiltering: Boolean = false,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(dimensions().spacing16x),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -275,7 +283,7 @@ private fun EmptyScreen(
                 .weight(1f)
         )
         val emptyMessage = when {
-            isFiltering || isSearchResult -> stringResource(R.string.no_results_found_label)
+            isSearchResult -> stringResource(R.string.no_results_found_label)
             isAllFiles -> stringResource(R.string.file_list_empty_title)
             else -> stringResource(R.string.file_list_empty_title)
         }
@@ -287,7 +295,6 @@ private fun EmptyScreen(
         Spacer(modifier = Modifier.height(dimensions().spacing24x))
         Text(
             text = when {
-                isFiltering -> stringResource(R.string.filters_try_adjusting_your_filters_label)
                 isSearchResult -> stringResource(R.string.file_list_search_empty_message)
                 isAllFiles -> stringResource(R.string.file_list_empty_message)
                 isRecycleBin -> stringResource(R.string.empty_recycle_bin)
@@ -298,7 +305,7 @@ private fun EmptyScreen(
         )
         Spacer(modifier = Modifier.height(dimensions().spacing24x))
 
-        if (!isFiltering && !isRecycleBin && !isAllFiles) {
+        if (!isRecycleBin && !isAllFiles) {
             LearnMoreLink(
                 textRes = R.string.empty_screen_learn_more_conversation,
                 urlRes = R.string.empty_screen_learn_more_link_conversation,

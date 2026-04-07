@@ -67,4 +67,14 @@ class BackupModule {
     @Provides
     fun provideOnboardingBackupUseCase(backupScope: BackupScope) =
         backupScope.createUnEncryptedCopy
+
+    @ViewModelScoped
+    @Provides
+    fun provideBackupAndUploadCryptoState(backupScope: BackupScope) =
+        backupScope.backupAndUploadCryptoState
+
+    @ViewModelScoped
+    @Provides
+    fun provideSetLastDeviceIdUseCase(backupScope: BackupScope) =
+        backupScope.setLastDeviceId
 }

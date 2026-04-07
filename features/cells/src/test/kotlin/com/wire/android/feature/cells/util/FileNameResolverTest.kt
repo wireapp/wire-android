@@ -21,13 +21,17 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import java.io.File
+import kotlin.io.path.createTempDirectory
+import kotlin.io.path.deleteRecursively
+import kotlin.io.path.ExperimentalPathApi
 
+@OptIn(ExperimentalPathApi::class)
 class FileNameResolverTest {
 
     @Test
     fun given_file_does_not_existWhen_getUniqueFile_calledThen_returns_original_file_name() {
         // Given
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         val fileName = "document.txt"
 
         // When
@@ -37,13 +41,13 @@ class FileNameResolverTest {
         Assertions.assertEquals("document.txt", result.name)
         assertFalse(result.exists())
 
-        tempDir.deleteRecursively()
+        tempDir.toPath().deleteRecursively()
     }
 
     @Test
     fun given_file_existsWhen_getUniqueFile_calledThen_returns_file_name_with_1_suffix() {
         // Given
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         File(tempDir, "image.png").createNewFile()
 
         // When
@@ -53,13 +57,13 @@ class FileNameResolverTest {
         Assertions.assertEquals("image(1).png", result.name)
         assertFalse(result.exists())
 
-        tempDir.deleteRecursively()
+        tempDir.toPath().deleteRecursively()
     }
 
     @Test
     fun given_multiple_conflicting_files_existWhen_getUniqueFile_calledThen_returns_file_name_with_next_available_index() {
         // Given
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         File(tempDir, "file.txt").createNewFile()
         File(tempDir, "file(1).txt").createNewFile()
         File(tempDir, "file(2).txt").createNewFile()
@@ -71,13 +75,13 @@ class FileNameResolverTest {
         Assertions.assertEquals("file(3).txt", result.name)
         assertFalse(result.exists())
 
-        tempDir.deleteRecursively()
+        tempDir.toPath().deleteRecursively()
     }
 
     @Test
     fun given_file_without_extension_existsWhen_getUniqueFile_calledThen_returns_file_name_with_1_suffix() {
         // Given
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         File(tempDir, "LICENSE").createNewFile()
 
         // When
@@ -87,6 +91,6 @@ class FileNameResolverTest {
         Assertions.assertEquals("LICENSE(1)", result.name)
         assertFalse(result.exists())
 
-        tempDir.deleteRecursively()
+        tempDir.toPath().deleteRecursively()
     }
 }

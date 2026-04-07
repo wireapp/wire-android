@@ -213,4 +213,14 @@ class CallsModule {
     @Provides
     fun provideObserveInCallReactionsUseCase(callsScope: CallsScope) =
         callsScope.observeInCallReactions
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveCallQualityDataUseCase(callsScope: CallsScope) =
+        callsScope.observeCallQualityData
+
+    @ViewModelScoped
+    @Provides
+    fun provideSetCallQualityIntervalUseCase(callsScope: CallsScope) =
+        callsScope.setCallQualityInterval
 }

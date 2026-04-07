@@ -42,7 +42,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
@@ -90,7 +89,7 @@ fun WireTextField(
     colors: WireTextFieldColors = wireTextFieldColors(),
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
-    onTap: ((Offset) -> Unit)? = null,
+    onTap: (() -> Unit)? = null,
     testTag: String = String.EMPTY,
     validateKeyboardOptions: Boolean = true,
 ) {

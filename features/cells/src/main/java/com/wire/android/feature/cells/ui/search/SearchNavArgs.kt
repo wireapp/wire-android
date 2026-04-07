@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2025 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.domain.model
+package com.wire.android.feature.cells.ui.search
 
-import kotlinx.serialization.Serializable
-
-@Serializable
-sealed class CellsFilter {
-    @Serializable
-    data object Tags : CellsFilter()
-}
+data class SearchNavArgs(
+    val conversationId: String? = null,
+    val screenType: DriveSearchScreenType = DriveSearchScreenType.SHARED_DRIVE,
+)

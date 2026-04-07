@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,6 +72,9 @@ import com.wire.android.ui.calling.controlbuttons.SpeakerButton
 import com.wire.android.ui.calling.model.CallState
 import com.wire.android.ui.calling.model.ConversationName
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.details.CallDetailsBottomSheet
+import com.wire.android.ui.calling.ongoing.details.CallDetailsButton
+import com.wire.android.ui.calling.ongoing.details.CallDetailsSheetState
 import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -84,6 +88,7 @@ import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -103,6 +108,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
 import com.wire.android.util.ui.PreviewMultipleThemesForPortrait
 import com.wire.android.util.ui.PreviewMultipleThemesForSquare
+import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -123,16 +129,14 @@ fun OngoingCallScreen(
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
     sharedCallingViewModel: SharedCallingViewModel =
-    hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
-        key = "shared_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    )
+        hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+            key = "shared_$conversationId",
+            creationCallback = { factory -> factory.create(conversationId = conversationId) }
+        )
 ) {
-    val permissionPermanentlyDeniedDialogState =
-        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
-
+    val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val inCallReactionsState = rememberInCallReactionsState()
-
+    val callDetailsBottomSheetState = rememberWireModalSheetState<CallDetailsSheetState>()
     val activity = LocalActivity.current
     val isPiPAvailableOnThisDevice = activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
     val shouldUsePiPMode = BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice
@@ -154,9 +158,11 @@ fun OngoingCallScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        sharedCallingViewModel.inCallReactions.collectLatest { reaction ->
-            inCallReactionsState.runAnimation(reaction)
+    LaunchedEffect(BuildConfig.CALL_REACTIONS_ENABLED) {
+        if (BuildConfig.CALL_REACTIONS_ENABLED) {
+            ongoingCallViewModel.inCallReactions.collectLatest { reaction ->
+                inCallReactionsState.runAnimation(reaction)
+            }
         }
     }
 
@@ -193,7 +199,7 @@ fun OngoingCallScreen(
     OngoingCallContent(
         callState = sharedCallingViewModel.callState,
         inCallReactionsState = inCallReactionsState,
-        shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
+        shouldShowDoubleTapToast = ongoingCallViewModel.state.shouldShowDoubleTapToast,
         toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
         toggleMute = sharedCallingViewModel::toggleMute,
         hangUpCall = sharedCallingViewModel::hangUpCall,
@@ -204,13 +210,18 @@ fun OngoingCallScreen(
         onCollapse = onCollapse,
         requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
         onSelectedParticipant = ongoingCallViewModel::onSelectedParticipant,
-        selectedParticipantForFullScreen = ongoingCallViewModel.selectedParticipant,
+        selectedParticipantForFullScreen = ongoingCallViewModel.state.selectedParticipant,
         hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
         onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
-        onReactionClick = sharedCallingViewModel::onReactionClick,
-        participants = sharedCallingViewModel.participantsState,
+        onReactionClick = ongoingCallViewModel::onReactionClick,
+        participants = ongoingCallViewModel.state.participants,
         inPictureInPictureMode = inPictureInPictureMode,
-        recentReactions = sharedCallingViewModel.recentReactions,
+        recentReactions = ongoingCallViewModel.recentReactions,
+        callQuality = ongoingCallViewModel.state.callQualityData.quality,
+        onOpenCallDetails = {
+            callDetailsBottomSheetState.show(CallDetailsSheetState.Details)
+        },
+        othersVideosDisabled = ongoingCallViewModel.state.othersVideosDisabled,
     )
     ObserveRotation(sharedCallingViewModel::setUIRotation)
 
@@ -258,6 +269,36 @@ fun OngoingCallScreen(
         stopSendingVideoFeed = ongoingCallViewModel::stopSendingVideoFeed,
         clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
     )
+
+    CallDetailsBottomSheet(
+        sheetState = callDetailsBottomSheetState,
+        callQualityData = ongoingCallViewModel.state.callQualityData,
+        othersVideosDisabled = ongoingCallViewModel.state.othersVideosDisabled,
+        setOthersVideosDisabled = ongoingCallViewModel::setOthersVideosDisabled,
+    )
+    HandleQualityIntervals(
+        sheetValue = callDetailsBottomSheetState.currentValue,
+        setQualityInterval = ongoingCallViewModel::setQualityInterval
+    )
+}
+
+@Composable
+private fun HandleQualityIntervals(
+    sheetValue: WireSheetValue<CallDetailsSheetState>,
+    setQualityInterval: (OngoingCallViewModel.QualityInterval) -> Unit
+) {
+    val interval = when (sheetValue) { // calculate the quality interval based on the current call details sheet content
+        is WireSheetValue.Expanded if sheetValue.value == CallDetailsSheetState.Quality -> OngoingCallViewModel.QualityInterval.SHORT
+        else -> OngoingCallViewModel.QualityInterval.NORMAL
+    }
+    LaunchedEffect(interval) { // update the quality interval each time it needs to be changed
+        setQualityInterval(interval)
+    }
+    DisposableEffect(Unit) { // reset the quality interval to normal when this OngoingCallScreen composable is disposed
+        onDispose {
+            setQualityInterval(OngoingCallViewModel.QualityInterval.NORMAL)
+        }
+    }
 }
 
 @Composable
@@ -315,20 +356,22 @@ private fun OngoingCallContent(
     setVideoPreview: (view: View) -> Unit,
     clearVideoPreview: () -> Unit,
     onCollapse: () -> Unit,
+    onOpenCallDetails: () -> Unit,
     hideDoubleTapToast: () -> Unit,
     onCameraPermissionPermanentlyDenied: () -> Unit,
     onReactionClick: (String) -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
-    onSelectedParticipant: (selectedParticipant: SelectedParticipant) -> Unit,
-    selectedParticipantForFullScreen: SelectedParticipant,
+    onSelectedParticipant: (selectedParticipant: SelectedParticipant?) -> Unit,
+    selectedParticipantForFullScreen: SelectedParticipant?,
     participants: PersistentList<UICallParticipant>,
     recentReactions: Map<UserId, String>,
     inPictureInPictureMode: Boolean,
+    callQuality: CallQualityData.Quality,
+    othersVideosDisabled: Boolean,
+    inCallReactionsEnabled: Boolean = BuildConfig.CALL_REACTIONS_ENABLED,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {
-    var shouldOpenFullScreen by remember { mutableStateOf(false) }
-
-    var showInCallReactionsPanel by remember { mutableStateOf(initialShowInCallReactionsPanel) }
+    var showInCallReactionsPanel by remember { mutableStateOf(initialShowInCallReactionsPanel && inCallReactionsEnabled) }
     val emojiPickerState = rememberWireModalSheetState<Unit>(skipPartiallyExpanded = false)
     val isConnecting = participants.isEmpty()
 
@@ -345,7 +388,9 @@ private fun OngoingCallContent(
                     onCollapse = onCollapse,
                     protocolInfo = callState.protocolInfo,
                     mlsVerificationStatus = callState.mlsVerificationStatus,
-                    proteusVerificationStatus = callState.proteusVerificationStatus
+                    proteusVerificationStatus = callState.proteusVerificationStatus,
+                    callQuality = callQuality,
+                    onOpenCallDetails = onOpenCallDetails
                 )
             }
         }
@@ -385,42 +430,44 @@ private fun OngoingCallContent(
                             .fillMaxSize()
                             .drawInCallReactions(
                                 state = inCallReactionsState,
-                                enabled = !inPictureInPictureMode,
+                                enabled = !inPictureInPictureMode && inCallReactionsEnabled,
                             )
                     ) {
-
-                        // if there is only one in the call, do not allow full screen
-                        if (participants.size == 1) {
-                            shouldOpenFullScreen = false
+                        val uiCallParticipantToShowOnFullScreen by remember(participants, selectedParticipantForFullScreen) {
+                            derivedStateOf {
+                                participants
+                                    .takeIf { it.size > 1 } // if there is only one in the call, do not allow full screen
+                                    ?.find { participant -> participant.id == selectedParticipantForFullScreen?.userId }
+                            }
                         }
 
-                        // if we are on full screen, and that user left the call, then we leave the full screen
-                        if (participants.find { user -> user.id == selectedParticipantForFullScreen.userId } == null) {
-                            shouldOpenFullScreen = false
+                        LaunchedEffect(selectedParticipantForFullScreen, uiCallParticipantToShowOnFullScreen) {
+                            // if we have user for full screen selected, but that user left the call, then we leave the full screen
+                            if (selectedParticipantForFullScreen != null && uiCallParticipantToShowOnFullScreen == null) {
+                                onSelectedParticipant(null)
+                            }
                         }
 
-                        if (shouldOpenFullScreen) {
+                        uiCallParticipantToShowOnFullScreen?.let { uiCallParticipantToShowOnFullScreen ->
                             hideDoubleTapToast()
                             FullScreenTile(
                                 callState = callState,
-                                selectedParticipant = selectedParticipantForFullScreen,
-                                height = this@BoxWithConstraints.maxHeight - dimensions().spacing4x,
+                                selectedParticipant = uiCallParticipantToShowOnFullScreen,
+                                height = this@BoxWithConstraints.maxHeight,
                                 closeFullScreen = {
-                                    onSelectedParticipant(SelectedParticipant())
-                                    shouldOpenFullScreen = !shouldOpenFullScreen
+                                    onSelectedParticipant(null)
                                 },
                                 onBackButtonClicked = {
-                                    onSelectedParticipant(SelectedParticipant())
-                                    shouldOpenFullScreen = !shouldOpenFullScreen
+                                    onSelectedParticipant(null)
                                 },
                                 requestVideoStreams = requestVideoStreams,
                                 setVideoPreview = setVideoPreview,
                                 clearVideoPreview = clearVideoPreview,
-                                participants = participants,
                                 isOnFrontCamera = callState.isOnFrontCamera,
                                 flipCamera = flipCamera,
+                                othersVideosDisabled = othersVideosDisabled,
                             )
-                        } else {
+                        } ?: run {
                             VerticalCallingPager(
                                 participants = participants,
                                 isSelfUserCameraOn = callState.isCameraOn,
@@ -433,11 +480,9 @@ private fun OngoingCallContent(
                                 onSelfClearVideoPreview = clearVideoPreview,
                                 requestVideoStreams = requestVideoStreams,
                                 recentReactions = recentReactions,
-                                onDoubleTap = { selectedParticipant ->
-                                    onSelectedParticipant(selectedParticipant)
-                                    shouldOpenFullScreen = !shouldOpenFullScreen
-                                },
+                                onDoubleTap = onSelectedParticipant,
                                 flipCamera = flipCamera,
+                                othersVideosDisabled = othersVideosDisabled,
                             )
                             DoubleTapToast(
                                 modifier = Modifier.align(Alignment.TopCenter),
@@ -457,6 +502,7 @@ private fun OngoingCallContent(
                                 onSelfUserVideoPreviewCreated = setVideoPreview,
                                 onClearSelfUserVideoPreview = clearVideoPreview,
                                 flipCamera = flipCamera,
+                                othersVideosDisabled = othersVideosDisabled,
                             )
                         }
                     }
@@ -464,7 +510,7 @@ private fun OngoingCallContent(
             }
 
             if (!inPictureInPictureMode) {
-                if (showInCallReactionsPanel) {
+                if (showInCallReactionsPanel && inCallReactionsEnabled) {
                     InCallReactionsPanel(
                         onReactionClick = onReactionClick,
                         onMoreClick = { emojiPickerState.show(Unit) },
@@ -478,6 +524,7 @@ private fun OngoingCallContent(
                     isSpeakerOn = callState.isSpeakerOn,
                     isShowingCallReactions = showInCallReactionsPanel,
                     isConnecting = isConnecting,
+                    inCallReactionsEnabled = inCallReactionsEnabled,
                     toggleSpeaker = toggleSpeaker,
                     toggleMute = toggleMute,
                     onHangUpCall = hangUpCall,
@@ -507,7 +554,9 @@ private fun OngoingCallTopBar(
     protocolInfo: Conversation.ProtocolInfo?,
     mlsVerificationStatus: Conversation.VerificationStatus?,
     proteusVerificationStatus: Conversation.VerificationStatus?,
-    onCollapse: () -> Unit
+    callQuality: CallQualityData.Quality,
+    onCollapse: () -> Unit,
+    onOpenCallDetails: () -> Unit
 ) {
     Column {
         WireCenterAlignedTopAppBar(
@@ -534,7 +583,11 @@ private fun OngoingCallTopBar(
             },
             navigationIconType = NavigationIconType.Collapse,
             elevation = 0.dp,
-            actions = {}
+            actions = {
+                if (BuildConfig.CALL_QUALITY_MENU_ENABLED) {
+                    CallDetailsButton(callQuality = callQuality, onClick = onOpenCallDetails)
+                }
+            }
         )
         if (isCbrEnabled) {
             Text(
@@ -560,6 +613,7 @@ private fun CallingControls(
     isSpeakerOn: Boolean,
     isShowingCallReactions: Boolean,
     isConnecting: Boolean,
+    inCallReactionsEnabled: Boolean,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
@@ -593,11 +647,13 @@ private fun CallingControls(
                 onSpeakerButtonClicked = toggleSpeaker
             )
 
-            InCallReactionsButton(
-                isSelected = isShowingCallReactions,
-                isEnabled = !isConnecting,
-                onInCallReactionsClick = onCallReactionsClick
-            )
+            if (inCallReactionsEnabled) {
+                InCallReactionsButton(
+                    isSelected = isShowingCallReactions,
+                    isEnabled = !isConnecting,
+                    onInCallReactionsClick = onCallReactionsClick
+                )
+            }
 
             HangUpOngoingButton(
                 onHangUpButtonClicked = onHangUpCall
@@ -641,9 +697,13 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>, i
         participants = participants,
         inPictureInPictureMode = false,
         onSelectedParticipant = {},
-        selectedParticipantForFullScreen = SelectedParticipant(),
+        selectedParticipantForFullScreen = null,
         recentReactions = emptyMap(),
+        inCallReactionsEnabled = true,
         initialShowInCallReactionsPanel = inCallReactionsPanelVisible,
+        callQuality = CallQualityData.Quality.NORMAL,
+        onOpenCallDetails = {},
+        othersVideosDisabled = true,
     )
 }
 
@@ -685,7 +745,13 @@ fun PreviewOngoingCallScreenConnecting() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingCallTopBar() = WireTheme {
-    OngoingCallTopBar("Default", true, null, null, null) { }
+    OngoingCallTopBar("Default", true, null, null, null, CallQualityData.Quality.NORMAL, {}, {})
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewOngoingCallTopBarWithPoorQuality() = WireTheme {
+    OngoingCallTopBar("Default", true, null, null, null, CallQualityData.Quality.POOR, {}, {})
 }
 
 fun buildPreviewParticipantsList(count: Int = 10) = buildList {

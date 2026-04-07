@@ -21,7 +21,9 @@ enum class ConfigType(val type: String) {
     STRING("String"),
     BOOLEAN("Boolean"),
     INT("int"),
-    MapOfStringToListOfStrings("java.util.HashMap<String, java.util.List<String>>")
+    MapOfStrings("java.util.HashMap<String, String>"),
+    MapOfStringToListOfStrings("java.util.HashMap<String, java.util.List<String>>"),
+    ListOfStrings("java.util.List<String>")
 }
 
 enum class FeatureConfigs(val value: String, val configType: ConfigType) {
@@ -143,5 +145,15 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     COLLABORA_INTEGRATION_ENABLED("collabora_integration", ConfigType.BOOLEAN),
 
-    DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN)
+    DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN),
+
+    CONFIGURATION_SIGNATURE_KEYS("configuration_signature_keys", ConfigType.MapOfStrings),
+
+    ENFORCE_CONFIGURATION_SIGNATURE("enforce_configuration_signature", ConfigType.BOOLEAN),
+
+    NOMAD_PROFILES_ENABLED("nomad_profiles_enabled", ConfigType.BOOLEAN),
+
+    CALL_QUALITY_MENU_ENABLED("call_quality_menu_enabled", ConfigType.BOOLEAN),
+
+    CALL_REACTIONS_ENABLED("call_reactions_enabled", ConfigType.BOOLEAN)
 }

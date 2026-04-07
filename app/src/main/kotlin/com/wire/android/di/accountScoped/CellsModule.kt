@@ -27,9 +27,11 @@ import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
+import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedNodesUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
@@ -197,6 +199,10 @@ class CellsModule {
     @Provides
     fun provideGetAttachmentUseCase(cellsScope: CellsScope): GetMessageAttachmentUseCase = cellsScope.getMessageAttachmentUseCase
 
+    @ViewModelScoped
+    @Provides
+    fun provideGetOwnersUseCase(cellsScope: CellsScope): GetOwnersUseCase = cellsScope.getOwnersUseCase
+
     @Provides
     fun provideFileNameResolver(): FileNameResolver = FileNameResolver()
 
@@ -247,4 +253,9 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideGetCellsConfigUseCase(cellsScope: CellsScope): GetWireCellConfigurationUseCase = cellsScope.getCellConfig
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetCellGroupConversationsUseCase(cellsScope: CellsScope): GetCellGroupConversationsUseCase =
+        cellsScope.getCellGroupConversationsUseCase
 }

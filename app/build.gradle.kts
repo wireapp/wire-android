@@ -159,6 +159,7 @@ android {
             kotlin.directories.add("src/androidTest/kotlin")
         }
         create("screenshotTest") {
+            java.directories.add("src/screenshotTest/kotlin")
             kotlin.directories.add("src/screenshotTest/kotlin")
             res.directories.add("src/main/res")
         }
@@ -184,11 +185,14 @@ dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")
+    implementation("com.wire.kalium:kalium-core-libsodium")
+    testRuntimeOnly(libs.libsodium.bindings.jvm)
     androidTestImplementation("com.wire.kalium:kalium-mocks")
     androidTestImplementation("com.wire.kalium:kalium-network")
 
     fun implementationWithCoverage(dependency: ProjectDependency) {
         implementation(dependency)
+        kover(dependency)
     }
     implementationWithCoverage(projects.core.uiCommon)
     implementationWithCoverage(projects.core.di)
@@ -253,12 +257,7 @@ dependencies {
     androidTestImplementation(composeBom)
 
     implementation(libs.compose.ui)
-    // we still cannot get rid of material2 because swipeable is still missing - https://issuetracker.google.com/issues/229839039
-    // https://developer.android.com/jetpack/compose/designsystems/material2-material3#components-and
-    implementation(libs.compose.material.core)
     implementation(libs.compose.material3)
-    // the only libraries with material2 packages that can be used with material3 are icons and ripple
-    implementation(libs.compose.material.ripple)
     implementation(libs.compose.ui.preview)
     implementation(libs.compose.activity)
     implementation(libs.compose.constraintLayout)
@@ -309,6 +308,7 @@ dependencies {
 
     // screenshot testing
     screenshotTestImplementation(libs.compose.ui.tooling)
+    screenshotTestImplementation(libs.screenshot.validation.api)
 
     // Unit/Android tests dependencies
     testImplementation(libs.androidx.test.archCore)

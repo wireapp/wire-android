@@ -798,6 +798,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="unblock_user_dialog_confirm_button">Desbloquear</string>
     <!--max account reached dialog-->
     <string name="max_account_reached_dialog_button_open_profile">Abrir perfil</string>
+    <!--nomad account blocks login dialog-->
     <string name="cant_switch_account_in_call">No puedes cambiar de cuenta mientras est&#225;s en una llamada</string>
     <string name="custom_backend_dialog_title">&#191;Redirigir a un backend local?</string>
     <string name="custom_backend_dialog_body">Si continúa, su cliente será redirigido al siguiente servidor local:</string>

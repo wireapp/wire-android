@@ -57,67 +57,64 @@ object WireColorPalette {
     val LightBlue900 = Color(0xFF021F3C)
 
     @Stable
-    val LightGreen50 = Color(0xFFE9F2EB)
+    val LightGreen50 = Color(0xFFE8F1EA)
 
     @Stable
-    val LightGreen100 = Color(0xFFD2E5D7)
+    val LightGreen100 = Color(0xFFD2E4D6)
 
     @Stable
-    val LightGreen200 = Color(0xFFA6CBAF)
+    val LightGreen200 = Color(0xFFA5C9AD)
 
     @Stable
-    val LightGreen300 = Color(0xFF79B087)
+    val LightGreen300 = Color(0xFF77AE85)
 
     @Stable
-    val LightGreen400 = Color(0xFF4D965F)
+    val LightGreen400 = Color(0xFF4A935C)
 
     @Stable
-    val LightGreen500 = Color(0xFF207C37)
+    val LightGreen500 = Color(0xFF1D7833)
 
     @Stable
-    val LightGreen550 = Color(0xFF1D7833)
+    val LightGreen600 = Color(0xFF176029)
 
     @Stable
-    val LightGreen600 = Color(0xFF1A632C)
+    val LightGreen700 = Color(0xFF11481F)
 
     @Stable
-    val LightGreen700 = Color(0xFF134A21)
+    val LightGreen800 = Color(0xFF0C3014)
 
     @Stable
-    val LightGreen800 = Color(0xFF0D3216)
+    val LightGreen900 = Color(0xFF09240F)
 
     @Stable
-    val LightGreen900 = Color(0xFF0A2511)
+    val LightPetrol50 = Color(0xFFE5F1F3)
 
     @Stable
-    val LightPetrol50 = Color(0xFFE6F3F6)
+    val LightPetrol100 = Color(0xFFCCE2E7)
 
     @Stable
-    val LightPetrol100 = Color(0xFFCCE6EB)
+    val LightPetrol200 = Color(0xFF99C6D0)
 
     @Stable
-    val LightPetrol200 = Color(0xFF99CDD8)
+    val LightPetrol300 = Color(0xFF67A9B8)
 
     @Stable
-    val LightPetrol300 = Color(0xFF67B3C4)
+    val LightPetrol400 = Color(0xFF348DA1)
 
     @Stable
-    val LightPetrol400 = Color(0xFF349AB1)
+    val LightPetrol500 = Color(0xFF01718E)
 
     @Stable
-    val LightPetrol500 = Color(0xFF01819D)
+    val LightPetrol600 = Color(0xFF015A6E)
 
     @Stable
-    val LightPetrol600 = Color(0xFF01677E)
+    val LightPetrol700 = Color(0xFF014352)
 
     @Stable
-    val LightPetrol700 = Color(0xFF014D5E)
+    val LightPetrol800 = Color(0xFF002D37)
 
     @Stable
-    val LightPetrol800 = Color(0xFF00343F)
-
-    @Stable
-    val LightPetrol900 = Color(0xFF00272F)
+    val LightPetrol900 = Color(0xFF002229)
 
     @Stable
     val LightPurple50 = Color(0xFFF4EDF7)
@@ -180,34 +177,34 @@ object WireColorPalette {
     val LightRed900 = Color(0xFF3A0006)
 
     @Stable
-    val LightAmber50 = Color(0xFFF3F0ED)
+    val LightAmber50 = Color(0xFFF6EEE8)
 
     @Stable
-    val LightAmber100 = Color(0xFFE5E0DA)
+    val LightAmber100 = Color(0xFFECDED0)
 
     @Stable
-    val LightAmber200 = Color(0xFFCCC1B5)
+    val LightAmber200 = Color(0xFFDABDA1)
 
     @Stable
-    val LightAmber300 = Color(0xFFB2A38F)
+    val LightAmber300 = Color(0xFFC79B73)
 
     @Stable
-    val LightAmber400 = Color(0xFF99846A)
+    val LightAmber400 = Color(0xFFB57A44)
 
     @Stable
-    val LightAmber500 = Color(0xFF7F6545)
+    val LightAmber500 = Color(0xFFA25915)
 
     @Stable
-    val LightAmber600 = Color(0xFF665137)
+    val LightAmber600 = Color(0xFF824711)
 
     @Stable
-    val LightAmber700 = Color(0xFF4C3D29)
+    val LightAmber700 = Color(0xFF61350D)
 
     @Stable
-    val LightAmber800 = Color(0xFF4C3D29)
+    val LightAmber800 = Color(0xFF412408)
 
     @Stable
-    val LightAmber900 = Color(0xFF261E15)
+    val LightAmber900 = Color(0xFF201204)
 
     @Stable
     val DarkBlue50 = Color(0xFFEEF7FF)
@@ -256,7 +253,6 @@ object WireColorPalette {
 
     @Stable
     val DarkGreen500 = Color(0xFF30DB5B)
-    val DarkGreen550 = Color(0xFF1D7833)
 
     @Stable
     val DarkGreen600 = Color(0xFF26AF49)
@@ -427,9 +423,6 @@ object WireColorPalette {
     val BlackAlpha55 = Color(0x8C000000)
 
     @Stable
-    val Brown = Color(0xFFA25915)
-
-    @Stable
     val Chocolate = Color(0xFF622F00)
 
     @Stable
@@ -437,7 +430,4 @@ object WireColorPalette {
 
     @Stable
     val Pink = Color(0xFFEB239B)
-
-    @Stable
-    val Turquoise = Color(0xFF01718E)
 }

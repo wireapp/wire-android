@@ -26,11 +26,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.appLogger
 import com.wire.android.config.DefaultServerConfig
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
@@ -38,25 +41,35 @@ import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
+import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
+import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import android.database.sqlite.SQLiteException
+import java.io.IOException
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class LoginSSOViewModel(
     private val savedStateHandle: SavedStateHandle,
@@ -66,7 +79,8 @@ class LoginSSOViewModel(
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     userDataStoreProvider: UserDataStoreProvider,
     private val ssoExtension: LoginSSOViewModelExtension,
-    serverConfig: ServerConfig.Links
+    serverConfig: ServerConfig.Links,
+    private val dispatchers: DispatcherProvider,
 ) : LoginViewModel(
     savedStateHandle,
     clientScopeProviderFactory,
@@ -74,6 +88,9 @@ class LoginSSOViewModel(
     coreLogic,
     serverConfig
 ) {
+    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
+    private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
+    private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
 
     @Inject
     constructor(
@@ -85,6 +102,7 @@ class LoginSSOViewModel(
         userDataStoreProvider: UserDataStoreProvider,
         serverConfig: ServerConfig.Links,
         @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
+        dispatchers: DispatcherProvider,
     ) : this(
         savedStateHandle,
         addAuthenticatedUser,
@@ -93,7 +111,8 @@ class LoginSSOViewModel(
         clientScopeProviderFactory,
         userDataStoreProvider,
         LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, defaultWebSocketEnabledByDefault),
-        serverConfig
+        serverConfig,
+        dispatchers,
     )
 
     var openWebUrl = MutableSharedFlow<Pair<String, ServerConfig.Links>>()
@@ -154,9 +173,10 @@ class LoginSSOViewModel(
                             ssoExtension.initiateSSO(
                                 serverConfig = state.serverLinks,
                                 ssoCode = defaultSSOCode,
+                                cookieLabel = pendingCookieLabel,
                                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                                 onSSOInitiateFailure = { updateSSOFlowState(it.toLoginSSOError()) },
-                                onSuccess = { requestUrl, _ -> openWebUrl(requestUrl, state.serverLinks) }
+                                onSuccess = { requestUrl -> openWebUrl(requestUrl, state.serverLinks) }
                             )
                         }
                     }
@@ -206,9 +226,10 @@ class LoginSSOViewModel(
             ssoExtension.initiateSSO(
                 serverConfig = serverConfig,
                 ssoCode = ssoTextState.text.toString(),
+                cookieLabel = pendingCookieLabel,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOInitiateFailure = { updateSSOFlowState(it.toLoginSSOError()) },
-                onSuccess = { requestUrl, _ -> openWebUrl(requestUrl, serverConfig) }
+                onSuccess = { requestUrl -> openWebUrl(requestUrl, serverConfig) }
             )
         }
     }
@@ -218,45 +239,136 @@ class LoginSSOViewModel(
     fun establishSSOSession(
         cookie: String,
         serverConfigId: String,
-        serverConfig: ServerConfig.Links? = null,
     ) {
         updateSSOFlowState(LoginState.Loading)
         viewModelScope.launch {
             ssoExtension.establishSSOSession(
                 cookie = cookie,
                 serverConfigId = serverConfigId,
-                serverConfig = serverConfig ?: this@LoginSSOViewModel.serverConfig,
+                consumeNomadServiceUrl = ::consumePendingNomadServiceUrl,
+                consumeCookieLabel = ::consumePendingCookieLabel,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOLoginFailure = { updateSSOFlowState(it.toLoginError()) },
                 onAddAuthenticatedUserFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSuccess = { storedUserId ->
-                    registerClient(storedUserId, null).let {
-                        when (it) {
-                            is RegisterClientResult.Success ->
-                                updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false))
-
-                            is RegisterClientResult.Failure ->
-                                updateSSOFlowState(it.toLoginError())
-
-                            is RegisterClientResult.E2EICertificateRequired ->
-                                updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), true))
-                        }
+                    appLogger.i("$TAG SSO session established successfully for userId: $storedUserId, checking Nomad status")
+                    val isNomadEnabled = withContext(dispatchers.io()) {
+                        val result = coreLogic.getSessionScope(storedUserId).authenticationScope.isNomadProfilesEnabled()
+                        result is IsNomadProfilesEnabledUseCase.Result.Success && result.isEnabled
+                    }
+                    if (!isNomadEnabled) {
+                        appLogger.i("$TAG Nomad not enabled, proceeding with regular login")
+                        registerClientAndUpdateState(storedUserId, setLastDeviceId = false)
+                    } else {
+                        appLogger.i("$TAG Nomad enabled, attempting crypto state restore")
+                        restoreCryptoStateAndContinue(storedUserId)
                     }
                 }
             )
         }
     }
 
-    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?, serverConfig: ServerConfig.Links? = null) {
+    fun handleSSOResult(
+        ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ) {
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {
-                establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId, serverConfig)
+                establishSSOSession(
+                    ssoLoginResult.cookie,
+                    ssoLoginResult.serverConfigId,
+                )
             }
 
             is DeepLinkResult.SSOLogin.Failure ->
                 updateSSOFlowState(LoginState.Error.DialogError.SSOResultError(ssoLoginResult.ssoError))
 
             null -> {}
+        }
+    }
+
+    private suspend fun registerClientAndUpdateState(userId: UserId, setLastDeviceId: Boolean = false) {
+        withContext(dispatchers.io()) {
+            registerClient(userId = userId, password = null)
+        }.let {
+            when (it) {
+                is RegisterClientResult.Success -> {
+                    if (setLastDeviceId) {
+                        coreLogic.getSessionScope(userId).backup.setLastDeviceId(it.client.id.value)
+                    }
+                    updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(userId), false))
+                }
+
+                is RegisterClientResult.E2EICertificateRequired ->
+                    updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(userId), true))
+
+                is RegisterClientResult.Failure.TooManyClients ->
+                    updateSSOFlowState(LoginState.Error.TooManyDevicesError)
+
+                is RegisterClientResult.Failure -> {
+                    revertSSOSession(userId)
+                    updateSSOFlowState(it.toLoginError())
+                }
+            }
+        }
+    }
+
+    private suspend fun isSessionStillValid(userId: UserId): Boolean =
+        (coreLogic.getGlobalScope().doesValidSessionExist(userId) as? DoesValidSessionExistResult.Success)
+            ?.doesValidSessionExist == true
+
+    @Suppress("ThrowsCount", "TooGenericExceptionCaught")
+    private suspend fun restoreCryptoStateAndContinue(storedUserId: UserId) {
+        val restoreResult = try {
+            withContext(dispatchers.io()) {
+                coreLogic.getSessionScope(storedUserId).backup.restoreCryptoState()
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            when (e) {
+                is IllegalStateException, is IOException, is SQLiteException -> {
+                    if (isSessionStillValid(storedUserId)) throw e
+                    appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${e.message}")
+                    return
+                }
+                else -> throw e
+            }
+        }
+
+        when (restoreResult) {
+            is RestoreCryptoStateResult.Success -> {
+                updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false))
+            }
+            is RestoreCryptoStateResult.NoBackupAvailable -> {
+                registerClientAndUpdateState(storedUserId, setLastDeviceId = true)
+            }
+            is RestoreCryptoStateResult.Failure -> {
+                appLogger.e("$TAG Failed to restore crypto state during SSO login")
+                revertSSOSession(storedUserId)
+                updateSSOFlowState(
+                    LoginState.Error.DialogError.GenericError(
+                        CoreFailure.Unknown(Exception("Failed to restore crypto state"))
+                    )
+                )
+            }
+        }
+    }
+
+    @Suppress("ThrowsCount", "TooGenericExceptionCaught")
+    private suspend fun revertSSOSession(userId: UserId) {
+        try {
+            coreLogic.getSessionScope(userId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
+            coreLogic.getGlobalScope().deleteSession(userId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            when (e) {
+                is IllegalStateException, is IOException, is SQLiteException -> {
+                    if (isSessionStillValid(userId)) throw e
+                    appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${e.message}")
+                }
+                else -> throw e
+            }
         }
     }
 
@@ -269,6 +381,15 @@ class LoginSSOViewModel(
 
     companion object {
         const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
+        private const val TAG = "[LoginSSOViewModel]"
+    }
+
+    private fun consumePendingNomadServiceUrl(): String? = pendingNomadServiceUrl.also {
+        pendingNomadServiceUrl = null
+    }
+
+    private fun consumePendingCookieLabel(): String? = pendingCookieLabel.also {
+        pendingCookieLabel = null
     }
 }
 

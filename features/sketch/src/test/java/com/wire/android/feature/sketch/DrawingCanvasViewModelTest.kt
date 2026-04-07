@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.SavedStateHandle
+import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
 import io.mockk.MockKAnnotations
@@ -203,7 +204,7 @@ class DrawingCanvasViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every {
-                savedStateHandle.navArgs<DrawingCanvasNavArgs>()
+                DrawingCanvasScreenDestination.argsFrom(savedStateHandle)
             } returns DrawingCanvasNavArgs("Conversation Name", tempWritableUri)
         }
         fun arrange() = this to viewModel

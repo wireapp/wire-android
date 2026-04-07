@@ -41,7 +41,7 @@ import user.utils.ClientUser
 class CallingServiceClient {
 
     companion object {
-        const val API_ROOT = "https://qa-callingservice-wire.runs.onstackit.cloud"
+        const val API_ROOT = "https://callingservice.dev.wire.link"
     }
 
     private val callingService = CallingService(API_ROOT)

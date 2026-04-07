@@ -44,6 +44,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.PreviewMultipleThemes
@@ -58,13 +59,16 @@ fun SearchBarInput(
     placeholderAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = LocalTextStyle.current,
+    textFieldState: WireTextFieldState = WireTextFieldState.Default,
     isLoading: Boolean = false,
-    semanticDescription: String? = null
+    semanticDescription: String? = null,
+    onTap: (() -> Unit)? = null
 ) {
 
     WireTextField(
         modifier = modifier,
         textState = textState,
+        state = textFieldState,
         leadingIcon = {
             leadingIcon()
         },
@@ -108,7 +112,8 @@ fun SearchBarInput(
         placeholderAlignment = placeholderAlignment,
         placeholderText = placeholderText,
         lineLimits = TextFieldLineLimits.SingleLine,
-        semanticDescription = semanticDescription
+        semanticDescription = semanticDescription,
+        onTap = onTap,
     )
 }
 

@@ -42,7 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
@@ -86,7 +85,7 @@ fun WirePasswordTextField(
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
-    onTap: ((Offset) -> Unit)? = null,
+    onTap: (() -> Unit)? = null,
     testTag: String = String.EMPTY
 ) {
     val autoFillType = if (autoFill) WireAutoFillType.Password else WireAutoFillType.None

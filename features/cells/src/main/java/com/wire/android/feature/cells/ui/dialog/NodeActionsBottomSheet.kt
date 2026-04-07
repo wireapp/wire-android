@@ -142,6 +142,8 @@ private fun PreviewFileActionsBottomSheet() {
                     size = 2342342,
                     localPath = "",
                     userName = null,
+                    userHandle = "userHandle",
+                    ownerUserId = "userId",
                     conversationName = null,
                     modifiedTime = null
                 ),

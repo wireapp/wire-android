@@ -27,6 +27,7 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -34,19 +35,20 @@ import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
+import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.ui.common.ActionsViewModel
-import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
+import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
-import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -62,30 +64,23 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.seconds
 
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class CellViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
-    private val getAllTagsUseCase: GetAllTagsUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
     private val download: DownloadCellFileUseCase,
@@ -99,8 +94,12 @@ class CellViewModel @Inject constructor(
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
-
-    val isSearchByDefaultActive: Boolean = navArgs.isSearchByDefaultActive ?: false
+    private val searchNavArgs: SearchNavArgs? = try {
+        SearchScreenDestination.argsFrom(savedStateHandle)
+    } catch (_: RuntimeException) {
+        // Not coming from Search screen, ignore
+        null
+    }
 
     // Show menu with actions for the selected file.
     private val _menu: MutableSharedFlow<MenuOptions> = MutableSharedFlow()
@@ -119,21 +118,7 @@ class CellViewModel @Inject constructor(
     // Download progress value for each file being downloaded.
     private val downloadDataFlow = MutableStateFlow<Map<String, DownloadData>>(emptyMap())
 
-    private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
-
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
-
-    private val _selectedTags = MutableStateFlow<Set<String>>(emptySet())
-    val selectedTags: StateFlow<Set<String>> = _selectedTags.asStateFlow()
-
-    private val _tags = MutableStateFlow<Set<String>>(emptySet())
-    val sortedTags: StateFlow<List<String>> = _tags.asStateFlow()
-        .map { it.sortedBy { tag -> tag.lowercase() } }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
-            initialValue = emptyList()
-        )
 
     // Used to navigate to the root of the recycle bin after restoring a parent folder.
     private val _navigateToRecycleBinRoot = MutableStateFlow(false)
@@ -145,46 +130,40 @@ class CellViewModel @Inject constructor(
     private val _pagingRefreshDone = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     private val pagingRefreshDone: SharedFlow<Unit> = _pagingRefreshDone
 
-    private val refreshTrigger = MutableSharedFlow<Unit>(replay = 0)
+    private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1, extraBufferCapacity = 1)
+
+    private val cellAvailableFlow = MutableStateFlow(false)
 
     private var isCollaboraEnabled: Boolean = false
 
     init {
-        loadTags()
         loadWireCellConfig()
+        checkCellAvailabilityAndRefresh()
     }
 
-    internal val nodesFlow = flow {
+    private fun checkCellAvailabilityAndRefresh() = viewModelScope.launch {
         val cellAvailable = isCellAvailable().fold({ false }, { it })
-        emitAll(if (cellAvailable) buildNodesFlow() else flowOf(emptyData))
-    }
+        cellAvailableFlow.value = cellAvailable
 
-    fun onPullToRefresh() {
-        _isPullToRefresh.value = true
-        refreshNodes()
-    }
-
-    private fun refreshNodes() {
-        viewModelScope.launch {
-            refreshTrigger.emit(Unit)
+        if (cellAvailable) {
+            refreshNodes()
         }
     }
 
-    private fun buildNodesFlow() = combine(
-        searchQueryFlow
-            .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
-            .onStart { emit("") }
-            .distinctUntilChanged(),
-        selectedTags,
-        refreshTrigger.onStart { emit(Unit) }
-    ) { query, currentTags, _ -> query to currentTags }
-        .flatMapLatest { (query, currentTags) ->
+    private val sharedNodesFlow = cellAvailableFlow.flatMapLatest { cellAvailable ->
+        if (!cellAvailable) {
+            return@flatMapLatest flow {
+                emit(emptyData)
+            }
+        }
+
+        refreshTrigger.flatMapLatest {
             combine(
                 getCellFilesPaged(
                     conversationId = navArgs.conversationId,
-                    query = query,
-                    onlyDeleted = navArgs.isRecycleBin ?: false,
-                    tags = currentTags.toList(),
+                    fileFilters = FileFilters(
+                        onlyDeleted = navArgs.isRecycleBin ?: false,
+                    ),
                 ).cachedIn(viewModelScope),
                 removedItemsFlow,
                 downloadDataFlow
@@ -192,12 +171,11 @@ class CellViewModel @Inject constructor(
                 var emittedRefreshDone = false
 
                 pagingData
-                    .filter { it.uuid !in removedItems }
+                    .filter { node: Node -> node.uuid !in removedItems }
                     .map { node ->
                         if (!emittedRefreshDone) {
                             emittedRefreshDone = true
 
-                            // If this refresh was triggered by pull-to-refresh, stop the spinner
                             if (_isPullToRefresh.value) {
                                 _isPullToRefresh.value = false
                             }
@@ -218,17 +196,25 @@ class CellViewModel @Inject constructor(
                     }
             }
         }
+    }.shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)
 
-    fun updateSelectedTags(tags: Set<String>) {
-        _selectedTags.value = tags
+    internal val nodesFlow = cellAvailableFlow.flatMapLatest { cellAvailable ->
+        if (!cellAvailable || searchNavArgs != null) {
+            flowOf(emptyData)
+        } else {
+            sharedNodesFlow
+        }
     }
 
-    internal fun onSearchQueryUpdated(text: String) = viewModelScope.launch {
-        searchQueryFlow.emit(text)
+    fun onPullToRefresh() {
+        _isPullToRefresh.value = true
+        refreshNodes()
     }
 
-    internal fun hasSearchQuery(): Boolean {
-        return searchQueryFlow.value.isNotEmpty()
+    private fun refreshNodes() {
+        viewModelScope.launch {
+            refreshTrigger.tryEmit(Unit)
+        }
     }
 
     internal fun sendIntent(intent: CellViewIntent) {
@@ -250,7 +236,6 @@ class CellViewModel @Inject constructor(
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
-    private fun isSearching(): Boolean = searchQueryFlow.value.isNotEmpty()
     private fun isConversationFiles(): Boolean = navArgs.conversationId != null && !isRecycleBin()
     private fun isAllFiles(): Boolean = navArgs.conversationId == null && !isRecycleBin()
 
@@ -390,7 +375,8 @@ class CellViewModel @Inject constructor(
             isRecycleBin = isRecycleBin(),
             isConversationFiles = isConversationFiles(),
             isAllFiles = isAllFiles(),
-            isSearching = isSearching(),
+            isSearching = searchNavArgs?.screenType == DriveSearchScreenType.SHARED_DRIVE ||
+                    searchNavArgs?.screenType == DriveSearchScreenType.DRIVE,
             isCollaboraEnabled = isCollaboraEnabled,
         )
 
@@ -516,12 +502,6 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    internal fun loadTags() = viewModelScope.launch {
-        getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
-        // apply delay to avoid too frequent requests
-        delay(30.seconds)
-    }
-
     private fun loadWireCellConfig() = viewModelScope.launch {
         val config = getWireCellsConfig()
         isCollaboraEnabled = config?.collabora != CollaboraEdition.NO
@@ -537,7 +517,6 @@ class CellViewModel @Inject constructor(
                 append = LoadState.NotLoading(true)
             )
         )
-        const val STOP_TIMEOUT_MILLIS = 1_000L
     }
 }
 

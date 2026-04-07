@@ -26,7 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
+import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -64,6 +64,7 @@ fun FloatingSelfUserTile(
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit,
     flipCamera: () -> Unit,
+    othersVideosDisabled: Boolean,
     modifier: Modifier = Modifier,
 ) {
     var selfVideoTileHeight by remember {
@@ -173,6 +174,7 @@ fun FloatingSelfUserTile(
             onClearSelfUserVideoPreview = onClearSelfUserVideoPreview,
             isOnFrontCamera = isOnFrontCamera,
             flipCamera = flipCamera,
+            othersVideosDisabled = othersVideosDisabled,
         )
     }
 }

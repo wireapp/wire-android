@@ -29,6 +29,8 @@ sealed class CellNodeUi {
     abstract val name: String?
     abstract val uuid: String
     abstract val userName: String?
+    abstract val userHandle: String?
+    abstract val ownerUserId: String?
     abstract val conversationName: String?
     abstract val modifiedTime: String?
     abstract val publicLinkId: String?
@@ -41,6 +43,8 @@ sealed class CellNodeUi {
         override val name: String?,
         override val uuid: String,
         override val userName: String?,
+        override val userHandle: String?,
+        override val ownerUserId: String?,
         override val conversationName: String?,
         override val modifiedTime: String?,
         override val publicLinkId: String? = null,
@@ -54,6 +58,8 @@ sealed class CellNodeUi {
         override val name: String?,
         override val uuid: String,
         override val userName: String?,
+        override val userHandle: String?,
+        override val ownerUserId: String?,
         override val conversationName: String?,
         override val modifiedTime: String?,
         override val publicLinkId: String? = null,
@@ -83,6 +89,8 @@ internal fun Node.File.toUiModel() = CellNodeUi.File(
     contentUrl = contentUrl,
     previewUrl = previewUrl,
     userName = userName,
+    userHandle = userHandle,
+    ownerUserId = ownerUserId,
     conversationName = conversationName,
     publicLinkId = publicLinkId,
     modifiedTime = formattedModifiedTime(),
@@ -94,6 +102,8 @@ internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
     uuid = uuid,
     name = name,
     userName = userName,
+    userHandle = userHandle,
+    ownerUserId = ownerUserId,
     conversationName = conversationName,
     modifiedTime = formattedModifiedTime(),
     remotePath = remotePath,

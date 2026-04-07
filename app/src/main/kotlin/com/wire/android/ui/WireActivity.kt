@@ -53,6 +53,16 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.LogManagementScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewWelcomeEmptyStartScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfDevicesScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.utils.destination
 import com.ramcosta.composedestinations.utils.route
@@ -75,7 +85,6 @@ import com.wire.android.navigation.startDestination
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
-import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
@@ -88,16 +97,6 @@ import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.LogManagementScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewWelcomeEmptyStartScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfDevicesScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EICertificateRevokedDialog
 import com.wire.android.ui.home.E2EIRequiredDialog
@@ -124,7 +123,6 @@ import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
-import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.launchUpdateTheApp
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
@@ -140,7 +138,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 @Suppress("TooManyFunctions", "LargeClass")
-class WireActivity : AppCompatActivity() {
+class WireActivity : BaseActivity() {
 
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager
@@ -385,7 +383,7 @@ class WireActivity : AppCompatActivity() {
                     .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                     .collectLatest { (intent, savedInstanceState) ->
                         currentKeyboardController?.hide()
-                        handleDeepLink(currentNavigator, intent, savedInstanceState)
+                        handleDeepLinkOrIntent(currentNavigator, intent, savedInstanceState)
                     }
             }
         }
@@ -592,32 +590,7 @@ class WireActivity : AppCompatActivity() {
                             navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
                         }
                     },
-                    onConfirm = { loginType ->
-                        viewModel.customBackendDialogProceedButtonClicked { serverLinks ->
-                            lifecycleScope.launch {
-                                val destination = when (loginType) {
-                                    LoginType.New -> NewLoginScreenDestination(loginPasswordPath = LoginPasswordPath(serverLinks))
-                                    LoginType.Old -> WelcomeScreenDestination(customServerConfig = serverLinks)
-                                    LoginType.Default -> when (loginTypeSelector.canUseNewLogin(serverLinks)) {
-                                        true -> NewLoginScreenDestination(loginPasswordPath = LoginPasswordPath(serverLinks))
-                                        false -> WelcomeScreenDestination(customServerConfig = serverLinks)
-                                    }
-                                }
-                                withContext(Dispatchers.Main) {
-                                    navigate(
-                                        NavigationCommand(
-                                            destination = destination,
-                                            // if "welcome empty start" screen then switch "start" screen to proper one
-                                            backStackMode = when (navigator.shouldReplaceWelcomeLoginStartDestination()) {
-                                                true -> BackStackMode.CLEAR_WHOLE
-                                                else -> BackStackMode.UPDATE_EXISTED
-                                            }
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                    },
+                    onConfirm = viewModel::customBackendDialogProceedButtonClicked,
                     onTryAgain = viewModel::onCustomServerConfig
                 )
                 MaxAccountDialog(
@@ -730,7 +703,7 @@ class WireActivity : AppCompatActivity() {
     /*
      * This method is responsible for handling deep links from given intent
      */
-    private fun handleDeepLink(
+    private suspend fun handleDeepLinkOrIntent(
         navigator: Navigator,
         intent: Intent?,
         savedInstanceState: Bundle? = null
@@ -742,19 +715,23 @@ class WireActivity : AppCompatActivity() {
         }
         val originalIntent = savedInstanceState.getOriginalIntent()
         if (intent == null
-            || intent.action == Intent.ACTION_MAIN // This is the case when the app is opened from launcher so no deep link to handle
+            || intent.action == Intent.ACTION_MAIN // The app is opened from launcher so no deep link to handle, only start intents if any
             || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
             || originalIntent == intent // This is the case when the activity is recreated and already handled
             || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
-            if (navigator.isEmptyWelcomeStartDestination()) {
-                // no deep link to handle so if "welcome empty start" screen then switch "start" screen to login by navigating to it
-                navigator.navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent)
+            if (!handled && navigator.isEmptyWelcomeStartDestination()) {
+                // nothing to handle so if "welcome empty start" screen then switch "start" screen to login by navigating to it
+                navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
             }
             return
         } else {
-            viewModel.handleDeepLink(intent)
-            intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent)
+            if (!handled) {
+                viewModel.handleDeepLink(intent)
+                intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
+            }
         }
     }
 

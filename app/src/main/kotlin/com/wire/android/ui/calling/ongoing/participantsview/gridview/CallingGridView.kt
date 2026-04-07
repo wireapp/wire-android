@@ -63,6 +63,7 @@ fun GroupCallGrid(
     flipCamera: () -> Unit,
     isInPictureInPictureMode: Boolean,
     recentReactions: Map<UserId, String>,
+    othersVideosDisabled: Boolean,
     modifier: Modifier = Modifier,
     contentPadding: Dp = dimensions().spacing4x,
     spacedBy: Dp = dimensions().spacing2x,
@@ -114,6 +115,7 @@ fun GroupCallGrid(
                 recentReaction = recentReactions[participant.id],
                 isOnFrontCamera = isOnFrontCamera,
                 flipCamera = flipCamera,
+                othersVideosDisabled = othersVideosDisabled,
             )
         }
     }
@@ -127,7 +129,7 @@ private fun getContentType(
 @Composable
 private fun PreviewGroupCallGrid(participants: List<UICallParticipant>, modifier: Modifier = Modifier) {
     Box(modifier = modifier.padding(top = 60.dp, bottom = 80.dp)) { // paddings to simulate top and bottom bars
-        BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             GroupCallGrid(
                 gridParams = CallingGridParams.fromScreenDimensions(maxWidth, maxHeight),
                 participants = participants,
@@ -141,6 +143,7 @@ private fun PreviewGroupCallGrid(participants: List<UICallParticipant>, modifier
                 recentReactions = emptyMap(),
                 isOnFrontCamera = false,
                 flipCamera = {},
+                othersVideosDisabled = false,
             )
         }
     }

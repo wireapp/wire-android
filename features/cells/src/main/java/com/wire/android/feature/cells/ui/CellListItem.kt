@@ -285,6 +285,8 @@ private fun PreviewCellListItem() {
                 mimeType = "image/jpg",
                 publicLinkId = "",
                 userName = "Test User",
+                userHandle = "userId",
+                ownerUserId = "userId",
                 conversationName = "Test Conversation",
                 modifiedTime = null,
                 remotePath = null,

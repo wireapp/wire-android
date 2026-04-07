@@ -24,7 +24,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.feature.cells.domain.model.CellsFilter
 import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -45,7 +44,6 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 fun HomeTopBar(
     title: String,
     currentConversationFilter: ConversationFilter,
-    currentCellsFilters: Set<CellsFilter>,
     navigationItem: HomeDestination,
     userAvatarData: UserAvatarData,
     elevation: Dp,
@@ -54,7 +52,6 @@ fun HomeTopBar(
     onHamburgerMenuClick: () -> Unit,
     onNavigateToSelfUserProfile: () -> Unit,
     onOpenConversationFilter: () -> Unit,
-    onOpenFilesFilter: () -> Unit,
 ) {
     WireCenterAlignedTopAppBar(
         title = title,
@@ -69,13 +66,10 @@ fun HomeTopBar(
                         filter == FilterActionOptions.FilterConversations && currentConversationFilter != ConversationFilter.All ->
                             WireButtonState.Selected
 
-                        filter == FilterActionOptions.FilterCells && currentCellsFilters.isNotEmpty() -> WireButtonState.Selected
-
                         else -> WireButtonState.Default
                     },
                     onButtonClicked = when (filter) {
                         FilterActionOptions.FilterConversations -> onOpenConversationFilter
-                        FilterActionOptions.FilterCells -> onOpenFilesFilter
                     }
                 )
             }
@@ -114,7 +108,6 @@ fun PreviewTopBar() {
             title = "Conversations",
             navigationItem = HomeDestination.Conversations,
             currentConversationFilter = ConversationFilter.All,
-            currentCellsFilters = setOf(),
             userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
             elevation = 0.dp,
             withLegalHoldIndicator = false,
@@ -122,7 +115,6 @@ fun PreviewTopBar() {
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
             onOpenConversationFilter = {},
-            onOpenFilesFilter = {}
         )
     }
 }
@@ -134,7 +126,6 @@ fun PreviewTopBarWithSelectedFilter() {
         HomeTopBar(
             title = "Conversations",
             currentConversationFilter = ConversationFilter.Groups,
-            currentCellsFilters = setOf(),
             navigationItem = HomeDestination.Conversations,
             userAvatarData = UserAvatarData(
                 asset = null,
@@ -147,7 +138,6 @@ fun PreviewTopBarWithSelectedFilter() {
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
             onOpenConversationFilter = {},
-            onOpenFilesFilter = {},
         )
     }
 }
@@ -160,7 +150,6 @@ fun PreviewSettingsTopBarWithoutAvatar() {
             title = "Settings",
             navigationItem = HomeDestination.Settings,
             currentConversationFilter = ConversationFilter.All,
-            currentCellsFilters = setOf(),
             userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
             elevation = 0.dp,
             withLegalHoldIndicator = false,
@@ -168,7 +157,6 @@ fun PreviewSettingsTopBarWithoutAvatar() {
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
             onOpenConversationFilter = {},
-            onOpenFilesFilter = {},
         )
     }
 }
@@ -181,7 +169,6 @@ fun PreviewTopBarWithNameBasedAvatar() {
             title = "Conversations",
             navigationItem = HomeDestination.Conversations,
             currentConversationFilter = ConversationFilter.All,
-            currentCellsFilters = setOf(),
             userAvatarData = UserAvatarData(
                 asset = null,
                 availabilityStatus = UserAvailabilityStatus.AVAILABLE,
@@ -193,7 +180,6 @@ fun PreviewTopBarWithNameBasedAvatar() {
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
             onOpenConversationFilter = {},
-            onOpenFilesFilter = {},
         )
     }
 }
@@ -206,7 +192,6 @@ fun PreviewTopBarWithLegalHold() {
             title = "Archive",
             navigationItem = HomeDestination.Archive,
             currentConversationFilter = ConversationFilter.All,
-            currentCellsFilters = setOf(),
             userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
             elevation = 0.dp,
             withLegalHoldIndicator = true,
@@ -214,7 +199,6 @@ fun PreviewTopBarWithLegalHold() {
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
             onOpenConversationFilter = {},
-            onOpenFilesFilter = {},
         )
     }
 }

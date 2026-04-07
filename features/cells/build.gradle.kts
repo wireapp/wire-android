@@ -18,7 +18,6 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.browser)
-    implementation(libs.material)
     implementation(libs.ktx.immutableCollections)
     implementation(libs.ktx.serialization)
 
@@ -30,7 +29,6 @@ dependencies {
     implementation(composeBom)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)
-    implementation(libs.compose.material.core)
     implementation(libs.compose.material3)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)

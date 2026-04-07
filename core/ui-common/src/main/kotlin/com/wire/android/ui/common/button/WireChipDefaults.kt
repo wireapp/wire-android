@@ -19,7 +19,6 @@ package com.wire.android.ui.common.button
 
 import androidx.compose.material3.SelectableChipColors
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
 
 @Composable
@@ -28,8 +27,8 @@ fun wireChipColors() = SelectableChipColors(
     labelColor = colorsScheme().onBackground,
     leadingIconColor = colorsScheme().onBackground,
     trailingIconColor = colorsScheme().onBackground,
-    disabledContainerColor = Color.Transparent.copy(alpha = 0.5f),
-    disabledLabelColor = colorsScheme().onPrimaryVariant.copy(alpha = 0.5f),
+    disabledContainerColor = colorsScheme().secondaryButtonDisabled,
+    disabledLabelColor = colorsScheme().secondaryText,
     disabledLeadingIconColor = colorsScheme().onPrimaryVariant.copy(alpha = 0.5f),
     disabledTrailingIconColor = colorsScheme().onPrimaryVariant.copy(alpha = 0.5f),
     disabledSelectedContainerColor = colorsScheme().primary.copy(alpha = 0.5f),

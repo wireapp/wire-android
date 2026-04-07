@@ -1135,6 +1135,7 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
         <item quantity="other">Egyszerre legfeljebb %1$d fiókba lehet bejelentkezve. Lépjen ki az egyikből, hogy beléphessen egy újabba.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Profil megnyitása</string>
+    <!--nomad account blocks login dialog-->
     <string name="cant_switch_account_in_call">Nem válthat fiókot hívás közben</string>
     <string name="deeplink_authorization_needed">A művelet elvégzéséhez be kell jelentkeznie</string>
     <string name="custom_backend_dialog_title">Átirányítja egy helyi kiszolgálóra?</string>

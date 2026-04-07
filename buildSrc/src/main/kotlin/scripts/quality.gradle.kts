@@ -87,5 +87,15 @@ tasks.register("staticCodeAnalysis") {
 tasks.register("testCoverage") {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase."
-    dependsOn("koverXmlReport")
+    dependsOn("koverXmlReportDevDebug")
+
+    val validSubprojects = setOf("core", "features")
+    rootProject.subprojects {
+        if (name == "app") {
+            dependsOn(":app:testDevDebugUnitTest")
+        } else if (validSubprojects.contains(parent?.name) &&
+            !pluginManager.hasPlugin("com.android.kotlin.multiplatform.library")) {
+            dependsOn(":${parent?.name}:$name:testDebugUnitTest")
+        }
+    }
 }

@@ -19,8 +19,6 @@ package com.wire.android.feature.cells.ui.publiclink
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.wire.android.config.NavigationTestExtension
-import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.kalium.cells.domain.model.PublicLink
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
@@ -45,9 +43,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(NavigationTestExtension::class)
 class PublicLinkViewModelTest {
 
     private companion object {
@@ -218,34 +214,24 @@ class PublicLinkViewModelTest {
         @MockK
         lateinit var fileHelper: FileHelper
 
+        private val navArgsMap = mutableMapOf<String, Any?>(
+            "assetId" to "assetId",
+            "fileName" to "fileName",
+            "publicLinkId" to "publicLinkId",
+            "isFolder" to false,
+        )
+
         init {
-
             MockKAnnotations.init(this, relaxUnitFun = true)
-
-            every { savedStateHandle.navArgs<PublicLinkNavArgs>() } returns PublicLinkNavArgs(
-                assetId = "assetId",
-                fileName = "fileName",
-                publicLinkId = "publicLinkId",
-                isFolder = false,
-            )
+            every { savedStateHandle.get<Any?>(any()) } answers { navArgsMap[firstArg()] }
         }
 
         fun withPublicLink() = apply {
-            every { savedStateHandle.navArgs<PublicLinkNavArgs>() } returns PublicLinkNavArgs(
-                assetId = "assetId",
-                fileName = "fileName",
-                publicLinkId = "publicLinkId",
-                isFolder = false,
-            )
+            navArgsMap["publicLinkId"] = "publicLinkId"
         }
 
         fun withoutPublicLink() = apply {
-            every { savedStateHandle.navArgs<PublicLinkNavArgs>() } returns PublicLinkNavArgs(
-                assetId = "assetId",
-                fileName = "fileName",
-                publicLinkId = null,
-                isFolder = false,
-            )
+            navArgsMap["publicLinkId"] = null
         }
 
         fun withLoadSuccess() = apply {

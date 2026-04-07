@@ -18,7 +18,6 @@ dependencies {
     implementation(projects.core.di)
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
 
     // hilt
     implementation(libs.hilt.navigationCompose)
@@ -34,7 +33,6 @@ dependencies {
     implementation(composeBom)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)
-    implementation(libs.compose.material.core)
     implementation(libs.compose.material3)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)

@@ -191,7 +191,6 @@ class FileSharingBetweenTeams : BaseUiTest() {
                     "Device1",
                     "user4Name"
                 )
-                waitFor(5)
                 assertAudioMessageIsVisible()
                 assertAudioTimeStartsAtZero()
             }
@@ -200,7 +199,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
         step("Play audio message and verify playback time progresses") {
             pages.conversationViewPage.apply {
                 clickPlayButtonOnAudioMessage()
-                waitFor(18)
+                waitFor(10)
                 clickPauseButtonOnAudioMessage()
                 assertAudioTimeIsNotZeroAnymore()
             }
@@ -220,7 +219,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
                 assertFileActionModalIsVisible()
                 tapSaveButtonOnModal()
                 assertFileSavedToastContain(
-                    "The file AudioFile.mp3 was saved successfully to the Downloads folder"
+                    "The file AudioFile( ?\\([0-9]+\\))?\\.mp3 was saved successfully to the Downloads folder"
                 )
             }
         }
@@ -245,9 +244,10 @@ class FileSharingBetweenTeams : BaseUiTest() {
 
         step("Download image file and verify success toast") {
             pages.conversationViewPage.apply {
+                waitForPreviousFileSavedToastToDisappear()
                 clickSaveButtonOnDownloadModal()
                 assertFileSavedToastContain(
-                    "The file ImageFile.jpg was saved successfully to the Downloads folder"
+                    "The file ImageFile( ?\\([0-9]+\\))?\\.jpg was saved successfully to the Downloads folder"
                 )
             }
         }
@@ -272,9 +272,10 @@ class FileSharingBetweenTeams : BaseUiTest() {
 
         step("Download text file and verify success toast") {
             pages.conversationViewPage.apply {
+                waitForPreviousFileSavedToastToDisappear()
                 clickSaveButtonOnDownloadModal()
                 assertFileSavedToastContain(
-                    "The file TextFile.txt was saved successfully to the Downloads folder"
+                    "The file TextFile( ?\\([0-9]+\\))?\\.txt was saved successfully to the Downloads folder"
                 )
             }
         }
@@ -310,9 +311,10 @@ class FileSharingBetweenTeams : BaseUiTest() {
 
         step("Save video file and verify success toast") {
             pages.conversationViewPage.apply {
+                waitForPreviousFileSavedToastToDisappear()
                 clickSaveButtonOnDownloadModal()
                 assertFileSavedToastContain(
-                    "The file VideoFile.mp4 was saved successfully to the Downloads folder"
+                    "The file VideoFile( ?\\([0-9]+\\))?\\.mp4 was saved successfully to the Downloads folder"
                 )
             }
         }

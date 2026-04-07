@@ -21,9 +21,9 @@ import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.user.UserId
 
 data class SelectedParticipant(
-    val userId: UserId = UserId("", ""),
-    val clientId: String = "",
-    val isSelfUser: Boolean = false
+    val userId: UserId,
+    val clientId: String,
+    val isSelfUser: Boolean
 ) {
 
     fun toLogString(): String {

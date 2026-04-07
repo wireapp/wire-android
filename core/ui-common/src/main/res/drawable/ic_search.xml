@@ -1,6 +1,6 @@
 <!--
   ~ Wire
-  ~ Copyright (C) 2025 Wire Swiss GmbH
+  ~ Copyright (C) 2026 Wire Swiss GmbH
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -15,8 +15,13 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:tint="#000000" android:viewportHeight="960" android:viewportWidth="960" android:width="24dp">
-      
-    <path android:fillColor="@android:color/white" android:pathData="M784,840L532,588Q502,612 463,626Q424,640 380,640Q271,640 195.5,564.5Q120,489 120,380Q120,271 195.5,195.5Q271,120 380,120Q489,120 564.5,195.5Q640,271 640,380Q640,424 626,463Q612,502 588,532L840,784L784,840ZM380,560Q455,560 507.5,507.5Q560,455 560,380Q560,305 507.5,252.5Q455,200 380,200Q305,200 252.5,252.5Q200,305 200,380Q200,455 252.5,507.5Q305,560 380,560Z"/>
-    
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="16dp"
+        android:height="16dp"
+        android:viewportWidth="16"
+        android:viewportHeight="16">
+    <path
+            android:fillColor="#000000"
+            android:fillType="evenOdd"
+            android:pathData="M6.987,0C10.846,0 13.974,3.131 13.974,6.993C13.974,8.564 13.457,10.014 12.583,11.181L16,14.587L14.588,16L11.172,12.594C10.005,13.469 8.557,13.986 6.987,13.986C3.128,13.986 0,10.855 0,6.993C0,3.131 3.128,0 6.987,0ZM12,7C12,9.761 9.761,12 7,12C4.239,12 2,9.761 2,7C2,4.239 4.239,2 7,2C9.761,2 12,4.239 12,7Z" />
 </vector>

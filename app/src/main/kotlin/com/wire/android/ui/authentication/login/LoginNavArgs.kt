@@ -26,6 +26,15 @@ data class LoginNavArgs(
     val userHandle: PreFilledUserIdentifierType.PreFilled? = null,
     val ssoLoginResult: DeepLinkResult.SSOLogin? = null,
     val loginPasswordPath: LoginPasswordPath? = null,
+    val ssoCodeAutoLogin: SSOCodeAutoLogin? = null,
+)
+
+@Serializable
+data class SSOCodeAutoLogin(
+    val ssoCode: String,
+    val autoInitiateLogin: Boolean = true,
+    val nomadServiceUrl: String? = null,
+    val cookieLabel: String? = null,
 )
 
 @Serializable

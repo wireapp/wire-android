@@ -116,7 +116,7 @@ fun AddRemoveTagsScreen(
                                     ),
                                     label = tag,
                                     isSelected = false,
-                                    onSelectChip = { addRemoveTagsViewModel.addTag(tag) }
+                                    onClick = { addRemoveTagsViewModel.addTag(tag) }
                                 )
                             }
                         }
@@ -228,7 +228,7 @@ fun AddRemoveTagsScreenContent(
                             modifier = Modifier.align(Alignment.CenterVertically),
                             label = item,
                             isSelected = true,
-                            onSelectChip = onRemoveTag
+                            onClick = onRemoveTag
                         )
                     }
                 }

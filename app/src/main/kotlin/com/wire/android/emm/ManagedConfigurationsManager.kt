@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicReference
 
 interface ManagedConfigurationsManager {
@@ -92,9 +91,9 @@ internal class ManagedConfigurationsManagerImpl(
     private val dispatchers: DispatcherProvider,
     private val serverConfigProvider: ServerConfigProvider,
     private val globalDataStore: GlobalDataStore,
+    private val configParser: ManagedConfigParser,
 ) : ManagedConfigurationsManager {
 
-    private val json: Json = Json { ignoreUnknownKeys = true }
     private val logger = appLogger.withTextTag(TAG)
     private val restrictionsManager: RestrictionsManager by lazy {
         context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
@@ -170,14 +169,21 @@ internal class ManagedConfigurationsManagerImpl(
                 return@withContext SSOCodeConfigResult.Empty
             }
 
+            val rawJson = restrictions.getString(ManagedConfigurationsKeys.SSO_CODE.asKey())
+            if (rawJson.isNullOrBlank()) {
+                logger.i("No SSO code restriction found")
+                return@withContext SSOCodeConfigResult.Empty
+            }
+
             return@withContext try {
-                val ssoCode = getJsonRestrictionByKey<ManagedSSOCodeConfig>(
-                    ManagedConfigurationsKeys.SSO_CODE.asKey()
-                )
+                val ssoCode = configParser.parseSSOCodeConfig(rawJson)
 
                 if (ssoCode?.isValid == true) {
                     logger.i("Managed SSO code found: $ssoCode")
                     SSOCodeConfigResult.Success(ssoCode)
+                } else if (ssoCode == null) {
+                    logger.w("No SSO code config resolved for current user context")
+                    SSOCodeConfigResult.Empty
                 } else {
                     logger.w("Managed SSO code is not valid: $ssoCode")
                     SSOCodeConfigResult.Failure("Managed SSO code is not a valid config. Check the format.")
@@ -195,13 +201,20 @@ internal class ManagedConfigurationsManagerImpl(
             return@withContext ServerConfigResult.Empty
         }
 
+        val rawJson = restrictions.getString(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey())
+        if (rawJson.isNullOrBlank()) {
+            logger.i("No server config restriction found")
+            return@withContext ServerConfigResult.Empty
+        }
+
         return@withContext try {
-            val managedServerConfig = getJsonRestrictionByKey<ManagedServerConfig>(
-                ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey()
-            )
+            val managedServerConfig = configParser.parseServerConfig(rawJson)
             if (managedServerConfig?.endpoints?.isValid == true) {
                 logger.i("Managed server config found: $managedServerConfig")
                 ServerConfigResult.Success(managedServerConfig)
+            } else if (managedServerConfig == null) {
+                logger.w("No server config resolved for current user context")
+                ServerConfigResult.Empty
             } else {
                 logger.w("Managed server config is not valid: $managedServerConfig")
                 ServerConfigResult.Failure("Managed server config is not a valid config. Check the URLs and format.")
@@ -211,16 +224,6 @@ internal class ManagedConfigurationsManagerImpl(
             ServerConfigResult.Failure(e.reason)
         }
     }
-
-    @Suppress("TooGenericExceptionCaught")
-    private inline fun <reified T> getJsonRestrictionByKey(key: String): T? =
-        restrictionsManager.applicationRestrictions.getString(key)?.let {
-            try {
-                json.decodeFromString<T>(it)
-            } catch (e: Exception) {
-                throw InvalidManagedConfig("Failed to parse managed config for key $key: ${e.message}")
-            }
-        }
 
     companion object {
         private const val TAG = "ManagedConfigurationsManager"

@@ -53,6 +53,7 @@ import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.SsoManagedBy
 import com.wire.kalium.logic.data.user.UserId
@@ -453,7 +454,7 @@ class LoginEmailViewModelTest {
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
         loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
         advanceUntilIdle()
-        coVerify(exactly = 0) { arrangement.addAuthenticatedUserUseCase(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.addAuthenticatedUserUseCase(any(), any()) }
         coVerify(exactly = 0) { arrangement.getOrRegisterClientUseCase(any()) }
         assertEquals(LoginState.Error.DialogError.Request2FAWithHandle, loginViewModel.loginState.flowState)
     }
@@ -689,7 +690,10 @@ class LoginEmailViewModelTest {
         }
         coVerify(exactly = 1) { // verify that the second login job has been started
             arrangement.loginUseCase(any(), any(), any(), any(), any())
-            arrangement.addAuthenticatedUserUseCase(any(), any(), eq(authToken2), any(), any(), any(), any())
+            arrangement.addAuthenticatedUserUseCase(
+                match<StoreSessionParam> { it.accountTokens == authToken2 },
+                any()
+            )
         }
     }
 
@@ -892,7 +896,7 @@ class LoginEmailViewModelTest {
 
         fun withAddAuthenticatedUserReturning(result: AddAuthenticatedUserUseCase.Result) = apply {
             coEvery {
-                addAuthenticatedUserUseCase(any(), any(), any(), any(), any(), any(), any())
+                addAuthenticatedUserUseCase(any(), any())
             } returns result
         }
 

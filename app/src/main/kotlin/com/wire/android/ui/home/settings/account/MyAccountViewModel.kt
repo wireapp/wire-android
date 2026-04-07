@@ -138,8 +138,9 @@ class MyAccountViewModel @Inject constructor(
     }
 
     private suspend fun initCanDeleteAccountValue() {
+        val canDeleteAccount = !isSelfATeamMember()
         myAccountState = myAccountState.copy(
-            canDeleteAccount = !isSelfATeamMember(),
+            canDeleteAccount = canDeleteAccount,
         )
     }
 

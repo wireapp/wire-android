@@ -42,6 +42,7 @@ import kotlin.getValue
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 
 @RunWith(AndroidJUnit4::class)
 class PersonalAccountLifeCycle : BaseUiTest() {
@@ -111,12 +112,13 @@ class PersonalAccountLifeCycle : BaseUiTest() {
             pages.registrationPage.apply {
                 enterFirstName(personalUser?.name.orEmpty())
                 enterPassword(personalUser?.password.orEmpty())
+                closeKeyboardIfOpened()
                 enterConfirmPassword(personalUser?.password.orEmpty())
-
                 clickShowPasswordEyeIcon()
+                closeKeyboardIfOpened()
                 verifyConfirmPasswordIsCorrect(personalUser?.password.orEmpty())
                 clickHidePasswordEyeIcon()
-
+                closeKeyboardIfOpened()
                 checkIAgreeToShareAnonymousUsageData()
                 clickContinueButton()
 
@@ -124,6 +126,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 clickContinueButton()
             }
         }
+
         step("Fetch OTP to complete 2FA verification and complete registration") {
             val otp = runBlocking {
                 InbucketClient.getVerificationCode(

@@ -20,7 +20,7 @@ jobs:
     secrets:
       runner-token: ${{ secrets.runner-token }}
     with:
-      required-labels: '["self-hosted"]'
+      required-labels: '["android-qa"]'
       fallback-label: ghcr.io/cirruslabs/ubuntu-runner-amd64:24.04-lg
 
   ui-tests:

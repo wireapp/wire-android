@@ -31,10 +31,10 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
-            const required = JSON.parse('${{ inputs.required-labels }}');
             const fallback = ['${{ inputs.fallback-label }}'];
-
             try {
+              const required = JSON.parse('${{ inputs.required-labels }}');
+
               const { data } = await github.rest.actions.listSelfHostedRunnersForRepo({
                 owner: context.repo.owner,
                 repo: context.repo.repo

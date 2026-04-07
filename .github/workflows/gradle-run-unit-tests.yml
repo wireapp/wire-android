@@ -24,6 +24,7 @@ jobs:
       runner-token: ${{ secrets.runner-token }}
     with:
       required-labels: '["self-hosted"]'
+      min-idle-runners: 2
 
   coverage:
     needs: runner-selection

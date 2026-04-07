@@ -7,8 +7,13 @@ on:
         description: "JSON array of labels that define the preferred self-hosted runner pool"
         required: true
         type: string
+      min-idle-runners:
+        description: "Minimum number of idle runners matching required-labels before selecting that pool"
+        required: false
+        default: 1
+        type: number
       fallback-label:
-        description: "GitHub-hosted runner label used when no preferred self-hosted runner is available"
+        description: "Fallback runner label used when preferred self-hosted pool is unavailable"
         required: false
         default: "ubuntu-latest"
         type: string
@@ -39,19 +44,25 @@ jobs:
             const fallback = ['${{ inputs.fallback-label }}'];
             try {
               const required = JSON.parse('${{ inputs.required-labels }}');
+              const minIdle = Number('${{ inputs.min-idle-runners }}');
 
               const { data } = await github.rest.actions.listSelfHostedRunnersForRepo({
                 owner: context.repo.owner,
                 repo: context.repo.repo
               });
 
-              const hasIdleMatch = data.runners.some((runner) => {
+              const idleMatchingRunners = data.runners.filter((runner) => {
                 if (runner.status !== "online" || runner.busy) return false;
                 const labels = new Set(runner.labels.map((label) => label.name));
                 return required.every((name) => labels.has(name));
-              });
+              }).length;
 
-              const selected = hasIdleMatch ? required : fallback;
+              const hasIdleCapacity = Number.isFinite(minIdle)
+                ? idleMatchingRunners >= minIdle
+                : idleMatchingRunners >= 1;
+
+              const selected = hasIdleCapacity ? required : fallback;
+              core.info(`Idle matching runners: ${idleMatchingRunners}, minimum required: ${minIdle}`);
               core.info(`Selected runner labels: ${JSON.stringify(selected)}`);
               core.setOutput("runs_on", JSON.stringify(selected));
             } catch (error) {

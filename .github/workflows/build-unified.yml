@@ -32,6 +32,7 @@ jobs:
       runner-token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
     with:
       required-labels: '["self-hosted"]'
+      min-idle-runners: 2
 
   lint:
     needs: lint-runner-selection

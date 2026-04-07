@@ -164,7 +164,12 @@ fun MessageButtonsContent(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     viewModel: CompositeMessageViewModel =
-        hiltViewModelScoped<CompositeMessageViewModelImpl, CompositeMessageViewModel, CompositeMessageArgs>(
+        hiltViewModelScoped<
+                CompositeMessageViewModelImpl,
+                CompositeMessageViewModel,
+                CompositeMessageArgs,
+                CompositeMessageViewModelImpl.Factory
+                >(
             CompositeMessageArgs(messageId)
         )
 ) {

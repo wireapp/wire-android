@@ -27,8 +27,14 @@ concurrency:
 
 jobs:
   # Inline simple quality check jobs for better check names
+  lint-runner-selection:
+    uses: ./.github/workflows/select-runner.yml
+    with:
+      required-labels: '["self-hosted"]'
+
   lint:
-    runs-on: [self-hosted, ubuntu-24.04]
+    needs: lint-runner-selection
+    runs-on: ${{ fromJSON(needs.lint-runner-selection.outputs.runs-on) }}
     # Override JVM args from gradle.properties which sets 10GB heap
     steps:
       - name: Checkout

@@ -14,10 +14,16 @@ env:
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 jobs:
+  runner-selection:
+    uses: ./.github/workflows/select-runner.yml
+    with:
+      required-labels: '["self-hosted"]'
+
   coverage:
+    needs: runner-selection
     env:
       GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=2g -Xmx4G"'
-    runs-on: [self-hosted, ubuntu-24.04]
+    runs-on: ${{ fromJSON(needs.runner-selection.outputs.runs-on) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6

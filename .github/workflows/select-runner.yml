@@ -1,0 +1,55 @@
+name: "Select Runner"
+
+on:
+  workflow_call:
+    inputs:
+      required-labels:
+        description: "JSON array of labels that define the preferred self-hosted runner pool"
+        required: true
+        type: string
+      fallback-label:
+        description: "GitHub-hosted runner label used when no preferred self-hosted runner is available"
+        required: false
+        default: "ubuntu-latest"
+        type: string
+    outputs:
+      runs-on:
+        description: "JSON array used by runs-on"
+        value: ${{ jobs.select.outputs.runs_on }}
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    outputs:
+      runs_on: ${{ steps.pick.outputs.runs_on }}
+    steps:
+      - id: pick
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const required = JSON.parse('${{ inputs.required-labels }}');
+            const fallback = ['${{ inputs.fallback-label }}'];
+
+            try {
+              const { data } = await github.rest.actions.listSelfHostedRunnersForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              });
+
+              const hasIdleMatch = data.runners.some((runner) => {
+                if (runner.status !== "online" || runner.busy) return false;
+                const labels = new Set(runner.labels.map((label) => label.name));
+                return required.every((name) => labels.has(name));
+              });
+
+              const selected = hasIdleMatch ? required : fallback;
+              core.info(`Selected runner labels: ${JSON.stringify(selected)}`);
+              core.setOutput("runs_on", JSON.stringify(selected));
+            } catch (error) {
+              core.warning(`Falling back to ${fallback[0]}: ${error.message}`);
+              core.setOutput("runs_on", JSON.stringify(fallback));
+            }

@@ -11,8 +11,15 @@ permissions:
   contents: read
 
 jobs:
+  runner-selection:
+    uses: ./.github/workflows/select-runner.yml
+    with:
+      required-labels: '["self-hosted"]'
+      fallback-label: ghcr.io/cirruslabs/ubuntu-runner-amd64:24.04-lg
+
   ui-tests:
-    runs-on: [self-hosted, ghcr.io/cirruslabs/ubuntu-runner-amd64:24.04-lg]
+    needs: runner-selection
+    runs-on: ${{ fromJSON(needs.runner-selection.outputs.runs-on) }}
     strategy:
       matrix:
         api-level: [ 29 ]

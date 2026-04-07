@@ -62,6 +62,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
+import java.nio.file.Path as NioPath
 import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -73,7 +74,7 @@ suspend fun Uri.toByteArray(context: Context, dispatcher: DispatcherProvider = D
 }
 
 fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
-    val file = attachmentPath.toFile()
+    val file = context.shareableCacheFile(attachmentPath.name)
     file.setWritable(true)
     return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
 }
@@ -191,7 +192,10 @@ private fun Context.saveFileDataToMediaFolder(assetName: String, downloadedDataP
 fun Context.fromNioPathToContentUri(nioPath: java.nio.file.Path): Uri = this.pathToUri(nioPath.toOkioPath(), null)
 
 fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =
-    FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile(), assetName ?: assetDataPath.name)
+    safeFileProviderUri(
+        file = assetDataPath.toFile(),
+        displayName = assetName ?: assetDataPath.name
+    )
 
 fun Uri.getMimeType(context: Context): String? {
     val mimeType: String? = if (this.scheme == ContentResolver.SCHEME_CONTENT) {
@@ -265,12 +269,7 @@ private fun Context.getContentFileName(uri: Uri): String? = runCatching {
 
 fun Context.startFileShareIntent(path: Path, assetName: String?) {
     val assetDisplayName = assetName ?: path.name
-    val fileURI = FileProvider.getUriForFile(
-        this,
-        getProviderAuthority(),
-        path.toFile(),
-        assetDisplayName
-    )
+    val fileURI = pathToUri(path, assetDisplayName)
     val shareIntent = Intent(Intent.ACTION_SEND)
     shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -469,6 +468,107 @@ suspend fun Context.getDependenciesVersion(): Map<String, String?> = withContext
 }
 
 fun Context.getProviderAuthority() = "$packageName.provider"
+
+fun Context.accountsRootDir(): File = getDir(ACCOUNTS_DIR_NAME, Context.MODE_PRIVATE).apply {
+    mkdirs()
+}
+
+fun Context.shareableCacheDir(): File = File(cacheDir, SHAREABLE_CACHE_DIR_NAME).apply {
+    mkdirs()
+}
+
+fun Context.shareableCacheFile(fileName: String): File = File(shareableCacheDir(), fileName)
+
+fun Context.shareableFilesDir(): File = File(filesDir, SHAREABLE_FILES_DIR_NAME).apply {
+    mkdirs()
+}
+
+fun Context.shareableFilesFile(fileName: String): File = File(shareableFilesDir(), fileName)
+
+private const val SHAREABLE_CACHE_DIR_NAME = "shareable"
+private const val SHAREABLE_FILES_DIR_NAME = "shareable"
+private const val ACCOUNTS_DIR_NAME = "accounts"
+private const val PROTEUS_DIR_NAME = "proteus"
+private const val MLS_DIR_NAME = "mls"
+private const val KEYSTORE_DIR_NAME = "keystore"
+private const val PROTECTED_PATH_MARKER = "protected-path-marker"
+private const val STORAGE_CATEGORY_INDEX = 2
+private const val PROTEUS_KEYSTORE_INDEX = 3
+private const val MLS_KEYSTORE_INDEX = 4
+private const val MIN_PROTEUS_KEYSTORE_SEGMENTS = 4
+private const val MIN_MLS_KEYSTORE_SEGMENTS = 5
+
+private fun Context.safeFileProviderUri(file: File, displayName: String): Uri {
+    val shareableFile = prepareFileForSharing(file, displayName)
+    return FileProvider.getUriForFile(this, getProviderAuthority(), shareableFile, displayName)
+}
+
+private fun Context.prepareFileForSharing(file: File, displayName: String): File {
+    val canonicalFile = file.canonicalFile
+
+    require(!canonicalFile.isProtectedInternalShareSource(this)) {
+        "Protected internal files cannot be shared"
+    }
+
+    return when {
+        canonicalFile.isInDirectory(shareableCacheDir()) || canonicalFile.isInDirectory(shareableFilesDir()) -> canonicalFile
+        canonicalFile.isInDirectory(cacheDir) -> canonicalFile.copyIntoShareableDirectory(shareableCacheDir(), displayName)
+        canonicalFile.isInDirectory(filesDir) -> canonicalFile.copyIntoShareableDirectory(shareableFilesDir(), displayName)
+        else -> canonicalFile
+    }
+}
+
+private fun File.copyIntoShareableDirectory(shareableDir: File, displayName: String): File {
+    val destination = File(shareableDir, findFirstUniqueName(shareableDir, displayName.ifEmpty { name }))
+    inputStream().use { input ->
+        destination.outputStream().use { output ->
+            input.copyTo(output)
+        }
+    }
+    return destination
+}
+
+private fun File.isProtectedInternalShareSource(context: Context): Boolean {
+    val normalizedPath = canonicalFile.toPath().normalize()
+    val databasesDir = context.getDatabasePath(PROTECTED_PATH_MARKER).parentFile?.canonicalFile?.toPath()?.normalize()
+    val filesRoot = context.filesDir.canonicalFile.toPath().normalize()
+    val accountsRoot = context.accountsRootDir().canonicalFile.toPath().normalize()
+    val filesRelativeSegments = normalizedPath.relativeSegmentsFrom(filesRoot)
+    val accountsRelativeSegments = normalizedPath.relativeSegmentsFrom(accountsRoot)
+
+    val isDatabaseFile = databasesDir != null && normalizedPath.startsWith(databasesDir)
+    val isProteusKeystore =
+        filesRelativeSegments?.isProteusKeystorePath() == true || accountsRelativeSegments?.isProteusKeystorePath() == true
+    val isMlsKeystore =
+        filesRelativeSegments?.isMlsKeystorePath() == true || accountsRelativeSegments?.isMlsKeystorePath() == true
+
+    return isDatabaseFile || isProteusKeystore || isMlsKeystore
+}
+
+private fun File.isInDirectory(directory: File): Boolean {
+    val canonicalDirectory = directory.canonicalFile.toPath().normalize()
+    val normalizedPath = canonicalFile.toPath().normalize()
+    return normalizedPath == canonicalDirectory || normalizedPath.startsWith(canonicalDirectory)
+}
+
+private fun NioPath.relativeSegmentsFrom(root: NioPath): List<String>? =
+    if (startsWith(root)) {
+        root.relativize(this).map(NioPath::toString)
+    } else {
+        null
+    }
+
+private fun List<String>.isProteusKeystorePath(): Boolean =
+    size >= MIN_PROTEUS_KEYSTORE_SEGMENTS &&
+        firstOrNull() != SHAREABLE_FILES_DIR_NAME &&
+        getOrNull(STORAGE_CATEGORY_INDEX) == PROTEUS_DIR_NAME &&
+        getOrNull(PROTEUS_KEYSTORE_INDEX) == KEYSTORE_DIR_NAME
+
+private fun List<String>.isMlsKeystorePath(): Boolean =
+    size >= MIN_MLS_KEYSTORE_SEGMENTS &&
+        firstOrNull() != SHAREABLE_FILES_DIR_NAME &&
+        getOrNull(STORAGE_CATEGORY_INDEX) == MLS_DIR_NAME &&
+        getOrNull(MLS_KEYSTORE_INDEX) == KEYSTORE_DIR_NAME
 
 @VisibleForTesting
 fun findFirstUniqueName(dir: File, desiredName: String): String {

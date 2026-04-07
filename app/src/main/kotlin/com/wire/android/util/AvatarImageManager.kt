@@ -20,7 +20,6 @@ package com.wire.android.util
 
 import android.content.Context
 import android.net.Uri
-import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import okio.Path
 import javax.inject.Inject
@@ -32,7 +31,5 @@ class AvatarImageManager @Inject constructor(val context: Context) {
         return file.toUri()
     }
 
-    fun getShareableTempAvatarUri(filePath: Path): Uri {
-        return FileProvider.getUriForFile(context, context.getProviderAuthority(), filePath.toFile())
-    }
+    fun getShareableTempAvatarUri(filePath: Path): Uri = context.pathToUri(filePath, null)
 }

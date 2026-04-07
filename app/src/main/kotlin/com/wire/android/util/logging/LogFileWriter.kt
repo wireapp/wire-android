@@ -19,6 +19,7 @@
 package com.wire.android.util.logging
 
 import android.content.Context
+import com.wire.android.util.shareableCacheDir
 import java.io.File
 
 /**
@@ -54,6 +55,8 @@ interface LogFileWriter {
     fun deleteAllLogFiles()
 
     companion object {
-        fun logsDirectory(context: Context) = File(context.cacheDir, "logs")
+        fun logsDirectory(context: Context) = File(context.shareableCacheDir(), "logs").apply {
+            mkdirs()
+        }
     }
 }

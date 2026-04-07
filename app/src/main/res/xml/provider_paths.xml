@@ -19,8 +19,10 @@
 
 <paths>
     <cache-path
-            name="cached_files"
-            path="." />
-    <files-path name="files" path="." />
+            name="shareable_cache_files"
+            path="shareable/" />
+    <files-path
+            name="shareable_files"
+            path="shareable/" />
     <external-path name="external_files" path="."/>
 </paths>

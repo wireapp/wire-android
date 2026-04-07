@@ -139,12 +139,9 @@ fun NewLoginScreen(
         }
     }
 
-    LaunchedEffect(navArgs.ssoLoginResult) {
-        if (navArgs.ssoLoginResult != null) {
-            viewModel.handleSSOResult(
-                navArgs.ssoLoginResult,
-            )
-        }
+    LaunchedEffect(Unit) {
+        navigator.navController.currentBackStackEntry?.savedStateHandle
+            ?.let { viewModel.observeSSOResult(it) }
     }
 
     // Handle SSO code auto-login from intent parameter

@@ -70,6 +70,8 @@ import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -83,6 +85,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import android.database.sqlite.SQLiteException
 import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -889,6 +892,130 @@ class LoginSSOViewModelTest {
             loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>()
         }
 
+    @Test
+    fun `given Nomad enabled and crypto restore throws IllegalStateException with session gone, when establishSSOSession succeeds, then abort silently without reverting`() =
+        runTest {
+            val expectedCookie = "some-cookie"
+            val (arrangement, loginViewModel) = Arrangement()
+                .withEstablishSSOSession(expectedCookie)
+                .withNomadEnabled(true)
+                .withRestoreCryptoStateThrowing(IllegalStateException("attempt to re-open an already-closed object"))
+                .withSessionStillValid(false)
+                .arrange()
+
+            loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                arrangement.ssoExtension.establishSSOSession(
+                    eq(expectedCookie),
+                    eq(SERVER_CONFIG.id),
+                    any(),
+                    any(),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOLoginFailureSlot),
+                    capture(onAddAuthenticatedUserFailureSlot),
+                    capture(onSuccessEstablishSSOSessionSlot)
+                )
+            }
+            onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
+            coVerify(exactly = 0) { arrangement.logoutUseCase(any(), any()) }
+            coVerify(exactly = 0) { arrangement.deleteSessionUseCase(any()) }
+        }
+
+    @Test
+    fun `given Nomad enabled and crypto restore throws IOException with session gone, when establishSSOSession succeeds, then abort silently without reverting`() =
+        runTest {
+            val expectedCookie = "some-cookie"
+            val (arrangement, loginViewModel) = Arrangement()
+                .withEstablishSSOSession(expectedCookie)
+                .withNomadEnabled(true)
+                .withRestoreCryptoStateThrowing(IOException("session files deleted"))
+                .withSessionStillValid(false)
+                .arrange()
+
+            loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                arrangement.ssoExtension.establishSSOSession(
+                    eq(expectedCookie),
+                    eq(SERVER_CONFIG.id),
+                    any(),
+                    any(),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOLoginFailureSlot),
+                    capture(onAddAuthenticatedUserFailureSlot),
+                    capture(onSuccessEstablishSSOSessionSlot)
+                )
+            }
+            onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
+            coVerify(exactly = 0) { arrangement.logoutUseCase(any(), any()) }
+            coVerify(exactly = 0) { arrangement.deleteSessionUseCase(any()) }
+        }
+
+    @Test
+    fun `given Nomad enabled and crypto restore throws SQLiteException with session gone, when establishSSOSession succeeds, then abort silently without reverting`() =
+        runTest {
+            val expectedCookie = "some-cookie"
+            val (arrangement, loginViewModel) = Arrangement()
+                .withEstablishSSOSession(expectedCookie)
+                .withNomadEnabled(true)
+                .withRestoreCryptoStateThrowing(SQLiteException("database is locked"))
+                .withSessionStillValid(false)
+                .arrange()
+
+            loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                arrangement.ssoExtension.establishSSOSession(
+                    eq(expectedCookie),
+                    eq(SERVER_CONFIG.id),
+                    any(),
+                    any(),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOLoginFailureSlot),
+                    capture(onAddAuthenticatedUserFailureSlot),
+                    capture(onSuccessEstablishSSOSessionSlot)
+                )
+            }
+            onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
+            coVerify(exactly = 0) { arrangement.logoutUseCase(any(), any()) }
+            coVerify(exactly = 0) { arrangement.deleteSessionUseCase(any()) }
+        }
+
+    @Test
+    fun `given Nomad enabled and restore failure and revert throws with session gone, when establishSSOSession succeeds, then show error without crashing`() =
+        runTest {
+            val expectedCookie = "some-cookie"
+            val (arrangement, loginViewModel) = Arrangement()
+                .withEstablishSSOSession(expectedCookie)
+                .withNomadEnabled(true)
+                .withRestoreCryptoStateReturning(RestoreCryptoStateResult.Failure)
+                .withSessionStillValid(false)
+                .apply { coEvery { logoutUseCase(any(), any()) } throws IllegalStateException("already closed") }
+                .arrange()
+
+            loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                arrangement.ssoExtension.establishSSOSession(
+                    eq(expectedCookie),
+                    eq(SERVER_CONFIG.id),
+                    any(),
+                    any(),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOLoginFailureSlot),
+                    capture(onAddAuthenticatedUserFailureSlot),
+                    capture(onSuccessEstablishSSOSessionSlot)
+                )
+            }
+            onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>()
+        }
+
     private class Arrangement {
 
         @MockK
@@ -947,6 +1074,9 @@ class LoginSSOViewModelTest {
 
         @MockK
         lateinit var setLastDeviceIdUseCase: SetLastDeviceIdUseCase
+
+        @MockK
+        lateinit var doesValidSessionExistUseCase: DoesValidSessionExistUseCase
 
         init {
             MockKAnnotations.init(this)
@@ -1049,6 +1179,16 @@ class LoginSSOViewModelTest {
         fun withRevertSSOSessionSuccess() = apply {
             coEvery { logoutUseCase(any(), any()) } returns Unit
             coEvery { deleteSessionUseCase(any()) } returns DeleteSessionUseCase.Result.Success
+        }
+
+        fun withRestoreCryptoStateThrowing(exception: Throwable) = apply {
+            every { coreLogic.getSessionScope(any()).backup.restoreCryptoState } returns restoreCryptoStateUseCase
+            coEvery { restoreCryptoStateUseCase() } throws exception
+        }
+
+        fun withSessionStillValid(valid: Boolean) = apply {
+            every { coreLogic.getGlobalScope().doesValidSessionExist } returns doesValidSessionExistUseCase
+            coEvery { doesValidSessionExistUseCase(any()) } returns DoesValidSessionExistResult.Success(valid)
         }
 
         fun withNomadAutoLogin(nomadServiceUrl: String) = apply {

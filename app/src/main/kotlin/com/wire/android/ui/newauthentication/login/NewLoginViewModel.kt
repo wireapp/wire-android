@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.newauthentication.login
 
+import android.database.sqlite.SQLiteException
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -61,16 +62,21 @@ import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class NewLoginViewModel(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
@@ -303,6 +309,18 @@ class NewLoginViewModel(
             )
         }
 
+    fun observeSSOResult(backStackSavedState: SavedStateHandle) {
+        viewModelScope.launch {
+            backStackSavedState
+                .getStateFlow<String?>(SSO_LOGIN_RESULT_KEY, null)
+                .filterNotNull()
+                .collect { json ->
+                    handleSSOResult(Json.decodeFromString(json))
+                    backStackSavedState.remove<String>(SSO_LOGIN_RESULT_KEY)
+                }
+        }
+    }
+
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin) {
         updateLoginFlowState(NewLoginFlowState.Loading)
         when (ssoLoginResult) {
@@ -323,40 +341,13 @@ class NewLoginViewModel(
                                 appLogger.i("$TAG Nomad not enabled, proceeding with regular login")
                                 registerClientAndUpdateState(storedUserId, setLastDeviceId = false)
                             } else {
-                                when (
-                                    withContext(dispatchers.io()) {
-                                        coreLogic.getSessionScope(storedUserId).backup.restoreCryptoState()
-                                    }
-                                ) {
-                                    is RestoreCryptoStateResult.Success -> {
-                                        withContext(dispatchers.main()) {
-                                            when (loginExtension.isInitialSyncCompleted(storedUserId)) {
-                                                true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
-                                                false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
-                                            }
-                                            updateLoginFlowState(NewLoginFlowState.Default)
-                                        }
-                                    }
-                                    is RestoreCryptoStateResult.NoBackupAvailable -> {
-                                        registerClientAndUpdateState(storedUserId, setLastDeviceId = true)
-                                    }
-                                    is RestoreCryptoStateResult.Failure -> {
-                                        appLogger.e("$TAG Failed to restore crypto state during SSO login")
-                                        revertSSOSession(storedUserId)
-                                        withContext(dispatchers.main()) {
-                                            updateLoginFlowState(
-                                                NewLoginFlowState.Error.DialogError.GenericError(
-                                                    CoreFailure.Unknown(Exception("Failed to restore crypto state"))
-                                                )
-                                            )
-                                        }
-                                    }
-                                }
+                                restoreCryptoStateAndContinue(storedUserId)
                             }
                         }
                     )
                 }
             }
+
             is DeepLinkResult.SSOLogin.Failure -> {
                 updateLoginFlowState(NewLoginFlowState.Error.DialogError.SSOResultFailure(ssoLoginResult.ssoError))
             }
@@ -401,9 +392,76 @@ class NewLoginViewModel(
         }
     }
 
+    private suspend fun isSessionStillValid(userId: UserId): Boolean =
+        (coreLogic.getGlobalScope().doesValidSessionExist(userId) as? DoesValidSessionExistResult.Success)
+            ?.doesValidSessionExist == true
+
+    @Suppress("ThrowsCount", "TooGenericExceptionCaught")
+    private suspend fun restoreCryptoStateAndContinue(storedUserId: UserId) {
+        val restoreResult = try {
+            withContext(dispatchers.io()) {
+                coreLogic.getSessionScope(storedUserId).backup.restoreCryptoState()
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            when (e) {
+                is IllegalStateException, is IOException, is SQLiteException -> {
+                    if (isSessionStillValid(storedUserId)) throw e
+                    appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${e.message}")
+                    return
+                }
+
+                else -> throw e
+            }
+        }
+
+        when (restoreResult) {
+            is RestoreCryptoStateResult.Success -> {
+                withContext(dispatchers.main()) {
+                    when (loginExtension.isInitialSyncCompleted(storedUserId)) {
+                        true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
+                        false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
+                    }
+                    updateLoginFlowState(NewLoginFlowState.Default)
+                }
+            }
+
+            is RestoreCryptoStateResult.NoBackupAvailable -> {
+                registerClientAndUpdateState(storedUserId, setLastDeviceId = true)
+            }
+
+            is RestoreCryptoStateResult.Failure -> {
+                appLogger.e("$TAG Failed to restore crypto state during SSO login")
+                revertSSOSession(storedUserId)
+                withContext(dispatchers.main()) {
+                    updateLoginFlowState(
+                        NewLoginFlowState.Error.DialogError.GenericError(
+                            CoreFailure.Unknown(Exception("Failed to restore crypto state"))
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    @Suppress("ThrowsCount", "TooGenericExceptionCaught")
     private suspend fun revertSSOSession(userId: UserId) {
-        coreLogic.getSessionScope(userId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
-        coreLogic.getGlobalScope().deleteSession(userId)
+        try {
+            coreLogic.getSessionScope(userId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
+            coreLogic.getGlobalScope().deleteSession(userId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            when (e) {
+                is IllegalStateException, is IOException, is SQLiteException -> {
+                    if (isSessionStillValid(userId)) throw e
+                    appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${e.message}")
+                }
+
+                else -> throw e
+            }
+        }
     }
 
     /**
@@ -433,6 +491,7 @@ class NewLoginViewModel(
 
     companion object {
         private const val TAG = "[NewLoginViewModel]"
+        const val SSO_LOGIN_RESULT_KEY = "sso_login_result_json"
     }
 }
 

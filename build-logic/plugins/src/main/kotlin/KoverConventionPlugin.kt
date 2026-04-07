@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-import kotlinx.kover.gradle.plugin.dsl.KoverReportExtension
+import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -25,20 +25,8 @@ class KoverConventionPlugin : Plugin<Project> {
         with(target) {
             pluginManager.apply("org.jetbrains.kotlinx.kover")
 
-            extensions.configure<KoverReportExtension> {
-                defaults {
-                    val hasLegacyKotlinPlugin = pluginManager.hasPlugin("org.jetbrains.kotlin.android")
-                        || pluginManager.hasPlugin("org.jetbrains.kotlin.jvm")
-                        || pluginManager.hasPlugin("org.jetbrains.kotlin.multiplatform")
-
-                    if (hasLegacyKotlinPlugin) {
-                        if (project.name == "app") {
-                            mergeWith("devDebug")
-                        } else {
-                            mergeWith("debug")
-                        }
-                    }
-
+            extensions.configure<KoverProjectExtension> {
+                reports {
                     filters {
                         excludes {
                             classes(

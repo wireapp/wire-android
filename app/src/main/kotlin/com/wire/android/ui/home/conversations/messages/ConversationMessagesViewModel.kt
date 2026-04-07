@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -39,7 +40,6 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
@@ -62,6 +62,7 @@ import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
@@ -100,6 +101,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
+    private val fetchOlderNomadMessages: FetchOlderNomadMessagesByConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
@@ -218,6 +220,12 @@ class ConversationMessagesViewModel @Inject constructor(
         )
 
         handleSelectedSearchedMessageHighlighting()
+    }
+
+    fun fetchOlderMessagesIfNeeded() {
+        viewModelScope.launch {
+            fetchOlderNomadMessages(conversationId)
+        }
     }
 
     private suspend fun handleSelectedSearchedMessageHighlighting() {
@@ -431,6 +439,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private companion object {
         const val DEFAULT_ASSET_NAME = "Wire File"
         const val CURRENT_TIME_REFRESH_WINDOW_IN_MILLIS: Long = 60_000
+        const val REMOTE_PAGE_SIZE = 20
     }
 }
 

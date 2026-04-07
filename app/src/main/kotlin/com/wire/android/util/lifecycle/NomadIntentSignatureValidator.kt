@@ -17,16 +17,16 @@
  */
 package com.wire.android.util.lifecycle
 
-import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.ionspin.kotlin.crypto.signature.Signature
 import com.wire.android.BuildConfig
+import com.wire.kalium.cryptography.LibsodiumInitializer
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.io.encoding.Base64
 
 @Singleton
 class NomadIntentSignatureValidator internal constructor(
-    private val configurationSignatureKeys: List<String>,
+    private val configurationSignatureKeys: Map<String, String>,
     private val isConfigurationSignatureEnforced: Boolean
 ) {
 
@@ -36,7 +36,7 @@ class NomadIntentSignatureValidator internal constructor(
         isConfigurationSignatureEnforced = BuildConfig.ENFORCE_CONFIGURATION_SIGNATURE
     )
 
-    fun isValid(parameter: String?, signature: String?): Boolean {
+    suspend fun isValid(parameter: String?, signature: String?): Boolean {
         return when {
             parameter == null -> signature == null
             signature == SKIP_SIGNATURE_VERIFICATION_TOKEN && !isConfigurationSignatureEnforced -> true
@@ -46,14 +46,14 @@ class NomadIntentSignatureValidator internal constructor(
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
-    private fun verifySignatureWithAvailableKeys(parameter: String, signature: String): Boolean {
-        if (!LibsodiumInitializer.isInitialized()) LibsodiumInitializer.initializeWithCallback {}
+    private suspend fun verifySignatureWithAvailableKeys(parameter: String, signature: String): Boolean {
+        LibsodiumInitializer.initializeLibsodiumIfNeeded()
         val messageBytes = parameter.toByteArray().toUByteArray()
         val signatureBytes = runCatching {
             Base64.decode(signature).toUByteArray()
         }.getOrElse { return false }
         // Any of the available keys can verify this signature.
-        return configurationSignatureKeys.any { b64DerKey ->
+        return prioritizedConfigurationSignatureKeys().any { b64DerKey ->
             runCatching {
                 // DER-encoded Ed25519 public key: 12 bytes ASN.1 header + 32 bytes raw key.
                 val decodedKey = Base64.decode(b64DerKey.replace("\\s".toRegex(), ""))
@@ -76,8 +76,21 @@ class NomadIntentSignatureValidator internal constructor(
         }
     }
 
+    private fun prioritizedConfigurationSignatureKeys(): List<String> =
+        buildList {
+            configurationSignatureKeys[PRIMARY_KEY_INDEX]?.let(::add)
+            configurationSignatureKeys[SECONDARY_KEY_INDEX]?.let(::add)
+            configurationSignatureKeys
+                .filterKeys { it != PRIMARY_KEY_INDEX && it != SECONDARY_KEY_INDEX }
+                .toSortedMap()
+                .values
+                .forEach(::add)
+        }
+
     companion object {
         internal const val SKIP_SIGNATURE_VERIFICATION_TOKEN = "skip"
+        private const val PRIMARY_KEY_INDEX = "0"
+        private const val SECONDARY_KEY_INDEX = "1"
         private const val ED25519_DER_PUBLIC_KEY_HEADER_LENGTH = 12
         private const val ED25519_PUBLIC_KEY_LENGTH = 32
         private val ED25519_DER_PUBLIC_KEY_HEADER = byteArrayOf(

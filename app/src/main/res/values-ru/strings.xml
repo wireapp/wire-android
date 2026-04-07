@@ -843,6 +843,12 @@
         <item quantity="many">Не удалось добавить %1$s в беседу.</item>
         <item quantity="other">Не удалось добавить %1$s в беседу.</item>
     </plurals>
+    <plurals name="label_system_message_conversation_failed_add_members_details_missing_key_packages">
+        <item quantity="one">Не удалось добавить %1$s в беседу. Возможно, у него нет клиента, поддерживающего протокол MLS.</item>
+        <item quantity="few">Не удалось добавить %1$s в беседу. Возможно, у него нет клиента, поддерживающего протокол MLS.</item>
+        <item quantity="many">Не удалось добавить %1$s в беседу. Возможно, у них нет клиента, поддерживающего протокол MLS.</item>
+        <item quantity="other">Не удалось добавить %1$s в беседу. Возможно, у него нет клиента, поддерживающего протокол MLS.</item>
+    </plurals>
     <string name="label_system_message_conversation_degraded_mls">Эта беседа больше не является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
     <string name="label_system_message_conversation_degraded_proteus">Эта беседа больше не является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>

@@ -64,6 +64,7 @@ import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.LocalAssetLocalPathKeyInScopeResolver
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModel
@@ -617,10 +618,29 @@ private fun QuotedImageThumbnail(
     asset: ImageAsset.PrivateAsset,
     modifier: Modifier = Modifier
 ) {
+    val args = AssetLocalPathArgs(asset.conversationId, asset.messageId)
+    val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
     val viewModel: AssetLocalPathViewModel =
-        hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs, AssetLocalPathViewModelImpl.Factory>(
-            AssetLocalPathArgs(asset.conversationId, asset.messageId)
-        )
+        if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
+            hiltViewModelScoped<
+                    AssetLocalPathViewModelImpl,
+                    AssetLocalPathViewModel,
+                    AssetLocalPathArgs,
+                    AssetLocalPathViewModelImpl.Factory,
+                    >(
+                arguments = args,
+                keyInScopeResolver = keyInScopeResolver,
+            )
+        } else {
+            hiltViewModelScoped<
+                    AssetLocalPathViewModelImpl,
+                    AssetLocalPathViewModel,
+                    AssetLocalPathArgs,
+                    AssetLocalPathViewModelImpl.Factory,
+                    >(
+                args
+            )
+        }
 
     LaunchedEffect(Unit) {
         viewModel.resolveIfNeeded(

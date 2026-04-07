@@ -4,3 +4,4 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import com.sebaslogen.resaca.KeyInScopeResolver
 
 val LocalAudioMessageKeyInScopeResolver = staticCompositionLocalOf<KeyInScopeResolver<String>?> { null }
+val LocalAssetLocalPathKeyInScopeResolver = staticCompositionLocalOf<KeyInScopeResolver<String>?> { null }

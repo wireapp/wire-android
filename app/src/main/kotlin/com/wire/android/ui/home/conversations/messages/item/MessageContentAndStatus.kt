@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import com.wire.android.ui.home.conversations.LocalAssetLocalPathKeyInScopeResolver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -146,15 +147,29 @@ private fun MessageContent(
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
+            val args = AssetLocalPathArgs(message.conversationId, message.header.messageId)
+            val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
             val viewModel: AssetLocalPathViewModel =
-                hiltViewModelScoped<
+                if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
+                    hiltViewModelScoped<
+                            AssetLocalPathViewModelImpl,
+                            AssetLocalPathViewModel,
+                            AssetLocalPathArgs,
+                            AssetLocalPathViewModelImpl.Factory,
+                            >(
+                        arguments = args,
+                        keyInScopeResolver = keyInScopeResolver,
+                    )
+                } else {
+                    hiltViewModelScoped<
                         AssetLocalPathViewModelImpl,
                         AssetLocalPathViewModel,
                         AssetLocalPathArgs,
                         AssetLocalPathViewModelImpl.Factory,
                         >(
-                    AssetLocalPathArgs(message.conversationId, message.header.messageId)
-                )
+                        args
+                    )
+                }
             LaunchedEffect(assetStatus) {
                 viewModel.resolveIfNeeded(
                     transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
@@ -173,15 +188,29 @@ private fun MessageContent(
         }
 
         is UIMessageContent.VideoMessage -> {
+            val args = AssetLocalPathArgs(message.conversationId, message.header.messageId)
+            val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
             val viewModel: AssetLocalPathViewModel =
-                hiltViewModelScoped<
+                if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
+                    hiltViewModelScoped<
+                            AssetLocalPathViewModelImpl,
+                            AssetLocalPathViewModel,
+                            AssetLocalPathArgs,
+                            AssetLocalPathViewModelImpl.Factory,
+                            >(
+                        arguments = args,
+                        keyInScopeResolver = keyInScopeResolver,
+                    )
+                } else {
+                    hiltViewModelScoped<
                         AssetLocalPathViewModelImpl,
                         AssetLocalPathViewModel,
                         AssetLocalPathArgs,
                         AssetLocalPathViewModelImpl.Factory,
                         >(
-                    AssetLocalPathArgs(message.conversationId, message.header.messageId)
-                )
+                        args
+                    )
+                }
             LaunchedEffect(assetStatus) {
                 viewModel.resolveIfNeeded(
                     transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
@@ -287,15 +316,29 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AssetMessage -> {
+            val args = AssetLocalPathArgs(message.conversationId, message.header.messageId)
+            val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
             val viewModel: AssetLocalPathViewModel =
-                hiltViewModelScoped<
+                if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
+                    hiltViewModelScoped<
+                            AssetLocalPathViewModelImpl,
+                            AssetLocalPathViewModel,
+                            AssetLocalPathArgs,
+                            AssetLocalPathViewModelImpl.Factory,
+                            >(
+                        arguments = args,
+                        keyInScopeResolver = keyInScopeResolver,
+                    )
+                } else {
+                    hiltViewModelScoped<
                         AssetLocalPathViewModelImpl,
                         AssetLocalPathViewModel,
                         AssetLocalPathArgs,
                         AssetLocalPathViewModelImpl.Factory,
                         >(
-                    AssetLocalPathArgs(message.conversationId, message.header.messageId)
-                )
+                        args
+                    )
+                }
             LaunchedEffect(assetStatus) {
                 viewModel.resolveIfNeeded(
                     transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,

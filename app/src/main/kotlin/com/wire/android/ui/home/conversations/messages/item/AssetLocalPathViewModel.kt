@@ -39,7 +39,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import java.util.concurrent.ConcurrentHashMap
 
 @Serializable
 data class AssetLocalPathArgs(
@@ -64,7 +63,7 @@ internal class AssetLocalPathViewModelImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     @Assisted private val args: AssetLocalPathArgs,
 ) : ViewModel(), AssetLocalPathViewModel {
-    override var localAssetPath: String? by mutableStateOf(cachedLocalAssetPaths[args.key])
+    override var localAssetPath: String? by mutableStateOf(null)
         private set
 
     private var resolvingJob: Job? = null
@@ -90,7 +89,6 @@ internal class AssetLocalPathViewModelImpl @AssistedInject constructor(
                     is MessageAssetResult.Success -> {
                         val resolvedPath = result.decodedAssetPath.toString()
                         withContext(dispatchers.main()) {
-                            cachedLocalAssetPaths[args.key] = resolvedPath
                             localAssetPath = resolvedPath
                         }
                     }
@@ -105,10 +103,6 @@ internal class AssetLocalPathViewModelImpl @AssistedInject constructor(
                 }
             }
         }
-    }
-
-    private companion object {
-        val cachedLocalAssetPaths = ConcurrentHashMap<String, String>()
     }
 
     @AssistedFactory

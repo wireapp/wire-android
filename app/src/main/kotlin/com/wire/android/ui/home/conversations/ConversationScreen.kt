@@ -162,6 +162,7 @@ import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBack
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
+import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.messages.item.SwipeableMessageConfiguration
@@ -169,6 +170,7 @@ import com.wire.android.ui.home.conversations.migration.ConversationMigrationVie
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
@@ -1316,9 +1318,18 @@ fun MessageList(
     val audioMessageKeysInScope = remember(lazyPagingMessages.itemSnapshotList.items) {
         lazyPagingMessages.itemSnapshotList.items.mapNotNull { it.audioMessageScopedKeyOrNull() }.distinct()
     }
+    val assetLocalPathKeysInScope = remember(lazyPagingMessages.itemSnapshotList.items) {
+        lazyPagingMessages.itemSnapshotList.items
+            .flatMap { it.assetLocalPathScopedKeys() }
+            .distinct()
+    }
     val audioMessageKeyInScopeResolver = rememberKeysInScope(audioMessageKeysInScope)
+    val assetLocalPathKeyInScopeResolver = rememberKeysInScope(assetLocalPathKeysInScope)
 
-    CompositionLocalProvider(LocalAudioMessageKeyInScopeResolver provides audioMessageKeyInScopeResolver) {
+    CompositionLocalProvider(
+        LocalAudioMessageKeyInScopeResolver provides audioMessageKeyInScopeResolver,
+        LocalAssetLocalPathKeyInScopeResolver provides assetLocalPathKeyInScopeResolver,
+    ) {
         Box(
             contentAlignment = Alignment.BottomEnd,
             modifier = modifier
@@ -1482,6 +1493,41 @@ private fun UIMessage.audioMessageScopedKeyOrNull(): String? =
     (this as? UIMessage.Regular)
         ?.takeIf { it.messageContent is UIMessageContent.AudioAssetMessage }
         ?.let { AudioMessageArgs(it.conversationId, it.header.messageId).key }
+
+private fun UIMessage.assetLocalPathScopedKeys(): List<String> {
+    val regularMessage = this as? UIMessage.Regular ?: return emptyList()
+    val keys = mutableListOf<String>()
+
+    when (regularMessage.messageContent) {
+        is UIMessageContent.ImageMessage,
+        is UIMessageContent.VideoMessage,
+        is UIMessageContent.AssetMessage -> {
+            keys.add(AssetLocalPathArgs(regularMessage.conversationId, regularMessage.header.messageId).key)
+        }
+
+        else -> Unit
+    }
+
+    val quotedImageAsset = when (val content = regularMessage.messageContent) {
+        is UIMessageContent.TextMessage -> {
+            (content.messageBody.quotedMessage as? UIQuotedMessage.UIQuotedData)
+                ?.quotedContent as? UIQuotedMessage.UIQuotedData.DisplayableImage
+        }
+
+        is UIMessageContent.Composite -> {
+            (content.messageBody?.quotedMessage as? UIQuotedMessage.UIQuotedData)
+                ?.quotedContent as? UIQuotedMessage.UIQuotedData.DisplayableImage
+        }
+
+        else -> null
+    }?.displayable
+
+    if (quotedImageAsset != null) {
+        keys.add(AssetLocalPathArgs(quotedImageAsset.conversationId, quotedImageAsset.messageId).key)
+    }
+
+    return keys
+}
 
 @Composable
 private fun BoxScope.ScrollDateOverlay(

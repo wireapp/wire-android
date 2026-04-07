@@ -28,6 +28,7 @@ import com.wire.android.BuildConfig
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,6 +39,7 @@ import javax.inject.Inject
 class WelcomeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getSessions: GetSessionsUseCase,
+    private val doesValidNomadAccountExist: DoesValidNomadAccountExistUseCase,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
     private val navArgs: WelcomeNavArgs = savedStateHandle.navArgs()
@@ -51,6 +53,10 @@ class WelcomeViewModel @Inject constructor(
 
     private fun checkNumberOfSessions() {
         viewModelScope.launch {
+            if (doesValidNomadAccountExist()) {
+                state = state.copy(nomadAccountBlocksLogin = true)
+                return@launch
+            }
             getSessions().let {
                 when (it) {
                     is GetAllSessionsResult.Success -> {

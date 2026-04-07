@@ -64,6 +64,7 @@ fun FloatingSelfUserTile(
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit,
     flipCamera: () -> Unit,
+    othersVideosDisabled: Boolean,
     modifier: Modifier = Modifier,
 ) {
     var selfVideoTileHeight by remember {
@@ -173,6 +174,7 @@ fun FloatingSelfUserTile(
             onClearSelfUserVideoPreview = onClearSelfUserVideoPreview,
             isOnFrontCamera = isOnFrontCamera,
             flipCamera = flipCamera,
+            othersVideosDisabled = othersVideosDisabled,
         )
     }
 }

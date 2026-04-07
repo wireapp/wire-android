@@ -697,6 +697,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="unblock_user_dialog_confirm_button">Odblokuj</string>
     <!--max account reached dialog-->
     <string name="max_account_reached_dialog_button_open_profile">Otw&#243;rz profil</string>
+    <!--nomad account blocks login dialog-->
     <string name="cant_switch_account_in_call">Nie mo&#380;esz prze&#322;&#261;cza&#263; kont podczas rozmowy</string>
     <string name="custom_backend_dialog_title">Przekierowa&#263; do lokalnego serwera?</string>
     <string name="label_fetching_your_messages">Pobieranie nowych wiadomo&#347;ci</string>

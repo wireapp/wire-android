@@ -72,6 +72,8 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
+import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -110,6 +112,8 @@ import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.InputStreamReader
 import javax.inject.Inject
+
+private const val AUTOMATED_NOMAD_COOKIE_LABEL = "shared-device"
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -230,8 +234,14 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             observeCurrentAccountInfo
                 .collect {
-                    if (it is AccountInfo.Invalid) {
-                        handleInvalidSession(it.logoutReason)
+                    when (it) {
+                        is AccountInfo.Invalid -> handleInvalidSession(it.logoutReason)
+                        is AccountInfo.Valid -> withContext(dispatchers.main()) {
+                            globalAppState = globalAppState.copy(blockUserUI = null)
+                        }
+
+                        null -> {}
+                        // No account info, user is not logged in, do nothing
                     }
                 }
         }
@@ -379,32 +389,55 @@ class WireActivityViewModel @Inject constructor(
 
     // Returns whether an intent was handled, or if there was nothing to do
     @Suppress("ReturnCount")
-    fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
-        if (!nomadProfilesFeatureConfig.isEnabled()) return false
+    suspend fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
         val result = intentsProcessor.get().invoke(intent)
         if (result != null) {
-            onAutomaticLoginParameters(
-                result.backendConfig,
-                result.ssoCode,
-                result.nomadProfilesHost,
-            )
+            if (!nomadProfilesFeatureConfig.isEnabled()) {
+                appLogger.w("Nomad login ignored: local Nomad profiles flag is disabled")
+                return true
+            }
+            viewModelScope.launch(dispatchers.io()) {
+                val serverLinks = result.backendConfig?.let { loadServerConfig(it) }
+                val backendConfigLoadFailed = result.backendConfig != null && serverLinks == null
+                if (backendConfigLoadFailed) {
+                    sendAction(OnUnknownDeepLink)
+                    return@launch
+                }
+
+                if (serverLinks?.isProductionApi() == true) {
+                    appLogger.w("Nomad login ignored: resolved backend is Wire production")
+                    return@launch
+                }
+
+                if (!isNomadProfilesFlowEnabled(serverLinks)) {
+                    return@launch
+                }
+
+                initValidSessionsFlowIfNeeded()
+                if (validSessions.value.filterIsInstance<AccountInfo.Valid>().isNotEmpty()) {
+                    appLogger.w("Nomad login blocked: another session already exists")
+                    sendAction(ShowToast(R.string.nomad_login_blocked_message))
+                    return@launch
+                }
+
+                onAutomaticLoginParameters(
+                    serverLinks = serverLinks,
+                    ssoCode = result.ssoCode,
+                    nomadServiceUrl = result.nomadProfilesHost,
+                )
+            }
             return true
         }
         return false
     }
 
     private fun onAutomaticLoginParameters(
-        backendConfigUrl: String?,
+        serverLinks: ServerConfig.Links?,
         ssoCode: String?,
         nomadServiceUrl: String?,
     ) {
         viewModelScope.launch(dispatchers.io()) {
-            // Load backend config
-            val serverLinks = backendConfigUrl?.let { loadServerConfig(it) }
-
-            val backendConfigLoadFailed = backendConfigUrl != null && serverLinks == null
-            val nothingProvided = backendConfigUrl == null && ssoCode == null
-            if (backendConfigLoadFailed || nothingProvided) {
+            if (ssoCode == null) {
                 sendAction(OnUnknownDeepLink)
             } else {
                 automatedLoginManager.markPendingMoveToBackgroundAfterSync()
@@ -413,9 +446,40 @@ class WireActivityViewModel @Inject constructor(
                         serverLinks = serverLinks,
                         ssoCode = ssoCode,
                         nomadServiceUrl = nomadServiceUrl,
+                        cookieLabel = AUTOMATED_NOMAD_COOKIE_LABEL,
                         useNewLogin = resolveUseNewLogin(LoginType.Default, serverLinks)
                     )
                 )
+            }
+        }
+    }
+
+    private suspend fun isNomadProfilesFlowEnabled(serverLinks: ServerConfig.Links?): Boolean {
+        if (serverLinks == null) {
+            appLogger.w("Nomad login ignored: missing server links")
+            return false
+        }
+
+        return when (val authScopeResult = coreLogic.get().versionedAuthenticationScope(serverLinks).invoke(null)) {
+            is AutoVersionAuthScopeUseCase.Result.Failure -> {
+                appLogger.w("Nomad login ignored: failed to create auth scope for backend ${serverLinks.api}")
+                false
+            }
+
+            is AutoVersionAuthScopeUseCase.Result.Success -> {
+                when (val result = authScopeResult.authenticationScope.isNomadProfilesEnabled()) {
+                    is IsNomadProfilesEnabledUseCase.Result.Failure -> {
+                        appLogger.w("Nomad login ignored: failed to fetch server Nomad settings")
+                        false
+                    }
+
+                    is IsNomadProfilesEnabledUseCase.Result.Success -> {
+                        if (!result.isEnabled) {
+                            appLogger.w("Nomad login ignored: server does not support Nomad profiles")
+                        }
+                        result.isEnabled && nomadProfilesFeatureConfig.isEnabled()
+                    }
+                }
             }
         }
     }
@@ -732,6 +796,7 @@ internal data class OnAutomaticLogin(
     val serverLinks: ServerConfig.Links?,
     val ssoCode: String?,
     val nomadServiceUrl: String?,
+    val cookieLabel: String? = null,
     val useNewLogin: Boolean,
 ) : WireActivityViewAction
 
@@ -743,3 +808,7 @@ internal data class OnCustomBackendLogin(
 internal data class OnOpenUserProfile(val result: DeepLinkResult.OpenOtherUserProfile) : WireActivityViewAction
 internal data class OnSSOLogin(val result: DeepLinkResult.SSOLogin) : WireActivityViewAction
 internal data class ShowToast(val messageResId: Int) : WireActivityViewAction
+
+// TODO: replace with the kalium `ServerConfig.isProductionApi()` once it is made public and supports `Links`
+internal fun ServerConfig.Links.isProductionApi(): Boolean =
+    ServerConfig.PRODUCTION.api.contains(java.net.URI(api).host ?: "")

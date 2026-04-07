@@ -20,6 +20,7 @@ package com.wire.android.ui.authentication.login.sso
 import com.wire.android.appLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.auth.AccountTokens
 import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -49,15 +50,17 @@ class LoginSSOViewModelExtension(
         }
     }
 
+    @Suppress("LongParameterList")
     suspend fun initiateSSO(
         serverConfig: ServerConfig.Links,
         ssoCode: String,
+        cookieLabel: String? = null,
         onAuthScopeFailure: (AutoVersionAuthScopeUseCase.Result.Failure) -> Unit,
         onSSOInitiateFailure: (SSOInitiateLoginResult.Failure) -> Unit,
         onSuccess: suspend (redirectUrl: String) -> Unit,
     ) {
         withAuthenticationScope(serverConfig, onAuthScopeFailure) { authScope ->
-            authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode)).let { result ->
+            authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode, cookieLabel)).let { result ->
                 when (result) {
                     is SSOInitiateLoginResult.Failure -> onSSOInitiateFailure(result)
                     is SSOInitiateLoginResult.Success -> onSuccess(result.requestUrl)
@@ -87,6 +90,7 @@ class LoginSSOViewModelExtension(
         cookie: String,
         serverConfigId: String,
         consumeNomadServiceUrl: () -> String? = { null },
+        consumeCookieLabel: () -> String? = { null },
         onAuthScopeFailure: (AutoVersionAuthScopeUseCase.Result.Failure) -> Unit,
         onSSOLoginFailure: (SSOLoginSessionResult.Failure) -> Unit,
         onAddAuthenticatedUserFailure: (AddAuthenticatedUserUseCase.Result.Failure) -> Unit,
@@ -114,7 +118,7 @@ class LoginSSOViewModelExtension(
 
         val authenticatedUserResult = addAuthenticatedUser(
             StoreSessionParam(
-                accountTokens = ssoLoginSuccess.accountTokens,
+                accountTokens = ssoLoginSuccess.accountTokens.withCookieLabelIfMissing(consumeCookieLabel()),
                 ssoId = ssoLoginSuccess.ssoId,
                 serverConfigId = serverConfigId,
                 proxyCredentials = ssoLoginSuccess.proxyCredentials,
@@ -131,5 +135,12 @@ class LoginSSOViewModelExtension(
         }
     }
 }
+
+private fun AccountTokens.withCookieLabelIfMissing(cookieLabel: String?): AccountTokens =
+    if (this.cookieLabel != null || cookieLabel == null) {
+        this
+    } else {
+        copy(cookieLabel = cookieLabel)
+    }
 
 fun String.ssoCodeWithPrefix() = if (this.startsWith(SSO_CODE_WIRE_PREFIX)) this else "$SSO_CODE_WIRE_PREFIX$this"

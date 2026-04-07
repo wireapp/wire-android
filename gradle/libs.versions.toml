@@ -1,7 +1,6 @@
 [versions]
 # Gradle - Remind to change in `gradle-wrapper.properties` file as well!
 androidJunit5 = "1.14.0.0"
-libsodiumBindings = "0.9.5"
 
 # Kotlin
 grgitCore = "5.3.2"
@@ -14,6 +13,7 @@ ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.8.1"
 koin = "3.5.3"
 datafaker = "1.9.0"
+libsodiumBindings = "0.9.5"
 
 # Android Core / Architecture
 detekt = "1.23.8"
@@ -27,13 +27,13 @@ resaca = "3.0.0"
 bundlizer = "0.8.0"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
-kover = "0.7.6"
+kover = "0.9.8"
 
 # AndroidX
 androidx-appcompat = "1.7.1"
 androidx-core = "1.15.0"
 androidx-dataStore = "1.1.7"
-androidx-exif = "1.3.7"
+androidx-exif = "1.4.2"
 androidx-emoji = "1.5.0"
 androidx-jetpack = "1.1.0"
 androidx-lifecycle = "2.10.0"
@@ -55,7 +55,7 @@ compose-constraint = "1.1.1"
 compose-navigation = "2.9.5" # aligned with compose-destinations 2.3.0
 compose-destinations = "2.3.0"
 screenshot = "0.0.1-alpha13"
-jetbrains-compose = "1.10.1"
+jetbrains-compose = "1.10.2"
 # TODO(KMP): switch Compose MPP material3 to stable when available for this stack.
 jetbrains-compose-material3 = "1.10.0-alpha05"
 
@@ -90,7 +90,7 @@ lint-compose = "1.4.2"
 openIdAppAuth = "0.11.1"
 
 # Other Tools
-aboutLibraries = "13.0.0"
+aboutLibraries = "14.0.0-b03"
 cyclonedx = "3.1.0"
 leakCanary = "2.14"
 ksp = "2.3.4"
@@ -130,7 +130,7 @@ android-application = { id = "com.android.application", version.ref = "android-g
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibraries" }
+aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutLibraries" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
@@ -152,8 +152,6 @@ wire-versionizer = { id = "com.wire.android.versionizer" }
 [libraries]
 # Kotlin Gradle Plugin
 android-junit5 = { module = "de.mannodermaus.gradle.plugins:android-junit5", version.ref = "androidJunit5" }
-libsodiumBindingsMP = { module = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings", version.ref = "libsodiumBindings" }
-libsodiumBindingsJvm = { module = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings-jvm", version.ref = "libsodiumBindings" }
 grgit-core = { module = "org.ajoberstar.grgit:grgit-core", version.ref = "grgitCore" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android-gradlePlugin" }
@@ -166,6 +164,7 @@ kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", ver
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }
+libsodium-bindings-jvm = { module = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings-jvm", version.ref = "libsodiumBindings" }
 
 ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 ksp-symbol-processing-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }

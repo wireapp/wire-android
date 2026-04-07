@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,16 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.util.lifecycle
 
-package com.wire.android.ui.common.dialogs
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
-import androidx.annotation.StringRes
-import com.wire.kalium.logic.data.user.UserId
+object AppBackgroundManager {
 
-data class BlockUserDialogState(val userName: String, val userId: UserId, val loading: Boolean = false)
-data class UnblockUserDialogState(val userName: String, val userId: UserId, val loading: Boolean = false)
-data class FeatureDisabledWithProxyDialogState(@StringRes val description: Int, val teamUrl: String = "")
-object CancelLoginDialogState
-object FileSharingRestrictedDialogState
-object MaxAccountsReachedDialogState
-object NomadAccountBlocksLoginDialogState
+    private val _backgroundFlow = MutableSharedFlow<Unit>()
+    val backgroundFlow = _backgroundFlow.asSharedFlow()
+
+    suspend fun moveAppToBackground() {
+        _backgroundFlow.emit(Unit)
+    }
+}

@@ -843,6 +843,12 @@
         <item quantity="many">Не удалось добавить %1$s в беседу.</item>
         <item quantity="other">Не удалось добавить %1$s в беседу.</item>
     </plurals>
+    <plurals name="label_system_message_conversation_failed_add_members_details_missing_key_packages">
+        <item quantity="one">Не удалось добавить %1$s в беседу. Возможно, у него нет клиента, поддерживающего протокол MLS.</item>
+        <item quantity="few">Не удалось добавить %1$s в беседу. Возможно, у него нет клиента, поддерживающего протокол MLS.</item>
+        <item quantity="many">Не удалось добавить %1$s в беседу. Возможно, у них нет клиента, поддерживающего протокол MLS.</item>
+        <item quantity="other">Не удалось добавить %1$s в беседу. Возможно, у него нет клиента, поддерживающего протокол MLS.</item>
+    </plurals>
     <string name="label_system_message_conversation_degraded_mls">Эта беседа больше не является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
     <string name="label_system_message_conversation_degraded_proteus">Эта беседа больше не является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
@@ -1134,6 +1140,16 @@
     <string name="calling_details_network_quality_poor">Плохое</string>
     <string name="calling_details_turn_off_other_videos_title">Отключить другие видео</string>
     <string name="calling_details_turn_off_other_videos_description">Это улучшит качество звука при плохом качестве сети.</string>
+    <string name="calling_details_network_quality_peer">Пир</string>
+    <string name="calling_details_network_quality_peer_user">Пользователь</string>
+    <string name="calling_details_network_quality_peer_server">Сервер</string>
+    <string name="calling_details_network_quality_connection">Подключение</string>
+    <string name="calling_details_network_quality_connection_relay">Релей</string>
+    <string name="calling_details_network_quality_packet_loss">Потеря пакетов</string>
+    <string name="calling_details_network_quality_ping">Пинг</string>
+    <string name="calling_details_network_quality_jitter">Джиттер</string>
+    <string name="calling_details_network_quality_value_milliseconds">%1$d мс</string>
+    <string name="calling_details_network_quality_learn_more">Подробнее о качестве</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s вызывает…</string>
@@ -1320,6 +1336,10 @@
         <item quantity="other">Одновременно можно авторизоваться только в %1$d аккаунтах. Выйдите, чтобы добавить другой.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Открыть профиль</string>
+    <!--nomad account blocks login dialog-->
+    <string name="nomad_login_blocked_message">Невозможно авторизоваться, пока активен другой аккаунт</string>
+    <string name="nomad_account_blocks_login_title">Вход заблокирован</string>
+    <string name="nomad_account_blocks_login_message">В данный момент в системе авторизован управляемый профиль. Перед добавлением другого аккаунта необходимо сначала осуществить выход.</string>
     <string name="cant_switch_account_in_call">Невозможно переключать аккаунты во время звонка</string>
     <string name="deeplink_authorization_needed">Для выполнения этого действия необходимо авторизоваться</string>
     <string name="custom_backend_dialog_title">Перенаправить на локальный бэкэнд?</string>

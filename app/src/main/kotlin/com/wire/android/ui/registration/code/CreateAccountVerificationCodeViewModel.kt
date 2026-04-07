@@ -277,6 +277,9 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
 
         AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists ->
             CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError
+
+        AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation ->
+            CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError
     }
 
     private fun RequestActivationCodeResult.toCodeError() = when (this) {

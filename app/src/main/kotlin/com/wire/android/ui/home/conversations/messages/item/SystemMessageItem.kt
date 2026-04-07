@@ -476,6 +476,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
             Type.Federation -> R.string.url_message_details_offline_backends_learn_more
             Type.LegalHold -> R.string.url_legal_hold_learn_more
             Type.Unknown -> null
+            Type.MissingKeyPackages -> R.string.url_mls_learn_more
         }
     ) { expanded ->
         val markdownTextStyle = DefaultMarkdownTextStyle.copy(
@@ -492,6 +493,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
                 Type.Federation -> R.plurals.label_system_message_conversation_failed_add_members_details_federation
                 Type.LegalHold -> R.plurals.label_system_message_conversation_failed_add_members_details_legal_hold
                 Type.Unknown -> R.plurals.label_system_message_conversation_failed_add_members_details_unknown
+                Type.MissingKeyPackages -> R.plurals.label_system_message_conversation_failed_add_members_details_missing_key_packages
             },
             count = memberNames.size,
             formatArgs = arrayOf(memberNames.limitList(expanded).toListMarkdownString())

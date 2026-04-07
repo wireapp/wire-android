@@ -82,6 +82,8 @@ import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialog
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState
+import com.wire.android.ui.common.dialogs.NomadAccountBlocksLoginDialog
+import com.wire.android.ui.common.dialogs.NomadAccountBlocksLoginDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -116,25 +118,22 @@ fun WelcomeScreen(
     WelcomeContent(
         viewModel.state.isThereActiveSession,
         viewModel.state.maxAccountsReached,
+        viewModel.state.nomadAccountBlocksLogin,
         viewModel.state.links,
         navigator::navigateBack,
         navigator::navigate
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun WelcomeContent(
     isThereActiveSession: Boolean,
     maxAccountsReached: Boolean,
+    nomadAccountBlocksLogin: Boolean,
     state: ServerConfig.Links,
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
 ) {
-    val teamCreationUrl = state.teams + stringResource(R.string.create_account_email_backlink_to_team_suffix_url)
-    val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
-    val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
-    val context = LocalContext.current
     WireScaffold(topBar = {
         if (isThereActiveSession) {
             WireCenterAlignedTopAppBar(
@@ -159,6 +158,12 @@ private fun WelcomeContent(
                 maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState)
             }
 
+            val nomadBlocksLoginDialogState = rememberVisibilityState<NomadAccountBlocksLoginDialogState>()
+            NomadAccountBlocksLoginDialog(dialogState = nomadBlocksLoginDialogState) { navigateBack() }
+            if (nomadAccountBlocksLogin) {
+                nomadBlocksLoginDialogState.show(nomadBlocksLoginDialogState.savedState ?: NomadAccountBlocksLoginDialogState)
+            }
+
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
                 tint = MaterialTheme.colorScheme.onBackground,
@@ -175,77 +180,102 @@ private fun WelcomeContent(
 
             WelcomeCarousel(modifier = Modifier.weight(1f, true))
 
-            Column(
-                modifier = Modifier
-                    .padding(
-                        vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
-                        horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
-                    )
-                    .semantics {
-                        testTagsAsResourceId = true
-                    }
-            ) {
-                LoginButton(
-                    onClick = { navigate(NavigationCommand(LoginScreenDestination(loginPasswordPath = LoginPasswordPath(state)))) }
-                )
-                FeatureDisabledWithProxyDialogContent(
-                    dialogState = enterpriseDisabledWithProxyDialogState,
-                    onActionButtonClicked = {
-                        CustomTabsHelper.launchUrl(context, state.teams)
-                    }
-                )
-                FeatureDisabledWithProxyDialogContent(dialogState = createPersonalAccountDisabledWithProxyDialogState)
-
-                if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
-                    CreateEnterpriseAccountButton {
-                        if (state.isProxyEnabled()) {
-                            enterpriseDisabledWithProxyDialogState.show(
-                                enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
-                                    R.string.create_team_not_supported_dialog_description,
-                                    state.teams
-                                )
-                            )
-                        } else {
-                            if (ENABLE_NEW_REGISTRATION) {
-                                CustomTabsHelper.launchUrl(context, teamCreationUrl)
-                            } else {
-                                navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(state)))
-                            }
-                        }
-                    }
-                }
-            }
+            WelcomeButtonsColumn(state = state, navigate = navigate)
 
             if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
-                WelcomeFooter(
-                    modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
-                    onPrivateAccountClick = {
-                        if (state.isProxyEnabled()) {
-                            createPersonalAccountDisabledWithProxyDialogState.show(
-                                createPersonalAccountDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
-                                    R.string.create_personal_account_not_supported_dialog_description
-                                )
-                            )
-                        } else {
-                            if (ENABLE_NEW_REGISTRATION) {
-                                navigate(
-                                    NavigationCommand(
-                                        CreateAccountDataDetailScreenDestination(
-                                            CreateAccountDataNavArgs(
-                                                customServerConfig = state
-                                            )
-                                        )
-                                    )
-                                )
-                            } else {
-                                navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))
-                            }
-                        }
-                    }
+                WelcomeFooterSection(
+                    state = state,
+                    navigate = navigate,
+                    modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
                 )
             }
         }
     }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun WelcomeButtonsColumn(
+    state: ServerConfig.Links,
+    navigate: (NavigationCommand) -> Unit,
+) {
+    val context = LocalContext.current
+    val teamCreationUrl = state.teams + stringResource(R.string.create_account_email_backlink_to_team_suffix_url)
+    val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
+    Column(
+        modifier = Modifier
+            .padding(
+                vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
+                horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
+            )
+            .semantics {
+                testTagsAsResourceId = true
+            }
+    ) {
+        LoginButton(
+            onClick = { navigate(NavigationCommand(LoginScreenDestination(loginPasswordPath = LoginPasswordPath(state)))) }
+        )
+        FeatureDisabledWithProxyDialogContent(
+            dialogState = enterpriseDisabledWithProxyDialogState,
+            onActionButtonClicked = {
+                CustomTabsHelper.launchUrl(context, state.teams)
+            }
+        )
+        if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
+            CreateEnterpriseAccountButton {
+                if (state.isProxyEnabled()) {
+                    enterpriseDisabledWithProxyDialogState.show(
+                        enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
+                            R.string.create_team_not_supported_dialog_description,
+                            state.teams
+                        )
+                    )
+                } else {
+                    if (ENABLE_NEW_REGISTRATION) {
+                        CustomTabsHelper.launchUrl(context, teamCreationUrl)
+                    } else {
+                        navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(state)))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WelcomeFooterSection(
+    state: ServerConfig.Links,
+    navigate: (NavigationCommand) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
+    FeatureDisabledWithProxyDialogContent(dialogState = createPersonalAccountDisabledWithProxyDialogState)
+    WelcomeFooter(
+        modifier = modifier,
+        onPrivateAccountClick = {
+            if (state.isProxyEnabled()) {
+                createPersonalAccountDisabledWithProxyDialogState.show(
+                    createPersonalAccountDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
+                        R.string.create_personal_account_not_supported_dialog_description
+                    )
+                )
+            } else {
+                if (ENABLE_NEW_REGISTRATION) {
+                    navigate(
+                        NavigationCommand(
+                            CreateAccountDataDetailScreenDestination(
+                                CreateAccountDataNavArgs(
+                                    customServerConfig = state
+                                )
+                            )
+                        )
+                    )
+                } else {
+                    navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))
+                }
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -422,6 +452,7 @@ fun PreviewWelcomeScreen() {
         WelcomeContent(
             isThereActiveSession = false,
             maxAccountsReached = false,
+            nomadAccountBlocksLogin = false,
             state = ServerConfig.DEFAULT,
             navigateBack = {},
             navigate = {}

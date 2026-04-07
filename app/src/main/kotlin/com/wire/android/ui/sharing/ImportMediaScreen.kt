@@ -107,7 +107,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.extension.getActivity
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -122,6 +121,7 @@ import okio.Path.Companion.toPath
 @WireRootDestination
 @Composable
 fun ImportMediaScreen(
+    importSessionId: String? = null,
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
@@ -149,6 +149,7 @@ fun ImportMediaScreen(
         is FeatureFlagState.FileSharingState.AllowSome -> {
             ImportMediaAuthenticatedContent(
                 navigator = navigator,
+                importSessionId = importSessionId,
                 isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.FileSharingState.DisabledByTeam,
             )
         }
@@ -191,6 +192,7 @@ private fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
 @Composable
 private fun ImportMediaAuthenticatedContent(
     navigator: Navigator,
+    importSessionId: String?,
     isRestrictedInTeam: Boolean,
     checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel(),
     importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel(),
@@ -242,14 +244,8 @@ private fun ImportMediaAuthenticatedContent(
             hideDialog = checkAssetRestrictionsViewModel::hideDialog
         )
 
-        val context = LocalContext.current
-        with(importMediaViewModel.importMediaState) {
-            LaunchedEffect(isImportingData()) {
-                if (importedAssets.isEmpty() || importedText.isNullOrEmpty()) {
-                    context.getActivity()
-                        ?.let { activity -> importMediaViewModel.handleReceivedDataFromSharingIntent(activity) }
-                }
-            }
+        LaunchedEffect(importSessionId) {
+            importSessionId?.let(importMediaViewModel::loadImportSession)
         }
     }
 }

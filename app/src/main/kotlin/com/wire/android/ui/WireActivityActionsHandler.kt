@@ -55,7 +55,7 @@ internal fun HandleViewActions(actions: Flow<WireActivityViewAction>, navigator:
             is OnCustomBackendLogin -> onCustomBackendLogin(navigator, action)
             is OnOpenUserProfile -> openUserProfile(action, navigator)
             is OnSSOLogin -> openSsoLogin(navigator, action)
-            is OnShowImportMediaScreen -> openImportMediaScreen(navigator)
+            is OnShowImportMediaScreen -> openImportMediaScreen(navigator, action.importSessionId)
             is OpenConversation -> openConversation(action, navigator)
             is OnUnknownDeepLink -> if (navigator.isEmptyWelcomeStartDestination()) {
                 // log in needed so if "welcome empty start" screen then switch "start" screen to login by navigating to it
@@ -84,10 +84,10 @@ private fun openConversation(action: OpenConversation, navigator: Navigator) {
     )
 }
 
-private fun openImportMediaScreen(navigator: Navigator) {
+private fun openImportMediaScreen(navigator: Navigator, importSessionId: String) {
     navigator.navigate(
         NavigationCommand(
-            ImportMediaScreenDestination,
+            ImportMediaScreenDestination(importSessionId = importSessionId),
             BackStackMode.UPDATE_EXISTED
         )
     )

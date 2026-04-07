@@ -50,6 +50,7 @@ import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.ui.sharing.IncomingShareIntents
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.CurrentScreen
@@ -377,8 +378,6 @@ class WireActivityViewModel @Inject constructor(
                 is DeepLinkResult.MigrationLogin -> sendAction(OnMigrationLogin(result))
                 is DeepLinkResult.OpenConversation -> sendAction(OpenConversation(result))
                 is DeepLinkResult.OpenOtherUserProfile -> onOpenUserProfileDeepLink(result)
-
-                DeepLinkResult.SharingIntent -> sendAction(OnShowImportMediaScreen)
                 DeepLinkResult.Unknown -> {
                     sendAction(OnUnknownDeepLink)
                     appLogger.e("unknown deeplink result $result")
@@ -390,6 +389,12 @@ class WireActivityViewModel @Inject constructor(
     // Returns whether an intent was handled, or if there was nothing to do
     @Suppress("ReturnCount")
     suspend fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
+        if (intent?.action == IncomingShareIntents.ACTION_OPEN_IMPORTED_SHARE) {
+            intent.getStringExtra(IncomingShareIntents.EXTRA_IMPORT_SESSION_ID)?.let { importSessionId ->
+                sendAction(OnShowImportMediaScreen(importSessionId))
+                return true
+            }
+        }
         val result = intentsProcessor.get().invoke(intent)
         if (result != null) {
             if (!nomadProfilesFeatureConfig.isEnabled()) {
@@ -788,7 +793,7 @@ enum class InitialAppState {
 
 sealed interface WireActivityViewAction
 internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction
-internal data object OnShowImportMediaScreen : WireActivityViewAction
+internal data class OnShowImportMediaScreen(val importSessionId: String) : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction
 internal data object OnUnknownDeepLink : WireActivityViewAction
 internal data class OnMigrationLogin(val result: DeepLinkResult.MigrationLogin) : WireActivityViewAction

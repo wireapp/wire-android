@@ -176,12 +176,13 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given a invalid deeplink with sharing intent action, returns sharing intent`() = runTest {
+    fun `given a invalid deeplink with sharing intent action, returns Unknown object`() = runTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withInvalidDeeplink()
             .arrange()
         val result = deepLinkProcessor(arrangement.uri, Intent.ACTION_SEND)
-        assertInstanceOf(DeepLinkResult.SharingIntent::class.java, result)
+        assertInstanceOf(DeepLinkResult.Unknown::class.java, result)
+        assertEquals(DeepLinkResult.Unknown, result)
     }
 
     @Test
@@ -287,13 +288,13 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given a deeplink with a sharing intent action, returns SharingIntent result`() = runTest {
+    fun `given a deeplink with a sharing intent action, returns Unknown result`() = runTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withCurrentSessionSuccess(CURRENT_USER_ID)
             .arrange()
-        val result = deepLinkProcessor(arrangement.uri, Intent.ACTION_SEND)
-        assertInstanceOf(DeepLinkResult.SharingIntent::class.java, result)
-        assertEquals(DeepLinkResult.SharingIntent, result)
+        val result = deepLinkProcessor(null, Intent.ACTION_SEND)
+        assertInstanceOf(DeepLinkResult.Unknown::class.java, result)
+        assertEquals(DeepLinkResult.Unknown, result)
     }
 
     @Test

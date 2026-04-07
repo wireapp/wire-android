@@ -18,7 +18,6 @@
 
 package com.wire.android.util.deeplink
 
-import android.content.Intent
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import com.wire.android.di.KaliumCoreLogic
@@ -68,8 +67,6 @@ sealed class DeepLinkResult {
 
     data class MigrationLogin(val userHandle: String) : DeepLinkResult()
 
-    data object SharingIntent : DeepLinkResult()
-
     data object AuthorizationNeeded : DeepLinkResult()
 
     sealed class SwitchAccountFailure : DeepLinkResult() {
@@ -91,10 +88,8 @@ class DeepLinkProcessor @Inject constructor(
             is CurrentSessionResult.Failure.Generic,
             CurrentSessionResult.Failure.SessionNotFound -> uri?.let { handleNotAuthorizedDeepLinks(uri) } ?: DeepLinkResult.Unknown
 
-            is CurrentSessionResult.Success -> when (action) {
-                Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> DeepLinkResult.SharingIntent
-                else -> uri?.let { handleDeepLinks(uri, sessionResult.accountInfo) } ?: DeepLinkResult.Unknown
-            }
+            is CurrentSessionResult.Success ->
+                uri?.let { handleDeepLinks(uri, sessionResult.accountInfo) } ?: DeepLinkResult.Unknown
         }
     }
 

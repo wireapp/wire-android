@@ -23,11 +23,11 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.config.mockUri
 import com.wire.android.framework.TestConversationItem
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
-import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
+import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -39,6 +39,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import okio.Path.Companion.toPath
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -70,6 +72,37 @@ class ImportMediaAuthenticatedViewModelTest {
         }
     }
 
+    @Test
+    fun `given stored import session, when loading import session, then populate imported content`() = runTest(dispatcherProvider.main()) {
+        val importedAsset = ImportedMediaAsset(
+            assetBundle = AssetBundle(
+                key = "key",
+                mimeType = "image/jpeg",
+                dataPath = "tmp/imported.jpg".toPath(),
+                dataSize = 42L,
+                fileName = "imported.jpg",
+                assetType = AttachmentType.IMAGE
+            ),
+            assetSizeExceeded = null
+        )
+        val (arrangement, viewModel) = Arrangement()
+            .withImportSession(
+                ImportSession(
+                    id = "session-id",
+                    importedText = "hello from share",
+                    importedAssets = listOf(importedAsset)
+                )
+            )
+            .arrange()
+
+        viewModel.loadImportSession("session-id")
+        advanceUntilIdle()
+
+        assertEquals("hello from share", viewModel.importMediaState.importedText)
+        assertEquals(listOf(importedAsset), viewModel.importMediaState.importedAssets)
+        coVerify(exactly = 1) { arrangement.importSessionStore.get("session-id") }
+    }
+
     inner class Arrangement {
 
         @MockK
@@ -79,7 +112,7 @@ class ImportMediaAuthenticatedViewModelTest {
         lateinit var getConversationsPaginated: GetConversationsFromSearchUseCase
 
         @MockK
-        lateinit var handleUriAssetUseCase: HandleUriAssetUseCase
+        lateinit var importSessionStore: ImportSessionStore
 
         @MockK
         lateinit var persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase
@@ -97,13 +130,17 @@ class ImportMediaAuthenticatedViewModelTest {
             coEvery {
                 getSelfUser.invoke()
             } returns flowOf(TestUser.SELF_USER)
-            mockUri()
+            coEvery { importSessionStore.get(any()) } returns null
+        }
+
+        fun withImportSession(session: ImportSession?) = apply {
+            coEvery { importSessionStore.get(any()) } returns session
         }
 
         fun arrange() = this to ImportMediaAuthenticatedViewModel(
             getSelf = getSelfUser,
             getConversationsPaginated = getConversationsPaginated,
-            handleUriAsset = handleUriAssetUseCase,
+            importSessionStore = importSessionStore,
             persistNewSelfDeletionTimerUseCase = persistNewSelfDeletionTimerUseCase,
             observeSelfDeletionSettingsForConversation = observeSelfDeletionSettingsForConversation,
             dispatchers = dispatcherProvider,

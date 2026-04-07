@@ -49,6 +49,7 @@ import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModelTest
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.ui.sharing.IncomingShareIntents
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -921,15 +922,18 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given nomad profiles disabled, when handling sharing intent, then import media screen is still shown`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withNomadProfilesEnabled(false)
-            .withDeepLinkResult(DeepLinkResult.SharingIntent)
-            .arrange()
+    fun `given incoming share intent, when handling non-deep-link intents, then import media screen is shown`() = runTest {
+        val (_, viewModel) = Arrangement().arrange()
 
         viewModel.actions.test {
-            viewModel.handleDeepLink(mockedIntent())
-            assertEquals(OnShowImportMediaScreen, expectMostRecentItem())
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(
+                mockedIntent(
+                    action = IncomingShareIntents.ACTION_OPEN_IMPORTED_SHARE,
+                    importSessionId = "session-id"
+                )
+            )
+            assertTrue(handled)
+            assertEquals(OnShowImportMediaScreen("session-id"), expectMostRecentItem())
         }
     }
 
@@ -1334,11 +1338,16 @@ class WireActivityViewModelTest {
             TEST_ACCOUNT_INFO.copy(userId = USER_ID.copy("user_$i"))
         }
 
-        private fun mockedIntent(isFromHistory: Boolean = false): Intent {
+        private fun mockedIntent(
+            isFromHistory: Boolean = false,
+            action: String? = null,
+            importSessionId: String? = null,
+        ): Intent {
             return mockk<Intent>().also {
                 every { it.data } returns mockk()
                 every { it.flags } returns if (isFromHistory) Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY else 0
-                every { it.action } returns null
+                every { it.action } returns action
+                every { it.getStringExtra(IncomingShareIntents.EXTRA_IMPORT_SESSION_ID) } returns importSessionId
             }
         }
 

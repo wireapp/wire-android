@@ -1478,12 +1478,10 @@ fun MessageList(
     }
 }
 
-private fun UIMessage.audioMessageScopedKeyOrNull(): String? {
-    val regularMessage = this as? UIMessage.Regular ?: return null
-    val isAudioMessage = regularMessage.messageContent is UIMessageContent.AudioAssetMessage
-    if (!isAudioMessage) return null
-    return AudioMessageArgs(regularMessage.conversationId, regularMessage.header.messageId).key
-}
+private fun UIMessage.audioMessageScopedKeyOrNull(): String? =
+    (this as? UIMessage.Regular)
+        ?.takeIf { it.messageContent is UIMessageContent.AudioAssetMessage }
+        ?.let { AudioMessageArgs(it.conversationId, it.header.messageId).key }
 
 @Composable
 private fun BoxScope.ScrollDateOverlay(

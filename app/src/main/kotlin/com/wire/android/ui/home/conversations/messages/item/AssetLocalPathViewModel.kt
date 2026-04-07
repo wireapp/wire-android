@@ -54,7 +54,6 @@ interface AssetLocalPathViewModel {
     val localAssetPath: String? get() = null
     fun resolveIfNeeded(
         transferStatus: AssetTransferStatus,
-        initialAssetDataPath: String?,
         downloadIfNeeded: Boolean = false
     ) {}
 }
@@ -72,14 +71,8 @@ internal class AssetLocalPathViewModelImpl @AssistedInject constructor(
 
     override fun resolveIfNeeded(
         transferStatus: AssetTransferStatus,
-        initialAssetDataPath: String?,
         downloadIfNeeded: Boolean
     ) {
-        if (initialAssetDataPath != null && localAssetPath != initialAssetDataPath) {
-            cachedLocalAssetPaths[args.key] = initialAssetDataPath
-            localAssetPath = initialAssetDataPath
-        }
-
         val shouldResolve = when {
             downloadIfNeeded ->
                 transferStatus == AssetTransferStatus.NOT_DOWNLOADED ||

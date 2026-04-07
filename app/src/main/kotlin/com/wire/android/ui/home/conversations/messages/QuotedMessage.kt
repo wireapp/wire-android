@@ -40,11 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -625,25 +621,15 @@ private fun QuotedImageThumbnail(
         hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs, AssetLocalPathViewModelImpl.Factory>(
             AssetLocalPathArgs(asset.conversationId, asset.messageId)
         )
-    var rememberedAssetDataPath by rememberSaveable(asset.uniqueKey) {
-        mutableStateOf<String?>(null)
-    }
 
-    LaunchedEffect(viewModel.localAssetPath) {
-        if (viewModel.localAssetPath != null) {
-            rememberedAssetDataPath = viewModel.localAssetPath
-        }
-    }
-
-    LaunchedEffect(rememberedAssetDataPath) {
+    LaunchedEffect(Unit) {
         viewModel.resolveIfNeeded(
             transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
-            initialAssetDataPath = rememberedAssetDataPath,
             downloadIfNeeded = true
         )
     }
 
-    val assetDataPath = rememberedAssetDataPath ?: viewModel.localAssetPath
+    val assetDataPath = viewModel.localAssetPath
 
     if (assetDataPath != null) {
         SubcomposeAsyncImage(

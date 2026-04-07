@@ -146,7 +146,9 @@ fun ImageMessageInProgress(
                         R.string.asset_message_upload_in_progress_text
                     }
                 ),
+                modifier = Modifier.fillMaxWidth(),
                 style = MaterialTheme.wireTypography.subline01.copy(color = color),
+                textAlign = TextAlign.Center,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )

@@ -7,11 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -151,23 +147,17 @@ private fun MessageContent(
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
             val viewModel: AssetLocalPathViewModel =
-                hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs, AssetLocalPathViewModelImpl.Factory>(
+                hiltViewModelScoped<
+                        AssetLocalPathViewModelImpl,
+                        AssetLocalPathViewModel,
+                        AssetLocalPathArgs,
+                        AssetLocalPathViewModelImpl.Factory,
+                        >(
                     AssetLocalPathArgs(message.conversationId, message.header.messageId)
                 )
-            var rememberedAssetDataPath by rememberSaveable(message.header.messageId) {
-                mutableStateOf<String?>(null)
-            }
-
-            LaunchedEffect(viewModel.localAssetPath) {
-                if (viewModel.localAssetPath != null) {
-                    rememberedAssetDataPath = viewModel.localAssetPath
-                }
-            }
-
-            LaunchedEffect(assetStatus, rememberedAssetDataPath) {
+            LaunchedEffect(assetStatus) {
                 viewModel.resolveIfNeeded(
                     transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    initialAssetDataPath = rememberedAssetDataPath,
                     downloadIfNeeded = true
                 )
             }
@@ -178,39 +168,32 @@ private fun MessageContent(
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onImageClick = onImageClick,
                 messageStyle = messageStyle,
-                assetPath = (rememberedAssetDataPath ?: viewModel.localAssetPath)?.toPath(normalize = true)
+                assetPath = viewModel.localAssetPath?.toPath(normalize = true)
             )
         }
 
         is UIMessageContent.VideoMessage -> {
             val viewModel: AssetLocalPathViewModel =
-                hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs, AssetLocalPathViewModelImpl.Factory>(
+                hiltViewModelScoped<
+                        AssetLocalPathViewModelImpl,
+                        AssetLocalPathViewModel,
+                        AssetLocalPathArgs,
+                        AssetLocalPathViewModelImpl.Factory,
+                        >(
                     AssetLocalPathArgs(message.conversationId, message.header.messageId)
                 )
-            var rememberedAssetDataPath by rememberSaveable(message.header.messageId) {
-                mutableStateOf<String?>(null)
-            }
-
-            LaunchedEffect(viewModel.localAssetPath) {
-                if (viewModel.localAssetPath != null) {
-                    rememberedAssetDataPath = viewModel.localAssetPath
-                }
-            }
-
-            LaunchedEffect(assetStatus, rememberedAssetDataPath) {
+            LaunchedEffect(assetStatus) {
                 viewModel.resolveIfNeeded(
                     transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    initialAssetDataPath = rememberedAssetDataPath,
                     downloadIfNeeded = false
                 )
             }
 
-            val assetDataPath = rememberedAssetDataPath ?: viewModel.localAssetPath
             VideoMessage(
                 assetSize = messageContent.assetSizeInBytes,
                 assetName = messageContent.assetName,
                 assetExtension = messageContent.assetExtension,
-                assetDataPath = assetDataPath,
+                assetDataPath = viewModel.localAssetPath,
                 params = messageContent.params,
                 duration = messageContent.duration,
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
@@ -305,33 +288,26 @@ private fun MessageContent(
 
         is UIMessageContent.AssetMessage -> {
             val viewModel: AssetLocalPathViewModel =
-                hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs, AssetLocalPathViewModelImpl.Factory>(
+                hiltViewModelScoped<
+                        AssetLocalPathViewModelImpl,
+                        AssetLocalPathViewModel,
+                        AssetLocalPathArgs,
+                        AssetLocalPathViewModelImpl.Factory,
+                        >(
                     AssetLocalPathArgs(message.conversationId, message.header.messageId)
                 )
-            var rememberedAssetDataPath by rememberSaveable(message.header.messageId) {
-                mutableStateOf<String?>(null)
-            }
-
-            LaunchedEffect(viewModel.localAssetPath) {
-                if (viewModel.localAssetPath != null) {
-                    rememberedAssetDataPath = viewModel.localAssetPath
-                }
-            }
-
-            LaunchedEffect(assetStatus, rememberedAssetDataPath) {
+            LaunchedEffect(assetStatus) {
                 viewModel.resolveIfNeeded(
                     transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    initialAssetDataPath = rememberedAssetDataPath,
                     downloadIfNeeded = false
                 )
             }
 
-            val assetDataPath = rememberedAssetDataPath ?: viewModel.localAssetPath
             MessageAsset(
                 assetName = messageContent.assetName,
                 assetExtension = messageContent.assetExtension,
                 assetSizeInBytes = messageContent.assetSizeInBytes,
-                assetDataPath = assetDataPath,
+                assetDataPath = viewModel.localAssetPath,
                 assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onAssetClick = onAssetClick,
                 messageStyle = messageStyle

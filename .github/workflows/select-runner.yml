@@ -46,19 +46,28 @@ jobs:
               const required = JSON.parse('${{ inputs.required-labels }}');
               const minIdle = Number('${{ inputs.min-idle-runners }}');
 
-              const { data } = await github.rest.actions.listSelfHostedRunnersForRepo({
+              const repoData = await github.rest.actions.listSelfHostedRunnersForRepo({
                 owner: context.repo.owner,
                 repo: context.repo.repo
               });
-              core.info(`Discovered self-hosted runners for repo: ${data.runners.length}`);
-              data.runners.forEach((runner) => {
+              core.info(`Discovered repository-level runners: ${repoData.data.runners.length}`);
+
+              const orgData = await github.rest.actions.listSelfHostedRunnersInOrg({
+                org: context.repo.owner
+              });
+              core.info(`Discovered organization-level runners: ${orgData.data.runners.length}`);
+
+              const allRunners = [...repoData.data.runners, ...orgData.data.runners];
+              core.info(`Total runners (repo + org): ${allRunners.length}`);
+
+              allRunners.forEach((runner) => {
                 const labelNames = runner.labels.map((label) => label.name).join(", ");
                 core.info(
                   `Runner '${runner.name}': status=${runner.status}, busy=${runner.busy}, labels=[${labelNames}]`
                 );
               });
 
-              const idleMatchingRunners = data.runners.filter((runner) => {
+              const idleMatchingRunners = allRunners.filter((runner) => {
                 if (runner.status !== "online" || runner.busy) {
                   core.info(`Skipping '${runner.name}' because it is not idle online.`);
                   return false;

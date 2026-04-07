@@ -107,6 +107,9 @@ class ConversationAudioMessagePlayer
     private val seekToAudioPosition = MutableSharedFlow<Pair<MessageIdWrapper, Int>>(
         onBufferOverflow = BufferOverflow.SUSPEND
     )
+    private val preloadMutex = Mutex()
+    private val preloadedAudioMessages = mutableSetOf<MessageIdWrapper>()
+    private val preloadingAudioMessages = mutableSetOf<MessageIdWrapper>()
 
     private val positionCheckTrigger = MutableSharedFlow<Unit>()
 
@@ -346,10 +349,33 @@ class ConversationAudioMessagePlayer
     }
 
     suspend fun preloadAudioMessage(conversationId: ConversationId, messageId: String) {
+        val messageKey = MessageIdWrapper(conversationId, messageId)
+        val shouldPreload = preloadMutex.withLock {
+            when (messageKey) {
+                in preloadedAudioMessages -> false
+                in preloadingAudioMessages -> false
+                else -> {
+                    preloadingAudioMessages.add(messageKey)
+                    true
+                }
+            }
+        }
+        if (!shouldPreload) return
+
+        var preloadSucceeded = false
         val currentAccountResult = coreLogic.getGlobalScope().session.currentSession()
-        if (currentAccountResult is CurrentSessionResult.Failure) return
-        val userId = (currentAccountResult as CurrentSessionResult.Success).accountInfo.userId
-        getAssetMessage(userId, conversationId, messageId)
+        if (currentAccountResult is CurrentSessionResult.Success) {
+            val userId = currentAccountResult.accountInfo.userId
+            getAssetMessage(userId, conversationId, messageId)
+            preloadSucceeded = true
+        }
+
+        preloadMutex.withLock {
+            preloadingAudioMessages.remove(messageKey)
+            if (preloadSucceeded) {
+                preloadedAudioMessages.add(messageKey)
+            }
+        }
     }
 
     private suspend fun resumeOrPause(conversationId: ConversationId, messageId: String) {

@@ -42,7 +42,6 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
 
 @ViewModelScopedPreview
 interface AudioMessageViewModel {
@@ -95,14 +94,12 @@ class AudioMessageViewModelImpl @AssistedInject constructor(
     }
 
     private fun preloadAudioMessage() {
-        if (preloadStates.putIfAbsent(args.key, PreloadState.InFlight) != null) return
         viewModelScope.launch {
             try {
                 // calls preload to initially fetch the audio asset data to be ready and schedule waves mask generation if needed
                 audioMessagePlayer.preloadAudioMessage(args.conversationId, args.messageId)
-                preloadStates[args.key] = PreloadState.Succeeded
             } catch (_: Throwable) {
-                preloadStates.remove(args.key, PreloadState.InFlight)
+                // no-op: preloading is best-effort
             }
         }
     }
@@ -146,12 +143,6 @@ class AudioMessageViewModelImpl @AssistedInject constructor(
 
     private companion object {
         val cachedWavesMasks = ConcurrentHashMap<String, List<Int>>()
-        val preloadStates: ConcurrentMap<String, PreloadState> = ConcurrentHashMap()
-    }
-
-    private enum class PreloadState {
-        InFlight,
-        Succeeded,
     }
 
     @AssistedFactory

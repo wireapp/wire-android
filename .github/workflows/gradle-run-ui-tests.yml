@@ -20,7 +20,8 @@ jobs:
     secrets:
       runner-token: ${{ secrets.runner-token }}
     with:
-      required-labels: '["ghcr.io/cirruslabs/ubuntu-runner-amd64:24.04-lg"]'
+      required-labels: '["android-qa"]'
+      min-idle-runners: 1
       fallback-label: ghcr.io/cirruslabs/ubuntu-runner-amd64:24.04-lg
 
   ui-tests:

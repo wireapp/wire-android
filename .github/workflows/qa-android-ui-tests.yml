@@ -113,12 +113,7 @@ jobs:
 
   run-android-ui-tests:
     name: Run Android UI tests
-    runs-on:
-      - self-hosted
-      - Linux
-      - X64
-      - office
-      - android-qa
+    runs-on: [android-qa]
 
     needs: validate-and-resolve-inputs
     permissions:

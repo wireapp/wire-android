@@ -7,12 +7,7 @@ on:
 jobs:
   health-check:
     name: Health check (qa-runner-01)
-    runs-on:
-      - self-hosted
-      - Linux
-      - X64
-      - office
-      - android-qa
+    runs-on: [android-qa]
 
     timeout-minutes: 4
 

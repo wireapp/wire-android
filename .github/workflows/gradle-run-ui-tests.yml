@@ -6,6 +6,9 @@ on:
       artifact-suffix:
         required: true
         type: string
+    secrets:
+      runner-token:
+        required: false
 
 permissions:
   contents: read
@@ -14,7 +17,8 @@ permissions:
 jobs:
   runner-selection:
     uses: ./.github/workflows/select-runner.yml
-    secrets: inherit
+    secrets:
+      runner-token: ${{ secrets.runner-token }}
     with:
       required-labels: '["self-hosted"]'
       fallback-label: ghcr.io/cirruslabs/ubuntu-runner-amd64:24.04-lg

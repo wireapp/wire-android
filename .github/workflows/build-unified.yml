@@ -16,7 +16,6 @@ on:
         description: "Suffix for the concurrency group"
         required: true
         type: string
-
 permissions:
   contents: write
   actions: read
@@ -29,7 +28,8 @@ jobs:
   # Inline simple quality check jobs for better check names
   lint-runner-selection:
     uses: ./.github/workflows/select-runner.yml
-    secrets: inherit
+    secrets:
+      runner-token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
     with:
       required-labels: '["self-hosted"]'
 
@@ -93,15 +93,18 @@ jobs:
   ui-tests:
     name: "UI Tests"
     uses: ./.github/workflows/gradle-run-ui-tests.yml
+    secrets:
+      runner-token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
     with:
       artifact-suffix: ${{ inputs.concurrency-group-suffix }}
 
   unit-tests:
     name: "Unit Tests"
     uses: ./.github/workflows/gradle-run-unit-tests.yml
+    secrets:
+      runner-token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
     with:
       artifact-suffix: ${{ inputs.concurrency-group-suffix }}
-    secrets: inherit
 
   # Build matrix job - only runs if all quality checks pass
   build:

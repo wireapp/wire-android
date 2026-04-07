@@ -12,6 +12,10 @@ on:
         required: false
         default: "ubuntu-latest"
         type: string
+    secrets:
+      runner-token:
+        description: "Token with administration read access to list self-hosted runners"
+        required: false
     outputs:
       runs_on:
         description: "JSON array used by runs-on"
@@ -29,10 +33,8 @@ jobs:
     steps:
       - id: pick
         uses: actions/github-script@v8
-        env:
-          GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
         with:
-          github-token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
+          github-token: ${{ secrets.runner-token }}
           script: |
             const fallback = ['${{ inputs.fallback-label }}'];
             try {

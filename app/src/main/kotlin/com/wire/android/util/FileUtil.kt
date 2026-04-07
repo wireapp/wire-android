@@ -393,8 +393,12 @@ inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
 }
 
 inline fun <reified T : Parcelable> Intent.parcelableArrayList(key: String): ArrayList<T>? = when {
-    Build.VERSION.SDK_INT >= SDK_VERSION -> getParcelableArrayListExtra(key, T::class.java)
-    else -> @Suppress("DEPRECATION") getParcelableArrayListExtra(key)
+    Build.VERSION.SDK_INT >= SDK_VERSION ->
+        getParcelableArrayListExtra(key, Parcelable::class.java)?.filterIsInstance<T>()?.let { ArrayList(it) }
+
+    else ->
+        @Suppress("DEPRECATION")
+        getParcelableArrayListExtra<Parcelable>(key)?.filterIsInstance<T>()?.let { ArrayList(it) }
 }
 
 fun Uri.getMetadataFromUri(context: Context): FileMetaData {

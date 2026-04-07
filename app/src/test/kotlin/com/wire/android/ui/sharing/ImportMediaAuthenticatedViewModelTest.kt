@@ -17,6 +17,9 @@
  */
 package com.wire.android.ui.sharing
 
+import android.net.Uri
+import android.os.Bundle
+import android.os.Parcelable
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.paging.PagingData
 import app.cash.turbine.test
@@ -35,10 +38,12 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -68,6 +73,28 @@ class ImportMediaAuthenticatedViewModelTest {
             }
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun `given a multi share payload with only uri entries, when extracting streams, then all uris are returned`() {
+        val firstUri = mockk<Uri>(relaxed = true)
+        val secondUri = mockk<Uri>(relaxed = true)
+        val payload = listOf<Parcelable>(firstUri, secondUri)
+
+        val result = payload.asSharedStreamUris()
+
+        assertEquals(listOf(firstUri, secondUri), result)
+    }
+
+    @Test
+    fun `given a multi share payload with malformed parcelables, when extracting streams, then only uri payloads are returned`() {
+        val validUri = mockk<Uri>(relaxed = true)
+        val malformedEntry = Bundle()
+        val payload = listOf<Parcelable>(validUri, malformedEntry)
+
+        val result = payload.asSharedStreamUris()
+
+        assertEquals(listOf(validUri), result)
     }
 
     inner class Arrangement {

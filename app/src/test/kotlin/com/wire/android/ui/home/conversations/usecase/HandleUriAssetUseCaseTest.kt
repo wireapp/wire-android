@@ -30,10 +30,12 @@ import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase.AssetSizeLim
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -46,11 +48,12 @@ class HandleUriAssetUseCaseTest {
     private val dispatcher = StandardTestDispatcher()
 
     @Test
-    fun `given an invalid url schema, when invoked, then result should not succeed`() =
+    fun `given a file uri, when invoked, then it should reject the uri before importing`() =
         runTest(dispatcher) {
             // Given
             val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
-            val (_, useCase) = Arrangement()
+            val (arrangement, useCase) = Arrangement()
+                .withDefaultUriSchemaValidation()
                 .withGetAssetSizeLimitUseCase(true, limit)
                 .withGetAssetBundleFromUri(null)
                 .arrange()
@@ -59,11 +62,31 @@ class HandleUriAssetUseCaseTest {
             val result = useCase.invoke(Uri.Builder().scheme("file").path("/data/asdasdasd.txt").build(), false)
 
             // Then
-            assert(result is HandleUriAssetUseCase.Result.Failure.Unknown)
+            coVerify(exactly = 0) { arrangement.fileManager.getAssetBundleFromUri(any(), any(), any(), any(), any()) }
+            assertTrue(result is HandleUriAssetUseCase.Result.Failure.Unknown)
         }
 
     @Test
-    fun `given a user picks an image asset less than limit, when invoked, then result should succeed`() =
+    fun `given an unsupported uri scheme, when invoked, then it should reject the uri before importing`() =
+        runTest(dispatcher) {
+            // Given
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val (arrangement, useCase) = Arrangement()
+                .withDefaultUriSchemaValidation()
+                .withGetAssetSizeLimitUseCase(true, limit)
+                .withGetAssetBundleFromUri(null)
+                .arrange()
+
+            // When
+            val result = useCase.invoke(Uri.parse("https://wire.com/image.jpg"), false)
+
+            // Then
+            coVerify(exactly = 0) { arrangement.fileManager.getAssetBundleFromUri(any(), any(), any(), any(), any()) }
+            assertTrue(result is HandleUriAssetUseCase.Result.Failure.Unknown)
+        }
+
+    @Test
+    fun `given a content uri for an image asset less than limit, when invoked, then result should succeed`() =
         runTest(dispatcher) {
             // Given
             val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
@@ -76,15 +99,16 @@ class HandleUriAssetUseCaseTest {
                 AttachmentType.IMAGE
             )
             val (_, useCase) = Arrangement()
+                .withDefaultUriSchemaValidation()
                 .withGetAssetSizeLimitUseCase(true, limit)
                 .withGetAssetBundleFromUri(mockedAttachment)
                 .arrange()
 
             // When
-            val result = useCase.invoke("mocked_image.jpeg".toUri(), false)
+            val result = useCase.invoke("content://mocked_image.jpeg".toUri(), false)
 
             // Then
-            assert(result is HandleUriAssetUseCase.Result.Success)
+            assertTrue(result is HandleUriAssetUseCase.Result.Success)
         }
 
     @Test
@@ -101,15 +125,16 @@ class HandleUriAssetUseCaseTest {
                 AttachmentType.IMAGE
             )
             val (_, useCase) = Arrangement()
+                .withDefaultUriSchemaValidation()
                 .withGetAssetSizeLimitUseCase(true, limit)
                 .withGetAssetBundleFromUri(mockedAttachment)
                 .arrange()
 
             // When
-            val result = useCase.invoke("mocked_image.jpeg".toUri(), false)
+            val result = useCase.invoke("content://mocked_image.jpeg".toUri(), false)
 
             // Then
-            assert(result is HandleUriAssetUseCase.Result.Failure.AssetTooLarge)
+            assertTrue(result is HandleUriAssetUseCase.Result.Failure.AssetTooLarge)
         }
 
     @Test
@@ -126,13 +151,14 @@ class HandleUriAssetUseCaseTest {
                 AttachmentType.GENERIC_FILE
             )
             val (arrangement, useCase) = Arrangement()
+                .withDefaultUriSchemaValidation()
                 .withGetAssetBundleFromUri(mockedAttachment)
                 .withGetAssetSizeLimitUseCase(false, limit)
                 .withSaveToExternalMediaStorage("mocked_image.jpeg")
                 .arrange()
 
             // When
-            val result = useCase.invoke("mocked_image.jpeg".toUri(), true)
+            val result = useCase.invoke("content://mocked_image.jpeg".toUri(), true)
 
             // Then
             coVerify {
@@ -144,7 +170,7 @@ class HandleUriAssetUseCaseTest {
                     any()
                 )
             }
-            assert(result is HandleUriAssetUseCase.Result.Failure.AssetTooLarge)
+            assertTrue(result is HandleUriAssetUseCase.Result.Failure.AssetTooLarge)
         }
 
     @Test
@@ -153,16 +179,17 @@ class HandleUriAssetUseCaseTest {
             // Given
             val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val (_, useCase) = Arrangement()
+                .withDefaultUriSchemaValidation()
                 .withGetAssetBundleFromUri(null)
                 .withGetAssetSizeLimitUseCase(false, limit)
                 .withSaveToExternalMediaStorage("mocked_image.jpeg")
                 .arrange()
 
             // When
-            val result = useCase.invoke("mocked_image.jpeg".toUri(), false)
+            val result = useCase.invoke("content://mocked_image.jpeg".toUri(), false)
 
             // Then
-            assert(result is HandleUriAssetUseCase.Result.Failure.Unknown)
+            assertTrue(result is HandleUriAssetUseCase.Result.Failure.Unknown)
         }
 
     private class Arrangement {
@@ -181,6 +208,15 @@ class HandleUriAssetUseCaseTest {
 
         fun withGetAssetBundleFromUri(assetBundle: AssetBundle?) = apply {
             coEvery { fileManager.getAssetBundleFromUri(any(), any(), any(), any(), any()) } returns assetBundle
+        }
+
+        fun withDefaultUriSchemaValidation() = apply {
+            every { fileManager.checkValidSchema(any()) } answers {
+                val uri = firstArg<Uri>()
+                if (uri.scheme != "content") {
+                    throw IllegalArgumentException("Unsupported URI scheme")
+                }
+            }
         }
 
         fun withGetAssetSizeLimitUseCase(isImage: Boolean, assetSizeLimit: Long) = apply {

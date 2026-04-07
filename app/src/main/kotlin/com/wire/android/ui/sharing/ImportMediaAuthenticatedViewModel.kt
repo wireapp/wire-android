@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.app.ShareCompat
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -186,10 +185,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     private suspend fun handleMultipleActionIntent(activity: AppCompatActivity) {
         appLogger.d("$TAG: handleMultipleActionIntent")
-        val importedMediaAssets = activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.mapNotNull {
-            val fileUri = it.toString().toUri()
-            handleImportedAsset(fileUri)
-        } ?: listOf()
+        val importedMediaAssets = activity.intent.sharedStreamUris().mapNotNull { uri ->
+            handleImportedAsset(uri)
+        }
 
         importMediaState = importMediaState.copy(importedAssets = importedMediaAssets.toPersistentList())
 
@@ -239,3 +237,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         private const val TAG = "[ImportMediaAuthenticatedViewModel]"
     }
 }
+
+internal fun Intent.sharedStreamUris(): List<Uri> =
+    parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM).asSharedStreamUris()
+
+internal fun List<Parcelable>?.asSharedStreamUris(): List<Uri> =
+    this.orEmpty().filterIsInstance<Uri>()

@@ -21,24 +21,25 @@ package com.wire.android.ui.home.conversations.messages.item
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
-import com.wire.android.di.scopedArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
 
 @Serializable
 data class AssetLocalPathArgs(
@@ -58,14 +59,12 @@ interface AssetLocalPathViewModel {
     ) {}
 }
 
-@HiltViewModel
-internal class AssetLocalPathViewModelImpl @Inject constructor(
+@HiltViewModel(assistedFactory = AssetLocalPathViewModelImpl.Factory::class)
+internal class AssetLocalPathViewModelImpl @AssistedInject constructor(
     private val getMessageAsset: GetMessageAssetUseCase,
     private val dispatchers: DispatcherProvider,
-    savedStateHandle: SavedStateHandle,
+    @Assisted private val args: AssetLocalPathArgs,
 ) : ViewModel(), AssetLocalPathViewModel {
-    private val args: AssetLocalPathArgs = savedStateHandle.scopedArgs()
-
     override var localAssetPath: String? by mutableStateOf(cachedLocalAssetPaths[args.key])
         private set
 
@@ -117,5 +116,10 @@ internal class AssetLocalPathViewModelImpl @Inject constructor(
 
     private companion object {
         val cachedLocalAssetPaths = ConcurrentHashMap<String, String>()
+    }
+
+    @AssistedFactory
+    interface Factory : AssistedViewModelFactory<AssetLocalPathViewModelImpl, AssetLocalPathArgs> {
+        override fun create(args: AssetLocalPathArgs): AssetLocalPathViewModelImpl
     }
 }

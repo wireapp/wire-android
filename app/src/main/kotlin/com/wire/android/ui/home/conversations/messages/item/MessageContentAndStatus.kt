@@ -151,7 +151,7 @@ private fun MessageContent(
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
             val viewModel: AssetLocalPathViewModel =
-                hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(
+                hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs, AssetLocalPathViewModelImpl.Factory>(
                     AssetLocalPathArgs(message.conversationId, message.header.messageId)
                 )
             var rememberedAssetDataPath by rememberSaveable(message.header.messageId) {
@@ -184,7 +184,7 @@ private fun MessageContent(
 
         is UIMessageContent.VideoMessage -> {
             val viewModel: AssetLocalPathViewModel =
-                hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(
+                hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs, AssetLocalPathViewModelImpl.Factory>(
                     AssetLocalPathArgs(message.conversationId, message.header.messageId)
                 )
             var rememberedAssetDataPath by rememberSaveable(message.header.messageId) {
@@ -305,7 +305,7 @@ private fun MessageContent(
 
         is UIMessageContent.AssetMessage -> {
             val viewModel: AssetLocalPathViewModel =
-                hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(
+                hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs, AssetLocalPathViewModelImpl.Factory>(
                     AssetLocalPathArgs(message.conversationId, message.header.messageId)
                 )
             var rememberedAssetDataPath by rememberSaveable(message.header.messageId) {

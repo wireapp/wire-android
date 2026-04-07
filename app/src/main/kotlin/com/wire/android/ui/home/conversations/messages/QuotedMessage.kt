@@ -622,7 +622,7 @@ private fun QuotedImageThumbnail(
     modifier: Modifier = Modifier
 ) {
     val viewModel: AssetLocalPathViewModel =
-        hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(
+        hiltViewModelScoped<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs, AssetLocalPathViewModelImpl.Factory>(
             AssetLocalPathArgs(asset.conversationId, asset.messageId)
         )
     var rememberedAssetDataPath by rememberSaveable(asset.uniqueKey) {

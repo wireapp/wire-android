@@ -20,6 +20,7 @@ package com.wire.android.di
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModel
+import com.sebaslogen.resaca.KeyInScopeResolver
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 
 /**
@@ -48,6 +49,25 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> hiltViewModelScoped<T, F>(key = arguments.key?.toString()) { factory ->
         factory.create(arguments)
+    }
+}
+
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
+@Composable
+inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
+        hiltViewModelScoped(
+    arguments: R,
+    noinline keyInScopeResolver: KeyInScopeResolver<String>,
+): S where T : ViewModel, T : S = when {
+    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
+    espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
+    else -> {
+        val scopedKey = requireNotNull(arguments.key?.toString()) {
+            "Scoped key must not be null for ${T::class.qualifiedName}"
+        }
+        hiltViewModelScoped<T, F, String>(key = scopedKey, keyInScopeResolver = keyInScopeResolver) { factory ->
+            factory.create(arguments)
+        }
     }
 }
 

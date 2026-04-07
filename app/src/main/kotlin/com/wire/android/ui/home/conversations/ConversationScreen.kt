@@ -61,6 +61,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -105,6 +106,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.mapper.MessageDateTimeGroup
+import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
@@ -166,6 +168,7 @@ import com.wire.android.ui.home.conversations.messages.item.SwipeableMessageConf
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
@@ -200,6 +203,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.isInternal
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
+import com.sebaslogen.resaca.rememberKeysInScope
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -1309,19 +1313,25 @@ fun MessageList(
         }
     }
 
-    Box(
-        contentAlignment = Alignment.BottomEnd,
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                color = if (isBubbleUiEnabled) {
-                    colorsScheme().bubblesBackground
-                } else {
-                    colorsScheme().surfaceContainerLow
-                }
-            ),
-        content = {
-            LazyColumn(
+    val audioMessageKeysInScope = remember(lazyPagingMessages.itemSnapshotList.items) {
+        lazyPagingMessages.itemSnapshotList.items.mapNotNull { it.audioMessageScopedKeyOrNull() }.distinct()
+    }
+    val audioMessageKeyInScopeResolver = rememberKeysInScope(audioMessageKeysInScope)
+
+    CompositionLocalProvider(LocalAudioMessageKeyInScopeResolver provides audioMessageKeyInScopeResolver) {
+        Box(
+            contentAlignment = Alignment.BottomEnd,
+            modifier = modifier
+                .fillMaxSize()
+                .background(
+                    color = if (isBubbleUiEnabled) {
+                        colorsScheme().bubblesBackground
+                    } else {
+                        colorsScheme().surfaceContainerLow
+                    }
+                ),
+            content = {
+                LazyColumn(
                 state = lazyListState,
                 reverseLayout = true,
                 // calculating bottom padding to have space for [UsersTypingIndicator]
@@ -1453,18 +1463,26 @@ fun MessageList(
                     )
                 }
             }
-            ScrollDateOverlay(
-                lazyListState = lazyListState,
-                lazyPagingMessages = lazyPagingMessages
-            )
-            JumpToPlayingAudioButton(
-                lazyListState = lazyListState,
-                lazyPagingMessages = lazyPagingMessages,
-                playingAudioMessage = playingAudioMessage
-            )
-            JumpToLastMessageButton(lazyListState = lazyListState)
-        }
-    )
+                ScrollDateOverlay(
+                    lazyListState = lazyListState,
+                    lazyPagingMessages = lazyPagingMessages
+                )
+                JumpToPlayingAudioButton(
+                    lazyListState = lazyListState,
+                    lazyPagingMessages = lazyPagingMessages,
+                    playingAudioMessage = playingAudioMessage
+                )
+                JumpToLastMessageButton(lazyListState = lazyListState)
+            }
+        )
+    }
+}
+
+private fun UIMessage.audioMessageScopedKeyOrNull(): String? {
+    val regularMessage = this as? UIMessage.Regular ?: return null
+    val isAudioMessage = regularMessage.messageContent is UIMessageContent.AudioAssetMessage
+    if (!isAudioMessage) return null
+    return AudioMessageArgs(regularMessage.conversationId, regularMessage.header.messageId).key
 }
 
 @Composable

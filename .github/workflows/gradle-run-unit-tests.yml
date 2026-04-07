@@ -17,7 +17,7 @@ jobs:
   coverage:
     env:
       GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=2g -Xmx4G"'
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, ubuntu-24.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v6

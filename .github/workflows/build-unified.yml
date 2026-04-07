@@ -28,7 +28,7 @@ concurrency:
 jobs:
   # Inline simple quality check jobs for better check names
   lint:
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, ubuntu-24.04]
     # Override JVM args from gradle.properties which sets 10GB heap
     steps:
       - name: Checkout

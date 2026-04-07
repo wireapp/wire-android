@@ -37,6 +37,9 @@ jobs:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
 
+      - name: Set up Android SDK (ANDROID_HOME + adb)
+        uses: android-actions/setup-android@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:

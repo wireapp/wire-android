@@ -37,6 +37,9 @@ jobs:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
 
+      - name: Set up Android SDK (ANDROID_HOME + adb)
+        uses: android-actions/setup-android@v4
+
       # trying https://github.com/actions/runner-images/issues/10386#issuecomment-2271613335
       - name: Free Disk Space Before Build
         run: |

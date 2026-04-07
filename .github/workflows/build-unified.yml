@@ -34,7 +34,7 @@ jobs:
 
   lint:
     needs: lint-runner-selection
-    runs-on: ${{ fromJSON(needs.lint-runner-selection.outputs.runs-on) }}
+    runs-on: ${{ fromJSON(needs.lint-runner-selection.outputs.runs_on) }}
     # Override JVM args from gradle.properties which sets 10GB heap
     steps:
       - name: Checkout

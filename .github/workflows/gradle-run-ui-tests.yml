@@ -19,7 +19,7 @@ jobs:
 
   ui-tests:
     needs: runner-selection
-    runs-on: ${{ fromJSON(needs.runner-selection.outputs.runs-on) }}
+    runs-on: ${{ fromJSON(needs.runner-selection.outputs.runs_on) }}
     strategy:
       matrix:
         api-level: [ 29 ]

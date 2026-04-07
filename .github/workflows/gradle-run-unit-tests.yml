@@ -23,7 +23,7 @@ jobs:
     needs: runner-selection
     env:
       GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=2g -Xmx4G"'
-    runs-on: ${{ fromJSON(needs.runner-selection.outputs.runs-on) }}
+    runs-on: ${{ fromJSON(needs.runner-selection.outputs.runs_on) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6

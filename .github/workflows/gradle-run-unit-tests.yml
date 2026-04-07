@@ -17,6 +17,7 @@ env:
 jobs:
   runner-selection:
     uses: ./.github/workflows/select-runner.yml
+    secrets: inherit
     with:
       required-labels: '["self-hosted"]'
 

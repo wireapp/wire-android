@@ -14,6 +14,7 @@ permissions:
 jobs:
   runner-selection:
     uses: ./.github/workflows/select-runner.yml
+    secrets: inherit
     with:
       required-labels: '["self-hosted"]'
       fallback-label: ghcr.io/cirruslabs/ubuntu-runner-amd64:24.04-lg

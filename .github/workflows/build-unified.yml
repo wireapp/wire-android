@@ -29,6 +29,7 @@ jobs:
   # Inline simple quality check jobs for better check names
   lint-runner-selection:
     uses: ./.github/workflows/select-runner.yml
+    secrets: inherit
     with:
       required-labels: '["self-hosted"]'
 

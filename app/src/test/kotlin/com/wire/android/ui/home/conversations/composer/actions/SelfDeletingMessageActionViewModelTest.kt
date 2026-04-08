@@ -17,11 +17,8 @@
  */
 package com.wire.android.ui.home.conversations.composer.actions
 
-import androidx.lifecycle.SavedStateHandle
-import com.wire.android.config.ScopedArgsTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
-import com.wire.android.di.scopedArgs
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelImpl
 import com.wire.kalium.logic.data.id.ConversationId
@@ -30,18 +27,15 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTim
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-@ExtendWith(ScopedArgsTestExtension::class)
 class SelfDeletingMessageActionViewModelTest {
 
     @Test
@@ -87,27 +81,22 @@ class SelfDeletingMessageActionViewModelTest {
     private class Arrangement {
 
         val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+        private val args = SelfDeletingMessageActionArgs(conversationId = conversationId)
 
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
-            every { savedStateHandle.scopedArgs<SelfDeletingMessageActionArgs>() } returns SelfDeletingMessageActionArgs(
-                conversationId = conversationId
-            )
         }
-
-        @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
         lateinit var observeConversationSelfDeletionStatus: ObserveSelfDeletionTimerSettingsForConversationUseCase
 
         private val viewModel by lazy {
             SelfDeletingMessageActionViewModelImpl(
-                savedStateHandle = savedStateHandle,
                 dispatchers = TestDispatcherProvider(),
                 observeSelfDeletingMessages = observeConversationSelfDeletionStatus,
+                args = args,
             )
         }
 

@@ -7,7 +7,7 @@ on:
         required: true
         type: string
     secrets:
-      runner-token:
+      runner_token:
         required: false
 
 permissions:
@@ -18,7 +18,7 @@ jobs:
   runner-selection:
     uses: ./.github/workflows/select-runner.yml
     secrets:
-      runner-token: ${{ secrets.runner-token }}
+      runner_token: ${{ secrets.runner_token }}
     with:
       required-labels: '["android-qa"]'
       min-idle-runners: 1

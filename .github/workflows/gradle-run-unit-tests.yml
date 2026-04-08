@@ -7,7 +7,7 @@ on:
         required: true
         type: string
     secrets:
-      runner-token:
+      runner_token:
         required: false
 
 permissions:
@@ -21,7 +21,7 @@ jobs:
   runner-selection:
     uses: ./.github/workflows/select-runner.yml
     secrets:
-      runner-token: ${{ secrets.runner-token }}
+      runner_token: ${{ secrets.runner_token }}
     with:
       required-labels: '["self-hosted"]'
       min-idle-runners: 2

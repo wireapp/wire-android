@@ -29,7 +29,7 @@ jobs:
   lint-runner-selection:
     uses: ./.github/workflows/select-runner.yml
     secrets:
-      runner-token: ${{ secrets.GH_RUNNERS_HEALTHCHECK_TOKEN }}
+      runner_token: ${{ secrets.GH_RUNNERS_HEALTHCHECK_TOKEN }}
     with:
       required-labels: '["self-hosted"]'
       min-idle-runners: 2
@@ -98,7 +98,7 @@ jobs:
     name: "UI Tests"
     uses: ./.github/workflows/gradle-run-ui-tests.yml
     secrets:
-      runner-token: ${{ secrets.GH_RUNNERS_HEALTHCHECK_TOKEN }}
+      runner_token: ${{ secrets.GH_RUNNERS_HEALTHCHECK_TOKEN }}
     with:
       artifact-suffix: ${{ inputs.concurrency-group-suffix }}
 
@@ -106,7 +106,7 @@ jobs:
     name: "Unit Tests"
     uses: ./.github/workflows/gradle-run-unit-tests.yml
     secrets:
-      runner-token: ${{ secrets.GH_RUNNERS_HEALTHCHECK_TOKEN }}
+      runner_token: ${{ secrets.GH_RUNNERS_HEALTHCHECK_TOKEN }}
     with:
       artifact-suffix: ${{ inputs.concurrency-group-suffix }}
 

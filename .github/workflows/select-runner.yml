@@ -18,7 +18,7 @@ on:
         default: "ubuntu-latest"
         type: string
     secrets:
-      runner-token:
+      runner_token:
         description: "Token with administration read access to list self-hosted runners"
         required: false
     outputs:
@@ -39,7 +39,7 @@ jobs:
       - id: pick
         uses: actions/github-script@v8
         with:
-          github-token: ${{ secrets.runner-token }}
+          github-token: ${{ secrets.runner_token }}
           script: |
             const fallback = ['${{ inputs.fallback-label }}'];
             try {

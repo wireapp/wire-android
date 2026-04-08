@@ -34,7 +34,7 @@ enum class AttachmentFileType(val extensions: List<String>) {
             "py", "cs", "java", "jsp", "sql", "cgi", "pl", "inc", "xsl", "c", "cpp", "kt"
         )
     ),
-    TEXT(listOf("txt", "md", "markdown", "log", "csv")),
+    TEXT(listOf("txt", "md", "markdown", "log")),
     OTHER(emptyList());
 
     companion object {

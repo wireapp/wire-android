@@ -40,6 +40,7 @@ import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePosit
 import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
+import com.wire.kalium.logic.feature.message.ObserveNomadMessagePagingStateUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
@@ -60,6 +61,7 @@ import com.wire.kalium.logic.feature.message.fetchOlderMessagesByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessageByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
+import com.wire.kalium.logic.feature.message.observeNomadMessagePagingState
 import com.wire.kalium.logic.feature.message.observePaginatedImageAssetMessageByConversationId
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.Module
@@ -183,6 +185,11 @@ class MessageModule {
     @Provides
     fun provideFetchOlderMessagesUseCase(messageScope: MessageScope): FetchOlderNomadMessagesByConversationUseCase =
         messageScope.fetchOlderMessagesByConversationId
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveNomadMessagePagingStateUseCase(messageScope: MessageScope): ObserveNomadMessagePagingStateUseCase =
+        messageScope.observeNomadMessagePagingState
 
     @ViewModelScoped
     @Provides

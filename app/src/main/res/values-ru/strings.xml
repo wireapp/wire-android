@@ -762,6 +762,7 @@
     <string name="conversation_banner_externals_present">Присутствуют внешние участники</string>
     <string name="conversation_banner_services_active">Приложения активны</string>
     <string name="conversation_history_loading">Загрузка истории бесед...</string>
+    <string name="conversation_history_loading_more">Загрузка более старых сообщений...</string>
     <string name="conversation_history_loaded">Вы попали в топ 🥳\nВы видите все доступные сообщения.</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s добавил(-а) в беседу %2$s</string>

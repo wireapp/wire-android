@@ -666,6 +666,8 @@ fun ConversationScreen(
         },
         onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
+        isFetchingOlderMessages = conversationMessagesViewModel.conversationViewState.isFetchingOlderMessages,
+        hasMoreRemoteMessages = conversationMessagesViewModel.conversationViewState.hasMoreRemoteMessages,
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
@@ -932,6 +934,8 @@ private fun ConversationScreen(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     onReachedOldestMessage: () -> Unit = {},
+    isFetchingOlderMessages: Boolean = false,
+    hasMoreRemoteMessages: Boolean = false,
     isWireCellsEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -1034,6 +1038,8 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
+                        isFetchingOlderMessages = conversationMessagesViewState.isFetchingOlderMessages,
+                        hasMoreRemoteMessages = conversationMessagesViewState.hasMoreRemoteMessages,
                         isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                     )
@@ -1120,6 +1126,8 @@ private fun ConversationScreenContent(
     currentTimeInMillisFlow: Flow<Long> = flow {},
     onReachedOldestMessage: () -> Unit = {},
     showHistoryLoadingIndicator: Boolean = false,
+    isFetchingOlderMessages: Boolean = false,
+    hasMoreRemoteMessages: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
 ) {
@@ -1167,6 +1175,8 @@ private fun ConversationScreenContent(
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 onReachedOldestMessage = onReachedOldestMessage,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
+                isFetchingOlderMessages = isFetchingOlderMessages,
+                hasMoreRemoteMessages = hasMoreRemoteMessages,
                 isBubbleUiEnabled = isBubbleUiEnabled,
                 isWireCellsEnabled = isWireCellsEnabled,
             )
@@ -1249,6 +1259,8 @@ fun MessageList(
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
+    isFetchingOlderMessages: Boolean = false,
+    hasMoreRemoteMessages: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
     onReachedOldestMessage: () -> Unit = {},
@@ -1440,6 +1452,24 @@ fun MessageList(
                                 PageLoadingIndicator(
                                     text = text,
                                     prefixIconResId = prefixIconResId,
+                                )
+                            }
+                        }
+                    )
+                }
+                if (isFetchingOlderMessages && hasMoreRemoteMessages && lazyPagingMessages.itemCount > 0) {
+                    item(
+                        key = "nomad_prepend_loading_indicator",
+                        contentType = "nomad_prepend_loading_indicator",
+                        content = {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(dimensions().spacing16x),
+                            ) {
+                                PageLoadingIndicator(
+                                    text = stringResource(R.string.conversation_history_loading_more),
                                 )
                             }
                         }
@@ -1730,5 +1760,7 @@ fun PreviewConversationScreen() = WireTheme {
         onAttachmentMenuClick = {},
         onAttachmentPicked = {},
         onAudioRecorded = {},
+        isFetchingOlderMessages = false,
+        hasMoreRemoteMessages = false,
     )
 }

@@ -34,6 +34,7 @@ import com.wire.android.ui.home.conversations.composer.mockUITextMessage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.message.paging.NomadMessagePagingStatus
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -231,6 +232,20 @@ class ConversationMessagesViewModelTest {
             arrangement.withPaginatedMessagesReturning(updatedPagingData)
             awaitItem().map { it shouldBeEqualTo secondMessage }
         }
+    }
+
+    @Test
+    fun `given nomad paging state, when observing, then view state updates`() = runTest {
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        arrangement.withNomadPagingState(NomadMessagePagingStatus(isFetching = true, hasMore = true))
+
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.conversationViewState.isFetchingOlderMessages)
+        assertEquals(true, viewModel.conversationViewState.hasMoreRemoteMessages)
     }
 
     @Test

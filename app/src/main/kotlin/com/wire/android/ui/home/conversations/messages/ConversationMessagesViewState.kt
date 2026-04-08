@@ -36,7 +36,9 @@ data class ConversationMessagesViewState(
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
     val playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None,
     val assetStatuses: PersistentMap<String, MessageAssetStatus> = persistentMapOf(),
-    val searchedMessageId: String? = null
+    val searchedMessageId: String? = null,
+    val isFetchingOlderMessages: Boolean = false,
+    val hasMoreRemoteMessages: Boolean = false,
 )
 
 sealed class DownloadedAssetDialogVisibilityState {

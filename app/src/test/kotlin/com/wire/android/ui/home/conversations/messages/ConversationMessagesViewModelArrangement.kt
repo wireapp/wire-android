@@ -54,6 +54,8 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
+import com.wire.kalium.logic.feature.message.ObserveNomadMessagePagingStateUseCase
+import com.wire.kalium.logic.data.message.paging.NomadMessagePagingStatus
 import com.wire.kalium.logic.feature.message.MessageOperationResult
 import com.wire.kalium.logic.feature.message.ToggleReactionResult
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
@@ -69,6 +71,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Instant
 import okio.Path
 
@@ -77,6 +80,12 @@ class ConversationMessagesViewModelArrangement {
     val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
     private val messagesChannel = Channel<PagingData<UIMessage>>(capacity = Channel.UNLIMITED)
+    private val pagingStateFlow = MutableStateFlow(
+        NomadMessagePagingStatus(
+            isFetching = false,
+            hasMore = false
+        )
+    )
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
@@ -86,6 +95,9 @@ class ConversationMessagesViewModelArrangement {
 
     @MockK
     lateinit var fetchOlderNomadMessagesByConversationUseCase: FetchOlderNomadMessagesByConversationUseCase
+
+    @MockK
+    lateinit var observeNomadMessagePagingStateUseCase: ObserveNomadMessagePagingStateUseCase
 
     @MockK
     lateinit var getMessageById: GetMessageByIdUseCase
@@ -141,6 +153,7 @@ class ConversationMessagesViewModelArrangement {
             TestDispatcherProvider(),
             getMessagesForConversationUseCase,
             fetchOlderNomadMessagesByConversationUseCase,
+            observeNomadMessagePagingStateUseCase,
             toggleReaction,
             resetSession,
             conversationAudioMessagePlayer,
@@ -161,6 +174,7 @@ class ConversationMessagesViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesChannel.consumeAsFlow()
         coEvery { fetchOlderNomadMessagesByConversationUseCase(any(), any()) } returns Unit
+        every { observeNomadMessagePagingStateUseCase(any()) } returns pagingStateFlow
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateTransferStatusResult.Success
         coEvery { clearUsersTypingEvents() } returns Unit
@@ -226,6 +240,10 @@ class ConversationMessagesViewModelArrangement {
 
     suspend fun withResetSessionResult(resetSessionResult: ResetSessionResult = ResetSessionResult.Success) = apply {
         coEvery { resetSession(any(), any(), any()) } returns resetSessionResult
+    }
+
+    fun withNomadPagingState(state: NomadMessagePagingStatus) = apply {
+        pagingStateFlow.value = state
     }
 
     fun withSuccessfulSaveAssetMessage(

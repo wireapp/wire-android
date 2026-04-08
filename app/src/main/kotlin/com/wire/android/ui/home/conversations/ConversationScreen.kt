@@ -1468,8 +1468,9 @@ fun MessageList(
                                     .fillMaxWidth()
                                     .padding(dimensions().spacing16x),
                             ) {
-                                PageLoadingIndicator(
-                                    text = stringResource(R.string.conversation_history_loading_more),
+                                WireCircularProgressIndicator(
+                                    progressColor = MaterialTheme.wireColorScheme.secondaryText,
+                                    size = dimensions().spacing24x
                                 )
                             }
                         }

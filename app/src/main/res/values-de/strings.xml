@@ -722,7 +722,6 @@
     <string name="conversation_banner_externals_present">Externe anwesend</string>
     <string name="conversation_banner_services_active">Apps sind aktiv</string>
     <string name="conversation_history_loading">Gesprächsverlauf wird geladen…</string>
-    <string name="conversation_history_loading_more">Ältere Nachrichten werden geladen…</string>
     <string name="conversation_history_loaded">🥳 Sie können jetzt alle verfügbaren Nachrichten lesen.</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s haben %2$s zu der Unterhaltung hinzugefügt</string>

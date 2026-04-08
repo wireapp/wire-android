@@ -65,7 +65,6 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
-import com.wire.kalium.logic.feature.message.ObserveNomadMessagePagingStateUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
@@ -103,7 +102,6 @@ class ConversationMessagesViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val fetchOlderNomadMessages: FetchOlderNomadMessagesByConversationUseCase,
-    private val observeNomadMessagePagingState: ObserveNomadMessagePagingStateUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
@@ -139,7 +137,6 @@ class ConversationMessagesViewModel @Inject constructor(
         loadLastMessageInstant()
         observeAudioPlayerState()
         observeAssetStatuses()
-        observeNomadPagingState()
     }
 
     val currentTimeInMillisFlow: Flow<Long> = flow {
@@ -198,17 +195,6 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
-    private fun observeNomadPagingState() {
-        viewModelScope.launch {
-            observeNomadMessagePagingState(conversationId).collect { pagingState ->
-                conversationViewState = conversationViewState.copy(
-                    isFetchingOlderMessages = pagingState.isFetching,
-                    hasMoreRemoteMessages = pagingState.hasMore,
-                )
-            }
-        }
-    }
-
     private fun loadPaginatedMessages() = viewModelScope.launch {
         val lastReadIndex = conversationViewState.searchedMessageId?.let { messageId ->
             when (
@@ -238,7 +224,12 @@ class ConversationMessagesViewModel @Inject constructor(
 
     fun fetchOlderMessagesIfNeeded() {
         viewModelScope.launch {
-            fetchOlderNomadMessages(conversationId)
+            conversationViewState = conversationViewState.copy(isFetchingOlderMessages = true)
+            val result = fetchOlderNomadMessages(conversationId)
+            conversationViewState = conversationViewState.copy(
+                isFetchingOlderMessages = false,
+                hasMoreRemoteMessages = result.hasMore,
+            )
         }
     }
 

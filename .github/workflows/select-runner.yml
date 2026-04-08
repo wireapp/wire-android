@@ -52,12 +52,18 @@ jobs:
               });
               core.info(`Discovered repository-level runners: ${repoData.data.runners.length}`);
 
-              const orgData = await github.rest.actions.listSelfHostedRunnersForOrg({
-                org: context.repo.owner
-              });
-              core.info(`Discovered organization-level runners: ${orgData.data.runners.length}`);
+              let orgRunners = [];
+              try {
+                const orgData = await github.rest.actions.listSelfHostedRunnersForOrg({
+                  org: context.repo.owner
+                });
+                orgRunners = orgData.data.runners;
+                core.info(`Discovered organization-level runners: ${orgRunners.length}`);
+              } catch (orgError) {
+                core.warning(`Could not list org-level runners (will use repo runners only): ${orgError.message}`);
+              }
 
-              const allRunners = [...repoData.data.runners, ...orgData.data.runners];
+              const allRunners = [...repoData.data.runners, ...orgRunners];
               core.info(`Total runners (repo + org): ${allRunners.length}`);
 
               allRunners.forEach((runner) => {

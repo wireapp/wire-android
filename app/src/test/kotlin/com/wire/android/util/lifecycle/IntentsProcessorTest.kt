@@ -20,6 +20,7 @@ package com.wire.android.util.lifecycle
 import android.content.Intent
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -31,13 +32,13 @@ import java.util.Base64
 class IntentsProcessorTest {
 
     @Test
-    fun `given null intent, returns null`() {
+    fun `given null intent, returns null`() = runTest {
         val (_, intentsProcessor) = Arrangement().arrange()
         assertNull(intentsProcessor(null))
     }
 
     @Test
-    fun `given intent without automated_login extra, returns null`() {
+    fun `given intent without automated_login extra, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(null)
             .arrange()
@@ -45,7 +46,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given valid JSON with backendConfig, ssoCode and nomadProfilesHost, returns AutomatedLoginViaSSO`() {
+    fun `given valid JSON with backendConfig, ssoCode and nomadProfilesHost, returns AutomatedLoginViaSSO`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -67,7 +68,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given valid JSON with ssoCode and nomadProfilesHost but no backendConfig, returns null`() {
+    fun `given valid JSON with ssoCode and nomadProfilesHost but no backendConfig, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -81,7 +82,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given valid JSON with only backendConfig and nomadProfilesHost, returns null`() {
+    fun `given valid JSON with only backendConfig and nomadProfilesHost, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -95,7 +96,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given valid JSON with only nomadProfilesHost, returns null`() {
+    fun `given valid JSON with only nomadProfilesHost, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -108,7 +109,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given real Ed25519 signature, verifies backendConfig and nomadProfilesHost with configured key`() {
+    fun `given real Ed25519 signature, verifies backendConfig and nomadProfilesHost with configured key`() = runTest {
         val signedValue = SignedValue.sign(signedIntentPayload())
         val (arrangement, intentsProcessor) = Arrangement()
             .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
@@ -132,7 +133,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given invalid Ed25519 signature, returns null`() {
+    fun `given invalid Ed25519 signature, returns null`() = runTest {
         val signedValue = SignedValue.sign(signedIntentPayload())
         val invalidSignature = Base64.getEncoder()
             .encodeToString(
@@ -155,7 +156,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given configured key with invalid raw key length, returns null`() {
+    fun `given configured key with invalid raw key length, returns null`() = runTest {
         val signedValue = SignedValue.sign(signedIntentPayload())
         val invalidLengthKey = Base64.getEncoder().encodeToString(ByteArray(12 + 31))
         val (arrangement, intentsProcessor) = Arrangement()
@@ -173,7 +174,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given configured key with invalid der header, returns null`() {
+    fun `given configured key with invalid der header, returns null`() = runTest {
         val signedValue = SignedValue.sign(signedIntentPayload())
         val invalidHeaderKey = Base64.getEncoder()
             .encodeToString(
@@ -196,7 +197,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given valid signed intent, returns AutomatedLoginViaSSO`() {
+    fun `given valid signed intent, returns AutomatedLoginViaSSO`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -218,7 +219,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given invalid signature, returns null before processing the rest of the intent`() {
+    fun `given invalid signature, returns null before processing the rest of the intent`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -233,7 +234,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given backendConfig changed after signing, returns null`() {
+    fun `given backendConfig changed after signing, returns null`() = runTest {
         val signedValue = SignedValue.sign(signedIntentPayload())
         val (arrangement, intentsProcessor) = Arrangement()
             .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
@@ -250,7 +251,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given nomadProfilesHost changed after signing, returns null`() {
+    fun `given nomadProfilesHost changed after signing, returns null`() = runTest {
         val signedValue = SignedValue.sign(signedIntentPayload())
         val (arrangement, intentsProcessor) = Arrangement()
             .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
@@ -267,7 +268,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given JSON with all fields null, returns null`() {
+    fun `given JSON with all fields null, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(automatedLoginJson())
             .arrange()
@@ -275,7 +276,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given JSON without nomadProfilesHost, returns null`() {
+    fun `given JSON without nomadProfilesHost, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -288,7 +289,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given invalid JSON string, returns null`() {
+    fun `given invalid JSON string, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra("not-valid-json")
             .arrange()
@@ -296,7 +297,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given backendConfig with HTTP instead of HTTPS, returns null`() {
+    fun `given backendConfig with HTTP instead of HTTPS, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -311,7 +312,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given backendConfig with empty host, returns null`() {
+    fun `given backendConfig with empty host, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -326,7 +327,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given backendConfig with malformed URI, returns null`() {
+    fun `given backendConfig with malformed URI, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -341,7 +342,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given nomadProfilesHost with HTTP instead of HTTPS, returns null`() {
+    fun `given nomadProfilesHost with HTTP instead of HTTPS, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -356,7 +357,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given nomadProfilesHost with empty host, returns null`() {
+    fun `given nomadProfilesHost with empty host, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -371,7 +372,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given nomadProfilesHost with malformed URI, returns null`() {
+    fun `given nomadProfilesHost with malformed URI, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -386,7 +387,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given skip token when signature enforcement is enabled, returns null`() {
+    fun `given skip token when signature enforcement is enabled, returns null`() = runTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withConfigurationSignatureEnforced(true)
             .withAutomatedLoginExtra(

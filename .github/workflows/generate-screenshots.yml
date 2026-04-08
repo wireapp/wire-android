@@ -12,7 +12,7 @@ env:
 
 jobs:
   generate-screenshots:
-    runs-on: buildjet-8vcpu-ubuntu-2204
+    runs-on: ubuntu-24.04
 
     if: github.ref == 'refs/heads/develop'
 
@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up JDK 17
-        uses: buildjet/setup-java@v4
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'

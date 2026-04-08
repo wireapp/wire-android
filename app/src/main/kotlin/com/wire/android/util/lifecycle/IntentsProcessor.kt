@@ -41,7 +41,7 @@ class IntentsProcessor @Inject internal constructor(
     }
 
     @Suppress("ReturnCount")
-    operator fun invoke(intent: Intent?): AutomatedLoginViaSSO? {
+    suspend operator fun invoke(intent: Intent?): AutomatedLoginViaSSO? {
         @Serializable
         data class Parameters(
             val backendConfig: String? = null,

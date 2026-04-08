@@ -17,9 +17,9 @@
  */
 package com.wire.android.util.lifecycle
 
-import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.ionspin.kotlin.crypto.signature.Signature
 import com.wire.android.BuildConfig
+import com.wire.kalium.cryptography.LibsodiumInitializer
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.io.encoding.Base64
@@ -36,7 +36,7 @@ class NomadIntentSignatureValidator internal constructor(
         isConfigurationSignatureEnforced = BuildConfig.ENFORCE_CONFIGURATION_SIGNATURE
     )
 
-    fun isValid(parameter: String?, signature: String?): Boolean {
+    suspend fun isValid(parameter: String?, signature: String?): Boolean {
         return when {
             parameter == null -> signature == null
             signature == SKIP_SIGNATURE_VERIFICATION_TOKEN && !isConfigurationSignatureEnforced -> true
@@ -46,8 +46,8 @@ class NomadIntentSignatureValidator internal constructor(
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
-    private fun verifySignatureWithAvailableKeys(parameter: String, signature: String): Boolean {
-        if (!LibsodiumInitializer.isInitialized()) LibsodiumInitializer.initializeWithCallback {}
+    private suspend fun verifySignatureWithAvailableKeys(parameter: String, signature: String): Boolean {
+        LibsodiumInitializer.initializeLibsodiumIfNeeded()
         val messageBytes = parameter.toByteArray().toUByteArray()
         val signatureBytes = runCatching {
             Base64.decode(signature).toUByteArray()

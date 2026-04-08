@@ -41,7 +41,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import java.util.concurrent.ConcurrentHashMap
 
 @ViewModelScopedPreview
 interface AudioMessageViewModel {
@@ -58,9 +57,7 @@ class AudioMessageViewModelImpl @AssistedInject constructor(
     @Assisted private val args: AudioMessageArgs,
 ) : ViewModel(), AudioMessageViewModel {
 
-    override var state: AudioMessageState by mutableStateOf(
-        AudioMessageState(wavesMask = cachedWavesMasks[args.key])
-    )
+    override var state: AudioMessageState by mutableStateOf(AudioMessageState())
         private set
 
     init {
@@ -117,7 +114,6 @@ class AudioMessageViewModelImpl @AssistedInject constructor(
                 .distinctUntilChanged()
                 .firstOrNull { it != null }
                 ?.let {
-                    cachedWavesMasks[args.key] = it
                     state = state.copy(wavesMask = it)
                 }
         }
@@ -139,10 +135,6 @@ class AudioMessageViewModelImpl @AssistedInject constructor(
         viewModelScope.launch {
             audioMessagePlayer.setSpeed(audioSpeed)
         }
-    }
-
-    private companion object {
-        val cachedWavesMasks = ConcurrentHashMap<String, List<Int>>()
     }
 
     @AssistedFactory

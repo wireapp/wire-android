@@ -50,31 +50,48 @@ fun ModalSheetHeaderItem(
         }
 
         is MenuModalSheetHeader.Visible -> {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = modifier.padding(
-                        vertical = header.customVerticalPadding ?: dimensions().modalBottomSheetHeaderVerticalPadding
+            ModalSheetHeaderItem(
+                title = {
+                    ModalSheetHeaderTitle(
+                        title = header.title,
+                        modifier = if (header.titleFillsRemainingSpace) Modifier.weight(1f) else Modifier
                     )
-                ) {
-                    header.leadingIcon?.invoke(this) ?: Spacer(Modifier.width(dimensions().modalBottomSheetHeaderHorizontalPadding))
-                    Text(
-                        text = header.title,
-                        style = header.customTitleStyle ?: typography().title02,
-                        modifier = Modifier
-                            .semantics { heading() }
-                            .apply {
-                                if (header.titleFillsRemainingSpace) weight(weight = 1f, fill = true)
-                            }
-                    )
-                    header.trailingIcon?.invoke(this) ?: Spacer(Modifier.width(dimensions().modalBottomSheetHeaderHorizontalPadding))
-                }
-                if (header.includeDivider) {
-                    WireDivider()
-                }
-            }
+                },
+                modifier = modifier.semantics { heading() },
+                leadingIcon = header.leadingIcon,
+                trailingIcon = header.trailingIcon,
+                verticalPadding = header.customVerticalPadding ?: dimensions().modalBottomSheetHeaderVerticalPadding,
+                includeDivider = header.includeDivider
+            )
         }
     }
+}
+
+@Composable
+fun ModalSheetHeaderItem(
+    title: @Composable RowScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    leadingIcon: (@Composable RowScope.() -> Unit)? = null,
+    trailingIcon: (@Composable RowScope.() -> Unit)? = null,
+    verticalPadding: Dp = dimensions().modalBottomSheetHeaderVerticalPadding,
+    includeDivider: Boolean = true,
+) {
+    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier.padding(vertical = verticalPadding)
+        ) {
+            leadingIcon?.invoke(this) ?: Spacer(Modifier.width(dimensions().modalBottomSheetHeaderHorizontalPadding))
+            title()
+            trailingIcon?.invoke(this) ?: Spacer(Modifier.width(dimensions().modalBottomSheetHeaderHorizontalPadding))
+        }
+        if (includeDivider) WireDivider()
+    }
+}
+
+@Composable
+fun ModalSheetHeaderTitle(title: String, modifier: Modifier = Modifier) {
+    Text(text = title, style = typography().title02, modifier = modifier)
 }
 
 sealed class MenuModalSheetHeader {

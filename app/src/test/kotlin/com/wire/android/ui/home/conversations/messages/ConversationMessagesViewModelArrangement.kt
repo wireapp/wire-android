@@ -78,6 +78,7 @@ class ConversationMessagesViewModelArrangement {
     val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
     private val messagesChannel = Channel<PagingData<UIMessage>>(capacity = Channel.UNLIMITED)
+
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
 

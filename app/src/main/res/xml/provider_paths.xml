@@ -21,5 +21,4 @@
     <cache-path
             name="cached_files"
             path="file-provider/" />
-    <external-path name="external_files" path="."/>
 </paths>

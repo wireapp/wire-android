@@ -59,6 +59,7 @@ fun MessageOptionsModalSheetLayout(
     onReplyClick: (UIMessage.Regular) -> Unit,
     onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>, isMultipart: Boolean) -> Unit,
     onShareAssetClick: (messageId: String) -> Unit,
+    onShareAssetInWireClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
     viewModel: MessageOptionsMenuViewModel =
@@ -82,6 +83,7 @@ fun MessageOptionsModalSheetLayout(
                     onReplyClick = onReplyClick,
                     onEditClick = onEditClick,
                     onShareAssetClick = onShareAssetClick,
+                    onShareAssetInWireClick = onShareAssetInWireClick,
                     onDownloadAssetClick = onDownloadAssetClick,
                     onOpenAssetClick = onOpenAssetClick
                 ).also {
@@ -115,6 +117,7 @@ private fun MessageOptionsModalContent(
     onReplyClick: (UIMessage.Regular) -> Unit,
     onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>, isMultipart: Boolean) -> Unit,
     onShareAssetClick: (messageId: String) -> Unit,
+    onShareAssetInWireClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
 ) {
@@ -210,6 +213,13 @@ private fun MessageOptionsModalContent(
                     }
                 }
             },
+            onShareAssetInWireClick = remember(message.header.messageId) {
+                {
+                    sheetState.hide {
+                        onShareAssetInWireClick(message.header.messageId)
+                    }
+                }
+            },
             onDownloadAssetClick = remember(message.header.messageId) {
                 {
                     sheetState.hide {
@@ -259,6 +269,7 @@ fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
         onReplyClick = { },
         onEditClick = { _, _, _, _ -> },
         onShareAssetClick = { },
+        onShareAssetInWireClick = { },
         onDownloadAssetClick = { },
         onOpenAssetClick = { }
     )

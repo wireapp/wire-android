@@ -114,28 +114,26 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
             resolver.copyFile(downloadedUri, downloadedDataPath)
         }
     } else {
-        val authority = getProviderAuthority()
         val destinationFile = File(downloadsDir, availableAssetName)
         val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        FileProvider.getUriForFile(this, authority, destinationFile).also { downloadedUri ->
-            resolver.copyFile(downloadedUri, downloadedDataPath)
-            downloadManager.addCompletedDownload(
-                /* title = */
-                availableAssetName,
-                /* description = */
-                availableAssetName,
-                /* isMediaScannerScannable = */
-                true,
-                /* mimeType = */
-                mimeType.orEmpty().ifEmpty { "*/*" },
-                /* path = */
-                destinationFile.absolutePath,
-                /* length = */
-                fileSize,
-                /* showNotification = */
-                false
-            )
-        }
+        File(downloadedDataPath.toString()).copyTo(destinationFile, overwrite = true)
+        downloadManager.addCompletedDownload(
+            /* title = */
+            availableAssetName,
+            /* description = */
+            availableAssetName,
+            /* isMediaScannerScannable = */
+            true,
+            /* mimeType = */
+            mimeType.orEmpty().ifEmpty { "*/*" },
+            /* path = */
+            destinationFile.absolutePath,
+            /* length = */
+            fileSize,
+            /* showNotification = */
+            false
+        )
+        Uri.fromFile(destinationFile)
     }
 }
 
@@ -182,11 +180,11 @@ private fun Context.saveFileDataToMediaFolder(assetName: String, downloadedDataP
         else -> MediaStore.Files.getContentUri(volume)
     }
     val insertedUri = resolver.insert(externalContentUri, contentValues) ?: run {
-        val authority = getProviderAuthority()
         // we need to find the next available name with copy counter by ourselves before copying
         val availableAssetName = findFirstUniqueName(directory, normalizedFileName.ifEmpty { ATTACHMENT_FILENAME })
         val destinationFile = File(directory, availableAssetName)
-        FileProvider.getUriForFile(this, authority, destinationFile)
+        File(downloadedDataPath.toString()).copyTo(destinationFile, overwrite = true)
+        return Uri.fromFile(destinationFile)
     }
     resolver.copyFile(insertedUri, downloadedDataPath)
     return insertedUri
@@ -195,8 +193,11 @@ private fun Context.saveFileDataToMediaFolder(assetName: String, downloadedDataP
 fun Context.fromNioPathToContentUri(nioPath: java.nio.file.Path): Uri =
     this.copyToProviderUri(nioPath.toOkioPath(), null, FILE_PROVIDER_IMPORTED_DIR)
 
+fun Context.pathToInternalImportUri(assetDataPath: Path, assetName: String?): Uri =
+    this.copyToProviderUri(assetDataPath, assetName, FILE_PROVIDER_IMPORTED_DIR)
+
 fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =
-    copyToProviderUri(assetDataPath, assetName, FILE_PROVIDER_EXPORTED_DIR)
+    stagePathForExternalExport(assetDataPath, assetName)
 
 fun Uri.getMimeType(context: Context): String? {
     val mimeType: String? = if (this.scheme == ContentResolver.SCHEME_CONTENT) {
@@ -301,19 +302,7 @@ fun Context.multipleFileSharingIntent(uris: ArrayList<Uri>): Intent {
 }
 
 fun Context.getUrisOfFilesInDirectory(dir: File): ArrayList<Uri> {
-
-    val files = ArrayList<Uri>()
-
-    dir.listFiles()?.map {
-        runCatching {
-            copyToProviderUri(it.toOkioPath(), it.name, FILE_PROVIDER_EXPORTED_DIR)
-        }.onSuccess(files::add)
-            .onFailure { error ->
-                appLogger.e("Failed to stage file ${it.absolutePath} for external sharing", error)
-            }
-    }
-
-    return files
+    return stageFilesForExternalExport(dir.listFiles().orEmpty().toList())
 }
 
 fun openAssetFileWithExternalApp(
@@ -489,7 +478,7 @@ private fun Context.copyToProviderUri(assetDataPath: Path, assetName: String?, d
 private fun Context.providerCacheFile(directory: String, displayName: String): File {
     cleanUpProviderDirectory(directory)
 
-    val providerDirectory = File(cacheDir, "$FILE_PROVIDER_ROOT_DIR/$directory").apply { mkdirs() }
+    val providerDirectory = internalProviderDirectory(directory).apply { mkdirs() }
     val randomFileName = buildString {
         append(UUID.randomUUID())
         displayName.substringAfterLast('.', missingDelimiterValue = "")
@@ -505,14 +494,16 @@ private fun Context.providerCacheFile(directory: String, displayName: String): F
 
 private fun Context.cleanUpProviderDirectory(directory: String) {
     val now = System.currentTimeMillis()
-    File(cacheDir, "$FILE_PROVIDER_ROOT_DIR/$directory")
+    internalProviderDirectory(directory)
         .listFiles()
         ?.filter { now - it.lastModified() > FILE_PROVIDER_MAX_AGE_IN_MILLIS }
         ?.forEach(File::delete)
 }
 
+private fun Context.internalProviderDirectory(directory: String): File =
+    File(cacheDir.canonicalFile, "$FILE_PROVIDER_ROOT_DIR/$directory")
+
 private const val FILE_PROVIDER_ROOT_DIR = "file-provider"
-private const val FILE_PROVIDER_EXPORTED_DIR = "exported"
 private const val FILE_PROVIDER_IMPORTED_DIR = "imported"
 private const val FILE_PROVIDER_WRITABLE_DIR = "writable"
 private const val FILE_PROVIDER_MAX_AGE_IN_MILLIS = 60 * 60 * 1000L

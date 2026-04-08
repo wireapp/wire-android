@@ -38,6 +38,20 @@ fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
 }
 
 @Composable
+fun ShareAssetInWireMenuOption(onShareAssetInWire: () -> Unit) {
+    MenuBottomSheetItem(
+        leading = {
+            MenuItemIcon(
+                id = R.drawable.ic_share_file,
+                contentDescription = stringResource(R.string.content_description_share_the_file_in_wire),
+            )
+        },
+        title = stringResource(R.string.label_share_in_wire),
+        onItemClick = onShareAssetInWire
+    )
+}
+
+@Composable
 fun SharePublicLinkMenuOption(onShareAsset: () -> Unit) {
     MenuBottomSheetItem(
         leading = {

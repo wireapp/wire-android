@@ -29,6 +29,7 @@ import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.ui.sharing.StageForwardedAssetShareUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
@@ -63,6 +64,7 @@ class MediaGalleryViewModel @Inject constructor(
     private val deleteMessage: DeleteMessageUseCase,
     private val getAttachment: GetMessageAttachmentUseCase,
     private val getCellNode: GetCellFileUseCase,
+    private val stageForwardedAssetShare: StageForwardedAssetShareUseCase,
 ) : ActionsViewModel<MediaGalleryAction>() {
 
     private val mediaGalleryNavArgs: MediaGalleryNavArgs = savedStateHandle.navArgs()
@@ -141,6 +143,12 @@ class MediaGalleryViewModel @Inject constructor(
                     sendAction(MediaGalleryAction.ShowError)
                 }
         }
+    }
+
+    private fun shareAssetInWire() = viewModelScope.launch {
+        stageForwardedAssetShare(conversationId, messageId)
+            ?.let { sendAction(MediaGalleryAction.ShareInWire(it)) }
+            ?: sendAction(MediaGalleryAction.ShowError)
     }
 
     private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Pair<Path, String>? =
@@ -231,6 +239,7 @@ class MediaGalleryViewModel @Inject constructor(
             MenuIntent.Download -> sendAction(MediaGalleryAction.Download)
 
             MenuIntent.Share -> shareAsset()
+            MenuIntent.ShareInWire -> shareAssetInWire()
 
             MenuIntent.Delete -> {
                 deleteMessageDialogState.show(
@@ -275,13 +284,17 @@ class MediaGalleryViewModel @Inject constructor(
                     add(MediaGalleryMenuItem.SHOW_DETAILS)
                     add(MediaGalleryMenuItem.REPLY)
                     add(MediaGalleryMenuItem.DOWNLOAD)
+                    add(MediaGalleryMenuItem.SHARE_IN_WIRE)
                     add(MediaGalleryMenuItem.SHARE)
                     add(MediaGalleryMenuItem.DELETE)
                 }
             }
         } else if (cellAssetId == null) {
             add(MediaGalleryMenuItem.DOWNLOAD)
-            if (!mediaGalleryNavArgs.isEphemeral) add(MediaGalleryMenuItem.SHARE)
+            if (!mediaGalleryNavArgs.isEphemeral) {
+                add(MediaGalleryMenuItem.SHARE_IN_WIRE)
+                add(MediaGalleryMenuItem.SHARE)
+            }
             add(MediaGalleryMenuItem.DELETE)
         }
     }
@@ -302,6 +315,7 @@ class MediaGalleryViewModel @Inject constructor(
 sealed interface MediaGalleryAction {
     data class ShowDetails(val messageId: String, val isSelfAsset: Boolean) : MediaGalleryAction
     data class Share(val path: Path, val assetName: String) : MediaGalleryAction
+    data class ShareInWire(val importSessionId: String) : MediaGalleryAction
     data class React(val messageId: String, val emoji: String) : MediaGalleryAction
     data class Reply(val messageId: String) : MediaGalleryAction
     data object Download : MediaGalleryAction
@@ -316,6 +330,7 @@ sealed interface MenuIntent {
     data object Reply : MenuIntent
     data object Download : MenuIntent
     data object Share : MenuIntent
+    data object ShareInWire : MenuIntent
     data object Delete : MenuIntent
 }
 
@@ -324,6 +339,7 @@ enum class MediaGalleryMenuItem {
     SHOW_DETAILS,
     REPLY,
     DOWNLOAD,
+    SHARE_IN_WIRE,
     SHARE,
     SHARE_PUBLIC_LINK,
     DELETE

@@ -40,6 +40,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
+import com.wire.android.ui.sharing.StageForwardedAssetShareUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
@@ -110,6 +111,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
+    private val stageForwardedAssetShare: StageForwardedAssetShareUseCase,
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -392,6 +394,9 @@ class ConversationMessagesViewModel @Inject constructor(
             }
         }
     }
+
+    suspend fun shareAssetInWire(messageId: String): String? =
+        stageForwardedAssetShare(conversationId, messageId)
 
     private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Pair<Path, String>? =
         getMessageAsset(conversationId, messageId).await().run {

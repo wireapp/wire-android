@@ -92,6 +92,8 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
 import com.wire.android.ui.home.conversations.media.RestrictionCheckState
 import com.wire.android.ui.home.conversations.media.preview.AssetTilePreview
+import com.wire.android.ui.home.conversations.media.preview.AssetFilePreviewTile
+import com.wire.android.ui.home.conversations.model.ForwardedAssetBundle
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuItems
@@ -231,7 +233,26 @@ private fun ImportMediaAuthenticatedContent(
             onConversationClicked = importMediaViewModel::onConversationClicked,
             checkRestrictionsAndSendImportedMedia = {
                 with(importMediaViewModel.importMediaState) {
-                    checkAssetRestrictionsViewModel.checkRestrictions(importedMediaList = importedAssets)
+                    selectedConversationItem.firstOrNull()?.let { conversationItem ->
+                        when {
+                            forwardedAssets.isNotEmpty() -> {
+                                navigator.navigate(
+                                    NavigationCommand(
+                                        ConversationScreenDestination(
+                                            ConversationNavArgs(
+                                                conversationId = conversationItem,
+                                                pendingForwardedAssets = ArrayList(forwardedAssets),
+                                                pendingTextBundle = importedText,
+                                            )
+                                        ),
+                                        BackStackMode.REMOVE_CURRENT_AND_REPLACE
+                                    )
+                                )
+                            }
+
+                            else -> checkAssetRestrictionsViewModel.checkRestrictions(importedMediaList = importedAssets)
+                        }
+                    }
                 }
             },
             onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
@@ -464,7 +485,7 @@ private fun ImportMediaBottomBar(
         stringResource(id = R.string.import_media_send_button_title)
     }
     val buttonCount =
-        if (state.importedAssets.isNotEmpty() || state.importedText != null) state.selectedConversationItem.size else 0
+        if (state.isImportingData()) state.selectedConversationItem.size else 0
     SendContentButton(
         mainButtonText = mainButtonText,
         count = buttonCount,
@@ -482,7 +503,8 @@ fun ImportMediaTopBarContent(
     onRemoveAsset: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isMultipleImport = state.importedAssets.size != 1
+    val totalAssetCount = state.importedAssets.size + state.forwardedAssets.size
+    val isMultipleImport = totalAssetCount != 1
 
     Column(modifier = modifier) {
         if (state.isImporting) {
@@ -504,16 +526,27 @@ fun ImportMediaTopBarContent(
                     .padding(horizontal = dimensions().spacing16x)
                     .height(dimensions().spacing120x)
             ) {
-                AssetTilePreview(
-                    modifier = Modifier.fillMaxHeight(),
-                    assetBundle = state.importedAssets.first().assetBundle,
-                    showOnlyExtension = false,
-                    onClick = {}
-                )
+                when {
+                    state.importedAssets.isNotEmpty() -> AssetTilePreview(
+                        modifier = Modifier.fillMaxHeight(),
+                        assetBundle = state.importedAssets.first().assetBundle,
+                        showOnlyExtension = false,
+                        onClick = {}
+                    )
+
+                    state.forwardedAssets.isNotEmpty() -> ForwardedAssetPreview(
+                        modifier = Modifier.fillMaxHeight(),
+                        asset = state.forwardedAssets.first(),
+                    )
+                }
             }
         } else {
             when (state.importedText.isNullOrBlank()) {
-                true -> ImportAssetsCarrousel(state.importedAssets, onRemoveAsset)
+                true -> ImportAssetsCarrousel(
+                    importedItemsList = state.importedAssets,
+                    forwardedItemsList = state.forwardedAssets,
+                    onRemoveAsset = onRemoveAsset,
+                )
                 false -> ImportText(state.importedText)
             }
         }
@@ -585,8 +618,10 @@ private fun ImportText(importedText: String) {
 @Composable
 private fun ImportAssetsCarrousel(
     importedItemsList: PersistentList<ImportedMediaAsset>,
+    forwardedItemsList: PersistentList<ForwardedAssetBundle>,
     onRemoveAsset: (index: Int) -> Unit
 ) {
+    val totalItems = importedItemsList.size + forwardedItemsList.size
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -594,7 +629,7 @@ private fun ImportAssetsCarrousel(
         contentPadding = PaddingValues(start = dimensions().spacing8x, end = dimensions().spacing8x)
     ) {
         items(
-            count = importedItemsList.size,
+            count = totalItems,
         ) { index ->
             Box(
                 modifier = Modifier
@@ -602,24 +637,34 @@ private fun ImportAssetsCarrousel(
                     .fillMaxHeight()
             ) {
                 val assetSize = dimensions().spacing120x - dimensions().spacing16x
-                AssetTilePreview(
-                    modifier = Modifier
-                        .width(assetSize)
-                        .height(assetSize)
-                        .align(Alignment.Center),
-                    assetBundle = importedItemsList[index].assetBundle,
-                    showOnlyExtension = false,
-                    onClick = {}
-                )
+                if (index < importedItemsList.size) {
+                    AssetTilePreview(
+                        modifier = Modifier
+                            .width(assetSize)
+                            .height(assetSize)
+                            .align(Alignment.Center),
+                        assetBundle = importedItemsList[index].assetBundle,
+                        showOnlyExtension = false,
+                        onClick = {}
+                    )
+                } else {
+                    ForwardedAssetPreview(
+                        modifier = Modifier
+                            .width(assetSize)
+                            .height(assetSize)
+                            .align(Alignment.Center),
+                        asset = forwardedItemsList[index - importedItemsList.size],
+                    )
+                }
 
-                if (importedItemsList.size > 1) {
+                if (totalItems > 1) {
                     RemoveIcon(
                         modifier = Modifier.align(Alignment.TopEnd),
                         onClick = { onRemoveAsset(index) },
                         contentDescription = stringResource(id = R.string.remove_asset_description)
                     )
                 }
-                if (importedItemsList[index].assetSizeExceeded != null) {
+                if (index < importedItemsList.size && importedItemsList[index].assetSizeExceeded != null) {
                     ErrorIcon(
                         stringResource(id = R.string.asset_attention_description),
                         modifier = Modifier.align(Alignment.Center)
@@ -628,6 +673,43 @@ private fun ImportAssetsCarrousel(
             }
         }
     }
+}
+
+@Composable
+private fun ForwardedAssetPreview(
+    asset: ForwardedAssetBundle,
+    modifier: Modifier = Modifier,
+) {
+    asset.localDataPath?.toPath()?.let { localPath ->
+        if (asset.assetType == AttachmentType.IMAGE) {
+            AssetTilePreview(
+                modifier = modifier,
+                assetBundle = AssetBundle(
+                    key = asset.assetId,
+                    mimeType = asset.mimeType,
+                    dataPath = localPath,
+                    dataSize = asset.dataSize,
+                    fileName = asset.fileName,
+                    assetType = asset.assetType,
+                ),
+                showOnlyExtension = false,
+                onClick = {},
+            )
+            return
+        }
+    }
+
+    AssetFilePreviewTile(
+        assetBundle = AssetBundle(
+            key = asset.assetId,
+            mimeType = asset.mimeType,
+            dataPath = "forwarded/${asset.assetId}".toPath(),
+            dataSize = asset.dataSize,
+            fileName = asset.fileName,
+            assetType = asset.assetType,
+        ),
+        modifier = modifier,
+    )
 }
 
 @Composable

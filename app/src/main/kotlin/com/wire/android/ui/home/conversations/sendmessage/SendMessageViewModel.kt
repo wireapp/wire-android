@@ -89,6 +89,7 @@ import javax.inject.Inject
 class SendMessageViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
+    private val sendForwardedAssetMessage: SendForwardedAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendMultipartMessage: SendMultipartMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
@@ -133,6 +134,9 @@ class SendMessageViewModel @Inject constructor(
         conversationNavArgs.pendingBundles?.let {
             handlePendingBundles(it)
         }
+        conversationNavArgs.pendingForwardedAssets?.let {
+            handlePendingForwardedAssets(it)
+        }
     }
 
     // for cells conversations we need to add the items to attachments list
@@ -151,6 +155,21 @@ class SendMessageViewModel @Inject constructor(
                     }
                 )
             }
+        }
+    }
+
+    private fun handlePendingForwardedAssets(
+        forwardedAssets: ArrayList<com.wire.android.ui.home.conversations.model.ForwardedAssetBundle>
+    ) {
+        viewModelScope.launch {
+            trySendMessages(
+                forwardedAssets.map { forwardedAsset ->
+                    ComposableMessageBundle.ForwardedAssetPickedBundle(
+                        conversationId = conversationId,
+                        forwardedAsset = forwardedAsset,
+                    )
+                }
+            )
         }
     }
 
@@ -246,6 +265,12 @@ class SendMessageViewModel @Inject constructor(
 
             is ComposableMessageBundle.AttachmentPickedBundle -> {
                 sendAttachment(messageBundle.assetBundle, messageBundle.conversationId)
+            }
+
+            is ComposableMessageBundle.ForwardedAssetPickedBundle -> {
+                sendForwardedAssetMessage(messageBundle.conversationId, messageBundle.forwardedAsset.toAssetContent())
+                    .handleLegalHoldFailureAfterSendingMessage(messageBundle.conversationId)
+                    .handleAssetContributionEvent(messageBundle.forwardedAsset.assetType)
             }
 
             is ComposableMessageBundle.UriPickedBundle -> {
@@ -405,7 +430,8 @@ class SendMessageViewModel @Inject constructor(
                 // assets are not handled here, as they need extra processing
                 is ComposableMessageBundle.UriPickedBundle,
                 is ComposableMessageBundle.AudioMessageBundle,
-                is ComposableMessageBundle.AttachmentPickedBundle -> return@also
+                is ComposableMessageBundle.AttachmentPickedBundle,
+                is ComposableMessageBundle.ForwardedAssetPickedBundle -> return@also
 
                 is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location
                 is Ping -> AnalyticsEvent.Contributed.Ping
@@ -455,6 +481,23 @@ class SendMessageViewModel @Inject constructor(
                     this.coreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId)
                     Either.Left(coreFailure)
                 }
+            }
+        }
+
+    private fun SendForwardedAssetMessageUseCase.Result.handleLegalHoldFailureAfterSendingMessage(
+        conversationId: ConversationId
+    ): Either<CoreFailure?, Unit> =
+        when (this) {
+            SendForwardedAssetMessageUseCase.Result.Success -> Either.Right(Unit)
+            SendForwardedAssetMessageUseCase.Result.Failure.DisabledByTeam,
+            SendForwardedAssetMessageUseCase.Result.Failure.RestrictedFileType -> {
+                onSnackbarMessage(ConversationSnackbarMessages.ErrorAssetRestriction)
+                Either.Left(null)
+            }
+
+            is SendForwardedAssetMessageUseCase.Result.Failure.Generic -> {
+                coreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId)
+                Either.Left(coreFailure)
             }
         }
 

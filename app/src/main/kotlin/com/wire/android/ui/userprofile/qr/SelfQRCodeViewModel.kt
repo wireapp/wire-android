@@ -31,6 +31,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.ui.sharing.StageInternalShareUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getTempWritableAttachmentUri
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -51,6 +52,7 @@ class SelfQRCodeViewModel @Inject constructor(
     private val context: Context,
     @CurrentAccount private val selfUserId: UserId,
     private val selfServerLinks: SelfServerConfigUseCase,
+    private val stageInternalShare: StageInternalShareUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val dispatchers: DispatcherProvider,
     private val analyticsManager: AnonymousAnalyticsManager
@@ -91,6 +93,16 @@ class SelfQRCodeViewModel @Inject constructor(
         }
         return job.await()
     }
+
+    suspend fun stageQRAssetForImport(uri: Uri): String? =
+        when (val result = stageInternalShare(sharedUris = listOf(uri))) {
+            is StageInternalShareUseCase.Result.Success -> result.importSessionId
+            StageInternalShareUseCase.Result.Failure.InvalidContent,
+            StageInternalShareUseCase.Result.Failure.NoSupportedContent -> {
+                appLogger.withTextTag("SelfQRCodeViewModel").w("Unable to stage QR asset for internal import")
+                null
+            }
+        }
 
     fun trackAnalyticsEvent(event: AnalyticsEvent.QrCode.Modal) {
         analyticsManager.sendEvent(event)

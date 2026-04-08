@@ -27,6 +27,7 @@ import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
+import com.wire.android.ui.sharing.StageForwardedAssetShareUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
@@ -270,6 +271,7 @@ class MediaGalleryViewModelTest {
         assertEquals(
             listOf(
                 MediaGalleryMenuItem.DOWNLOAD,
+                MediaGalleryMenuItem.SHARE_IN_WIRE,
                 MediaGalleryMenuItem.SHARE,
                 MediaGalleryMenuItem.DELETE,
             ),
@@ -371,11 +373,28 @@ class MediaGalleryViewModelTest {
                 MediaGalleryMenuItem.SHOW_DETAILS,
                 MediaGalleryMenuItem.REPLY,
                 MediaGalleryMenuItem.DOWNLOAD,
+                MediaGalleryMenuItem.SHARE_IN_WIRE,
                 MediaGalleryMenuItem.SHARE,
                 MediaGalleryMenuItem.DELETE,
             ),
             state.menuItems
         )
+    }
+
+    @Test
+    fun givenNonEphemeralAsset_whenSharingInWire_thenImportSessionActionIsEmitted() = runTest {
+        val imagePath = fakeKaliumFileSystem.providePersistentAssetPath("dummy-path")
+        val (_, viewModel) = Arrangement()
+            .withConversationDetails(mockedConversationDetails())
+            .withSuccessfulImageData(imagePath, 42L, "asset.jpg")
+            .withInternalShareImportSession("import-session-id")
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.onMenuIntent(MenuIntent.ShareInWire)
+
+            assertEquals(MediaGalleryAction.ShareInWire("import-session-id"), awaitItem())
+        }
     }
 
     private class Arrangement {
@@ -399,6 +418,9 @@ class MediaGalleryViewModelTest {
 
         @MockK
         lateinit var getCellFile: GetCellFileUseCase
+
+        @MockK
+        lateinit var stageForwardedAssetShare: StageForwardedAssetShareUseCase
 
         init {
             // Tests setup
@@ -477,6 +499,10 @@ class MediaGalleryViewModelTest {
             return this
         }
 
+        fun withInternalShareImportSession(importSessionId: String?) = apply {
+            coEvery { stageForwardedAssetShare(any(), any()) } returns importSessionId
+        }
+
         fun arrange() = this to MediaGalleryViewModel(
             savedStateHandle,
             getConversationDetails,
@@ -486,6 +512,7 @@ class MediaGalleryViewModelTest {
             deleteMessage,
             getAttachment,
             getCellFile,
+            stageForwardedAssetShare,
         )
     }
 

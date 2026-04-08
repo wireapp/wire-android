@@ -58,8 +58,11 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.lightspark.composeqr.DotShape
 import com.lightspark.composeqr.QrCodeView
+import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
 import com.wire.android.R
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -90,8 +93,17 @@ fun SelfQRCodeScreen(
     SelfQRCodeContent(
         viewModel.selfQRCodeState,
         viewModel::shareQRAsset,
+        viewModel::stageQRAssetForImport,
         viewModel::trackAnalyticsEvent,
-        navigator::navigateBack
+        onBackClick = navigator::navigateBack,
+        onOpenImportMedia = { importSessionId ->
+            navigator.navigate(
+                NavigationCommand(
+                    ImportMediaScreenDestination(importSessionId = importSessionId),
+                    BackStackMode.UPDATE_EXISTED
+                )
+            )
+        }
     )
 }
 
@@ -99,12 +111,13 @@ fun SelfQRCodeScreen(
 private fun SelfQRCodeContent(
     state: SelfQRCodeState,
     shareQRAssetClick: suspend (Bitmap) -> Uri,
+    stageQRCodeForImport: suspend (Uri) -> String?,
     trackAnalyticsEvent: (AnalyticsEvent.QrCode.Modal) -> Unit,
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onOpenImportMedia: (String) -> Unit = {}
 ) {
     val coroutineScope = rememberCoroutineScope()
     val graphicsLayer = rememberGraphicsLayer()
-    val context = LocalContext.current
 
     BackHandler {
         trackAnalyticsEvent(
@@ -220,7 +233,7 @@ private fun SelfQRCodeContent(
                 coroutineScope.launch {
                     val bitmap = graphicsLayer.toImageBitmap()
                     val qrUri = shareQRAssetClick(bitmap.asAndroidBitmap())
-                    context.shareQRToProfile(qrUri)
+                    stageQRCodeForImport(qrUri)?.let(onOpenImportMedia)
                 }
             }
         }
@@ -274,15 +287,16 @@ private fun ShareLinkButton(
 @Composable
 fun PreviewSelfQRCodeContent() {
     WireTheme {
-        SelfQRCodeContent(
-            SelfQRCodeState(
-                userId = UserId("userId", "wire.com"),
-                handle = "userid",
-                userProfileLink = "wire://user/wire.com/aaaaaaa-222-3333-4444-55555555",
-                userAccountProfileLink = "https://account.wire.com/user-profile/?id=aaaaaaa-222-3333-4444-55555555@wire.com"
-            ),
-            { "".toUri() },
-            { }
-        )
+            SelfQRCodeContent(
+                SelfQRCodeState(
+                    userId = UserId("userId", "wire.com"),
+                    handle = "userid",
+                    userProfileLink = "wire://user/wire.com/aaaaaaa-222-3333-4444-55555555",
+                    userAccountProfileLink = "https://account.wire.com/user-profile/?id=aaaaaaa-222-3333-4444-55555555@wire.com"
+                ),
+                { "".toUri() },
+                { null },
+                { },
+            )
+        }
     }
-}

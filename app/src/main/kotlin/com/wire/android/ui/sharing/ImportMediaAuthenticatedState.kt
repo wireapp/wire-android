@@ -19,6 +19,7 @@ package com.wire.android.ui.sharing
 
 import androidx.compose.runtime.Stable
 import androidx.paging.PagingData
+import com.wire.android.ui.home.conversations.model.ForwardedAssetBundle
 import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.emptyFlow
 @Stable
 data class ImportMediaAuthenticatedState(
     val importedAssets: PersistentList<ImportedMediaAsset> = persistentListOf(),
+    val forwardedAssets: PersistentList<ForwardedAssetBundle> = persistentListOf(),
     val importedText: String? = null,
     val isImporting: Boolean = false,
     val conversations: Flow<PagingData<ConversationItemType>> = emptyFlow(),
@@ -37,7 +39,6 @@ data class ImportMediaAuthenticatedState(
     val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
 ) {
     @Stable
-    fun isImportingData() {
-        importedText?.isNotEmpty() == true || importedAssets.isNotEmpty()
-    }
+    fun isImportingData(): Boolean =
+        importedText?.isNotEmpty() == true || importedAssets.isNotEmpty() || forwardedAssets.isNotEmpty()
 }

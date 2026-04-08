@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations
 import android.os.Parcel
 import android.os.Parcelable
 import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.android.ui.home.conversations.model.ForwardedAssetBundle
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import kotlinx.parcelize.Parceler
@@ -32,6 +33,7 @@ data class ConversationNavArgs(
     val conversationId: ConversationId,
     val searchedMessageId: String? = null,
     val pendingBundles: ArrayList<AssetBundle>? = null,
+    val pendingForwardedAssets: ArrayList<ForwardedAssetBundle>? = null,
     val pendingTextBundle: String? = null
 ) : Parcelable
 

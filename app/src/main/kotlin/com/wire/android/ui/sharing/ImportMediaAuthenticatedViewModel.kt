@@ -106,7 +106,15 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     }
 
     fun onRemove(index: Int) {
-        importMediaState = importMediaState.copy(importedAssets = importMediaState.importedAssets.removeAt(index))
+        importMediaState = when {
+            importMediaState.importedAssets.isNotEmpty() ->
+                importMediaState.copy(importedAssets = importMediaState.importedAssets.removeAt(index))
+
+            importMediaState.forwardedAssets.isNotEmpty() ->
+                importMediaState.copy(forwardedAssets = importMediaState.forwardedAssets.removeAt(index))
+
+            else -> importMediaState
+        }
     }
 
     private fun loadUserAvatar() = viewModelScope.launch {
@@ -150,6 +158,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         importMediaState = importMediaState.copy(
             importedText = importSession?.importedText,
             importedAssets = importSession?.importedAssets?.toPersistentList() ?: persistentListOf(),
+            forwardedAssets = importSession?.forwardedAssets?.toPersistentList() ?: persistentListOf(),
         )
         importMediaState = importMediaState.copy(isImporting = false)
     }

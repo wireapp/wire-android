@@ -19,6 +19,7 @@ package com.wire.android.ui.sharing
 
 import android.content.Context
 import com.wire.android.appLogger
+import com.wire.android.ui.home.conversations.model.ForwardedAssetBundle
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.AttachmentType
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -36,14 +37,19 @@ class ImportSessionStore @Inject constructor(
     @ApplicationContext private val context: Context,
     private val dispatchers: DispatcherProvider,
 ) {
-    suspend fun store(importedText: String?, importedAssets: List<ImportedMediaAsset>): String = withContext(dispatchers.io()) {
+    suspend fun store(
+        importedText: String?,
+        importedAssets: List<ImportedMediaAsset>,
+        forwardedAssets: List<ForwardedAssetBundle> = emptyList(),
+    ): String = withContext(dispatchers.io()) {
         cleanupExpiredSessions()
         val sessionId = UUID.randomUUID().toString()
         val session = StoredImportSession(
             id = sessionId,
             createdAt = System.currentTimeMillis(),
             importedText = importedText,
-            importedAssets = importedAssets.map { it.toStoredImportedAsset() }
+            importedAssets = importedAssets.map { it.toStoredImportedAsset() },
+            forwardedAssets = forwardedAssets.map { it.toStoredForwardedAsset() },
         )
         sessionFile(sessionId).apply {
             parentFile?.mkdirs()
@@ -110,7 +116,8 @@ class ImportSessionStore @Inject constructor(
             importedText = importedText,
             importedAssets = importedAssets.mapNotNull { storedAsset ->
                 storedAsset.toImportedMediaAsset()
-            }
+            },
+            forwardedAssets = forwardedAssets.map { it.toForwardedAssetBundle() },
         )
 
     private fun StoredImportedAsset.toImportedMediaAsset(): ImportedMediaAsset? {
@@ -146,6 +153,48 @@ class ImportSessionStore @Inject constructor(
             assetSizeExceeded = assetSizeExceeded
         )
 
+    private fun ForwardedAssetBundle.toStoredForwardedAsset() =
+        StoredForwardedAsset(
+            assetId = assetId,
+            assetToken = assetToken,
+            assetDomain = assetDomain,
+            otrKey = otrKey,
+            sha256 = sha256,
+            encryptionAlgorithm = encryptionAlgorithm,
+            fileName = fileName,
+            mimeType = mimeType,
+            dataSize = dataSize,
+            assetType = assetType.name,
+            imageWidth = imageWidth,
+            imageHeight = imageHeight,
+            videoWidth = videoWidth,
+            videoHeight = videoHeight,
+            durationMs = durationMs,
+            audioNormalizedLoudness = audioNormalizedLoudness,
+            localDataPath = localDataPath,
+        )
+
+    private fun StoredForwardedAsset.toForwardedAssetBundle() =
+        ForwardedAssetBundle(
+            assetId = assetId,
+            assetToken = assetToken,
+            assetDomain = assetDomain,
+            otrKey = otrKey,
+            sha256 = sha256,
+            encryptionAlgorithm = encryptionAlgorithm,
+            fileName = fileName,
+            mimeType = mimeType,
+            dataSize = dataSize,
+            assetType = AttachmentType.valueOf(assetType),
+            imageWidth = imageWidth,
+            imageHeight = imageHeight,
+            videoWidth = videoWidth,
+            videoHeight = videoHeight,
+            durationMs = durationMs,
+            audioNormalizedLoudness = audioNormalizedLoudness,
+            localDataPath = localDataPath,
+        )
+
     companion object {
         private const val IMPORT_SESSIONS_DIRECTORY = "incoming-share/sessions"
         private const val SESSION_MAX_AGE_IN_MILLIS = 60 * 60 * 1000L
@@ -157,6 +206,7 @@ data class ImportSession(
     val id: String,
     val importedText: String?,
     val importedAssets: List<ImportedMediaAsset>,
+    val forwardedAssets: List<ForwardedAssetBundle> = emptyList(),
 )
 
 @Serializable
@@ -165,6 +215,7 @@ private data class StoredImportSession(
     val createdAt: Long,
     val importedText: String?,
     val importedAssets: List<StoredImportedAsset>,
+    val forwardedAssets: List<StoredForwardedAsset> = emptyList(),
 )
 
 @Serializable
@@ -177,4 +228,25 @@ private data class StoredImportedAsset(
     val assetType: String,
     val audioWavesMask: List<Int>? = null,
     val assetSizeExceeded: Int? = null,
+)
+
+@Serializable
+private data class StoredForwardedAsset(
+    val assetId: String,
+    val assetToken: String? = null,
+    val assetDomain: String? = null,
+    val otrKey: ByteArray,
+    val sha256: ByteArray,
+    val encryptionAlgorithm: String? = null,
+    val fileName: String,
+    val mimeType: String,
+    val dataSize: Long,
+    val assetType: String,
+    val imageWidth: Int? = null,
+    val imageHeight: Int? = null,
+    val videoWidth: Int? = null,
+    val videoHeight: Int? = null,
+    val durationMs: Long? = null,
+    val audioNormalizedLoudness: ByteArray? = null,
+    val localDataPath: String? = null,
 )

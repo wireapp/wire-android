@@ -17,40 +17,24 @@
  */
 package com.wire.android.ui.sharing
 
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
-import androidx.core.content.IntentCompat
-import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.wire.android.util.getExportProviderAuthority
-import com.wire.android.util.getProviderAuthority
-import com.wire.android.util.parcelableArrayList
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.util.dispatchers.DispatcherProvider
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class StageIncomingShareUseCase @Inject constructor(
-    @ApplicationContext private val context: Context,
+class StageInternalShareUseCase @Inject constructor(
     private val handleUriAsset: HandleUriAssetUseCase,
     private val importSessionStore: ImportSessionStore,
-    private val dispatchers: com.wire.android.util.dispatchers.DispatcherProvider,
+    private val dispatchers: DispatcherProvider,
 ) {
-    suspend operator fun invoke(intent: Intent): Result = withContext(dispatchers.io()) {
-        val sharedText = intent.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString()
-            ?.takeIf(String::isNotBlank)
-        val sharedUris = extractSharedUris(intent)
-
-        if (sharedText == null && sharedUris.isEmpty()) {
+    suspend operator fun invoke(sharedUris: List<Uri>, sharedText: String? = null): Result = withContext(dispatchers.io()) {
+        if (sharedText.isNullOrBlank() && sharedUris.isEmpty()) {
             return@withContext Result.Failure.NoSupportedContent
         }
 
         val importedAssets = mutableListOf<ImportedMediaAsset>()
         for (sharedUri in sharedUris) {
-            if (!sharedUri.isAcceptedIncomingShareUri()) {
-                appLogger.w("Rejected incoming share URI: $sharedUri")
-                return@withContext Result.Failure.InvalidContent
-            }
             when (val result = handleUriAsset.invoke(sharedUri, saveToDeviceIfInvalid = false)) {
                 is HandleUriAssetUseCase.Result.Success -> importedAssets += ImportedMediaAsset(result.assetBundle, null)
                 is HandleUriAssetUseCase.Result.Failure.AssetTooLarge ->
@@ -64,24 +48,6 @@ class StageIncomingShareUseCase @Inject constructor(
         Result.Success(sessionId)
     }
 
-    private fun extractSharedUris(intent: Intent): List<Uri> = when (intent.action) {
-        Intent.ACTION_SEND -> listOfNotNull(IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java))
-        Intent.ACTION_SEND_MULTIPLE -> intent.parcelableArrayList<Uri>(Intent.EXTRA_STREAM).orEmpty()
-        else -> emptyList()
-    }
-
-    private fun Uri.isAcceptedIncomingShareUri(): Boolean {
-        if (scheme != IntentFilterSchemes.CONTENT) {
-            return false
-        }
-
-        return authority !in setOf(
-            context.getProviderAuthority(),
-            context.getExportProviderAuthority(),
-            context.getImportProviderAuthority()
-        )
-    }
-
     sealed class Result {
         data class Success(val importSessionId: String) : Result()
 
@@ -91,9 +57,3 @@ class StageIncomingShareUseCase @Inject constructor(
         }
     }
 }
-
-private object IntentFilterSchemes {
-    const val CONTENT = "content"
-}
-
-fun Context.getImportProviderAuthority() = "$packageName.importprovider"

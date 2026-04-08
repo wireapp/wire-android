@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.annotation.ExperimentalCoilApi
+import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
@@ -56,6 +57,7 @@ import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.edit.ShareAssetMenuOption
+import com.wire.android.ui.edit.ShareAssetInWireMenuOption
 import com.wire.android.ui.edit.SharePublicLinkMenuOption
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
@@ -136,6 +138,13 @@ fun MediaGalleryScreen(
     HandleActions(mediaGalleryViewModel.actions) { action ->
         when (action) {
             is MediaGalleryAction.Share -> context.startFileShareIntent(action.path, action.assetName)
+            is MediaGalleryAction.ShareInWire -> {
+                navigator.navigate(
+                    NavigationCommand(
+                        ImportMediaScreenDestination(importSessionId = action.importSessionId)
+                    )
+                )
+            }
             is MediaGalleryAction.ShowDetails -> {
                 resultNavigator.setResult(
                     MediaGalleryNavBackArgs(
@@ -254,6 +263,9 @@ private fun MediaGalleryOptionsBottomSheetLayout(
                 }
                 MediaGalleryMenuItem.DOWNLOAD -> add {
                     DownloadAssetExternallyOption { onOptionsClick(MenuIntent.Download) }
+                }
+                MediaGalleryMenuItem.SHARE_IN_WIRE -> add {
+                    ShareAssetInWireMenuOption { onOptionsClick(MenuIntent.ShareInWire) }
                 }
                 MediaGalleryMenuItem.SHARE -> add {
                     ShareAssetMenuOption { onOptionsClick(MenuIntent.Share) }

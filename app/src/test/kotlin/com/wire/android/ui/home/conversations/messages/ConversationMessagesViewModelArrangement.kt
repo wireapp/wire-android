@@ -32,6 +32,7 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
+import com.wire.android.ui.sharing.StageForwardedAssetShareUseCase
 import com.wire.android.util.FileManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.asset.AttachmentType
@@ -129,6 +130,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var isWireCellFeatureEnabled: IsWireCellsEnabledUseCase
 
+    @MockK
+    lateinit var stageForwardedAssetShare: StageForwardedAssetShareUseCase
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             savedStateHandle,
@@ -149,6 +153,7 @@ class ConversationMessagesViewModelArrangement {
             getSearchedConversationMessagePosition,
             deleteMessage,
             isWireCellFeatureEnabled,
+            stageForwardedAssetShare,
         )
     }
 
@@ -247,6 +252,10 @@ class ConversationMessagesViewModelArrangement {
         coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
+    }
+
+    fun withStagedInternalAssetShare(importSessionId: String?) = apply {
+        coEvery { stageForwardedAssetShare(any(), any()) } returns importSessionId
     }
 
     fun withFailureOnDeletingMessages() = apply {

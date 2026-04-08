@@ -84,6 +84,7 @@ import androidx.paging.compose.itemKey
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.MessageDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
@@ -608,6 +609,18 @@ fun ConversationScreen(
         composerMessages = sendMessageViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         shareAsset = conversationMessagesViewModel::shareAsset,
+        onShareAssetInWireClick = { messageId ->
+            coroutineScope.launch {
+                conversationMessagesViewModel.shareAssetInWire(messageId)?.let { importSessionId ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            ImportMediaScreenDestination(importSessionId = importSessionId),
+                            BackStackMode.UPDATE_EXISTED
+                        )
+                    )
+                }
+            }
+        },
         onDownloadAssetClick = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset,
         onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage,
@@ -914,6 +927,7 @@ private fun ConversationScreen(
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
     shareAsset: (Context, messageId: String) -> Unit,
+    onShareAssetInWireClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
@@ -1051,6 +1065,7 @@ private fun ConversationScreen(
             onReplyClick = messageComposerStateHolder::toReply,
             onEditClick = messageComposerStateHolder::toEdit,
             onShareAssetClick = { shareAsset(context, it) },
+            onShareAssetInWireClick = onShareAssetInWireClick,
             onDownloadAssetClick = onDownloadAssetClick,
             onOpenAssetClick = onOpenAssetClick,
         )
@@ -1711,6 +1726,7 @@ fun PreviewConversationScreen() = WireTheme {
         composerMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
         shareAsset = { _, _ -> },
+        onShareAssetInWireClick = {},
         onOpenAssetClick = {},
         onDownloadAssetClick = {},
         onNavigateToReplyOriginalMessage = {},

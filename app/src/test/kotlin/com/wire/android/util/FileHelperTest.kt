@@ -25,12 +25,15 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.OpenableColumns
 import androidx.core.content.FileProvider
+import androidx.test.core.app.ApplicationProvider
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.slot
 import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import io.mockk.verifyOrder
 import kotlinx.coroutines.test.runTest
@@ -39,6 +42,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -127,12 +131,15 @@ class FileHelperTest {
         // when
         saveFileToDownloadsFolder("name", downloadedFilePath, 100L, arrangement.context)
         // then
-        verifyOrder {
-            arrangement.contentResolver.copyFile(any(), any())
+        assertTrue(File(tempDir.root, "name").exists())
+        verify(exactly = 1) {
             arrangement.downloadManager.addCompletedDownload(any(), any(), any(), any(), any(), any(), any())
         }
         verify(exactly = 0) {
             arrangement.contentResolver.insert(any(), any())
+        }
+        verify(exactly = 0) {
+            arrangement.contentResolver.copyFile(any(), any())
         }
     }
 
@@ -153,25 +160,67 @@ class FileHelperTest {
     }
 
     @Test
-    fun `given internal file when creating share uri then stage it under cache provider directory`() {
+    fun `given internal file when creating share uri then stage it under dedicated export directory`() {
         val sourceFile = tempDir.newFile("secret.mp4").apply {
             writeText("video payload")
         }
         val cacheDir = tempDir.newFolder("cache")
-        val stagedFile = slot<File>()
-        val stagedDisplayName = slot<String>()
         val arrangement = Arrangement()
             .withCacheDir(cacheDir)
-            .withStagedFileCapture(stagedFile, stagedDisplayName)
             .arrange()
 
-        arrangement.context.pathToUri(sourceFile.toOkioPath(), "visible.mp4")
+        val exportedUri = arrangement.context.pathToUri(sourceFile.toOkioPath(), "visible.mp4")
 
-        assertEquals("visible.mp4", stagedDisplayName.captured)
-        assertEquals("exported", stagedFile.captured.parentFile?.name)
-        assertEquals("file-provider", stagedFile.captured.parentFile?.parentFile?.name)
-        assertEquals("video payload", stagedFile.captured.readText())
-        assertNotEquals(sourceFile.absolutePath, stagedFile.captured.absolutePath)
+        assertEquals("com.wire.exportprovider", exportedUri.authority)
+        assertEquals("attachment", exportedUri.pathSegments.first())
+        assertEquals(2, exportedUri.pathSegments.size)
+
+        val exportFiles = File(cacheDir, "external-export/files").listFiles().orEmpty()
+        val exportManifests = File(cacheDir, "external-export/manifests").listFiles().orEmpty()
+        assertEquals(1, exportFiles.size)
+        assertEquals(1, exportManifests.size)
+        assertEquals("video payload", exportFiles.single().readText())
+        assertNotEquals(sourceFile.absolutePath, exportFiles.single().absolutePath)
+    }
+
+    @Test
+    fun `given staged export uri when reading through export provider then return copied metadata and bytes`() {
+        unmockkStatic(FileProvider::class)
+        unmockkStatic("com.wire.android.util.FileUtilKt")
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val sourceFile = tempDir.newFile("secret.mp4").apply {
+            writeText("video payload")
+        }
+
+        val exportedUri = context.pathToUri(sourceFile.toOkioPath(), "visible.mp4")
+
+        context.contentResolver.query(exportedUri, null, null, null, null)?.use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            val displayNameColumn = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            val sizeColumn = cursor.getColumnIndex(OpenableColumns.SIZE)
+            assertEquals("visible.mp4", cursor.getString(displayNameColumn))
+            assertEquals("video payload".length.toLong(), cursor.getLong(sizeColumn))
+        }
+
+        val content = context.contentResolver.openInputStream(exportedUri)?.bufferedReader()?.use { it.readText() }
+        assertEquals("video payload", content)
+        assertEquals("video/mp4", context.contentResolver.getType(exportedUri))
+    }
+
+    @Test
+    fun `given content uri when exporting for external share then copy bytes behind export provider`() {
+        unmockkStatic(FileProvider::class)
+        unmockkStatic("com.wire.android.util.FileUtilKt")
+        val appContext = ApplicationProvider.getApplicationContext<Context>()
+        val contentUri = getTempWritableAttachmentUri(appContext, tempDir.newFile("source.png").toOkioPath())
+        appContext.contentResolver.openOutputStream(contentUri)?.bufferedWriter()?.use { output ->
+            output.write("png payload")
+        }
+        val exportedUri = appContext.stageUriForExternalExport(contentUri, "qr.png")
+
+        assertEquals(appContext.getExportProviderAuthority(), exportedUri.authority)
+        val content = appContext.contentResolver.openInputStream(exportedUri)?.bufferedReader()?.use { it.readText() }
+        assertEquals("png payload", content)
     }
 
     @Test
@@ -213,6 +262,7 @@ class FileHelperTest {
             mockkStatic(FileProvider::class)
             mockkStatic("com.wire.android.util.FileUtilKt")
             coEvery { context.packageName } returns "com.wire"
+            coEvery { context.applicationContext } returns context
             coEvery { context.cacheDir } returns cacheDirectory
             coEvery { context.contentResolver } returns contentResolver
             coEvery { context.getSystemService(Context.DOWNLOAD_SERVICE) } returns downloadManager

@@ -104,6 +104,9 @@ internal class SendMessageViewModelArrangement {
     lateinit var sendAssetMessage: ScheduleNewAssetMessageUseCase
 
     @MockK
+    lateinit var sendForwardedAssetMessage: SendForwardedAssetMessageUseCase
+
+    @MockK
     lateinit var observeOngoingCallsUseCase: ObserveOngoingCallsUseCase
 
     @MockK
@@ -165,6 +168,7 @@ internal class SendMessageViewModelArrangement {
             sendEditTextMessage = sendEditTextMessage,
             sendEditMultipartMessage = sendEditMultipartMessage,
             sendAssetMessage = sendAssetMessage,
+            sendForwardedAssetMessage = sendForwardedAssetMessage,
             dispatchers = TestDispatcherProvider(),
             kaliumFileSystem = fakeKaliumFileSystem,
             handleUriAsset = handleUriAssetUseCase,

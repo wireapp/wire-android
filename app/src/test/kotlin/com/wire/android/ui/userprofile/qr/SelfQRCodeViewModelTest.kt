@@ -9,13 +9,12 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestUser
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.ui.sharing.StageInternalShareUseCase
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -45,19 +44,13 @@ class SelfQRCodeViewModelTest {
     }
 
     private class Arrangement {
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
-        lateinit var selfServerConfig: SelfServerConfigUseCase
-
-        @MockK
-        lateinit var analyticsManager: AnonymousAnalyticsManager
-
+        val savedStateHandle = mockk<SavedStateHandle>()
+        val selfServerConfig = mockk<SelfServerConfigUseCase>()
+        val analyticsManager = mockk<AnonymousAnalyticsManager>(relaxUnitFun = true)
+        val stageInternalShareUseCase = mockk<StageInternalShareUseCase>()
         val context = mockk<Context>()
 
         init {
-            MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { selfServerConfig.invoke() } returns SelfServerConfigUseCase.Result.Success(
                 serverLinks = newServerConfig(1).copy(links = ServerConfig.STAGING)
             )
@@ -69,6 +62,7 @@ class SelfQRCodeViewModelTest {
             context = context,
             selfUserId = TestUser.SELF_USER.id,
             selfServerLinks = selfServerConfig,
+            stageInternalShare = stageInternalShareUseCase,
             kaliumFileSystem = fakeKaliumFileSystem,
             dispatchers = TestDispatcherProvider(),
             analyticsManager = analyticsManager

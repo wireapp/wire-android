@@ -298,8 +298,23 @@ class ConversationMessagesViewModelTest {
             viewModel.deleteMessageDialogState.isVisible shouldBeEqualTo true
             viewModel.deleteMessageDialogState.savedState shouldBeEqualTo DeleteMessageDialogState(
                 DeleteMessageDialogType.ForEveryone, "messageId", viewModel.conversationId
-            )
-        }
+        )
+    }
+
+    @Test
+    fun `given an asset message, when sharing in wire, then import session id is returned`() = runTest {
+        val messageId = "mocked-msg-id"
+        val assetPath = "asset-data-path".toPath()
+        val (_, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGetMessageAssetUseCaseReturning(assetPath, 42L, "asset.jpg")
+            .withStagedInternalAssetShare("import-session-id")
+            .arrange()
+
+        val result = viewModel.shareAssetInWire(messageId)
+
+        assertEquals("import-session-id", result)
+    }
 
     @Test
     fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for others message`() =

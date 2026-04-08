@@ -62,6 +62,7 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialog
@@ -119,6 +120,18 @@ fun ConversationMediaScreen(
         onOpenAssetOptions = remember { onOpenAssetOptions },
     )
 
+    val internalShareScope = rememberCoroutineScope()
+    fun shareAssetInWire(messageId: String) {
+        internalShareScope.launch {
+            conversationMessagesViewModel.shareAssetInWire(messageId)?.let { importSessionId ->
+                navigator.navigate(
+                    NavigationCommand(
+                        ImportMediaScreenDestination(importSessionId = importSessionId)
+                    )
+                )
+            }
+        }
+    }
     AssetOptionsModalSheetLayout(
         sheetState = sheetState,
         deleteAsset = { messageId, deleteForEveryone ->
@@ -126,6 +139,7 @@ fun ConversationMediaScreen(
                 .show(DeleteMessageDialogState(deleteForEveryone, messageId, conversationMessagesViewModel.conversationId))
         },
         shareAsset = remember { { conversationMessagesViewModel.shareAsset(context, it) } },
+        shareAssetInWire = ::shareAssetInWire,
         downloadAsset = conversationMessagesViewModel::openOrFetchAsset,
     )
 
@@ -247,6 +261,7 @@ private fun AssetOptionsModalSheetLayout(
     sheetState: WireModalSheetState<AssetOptionsData>,
     deleteAsset: (messageId: String, isMyMessage: Boolean) -> Unit,
     shareAsset: (messageId: String) -> Unit,
+    shareAssetInWire: (messageId: String) -> Unit,
     downloadAsset: (messageId: String) -> Unit,
 ) {
     WireModalSheetLayout(
@@ -258,6 +273,7 @@ private fun AssetOptionsModalSheetLayout(
                     isEphemeral = false, // only non-self-deleting assets
                     onDeleteClick = remember { { sheetState.hide { deleteAsset(messageId, isMyMessage) } } },
                     onShareAsset = remember { { sheetState.hide { shareAsset(messageId) } } },
+                    onShareAssetInWire = remember { { sheetState.hide { shareAssetInWire(messageId) } } },
                     onDownloadAsset = remember { { sheetState.hide { downloadAsset(messageId) } } },
                 )
             )
@@ -320,6 +336,7 @@ fun PreviewAssetOptionsModalSheetLayout() = WireTheme {
         ),
         deleteAsset = { _, _ -> },
         shareAsset = { },
+        shareAssetInWire = { },
         downloadAsset = { }
     )
 }

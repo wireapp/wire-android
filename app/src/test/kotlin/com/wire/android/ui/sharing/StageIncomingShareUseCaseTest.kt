@@ -103,6 +103,19 @@ class StageIncomingShareUseCaseTest {
         }
     }
 
+    @Test
+    fun `given export provider uri, when staging, then reject it`() = runTest {
+        val (_, useCase) = Arrangement().arrange()
+
+        val result = useCase(
+            Intent(Intent.ACTION_SEND).apply {
+                putExtra(Intent.EXTRA_STREAM, Uri.parse("content://com.wire.exportprovider/attachment/token"))
+            }
+        )
+
+        assertTrue(result is StageIncomingShareUseCase.Result.Failure.InvalidContent)
+    }
+
     private class Arrangement {
 
         @MockK

@@ -37,6 +37,7 @@ fun messageOptionsMenuItems(
     onReplyClick: () -> Unit,
     onEditClick: () -> Unit,
     onShareAssetClick: () -> Unit,
+    onShareAssetInWireClick: () -> Unit,
     onDownloadAssetClick: () -> Unit,
     onOpenAssetClick: () -> Unit
 ): List<@Composable () -> Unit> {
@@ -49,6 +50,7 @@ fun messageOptionsMenuItems(
             onDeleteClick = onDeleteClick,
             onDetailsClick = onDetailsClick,
             onShareAsset = onShareAssetClick,
+            onShareAssetInWire = onShareAssetInWireClick,
             onDownloadAsset = onDownloadAssetClick,
             onReplyClick = onReplyClick,
             onReactionClick = onReactionClick,

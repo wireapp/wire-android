@@ -305,6 +305,12 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
+        <provider
+            android:name=".util.ExportProvider"
+            android:authorities="${applicationId}.exportprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
         <meta-data
                 android:name="android.content.APP_RESTRICTIONS"
                 android:resource="@xml/app_restrictions" />

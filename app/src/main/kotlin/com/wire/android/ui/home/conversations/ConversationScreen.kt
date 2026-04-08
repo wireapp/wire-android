@@ -1469,7 +1469,7 @@ fun MessageList(
                                     .padding(dimensions().spacing16x),
                             ) {
                                 PageLoadingIndicator(
-                                    text = stringResource(R.string.conversation_history_loading_more),
+                                    text = stringResource(R.string.conversation_history_loading),
                                 )
                             }
                         }

@@ -36,67 +36,16 @@ jobs:
     outputs:
       runs_on: ${{ steps.pick.outputs.runs_on }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - id: pick
-        uses: actions/github-script@v8
-        with:
-          github-token: ${{ secrets.runner_token }}
-          script: |
-            const fallback = ['${{ inputs.fallback-label }}'];
-            try {
-              const required = JSON.parse('${{ inputs.required-labels }}');
-              const minIdle = Number('${{ inputs.min-idle-runners }}');
-
-              const repoData = await github.rest.actions.listSelfHostedRunnersForRepo({
-                owner: context.repo.owner,
-                repo: context.repo.repo
-              });
-              core.info(`Discovered repository-level runners: ${repoData.data.runners.length}`);
-
-              let orgRunners = [];
-              try {
-                const orgData = await github.rest.actions.listSelfHostedRunnersForOrg({
-                  org: context.repo.owner
-                });
-                orgRunners = orgData.data.runners;
-                core.info(`Discovered organization-level runners: ${orgRunners.length}`);
-              } catch (orgError) {
-                core.warning(`Could not list org-level runners (will use repo runners only): ${orgError.message}`);
-              }
-
-              const allRunners = [...repoData.data.runners, ...orgRunners];
-              core.info(`Total runners (repo + org): ${allRunners.length}`);
-
-              allRunners.forEach((runner) => {
-                const labelNames = runner.labels.map((label) => label.name).join(", ");
-                core.info(
-                  `Runner '${runner.name}': status=${runner.status}, busy=${runner.busy}, labels=[${labelNames}]`
-                );
-              });
-
-              const idleMatchingRunners = allRunners.filter((runner) => {
-                if (runner.status !== "online" || runner.busy) {
-                  core.info(`Skipping '${runner.name}' because it is not idle online.`);
-                  return false;
-                }
-                const labels = new Set(runner.labels.map((label) => label.name));
-                const missing = required.filter((name) => !labels.has(name));
-                if (missing.length > 0) {
-                  core.info(`Skipping '${runner.name}' due to missing labels: [${missing.join(", ")}]`);
-                  return false;
-                }
-                core.info(`'${runner.name}' matches required labels and is idle online.`);
-                return true;
-              }).length;
-
-              const hasIdleCapacity = Number.isFinite(minIdle)
-                ? idleMatchingRunners >= minIdle
-                : idleMatchingRunners >= 1;
-
-              const selected = hasIdleCapacity ? required : fallback;
-              core.info(`Idle matching runners: ${idleMatchingRunners}, minimum required: ${minIdle}`);
-              core.info(`Selected runner labels: ${JSON.stringify(selected)}`);
-              core.setOutput("runs_on", JSON.stringify(selected));
-            } catch (error) {
-              core.warning(`Falling back to ${fallback[0]}: ${error.message}`);
-              core.setOutput("runs_on", JSON.stringify(fallback));
-            }
+        name: Select runner pool
+        env:
+          RUNNER_TOKEN: ${{ secrets.runner_token }}
+          REQUIRED_LABELS: ${{ inputs.required-labels }}
+          MIN_IDLE_RUNNERS: ${{ inputs.min-idle-runners }}
+          FALLBACK_LABEL: ${{ inputs.fallback-label }}
+        run: |
+          runs_on=$(python3 scripts/select_runner.py)
+          echo "runs_on=$runs_on" >> "$GITHUB_OUTPUT"

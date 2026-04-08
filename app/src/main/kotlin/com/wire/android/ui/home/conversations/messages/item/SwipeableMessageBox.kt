@@ -135,8 +135,8 @@ private fun SwipeableBox(
     }
 
     CompositionLocalProvider(LocalViewConfiguration provides scopedViewConfiguration) {
-        val dragState: AnchoredDraggableState<SwipeAnchor>? = if (hasSwipeActions) {
-            remember(onSwipeLeft, onSwipeRight) {
+        val dragState: AnchoredDraggableState<SwipeAnchor>? = remember(onSwipeLeft, onSwipeRight) {
+            if (hasSwipeActions) {
                 AnchoredDraggableState(
                     initialValue = SwipeAnchor.CENTERED,
                     positionalThreshold = { dragWidth },
@@ -156,9 +156,9 @@ private fun SwipeableBox(
                         }
                     }
                 )
+            } else {
+                null
             }
-        } else {
-            null
         }
 
         LaunchedEffect(dragState?.settledValue) {

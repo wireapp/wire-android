@@ -17,59 +17,44 @@
  */
 package com.wire.android.di
 
-import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.core.os.bundleOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
-import dev.ahmedmourad.bundlizer.Bundlizer
-import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.serializer
-import kotlin.reflect.KClass
 
 /**
- * Returns a proper scoped arguments instance from the given [SavedStateHandle] for the scoped [ViewModel].
+ * Common assisted factory contract for scoped ViewModels that receive [ScopedArgs].
  */
-inline fun <reified R : ScopedArgs> SavedStateHandle.scopedArgs(): R =
-    scopedArgs(R::class, this)
-
-/**
- * Returns a proper scoped arguments instance from the given [SavedStateHandle].
- *
- * @param argsClass the class of the arguments, must implement [ScopedArgs] and be serializable
- * @param argsContainer the [SavedStateHandle] to get the arguments from
- */
-@OptIn(InternalSerializationApi::class)
-fun <R : ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateHandle): R =
-    Bundlizer.unbundle(argsClass.serializer(), argsContainer.toBundle())
+interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
+    fun create(args: R): VM
+}
 
 /**
  * Custom implementation of [hiltViewModelScoped] that uses our generated previews for scoped ViewModels
- * and takes proper scoped serializable arguments that implement [ScopedArgs]
- * and provides them into scoped [ViewModel] converting it automatically to [Bundle] using [Bundlizer].
+ * and creates assisted injected scoped [ViewModel] instances using [ScopedArgs].
  *
  * [ViewModel] needs to implement an interface annotated with [ViewModelScopedPreview] and with default
  * implementations.
  *
  * Proper key will be taken from the [ScopedArgs.key] property.
  *
- * @param arguments The arguments that will be provided to the [ViewModel], must implement [ScopedArgs] and be serializable
+ * @param arguments The arguments that will be provided to the [ViewModel].
  */
-@OptIn(InternalSerializationApi::class)
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
-inline fun <reified T, reified S, reified R : ScopedArgs> hiltViewModelScoped(arguments: R): S where T : ViewModel, T : S = when {
+inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
+        hiltViewModelScoped(arguments: R): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> hiltViewModelScoped<T>(key = arguments.key, defaultArguments = Bundlizer.bundle(R::class.serializer(), arguments))
+    else -> hiltViewModelScoped<T, F>(key = arguments.key?.toString()) { factory ->
+        factory.create(arguments)
+    }
 }
 
 /**
  * Custom implementation of [hiltViewModelScoped] that uses our generated previews for scoped ViewModels.
- * This is version that does not take and pass any arguments, it does not use any key to generate a new version when it changes,
- * so it basically keeps the same instance.
+ * This is version that does not take and pass any arguments, it does not use any key to generate a new
+ * version when it changes, so it basically keeps the same instance.
  *
  * [ViewModel] needs to implement an interface annotated with [ViewModelScopedPreview] and with default
  * implementations.
@@ -89,12 +74,6 @@ val espresso
     } catch (e: ClassNotFoundException) {
         false
     }
-
-/**
- * Creates a [Bundle] with all key-values from the given [SavedStateHandle].
- */
-@Suppress("SpreadOperator")
-fun SavedStateHandle.toBundle(): Bundle = bundleOf(*(keys().map { it to get<Any>(it) }.toTypedArray()))
 
 /**
  * Interface for arguments for scoped ViewModels.

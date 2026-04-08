@@ -17,11 +17,8 @@
  */
 package com.wire.android.ui.home.conversations.banner
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.config.ScopedArgsTestExtension
-import com.wire.android.di.scopedArgs
 import com.wire.android.ui.common.banner.SecurityClassificationArgs
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelImpl
 import com.wire.kalium.logic.data.id.ConversationId
@@ -32,7 +29,6 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -43,7 +39,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(ScopedArgsTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 class SecurityClassificationViewModelTest {
 
@@ -105,20 +100,17 @@ class SecurityClassificationViewModelTest {
         @MockK
         lateinit var getOtherUserSecurityClassificationLabel: ObserveOtherUserSecurityClassificationLabelUseCase
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
         val classificationChannel = Channel<SecurityClassificationType>(capacity = Channel.UNLIMITED)
         val classificationUserChannel = Channel<SecurityClassificationType>(capacity = Channel.UNLIMITED)
+        private val navArg: SecurityClassificationArgs
 
         init {
-            val navArg = when {
+            navArg = when {
                 conversationId != null -> SecurityClassificationArgs.Conversation(conversationId)
                 userId != null -> SecurityClassificationArgs.User(userId)
                 else -> throw IllegalArgumentException("Either conversationId or userId must be provided")
             }
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.scopedArgs<SecurityClassificationArgs>() } returns navArg
             coEvery { observeSecurityClassificationLabel(any()) } returns classificationChannel.consumeAsFlow()
             coEvery { getOtherUserSecurityClassificationLabel(any()) } returns classificationUserChannel.consumeAsFlow()
         }
@@ -126,7 +118,7 @@ class SecurityClassificationViewModelTest {
         val viewModel = SecurityClassificationViewModelImpl(
             observeSecurityClassificationLabel,
             getOtherUserSecurityClassificationLabel,
-            savedStateHandle
+            navArg
         )
 
         fun arrange() = this to viewModel

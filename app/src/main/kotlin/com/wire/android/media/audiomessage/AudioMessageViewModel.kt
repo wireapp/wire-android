@@ -21,16 +21,18 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
-import com.wire.android.di.scopedArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -39,7 +41,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface AudioMessageViewModel {
@@ -49,14 +50,12 @@ interface AudioMessageViewModel {
     fun changeAudioSpeed(audioSpeed: AudioSpeed) {}
 }
 
-@HiltViewModel
-class AudioMessageViewModelImpl @Inject constructor(
+@HiltViewModel(assistedFactory = AudioMessageViewModelImpl.Factory::class)
+class AudioMessageViewModelImpl @AssistedInject constructor(
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
     private val observeMessageById: ObserveMessageByIdUseCase,
-    savedStateHandle: SavedStateHandle,
+    @Assisted private val args: AudioMessageArgs,
 ) : ViewModel(), AudioMessageViewModel {
-
-    private val args: AudioMessageArgs = savedStateHandle.scopedArgs()
 
     override var state: AudioMessageState by mutableStateOf(AudioMessageState())
         private set
@@ -130,6 +129,11 @@ class AudioMessageViewModelImpl @Inject constructor(
         viewModelScope.launch {
             audioMessagePlayer.setSpeed(audioSpeed)
         }
+    }
+
+    @AssistedFactory
+    interface Factory : AssistedViewModelFactory<AudioMessageViewModelImpl, AudioMessageArgs> {
+        override fun create(args: AudioMessageArgs): AudioMessageViewModelImpl
     }
 }
 

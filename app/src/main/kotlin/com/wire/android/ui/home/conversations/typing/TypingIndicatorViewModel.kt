@@ -20,31 +20,31 @@ package com.wire.android.ui.home.conversations.typing
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
-import com.wire.android.di.scopedArgs
 import com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface TypingIndicatorViewModel {
     fun state(): UsersTypingViewState = UsersTypingViewState()
 }
 
-@HiltViewModel
-class TypingIndicatorViewModelImpl @Inject constructor(
+@HiltViewModel(assistedFactory = TypingIndicatorViewModelImpl.Factory::class)
+class TypingIndicatorViewModelImpl @AssistedInject constructor(
     private val observeUsersTypingInConversation: ObserveUsersTypingInConversationUseCase,
-    savedStateHandle: SavedStateHandle,
+    @Assisted private val args: TypingIndicatorArgs,
 ) : TypingIndicatorViewModel, ViewModel() {
 
-    private val args: TypingIndicatorArgs = savedStateHandle.scopedArgs()
     val conversationId: QualifiedID = args.conversationId
     private var usersTypingViewState by mutableStateOf(UsersTypingViewState())
     override fun state(): UsersTypingViewState = usersTypingViewState
@@ -60,10 +60,18 @@ class TypingIndicatorViewModelImpl @Inject constructor(
             }
         }
     }
+
+    @AssistedFactory
+    interface Factory : AssistedViewModelFactory<TypingIndicatorViewModelImpl, TypingIndicatorArgs> {
+        override fun create(args: TypingIndicatorArgs): TypingIndicatorViewModelImpl
+    }
 }
 
 @Serializable
 data class TypingIndicatorArgs(val conversationId: QualifiedID) : ScopedArgs {
     override val key = "$ARGS_KEY:$conversationId"
-    companion object { const val ARGS_KEY = "TypingIndicatorArgsKey" }
+
+    companion object {
+        const val ARGS_KEY = "TypingIndicatorArgsKey"
+    }
 }

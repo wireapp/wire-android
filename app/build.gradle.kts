@@ -192,6 +192,7 @@ dependencies {
 
     fun implementationWithCoverage(dependency: ProjectDependency) {
         implementation(dependency)
+        kover(dependency)
     }
     implementationWithCoverage(projects.core.uiCommon)
     implementationWithCoverage(projects.core.di)

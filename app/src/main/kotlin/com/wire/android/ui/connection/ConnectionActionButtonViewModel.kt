@@ -21,12 +21,11 @@ package com.wire.android.ui.connection
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ViewModelScopedPreview
-import com.wire.android.di.scopedArgs
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -46,13 +45,15 @@ import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface ConnectionActionButtonViewModel : ActionsManager<ConnectionButtonAction> {
@@ -68,8 +69,8 @@ interface ConnectionActionButtonViewModel : ActionsManager<ConnectionButtonActio
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-internal class ConnectionActionButtonViewModelImpl @Inject constructor(
+@HiltViewModel(assistedFactory = ConnectionActionButtonViewModelImpl.Factory::class)
+internal class ConnectionActionButtonViewModelImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
@@ -77,10 +78,9 @@ internal class ConnectionActionButtonViewModelImpl @Inject constructor(
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
     private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-    savedStateHandle: SavedStateHandle
+    @Assisted private val args: ConnectionActionButtonArgs,
 ) : ConnectionActionButtonViewModel, ActionsViewModel<ConnectionButtonAction>() {
 
-    private val args: ConnectionActionButtonArgs = savedStateHandle.scopedArgs()
     private val userId: QualifiedID = args.userId
     val userName: String = args.userName
 
@@ -90,6 +90,11 @@ internal class ConnectionActionButtonViewModelImpl @Inject constructor(
     override val infoMessage = _infoMessage.asSharedFlow()
 
     override fun actionableState(): ConnectionActionState = state
+
+    @AssistedFactory
+    interface Factory : AssistedViewModelFactory<ConnectionActionButtonViewModelImpl, ConnectionActionButtonArgs> {
+        override fun create(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModelImpl
+    }
 
     override fun onSendConnectionRequest() {
         if (state.isPerformingAction) return

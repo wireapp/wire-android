@@ -20,21 +20,22 @@ package com.wire.android.ui.home.messagecomposer.actions
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ViewModelScopedPreview
-import com.wire.android.di.scopedArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface SelfDeletingMessageActionViewModel {
@@ -42,14 +43,13 @@ interface SelfDeletingMessageActionViewModel {
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class SelfDeletingMessageActionViewModelImpl @Inject constructor(
+@HiltViewModel(assistedFactory = SelfDeletingMessageActionViewModelImpl.Factory::class)
+class SelfDeletingMessageActionViewModelImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
-    savedStateHandle: SavedStateHandle
+    @Assisted private val args: SelfDeletingMessageActionArgs,
 ) : SelfDeletingMessageActionViewModel, ViewModel() {
 
-    private val args: SelfDeletingMessageActionArgs = savedStateHandle.scopedArgs()
     private val conversationId: QualifiedID = args.conversationId
 
     var state: SelfDeletionTimer by mutableStateOf(SelfDeletionTimer.Disabled)
@@ -70,5 +70,10 @@ class SelfDeletingMessageActionViewModelImpl @Inject constructor(
                     }
                 }
         }
+    }
+
+    @AssistedFactory
+    interface Factory : AssistedViewModelFactory<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionArgs> {
+        override fun create(args: SelfDeletingMessageActionArgs): SelfDeletingMessageActionViewModelImpl
     }
 }

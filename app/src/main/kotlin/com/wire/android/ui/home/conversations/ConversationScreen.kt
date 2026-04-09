@@ -77,6 +77,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
@@ -1290,6 +1291,18 @@ fun MessageList(
                 lazyListState.stopScroll()
                 lazyListState.animateScrollToItem(0)
             }
+            if (shouldAutoTriggerOldestFetch(
+                    selectedMessageId = selectedMessageId,
+                    isScrollInProgress = lazyListState.isScrollInProgress,
+                    canScrollForward = lazyListState.canScrollForward,
+                    hasMoreRemoteMessages = hasMoreRemoteMessages,
+                    isFetchingOlderMessages = isFetchingOlderMessages,
+                )
+            ) {
+                onReachedOldestMessage()
+            } else {
+                shouldTriggerOldestMessageFetch.value = true
+            }
             prevItemCount.value = lazyPagingMessages.itemCount
         }
     }
@@ -1518,6 +1531,20 @@ fun MessageList(
         )
     }
 }
+
+@VisibleForTesting
+internal fun shouldAutoTriggerOldestFetch(
+    selectedMessageId: String?,
+    isScrollInProgress: Boolean,
+    canScrollForward: Boolean,
+    hasMoreRemoteMessages: Boolean,
+    isFetchingOlderMessages: Boolean,
+): Boolean =
+    selectedMessageId == null &&
+        !isScrollInProgress &&
+        !canScrollForward &&
+        hasMoreRemoteMessages &&
+        !isFetchingOlderMessages
 
 private fun UIMessage.audioMessageScopedKeyOrNull(): String? =
     (this as? UIMessage.Regular)

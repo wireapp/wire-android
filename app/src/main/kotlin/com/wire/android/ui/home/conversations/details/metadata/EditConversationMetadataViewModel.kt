@@ -26,11 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -38,14 +38,11 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -66,25 +63,22 @@ class EditConversationMetadataViewModel @Inject constructor(
         private set
 
     init {
-        observeConversationDetails()
+        getConversationDetails()
         observeConversationNameChanges()
     }
 
-    private fun observeConversationDetails() {
+    private fun getConversationDetails() {
         viewModelScope.launch {
-            observeConversationDetails(conversationId)
+            val conversationDetails = observeConversationDetails(conversationId)
                 .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
                 .map { it.conversationDetails }
-                .distinctUntilChanged()
-                .flowOn(dispatcher.io())
-                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
-                .collectLatest {
-                    editConversationNameTextState.setTextAndPlaceCursorAtEnd(it.conversation.name.orEmpty())
-                    editConversationState = editConversationState.copy(
-                        originalGroupName = it.conversation.name.orEmpty(),
-                        isChannel = it.conversation.type == Conversation.Type.Group.Channel,
-                    )
-                }
+                .first()
+
+            editConversationNameTextState.setTextAndPlaceCursorAtEnd(conversationDetails.conversation.name.orEmpty())
+            editConversationState = editConversationState.copy(
+                originalGroupName = conversationDetails.conversation.name.orEmpty(),
+                isChannel = conversationDetails.conversation.type == Conversation.Type.Group.Channel,
+            )
         }
     }
 
@@ -93,8 +87,8 @@ class EditConversationMetadataViewModel @Inject constructor(
             editConversationNameTextState.textAsFlow()
                 .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
                 .collectLatest {
-                editConversationState = GroupNameValidator.onGroupNameChange(it.toString(), editConversationState)
-            }
+                    editConversationState = GroupNameValidator.onGroupNameChange(it.toString(), editConversationState)
+                }
         }
     }
 

@@ -31,7 +31,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMed
 import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.ui.markdown.toMarkdownTextWithMentions
 import com.wire.android.ui.theme.Accent
-import com.wire.android.util.getVideoMetaData
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AttachmentType
@@ -297,12 +296,11 @@ class RegularMessageMapper @Inject constructor(
                 }
 
                 assetMessageContentMetadata.isVideo() -> {
-                    val metaData = localData?.assetDataPath?.let { getVideoMetaData(it) }
+                    val metaData = metadata as? AssetContent.AssetMetadata.Video
                     UIMessageContent.VideoMessage(
                         assetName = name ?: "",
                         assetExtension = name?.split(".")?.last() ?: "",
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                        assetDataPath = localData?.assetDataPath,
                         assetSizeInBytes = sizeInBytes,
                         deliveryStatus = mapRecipientsFailure(userList, deliveryStatus),
                         params = VisualMediaParams(metaData?.width ?: 0, metaData?.height ?: 0),
@@ -317,7 +315,6 @@ class RegularMessageMapper @Inject constructor(
                         assetExtension = name?.split(".")?.last() ?: "",
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         assetSizeInBytes = sizeInBytes,
-                        assetDataPath = localData?.assetDataPath,
                         deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
                     )
                 }

@@ -245,7 +245,12 @@ fun SelfDeletingMessageAction(
     conversationId: ConversationId,
     onButtonClicked: (SelfDeletionTimer) -> Unit,
     viewModel: SelfDeletingMessageActionViewModel =
-        hiltViewModelScoped<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionViewModel, SelfDeletingMessageActionArgs>(
+        hiltViewModelScoped<
+                SelfDeletingMessageActionViewModelImpl,
+                SelfDeletingMessageActionViewModel,
+                SelfDeletingMessageActionArgs,
+                SelfDeletingMessageActionViewModelImpl.Factory
+                >(
             SelfDeletingMessageActionArgs(conversationId = conversationId)
         ),
 ) {

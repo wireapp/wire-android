@@ -87,12 +87,20 @@ fun DisplayableImageMessage(
 fun AsyncImageMessage(
     assetPath: Path,
     size: DpSize,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier
 ) {
     SubcomposeAsyncImage(
         assetPath.toFile(),
         contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = modifier.requiredSize(size),
+        modifier = modifier
+            .applyIf(messageStyle.isBubble()) {
+                fillMaxWidth()
+                    .height(size.height)
+            }
+            .applyIf(!messageStyle.isBubble()) {
+                requiredSize(size)
+            },
         loading = { _ ->
             Box(
                 modifier = Modifier.size(MaterialTheme.wireDimensions.spacing24x),
@@ -138,7 +146,9 @@ fun ImageMessageInProgress(
                         R.string.asset_message_upload_in_progress_text
                     }
                 ),
+                modifier = Modifier.fillMaxWidth(),
                 style = MaterialTheme.wireTypography.subline01.copy(color = color),
+                textAlign = TextAlign.Center,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )

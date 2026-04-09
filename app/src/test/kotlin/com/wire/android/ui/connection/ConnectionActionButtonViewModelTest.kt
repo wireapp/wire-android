@@ -19,13 +19,10 @@
 
 package com.wire.android.ui.connection
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.R
-import com.wire.android.config.ScopedArgsTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
-import com.wire.android.di.scopedArgs
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
@@ -46,7 +43,6 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -57,9 +53,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-
-@ExtendWith(ScopedArgsTestExtension::class)
 class ConnectionActionButtonViewModelTest {
 
     @Test
@@ -342,9 +335,6 @@ class ConnectionActionButtonViewModelTest {
 internal class ConnectionActionButtonHiltArrangement {
 
     @MockK
-    lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
     lateinit var getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase
 
     @MockK
@@ -365,6 +355,11 @@ internal class ConnectionActionButtonHiltArrangement {
     @MockK
     lateinit var observeSelfUser: ObserveSelfUserUseCase
 
+    private val args = ConnectionActionButtonArgs(
+        TestUser.USER_ID,
+        TestUser.SELF_USER.name ?: ""
+    )
+
     private val viewModel by lazy {
         ConnectionActionButtonViewModelImpl(
             TestDispatcherProvider(),
@@ -374,7 +369,7 @@ internal class ConnectionActionButtonHiltArrangement {
             ignoreConnectionRequest,
             unblockUser,
             getOrCreateOneToOneConversation,
-            savedStateHandle
+            args
         )
     }
 
@@ -382,9 +377,6 @@ internal class ConnectionActionButtonHiltArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(UnconfinedTestDispatcher())
         mockUri()
-        every { savedStateHandle.scopedArgs<ConnectionActionButtonArgs>() } returns ConnectionActionButtonArgs(
-            TestUser.USER_ID, TestUser.SELF_USER.name ?: ""
-        )
 
         coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         coEvery { getOrCreateOneToOneConversation(TestConversation.ID) } returns CreateConversationResult.Success(

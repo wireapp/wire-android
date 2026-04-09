@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
@@ -42,7 +41,6 @@ import com.wire.kalium.util.DelicateKaliumApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
 @ViewModelScopedPreview
@@ -125,9 +123,4 @@ class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) @Inject
             createBackupPasswordState.clearText()
         }
     }
-}
-
-@Serializable
-object ExportObfuscatedCopyArgs : ScopedArgs {
-    override val key = "ExportObfuscatedCopyArgsKey"
 }

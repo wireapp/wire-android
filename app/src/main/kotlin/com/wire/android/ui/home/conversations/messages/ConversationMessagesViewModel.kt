@@ -84,7 +84,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
-import okio.Path.Companion.toPath
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
@@ -258,10 +257,8 @@ class ConversationMessagesViewModel @Inject constructor(
 
     fun openOrFetchAsset(messageId: String) = viewModelScope.launch(dispatchers.io()) {
         if (isCellEnabledForConversation) {
-            val asset = getMessageByIdUseCase(conversationId, messageId).getAssetContent()
-
-            asset?.localAssetPath()?.let {
-                onOpenFileWithExternalApp(it.toPath(), asset.value.name)
+            assetDataPath(conversationId, messageId)?.let { (path, assetName) ->
+                onOpenFileWithExternalApp(path, assetName)
             } ?: run {
                 attemptDownloadOfAsset(messageId)
             }
@@ -442,12 +439,5 @@ class ConversationMessagesViewModel @Inject constructor(
         const val REMOTE_PAGE_SIZE = 20
     }
 }
-
-private fun GetMessageByIdUseCase.Result.getAssetContent(): MessageContent.Asset? = when (this) {
-    is GetMessageByIdUseCase.Result.Success -> this.message.content as? MessageContent.Asset
-    else -> null
-}
-
-private fun MessageContent.Asset.localAssetPath(): String? = value.localData?.assetDataPath
 
 private fun ConversationDetails.isWireCellEnabled() = (this as? ConversationDetails.Group)?.wireCell != null

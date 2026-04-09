@@ -17,11 +17,15 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
+    <string name="app_version">Wersja aplikacji</string>
     <string name="label_new">Nowy</string>
     <string name="label_login">Zaloguj</string>
+    <string name="label_ok">OK</string>
+    <string name="label_open">Otwórz</string>
     <string name="label_cancel">Anuluj</string>
     <string name="label_confirm">Potwierd&#378;</string>
     <string name="label_continue">Kontynuuj</string>
+    <string name="label_apply">Zastosuj</string>
     <string name="label_save">Zapisz</string>
     <string name="label_get_started">Rozpocznij</string>
     <string name="label_remove">Usu&#324;</string>
@@ -32,6 +36,8 @@
     <string name="label_removing">Usuwanie...</string>
     <string name="label_logging_in">Logowanie...</string>
     <string name="label_user_deleted">Usuni&#281;te</string>
+    <string name="label_try_again">Spróbuj ponownie</string>
+    <string name="label_done">Gotowe</string>
     <string name="label_message_sent_failure">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
     <string name="label_message_edit_sent_failure">Edytowana wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
     <string name="label_message_receive_failure">B&#322;&#261;d Pobierania</string>

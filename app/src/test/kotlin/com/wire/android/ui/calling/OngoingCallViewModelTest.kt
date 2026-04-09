@@ -246,25 +246,6 @@ class OngoingCallViewModelTest {
     @Test
     fun givenParticipantsList_WhenRequestingVideoStreamForAllParticipant_ThenRequestItInLowQuality() =
         runTest(dispatchers.main()) {
-            val (arrangement, ongoingCallViewModel) = Arrangement()
-                .withLastActiveCall(provideCall().copy(participants = participants))
-                .withShouldShowDoubleTapToastReturning(false)
-                .withSetVideoSendState()
-                .withRequestVideoStreams(conversationId, emptyList())
-                .arrange()
-
-            ongoingCallViewModel.setOthersVideosDisabled(true)
-            ongoingCallViewModel.onSelectedParticipant(null)
-            ongoingCallViewModel.requestVideoStreams(uiParticipants)
-
-            coVerify(exactly = 1) {
-                arrangement.requestVideoStreams(conversationId, emptyList())
-            }
-        }
-
-    @Test
-    fun givenParticipantsListAndOthersVideosDisabled_WhenRequestingVideoStreamForAllParticipant_ThenRequestEmptyList() =
-        runTest(dispatchers.main()) {
             val expectedClients = listOf(
                 CallClient(uiParticipant1.id.toString(), uiParticipant1.clientId, false, CallResolutionQuality.LOW),
                 CallClient(uiParticipant3.id.toString(), uiParticipant3.clientId, false, CallResolutionQuality.LOW)
@@ -285,6 +266,28 @@ class OngoingCallViewModelTest {
                     conversationId,
                     expectedClients
                 )
+            }
+        }
+
+    @Test
+    fun givenParticipantsListAndOthersVideosDisabled_WhenRequestingVideoStreamForAllParticipant_ThenRequestOnlyPresenters() =
+        runTest(dispatchers.main()) {
+            val expectedClients = listOf(
+                CallClient(uiParticipant3.id.toString(), uiParticipant3.clientId, false, CallResolutionQuality.LOW)
+            )
+            val (arrangement, ongoingCallViewModel) = Arrangement()
+                .withLastActiveCall(provideCall().copy(participants = participants))
+                .withShouldShowDoubleTapToastReturning(false)
+                .withSetVideoSendState()
+                .withRequestVideoStreams(conversationId, expectedClients)
+                .arrange()
+
+            ongoingCallViewModel.setOthersVideosDisabled(true)
+            ongoingCallViewModel.onSelectedParticipant(null)
+            ongoingCallViewModel.requestVideoStreams(uiParticipants)
+
+            coVerify(exactly = 1) {
+                arrangement.requestVideoStreams(conversationId, expectedClients)
             }
         }
 
@@ -507,11 +510,11 @@ class OngoingCallViewModelTest {
 
     @Test
     fun givenCall_WhenDisablingOthersVideos_ThenParticipantsOrderIsUpdated() = runTest(dispatchers.main()) {
-        val participantsVideosFirst = listOf(participant3, participant1, participant2)
-        val participantsAlphabetically = listOf(participant1, participant2, participant3)
+        val allMediaFirst = listOf(participant3, participant2, participant1)
+        val presentersFirst = listOf(participant3, participant1, participant2)
         val (arrangement, ongoingCallViewModel) = Arrangement()
-            .withLastActiveCall(provideCall().copy(participants = participantsVideosFirst), CallingParticipantsOrderType.VIDEOS_FIRST)
-            .withLastActiveCall(provideCall().copy(participants = participantsAlphabetically), CallingParticipantsOrderType.ALPHABETICALLY)
+            .withLastActiveCall(provideCall().copy(participants = allMediaFirst), CallingParticipantsOrderType.ALL_MEDIA_FIRST)
+            .withLastActiveCall(provideCall().copy(participants = presentersFirst), CallingParticipantsOrderType.PRESENTERS_FIRST)
             .withShouldShowDoubleTapToastReturning(false)
             .withSetVideoSendState()
             .arrange()
@@ -519,18 +522,18 @@ class OngoingCallViewModelTest {
 
         ongoingCallViewModel.setOthersVideosDisabled(false)
         advanceUntilIdle()
-        val expectedVideosFirst = listOf(uiParticipant3, uiParticipant1, uiParticipant2)
-        assertEquals(expectedVideosFirst, ongoingCallViewModel.state.participants)
+        val expectedAllMediaFirst = listOf(uiParticipant3, uiParticipant2, uiParticipant1)
+        assertEquals(expectedAllMediaFirst, ongoingCallViewModel.state.participants)
         coVerify(exactly = 1) {
-            arrangement.observeLastActiveCall(any(), eq(CallingParticipantsOrderType.VIDEOS_FIRST))
+            arrangement.observeLastActiveCall(any(), eq(CallingParticipantsOrderType.ALL_MEDIA_FIRST))
         }
 
         ongoingCallViewModel.setOthersVideosDisabled(true)
         advanceUntilIdle()
-        val expectedAlphabetically = listOf(uiParticipant1, uiParticipant2, uiParticipant3)
-        assertEquals(expectedAlphabetically, ongoingCallViewModel.state.participants)
+        val expectedPresentersFirst = listOf(uiParticipant3, uiParticipant1, uiParticipant2)
+        assertEquals(expectedPresentersFirst, ongoingCallViewModel.state.participants)
         coVerify(exactly = 1) {
-            arrangement.observeLastActiveCall(any(), eq(CallingParticipantsOrderType.ALPHABETICALLY))
+            arrangement.observeLastActiveCall(any(), eq(CallingParticipantsOrderType.PRESENTERS_FIRST))
         }
     }
 

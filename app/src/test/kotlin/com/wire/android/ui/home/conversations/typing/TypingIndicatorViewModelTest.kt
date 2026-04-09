@@ -17,11 +17,8 @@
  */
 package com.wire.android.ui.home.conversations.typing
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.ScopedArgsTestExtension
-import com.wire.android.di.scopedArgs
 import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModelTest.Arrangement.Companion.expectedUIParticipant
@@ -30,7 +27,6 @@ import com.wire.kalium.logic.data.user.UserId
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -41,7 +37,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(ScopedArgsTestExtension::class)
 class TypingIndicatorViewModelTest {
 
     @Test
@@ -65,14 +60,10 @@ class TypingIndicatorViewModelTest {
         @MockK
         lateinit var observeUsersTypingInConversation: ObserveUsersTypingInConversationUseCase
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
+        private val args = TypingIndicatorArgs(conversationId = TestConversation.ID)
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every {
-                savedStateHandle.scopedArgs<TypingIndicatorArgs>()
-            } returns TypingIndicatorArgs(conversationId = TestConversation.ID)
             coEvery { observeUsersTypingInConversation(eq(TestConversation.ID)) } returns flowOf(emptyList())
         }
 
@@ -80,7 +71,7 @@ class TypingIndicatorViewModelTest {
             coEvery { observeUsersTypingInConversation(eq(TestConversation.ID)) } returns flowOf(usersTyping)
         }
 
-        fun arrange() = this to TypingIndicatorViewModelImpl(observeUsersTypingInConversation, savedStateHandle)
+        fun arrange() = this to TypingIndicatorViewModelImpl(observeUsersTypingInConversation, args)
 
         companion object {
             val expectedUIParticipant = UIParticipant(

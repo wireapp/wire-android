@@ -143,9 +143,7 @@ internal fun UserDebugContent(
 fun DangerOptions(
     modifier: Modifier = Modifier,
     exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel =
-        hiltViewModelScoped<ExportObfuscatedCopyViewModelImpl, ExportObfuscatedCopyViewModel, ExportObfuscatedCopyArgs>(
-            ExportObfuscatedCopyArgs
-        ),
+        hiltViewModelScoped<ExportObfuscatedCopyViewModelImpl, ExportObfuscatedCopyViewModel>()
 ) {
 
     Column(modifier = modifier) {

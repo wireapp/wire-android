@@ -1,3 +1,21 @@
+/*
+ * Wire
+ * Copyright (C) 2026 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+
 package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.layout.Column
@@ -6,11 +24,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import com.wire.android.ui.home.conversations.LocalAssetLocalPathKeyInScopeResolver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.applyIf
@@ -40,6 +61,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMess
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import okio.Path.Companion.toPath
 
 @Composable
 internal fun UIMessage.Regular.MessageContentAndStatus(
@@ -143,21 +165,81 @@ private fun MessageContent(
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
+            val args = AssetLocalPathArgs(message.conversationId, message.header.messageId)
+            val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
+            val viewModel: AssetLocalPathViewModel =
+                if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
+                    hiltViewModelScoped<
+                            AssetLocalPathViewModelImpl,
+                            AssetLocalPathViewModel,
+                            AssetLocalPathArgs,
+                            AssetLocalPathViewModelImpl.Factory,
+                            >(
+                        arguments = args,
+                        keyInScopeResolver = keyInScopeResolver,
+                    )
+                } else {
+                    hiltViewModelScoped<
+                        AssetLocalPathViewModelImpl,
+                        AssetLocalPathViewModel,
+                        AssetLocalPathArgs,
+                        AssetLocalPathViewModelImpl.Factory,
+                        >(
+                        args
+                    )
+                }
+            LaunchedEffect(assetStatus) {
+                viewModel.resolveIfNeeded(
+                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                    downloadIfNeeded = true
+                )
+            }
+
             MessageImage(
-                asset = messageContent.asset,
                 imgParams = messageContent.params,
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onImageClick = onImageClick,
-                messageStyle = messageStyle
+                messageStyle = messageStyle,
+                assetPath = viewModel.localAssetPath?.toPath(normalize = true)
             )
         }
 
         is UIMessageContent.VideoMessage -> {
+            val args = AssetLocalPathArgs(message.conversationId, message.header.messageId)
+            val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
+            val viewModel: AssetLocalPathViewModel =
+                if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
+                    hiltViewModelScoped<
+                            AssetLocalPathViewModelImpl,
+                            AssetLocalPathViewModel,
+                            AssetLocalPathArgs,
+                            AssetLocalPathViewModelImpl.Factory,
+                            >(
+                        arguments = args,
+                        keyInScopeResolver = keyInScopeResolver,
+                    )
+                } else {
+                    hiltViewModelScoped<
+                        AssetLocalPathViewModelImpl,
+                        AssetLocalPathViewModel,
+                        AssetLocalPathArgs,
+                        AssetLocalPathViewModelImpl.Factory,
+                        >(
+                        args
+                    )
+                }
+            LaunchedEffect(assetStatus) {
+                viewModel.resolveIfNeeded(
+                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                    downloadIfNeeded = false
+                )
+            }
+
             VideoMessage(
                 assetSize = messageContent.assetSizeInBytes,
                 assetName = messageContent.assetName,
                 assetExtension = messageContent.assetExtension,
-                assetDataPath = messageContent.assetDataPath,
+                assetDataPath = viewModel.localAssetPath,
                 params = messageContent.params,
                 duration = messageContent.duration,
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
@@ -251,11 +333,41 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AssetMessage -> {
+            val args = AssetLocalPathArgs(message.conversationId, message.header.messageId)
+            val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
+            val viewModel: AssetLocalPathViewModel =
+                if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
+                    hiltViewModelScoped<
+                            AssetLocalPathViewModelImpl,
+                            AssetLocalPathViewModel,
+                            AssetLocalPathArgs,
+                            AssetLocalPathViewModelImpl.Factory,
+                            >(
+                        arguments = args,
+                        keyInScopeResolver = keyInScopeResolver,
+                    )
+                } else {
+                    hiltViewModelScoped<
+                        AssetLocalPathViewModelImpl,
+                        AssetLocalPathViewModel,
+                        AssetLocalPathArgs,
+                        AssetLocalPathViewModelImpl.Factory,
+                        >(
+                        args
+                    )
+                }
+            LaunchedEffect(assetStatus) {
+                viewModel.resolveIfNeeded(
+                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                    downloadIfNeeded = false
+                )
+            }
+
             MessageAsset(
                 assetName = messageContent.assetName,
                 assetExtension = messageContent.assetExtension,
                 assetSizeInBytes = messageContent.assetSizeInBytes,
-                assetDataPath = messageContent.assetDataPath,
+                assetDataPath = viewModel.localAssetPath,
                 assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onAssetClick = onAssetClick,
                 messageStyle = messageStyle

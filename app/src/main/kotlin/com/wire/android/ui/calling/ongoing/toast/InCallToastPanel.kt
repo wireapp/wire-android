@@ -50,7 +50,7 @@ fun InCallToastPanel(
     val isPreview = LocalInspectionMode.current
     val itemStates = remember { // Internal buffer to keep removed toasts in the UI during their exit animation
         mutableStateMapOf<String, InCallToast>().apply {
-            putAll(items.associateBy { it.id }) // Initialize the map with current `items` immediately
+            putAll(items.associateBy { it.id })
         }
     }
     LaunchedEffect(items) { // Sync toasts into buffer map whenever set of 'items' changes
@@ -63,26 +63,23 @@ fun InCallToastPanel(
             .fillMaxSize()
             .padding(dimensions().spacing4x)
     ) {
-        itemStates.values.sortedBy { it.time }.map { it.id }.forEach { key -> // Sort keys by the timestamp in buffer map
-            val isPresent = items.find { it.id == key } != null // The item is "present" if it's still in the source 'items' set
+        itemStates.values.sortedBy { it.time }.map { it.id }.forEach { id ->
+            val isPresent = items.find { it.id == id } != null
 
-            key(key) { // Use the toast key as the Compose key to maintain identity across recompositions
+            key(id) {
                 val visibilityState = remember {
-                    MutableTransitionState(isPreview).apply { // For preview, start visible, otherwise start hidden
-                        targetState = true // Target 'true' immediately to guarantee 'Enter' animation plays for new items
-                    }
+                    // Preview shows immediately, in real start with 'false' and change to 'true' to have "enter" animation for new items
+                    MutableTransitionState(isPreview).apply { targetState = true }
                 }
                 // Now, sync with the real 'isPresent' logic. This only changes the target to 'false' when the item is actually removed
                 visibilityState.targetState = isPresent
-                // Animate visibility based on the presence of the item in the source set. This controls the enter/exit animations
+
                 AnimatedVisibility(
                     visibleState = visibilityState,
                     enter = fadeIn() + scaleIn() + expandIn(expandFrom = Alignment.Center),
                     exit = fadeOut() + scaleOut() + shrinkOut(shrinkTowards = Alignment.Center),
                 ) {
-                    // Use the buffered toast to ensure data exists during the exit fade
-                    val currentItem = itemStates[key] ?: return@AnimatedVisibility
-                    // Animate internal changes (like a name update) for the same toast key, without re-running the enter/exit animation
+                    val currentItem = itemStates[id] ?: return@AnimatedVisibility
                     AnimatedContent(targetState = currentItem) { target ->
                         InCallToast(
                             toast = target,
@@ -95,7 +92,7 @@ fun InCallToastPanel(
                 if (!isPresent) {
                     LaunchedEffect(visibilityState.isIdle) {
                         if (visibilityState.isIdle && !visibilityState.targetState) {
-                            itemStates.remove(key)
+                            itemStates.remove(id)
                         }
                     }
                 }

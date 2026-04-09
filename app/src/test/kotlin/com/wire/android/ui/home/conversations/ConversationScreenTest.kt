@@ -49,4 +49,17 @@ class ConversationScreenTest {
 
         assertTrue(result)
     }
+
+    @Test
+    fun givenRemoteHistoryExhausted_whenCheckingAutoTrigger_thenReturnsFalse() {
+        val result = shouldAutoTriggerOldestFetch(
+            selectedMessageId = null,
+            isScrollInProgress = false,
+            canScrollForward = false,
+            hasMoreRemoteMessages = false,
+            isFetchingOlderMessages = false,
+        )
+
+        assertFalse(result)
+    }
 }

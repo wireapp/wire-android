@@ -233,6 +233,15 @@ class ConversationMessagesViewModelArrangement {
         coEvery { fetchOlderNomadMessagesByConversationUseCase(any(), any()) } returns result
     }
 
+    fun withSuspendedNomadPagingResult(result: NomadMessagePagingResult): CompletableDeferred<Unit> {
+        val gate = CompletableDeferred<Unit>()
+        coEvery { fetchOlderNomadMessagesByConversationUseCase(any(), any()) } coAnswers {
+            gate.await()
+            result
+        }
+        return gate
+    }
+
     fun withSuccessfulSaveAssetMessage(
         assetMimeType: String,
         assetName: String,
@@ -256,7 +265,6 @@ class ConversationMessagesViewModelArrangement {
 
     fun withFailureOnDeletingMessages() = apply {
         coEvery { deleteMessage(any(), any(), any()) } returns MessageOperationResult.Failure(CoreFailure.Unknown(null))
-        return this
     }
 
     fun withWireCellEnabled() = apply {

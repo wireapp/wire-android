@@ -222,13 +222,20 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     fun fetchOlderMessagesIfNeeded() {
+        if (conversationViewState.isFetchingOlderMessages || !conversationViewState.hasMoreRemoteMessages) {
+            return
+        }
+
         viewModelScope.launch {
             conversationViewState = conversationViewState.copy(isFetchingOlderMessages = true)
-            val result = fetchOlderNomadMessages(conversationId)
-            conversationViewState = conversationViewState.copy(
-                isFetchingOlderMessages = false,
-                hasMoreRemoteMessages = result.hasMore,
-            )
+            try {
+                val result = fetchOlderNomadMessages(conversationId)
+                conversationViewState = conversationViewState.copy(
+                    hasMoreRemoteMessages = result.hasMore,
+                )
+            } finally {
+                conversationViewState = conversationViewState.copy(isFetchingOlderMessages = false)
+            }
         }
     }
 

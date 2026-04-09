@@ -38,7 +38,7 @@ data class ConversationMessagesViewState(
     val assetStatuses: PersistentMap<String, MessageAssetStatus> = persistentMapOf(),
     val searchedMessageId: String? = null,
     val isFetchingOlderMessages: Boolean = false,
-    val hasMoreRemoteMessages: Boolean = false,
+    val hasMoreRemoteMessages: Boolean = true,
 )
 
 sealed class DownloadedAssetDialogVisibilityState {

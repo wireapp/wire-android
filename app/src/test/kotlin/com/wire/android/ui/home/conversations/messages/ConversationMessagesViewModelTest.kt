@@ -43,6 +43,7 @@ import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCou
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -236,15 +237,41 @@ class ConversationMessagesViewModelTest {
 
     @Test
     fun `given nomad paging result, when fetching older messages, then view state updates`() = runTest {
-        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+        val arrangement = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
-            .arrange()
-
-        arrangement.withNomadPagingResult(NomadMessagePagingResult(hasMore = true))
+        val gate = arrangement.withSuspendedNomadPagingResult(NomadMessagePagingResult(hasMore = true))
+        val (_, viewModel) = arrangement.arrange()
 
         viewModel.fetchOlderMessagesIfNeeded()
-        assertEquals(true, viewModel.conversationViewState.isFetchingOlderMessages)
         advanceUntilIdle()
+        assertEquals(true, viewModel.conversationViewState.isFetchingOlderMessages)
+
+        gate.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.conversationViewState.isFetchingOlderMessages)
+        assertEquals(true, viewModel.conversationViewState.hasMoreRemoteMessages)
+    }
+
+    @Test
+    fun `given nomad fetch in progress, when fetching older messages twice, then use case is invoked only once`() = runTest {
+        val arrangement = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+        val gate = arrangement.withSuspendedNomadPagingResult(NomadMessagePagingResult(hasMore = true))
+        val (_, viewModel) = arrangement.arrange()
+
+        val firstFetch = launch { viewModel.fetchOlderMessagesIfNeeded() }
+        advanceUntilIdle()
+        assertEquals(true, viewModel.conversationViewState.isFetchingOlderMessages)
+
+        viewModel.fetchOlderMessagesIfNeeded()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.fetchOlderNomadMessagesByConversationUseCase(any(), any()) }
+
+        gate.complete(Unit)
+        advanceUntilIdle()
+        firstFetch.join()
 
         assertEquals(false, viewModel.conversationViewState.isFetchingOlderMessages)
         assertEquals(true, viewModel.conversationViewState.hasMoreRemoteMessages)

@@ -1,0 +1,13 @@
+name: "Semantic Commit Linting of PR titles"
+
+on:
+  merge_group:
+    types: [ checks_requested ]
+
+jobs:
+  semantic-commit-pr-title-lint-merge:
+    name: action-semantic-pull-request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip semantic PR title check on merge queue
+        run: echo "Skipping semantic PR title check on merge queue"

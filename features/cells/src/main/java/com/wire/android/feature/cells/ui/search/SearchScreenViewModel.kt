@@ -207,7 +207,7 @@ class SearchScreenViewModel @Inject constructor(
                         }
 
                         FilterOwnerUi(
-                            id = owner.id.value,
+                            id = owner.id.toString(),
                             displayName = name,
                             handle = handle,
                             userAvatarAsset = avatarAsset,

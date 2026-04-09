@@ -218,7 +218,6 @@ fun MessageButtonsContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageImage(
-    asset: ImageAsset.Remote?,
     imgParams: VisualMediaParams,
     messageStyle: MessageStyle,
     transferStatus: AssetTransferStatus,
@@ -250,9 +249,11 @@ fun MessageImage(
             ),
         contentAlignment = Alignment.Center
     ) {
-        MessageImageContent(asset = asset, assetPath = assetPath, size = imageSize, messageStyle = messageStyle)
+        assetPath?.let {
+            MessageImageContent(assetPath = assetPath, size = imageSize, messageStyle = messageStyle)
+        }
         MessageImageOverlay(
-            hasImageSource = asset != null || assetPath != null,
+            hasImageSource = assetPath != null,
             size = imageSize,
             transferStatus = transferStatus,
             messageStyle = messageStyle
@@ -262,27 +263,17 @@ fun MessageImage(
 
 @Composable
 private fun BoxScope.MessageImageContent(
-    asset: ImageAsset.Remote?,
-    assetPath: Path?,
+    assetPath: Path,
     size: DpSize,
     messageStyle: MessageStyle,
 ) {
     val alignCenterModifier = Modifier.align(Alignment.Center)
-    when {
-        assetPath != null -> AsyncImageMessage(
-            assetPath = assetPath,
-            size = size,
-            messageStyle = messageStyle,
-            modifier = alignCenterModifier
-        )
-
-        asset != null -> DisplayableImageMessage(
-            imageData = asset,
-            size = size,
-            messageStyle = messageStyle,
-            modifier = alignCenterModifier
-        )
-    }
+    AsyncImageMessage(
+        assetPath = assetPath,
+        size = size,
+        messageStyle = messageStyle,
+        modifier = alignCenterModifier
+    )
 }
 
 @Composable

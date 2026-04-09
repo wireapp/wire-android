@@ -73,16 +73,18 @@ internal fun SwipeableMessageBox(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    val swipeConfiguration = configuration as? SwipeableMessageConfiguration.Swipeable
+
     SwipeableBox(
         messageStyle = messageStyle,
         modifier = modifier,
-        onSwipeRight = (configuration as? SwipeableMessageConfiguration.Swipeable)?.onSwipedRight?.let {
+        onSwipeRight = swipeConfiguration?.onSwipedRight?.let {
             SwipeAction(
                 icon = R.drawable.ic_reply,
                 action = it,
             )
         },
-        onSwipeLeft = (configuration as? SwipeableMessageConfiguration.Swipeable)?.onSwipedLeft?.let {
+        onSwipeLeft = swipeConfiguration?.onSwipedLeft?.let {
             SwipeAction(
                 icon = R.drawable.ic_react,
                 action = it,
@@ -111,6 +113,7 @@ private fun SwipeableBox(
     // Finish the animation in the first 25% of the drag
     val progressUntilAnimationCompletion = 0.25f
     val dragWidth = screenWidth * progressUntilAnimationCompletion
+    val hasSwipeActions = onSwipeRight != null || onSwipeLeft != null
 
     val currentViewConfiguration = LocalViewConfiguration.current
     val scopedViewConfiguration = object : ViewConfiguration by currentViewConfiguration {
@@ -132,41 +135,47 @@ private fun SwipeableBox(
     }
 
     CompositionLocalProvider(LocalViewConfiguration provides scopedViewConfiguration) {
-        val dragState = remember(onSwipeLeft, onSwipeRight) {
-            AnchoredDraggableState(
-                initialValue = SwipeAnchor.CENTERED,
-                positionalThreshold = { dragWidth },
-                velocityThreshold = { screenWidth },
-                snapAnimationSpec = tween(),
-                decayAnimationSpec = splineBasedDecay(density),
-                anchors = DraggableAnchors {
+        val dragState: AnchoredDraggableState<SwipeAnchor>? = remember(onSwipeLeft, onSwipeRight) {
+            if (hasSwipeActions) {
+                AnchoredDraggableState(
+                    initialValue = SwipeAnchor.CENTERED,
+                    positionalThreshold = { dragWidth },
+                    velocityThreshold = { screenWidth },
+                    snapAnimationSpec = tween(),
+                    decayAnimationSpec = splineBasedDecay(density),
+                    anchors = DraggableAnchors {
 
-                    SwipeAnchor.CENTERED at 0f
+                        SwipeAnchor.CENTERED at 0f
 
-                    if (onSwipeRight != null) {
-                        SwipeAnchor.START_TO_END at dragWidth
+                        if (onSwipeRight != null) {
+                            SwipeAnchor.START_TO_END at dragWidth
+                        }
+
+                        if (onSwipeLeft != null) {
+                            SwipeAnchor.END_TO_START at -dragWidth
+                        }
                     }
-
-                    if (onSwipeLeft != null) {
-                        SwipeAnchor.END_TO_START at -dragWidth
-                    }
-                }
-            )
+                )
+            } else {
+                null
+            }
         }
 
-        LaunchedEffect(dragState.settledValue) {
-            when (dragState.settledValue) {
-                SwipeAnchor.START_TO_END -> {
-                    onSwipeRight?.action?.invoke()
-                    dragState.animateTo(SwipeAnchor.CENTERED)
-                }
+        LaunchedEffect(dragState?.settledValue) {
+            if (dragState != null) {
+                when (dragState.settledValue) {
+                    SwipeAnchor.START_TO_END -> {
+                        onSwipeRight?.action?.invoke()
+                        dragState.animateTo(SwipeAnchor.CENTERED)
+                    }
 
-                SwipeAnchor.END_TO_START -> {
-                    onSwipeLeft?.action?.invoke()
-                    dragState.animateTo(SwipeAnchor.CENTERED)
-                }
+                    SwipeAnchor.END_TO_START -> {
+                        onSwipeLeft?.action?.invoke()
+                        dragState.animateTo(SwipeAnchor.CENTERED)
+                    }
 
-                SwipeAnchor.CENTERED -> {}
+                    SwipeAnchor.CENTERED -> {}
+                }
             }
             didVibrateOnCurrentDrag = false
         }
@@ -175,7 +184,7 @@ private fun SwipeableBox(
             modifier = modifier.fillMaxSize(),
         ) {
 
-            val dragOffset = dragState.requireOffset()
+            val dragOffset = dragState?.requireOffset() ?: 0f
 
             // Drag indication
             Row(
@@ -196,7 +205,7 @@ private fun SwipeableBox(
                 horizontalArrangement = Arrangement.Start
             ) {
 
-                val dragProgress = dragState.offset.absoluteValue / dragWidth
+                val dragProgress = dragOffset.absoluteValue / dragWidth
                 val adjustedProgress = min(1f, dragProgress)
                 val progress = FastOutLinearInEasing.transform(adjustedProgress)
 
@@ -206,11 +215,11 @@ private fun SwipeableBox(
                     didVibrateOnCurrentDrag = true
                 }
 
-                if (dragState.offset > 0f) {
+                if (dragOffset > 0f) {
                     onSwipeRight?.let { action ->
                         SwipeActionIcon(action.icon, screenWidth, dragWidth, density, progress, tintColor)
                     }
-                } else if (dragState.offset < 0f) {
+                } else if (dragOffset < 0f) {
                     onSwipeLeft?.let {
                         SwipeActionIcon(it.icon, screenWidth, dragWidth, density, progress, tintColor, false)
                     }
@@ -220,13 +229,17 @@ private fun SwipeableBox(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .anchoredDraggable(dragState, Orientation.Horizontal, startDragImmediately = false)
-                    .offset {
-                        val x = dragState
-                            .requireOffset()
-                            .toInt()
-                        IntOffset(x, 0)
-                    },
+                    .then(
+                        if (dragState != null) {
+                            Modifier
+                                .anchoredDraggable(dragState, Orientation.Horizontal, startDragImmediately = false)
+                                .offset {
+                                    IntOffset(dragState.requireOffset().toInt(), 0)
+                                }
+                        } else {
+                            Modifier
+                        }
+                    ),
             ) { content() }
         }
     }

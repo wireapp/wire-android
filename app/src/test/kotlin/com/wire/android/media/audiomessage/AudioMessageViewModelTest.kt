@@ -19,7 +19,6 @@ package com.wire.android.media.audiomessage
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
-import com.wire.android.framework.TestMessage.DUMMY_ASSET_LOCAL_DATA
 import com.wire.android.framework.TestMessage.DUMMY_ASSET_REMOTE_DATA
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.kalium.logic.data.id.ConversationId
@@ -169,7 +168,6 @@ class AudioMessageViewModelTest {
                     "audio/wav",
                     AssetContent.AssetMetadata.Audio(10000L, normalizedLoudness),
                     DUMMY_ASSET_REMOTE_DATA,
-                    DUMMY_ASSET_LOCAL_DATA,
                 )
             )
         )

@@ -34,6 +34,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
@@ -92,8 +93,14 @@ class AudioMessageViewModelImpl @AssistedInject constructor(
 
     private fun preloadAudioMessage() {
         viewModelScope.launch {
-            // calls preload to initially fetch the audio asset data to be ready and schedule waves mask generation if needed
-            audioMessagePlayer.preloadAudioMessage(args.conversationId, args.messageId)
+            try {
+                // calls preload to initially fetch the audio asset data to be ready and schedule waves mask generation if needed
+                audioMessagePlayer.preloadAudioMessage(args.conversationId, args.messageId)
+            } catch (ce: CancellationException) {
+                throw ce
+            } catch (_: Throwable) {
+                // no-op: preloading is best-effort
+            }
         }
     }
 
@@ -108,8 +115,10 @@ class AudioMessageViewModelImpl @AssistedInject constructor(
                     }
                 }
                 .distinctUntilChanged()
-                .firstOrNull { it != null } // wait for the first non-null value
-                .let { state = state.copy(wavesMask = it) }
+                .firstOrNull { it != null }
+                ?.let {
+                    state = state.copy(wavesMask = it)
+                }
         }
     }
 

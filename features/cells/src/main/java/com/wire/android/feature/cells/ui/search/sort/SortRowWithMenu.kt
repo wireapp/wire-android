@@ -86,7 +86,12 @@ fun SortRowWithMenu(
         }
 
         DropdownMenu(
-            modifier = Modifier.padding(start = dimensions().spacing8x, end = dimensions().spacing8x),
+            modifier = Modifier
+                .background(colorsScheme().background)
+                .padding(
+                    start = dimensions().spacing8x,
+                    end = dimensions().spacing8x
+                ),
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
@@ -102,7 +107,10 @@ fun SortRowWithMenu(
                 )
             }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = dimensions().spacing6x))
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = dimensions().spacing6x),
+                color = colorsScheme().outline
+            )
 
             val options = orderOptionsFor(sortingCriteria.by)
             options.forEach { order ->
@@ -175,6 +183,7 @@ private fun MenuCheckItem(
             Text(
                 text = text,
                 style = typography().body01,
+                color = colorsScheme().onSecondaryButtonEnabled
             )
         },
         onClick = onClick,
@@ -183,7 +192,8 @@ private fun MenuCheckItem(
                 if (checked) {
                     Icon(
                         painter = painterResource(R.drawable.ic_checkmark),
-                        contentDescription = null
+                        contentDescription = null,
+                        tint = colorsScheme().onSecondaryButtonEnabled
                     )
                 }
             }

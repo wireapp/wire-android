@@ -88,6 +88,7 @@ import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.home.conversations.LocalAudioMessageKeyInScopeResolver
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
@@ -179,12 +180,22 @@ private fun UploadedAudioMessage(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: AudioMessageViewModel = hiltViewModelScoped<
-            AudioMessageViewModelImpl,
-            AudioMessageViewModel,
-            AudioMessageArgs,
-            AudioMessageViewModelImpl.Factory
-            >(audioMessageArgs)
+    val keyInScopeResolver = LocalAudioMessageKeyInScopeResolver.current
+    val viewModel: AudioMessageViewModel = if (keyInScopeResolver != null) {
+        hiltViewModelScoped<
+                AudioMessageViewModelImpl,
+                AudioMessageViewModel,
+                AudioMessageArgs,
+                AudioMessageViewModelImpl.Factory
+                >(audioMessageArgs, keyInScopeResolver)
+    } else {
+        hiltViewModelScoped<
+                AudioMessageViewModelImpl,
+                AudioMessageViewModel,
+                AudioMessageArgs,
+                AudioMessageViewModelImpl.Factory
+                >(audioMessageArgs)
+    }
 
     val sanitizedAudioState by remember(viewModel.state.audioState, audioMessageDurationInMs) {
         derivedStateOf {

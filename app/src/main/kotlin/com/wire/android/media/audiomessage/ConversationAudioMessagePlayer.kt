@@ -347,9 +347,10 @@ class ConversationAudioMessagePlayer
 
     suspend fun preloadAudioMessage(conversationId: ConversationId, messageId: String) {
         val currentAccountResult = coreLogic.getGlobalScope().session.currentSession()
-        if (currentAccountResult is CurrentSessionResult.Failure) return
-        val userId = (currentAccountResult as CurrentSessionResult.Success).accountInfo.userId
-        getAssetMessage(userId, conversationId, messageId)
+        if (currentAccountResult is CurrentSessionResult.Success) {
+            val userId = currentAccountResult.accountInfo.userId
+            getAssetMessage(userId, conversationId, messageId)
+        }
     }
 
     private suspend fun resumeOrPause(conversationId: ConversationId, messageId: String) {

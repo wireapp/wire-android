@@ -2,7 +2,6 @@ name: Link and Lint PR with Jira Ticket Number
 on:
   pull_request:
     types: [opened, edited, synchronize]
-  merge_group:
 
 permissions:
   contents: read
@@ -34,11 +33,3 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       jira-token: ${{ secrets.JIRA_TOKEN }}
-
-  add-jira-description-merge:
-    if: ${{ github.event_name == 'merge_group' }}
-    name: add-jira-description / add-jira-description
-    runs-on: ubuntu-latest
-    steps:
-      - name: Skip Jira check on merge queue
-        run: echo "Skipping Jira check on merge queue"

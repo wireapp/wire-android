@@ -17,12 +17,8 @@
  */
 package com.wire.android.media.audiomessage
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.ScopedArgsTestExtension
-import com.wire.android.di.scopedArgs
 import com.wire.android.framework.TestMessage
-import com.wire.android.framework.TestMessage.DUMMY_ASSET_LOCAL_DATA
 import com.wire.android.framework.TestMessage.DUMMY_ASSET_REMOTE_DATA
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.kalium.logic.data.id.ConversationId
@@ -47,7 +43,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(ScopedArgsTestExtension::class)
 class AudioMessageViewModelTest {
 
     @Test
@@ -138,14 +133,10 @@ class AudioMessageViewModelTest {
         @MockK
         lateinit var observeMessageById: ObserveMessageByIdUseCase
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
         val audioMessageArgs = AudioMessageArgs(ConversationId("convId", "domain"), "msgId")
 
         init {
             MockKAnnotations.init(this, relaxed = true)
-            every { savedStateHandle.scopedArgs<AudioMessageArgs>() } returns audioMessageArgs
             withObserveMessageByIdFlow(flowOf(ObserveMessageByIdUseCase.Result.Success(mockAudioMessage(audioMessageArgs))))
         }
 
@@ -163,7 +154,7 @@ class AudioMessageViewModelTest {
             } returns resultFlow
         }
 
-        fun arrange() = this to AudioMessageViewModelImpl(audioMessagePlayer, observeMessageById, savedStateHandle)
+        fun arrange() = this to AudioMessageViewModelImpl(audioMessagePlayer, observeMessageById, audioMessageArgs)
     }
 
     companion object {
@@ -177,7 +168,6 @@ class AudioMessageViewModelTest {
                     "audio/wav",
                     AssetContent.AssetMetadata.Audio(10000L, normalizedLoudness),
                     DUMMY_ASSET_REMOTE_DATA,
-                    DUMMY_ASSET_LOCAL_DATA,
                 )
             )
         )

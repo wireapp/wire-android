@@ -26,7 +26,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
-import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
@@ -61,7 +60,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
 @ViewModelScopedPreview
@@ -337,8 +335,3 @@ class DebugDataOptionsViewModelImpl
     //endregion
 }
 //endregion
-
-@Serializable
-object DebugDataOptions : ScopedArgs {
-    override val key = "DebugDataOptionsKey"
-}

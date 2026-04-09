@@ -21,33 +21,32 @@ package com.wire.android.ui.common.banner
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.scopedArgs
+import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface SecurityClassificationViewModel {
     fun state(): SecurityClassificationType = SecurityClassificationType.NONE
 }
 
-@HiltViewModel
-class SecurityClassificationViewModelImpl @Inject constructor(
+@HiltViewModel(assistedFactory = SecurityClassificationViewModelImpl.Factory::class)
+class SecurityClassificationViewModelImpl @AssistedInject constructor(
     private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
     private val observeOtherUserSecurityClassificationLabel: ObserveOtherUserSecurityClassificationLabelUseCase,
-    savedStateHandle: SavedStateHandle
+    @Assisted private val args: SecurityClassificationArgs
 ) : SecurityClassificationViewModel, ViewModel() {
-
-    private val args: SecurityClassificationArgs = savedStateHandle.scopedArgs()
 
     private var state by mutableStateOf(SecurityClassificationType.NONE)
 
@@ -71,5 +70,10 @@ class SecurityClassificationViewModelImpl @Inject constructor(
         observeOtherUserSecurityClassificationLabel(userId).collect { classificationType ->
             state = classificationType
         }
+    }
+
+    @AssistedFactory
+    interface Factory : AssistedViewModelFactory<SecurityClassificationViewModelImpl, SecurityClassificationArgs> {
+        override fun create(args: SecurityClassificationArgs): SecurityClassificationViewModelImpl
     }
 }

@@ -81,7 +81,7 @@
 
         <activity
             android:name=".ui.AppLockActivity"
-            android:exported="true"
+            android:exported="false"
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme" />
@@ -89,7 +89,7 @@
         <activity
             android:name=".ui.calling.ongoing.OngoingCallActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
-            android:exported="true"
+            android:exported="false"
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
@@ -98,7 +98,7 @@
 
         <activity
             android:name=".ui.calling.StartingCallActivity"
-            android:exported="true"
+            android:exported="false"
             android:hardwareAccelerated="true"
             android:launchMode="singleInstance"
             android:taskAffinity="wire.call"

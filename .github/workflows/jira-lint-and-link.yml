@@ -37,7 +37,7 @@ jobs:
 
   add-jira-description-merge:
     if: ${{ github.event_name == 'merge_group' }}
-    name: add-jira-description
+    name: add-jira-description / add-jira-description
     runs-on: ubuntu-latest
     steps:
       - name: Skip Jira check on merge queue

@@ -437,7 +437,10 @@ private fun OngoingCallContent(
                             derivedStateOf {
                                 participants
                                     .takeIf { it.size > 1 } // if there is only one in the call, do not allow full screen
-                                    ?.find { participant -> participant.id == selectedParticipantForFullScreen?.userId }
+                                    ?.find { participant ->
+                                        participant.id == selectedParticipantForFullScreen?.userId
+                                                && participant.clientId == selectedParticipantForFullScreen.clientId
+                                    }
                             }
                         }
 

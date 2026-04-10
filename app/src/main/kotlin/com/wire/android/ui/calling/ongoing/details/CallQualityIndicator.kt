@@ -47,14 +47,7 @@ internal fun CallQualityIndicator(
 ) {
     val callQualityIndicatorValue by remember(callQuality) {
         derivedStateOf {
-            when (callQuality) { // mapped to a simpler enum to reduce recompositions and make the animations smoother
-                CallQualityData.Quality.UNKNOWN,
-                CallQualityData.Quality.NORMAL -> CallQualityIndicatorValue.GOOD
-                CallQualityData.Quality.MEDIUM -> CallQualityIndicatorValue.FAIR
-                CallQualityData.Quality.POOR,
-                CallQualityData.Quality.NETWORK_PROBLEM,
-                CallQualityData.Quality.RECONNECTING -> CallQualityIndicatorValue.POOR
-            }
+            callQuality.toCallQualityIndicatorValue() // mapped to a simpler enum to reduce recompositions and make the animations smoother
         }
     }
     AnimatedContent(
@@ -92,4 +85,13 @@ enum class CallQualityIndicatorValue {
         FAIR -> stringResource(R.string.calling_details_network_quality_fair)
         POOR -> stringResource(R.string.calling_details_network_quality_poor)
     }
+}
+
+fun CallQualityData.Quality.toCallQualityIndicatorValue(): CallQualityIndicatorValue = when (this) {
+    CallQualityData.Quality.UNKNOWN,
+    CallQualityData.Quality.NORMAL -> CallQualityIndicatorValue.GOOD
+    CallQualityData.Quality.MEDIUM -> CallQualityIndicatorValue.FAIR
+    CallQualityData.Quality.POOR,
+    CallQualityData.Quality.NETWORK_PROBLEM,
+    CallQualityData.Quality.RECONNECTING -> CallQualityIndicatorValue.POOR
 }

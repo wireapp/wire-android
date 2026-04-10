@@ -433,16 +433,17 @@ class GroupVideoCall : BaseUiTest() {
                 assertAudioTimeStartsAtZero()
             }
         }
-        waitFor(1)
+
         step("And I play audio message") {
             pages.conversationViewPage.apply {
+                waitFor(1)
                 clickPlayButtonOnAudioMessage()
             }
         }
 
-        step("And I pause audio message after 10 seconds") {
+        step("And I pause audio message after 5 seconds") {
             pages.conversationViewPage.apply {
-                waitFor(10) // wait to allow an audio file to play
+                waitFor(5)
                 clickPauseButtonOnAudioMessage()
             }
         }

@@ -54,7 +54,6 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.EnterpriseLoginResult
-import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
 import com.wire.kalium.logic.feature.auth.LoginRedirectPath
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
@@ -325,6 +324,7 @@ class NewLoginViewModel(
         updateLoginFlowState(NewLoginFlowState.Loading)
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {
+                val isNomadFlow = pendingNomadServiceUrl != null
                 viewModelScope.launch(dispatchers.io()) {
                     ssoExtension.establishSSOSession(
                         cookie = ssoLoginResult.cookie,
@@ -335,12 +335,11 @@ class NewLoginViewModel(
                         onSSOLoginFailure = { updateLoginFlowState(it.toLoginError()) },
                         onAddAuthenticatedUserFailure = { updateLoginFlowState(it.toLoginError()) },
                         onSuccess = { storedUserId ->
-                            val result = coreLogic.getSessionScope(storedUserId).authenticationScope.isNomadProfilesEnabled()
-                            val isNomadEnabled = result is IsNomadProfilesEnabledUseCase.Result.Success && result.isEnabled
-                            if (!isNomadEnabled) {
-                                appLogger.i("$TAG Nomad not enabled, proceeding with regular login")
+                            if (!isNomadFlow) {
+                                appLogger.i("$TAG Not a nomad flow, proceeding with regular login")
                                 registerClientAndUpdateState(storedUserId, setLastDeviceId = false)
                             } else {
+                                appLogger.i("$TAG Nomad flow, attempting crypto state restore")
                                 restoreCryptoStateAndContinue(storedUserId)
                             }
                         }

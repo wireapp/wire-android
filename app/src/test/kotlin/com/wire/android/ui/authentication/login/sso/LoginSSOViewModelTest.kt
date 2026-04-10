@@ -53,7 +53,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
-import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
@@ -766,7 +765,7 @@ class LoginSSOViewModelTest {
             val expectedCookie = "some-cookie"
             val (arrangement, loginViewModel) = Arrangement()
                 .withEstablishSSOSession(expectedCookie)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateReturning(RestoreCryptoStateResult.Success)
                 .withIsSyncCompletedReturning(true)
                 .arrange()
@@ -799,7 +798,7 @@ class LoginSSOViewModelTest {
             val expectedCookie = "some-cookie"
             val (arrangement, loginViewModel) = Arrangement()
                 .withEstablishSSOSession(expectedCookie)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateReturning(RestoreCryptoStateResult.Success)
                 .withIsSyncCompletedReturning(false)
                 .arrange()
@@ -832,7 +831,7 @@ class LoginSSOViewModelTest {
             val expectedCookie = "some-cookie"
             val (arrangement, loginViewModel) = Arrangement()
                 .withEstablishSSOSession(expectedCookie)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateReturning(RestoreCryptoStateResult.NoBackupAvailable)
                 .withRegisterClientReturning(RegisterClientResult.Success(TestClient.CLIENT))
                 .withIsSyncCompletedReturning(true)
@@ -866,7 +865,7 @@ class LoginSSOViewModelTest {
             val expectedCookie = "some-cookie"
             val (arrangement, loginViewModel) = Arrangement()
                 .withEstablishSSOSession(expectedCookie)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateReturning(RestoreCryptoStateResult.Failure)
                 .withRevertSSOSessionSuccess()
                 .arrange()
@@ -898,7 +897,7 @@ class LoginSSOViewModelTest {
             val expectedCookie = "some-cookie"
             val (arrangement, loginViewModel) = Arrangement()
                 .withEstablishSSOSession(expectedCookie)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateThrowing(IllegalStateException("attempt to re-open an already-closed object"))
                 .withSessionStillValid(false)
                 .arrange()
@@ -929,7 +928,7 @@ class LoginSSOViewModelTest {
             val expectedCookie = "some-cookie"
             val (arrangement, loginViewModel) = Arrangement()
                 .withEstablishSSOSession(expectedCookie)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateThrowing(IOException("session files deleted"))
                 .withSessionStillValid(false)
                 .arrange()
@@ -960,7 +959,7 @@ class LoginSSOViewModelTest {
             val expectedCookie = "some-cookie"
             val (arrangement, loginViewModel) = Arrangement()
                 .withEstablishSSOSession(expectedCookie)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateThrowing(SQLiteException("database is locked"))
                 .withSessionStillValid(false)
                 .arrange()
@@ -991,7 +990,7 @@ class LoginSSOViewModelTest {
             val expectedCookie = "some-cookie"
             val (arrangement, loginViewModel) = Arrangement()
                 .withEstablishSSOSession(expectedCookie)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateReturning(RestoreCryptoStateResult.Failure)
                 .withSessionStillValid(false)
                 .apply { coEvery { logoutUseCase(any(), any()) } throws IllegalStateException("already closed") }
@@ -1061,9 +1060,6 @@ class LoginSSOViewModelTest {
         lateinit var ssoExtension: LoginSSOViewModelExtension
 
         @MockK
-        lateinit var isNomadProfilesEnabledUseCase: IsNomadProfilesEnabledUseCase
-
-        @MockK
         lateinit var restoreCryptoStateUseCase: RestoreCryptoStateUseCase
 
         @MockK
@@ -1098,10 +1094,6 @@ class LoginSSOViewModelTest {
             every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
             every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
             every { authenticationScope.ssoLoginScope.fetchSSOSettings } returns fetchSSOSettings
-            every {
-                coreLogic.getSessionScope(any()).authenticationScope.isNomadProfilesEnabled
-            } returns isNomadProfilesEnabledUseCase
-            coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(false)
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
             withFetchSSOSettings()
@@ -1160,10 +1152,6 @@ class LoginSSOViewModelTest {
 
         fun withValidateEmailReturning(result: Boolean) = apply {
             every { validateEmailUseCase(any()) } returns result
-        }
-
-        fun withNomadEnabled(enabled: Boolean) = apply {
-            coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(enabled)
         }
 
         fun withRestoreCryptoStateReturning(result: RestoreCryptoStateResult) = apply {

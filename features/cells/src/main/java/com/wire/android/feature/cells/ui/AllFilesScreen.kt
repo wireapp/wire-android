@@ -59,7 +59,6 @@ fun AllFilesScreen(
         hiltViewModel()
     }
 
-
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
 
     WireScaffold(

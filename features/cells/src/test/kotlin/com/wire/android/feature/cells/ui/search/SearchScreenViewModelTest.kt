@@ -26,6 +26,7 @@ import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.common.error.CoreFailure
@@ -95,6 +96,7 @@ class SearchScreenViewModelTest {
         coEvery { getAllTagsUseCase() } returns Either.Right(mockTags)
         coEvery { getCellFilesPaged(any(), any(), any(), any()) } returns emptyFlow<PagingData<Node>>()
         coEvery { getOwners(any()) } returns GetOwnersUseCaseResult.Failure(CoreFailure.InvalidEventSenderID)
+        coEvery { getCellGroupConversations() } returns GetCellGroupConversationsUseCaseResult.Success(emptyList())
     }
 
     @AfterEach

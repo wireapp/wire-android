@@ -65,6 +65,10 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    /**
+     * The navigation drawer can appear before the Settings entry is fully attached and clickable.
+     * Retry for a short window, reopening the drawer at a throttled pace until the Settings row is stable.
+     */
     fun clickSettingsButtonOnMenuEntry(timeoutMs: Long = 10_000): ConversationListPage {
         val deadline = SystemClock.uptimeMillis() + timeoutMs
         var lastMenuClickAt = 0L
@@ -74,16 +78,22 @@ data class ConversationListPage(private val device: UiDevice) {
                 return this
             }
 
-            val now = SystemClock.uptimeMillis()
-            if (now - lastMenuClickAt >= 600 && tryClickIfVisible(mainMenuButton)) {
-                lastMenuClickAt = now
-                device.waitForIdle(300)
-            }
+            lastMenuClickAt = reopenMenuIfNeeded(lastMenuClickAt)
 
             SystemClock.sleep(120)
         }
 
         throw AssertionError("Settings menu entry was not found within ${timeoutMs}ms.")
+    }
+
+    private fun reopenMenuIfNeeded(lastMenuClickAt: Long, minIntervalMs: Long = 600L): Long {
+        val now = SystemClock.uptimeMillis()
+        if (now - lastMenuClickAt < minIntervalMs || !tryClickIfVisible(mainMenuButton)) {
+            return lastMenuClickAt
+        }
+
+        device.waitForIdle(300)
+        return now
     }
 
     private fun tryClickIfVisible(selector: UiSelectorParams): Boolean {

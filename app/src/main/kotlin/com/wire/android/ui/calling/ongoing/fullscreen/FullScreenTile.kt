@@ -26,19 +26,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.wire.android.R
 import com.wire.android.ui.calling.model.CallState
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
@@ -47,7 +40,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.coroutines.delay
 
 @Composable
 fun FullScreenTile(
@@ -65,8 +57,6 @@ fun FullScreenTile(
     modifier: Modifier = Modifier,
     contentPadding: Dp = dimensions().spacing4x,
 ) {
-    var shouldShowDoubleTapToast by remember { mutableStateOf(false) }
-
     BackHandler {
         onBackButtonClicked()
     }
@@ -102,19 +92,6 @@ fun FullScreenTile(
                 isOnFrontCamera = isOnFrontCamera,
                 flipCamera = flipCamera,
                 othersVideosDisabled = othersVideosDisabled,
-            )
-            LaunchedEffect(Unit) {
-                delay(200)
-                shouldShowDoubleTapToast = true
-            }
-            DoubleTapToast(
-                modifier = Modifier
-                    .align(Alignment.TopCenter),
-                enabled = shouldShowDoubleTapToast,
-                text = stringResource(id = R.string.calling_ongoing_double_tap_to_go_back),
-                onTap = {
-                    shouldShowDoubleTapToast = false
-                }
             )
         }
 

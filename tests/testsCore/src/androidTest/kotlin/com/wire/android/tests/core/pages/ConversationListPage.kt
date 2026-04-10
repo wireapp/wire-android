@@ -17,9 +17,12 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
@@ -45,17 +48,9 @@ data class ConversationListPage(private val device: UiDevice) {
         UiSelectorParams(text = conversationName)
     }
     private val startNewConversation = UiSelectorParams(description = "New. Start a new conversation")
-    private val backArrowButtonInsideSearchField = UiSelectorParams(
-        className = "android.view.View",
-        description = "Go back to add participants view"
-    )
 
-    private val closeNewConversationButton = UiSelectorParams(
-        description = "Close new conversation view"
-    )
-
-    private val userConversationNamePendingLabelString = UiSelectorParams(description = "pending approval of connection request")
-
+    private val userConversationNamePendingLabelSelector =
+        UiSelector().description("pending approval of connection request")
     fun assertConversationListVisible(): ConversationListPage {
         val heading = UiWaitUtils.waitElement(conversationListHeading)
         Assert.assertTrue(
@@ -70,9 +65,39 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickSettingsButtonOnMenuEntry(): ConversationListPage {
-        UiWaitUtils.waitElement(settingsButton).click()
-        return this
+    fun clickSettingsButtonOnMenuEntry(timeoutMs: Long = 10_000): ConversationListPage {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+        var lastMenuClickAt = 0L
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            if (tryClickIfVisible(settingsButton)) {
+                return this
+            }
+
+            val now = SystemClock.uptimeMillis()
+            if (now - lastMenuClickAt >= 600 && tryClickIfVisible(mainMenuButton)) {
+                lastMenuClickAt = now
+                device.waitForIdle(300)
+            }
+
+            SystemClock.sleep(120)
+        }
+
+        throw AssertionError("Settings menu entry was not found within ${timeoutMs}ms.")
+    }
+
+    private fun tryClickIfVisible(selector: UiSelectorParams): Boolean {
+        val element = UiWaitUtils.findElementOrNull(selector) ?: return false
+        return try {
+            if (!element.visibleBounds.isEmpty && element.isEnabled) {
+                element.click()
+                true
+            } else {
+                false
+            }
+        } catch (_: StaleObjectException) {
+            false
+        }
     }
 
     fun clickConversationsButtonOnMenuEntry(): ConversationListPage {
@@ -153,14 +178,21 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun tapBackArrowButtonInsideSearchField(): ConversationListPage {
-        val button = UiWaitUtils.waitElement(backArrowButtonInsideSearchField)
-        button.click()
-        return this
-    }
+    fun clickCloseButtonOnNewConversationScreen(timeoutMs: Long = 5_000): ConversationListPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-    fun clickCloseButtonOnNewConversationScreen(): ConversationListPage {
-        UiWaitUtils.waitElement(closeNewConversationButton).click()
+        val close = device.findObject(
+            UiSelector()
+                .className("android.view.View")
+                .description("Close new conversation view")
+        )
+
+        if (!close.waitForExists(timeoutMs)) {
+            throw AssertionError("Close button not found within ${timeoutMs}ms")
+        }
+
+        close.click()
+
         return this
     }
 
@@ -170,29 +202,43 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    @Suppress("ThrowsCount")
     fun assertConversationNameWithPendingStatusVisibleInConversationList(userName: String): ConversationListPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        // 1) Assert user name is visible
         try {
-            UiWaitUtils.waitElement(UiSelectorParams(text = userName))
-        } catch (e: AssertionError) {
+            val userObj = device.findObject(UiSelector().text(userName))
+            if (!userObj.waitForExists(10_000)) {
+                throw AssertionError("User '$userName' is not visible in the conversation list")
+            }
+        } catch (e: Throwable) {
             throw AssertionError("User '$userName' is not visible in the conversation list", e)
         }
-        // Assert the 'pending' badge is visible
+
+        // 2) Assert the 'pending' badge is visible
         try {
-            UiWaitUtils.waitElement(userConversationNamePendingLabelString)
-        } catch (e: AssertionError) {
+            val pendingObj = device.findObject(userConversationNamePendingLabelSelector)
+            if (!pendingObj.waitForExists(10_000)) {
+                throw AssertionError("Pending status is not visible for user '$userName'")
+            }
+        } catch (e: Throwable) {
             throw AssertionError("Pending status is not visible for user '$userName'", e)
         }
+
         return this
     }
 
     fun assertPendingStatusIsNoLongerVisible(): ConversationListPage {
-        val pending = runCatching {
-            UiWaitUtils.waitElement(userConversationNamePendingLabelString)
-        }.getOrNull()
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-        if (pending != null && !pending.visibleBounds.isEmpty) {
-            throw AssertionError("Pending status is still visible (expected it to be gone)")
-        }
+        UiWaitUtils.waitUntilElementGone(
+            device = device,
+            selector = userConversationNamePendingLabelSelector,
+            timeoutMillis = 10_000,
+            pollingInterval = 250
+        )
+
         return this
     }
 

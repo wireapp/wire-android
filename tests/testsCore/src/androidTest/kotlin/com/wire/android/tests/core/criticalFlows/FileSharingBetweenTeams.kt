@@ -42,6 +42,7 @@ import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
+import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
 
 @RunWith(AndroidJUnit4::class)
 class FileSharingBetweenTeams : BaseUiTest() {
@@ -169,7 +170,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
 
         step("Verify connection accepted toast and start a conversation with sender") {
             pages.connectedUserProfilePage.apply {
-                assertToastMessageIsDisplayed("Connection request accepted")
+                waitUntilToastIsDisplayed("Connection request accepted")
                 clickStartConversationButton()
             }
         }

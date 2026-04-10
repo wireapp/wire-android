@@ -38,8 +38,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavBackStackEntry
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
@@ -64,7 +66,6 @@ import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @WireCellsDestination(
@@ -77,8 +78,22 @@ fun SearchScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
     searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
-    cellViewModel: CellViewModel = hiltViewModel(),
 ) {
+    // Reuse the same CellViewModel instance from the parent screen if available in the backstack.
+    // Try parentRoute first, then ConversationFilesScreen, then fallback.
+    val backStackEntry: NavBackStackEntry? = remember(navigator) {
+        val parentRoute = searchScreenViewModel.parentRoute
+        if (parentRoute != null) {
+            navigator.getBackStackEntry(parentRoute)
+        } else {
+            navigator.getBackStackEntry(ConversationFilesScreenDestination.route)
+        }
+    }
+    val cellViewModel: CellViewModel = if (backStackEntry != null) {
+        hiltViewModel(backStackEntry)
+    } else {
+        hiltViewModel()
+    }
 
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -166,14 +181,16 @@ fun SearchScreen(
             }
         ) { innerPadding ->
             val lazyListState = rememberLazyListState()
-            val lazyItems = searchScreenViewModel.cellNodesFlow.collectAsLazyPagingItems()
+
+            val isShowingFilteredResults = uiState.hasAnyFilter ||
+                    searchState.text.isNotEmpty() ||
+                    uiState.sortingCriteria != searchScreenViewModel.defaultSortingCriteria
+            val initialItems = cellViewModel.nodesFlow.collectAsLazyPagingItems()
+            val filteredItems = searchScreenViewModel.cellNodesFlow.collectAsLazyPagingItems()
+            val lazyItems = if (isShowingFilteredResults) filteredItems else initialItems
 
             LaunchedEffect(uiState.sortingCriteria) {
-                lazyItems.refresh()
-                // wait for refresh to complete
-                snapshotFlow { lazyItems.loadState.refresh }
-                    .first { it is androidx.paging.LoadState.NotLoading }
-                lazyListState.animateScrollToItem(0)
+                    lazyListState.animateScrollToItem(0)
             }
 
             CellScreenContent(

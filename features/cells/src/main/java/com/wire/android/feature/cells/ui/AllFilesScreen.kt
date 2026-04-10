@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,8 +45,21 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 fun AllFilesScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    viewModel: CellViewModel = hiltViewModel()
+    parentRoute: String? = null,
 ) {
+    // Scope CellViewModel to the parentRoute's back stack entry when available.
+    // This allows SearchScreen (which uses the same parentRoute) to share the same
+    // already-loaded ViewModel instance and avoid a blank screen on navigation.
+    val backStackEntry = remember(navigator, parentRoute) {
+        parentRoute?.let { navigator.getBackStackEntry(it) }
+    }
+    val viewModel: CellViewModel = if (backStackEntry != null) {
+        hiltViewModel(backStackEntry)
+    } else {
+        hiltViewModel()
+    }
+
+
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
 
     WireScaffold(
@@ -59,7 +73,12 @@ fun AllFilesScreen(
                     searchQueryTextState = rememberTextFieldState(),
                     onTap = {
                         navigator.navigate(
-                            NavigationCommand(SearchScreenDestination(screenType = DriveSearchScreenType.DRIVE))
+                            NavigationCommand(
+                                SearchScreenDestination(
+                                    screenType = DriveSearchScreenType.DRIVE,
+                                    parentRoute = parentRoute,
+                                )
+                            )
                         )
                     },
                 )

@@ -35,7 +35,7 @@ data class SearchUiState(
 
     val isSearchActive: Boolean = true,
 
-    val sortingCriteria: SortingCriteria = SortingCriteria.Modified.NewestFirst,
+    val sortingCriteria: SortingCriteria = SortingCriteria.ByDate.NewestFirst,
 ) {
     val tagsCount: Int get() = availableTags.count { it.selected }
     val typeCount: Int get() = availableTypes.count { it.selected }

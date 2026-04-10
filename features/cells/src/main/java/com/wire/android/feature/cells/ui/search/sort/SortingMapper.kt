@@ -19,11 +19,17 @@ package com.wire.android.feature.cells.ui.search.sort
 
 fun SortingCriteria.toKaliumCriteria(): com.wire.kalium.cells.data.SortingCriteria =
     when (by) {
+        SortBy.Default ->
+            com.wire.kalium.cells.data.SortingCriteria.FOLDERS_FIRST_THEN_ALPHABETICAL
+
         SortBy.Modified ->
             com.wire.kalium.cells.data.SortingCriteria.MODIFICATION_TIME
 
+        // The API does not support case-insensitive sorting
+        // so we will use case-sensitive as a fallback until implemented
+        // see https://wearezeta.atlassian.net/browse/WPB-24598
         SortBy.Name ->
-            com.wire.kalium.cells.data.SortingCriteria.NAME_CASE_INSENSITIVE
+            com.wire.kalium.cells.data.SortingCriteria.NAME_CASE_SENSITIVE
 
         SortBy.Size ->
             com.wire.kalium.cells.data.SortingCriteria.SIZE

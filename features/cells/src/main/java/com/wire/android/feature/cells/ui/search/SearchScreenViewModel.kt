@@ -20,6 +20,8 @@ package com.wire.android.feature.cells.ui.search
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
@@ -86,8 +88,21 @@ class SearchScreenViewModel @Inject constructor(
     private val navArgs: SearchNavArgs = SearchScreenDestination.argsFrom(savedStateHandle)
 
     val screenType = navArgs.screenType
+    val parentRoute = navArgs.parentRoute
 
-    private val _uiState = MutableStateFlow(SearchUiState())
+    /**
+     * The default (no-filter) sorting for this screen type.
+     * DRIVE (all-files) defaults to newest-first; SHARED_DRIVE (conversation) defaults to folders-first.
+     */
+    val defaultSortingCriteria: SortingCriteria = if (screenType == DriveSearchScreenType.DRIVE) {
+        SortingCriteria.ByDate.NewestFirst
+    } else {
+        SortingCriteria.FoldersFirst
+    }
+
+    private val _uiState = MutableStateFlow(
+        SearchUiState(sortingCriteria = defaultSortingCriteria)
+    )
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
     private val queryFlow = MutableStateFlow("")
@@ -115,28 +130,47 @@ class SearchScreenViewModel @Inject constructor(
 
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
-            getCellFilesPaged(
-                conversationId = params.conversationId,
-                query = params.query,
-                fileFilters = FileFilters(
-                    tags = params.tagIds,
-                    owners = params.ownerIds,
-                    mimeTypes = params.mimeTypes,
-                    hasPublicLink = params.filesWithPublicLink,
-                ),
-                sortingSpec = SortingSpec(
-                    criteria = params.sortingCriteria.toKaliumCriteria(),
-                    descending = params.sortingCriteria.isDescending
-                )
-            ).map { pagingData: PagingData<Node> ->
-                pagingData.map { node: Node ->
-                    when (node) {
-                        is Node.Folder -> node.toUiModel()
-                        is Node.File -> node.toUiModel()
+                val hasFilters = params.sortingCriteria != defaultSortingCriteria ||
+                        params.query.isNotEmpty() ||
+                        params.tagIds.isNotEmpty() ||
+                        params.ownerIds.isNotEmpty() ||
+                        params.mimeTypes.isNotEmpty() ||
+                        params.filesWithPublicLink == true
+
+                if (!hasFilters) {
+                    return@flatMapLatest kotlinx.coroutines.flow.flowOf(
+                        PagingData.empty(
+                            LoadStates(
+                                refresh = LoadState.Loading,
+                                prepend = LoadState.NotLoading(true),
+                                append = LoadState.NotLoading(true),
+                            )
+                        )
+                    )
+                }
+
+                getCellFilesPaged(
+                    conversationId = params.conversationId,
+                    query = params.query,
+                    fileFilters = FileFilters(
+                        tags = params.tagIds,
+                        owners = params.ownerIds,
+                        mimeTypes = params.mimeTypes,
+                        hasPublicLink = params.filesWithPublicLink,
+                    ),
+                    sortingSpec = SortingSpec(
+                        criteria = params.sortingCriteria.toKaliumCriteria(),
+                        descending = params.sortingCriteria.isDescending
+                    )
+                ).map { pagingData: PagingData<Node> ->
+                    pagingData.map { node: Node ->
+                        when (node) {
+                            is Node.Folder -> node.toUiModel()
+                            is Node.File -> node.toUiModel()
+                        }
                     }
                 }
-            }
-        }.cachedIn(viewModelScope)
+            }.cachedIn(viewModelScope)
 
     init {
         loadTags()
@@ -341,7 +375,8 @@ class SearchScreenViewModel @Inject constructor(
 }
 
 fun defaultCriteriaFor(by: SortBy): SortingCriteria = when (by) {
-    SortBy.Modified -> SortingCriteria.Modified.NewestFirst
-    SortBy.Name -> SortingCriteria.Name.AtoZ
-    SortBy.Size -> SortingCriteria.Size.SmallestFirst
+    SortBy.Default -> SortingCriteria.FoldersFirst
+    SortBy.Modified -> SortingCriteria.ByDate.NewestFirst
+    SortBy.Name -> SortingCriteria.ByName.AtoZ
+    SortBy.Size -> SortingCriteria.BySize.SmallestFirst
 }

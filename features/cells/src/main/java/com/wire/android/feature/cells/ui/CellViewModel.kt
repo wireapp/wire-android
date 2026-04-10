@@ -40,7 +40,10 @@ import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.ui.common.ActionsViewModel
+import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
+import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
 import com.wire.kalium.cells.data.FileFilters
+import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
@@ -134,6 +137,16 @@ class CellViewModel @Inject constructor(
 
     private val cellAvailableFlow = MutableStateFlow(false)
 
+    // AllFiles context (no conversationId, not recycle bin) defaults to newest-first;
+    // ConversationFiles and RecycleBin default to folders-first.
+    private val _defaultSortingCriteria = MutableStateFlow(
+        if (navArgs.conversationId == null && !(navArgs.isRecycleBin ?: false)) {
+            SortingCriteria.ByDate.NewestFirst
+        } else {
+            SortingCriteria.FoldersFirst
+        }
+    )
+
     private var isCollaboraEnabled: Boolean = false
 
     init {
@@ -158,42 +171,48 @@ class CellViewModel @Inject constructor(
         }
 
         refreshTrigger.flatMapLatest {
-            combine(
-                getCellFilesPaged(
-                    conversationId = navArgs.conversationId,
-                    fileFilters = FileFilters(
-                        onlyDeleted = navArgs.isRecycleBin ?: false,
-                    ),
-                ).cachedIn(viewModelScope),
-                removedItemsFlow,
-                downloadDataFlow
-            ) { pagingData, removedItems, downloadData ->
-                var emittedRefreshDone = false
+            _defaultSortingCriteria.flatMapLatest { sortingCriteria ->
+                combine(
+                    getCellFilesPaged(
+                        conversationId = navArgs.conversationId,
+                        fileFilters = FileFilters(
+                            onlyDeleted = navArgs.isRecycleBin ?: false,
+                        ),
+                        sortingSpec = SortingSpec(
+                            criteria = sortingCriteria.toKaliumCriteria(),
+                            descending = sortingCriteria.isDescending,
+                        ),
+                    ).cachedIn(viewModelScope),
+                    removedItemsFlow,
+                    downloadDataFlow
+                ) { pagingData, removedItems, downloadData ->
+                    var emittedRefreshDone = false
 
-                pagingData
-                    .filter { node: Node -> node.uuid !in removedItems }
-                    .map { node ->
-                        if (!emittedRefreshDone) {
-                            emittedRefreshDone = true
+                    pagingData
+                        .filter { node: Node -> node.uuid !in removedItems }
+                        .map { node ->
+                            if (!emittedRefreshDone) {
+                                emittedRefreshDone = true
 
-                            if (_isPullToRefresh.value) {
-                                _isPullToRefresh.value = false
+                                if (_isPullToRefresh.value) {
+                                    _isPullToRefresh.value = false
+                                }
+
+                                _pagingRefreshDone.tryEmit(Unit)
                             }
 
-                            _pagingRefreshDone.tryEmit(Unit)
-                        }
+                            when (node) {
+                                is Node.Folder -> node.toUiModel().copy(
+                                    downloadProgress = downloadData[node.uuid]?.progress
+                                )
 
-                        when (node) {
-                            is Node.Folder -> node.toUiModel().copy(
-                                downloadProgress = downloadData[node.uuid]?.progress
-                            )
-
-                            is Node.File -> node.toUiModel().copy(
-                                downloadProgress = downloadData[node.uuid]?.progress,
-                                localPath = downloadData[node.uuid]?.localPath?.toString()
-                            )
+                                is Node.File -> node.toUiModel().copy(
+                                    downloadProgress = downloadData[node.uuid]?.progress,
+                                    localPath = downloadData[node.uuid]?.localPath?.toString()
+                                )
+                            }
                         }
-                    }
+                }
             }
         }
     }.shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)

@@ -63,6 +63,12 @@ class Navigator(
             steps--
         }
     }
+
+    override fun getBackStackEntry(route: String) = try {
+        navController.getBackStackEntry(route)
+    } catch (_: IllegalArgumentException) {
+        null
+    }
 }
 
 @Composable

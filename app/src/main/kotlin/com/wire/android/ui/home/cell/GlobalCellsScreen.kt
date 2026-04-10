@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.cell
 
 import androidx.compose.runtime.Composable
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.wire.android.feature.cells.ui.AllFilesScreen
 import com.wire.android.navigation.annotation.app.WireHomeDestination
 import com.wire.android.ui.home.HomeStateHolder
@@ -29,5 +30,6 @@ fun GlobalCellsScreen(
 ) {
     AllFilesScreen(
         navigator = homeStateHolder.navigator,
+        parentRoute = HomeScreenDestination.route
     )
 }

@@ -36,17 +36,18 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 
 sealed class InCallToast(open val time: Long) {
-    abstract val id: String
+    sealed interface Key
+    abstract val key: Key
 
     data class Fullscreen(
         override val time: Long,
         val type: Type
     ) : InCallToast(time) {
-        override val id: String = type.id
+        override val key: Key = type
 
-        enum class Type(val id: String) {
-            DoubleTapToOpen("fullscreen_toggle_double_tap_to_open"),
-            DoubleTapToClose("fullscreen_toggle_double_tap_to_close"),
+        enum class Type : Key {
+            DoubleTapToOpen,
+            DoubleTapToClose,
         }
     }
 
@@ -56,10 +57,10 @@ sealed class InCallToast(open val time: Long) {
         val moderatorName: String,
         val type: Type,
     ) : InCallToast(time) {
-        override val id: String = type.id
+        override val key: Key = type
 
-        enum class Type(val id: String) {
-            Muted("moderation_action_muted")
+        enum class Type : Key {
+            Muted
         }
     }
 }
@@ -67,7 +68,7 @@ sealed class InCallToast(open val time: Long) {
 @Composable
 fun InCallToast(
     toast: InCallToast,
-    onClick: (toastId: String) -> Unit,
+    onClick: (toastKey: InCallToast.Key) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Text(
@@ -85,7 +86,7 @@ fun InCallToast(
             .background(color = colorsScheme().primary, shape = RoundedCornerShape(dimensions().corner12x))
             .clip(RoundedCornerShape(dimensions().corner12x))
             .clickable {
-                onClick(toast.id)
+                onClick(toast.key)
             }
             .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
     )

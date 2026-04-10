@@ -160,12 +160,12 @@ class OngoingCallViewModelTest {
             .arrange()
         advanceTimeBy(DELAY_TO_SHOW_DOUBLE_TAP_TOAST + 1) // advance time just after the toast should be shown
         val toast = InCallToast.Fullscreen(DELAY_TO_SHOW_DOUBLE_TAP_TOAST, InCallToast.Fullscreen.Type.DoubleTapToOpen)
-        assertEquals(toast, ongoingCallViewModel.toasts[toast.id]) // toast should be displayed
+        assertEquals(toast, ongoingCallViewModel.toasts[toast.key]) // toast should be displayed
 
-        ongoingCallViewModel.dismissToast(toast.id) // dismiss the toast manually before it expires
+        ongoingCallViewModel.dismissToast(toast.key) // dismiss the toast manually before it expires
         advanceUntilIdle()
 
-        assertEquals(null, ongoingCallViewModel.toasts[toast.id]) // toast should be dismissed
+        assertEquals(null, ongoingCallViewModel.toasts[toast.key]) // toast should be dismissed
         coVerify(exactly = 1) { // the status should be updated in the data store to not show it again
             arrangement.globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
         }
@@ -179,11 +179,11 @@ class OngoingCallViewModelTest {
             .arrange()
         advanceTimeBy(DELAY_TO_SHOW_DOUBLE_TAP_TOAST + 1) // advance time just after the "open" toast should be shown
         val toast = InCallToast.Fullscreen(DELAY_TO_SHOW_DOUBLE_TAP_TOAST, InCallToast.Fullscreen.Type.DoubleTapToOpen)
-        assertEquals(toast, ongoingCallViewModel.toasts[toast.id]) // toast should be displayed
+        assertEquals(toast, ongoingCallViewModel.toasts[toast.key]) // toast should be displayed
 
         advanceTimeBy(DOUBLE_TAP_TOAST_DISPLAY_TIME + 1) // wait for the toast to expire
 
-        assertEquals(null, ongoingCallViewModel.toasts[toast.id]) // toast should be dismissed
+        assertEquals(null, ongoingCallViewModel.toasts[toast.key]) // toast should be dismissed
         coVerify(exactly = 1) { // the status should be updated in the data store to not show it again
             arrangement.globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
         }
@@ -197,14 +197,14 @@ class OngoingCallViewModelTest {
             .arrange()
         advanceTimeBy(DELAY_TO_SHOW_DOUBLE_TAP_TOAST + 1) // advance time just after the "open" toast should be shown
         val openToast = InCallToast.Fullscreen(DELAY_TO_SHOW_DOUBLE_TAP_TOAST, InCallToast.Fullscreen.Type.DoubleTapToOpen)
-        assertEquals(openToast, ongoingCallViewModel.toasts[openToast.id]) // "open" toast should be displayed
+        assertEquals(openToast, ongoingCallViewModel.toasts[openToast.key]) // "open" toast should be displayed
 
         ongoingCallViewModel.onSelectedParticipant(selectedParticipant3) // select a participant to be in fullscreen
         advanceUntilIdle()
 
         val closeToast = InCallToast.Fullscreen(DELAY_TO_SHOW_DOUBLE_TAP_TOAST + 1, InCallToast.Fullscreen.Type.DoubleTapToClose)
-        assertEquals(null, ongoingCallViewModel.toasts[openToast.id]) // "open" toast should be dismissed
-        assertEquals(closeToast, ongoingCallViewModel.toasts[closeToast.id]) // "close" toast should be displayed
+        assertEquals(null, ongoingCallViewModel.toasts[openToast.key]) // "open" toast should be dismissed
+        assertEquals(closeToast, ongoingCallViewModel.toasts[closeToast.key]) // "close" toast should be displayed
         coVerify(exactly = 1) { // the status should be updated in the data store to not show it again
             arrangement.globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
         }
@@ -220,13 +220,13 @@ class OngoingCallViewModelTest {
         advanceUntilIdle()
         advanceTimeBy(DELAY_TO_SHOW_DOUBLE_TAP_TOAST + 1) // advance time just after the "open" toast should be shown
         val openToast = InCallToast.Fullscreen(DELAY_TO_SHOW_DOUBLE_TAP_TOAST, InCallToast.Fullscreen.Type.DoubleTapToOpen)
-        assertEquals(null, ongoingCallViewModel.toasts[openToast.id]) // "open" toast should not be displayed (fullscreen already opened)
+        assertEquals(null, ongoingCallViewModel.toasts[openToast.key]) // "open" toast should not be displayed (fullscreen already opened)
 
         ongoingCallViewModel.onSelectedParticipant(null) // unselect the fullscreen participant
         advanceUntilIdle()
 
         val closeToast = InCallToast.Fullscreen(DELAY_TO_SHOW_DOUBLE_TAP_TOAST, InCallToast.Fullscreen.Type.DoubleTapToClose)
-        assertEquals(null, ongoingCallViewModel.toasts[closeToast.id]) // "close" toast should be dismissed
+        assertEquals(null, ongoingCallViewModel.toasts[closeToast.key]) // "close" toast should be dismissed
     }
 
     @Test

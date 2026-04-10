@@ -368,7 +368,7 @@ private fun OngoingCallContent(
     callQuality: CallQualityData.Quality,
     othersVideosDisabled: Boolean,
     toasts: Set<InCallToast>,
-    onToastClick: (toastId: String) -> Unit,
+    onToastClick: (toastKey: InCallToast.Key) -> Unit,
     inCallReactionsEnabled: Boolean = BuildConfig.CALL_REACTIONS_ENABLED,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {

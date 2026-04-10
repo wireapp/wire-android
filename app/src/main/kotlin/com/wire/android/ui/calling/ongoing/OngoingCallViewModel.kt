@@ -116,13 +116,13 @@ class OngoingCallViewModel @AssistedInject constructor(
         delegate = mutableStateMapOf()
     )
 
-    val toasts: ExpiringMap<String, InCallToast> = ExpiringMap(
+    val toasts: ExpiringMap<InCallToast.Key, InCallToast> = ExpiringMap(
         scope = viewModelScope,
         currentTime = currentTime,
         expirationMs = MODERATION_ACTION_TOAST_DISPLAY_TIME,
         delegate = mutableStateMapOf(),
-        onEntryExpired = { toastId, _ ->
-            handleDismissedToast(toastId)
+        onEntryExpired = { toastKey, _ ->
+            handleDismissedToast(toastKey)
         }
     )
 
@@ -220,7 +220,7 @@ class OngoingCallViewModel @AssistedInject constructor(
                 }
                 .filterNotNull()
                 .collect { inCallToast ->
-                    toasts.putWithExpireIn(inCallToast.id, inCallToast, MODERATION_ACTION_TOAST_DISPLAY_TIME)
+                    toasts.putWithExpireIn(inCallToast.key, inCallToast, MODERATION_ACTION_TOAST_DISPLAY_TIME)
                 }
         }
     }
@@ -286,19 +286,19 @@ class OngoingCallViewModel @AssistedInject constructor(
             delay(DELAY_TO_SHOW_DOUBLE_TAP_TOAST)
             if (globalDataStore.getShouldShowDoubleTapToast(currentUserId.toString())) {
                 val doubleTapToOpenFullscreenToast = InCallToast.Fullscreen(currentTime(), InCallToast.Fullscreen.Type.DoubleTapToOpen)
-                toasts.putWithExpireIn(doubleTapToOpenFullscreenToast.id, doubleTapToOpenFullscreenToast, DOUBLE_TAP_TOAST_DISPLAY_TIME)
+                toasts.putWithExpireIn(doubleTapToOpenFullscreenToast.key, doubleTapToOpenFullscreenToast, DOUBLE_TAP_TOAST_DISPLAY_TIME)
             }
         }
     }
 
-    fun dismissToast(toastId: String) {
-        toasts.remove(toastId)
-        handleDismissedToast(toastId)
+    fun dismissToast(toastKey: InCallToast.Key) {
+        toasts.remove(toastKey)
+        handleDismissedToast(toastKey)
     }
 
-    private fun handleDismissedToast(toastId: String) {
+    private fun handleDismissedToast(toastKey: InCallToast.Key) {
         // if the "open fullscreen" toast is closed, update the data store so that it won't be shown again automatically
-        if (toastId == InCallToast.Fullscreen.Type.DoubleTapToOpen.id) {
+        if (toastKey == InCallToast.Fullscreen.Type.DoubleTapToOpen) {
             viewModelScope.launch {
                 globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
             }
@@ -310,14 +310,14 @@ class OngoingCallViewModel @AssistedInject constructor(
         state = state.copy(selectedParticipant = selectedParticipant)
         if (selectedParticipant != null) { // fullscreen opened
             // remove "open fullscreen" toast when a participant is selected as it's no longer relevant, user already used that
-            toasts.remove(InCallToast.Fullscreen.Type.DoubleTapToOpen.id)
-            handleDismissedToast(InCallToast.Fullscreen.Type.DoubleTapToOpen.id)
+            toasts.remove(InCallToast.Fullscreen.Type.DoubleTapToOpen)
+            handleDismissedToast(InCallToast.Fullscreen.Type.DoubleTapToOpen)
             // instead, show "close fullscreen" toast to let user know how to exit the fullscreen, it shouldn't expire automatically
             val doubleTapToCloseFullscreenToast = InCallToast.Fullscreen(currentTime(), InCallToast.Fullscreen.Type.DoubleTapToClose)
-            toasts.putNonExpiring(doubleTapToCloseFullscreenToast.id, doubleTapToCloseFullscreenToast)
+            toasts.putNonExpiring(doubleTapToCloseFullscreenToast.key, doubleTapToCloseFullscreenToast)
         } else { // fullscreen closed
             // when exiting fullscreen, remove "close fullscreen" toast as it's no longer relevant
-            toasts.remove(InCallToast.Fullscreen.Type.DoubleTapToClose.id)
+            toasts.remove(InCallToast.Fullscreen.Type.DoubleTapToClose)
         }
     }
 

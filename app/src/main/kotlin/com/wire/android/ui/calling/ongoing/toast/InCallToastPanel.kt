@@ -44,17 +44,17 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun InCallToastPanel(
     items: Set<InCallToast>,
-    onToastClick: (toastId: String) -> Unit,
+    onToastClick: (toastKey: InCallToast.Key) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isPreview = LocalInspectionMode.current
     val itemStates = remember { // Internal buffer to keep removed toasts in the UI during their exit animation
-        mutableStateMapOf<String, InCallToast>().apply {
-            putAll(items.associateBy { it.id })
+        mutableStateMapOf<InCallToast.Key, InCallToast>().apply {
+            putAll(items.associateBy { it.key })
         }
     }
     LaunchedEffect(items) { // Sync toasts into buffer map whenever set of 'items' changes
-        itemStates.putAll(items.associateBy { it.id })
+        itemStates.putAll(items.associateBy { it.key })
     }
 
     Column(
@@ -63,10 +63,10 @@ fun InCallToastPanel(
             .fillMaxSize()
             .padding(dimensions().spacing4x)
     ) {
-        itemStates.values.sortedBy { it.time }.map { it.id }.forEach { id ->
-            val isPresent = items.find { it.id == id } != null
+        itemStates.values.sortedBy { it.time }.map { it.key }.forEach { key ->
+            val isPresent = items.find { it.key == key } != null
 
-            key(id) {
+            key(key) {
                 val visibilityState = remember {
                     // Preview shows immediately, in real start with 'false' and change to 'true' to have "enter" animation for new items
                     MutableTransitionState(isPreview).apply { targetState = true }
@@ -79,7 +79,7 @@ fun InCallToastPanel(
                     enter = fadeIn() + scaleIn() + expandIn(expandFrom = Alignment.Center),
                     exit = fadeOut() + scaleOut() + shrinkOut(shrinkTowards = Alignment.Center),
                 ) {
-                    val currentItem = itemStates[id] ?: return@AnimatedVisibility
+                    val currentItem = itemStates[key] ?: return@AnimatedVisibility
                     AnimatedContent(targetState = currentItem) { target ->
                         InCallToast(
                             toast = target,
@@ -92,7 +92,7 @@ fun InCallToastPanel(
                 if (!isPresent) {
                     LaunchedEffect(visibilityState.isIdle) {
                         if (visibilityState.isIdle && !visibilityState.targetState) {
-                            itemStates.remove(id)
+                            itemStates.remove(key)
                         }
                     }
                 }

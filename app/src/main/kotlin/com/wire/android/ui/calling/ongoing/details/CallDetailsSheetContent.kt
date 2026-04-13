@@ -32,6 +32,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
@@ -102,8 +105,11 @@ private fun NetworkQualityItem(
     callQuality: CallQualityData.Quality,
     onOpenNetworkQuality: () -> Unit
 ) {
+    val title = stringResource(R.string.calling_details_network_quality_title)
+    val clickLabel = stringResource(R.string.content_description_call_network_quality_view_details)
+    val value = callQuality.toCallQualityIndicatorValue().text
     MenuBottomSheetItem(
-        title = stringResource(R.string.calling_details_network_quality_title),
+        title = title,
         trailing = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -121,7 +127,11 @@ private fun NetworkQualityItem(
                 )
             }
         },
-        onItemClick = onOpenNetworkQuality
+        onItemClick = onOpenNetworkQuality,
+        modifier = Modifier.clearAndSetSemantics {
+            contentDescription = "$title: $value"
+            onClick(label = clickLabel, action = null)
+        }
     )
 }
 

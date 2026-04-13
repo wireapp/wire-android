@@ -77,6 +77,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
@@ -675,6 +676,8 @@ fun ConversationScreen(
         },
         onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
+        isFetchingOlderMessages = conversationMessagesViewModel.conversationViewState.isFetchingOlderMessages,
+        hasMoreRemoteMessages = conversationMessagesViewModel.conversationViewState.hasMoreRemoteMessages,
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
@@ -941,6 +944,8 @@ private fun ConversationScreen(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     onReachedOldestMessage: () -> Unit = {},
+    isFetchingOlderMessages: Boolean = false,
+    hasMoreRemoteMessages: Boolean = false,
     isWireCellsEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -1043,6 +1048,8 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
+                        isFetchingOlderMessages = conversationMessagesViewState.isFetchingOlderMessages,
+                        hasMoreRemoteMessages = conversationMessagesViewState.hasMoreRemoteMessages,
                         isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                     )
@@ -1129,6 +1136,8 @@ private fun ConversationScreenContent(
     currentTimeInMillisFlow: Flow<Long> = flow {},
     onReachedOldestMessage: () -> Unit = {},
     showHistoryLoadingIndicator: Boolean = false,
+    isFetchingOlderMessages: Boolean = false,
+    hasMoreRemoteMessages: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
 ) {
@@ -1176,6 +1185,8 @@ private fun ConversationScreenContent(
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 onReachedOldestMessage = onReachedOldestMessage,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
+                isFetchingOlderMessages = isFetchingOlderMessages,
+                hasMoreRemoteMessages = hasMoreRemoteMessages,
                 isBubbleUiEnabled = isBubbleUiEnabled,
                 isWireCellsEnabled = isWireCellsEnabled,
             )
@@ -1258,6 +1269,8 @@ fun MessageList(
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
+    isFetchingOlderMessages: Boolean = false,
+    hasMoreRemoteMessages: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
     onReachedOldestMessage: () -> Unit = {},
@@ -1277,6 +1290,18 @@ fun MessageList(
             if (canScrollToLastMessage) {
                 lazyListState.stopScroll()
                 lazyListState.animateScrollToItem(0)
+            }
+            if (shouldAutoTriggerOldestFetch(
+                    selectedMessageId = selectedMessageId,
+                    isScrollInProgress = lazyListState.isScrollInProgress,
+                    canScrollForward = lazyListState.canScrollForward,
+                    hasMoreRemoteMessages = hasMoreRemoteMessages,
+                    isFetchingOlderMessages = isFetchingOlderMessages,
+                )
+            ) {
+                onReachedOldestMessage()
+            } else {
+                shouldTriggerOldestMessageFetch.value = true
             }
             prevItemCount.value = lazyPagingMessages.itemCount
         }
@@ -1473,6 +1498,24 @@ fun MessageList(
                         }
                     )
                 }
+                if (isFetchingOlderMessages && hasMoreRemoteMessages && lazyPagingMessages.itemCount > 0) {
+                    item(
+                        key = "nomad_prepend_loading_indicator",
+                        contentType = "nomad_prepend_loading_indicator",
+                        content = {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(dimensions().spacing16x),
+                            ) {
+                                PageLoadingIndicator(
+                                    text = stringResource(R.string.conversation_history_loading),
+                                )
+                            }
+                        }
+                    )
+                }
             }
                 ScrollDateOverlay(
                     lazyListState = lazyListState,
@@ -1488,6 +1531,20 @@ fun MessageList(
         )
     }
 }
+
+@VisibleForTesting
+internal fun shouldAutoTriggerOldestFetch(
+    selectedMessageId: String?,
+    isScrollInProgress: Boolean,
+    canScrollForward: Boolean,
+    hasMoreRemoteMessages: Boolean,
+    isFetchingOlderMessages: Boolean,
+): Boolean =
+    selectedMessageId == null &&
+        !isScrollInProgress &&
+        !canScrollForward &&
+        hasMoreRemoteMessages &&
+        !isFetchingOlderMessages
 
 private fun UIMessage.audioMessageScopedKeyOrNull(): String? =
     (this as? UIMessage.Regular)
@@ -1864,5 +1921,7 @@ fun PreviewConversationScreen() = WireTheme {
         onAttachmentMenuClick = {},
         onAttachmentPicked = {},
         onAudioRecorded = {},
+        isFetchingOlderMessages = false,
+        hasMoreRemoteMessages = false,
     )
 }

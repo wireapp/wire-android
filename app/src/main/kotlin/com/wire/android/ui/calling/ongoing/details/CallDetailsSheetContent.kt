@@ -32,9 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
@@ -132,6 +134,7 @@ private fun NetworkQualityItem(
         modifier = Modifier.clearAndSetSemantics {
             contentDescription = clickLabel
             stateDescription = "$title: $value"
+            role = Role.Button
             onClick(action = null)
         }
     )

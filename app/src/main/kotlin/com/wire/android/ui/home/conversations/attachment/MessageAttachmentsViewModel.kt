@@ -88,6 +88,11 @@ class MessageAttachmentsViewModel @Inject constructor(
     var failedAttachmentDialogState: FailedAttachmentDialogState by mutableStateOf(FailedAttachmentDialogState.Hidden)
         private set
 
+    var incompatibleFileNameDialogState: IncompatibleFileNameDialogState by mutableStateOf(IncompatibleFileNameDialogState.Hidden)
+        private set
+
+    private val pendingIncompatibleBundles: ArrayDeque<AssetBundle> = ArrayDeque()
+
     init {
         viewModelScope.launch {
             combine(removedAttachments, observeAttachments(conversationId)) { removed, list ->
@@ -128,15 +133,48 @@ class MessageAttachmentsViewModel @Inject constructor(
     fun onFilesSelected(uriList: List<Uri>) = viewModelScope.launch {
         uriList.forEach { uri ->
             handleImportedAsset(uri)?.let { asset ->
-                addAttachment(asset.assetBundle)
+                enqueueOrAddAttachment(asset.assetBundle)
             }
         }
     }
 
     fun onFilesAddedAsBundle(bundles: List<AssetBundle>) = viewModelScope.launch {
         bundles.forEach { bundle ->
+            enqueueOrAddAttachment(bundle)
+        }
+    }
+
+    private fun enqueueOrAddAttachment(bundle: AssetBundle) {
+        if (bundle.fileName.hasIncompatibleFileNameCharacters()) {
+            pendingIncompatibleBundles.addLast(bundle)
+            if (incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Hidden) {
+                showNextIncompatibleDialog()
+            }
+        } else {
             addAttachment(bundle)
         }
+    }
+
+    private fun showNextIncompatibleDialog() {
+        val next = pendingIncompatibleBundles.firstOrNull() ?: return
+        incompatibleFileNameDialogState = IncompatibleFileNameDialogState.Visible(
+            sanitizedFileName = next.fileName.sanitizeIncompatibleFileNameCharacters(),
+        )
+    }
+
+    fun onReplaceFileNameAutomatically() {
+        val state = incompatibleFileNameDialogState as? IncompatibleFileNameDialogState.Visible ?: return
+        incompatibleFileNameDialogState = IncompatibleFileNameDialogState.Hidden
+        pendingIncompatibleBundles.removeFirstOrNull()?.let { bundle ->
+            addAttachment(bundle.copy(fileName = state.sanitizedFileName))
+        }
+        showNextIncompatibleDialog()
+    }
+
+    fun onDismissIncompatibleFileNameDialog() {
+        incompatibleFileNameDialogState = IncompatibleFileNameDialogState.Hidden
+        pendingIncompatibleBundles.removeFirstOrNull()
+        showNextIncompatibleDialog()
     }
 
     private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? =
@@ -270,3 +308,19 @@ sealed interface FailedAttachmentDialogState {
         val showRetryOption: Boolean,
     ) : FailedAttachmentDialogState
 }
+
+sealed interface IncompatibleFileNameDialogState {
+    data object Hidden : IncompatibleFileNameDialogState
+    data class Visible(val sanitizedFileName: String) : IncompatibleFileNameDialogState
+}
+
+private fun String.hasIncompatibleFileNameCharacters(): Boolean =
+    startsWith(".") || contains("/") || contains("\\") || contains("\"")
+
+private fun String.sanitizeIncompatibleFileNameCharacters(): String =
+    trimStart('.')
+        .replace("/", "_")
+        .replace("\\", "_")
+        .replace("\"", "_")
+        .ifEmpty { "file" }
+

@@ -1,1 +1,11 @@
-*	@wireapp/android
+@wireapp/android
+
+# Gradle
+gradle/libs.versions.toml @wireapp/android
+
+# GitHub Actions workflows
+.github/workflows/* @wireapp/android
+
+# GitHub Actions dependency/update config
+.github/dependabot.yml @wireapp/android
+.github/actions/* @wireapp/android

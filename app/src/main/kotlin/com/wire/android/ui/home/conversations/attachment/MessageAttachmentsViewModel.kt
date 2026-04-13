@@ -315,7 +315,7 @@ sealed interface IncompatibleFileNameDialogState {
 }
 
 private fun String.hasIncompatibleFileNameCharacters(): Boolean =
-    startsWith(".") || contains("/") || contains("\\") || contains("\"")
+    this == "." || startsWith(".") || contains("/") || contains("\\") || contains("\"")
 
 private fun String.sanitizeIncompatibleFileNameCharacters(): String =
     trimStart('.')

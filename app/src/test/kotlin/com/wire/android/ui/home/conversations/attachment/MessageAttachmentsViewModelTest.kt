@@ -156,6 +156,29 @@ class MessageAttachmentsViewModelTest {
     }
 
     @Test
+    fun givenFileNameEqualToDot_whenFilesSelected_thenDialogIsShown() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withHandleUriAssetSuccess(".")
+            .arrange()
+
+        viewModel.onFilesSelected(listOf(mockk()))
+
+        assertTrue(viewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible)
+    }
+
+    @Test
+    fun givenFileNameEqualToDot_whenFilesSelected_thenDialogStateUsesFallbackName() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withHandleUriAssetSuccess(".")
+            .arrange()
+
+        viewModel.onFilesSelected(listOf(mockk()))
+
+        val state = viewModel.incompatibleFileNameDialogState as IncompatibleFileNameDialogState.Visible
+        assertEquals("file", state.sanitizedFileName)
+    }
+
+    @Test
     fun givenDialogVisible_whenReplaceAutomatically_thenFileIsAddedWithSanitizedName() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withHandleUriAssetSuccess(".hidden.txt")

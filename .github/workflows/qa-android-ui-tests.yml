@@ -84,7 +84,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # Validate upgrade inputs before runner work starts.
       - name: Validate upgrade inputs
@@ -136,7 +136,7 @@ jobs:
 
     steps:
       - name: Checkout (with submodules)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           clean: true
           submodules: recursive
@@ -194,7 +194,7 @@ jobs:
         run: bash scripts/qa_android_ui_tests/execution_setup.sh install-apks-on-devices
 
       - name: Install 1Password CLI
-        uses: 1password/install-cli-action@v2
+        uses: 1password/install-cli-action@v3
 
       # Fetch runtime secrets only for this run.
       - name: Fetch secrets.json (runtime only)
@@ -255,7 +255,7 @@ jobs:
 
       - name: Checkout GitHub Pages branch
         if: always()
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: gh-pages
           path: gh-pages

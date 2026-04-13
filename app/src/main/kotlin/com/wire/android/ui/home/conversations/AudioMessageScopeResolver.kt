@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.messagecomposer.attachments
 
-import com.wire.android.di.ScopedArgs
-import kotlinx.serialization.Serializable
+package com.wire.android.ui.home.conversations
 
-@Serializable
-object IsFileSharingEnabledArgs : ScopedArgs {
+import androidx.compose.runtime.staticCompositionLocalOf
+import com.sebaslogen.resaca.KeyInScopeResolver
 
-    override val key = "IsFileSharingEnabledArgsKey"
-}
+val LocalAudioMessageKeyInScopeResolver = staticCompositionLocalOf<KeyInScopeResolver<String>?> { null }
+val LocalAssetLocalPathKeyInScopeResolver = staticCompositionLocalOf<KeyInScopeResolver<String>?> { null }

@@ -50,7 +50,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
-import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
@@ -234,13 +233,13 @@ class LoginSSOViewModel(
         }
     }
 
-    @Suppress("ComplexMethod", "LongMethod")
     @VisibleForTesting
     fun establishSSOSession(
         cookie: String,
         serverConfigId: String,
     ) {
         updateSSOFlowState(LoginState.Loading)
+        val isNomadFlow = pendingNomadServiceUrl != null
         viewModelScope.launch {
             ssoExtension.establishSSOSession(
                 cookie = cookie,
@@ -251,16 +250,11 @@ class LoginSSOViewModel(
                 onSSOLoginFailure = { updateSSOFlowState(it.toLoginError()) },
                 onAddAuthenticatedUserFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSuccess = { storedUserId ->
-                    appLogger.i("$TAG SSO session established successfully for userId: $storedUserId, checking Nomad status")
-                    val isNomadEnabled = withContext(dispatchers.io()) {
-                        val result = coreLogic.getSessionScope(storedUserId).authenticationScope.isNomadProfilesEnabled()
-                        result is IsNomadProfilesEnabledUseCase.Result.Success && result.isEnabled
-                    }
-                    if (!isNomadEnabled) {
-                        appLogger.i("$TAG Nomad not enabled, proceeding with regular login")
+                    if (!isNomadFlow) {
+                        appLogger.i("$TAG Not a nomad flow, proceeding with regular login")
                         registerClientAndUpdateState(storedUserId, setLastDeviceId = false)
                     } else {
-                        appLogger.i("$TAG Nomad enabled, attempting crypto state restore")
+                        appLogger.i("$TAG Nomad flow, attempting crypto state restore")
                         restoreCryptoStateAndContinue(storedUserId)
                     }
                 }

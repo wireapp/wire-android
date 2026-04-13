@@ -32,7 +32,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.EnterpriseLoginResult
-import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
 import com.wire.kalium.logic.feature.auth.LoginRedirectPath
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
@@ -642,9 +641,6 @@ class NewLoginViewModelTest {
         val validateEmailOrSSOCodeUseCase: ValidateEmailOrSSOCodeUseCase = mockk()
 
         @MockK
-        lateinit var isNomadProfilesEnabledUseCase: IsNomadProfilesEnabledUseCase
-
-        @MockK
         lateinit var restoreCryptoStateUseCase: RestoreCryptoStateUseCase
 
         @MockK
@@ -670,10 +666,6 @@ class NewLoginViewModelTest {
             every {
                 savedStateHandle.navArgs<LoginNavArgs>()
             } returns LoginNavArgs()
-            every {
-                coreLogic.getSessionScope(any()).authenticationScope.isNomadProfilesEnabled
-            } returns isNomadProfilesEnabledUseCase
-            coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(false)
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
         }
@@ -859,10 +851,6 @@ class NewLoginViewModelTest {
                     customServerConfig = ServerConfig.STAGING
                 )
             )
-        }
-
-        fun withNomadEnabled(enabled: Boolean) = apply {
-            coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(enabled)
         }
 
         fun withRestoreCryptoStateReturning(result: RestoreCryptoStateResult) = apply {
@@ -1165,7 +1153,7 @@ class NewLoginViewModelTest {
             val userId = UserId("user-id", "domain")
             val (_, viewModel) = Arrangement()
                 .withEstablishSSOSessionSuccess(userId)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateReturning(RestoreCryptoStateResult.Success)
                 .withIsInitialSyncCompletedReturning(true)
                 .arrange()
@@ -1186,7 +1174,7 @@ class NewLoginViewModelTest {
             val userId = UserId("user-id", "domain")
             val (_, viewModel) = Arrangement()
                 .withEstablishSSOSessionSuccess(userId)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateReturning(RestoreCryptoStateResult.Success)
                 .withIsInitialSyncCompletedReturning(false)
                 .arrange()
@@ -1206,7 +1194,7 @@ class NewLoginViewModelTest {
             val userId = UserId("user-id", "domain")
             val (arrangement, viewModel) = Arrangement()
                 .withEstablishSSOSessionSuccess(userId)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateReturning(RestoreCryptoStateResult.NoBackupAvailable)
                 .withRegisterClientReturning(RegisterClientResult.Success(TestClient.CLIENT))
                 .withIsInitialSyncCompletedReturning(true)
@@ -1231,7 +1219,7 @@ class NewLoginViewModelTest {
             val userId = UserId("user-id", "domain")
             val (arrangement, viewModel) = Arrangement()
                 .withEstablishSSOSessionSuccess(userId)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateReturning(RestoreCryptoStateResult.Failure)
                 .withRevertSSOSessionSuccess()
                 .arrange()
@@ -1254,7 +1242,7 @@ class NewLoginViewModelTest {
             val userId = UserId("user-id", "domain")
             val (arrangement, viewModel) = Arrangement()
                 .withEstablishSSOSessionSuccess(userId)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateThrowing(IllegalStateException("attempt to re-open an already-closed object"))
                 .withSessionStillValid(false)
                 .arrange()
@@ -1273,7 +1261,7 @@ class NewLoginViewModelTest {
             val userId = UserId("user-id", "domain")
             val (arrangement, viewModel) = Arrangement()
                 .withEstablishSSOSessionSuccess(userId)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateThrowing(IOException("session files deleted"))
                 .withSessionStillValid(false)
                 .arrange()
@@ -1292,7 +1280,7 @@ class NewLoginViewModelTest {
             val userId = UserId("user-id", "domain")
             val (arrangement, viewModel) = Arrangement()
                 .withEstablishSSOSessionSuccess(userId)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateThrowing(SQLiteException("database is locked"))
                 .withSessionStillValid(false)
                 .arrange()
@@ -1311,7 +1299,7 @@ class NewLoginViewModelTest {
             val userId = UserId("user-id", "domain")
             val (_, viewModel) = Arrangement()
                 .withEstablishSSOSessionSuccess(userId)
-                .withNomadEnabled(true)
+                .withNomadAutoLogin("https://nomad.example.com/service")
                 .withRestoreCryptoStateReturning(RestoreCryptoStateResult.Failure)
                 .withSessionStillValid(false)
                 .apply { coEvery { logoutUseCase(any(), any()) } throws IllegalStateException("already closed") }

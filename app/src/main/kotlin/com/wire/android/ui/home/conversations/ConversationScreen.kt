@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.home.conversations
 
@@ -28,11 +29,13 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,6 +61,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -73,6 +77,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
@@ -102,6 +107,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.mapper.MessageDateTimeGroup
+import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
@@ -157,12 +163,15 @@ import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBack
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
+import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.messages.item.SwipeableMessageConfiguration
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
@@ -197,6 +206,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.isInternal
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
+import com.sebaslogen.resaca.rememberKeysInScope
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -666,6 +676,8 @@ fun ConversationScreen(
         },
         onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
+        isFetchingOlderMessages = conversationMessagesViewModel.conversationViewState.isFetchingOlderMessages,
+        hasMoreRemoteMessages = conversationMessagesViewModel.conversationViewState.hasMoreRemoteMessages,
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
@@ -932,6 +944,8 @@ private fun ConversationScreen(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     onReachedOldestMessage: () -> Unit = {},
+    isFetchingOlderMessages: Boolean = false,
+    hasMoreRemoteMessages: Boolean = false,
     isWireCellsEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -1034,6 +1048,8 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
+                        isFetchingOlderMessages = conversationMessagesViewState.isFetchingOlderMessages,
+                        hasMoreRemoteMessages = conversationMessagesViewState.hasMoreRemoteMessages,
                         isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                     )
@@ -1120,6 +1136,8 @@ private fun ConversationScreenContent(
     currentTimeInMillisFlow: Flow<Long> = flow {},
     onReachedOldestMessage: () -> Unit = {},
     showHistoryLoadingIndicator: Boolean = false,
+    isFetchingOlderMessages: Boolean = false,
+    hasMoreRemoteMessages: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
 ) {
@@ -1167,6 +1185,8 @@ private fun ConversationScreenContent(
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 onReachedOldestMessage = onReachedOldestMessage,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
+                isFetchingOlderMessages = isFetchingOlderMessages,
+                hasMoreRemoteMessages = hasMoreRemoteMessages,
                 isBubbleUiEnabled = isBubbleUiEnabled,
                 isWireCellsEnabled = isWireCellsEnabled,
             )
@@ -1249,6 +1269,8 @@ fun MessageList(
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
+    isFetchingOlderMessages: Boolean = false,
+    hasMoreRemoteMessages: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
     onReachedOldestMessage: () -> Unit = {},
@@ -1257,6 +1279,8 @@ fun MessageList(
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
     val shouldTriggerOldestMessageFetch = remember { mutableStateOf(true) }
     val currentTime by currentTimeInMillisFlow.collectAsState(initial = System.currentTimeMillis())
+    val isPrependLoading = lazyPagingMessages.loadState.prepend is LoadState.Loading
+    val isPrependCompleted = lazyPagingMessages.loadState.prepend.endOfPaginationReached
 
     LaunchedEffect(lazyPagingMessages.itemCount) {
         if (lazyPagingMessages.itemCount > prevItemCount.value && selectedMessageId == null) {
@@ -1264,7 +1288,20 @@ fun MessageList(
                     && lazyListState.firstVisibleItemIndex > 0
                     && lazyListState.firstVisibleItemIndex <= MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS
             if (canScrollToLastMessage) {
+                lazyListState.stopScroll()
                 lazyListState.animateScrollToItem(0)
+            }
+            if (shouldAutoTriggerOldestFetch(
+                    selectedMessageId = selectedMessageId,
+                    isScrollInProgress = lazyListState.isScrollInProgress,
+                    canScrollForward = lazyListState.canScrollForward,
+                    hasMoreRemoteMessages = hasMoreRemoteMessages,
+                    isFetchingOlderMessages = isFetchingOlderMessages,
+                )
+            ) {
+                onReachedOldestMessage()
+            } else {
+                shouldTriggerOldestMessageFetch.value = true
             }
             prevItemCount.value = lazyPagingMessages.itemCount
         }
@@ -1303,19 +1340,34 @@ fun MessageList(
         }
     }
 
-    Box(
-        contentAlignment = Alignment.BottomEnd,
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                color = if (isBubbleUiEnabled) {
-                    colorsScheme().bubblesBackground
-                } else {
-                    colorsScheme().surfaceContainerLow
-                }
-            ),
-        content = {
-            LazyColumn(
+    val audioMessageKeysInScope = remember(lazyPagingMessages.itemSnapshotList.items) {
+        lazyPagingMessages.itemSnapshotList.items.mapNotNull { it.audioMessageScopedKeyOrNull() }.distinct()
+    }
+    val assetLocalPathKeysInScope = remember(lazyPagingMessages.itemSnapshotList.items) {
+        lazyPagingMessages.itemSnapshotList.items
+            .flatMap { it.assetLocalPathScopedKeys() }
+            .distinct()
+    }
+    val audioMessageKeyInScopeResolver = rememberKeysInScope(audioMessageKeysInScope)
+    val assetLocalPathKeyInScopeResolver = rememberKeysInScope(assetLocalPathKeysInScope)
+
+    CompositionLocalProvider(
+        LocalAudioMessageKeyInScopeResolver provides audioMessageKeyInScopeResolver,
+        LocalAssetLocalPathKeyInScopeResolver provides assetLocalPathKeyInScopeResolver,
+    ) {
+        Box(
+            contentAlignment = Alignment.BottomEnd,
+            modifier = modifier
+                .fillMaxSize()
+                .background(
+                    color = if (isBubbleUiEnabled) {
+                        colorsScheme().bubblesBackground
+                    } else {
+                        colorsScheme().surfaceContainerLow
+                    }
+                ),
+            content = {
+                LazyColumn(
                 state = lazyListState,
                 reverseLayout = true,
                 // calculating bottom padding to have space for [UsersTypingIndicator]
@@ -1328,20 +1380,19 @@ fun MessageList(
                 items(
                     count = lazyPagingMessages.itemCount,
                     key = lazyPagingMessages.itemKey { it.header.messageId },
-                    contentType = lazyPagingMessages.itemContentType { it }
+                    contentType = lazyPagingMessages.itemContentType { message ->
+                        when (message) {
+                            is UIMessage.Regular -> "regular_message"
+                            is UIMessage.System -> "system_message"
+                        }
+                    }
                 ) { index ->
                     val message: UIMessage = lazyPagingMessages[index]
-                        ?: return@items Box(
-                            contentAlignment = Alignment.Center,
+                        ?: return@items Spacer(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(dimensions().spacing56x),
-                        ) {
-                            WireCircularProgressIndicator(
-                                progressColor = MaterialTheme.wireColorScheme.secondaryText,
-                                size = dimensions().spacing24x
-                            )
-                        }
+                                .height(dimensions().spacing56x)
+                        )
 
                     val showAuthor = if (!isBubbleUiEnabled || conversationDetailsData is ConversationDetailsData.Group) {
                         rememberShouldShowHeader(index, message, lazyPagingMessages)
@@ -1370,8 +1421,8 @@ fun MessageList(
                         }
                     }
 
-                    val swipeableConfiguration = remember(message) {
-                        if (message is UIMessage.Regular && message.isSwipeable) {
+                    val swipeableConfiguration = remember(message, lazyListState.isScrollInProgress) {
+                        if (!lazyListState.isScrollInProgress && message is UIMessage.Regular && message.isSwipeable) {
                             SwipeableMessageConfiguration.Swipeable(
                                 onSwipedRight = { onSwipedToReply(message) }.takeIf { message.isReplyable },
                                 onSwipedLeft = { onSwipedToReact(message) }.takeIf { message.isReactionAllowed },
@@ -1411,7 +1462,9 @@ fun MessageList(
                     }
                 }
                 // reverse layout, so prepend needs to be added after all messages to be displayed at the top of the list
-                if (showHistoryLoadingIndicator && lazyPagingMessages.itemCount > 0) {
+                if (lazyPagingMessages.itemCount > 0 &&
+                    (isPrependLoading || (showHistoryLoadingIndicator && isPrependCompleted))
+                ) {
                     item(
                         key = "prepend_loading_indicator",
                         contentType = "prepend_loading_indicator",
@@ -1422,39 +1475,172 @@ fun MessageList(
                                     .fillMaxWidth()
                                     .padding(dimensions().spacing16x),
                             ) {
-                                var allMessagesPrepended by remember { mutableStateOf(false) }
-                                LaunchedEffect(lazyPagingMessages.loadState) {
-                                    // When the list is being refreshed, the load state for prepend is cleared so the app doesn't know if
-                                    // the end of pagination is reached or not for prepend until the refresh is done, so we don't want to
-                                    // update the allMessagesPrepended state while refreshing and in that case keep the last updated state,
-                                    // otherwise the indicator will flicker while refreshing.
-                                    if (lazyPagingMessages.loadState.refresh is LoadState.NotLoading) {
-                                        allMessagesPrepended = lazyPagingMessages.loadState.prepend.endOfPaginationReached
-                                    }
+                                val (text, prefixIconResId) = when {
+                                    showHistoryLoadingIndicator && isPrependCompleted ->
+                                        stringResource(R.string.conversation_history_loaded) to null
+                                    showHistoryLoadingIndicator ->
+                                        stringResource(R.string.conversation_history_loading) to R.drawable.ic_undo
+                                    else -> "" to null
                                 }
 
-                                val (text, prefixIconResId) = when (allMessagesPrepended) {
-                                    true -> stringResource(R.string.conversation_history_loaded) to null
-                                    false -> stringResource(R.string.conversation_history_loading) to R.drawable.ic_undo
+                                if (showHistoryLoadingIndicator) {
+                                    PageLoadingIndicator(
+                                        text = text,
+                                        prefixIconResId = prefixIconResId,
+                                    )
+                                } else {
+                                    WireCircularProgressIndicator(
+                                        progressColor = MaterialTheme.wireColorScheme.secondaryText,
+                                        size = dimensions().spacing24x
+                                    )
                                 }
+                            }
+                        }
+                    )
+                }
+                if (isFetchingOlderMessages && hasMoreRemoteMessages && lazyPagingMessages.itemCount > 0) {
+                    item(
+                        key = "nomad_prepend_loading_indicator",
+                        contentType = "nomad_prepend_loading_indicator",
+                        content = {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(dimensions().spacing16x),
+                            ) {
                                 PageLoadingIndicator(
-                                    text = text,
-                                    prefixIconResId = prefixIconResId,
+                                    text = stringResource(R.string.conversation_history_loading),
                                 )
                             }
                         }
                     )
                 }
             }
-            JumpToPlayingAudioButton(
-                lazyListState = lazyListState,
-                lazyPagingMessages = lazyPagingMessages,
-                playingAudioMessage = playingAudioMessage
-            )
-            JumpToLastMessageButton(lazyListState = lazyListState)
-        }
-    )
+                ScrollDateOverlay(
+                    lazyListState = lazyListState,
+                    lazyPagingMessages = lazyPagingMessages
+                )
+                JumpToPlayingAudioButton(
+                    lazyListState = lazyListState,
+                    lazyPagingMessages = lazyPagingMessages,
+                    playingAudioMessage = playingAudioMessage
+                )
+                JumpToLastMessageButton(lazyListState = lazyListState)
+            }
+        )
+    }
 }
+
+@VisibleForTesting
+internal fun shouldAutoTriggerOldestFetch(
+    selectedMessageId: String?,
+    isScrollInProgress: Boolean,
+    canScrollForward: Boolean,
+    hasMoreRemoteMessages: Boolean,
+    isFetchingOlderMessages: Boolean,
+): Boolean =
+    selectedMessageId == null &&
+        !isScrollInProgress &&
+        !canScrollForward &&
+        hasMoreRemoteMessages &&
+        !isFetchingOlderMessages
+
+private fun UIMessage.audioMessageScopedKeyOrNull(): String? =
+    (this as? UIMessage.Regular)
+        ?.takeIf { it.messageContent is UIMessageContent.AudioAssetMessage }
+        ?.let { AudioMessageArgs(it.conversationId, it.header.messageId).key }
+
+private fun UIMessage.assetLocalPathScopedKeys(): List<String> {
+    val regularMessage = this as? UIMessage.Regular ?: return emptyList()
+    val keys = mutableListOf<String>()
+
+    when (regularMessage.messageContent) {
+        is UIMessageContent.ImageMessage,
+        is UIMessageContent.VideoMessage,
+        is UIMessageContent.AssetMessage -> {
+            keys.add(AssetLocalPathArgs(regularMessage.conversationId, regularMessage.header.messageId).key)
+        }
+
+        else -> Unit
+    }
+
+    val quotedImageAsset = when (val content = regularMessage.messageContent) {
+        is UIMessageContent.TextMessage -> {
+            (content.messageBody.quotedMessage as? UIQuotedMessage.UIQuotedData)
+                ?.quotedContent as? UIQuotedMessage.UIQuotedData.DisplayableImage
+        }
+
+        is UIMessageContent.Composite -> {
+            (content.messageBody?.quotedMessage as? UIQuotedMessage.UIQuotedData)
+                ?.quotedContent as? UIQuotedMessage.UIQuotedData.DisplayableImage
+        }
+
+        else -> null
+    }?.displayable
+
+    if (quotedImageAsset != null) {
+        keys.add(AssetLocalPathArgs(quotedImageAsset.conversationId, quotedImageAsset.messageId).key)
+    }
+
+    return keys
+}
+
+@Composable
+private fun BoxScope.ScrollDateOverlay(
+    lazyListState: LazyListState,
+    lazyPagingMessages: LazyPagingItems<UIMessage>,
+) {
+    val context = LocalContext.current
+    val dateLabel by remember(lazyListState, lazyPagingMessages) {
+        derivedStateOf {
+            if (!lazyListState.isScrollInProgress) return@derivedStateOf null
+
+            val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
+            var message: UIMessage? = null
+            for (index in visibleItems.lastIndex downTo 0) {
+                message = lazyPagingMessages.peekOrNull(visibleItems[index].index)
+                if (message != null) break
+            }
+            message ?: return@derivedStateOf null
+            val messageDate = message.header.messageTime.utcISO.serverDate() ?: return@derivedStateOf null
+
+            DateUtils.formatDateTime(
+                context,
+                messageDate.time,
+                DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE
+            )
+        }
+    }
+
+    AnimatedVisibility(
+        visible = dateLabel != null,
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = MaterialTheme.wireColorScheme.surface.copy(alpha = 0.8f)
+                )
+                .padding(vertical = dimensions().spacing2x, horizontal = dimensions().spacing4x),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = dateLabel.orEmpty(),
+                style = MaterialTheme.wireTypography.title03,
+                color = MaterialTheme.wireColorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+private fun LazyPagingItems<UIMessage>.peekOrNull(index: Int): UIMessage? =
+    if (index in 0 until itemCount) peek(index) else null
 
 @Composable
 private fun MessageGroupDateTime(
@@ -1583,7 +1769,12 @@ fun JumpToLastMessageButton(
         exit = scaleOut(),
     ) {
         SmallFloatingActionButton(
-            onClick = { coroutineScope.launch { lazyListState.animateScrollToItem(0) } },
+            onClick = {
+                coroutineScope.launch {
+                    lazyListState.stopScroll()
+                    lazyListState.animateScrollToItem(0)
+                }
+            },
             containerColor = MaterialTheme.wireColorScheme.secondaryText,
             contentColor = MaterialTheme.wireColorScheme.onPrimaryButtonEnabled,
             shape = CircleShape,
@@ -1730,5 +1921,7 @@ fun PreviewConversationScreen() = WireTheme {
         onAttachmentMenuClick = {},
         onAttachmentPicked = {},
         onAudioRecorded = {},
+        isFetchingOlderMessages = false,
+        hasMoreRemoteMessages = false,
     )
 }

@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
@@ -121,7 +122,7 @@ private fun NetworkQualityItem(
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_right),
-                    contentDescription = "",
+                    contentDescription = stringResource(R.string.content_description_call_network_quality_view_details),
                     tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
                     modifier = Modifier.size(dimensions().spacing16x)
                 )
@@ -129,8 +130,9 @@ private fun NetworkQualityItem(
         },
         onItemClick = onOpenNetworkQuality,
         modifier = Modifier.clearAndSetSemantics {
-            contentDescription = "$title: $value"
-            onClick(label = clickLabel, action = null)
+            contentDescription = clickLabel
+            stateDescription = "$title: $value"
+            onClick(action = null)
         }
     )
 }

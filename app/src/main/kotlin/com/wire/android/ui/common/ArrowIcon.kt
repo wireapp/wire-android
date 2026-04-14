@@ -44,11 +44,12 @@ fun ArrowRightIcon(
 
 @Composable
 fun ArrowLeftIcon(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    @StringRes contentDescription: Int = R.string.content_description_left_arrow,
 ) {
     ArrowIcon(
         arrowIcon = R.drawable.ic_arrow_left,
-        contentDescription = R.string.content_description_left_arrow,
+        contentDescription = contentDescription,
         modifier = modifier
     )
 }

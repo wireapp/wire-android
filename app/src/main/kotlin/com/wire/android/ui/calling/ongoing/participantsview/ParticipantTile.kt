@@ -43,6 +43,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -93,6 +94,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.QualifiedID
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun ParticipantTile(
     participantTitleState: UICallParticipant,
@@ -121,34 +123,36 @@ fun ParticipantTile(
         val activeSpeakerBorderPadding = dimensions().spacing6x
 
         Box(modifier = Modifier.fillMaxSize()) {
-            // Layer 1: Video/Camera background
-            if (participantTitleState.isSelfUser) {
-                CameraPreview(
-                    isCameraOn = isSelfUserCameraOn,
-                    shouldFill = shouldFillSelfUserCameraPreview,
-                    onSelfUserVideoPreviewCreated = onSelfUserVideoPreviewCreated,
-                    onClearSelfUserVideoPreview = onClearSelfUserVideoPreview
-                )
+            val shouldRenderVideo = when {
+                participantTitleState.isSelfUser -> isSelfUserCameraOn // for self user render video when self camera is on
+                participantTitleState.isSharingScreen -> true // if sharing screen, always render the shared screen
+                participantTitleState.isCameraOn -> !othersVideosDisabled // if camera is on, render video if others videos are enabled
+                else -> false // otherwise do not render video
+            }
+
+            LaunchedEffect(participantTitleState.isSelfUser, isSelfUserCameraOn) {
+                if (participantTitleState.isSelfUser && !isSelfUserCameraOn) {
+                    onClearSelfUserVideoPreview()
+                }
+            }
+
+            if (shouldRenderVideo) {
+                // Layer 1: Video/Camera background
+                if (participantTitleState.isSelfUser) {
+                    CameraPreview(
+                        shouldFill = shouldFillSelfUserCameraPreview,
+                        onSelfUserVideoPreviewCreated = onSelfUserVideoPreviewCreated,
+                    )
+                } else {
+                    OthersVideoRenderer(
+                        participantId = participantTitleState.id.toString(),
+                        clientId = participantTitleState.clientId,
+                        shouldFill = shouldFillOthersVideoPreview,
+                        isZoomingEnabled = isZoomingEnabled,
+                    )
+                }
             } else {
-                OthersVideoRenderer(
-                    participantId = participantTitleState.id.toString(),
-                    clientId = participantTitleState.clientId,
-                    isCameraOn = participantTitleState.isCameraOn,
-                    isSharingScreen = participantTitleState.isSharingScreen,
-                    shouldFill = shouldFillOthersVideoPreview,
-                    isZoomingEnabled = isZoomingEnabled,
-                    othersVideosDisabled = othersVideosDisabled,
-                )
-            }
-
-            // Layer 2: Avatar centered (only show when video is off)
-            val shouldShowAvatar = when {
-                participantTitleState.isSelfUser -> !isSelfUserCameraOn // for self user show avatar when self camera is off
-                othersVideosDisabled -> true // if others videos are disabled, show avatar because their videos will be off anyway
-                else -> !participantTitleState.isCameraOn && !participantTitleState.isSharingScreen // otherwise show avatar if no video
-            }
-
-            if (shouldShowAvatar) {
+                // Layer 2: Avatar centered (only show when video is off)
                 AvatarTile(
                     modifier = Modifier
                         .alpha(if (participantTitleState.hasEstablishedAudio) 1f else 0.5f)
@@ -320,45 +324,31 @@ private fun CleanUpRendererIfNeeded(videoRenderer: VideoRenderer) {
 
 @Composable
 private fun CameraPreview(
-    isCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     shouldFill: Boolean = false,
-    onClearSelfUserVideoPreview: () -> Unit
 ) {
-    var isCameraStopped by remember { mutableStateOf(isCameraOn) }
-
-    if (isCameraOn) {
-        isCameraStopped = false
-        val context = LocalContext.current
-        val backgroundColor = darkColorsScheme().surfaceContainer.value.toInt()
-        val videoPreview = remember {
-            CameraPreviewBuilder(context)
-                .setBackgroundColor(backgroundColor)
-                .shouldFill(shouldFill)
-                .build()
-        }
-        AndroidView(
-            factory = {
-                onSelfUserVideoPreviewCreated(videoPreview)
-                videoPreview
-            }
-        )
-    } else {
-        if (isCameraStopped) return
-        isCameraStopped = true
-        onClearSelfUserVideoPreview()
+    val context = LocalContext.current
+    val backgroundColor = darkColorsScheme().surfaceContainer.value.toInt()
+    val videoPreview = remember {
+        CameraPreviewBuilder(context)
+            .setBackgroundColor(backgroundColor)
+            .shouldFill(shouldFill)
+            .build()
     }
+    AndroidView(
+        factory = {
+            onSelfUserVideoPreviewCreated(videoPreview)
+            videoPreview
+        }
+    )
 }
 
 @Composable
 private fun OthersVideoRenderer(
     participantId: String,
     clientId: String,
-    isCameraOn: Boolean,
-    isSharingScreen: Boolean,
     shouldFill: Boolean,
     isZoomingEnabled: Boolean,
-    othersVideosDisabled: Boolean,
 ) {
     var size by remember { mutableStateOf(IntSize.Zero) }
     var zoom by remember { mutableStateOf(1f) }
@@ -367,57 +357,55 @@ private fun OthersVideoRenderer(
 
     val context = LocalContext.current
     val rendererFillColor = (darkColorsScheme().surfaceContainer.value shr 32).toLong()
-    if ((isCameraOn || isSharingScreen) && !othersVideosDisabled) {
 
-        val videoRenderer = remember {
-            VideoRenderer(
-                context,
-                participantId,
-                clientId,
-                false
-            ).apply {
-                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                setFillColor(rendererFillColor)
-                setShouldFill(shouldFill)
-            }
+    val videoRenderer = remember {
+        VideoRenderer(
+            context,
+            participantId,
+            clientId,
+            false
+        ).apply {
+            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            setFillColor(rendererFillColor)
+            setShouldFill(shouldFill)
         }
+    }
 
-        CleanUpRendererIfNeeded(videoRenderer)
+    CleanUpRendererIfNeeded(videoRenderer)
 
-        AndroidView(
-            modifier = Modifier
-                .fillMaxSize()
-                .onSizeChanged {
-                    size = it
-                }
-                .pointerInput(Unit) {
-                    // enable zooming on full screen and when video is on
-                    if (isZoomingEnabled) {
-                        detectTransformGestures { _, gesturePan, gestureZoom, _ ->
-                            zoom = (zoom * gestureZoom).coerceIn(1f, 3f)
-                            val maxX = (size.width * (zoom - 1)) / 2
-                            val minX = -maxX
-                            offsetX = maxOf(minX, minOf(maxX, offsetX + gesturePan.x))
-                            val maxY = (size.height * (zoom - 1)) / 2
-                            val minY = -maxY
-                            offsetY = maxOf(minY, minOf(maxY, offsetY + gesturePan.y))
-                        }
+    AndroidView(
+        modifier = Modifier
+            .fillMaxSize()
+            .onSizeChanged {
+                size = it
+            }
+            .pointerInput(Unit) {
+                // enable zooming on full screen and when video is on
+                if (isZoomingEnabled) {
+                    detectTransformGestures { _, gesturePan, gestureZoom, _ ->
+                        zoom = (zoom * gestureZoom).coerceIn(1f, 3f)
+                        val maxX = (size.width * (zoom - 1)) / 2
+                        val minX = -maxX
+                        offsetX = maxOf(minX, minOf(maxX, offsetX + gesturePan.x))
+                        val maxY = (size.height * (zoom - 1)) / 2
+                        val minY = -maxY
+                        offsetY = maxOf(minY, minOf(maxY, offsetY + gesturePan.y))
                     }
                 }
-                .graphicsLayer(
-                    scaleX = zoom,
-                    scaleY = zoom,
-                    translationX = offsetX,
-                    translationY = offsetY
-                ),
-
-            factory = {
-                val frameLayout = FrameLayout(it)
-                frameLayout.addView(videoRenderer)
-                frameLayout
             }
-        )
-    }
+            .graphicsLayer(
+                scaleX = zoom,
+                scaleY = zoom,
+                translationX = offsetX,
+                translationY = offsetY
+            ),
+
+        factory = {
+            val frameLayout = FrameLayout(it)
+            frameLayout.addView(videoRenderer)
+            frameLayout
+        }
+    )
 }
 
 @Composable

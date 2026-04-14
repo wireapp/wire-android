@@ -258,7 +258,7 @@ class OngoingCallViewModel @AssistedInject constructor(
         viewModelScope.launch {
             participants
                 .filter {
-                    (it.isCameraOn || it.isSharingScreen) && !state.othersVideosDisabled
+                    it.isSharingScreen || (it.isCameraOn && !state.othersVideosDisabled)
                 }
                 .also {
                     val clients: List<CallClient> = it.map { uiParticipant ->
@@ -357,6 +357,6 @@ private suspend fun SharedFlow<Call?>.senderName(userId: QualifiedID) =
     filterNotNull().filter { it.participants.isNotEmpty() }.first().senderName(userId)
 
 private fun OngoingCallState.currentOrderType(): CallingParticipantsOrderType = when (othersVideosDisabled) {
-    true -> CallingParticipantsOrderType.ALPHABETICALLY
-    false -> CallingParticipantsOrderType.VIDEOS_FIRST
+    true -> CallingParticipantsOrderType.PRESENTERS_FIRST
+    false -> CallingParticipantsOrderType.ALL_MEDIA_FIRST
 }

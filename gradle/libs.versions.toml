@@ -78,7 +78,7 @@ commonmark = "0.25.1"
 countly = "24.7.7"
 
 # RSS
-rss-parser = "6.0.7"
+rss-parser = "6.1.5"
 
 # Logging
 dataDog = "1.19.3"

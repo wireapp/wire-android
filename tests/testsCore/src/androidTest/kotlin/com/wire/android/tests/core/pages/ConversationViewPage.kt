@@ -64,6 +64,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
 
     private fun conversationDetails1On1(userName: String) = UiSelector().className("android.widget.TextView").text(userName)
+    private fun conversationDetailsGroup(userName: String) = UiSelectorParams(text = userName)
 
     private val sendButton = UiSelectorParams(description = "Send")
 
@@ -72,6 +73,14 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val selfDeleteTimerButton = UiSelectorParams(description = "Set timer for self-deleting messages")
 
     private val selfDeletingMessageLabel = UiSelectorParams(description = " Self-deleting message")
+    private val pingButton = UiSelectorParams(description = "Ping")
+    private val pingButtonOnModal = UiSelectorParams(text = "Ping")
+
+    private val mlsUpgradeMessageSelectors = listOf(
+        UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
+        UiSelectorParams(textContains = "Layer Security (MLS) protocol"),
+        UiSelectorParams(textContains = "latest version of Wire on your devices")
+    )
 
     private val mlsUpgradeMessageSelectors = listOf(
         UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
@@ -455,6 +464,19 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun clickOnGroupConversationDetails(userName: String): ConversationViewPage {
+        val params = conversationDetailsGroup(userName)
+
+        UiWaitUtils.waitUntilVisible(
+            params = params,
+            timeoutMs = 5_000,
+            errorMessage = "Group conversation details for user '$userName' not visible"
+        )
+
+        UiWaitUtils.waitElement(params).click()
+        return this
+    }
+
     fun iTapStartCallButton(): ConversationViewPage {
         UiWaitUtils.waitElement(startCallButton).click()
         return this
@@ -529,5 +551,27 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
 
         throw AssertionError("MLS upgrade system message was not visible within ${timeoutMs}ms.")
+    }
+
+    fun tapPingButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(pingButton).click()
+        return this
+    }
+
+    fun tapPingButtonModal(): ConversationViewPage {
+        UiWaitUtils.waitElement(pingButtonOnModal).click()
+        return this
+    }
+
+    fun iSeePingModalWithText(message: String): ConversationViewPage {
+        val messageSelector = UiSelectorParams(text = message)
+
+        try {
+            UiWaitUtils.waitElement(messageSelector)
+        } catch (e: AssertionError) {
+            throw AssertionError("Message '$message' is not not visible on ping modal.", e)
+        }
+
+        return this
     }
 }

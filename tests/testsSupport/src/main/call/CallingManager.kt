@@ -456,8 +456,19 @@ class CallingManager(private val usersManager: ClientUserManager) {
         userNames.forEach { name ->
             val user = usersManager.findUserByNameOrNameAlias(name)
             val flowsBefore = safeGetFlows(user)
-            for (flowBefore in flowsBefore)
-                assertPositiveFlowChange(user, flowBefore, audioRecv = true, videoRecv = true)
+
+            check(flowsBefore.isNotEmpty()) {
+                "Found no flows for ${user.name}"
+            }
+
+            for (flowBefore in flowsBefore) {
+                assertPositiveFlowChange(
+                    user,
+                    flowBefore,
+                    audioRecv = true,
+                    videoRecv = true
+                )
+            }
         }
     }
 

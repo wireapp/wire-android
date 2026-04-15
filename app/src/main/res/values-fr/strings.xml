@@ -96,10 +96,8 @@
     <string name="content_description_conversation_send_emoticon">Bouton d\'envoi d\'une émoticône</string>
     <string name="content_description_conversation_send_gif">Bouton d\'envoi d\'un GIF</string>
     <string name="content_description_conversation_mention_someone">Mentionner quelqu\'un</string>
-    <string name="content_description_back_button">Bouton de retour en arrière</string>
     <string name="content_description_send_button">Envoyer</string>
     <string name="content_description_timed_message_button">Bouton messages auto-supprimés</string>
-    <string name="content_description_close_button">Bouton de fermeture</string>
     <string name="content_description_menu_button">Navigation principale</string>
     <string name="content_description_drop_down_icon">Flèche déroulante</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Élément de l\'appareil</string>

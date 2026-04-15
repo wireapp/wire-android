@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -36,6 +37,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.ReportBugDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
@@ -45,6 +47,7 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import kotlinx.coroutines.launch
 
 @WireHomeDestination
 @Composable
@@ -65,15 +68,23 @@ fun SettingsScreen(
     }
 
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     SettingsScreenContent(
         lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Settings),
         settingsState = viewModel.state,
         onItemClicked = remember {
-            {
-                it.direction.handleNavigation(
-                    context = context,
-                    handleOtherDirection = { homeStateHolder.navigator.navigate(NavigationCommand(it)) }
-                )
+            { settingsItem: SettingsItem.DirectionItem ->
+                if (settingsItem == SettingsItem.ReportBug) {
+                    coroutineScope.launch {
+                        viewModel.flushLogs().await()
+                        context.startActivity(ReportBugDestination.intent(context))
+                    }
+                } else {
+                    settingsItem.direction.handleNavigation(
+                        context = context,
+                        handleOtherDirection = { homeStateHolder.navigator.navigate(NavigationCommand(it)) }
+                    )
+                }
             }
         },
         onAppLockSwitchChanged = onAppLockSwitchClicked

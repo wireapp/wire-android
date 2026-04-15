@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
@@ -70,6 +71,12 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val selfDeleteTimerButton = UiSelectorParams(description = "Set timer for self-deleting messages")
 
     private val selfDeletingMessageLabel = UiSelectorParams(description = " Self-deleting message")
+
+    private val mlsUpgradeMessageSelectors = listOf(
+        UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
+        UiSelectorParams(textContains = "Layer Security (MLS) protocol"),
+        UiSelectorParams(textContains = "latest version of Wire on your devices")
+    )
 
     private fun selfDeleteOption(label: String): UiSelectorParams {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
@@ -469,5 +476,31 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
 
         return this
+    }
+
+    fun waitUntilConversationTurnsMls(
+        timeoutMs: Long = 20_000,
+        settleAfterDetectedMs: Long = 0
+    ): ConversationViewPage {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            val mlsMarker = mlsUpgradeMessageSelectors
+                .asSequence()
+                .mapNotNull(UiWaitUtils::findElementOrNull)
+                .firstOrNull { !it.visibleBounds.isEmpty }
+
+            if (mlsMarker != null) {
+                // MLS banner can appear slightly before the conversation is fully ready for a first outbound message.
+                if (settleAfterDetectedMs > 0) {
+                    SystemClock.sleep(settleAfterDetectedMs)
+                }
+                return this
+            }
+
+            SystemClock.sleep(200)
+        }
+
+        throw AssertionError("MLS upgrade system message was not visible within ${timeoutMs}ms.")
     }
 }

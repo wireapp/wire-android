@@ -37,12 +37,12 @@ import com.wire.android.model.ImageAsset
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.MIMEType
 import com.wire.kalium.cells.data.SortingSpec
+import com.wire.kalium.cells.domain.model.CellConversation
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
-import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCase
-import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
+import com.wire.kalium.cells.domain.usecase.GetPaginatedCellConversationsFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -55,7 +55,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -70,7 +72,7 @@ class SearchScreenViewModel @Inject constructor(
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val getOwners: GetOwnersUseCase,
-    private val getCellGroupConversations: GetCellGroupConversationsUseCase,
+    private val getPaginatedConversations: GetPaginatedCellConversationsFlowUseCase,
 ) : ViewModel() {
 
     private data class SearchParams(
@@ -101,7 +103,7 @@ class SearchScreenViewModel @Inject constructor(
             debouncedQueryFlow,
             uiState,
         ) { query, state ->
-            val selectedConversationId = state.availableConversations.firstOrNull { it.selected }?.id?.toString()
+            val selectedConversationId = state.selectedConversation?.id?.toString()
             SearchParams(
                 query = query,
                 tagIds = state.availableTags.filter { it.selected }.map { it.id },
@@ -138,12 +140,29 @@ class SearchScreenViewModel @Inject constructor(
             }
         }.cachedIn(viewModelScope)
 
+    private val _conversationSearchQuery = MutableStateFlow("")
+
+    val conversationsFlow: Flow<PagingData<FilterConversationUi>> = flow {
+        if (screenType == DriveSearchScreenType.DRIVE) {
+            emitAll(
+                _conversationSearchQuery
+                    .debounce(SEARCH_DEBOUNCE_MILLIS)
+                    .distinctUntilChanged()
+                    .flatMapLatest { query ->
+                        getPaginatedConversations(query)
+                            .map { pagingData -> pagingData.map { it.toFilterConversationUi() } }
+                    }
+            )
+        }
+    }.cachedIn(viewModelScope)
+
+    fun onConversationSearchQueryChanged(query: String) {
+        _conversationSearchQuery.value = query
+    }
+
     init {
         loadTags()
         loadOwners()
-        if (screenType == DriveSearchScreenType.DRIVE) {
-            loadConversations()
-        }
     }
 
     internal fun loadTags() = viewModelScope.launch {
@@ -161,24 +180,6 @@ class SearchScreenViewModel @Inject constructor(
         }
     }
 
-    internal fun loadConversations() = viewModelScope.launch {
-        val result = getCellGroupConversations()
-        if (result is GetCellGroupConversationsUseCaseResult.Success) {
-            _uiState.update {
-                it.copy(
-                    availableConversations = result.conversations.map { conversation ->
-                        FilterConversationUi(
-                            id = conversation.id,
-                            name = conversation.name,
-                            isChannel = conversation.isChannel,
-                            isPrivateChannel = conversation.channelAccess == ConversationDetails.Group.Channel.ChannelAccess.PRIVATE,
-                        )
-                    }.sortedBy { it.name.uppercase() }
-                )
-            }
-        }
-    }
-
     fun onSearchQueryChanged(query: String) {
         queryFlow.value = query
     }
@@ -187,7 +188,7 @@ class SearchScreenViewModel @Inject constructor(
         _uiState.update { it.copy(isSearchActive = active) }
     }
 
-    fun loadOwners(conversationId: String? = navArgs.conversationId) {
+    internal fun loadOwners(conversationId: String? = navArgs.conversationId) {
         viewModelScope.launch {
             when (val result = getOwners(conversationId = conversationId)) {
                 is GetOwnersUseCaseResult.Success -> {
@@ -216,9 +217,7 @@ class SearchScreenViewModel @Inject constructor(
                     }.sortedBy { it.displayName.uppercase() }
 
                     _uiState.update { state ->
-                        state.copy(
-                            availableOwners = ownersUi
-                        )
+                        state.copy(availableOwners = ownersUi)
                     }
                 }
 
@@ -227,24 +226,15 @@ class SearchScreenViewModel @Inject constructor(
         }
     }
 
-    private fun applySelectedConversations(selectedId: String?) {
+    fun onSaveConversation(selectedConversation: FilterConversationUi?) {
         _uiState.update { state ->
-            state.copy(
-                availableConversations = state.availableConversations.map { conversation ->
-                    conversation.copy(selected = conversation.id.toString() == selectedId)
-                }
-            )
+            state.copy(selectedConversation = selectedConversation)
         }
-    }
-
-    fun onSaveConversations(selectedConversations: List<FilterConversationUi>) {
-        val selectedId = selectedConversations.firstOrNull { it.selected }?.id?.toString()
-        applySelectedConversations(selectedId)
     }
 
     fun onRemoveConversations() {
         _uiState.update { state ->
-            state.copy(availableConversations = state.availableConversations.map { it.copy(selected = false) })
+            state.copy(selectedConversation = null)
         }
     }
 
@@ -339,6 +329,13 @@ class SearchScreenViewModel @Inject constructor(
         }
     }
 }
+
+private fun CellConversation.toFilterConversationUi() = FilterConversationUi(
+    id = id,
+    name = name,
+    isChannel = isChannel,
+    isPrivateChannel = channelAccess == ConversationDetails.Group.Channel.ChannelAccess.PRIVATE,
+)
 
 fun defaultCriteriaFor(by: SortBy): SortingCriteria = when (by) {
     SortBy.Modified -> SortingCriteria.Modified.NewestFirst

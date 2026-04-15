@@ -24,52 +24,39 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 
-class ConversationFilterSheetState(
-    initialItems: List<FilterConversationUi>
-) {
-    private val initialById = initialItems.associateBy { it.id }
+/**
+ * Manages the selection state for the conversation filter bottom sheet.
+ * Tracks a single selected [FilterConversationUi] and whether it has changed from the
+ * value that was provided when the sheet was opened.
+ */
+class ConversationFilterSheetState(initialSelected: FilterConversationUi?) {
 
-    var conversations by mutableStateOf(initialItems)
+    private val initialSelectedId = initialSelected?.id
+
+    var selectedConversation by mutableStateOf(initialSelected)
         private set
 
     val hasChanges: Boolean
-        get() = conversations.any { conversation ->
-            initialById[conversation.id]?.selected != conversation.selected
-        }
+        get() = selectedConversation?.id != initialSelectedId
 
-    fun filteredConversations(query: String): List<FilterConversationUi> {
-        val q = query.trim()
-        return if (q.isBlank()) {
-            conversations
+    fun selectConversation(conversation: FilterConversationUi) {
+        selectedConversation = if (selectedConversation?.id == conversation.id) {
+            null
         } else {
-            conversations.filter { it.name.contains(q, ignoreCase = true) }
-        }
-    }
-
-    fun selectConversation(id: String) {
-        conversations = conversations.map { conversation ->
-            when (conversation.id.toString()) {
-                id -> conversation.copy(selected = !conversation.selected)
-                else -> conversation.copy(selected = false)
-            }
+            conversation
         }
     }
 
     fun removeAll() {
-        conversations = conversations.map { it.copy(selected = false) }
+        selectedConversation = null
     }
-
-    fun selectedConversation(): List<FilterConversationUi> =
-        conversations.filter { it.selected }
 }
 
 @Composable
 fun rememberConversationFilterSheetState(
-    items: List<FilterConversationUi>
+    selectedConversation: FilterConversationUi?,
 ): ConversationFilterSheetState {
-    return remember(items) {
-        ConversationFilterSheetState(
-            initialItems = items
-        )
+    return remember(selectedConversation) {
+        ConversationFilterSheetState(initialSelected = selectedConversation)
     }
 }

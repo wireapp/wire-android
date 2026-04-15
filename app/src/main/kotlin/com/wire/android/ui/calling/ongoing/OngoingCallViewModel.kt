@@ -358,5 +358,5 @@ private suspend fun SharedFlow<Call?>.senderName(userId: QualifiedID) =
 
 private fun OngoingCallState.currentOrderType(): CallingParticipantsOrderType = when (othersVideosDisabled) {
     true -> CallingParticipantsOrderType.ALPHABETICALLY
-    false -> CallingParticipantsOrderType.VIDEOS_FIRST
+    false -> CallingParticipantsOrderType.ALL_MEDIA_FIRST
 }

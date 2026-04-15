@@ -29,10 +29,11 @@ import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -60,7 +61,6 @@ class LocationPickerHelperTest {
     private val dispatcher = StandardTestDispatcher()
 
     @Test
-    @Config(sdk = [Build.VERSION_CODES.P, Build.VERSION_CODES.R])
     fun `given last location not too old, then emit last location`() = runTest(dispatcher) {
         // given
         val resultHandler = ResultHandler()
@@ -83,8 +83,49 @@ class LocationPickerHelperTest {
     }
 
     @Test
-    @Config(sdk = [Build.VERSION_CODES.P, Build.VERSION_CODES.R])
     fun `given last location too old, when new location comes before timeout, then emit new location`() = runTest(dispatcher) {
+        verifyNewLocationComesBeforeTimeoutThenEmitNewLocation()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
+    fun `given last location too old on legacy sdk, when new location comes before timeout, then emit new location`() =
+        runTest(dispatcher) {
+            verifyNewLocationComesBeforeTimeoutThenEmitNewLocation()
+        }
+
+    @Test
+    fun `given last location too old, when new location times out, then emit error`() = runTest(dispatcher) {
+        verifyNewLocationTimesOutThenEmitError()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
+    fun `given last location too old on legacy sdk, when new location times out, then emit error`() = runTest(dispatcher) {
+        verifyNewLocationTimesOutThenEmitError()
+    }
+
+    // null location can happen only for R and above after some timeout
+    @Test
+    fun `given no last location, when new location is null, then emit error`() = runTest(dispatcher) {
+        // given
+        val resultHandler = ResultHandler()
+        val (arrangement, locationPickerHelper) = Arrangement(
+            requestLocationTimeout = 1.minutes
+        )
+            .arrange()
+
+        // when
+        locationPickerHelper.getLocationWithoutGms(resultHandler::onSuccess, resultHandler::onError)
+
+        shadowOf(Looper.getMainLooper())
+            .idleFor(shadowOf(Looper.getMainLooper()).lastScheduledTaskTime) // this is how the timeout is simulated
+
+        // then
+        resultHandler.assert(expectedErrorCount = 1, expectedLocations = emptyList())
+    }
+
+    private suspend fun TestScope.verifyNewLocationComesBeforeTimeoutThenEmitNewLocation() {
         // given
         val resultHandler = ResultHandler()
         val (arrangement, locationPickerHelper) = Arrangement().arrange()
@@ -114,9 +155,7 @@ class LocationPickerHelperTest {
         resultHandler.assert(expectedErrorCount = 0, expectedLocations = listOf(GeoLocatedAddress(arrangement.address, newLocation)))
     }
 
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.P, Build.VERSION_CODES.R])
-    fun `given last location too old, when new location times out, then emit error`() = runTest(dispatcher) {
+    private fun TestScope.verifyNewLocationTimesOutThenEmitError() {
         // given
         val resultHandler = ResultHandler()
         val (arrangement, locationPickerHelper) = Arrangement().arrange()
@@ -132,26 +171,6 @@ class LocationPickerHelperTest {
         // when
         locationPickerHelper.getLocationWithoutGms(resultHandler::onSuccess, resultHandler::onError)
         advanceTimeBy(arrangement.requestLocationTimeout + 1.seconds)
-
-        // then
-        resultHandler.assert(expectedErrorCount = 1, expectedLocations = emptyList())
-    }
-
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.R]) // null location can happen only for R and above after some timeout
-    fun `given no last location, when new location is null, then emit error`() = runTest(dispatcher) {
-        // given
-        val resultHandler = ResultHandler()
-        val (arrangement, locationPickerHelper) = Arrangement(
-            requestLocationTimeout = 1.minutes
-        )
-            .arrange()
-
-        // when
-        locationPickerHelper.getLocationWithoutGms(resultHandler::onSuccess, resultHandler::onError)
-
-        shadowOf(Looper.getMainLooper())
-            .idleFor(shadowOf(Looper.getMainLooper()).lastScheduledTaskTime) // this is how the timeout is simulated
 
         // then
         resultHandler.assert(expectedErrorCount = 1, expectedLocations = emptyList())

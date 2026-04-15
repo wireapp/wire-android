@@ -56,6 +56,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val saveButton = UiSelectorParams(text = "Save")
 
     private val openButton = UiSelectorParams(text = "Open")
+    private val cancelButton = UiSelectorParams(text = "Cancel")
 
     private val downloadButtonOnVideoFile = UiSelectorParams(text = "Tap to download")
     private val videoDurationLocator = UiSelectorParams(text = "00:03")
@@ -74,6 +75,12 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val selfDeletingMessageLabel = UiSelectorParams(description = " Self-deleting message")
     private val pingButton = UiSelectorParams(description = "Ping")
     private val pingButtonOnModal = UiSelectorParams(text = "Ping")
+
+    private val mlsUpgradeMessageSelectors = listOf(
+        UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
+        UiSelectorParams(textContains = "Layer Security (MLS) protocol"),
+        UiSelectorParams(textContains = "latest version of Wire on your devices")
+    )
 
     private val mlsUpgradeMessageSelectors = listOf(
         UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
@@ -184,10 +191,24 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertFileActionModalIsVisible(): ConversationViewPage {
-        val modalText = UiWaitUtils.waitElement(modalTextLocator)
-        assertTrue("The file action modal is not visible.", !modalText.visibleBounds.isEmpty)
-        return this
+    fun assertFileActionModalIsVisible(timeoutMs: Long = 8_000): ConversationViewPage {
+        val modalAnchors = listOf(modalTextLocator, saveButtonLocator, openButton, cancelButton)
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            val isVisible = modalAnchors
+                .asSequence()
+                .mapNotNull(UiWaitUtils::findElementOrNull)
+                .any { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) }
+
+            if (isVisible) {
+                return this
+            }
+
+            SystemClock.sleep(150)
+        }
+
+        throw AssertionError("The file action modal was not visible within ${timeoutMs}ms.")
     }
 
     fun tapSaveButtonOnModal(): ConversationViewPage {
@@ -235,8 +256,20 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickSaveButtonOnDownloadModal(): ConversationViewPage {
-        UiWaitUtils.waitElement(saveButton).click()
+    fun clickSaveButtonOnDownloadModal(timeoutMs: Long = 8_000): ConversationViewPage {
+        val save = UiWaitUtils.waitElement(saveButton, timeoutMillis = timeoutMs)
+        val bounds = runCatching { save.visibleBounds }.getOrNull()
+
+        runCatching { save.click() }
+        device.waitForIdle(300)
+
+        val stillVisible = UiWaitUtils.findElementOrNull(saveButton)
+            ?.let { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) } == true
+
+        if (stillVisible && bounds != null && !bounds.isEmpty) {
+            device.click(bounds.centerX(), bounds.centerY())
+        }
+
         return this
     }
 

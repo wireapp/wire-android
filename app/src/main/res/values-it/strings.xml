@@ -98,10 +98,8 @@
     <string name="content_description_conversation_send_emoticon">Invia emoticon</string>
     <string name="content_description_conversation_send_gif">Invia GIF</string>
     <string name="content_description_conversation_mention_someone">Menziona qualcuno</string>
-    <string name="content_description_back_button">Pulsante indietro</string>
     <string name="content_description_send_button">Invia</string>
     <string name="content_description_timed_message_button">Messaggi auto-cancellanti, pulsante</string>
-    <string name="content_description_close_button">Pulsante chiudi</string>
     <string name="content_description_menu_button">Navigazione principale</string>
     <string name="content_description_drop_down_icon">Icona menù a tendina</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Elemento dispositivo</string>

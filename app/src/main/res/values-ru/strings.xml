@@ -111,10 +111,10 @@
     <string name="content_description_conversation_open_details_label">открыть информацию о беседе</string>
     <string name="content_description_new_conversation">Новый. Начать новую беседу</string>
     <string name="content_description_new_meeting">Начните или запланируйте новую встречу Wire</string>
-    <string name="content_description_back_button">Кнопка назад</string>
+    <string name="content_description_back_button">Назад</string>
     <string name="content_description_send_button">Отправить</string>
     <string name="content_description_timed_message_button">Самоудаляющиеся сообщения, кнопка</string>
-    <string name="content_description_close_button">Кнопка закрытия</string>
+    <string name="content_description_close_button">Закрыть</string>
     <string name="content_description_menu_button">Основное меню</string>
     <string name="content_description_drop_down_icon">Курсор вниз</string>
     <string name="content_description_expand_text_icon">Развернуть поле ввода текста</string>
@@ -156,6 +156,8 @@
     <string name="content_description_calling_in_call_reactions_hide">Скрыть в панели реакций вызова</string>
     <string name="content_description_call_open_calling_details">Открыть информацию о вызове</string>
     <string name="content_description_call_low_network_quality">Низкое качество сети</string>
+    <string name="content_description_call_network_quality_view_details">Подробнее</string>
+    <string name="content_description_call_network_quality_close_details">Свернуть</string>
     <string name="content_description_reply_to_messge">Ответить на сообщение</string>
     <string name="content_description_reply_cancel">Отменить ответ на сообщение</string>
     <string name="content_description_ping_message">Пинг</string>
@@ -1119,6 +1121,7 @@
     <string name="calling_ongoing_call_join_anyway">Все равно присоединиться</string>
     <string name="calling_ongoing_double_tap_for_full_screen">Дважды коснитесь плитки для перехода в полноэкранный режим</string>
     <string name="calling_ongoing_double_tap_to_go_back">Двойное нажатие для возврата назад</string>
+    <string name="calling_ongoing_muted_by">Вас заблокировал %s</string>
     <string name="calling_feature_unavailable_title_alert">Возможность недоступна</string>
     <string name="calling_feature_unavailable_message_alert">Возможность инициировать групповой вызов доступна только в платной версии Wire.</string>
     <string name="calling_feature_unavailable_team_member_message_alert">Чтобы выполнить групповой вызов вашей команде необходимо перейти на план Enterprise.</string>

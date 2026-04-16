@@ -66,31 +66,16 @@ class CommonTopAppBarViewModel @AssistedInject constructor(
     private suspend fun currentScreenFlow() =
         currentScreenManager.observeCurrentScreen(viewModelScope)
 
-    private fun UserSessionScope.syncStateFlow() = when {
-        !params.showSync -> flowOf(Live) // assume it's always live to not show it on the bar
-        else -> observeSyncState() // otherwise observe real sync state to show it on the bar
-    }
-
-    private fun networkStateFlow() = when {
-        !params.showNoNetwork -> flowOf(NetworkState.ConnectedWithInternet) // assume it's always connected to not show it on the bar
-        else -> coreLogic.get().networkStateObserver.observeNetworkState() // otherwise observe real network state to show it on the bar
-    }
-
     private fun connectivityFlow(userId: UserId): Flow<Connectivity> =
         coreLogic.get().sessionScope(userId) {
-            combine(syncStateFlow(), networkStateFlow()) { syncState, networkState ->
-                when (syncState) {
-                    is Waiting -> Connectivity.WaitingConnection(null, null)
-                    is Failed -> Connectivity.WaitingConnection(syncState.cause, syncState.retryDelay)
-                    is GatheringPendingEvents,
-                    is SlowSync -> Connectivity.Connecting
-
-                    is Live ->
-                        if (networkState is NetworkState.ConnectedWithInternet) {
-                            Connectivity.Connected
-                        } else {
-                            Connectivity.WaitingConnection(null, null)
-                        }
+            combine(observeSyncState(), coreLogic.get().networkStateObserver.observeNetworkState()) { syncState, networkState ->
+                when  {
+                    syncState is Waiting -> Connectivity.WaitingConnection(null, null)
+                    syncState is Failed -> Connectivity.WaitingConnection(syncState.cause, syncState.retryDelay)
+                    networkState !is NetworkState.ConnectedWithInternet -> Connectivity.WaitingConnection(null, null)
+                    syncState is SlowSync && params.showSync -> Connectivity.Connecting
+                    syncState is GatheringPendingEvents && params.showSync -> Connectivity.Connecting
+                    else -> Connectivity.Connected
                 }
             }
         }

@@ -320,6 +320,7 @@ class OngoingCallViewModelTest {
     fun givenCallQualityChanges_WhenObservingQualityState_ThenStateIsUpdated() = runTest(dispatchers.main()) {
         val networkState = NetworkState.ConnectedWithInternet
         val initialQuality = CallQualityData(quality = CallQualityData.Quality.NORMAL, ping = 0)
+        val expectedInitialQualityState = CallQualityState(quality = CallQualityState.Quality.GOOD, ping = 0)
         val callQualityFlow = MutableStateFlow(initialQuality)
         val (_, ongoingCallViewModel) = Arrangement()
             .withLastActiveCall(provideCall())
@@ -329,18 +330,20 @@ class OngoingCallViewModelTest {
             .withNetworkStateFlow(MutableStateFlow(networkState))
             .arrange()
         advanceUntilIdle()
-        assertEquals(CallQualityState(initialQuality, networkState), ongoingCallViewModel.state.callQuality)
+        assertEquals(expectedInitialQualityState, ongoingCallViewModel.state.callQuality)
 
         val changedQuality = CallQualityData(CallQualityData.Quality.POOR, ping = 300)
+        val expectedChangedQualityState = CallQualityState(CallQualityState.Quality.POOR, ping = 300)
         callQualityFlow.value = changedQuality
         advanceUntilIdle()
-        assertEquals(CallQualityState(changedQuality, networkState), ongoingCallViewModel.state.callQuality)
+        assertEquals(expectedChangedQualityState, ongoingCallViewModel.state.callQuality)
     }
 
     @Test
     fun givenNetworkStateChanges_WhenObservingQualityState_ThenStateIsUpdated() = runTest(dispatchers.main()) {
         val callQuality = CallQualityData(quality = CallQualityData.Quality.NORMAL, ping = 0)
         val initialNetworkState = NetworkState.ConnectedWithInternet
+        val expectedInitialQualityState = CallQualityState(CallQualityState.Quality.GOOD, ping = 0)
         val networkStateFlow = MutableStateFlow<NetworkState>(initialNetworkState)
         val (_, ongoingCallViewModel) = Arrangement()
             .withLastActiveCall(provideCall())
@@ -350,12 +353,13 @@ class OngoingCallViewModelTest {
             .withNetworkStateFlow(networkStateFlow)
             .arrange()
         advanceUntilIdle()
-        assertEquals(CallQualityState(callQuality, initialNetworkState), ongoingCallViewModel.state.callQuality)
+        assertEquals(expectedInitialQualityState, ongoingCallViewModel.state.callQuality)
 
         val changedNetworkState = NetworkState.ConnectedWithoutInternet
+        val expectedChangedQualityState = CallQualityState(CallQualityState.Quality.NO_INTERNET, ping = -1)
         networkStateFlow.value = changedNetworkState
         advanceUntilIdle()
-        assertEquals(CallQualityState(callQuality, changedNetworkState), ongoingCallViewModel.state.callQuality)
+        assertEquals(expectedChangedQualityState, ongoingCallViewModel.state.callQuality)
     }
 
     @Test

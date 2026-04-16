@@ -16,13 +16,22 @@ remove_runtime_secrets() {
 }
 
 pull_allure_results() {
+  local out_dir="${OUT_DIR:?OUT_DIR not set}"
+  mkdir -p "${out_dir}"
+
+  # Retry-aware runs already persist per-attempt results during execution.
+  if compgen -G "${out_dir}/attempt-*" >/dev/null; then
+    if find "${out_dir}"/attempt-* -type f -name '*-result.json' -print -quit | grep -q .; then
+      echo "Per-attempt Allure results already present under ${out_dir}; skipping fallback pull."
+      return
+    fi
+    echo "Attempt folders exist but no result files found yet; running fallback pull."
+  fi
+
   if [[ -z "${DEVICE_LIST:-}" ]]; then
     echo "No devices detected (skipping allure pull)"
     return
   fi
-
-  local out_dir="${OUT_DIR:?OUT_DIR not set}"
-  mkdir -p "${out_dir}"
 
   read -ra DEVICES <<< "${DEVICE_LIST}"
   local idx=1

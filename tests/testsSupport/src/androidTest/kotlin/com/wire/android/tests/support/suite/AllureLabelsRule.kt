@@ -36,7 +36,6 @@ import org.junit.runners.model.Statement
  *  - @Tag(key="feature","calling") → tag: feature:calling
  */
 class AllureLabelsRule : TestRule {
-
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {
@@ -66,7 +65,7 @@ class AllureLabelsRule : TestRule {
                         Allure.label("tag", "${anno.key}:${anno.value}")
                     }
 
-                // Run the actual test
+                // Run the actual test.
                 base.evaluate()
             }
         }

@@ -69,6 +69,18 @@ on:
         default: ""
         type: string
 
+      rerunFailedEnabled:
+        description: "Automatically rerun only failed tests in this run."
+        required: true
+        default: true
+        type: boolean
+
+      rerunFailedCount:
+        description: "How many failed-test rerun attempts (0-3). Default is 1."
+        required: true
+        default: "1"
+        type: string
+
 permissions:
   contents: read
 
@@ -93,6 +105,14 @@ jobs:
           IS_UPGRADE: ${{ inputs.isUpgrade }}
           OLD_BUILD_NUMBER: ${{ inputs.oldBuildNumber }}
         run: bash scripts/qa_android_ui_tests/validation.sh validate-upgrade-inputs
+
+      # Validate retry toggle/count before any runner work starts.
+      - name: Validate rerun inputs
+        shell: bash
+        env:
+          RERUN_FAILED_ENABLED: ${{ inputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ inputs.rerunFailedCount }}
+        run: bash scripts/qa_android_ui_tests/validation.sh validate-rerun-inputs
 
       # Resolve TAGS into CI selectors and expose them as job outputs.
       - name: Resolve selector from TAGS
@@ -186,6 +206,10 @@ jobs:
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
         run: bash scripts/qa_android_ui_tests/execution_setup.sh detect-target-devices
 
+      # Clear stale device-side Allure files early so setup failures cannot publish old reports.
+      - name: Clear stale Allure results on device(s)
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh clear-allure-results-on-devices
+
       # Install app/test prerequisites on each selected device.
       - name: Install APK(s) on device(s)
         env:
@@ -214,12 +238,15 @@ jobs:
       - name: Resolve AndroidX Test Services APKs (for Allure TestStorage)
         run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-test-services-apks
 
-      # Run instrumentation on selected devices and stream per-device logs.
-      - name: Run UI tests (one shard per device, adb instrumentation)
+      # Run attempt 0, pull results immediately, then rerun only the still-failing tests.
+      - name: Run UI tests (auto-rerun failed tests)
         env:
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
           RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
           IS_UPGRADE: ${{ inputs.isUpgrade }}
+          RERUN_FAILED_ENABLED: ${{ inputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ inputs.rerunFailedCount }}
+          ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
         run: bash scripts/qa_android_ui_tests/run_ui_tests.sh
 
       # Remove runtime secrets before report generation and publish steps.
@@ -227,14 +254,14 @@ jobs:
         if: always()
         run: bash scripts/qa_android_ui_tests/reporting.sh remove-runtime-secrets
 
-      # Pull raw allure-results from each device even when tests fail.
-      - name: Pull Allure results from device(s)
+      # Fallback pull: keep this as a safety net in case per-attempt pull was interrupted.
+      - name: Pull Allure results from device(s) (fallback)
         if: always()
         env:
           OUT_DIR: ${{ runner.temp }}/allure-results
         run: bash scripts/qa_android_ui_tests/reporting.sh pull-allure-results
 
-      # Merge per-device results and attach run metadata labels.
+      # Merge all attempts into one final dataset and stamp passed_on_rerun=true where needed.
       - name: Merge Allure results (add device label)
         if: always()
         env:

@@ -25,19 +25,13 @@ import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.util.Rational
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.endOngoingCallPendingIntent
 import com.wire.android.services.ServicesManager
@@ -98,22 +92,11 @@ class OngoingCallActivity : CallActivity() {
     @Composable
     override fun Content() {
         conversationId?.let { conversationId ->
-            AnimatedContent(
-                targetState = TAG,
-                transitionSpec = {
-                    TransitionAnimationType.POP_UP.enterTransition.togetherWith(
-                        TransitionAnimationType.POP_UP.exitTransition
-                    )
-                },
-                modifier = Modifier.semantics { testTagsAsResourceId = true },
-                label = TAG
-            ) { _ ->
-                OngoingCallScreen(
-                    qualifiedIdMapper.fromStringToQualifiedID(
-                        conversationId
-                    )
+            OngoingCallScreen(
+                qualifiedIdMapper.fromStringToQualifiedID(
+                    conversationId
                 )
-            }
+            )
         } ?: run { finish() }
     }
 

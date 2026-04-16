@@ -93,10 +93,8 @@
     <string name="content_description_conversation_send_emoticon">Pošalji emoji</string>
     <string name="content_description_conversation_send_gif">Gumb za slanje GIF-a</string>
     <string name="content_description_conversation_mention_someone">Obavijesti nekoga</string>
-    <string name="content_description_back_button">Tipka natrag</string>
     <string name="content_description_send_button">Pošalji</string>
     <string name="content_description_timed_message_button">Samobrisanje poruka, gumb</string>
-    <string name="content_description_close_button">Gumb za zatvaranje</string>
     <string name="content_description_menu_button">Glavna navigacija</string>
     <string name="content_description_drop_down_icon">Padajući izbornik strelica</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Stavka uređaja</string>

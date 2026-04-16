@@ -63,7 +63,7 @@ import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun CallNetworkQualitySheetContent(
-    callQualityData: CallQualityData,
+    callQualityState: CallQualityState,
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -76,7 +76,7 @@ fun CallNetworkQualitySheetContent(
         ModalSheetHeaderItem(
             title = {
                 val title = stringResource(R.string.calling_details_network_quality_title)
-                val value = callQualityData.quality.toCallQualityIndicatorValue().text
+                val value = callQualityState.quality.text
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -88,7 +88,7 @@ fun CallNetworkQualitySheetContent(
                 ) {
                     ModalSheetHeaderTitle(title = stringResource(R.string.calling_details_network_quality_title))
                     CallQualityIndicator(
-                        callQuality = callQualityData.quality,
+                        callQuality = callQualityState.quality,
                         modifier = Modifier
                             .weight(1f, fill = true)
                             .padding(horizontal = dimensions().spacing16x)
@@ -112,11 +112,11 @@ fun CallNetworkQualitySheetContent(
         )
         BuildMenuSheetItems(
             items = listOf(
-                { PeerValueItem(callQualityData.peer) },
-                { ConnectionValueItem(callQualityData.connection) },
-                { PacketLossValueItem(callQualityData.packetLoss) },
-                { PingValueItem(callQualityData.ping) },
-                { JitterValueItem(callQualityData.jitter) },
+                { PeerValueItem(callQualityState.peer) },
+                { ConnectionValueItem(callQualityState.connection) },
+                { PacketLossValueItem(callQualityState.packetLoss) },
+                { PingValueItem(callQualityState.ping) },
+                { JitterValueItem(callQualityState.jitter) },
                 { LearnMoreItem() },
             )
         )
@@ -149,7 +149,7 @@ private fun PeerValueItem(peer: CallQualityData.Peer) = QualityValueItem(
     value = when (peer) {
         CallQualityData.Peer.USER -> stringResource(R.string.calling_details_network_quality_peer_user)
         CallQualityData.Peer.SERVER -> stringResource(R.string.calling_details_network_quality_peer_server)
-        CallQualityData.Peer.UNKNOWN -> ""
+        CallQualityData.Peer.UNKNOWN -> "-"
     }
 )
 
@@ -164,7 +164,7 @@ private fun ConnectionValueItem(connection: CallQualityData.Connection) = Qualit
         when (connection.protocol) {
             CallQualityData.Connection.Protocol.UDP -> connection.protocol.name
             CallQualityData.Connection.Protocol.TCP -> connection.protocol.name
-            CallQualityData.Connection.Protocol.UNKNOWN -> ""
+            CallQualityData.Connection.Protocol.UNKNOWN -> "-"
         }
     ).joinToString(separator = "/")
 )
@@ -197,7 +197,7 @@ private fun JitterValueItem(jitter: CallQualityData.Jitter) = QualityValueItem(
 )
 
 @Composable
-private fun QualityValueItem(title: String, value: String, indicator: CallQualityIndicatorValue = CallQualityIndicatorValue.GOOD) {
+private fun QualityValueItem(title: String, value: String, indicator: CallQualityState.Quality = CallQualityState.Quality.UNKNOWN) {
     MenuBottomSheetItem(
         title = title,
         modifier = Modifier.clearAndSetSemantics {
@@ -221,11 +221,11 @@ private fun QualityValueItem(title: String, value: String, indicator: CallQualit
 
 @Composable
 private fun QualityValueIndicator(
-    qualityValueIndicator: CallQualityIndicatorValue,
+    qualityValueIndicator: CallQualityState.Quality,
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
-        visible = qualityValueIndicator >= CallQualityIndicatorValue.POOR,
+        visible = qualityValueIndicator >= CallQualityState.Quality.POOR,
         enter = fadeIn() + scaleIn() + expandIn(expandFrom = Alignment.Center),
         exit = fadeOut() + scaleOut() + shrinkOut(shrinkTowards = Alignment.Center),
     ) {
@@ -242,13 +242,13 @@ private fun QualityValueIndicator(
 
 // returns empty string if the value is negative as it means it's unavailable, otherwise builds a string using the provided builder
 @Composable
-private fun buildStringIfNonNegative(value: Int, builder: @Composable (Int) -> String) = if (value >= 0) builder(value) else ""
+private fun buildStringIfNonNegative(value: Int, builder: @Composable (Int) -> String) = if (value >= 0) builder(value) else "-"
 
 // maps the value to GOOD, FAIR or POOR based on the provided thresholds
 private fun calculateIndicatorValue(value: Int, thresholdPoor: Int, thresholdFair: Int) = when {
-    value > thresholdPoor -> CallQualityIndicatorValue.POOR
-    value >= thresholdFair -> CallQualityIndicatorValue.FAIR
-    else -> CallQualityIndicatorValue.GOOD
+    value > thresholdPoor -> CallQualityState.Quality.POOR
+    value >= thresholdFair -> CallQualityState.Quality.FAIR
+    else -> CallQualityState.Quality.GOOD
 }
 
 private const val PACKET_LOSS_THRESHOLD_POOR = 10 // %
@@ -260,10 +260,10 @@ private const val JITTER_THRESHOLD_FAIR = 10 // ms
 
 @PreviewMultipleThemes
 @Composable
-fun CallNetworkQualitySheetContentPreview() = WireTheme {
+fun CallNetworkQualitySheetContentPreview_PoorQuality() = WireTheme {
     CallNetworkQualitySheetContent(
-        callQualityData = CallQualityData(
-            quality = CallQualityData.Quality.NORMAL,
+        callQualityState = CallQualityState(
+            quality = CallQualityState.Quality.POOR,
             peer = CallQualityData.Peer.USER,
             connection = CallQualityData.Connection(
                 protocol = CallQualityData.Connection.Protocol.UDP,
@@ -276,6 +276,15 @@ fun CallNetworkQualitySheetContentPreview() = WireTheme {
                 video = CallQualityData.VideoJitter(up = 15, down = 25),
             ),
         ),
+        onBackPressed = {},
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun CallNetworkQualitySheetContentPreview_NoInternetQuality() = WireTheme {
+    CallNetworkQualitySheetContent(
+        callQualityState = CallQualityState(quality = CallQualityState.Quality.NO_INTERNET),
         onBackPressed = {},
     )
 }

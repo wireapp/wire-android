@@ -1144,6 +1144,7 @@
     <string name="calling_details_network_quality_good">Good</string>
     <string name="calling_details_network_quality_fair">Fair</string>
     <string name="calling_details_network_quality_poor">Poor</string>
+    <string name="calling_details_network_quality_no_internet">No internet</string>
     <string name="calling_details_turn_off_other_videos_title">Turn off other videos</string>
     <string name="calling_details_turn_off_other_videos_description">This improves the audio quality when your network conditions are poor.</string>
     <string name="calling_details_network_quality_peer">Peer</string>

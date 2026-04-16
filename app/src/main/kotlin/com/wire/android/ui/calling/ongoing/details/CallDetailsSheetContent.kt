@@ -46,12 +46,11 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun CallDetailsSheetContent(
-    callQuality: CallQualityData.Quality,
+    callQuality: CallQualityState.Quality,
     onOpenNetworkQuality: () -> Unit,
     othersVideosDisabled: Boolean,
     onOthersVideosDisabledChanged: (othersVideosDisabled: Boolean) -> Unit,
@@ -102,12 +101,12 @@ private fun EncryptedCallItem() {
 
 @Composable
 private fun NetworkQualityItem(
-    callQuality: CallQualityData.Quality,
+    callQuality: CallQualityState.Quality,
     onOpenNetworkQuality: () -> Unit
 ) {
     val title = stringResource(R.string.calling_details_network_quality_title)
     val clickLabel = stringResource(R.string.content_description_call_network_quality_view_details)
-    val value = callQuality.toCallQualityIndicatorValue().text
+    val value = callQuality.text
     MenuBottomSheetItem(
         title = title,
         trailing = {
@@ -176,7 +175,7 @@ private fun TurnOffOtherVideosItem(
 @Composable
 fun CallDetailsSheetContentPreview() = WireTheme {
     CallDetailsSheetContent(
-        callQuality = CallQualityData.Quality.NORMAL,
+        callQuality = CallQualityState.Quality.GOOD,
         onOpenNetworkQuality = {},
         othersVideosDisabled = true,
         onOthersVideosDisabledChanged = {},

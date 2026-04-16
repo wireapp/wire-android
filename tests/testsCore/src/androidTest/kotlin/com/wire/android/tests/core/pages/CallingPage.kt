@@ -28,8 +28,9 @@ data class CallingPage(private val device: UiDevice) {
 
     private val restoreCallButton = UiSelectorParams(text = "RETURN TO CALL")
 
-    fun iSeeOngoingGroupCall(): CallingPage {
+    private val turnCameraOnButton = UiSelectorParams(description = "Turn camera on")
 
+    fun iSeeOngoingGroupCall(): CallingPage {
         try {
             UiWaitUtils.waitElement(hangUpCallButton)
         } catch (e: AssertionError) {
@@ -46,5 +47,24 @@ data class CallingPage(private val device: UiDevice) {
     fun iRestoreOngoingCall(): CallingPage {
         UiWaitUtils.waitElement(restoreCallButton).click()
         return this
+    }
+
+    fun iTurnCameraOn(): CallingPage {
+        UiWaitUtils.waitElement(turnCameraOnButton).click()
+        return this
+    }
+
+    fun iTapOnHangUpButton(): CallingPage {
+        UiWaitUtils.waitElement(hangUpCallButton).click()
+        return this
+    }
+
+    fun iDoNotSeeOngoingGroupCall(): CallingPage {
+        try {
+            UiWaitUtils.waitElement(hangUpCallButton, timeoutMillis = 15_000)
+        } catch (e: AssertionError) {
+            return this
+        }
+        throw AssertionError("Ongoing call still displayed")
     }
 }

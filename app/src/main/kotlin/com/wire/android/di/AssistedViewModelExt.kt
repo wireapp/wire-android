@@ -24,4 +24,6 @@ import dagger.hilt.android.lifecycle.withCreationCallback
 
 inline fun <reified VM : ViewModel, reified VMF> ComponentActivity.assistedViewModels(
     crossinline create: (VMF) -> VM
-) = viewModels<VM>(extrasProducer = { defaultViewModelCreationExtras.withCreationCallback<VMF> { factory -> create(factory) } })
+) = viewModels<VM>(extrasProducer = {
+    defaultViewModelCreationExtras.withCreationCallback<VMF> { factory -> create(factory) }
+})

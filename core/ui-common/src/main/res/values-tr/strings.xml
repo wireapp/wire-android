@@ -23,9 +23,7 @@
     <string name="content_description_hide_password">Parolayı gizle</string>
     <string name="label_wait_until_synchronised">Lütfen uygulama senkronize edilene kadar bekleyin</string>
     <string name="label_wait_until_connected">Lütfen internet bağlantısı yeniden sağlanana kadar bekleyin</string>
-    <string name="content_description_back_button">Geri düğmesi</string>
     <string name="content_description_left_arrow">Geri git</string>
-    <string name="content_description_close_button">Kapat düğmesi</string>
     <string name="content_description_close">Kapat</string>
     <string name="content_description_menu_button">Ana navigasyon</string>
     <string name="content_description_drop_down_icon">Aşağı açılan ok</string>

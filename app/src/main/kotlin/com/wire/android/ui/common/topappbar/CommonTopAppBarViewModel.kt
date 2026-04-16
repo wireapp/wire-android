@@ -35,9 +35,13 @@ import com.wire.kalium.logic.data.sync.SyncState.Live
 import com.wire.kalium.logic.data.sync.SyncState.SlowSync
 import com.wire.kalium.logic.data.sync.SyncState.Waiting
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.network.NetworkState
 import dagger.Lazy
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -48,12 +52,12 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
-import javax.inject.Inject
 
-@HiltViewModel
-class CommonTopAppBarViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = CommonTopAppBarViewModel.Factory::class)
+class CommonTopAppBarViewModel @AssistedInject constructor(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
+    @Assisted private val params: CommonTopAppBarParams,
 ) : ViewModel() {
 
     var state by mutableStateOf(CommonTopAppBarState())
@@ -62,9 +66,19 @@ class CommonTopAppBarViewModel @Inject constructor(
     private suspend fun currentScreenFlow() =
         currentScreenManager.observeCurrentScreen(viewModelScope)
 
+    private fun UserSessionScope.syncStateFlow() = when {
+        !params.showSync -> flowOf(Live) // assume it's always live to not show it on the bar
+        else -> observeSyncState() // otherwise observe real sync state to show it on the bar
+    }
+
+    private fun networkStateFlow() = when {
+        !params.showNoNetwork -> flowOf(NetworkState.ConnectedWithInternet) // assume it's always connected to not show it on the bar
+        else -> coreLogic.get().networkStateObserver.observeNetworkState() // otherwise observe real network state to show it on the bar
+    }
+
     private fun connectivityFlow(userId: UserId): Flow<Connectivity> =
         coreLogic.get().sessionScope(userId) {
-            combine(observeSyncState(), coreLogic.get().networkStateObserver.observeNetworkState()) { syncState, networkState ->
+            combine(syncStateFlow(), networkStateFlow()) { syncState, networkState ->
                 when (syncState) {
                     is Waiting -> Connectivity.WaitingConnection(null, null)
                     is Failed -> Connectivity.WaitingConnection(syncState.cause, syncState.retryDelay)
@@ -82,8 +96,9 @@ class CommonTopAppBarViewModel @Inject constructor(
         }
 
     @VisibleForTesting
-    internal suspend fun activeCallsFlow(userId: UserId): Flow<List<Call>> =
-        coreLogic.get().sessionScope(userId) {
+    internal suspend fun activeCallsFlow(userId: UserId): Flow<List<Call>> = when {
+        !params.showActiveCalls -> flowOf(emptyList()) // assume list is always empty to not show it on the bar
+        else -> coreLogic.get().sessionScope(userId) { // otherwise observe real calls to show them on the bar
             combine(
                 calls.establishedCall(),
                 calls.getIncomingCalls(),
@@ -92,6 +107,7 @@ class CommonTopAppBarViewModel @Inject constructor(
                 establishedCall + incomingCalls + outgoingCalls
             }.distinctUntilChanged()
         }
+    }
 
     init {
         viewModelScope.launch {
@@ -179,8 +195,19 @@ class CommonTopAppBarViewModel @Inject constructor(
         }
     }
 
+    @AssistedFactory
+    interface Factory {
+        fun create(params: CommonTopAppBarParams): CommonTopAppBarViewModel
+    }
+
     private companion object {
         const val CONNECTIVITY_STATE_DEBOUNCE_ONGOING_CALL = 600L
         const val CONNECTIVITY_STATE_DEBOUNCE_DEFAULT = 200L
     }
 }
+
+data class CommonTopAppBarParams(
+    val showNoNetwork: Boolean = true,
+    val showSync: Boolean = true,
+    val showActiveCalls: Boolean = true,
+)

@@ -28,7 +28,6 @@ data class OngoingCallState(
     val participants: PersistentList<UICallParticipant> = persistentListOf(),
     val selectedParticipant: SelectedParticipant? = null,
     val callQuality: CallQualityState = CallQualityState(),
-    val shouldShowDoubleTapToast: Boolean = false,
     val othersVideosDisabled: Boolean = false,
 ) {
     sealed interface FlowState {

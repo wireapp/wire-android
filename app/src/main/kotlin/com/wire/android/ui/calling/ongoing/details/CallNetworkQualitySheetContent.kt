@@ -44,8 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.stateDescription
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowLeftIcon
 import com.wire.android.ui.common.bottomsheet.BuildMenuSheetItems
@@ -81,7 +80,7 @@ fun CallNetworkQualitySheetContent(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clearAndSetSemantics {
-                            contentDescription = "$title: $value"
+                            stateDescription = "$title: $value"
                         }
                         .padding(vertical = dimensions().modalBottomSheetHeaderVerticalPadding)
 
@@ -96,16 +95,11 @@ fun CallNetworkQualitySheetContent(
                 }
             },
             leadingIcon = {
-                val backButtonLabel = stringResource(R.string.content_description_back_button)
-                val clickLabel = stringResource(R.string.content_description_call_network_quality_close_details)
-                IconButton(
-                    onClick = onBackPressed,
-                    modifier = Modifier.clearAndSetSemantics {
-                        contentDescription = backButtonLabel
-                        onClick(label = clickLabel, action = null)
-                    },
-                ) {
-                    ArrowLeftIcon(modifier = Modifier.size(dimensions().spacing16x))
+                IconButton(onClick = onBackPressed) {
+                    ArrowLeftIcon(
+                        modifier = Modifier.size(dimensions().spacing16x),
+                        contentDescription = R.string.content_description_call_network_quality_close_details
+                    )
                 }
             },
             verticalPadding = dimensions().spacing0x,
@@ -201,7 +195,7 @@ private fun QualityValueItem(title: String, value: String, indicator: CallQualit
     MenuBottomSheetItem(
         title = title,
         modifier = Modifier.clearAndSetSemantics {
-            contentDescription = "$title: $value"
+            stateDescription = "$title: $value"
         },
         trailing = {
             Row(verticalAlignment = Alignment.CenterVertically) {

@@ -9,8 +9,8 @@ kotlin = "2.3.10"
 # KotlinX
 coroutines = "1.10.2"
 ktx-dateTime = "0.6.1"
-ktx-immutableCollections = "0.3.8"
-ktx-serialization = "1.8.1"
+ktx-immutableCollections = "0.4.0"
+ktx-serialization = "1.10.0"
 koin = "3.5.3"
 datafaker = "1.9.0"
 libsodiumBindings = "0.9.5"
@@ -57,7 +57,7 @@ compose-destinations = "2.3.0"
 screenshot = "0.0.1-alpha13"
 jetbrains-compose = "1.10.3"
 # TODO(KMP): switch Compose MPP material3 to stable when available for this stack.
-jetbrains-compose-material3 = "1.10.0-alpha05"
+jetbrains-compose-material3 = "1.11.0-alpha05"
 
 # Compose Preview
 compose-edgetoedge-preview = "0.3.0" # aligned with target sdk 36 and androidx-core 1.15.0
@@ -71,7 +71,7 @@ hilt-work = "1.3.0"
 accompanist = "0.32.0"
 material = "1.12.0"
 material3 = "1.4.0"
-coil = "3.3.0"
+coil = "3.4.0"
 commonmark = "0.25.1"
 
 # Countly
@@ -110,7 +110,7 @@ androidx-test-uiAutomator = "2.4.0-alpha06"
 androidx-text-archCore = "2.2.0"
 junit4 = "4.13.2"
 junit5 = "5.11.0"
-mockk = "1.13.16"
+mockk = "1.14.9"
 okio = "3.9.0"
 turbine = "1.2.0"
 robolectric = "4.14.1"

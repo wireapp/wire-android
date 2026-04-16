@@ -98,10 +98,8 @@
     <string name="content_description_conversation_send_emoticon">絵文字送信ボタン</string>
     <string name="content_description_conversation_send_gif">GIF送信ボタン</string>
     <string name="content_description_conversation_mention_someone">他のユーザーをメンション</string>
-    <string name="content_description_back_button">戻るボタン</string>
     <string name="content_description_send_button">送信</string>
     <string name="content_description_timed_message_button">自動削除メッセージボタン</string>
-    <string name="content_description_close_button">閉じるボタン</string>
     <string name="content_description_menu_button">メインナビゲーション</string>
     <string name="content_description_drop_down_icon">ドロップダウンの矢印</string>
     <string name="content_description_remove_devices_screen_device_item_icon">デバイス項目</string>

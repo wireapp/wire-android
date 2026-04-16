@@ -19,11 +19,17 @@ package com.wire.android.ui.calling
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
+import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
@@ -64,29 +70,40 @@ class StartingCallActivity : CallActivity() {
     @Composable
     override fun Content() {
         screenType?.let { currentScreenType ->
-            conversationId?.let { conversationId ->
-                userId?.let { userId ->
-                    when (currentScreenType) {
-                        StartingCallScreenType.Outgoing -> {
-                            OutgoingCallScreen(
-                                conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
-                            ) {
-                                getOngoingCallIntent(this@StartingCallActivity, conversationId, userId).run {
-                                    this@StartingCallActivity.startActivity(this)
+            AnimatedContent(
+                targetState = currentScreenType,
+                transitionSpec = {
+                    TransitionAnimationType.POP_UP.enterTransition.togetherWith(
+                        TransitionAnimationType.POP_UP.exitTransition
+                    )
+                },
+                modifier = Modifier.semantics { testTagsAsResourceId = true },
+                label = currentScreenType.name
+            ) { screenType ->
+                conversationId?.let { conversationId ->
+                    userId?.let { userId ->
+                        when (screenType) {
+                            StartingCallScreenType.Outgoing -> {
+                                OutgoingCallScreen(
+                                    conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
+                                ) {
+                                    getOngoingCallIntent(this@StartingCallActivity, conversationId, userId).run {
+                                        this@StartingCallActivity.startActivity(this)
+                                    }
+                                    this@StartingCallActivity.finishAndRemoveTask()
                                 }
-                                this@StartingCallActivity.finishAndRemoveTask()
                             }
-                        }
 
-                        StartingCallScreenType.Incoming -> {
-                            IncomingCallScreen(
-                                conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId),
-                                shouldTryToAnswerCallAutomatically = shouldAnswerCall,
-                            ) {
-                                this@StartingCallActivity.startActivity(
-                                    getOngoingCallIntent(this@StartingCallActivity, conversationId, userId)
-                                )
-                                this@StartingCallActivity.finishAndRemoveTask()
+                            StartingCallScreenType.Incoming -> {
+                                IncomingCallScreen(
+                                    conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId),
+                                    shouldTryToAnswerCallAutomatically = shouldAnswerCall,
+                                ) {
+                                    this@StartingCallActivity.startActivity(
+                                        getOngoingCallIntent(this@StartingCallActivity, conversationId, userId)
+                                    )
+                                    this@StartingCallActivity.finishAndRemoveTask()
+                                }
                             }
                         }
                     }

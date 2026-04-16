@@ -82,12 +82,6 @@ data class ConversationViewPage(private val device: UiDevice) {
         UiSelectorParams(textContains = "latest version of Wire on your devices")
     )
 
-    private val mlsUpgradeMessageSelectors = listOf(
-        UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
-        UiSelectorParams(textContains = "Layer Security (MLS) protocol"),
-        UiSelectorParams(textContains = "latest version of Wire on your devices")
-    )
-
     private fun selfDeleteOption(label: String): UiSelectorParams {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
     }

@@ -393,7 +393,7 @@ class OngoingCallViewModelTest {
     }
 
     @Test
-    fun givenNetworkStateChanges_WhenObservingQualityState_ThenStateIsUpdated() = runTest(dispatchers.main()) {
+    fun givenNetworkStateChanges_WhenObservingQualityState_ThenStateIsUpdated() = runTest {
         val callQuality = CallQualityData(quality = CallQualityData.Quality.NORMAL, ping = 0)
         val initialNetworkState = NetworkState.ConnectedWithInternet
         val expectedInitialQualityState = CallQualityState(CallQualityState.Quality.GOOD, ping = 0)

@@ -76,7 +76,6 @@ import com.wire.android.ui.calling.ongoing.details.CallDetailsBottomSheet
 import com.wire.android.ui.calling.ongoing.details.CallDetailsButton
 import com.wire.android.ui.calling.ongoing.details.CallDetailsSheetState
 import com.wire.android.ui.calling.ongoing.details.CallQualityState
-import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactionsPanel

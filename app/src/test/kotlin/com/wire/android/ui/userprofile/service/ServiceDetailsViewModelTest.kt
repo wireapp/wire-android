@@ -45,6 +45,8 @@ import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberResult
@@ -266,7 +268,7 @@ class ServiceDetailsViewModelTest {
             // given
             val (_, viewModel) = Arrangement()
                 .withServiceApp(APP_ID)
-                .withAppsAllowedForUsage()
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
                 .withConversationDetails(CONVERSATION_ID)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
@@ -289,7 +291,7 @@ class ServiceDetailsViewModelTest {
             // given
             val (_, viewModel) = Arrangement()
                 .withServiceApp(APP_ID)
-                .withAppsAllowedForUsage()
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
                 .withConversationDetails(CONVERSATION_ID)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
@@ -311,7 +313,7 @@ class ServiceDetailsViewModelTest {
             // given
             val (_, viewModel) = Arrangement()
                 .withServiceApp(APP_ID)
-                .withAppsAllowedForUsage()
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
                 .withConversationDetails(CONVERSATION_ID)
                 .withConversationRoleForUser(
                     roleData = CONVERSATION_ROLE_DATA.copy(
@@ -338,7 +340,7 @@ class ServiceDetailsViewModelTest {
             // given
             val (_, viewModel) = Arrangement()
                 .withServiceApp(APP_ID)
-                .withAppsAllowedForUsage()
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
                 .withConversationDetails(CONVERSATION_ID)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withAppDetails(APP_ID, null)
@@ -360,7 +362,7 @@ class ServiceDetailsViewModelTest {
             // given
             val (arrangement, viewModel) = Arrangement()
                 .withServiceApp(APP_ID)
-                .withAppsAllowedForUsage()
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
                 .withConversationDetails(CONVERSATION_ID)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
@@ -390,7 +392,7 @@ class ServiceDetailsViewModelTest {
             // given
             val (arrangement, viewModel) = Arrangement()
                 .withServiceApp(APP_ID)
-                .withAppsAllowedForUsage()
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
                 .withConversationDetails(CONVERSATION_ID)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
@@ -420,7 +422,7 @@ class ServiceDetailsViewModelTest {
             // given
             val (arrangement, viewModel) = Arrangement()
                 .withServiceApp(APP_ID)
-                .withAppsAllowedForUsage()
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
                 .withConversationDetails(CONVERSATION_ID)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
@@ -450,7 +452,7 @@ class ServiceDetailsViewModelTest {
             // given
             val (arrangement, viewModel) = Arrangement()
                 .withServiceApp(APP_ID)
-                .withAppsAllowedForUsage()
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
                 .withConversationDetails(CONVERSATION_ID)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
@@ -582,7 +584,7 @@ class ServiceDetailsViewModelTest {
             } returns flowOf(ObserveIsAppMemberResult.Success(null))
             coEvery {
                 observeIsAppsAllowedForUsage()
-            } returns flowOf(false)
+            } returns flowOf(AppsAllowedResult.Disabled)
             coEvery {
                 observeConversationDetails(any())
             } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(CONVERSATION_GROUP))
@@ -602,8 +604,8 @@ class ServiceDetailsViewModelTest {
             )
         }
 
-        fun withAppsAllowedForUsage() = apply {
-            coEvery { observeIsAppsAllowedForUsage() } returns flowOf(true)
+        fun withAppsAllowedForUsage(result: AppsAllowedResult) = apply {
+            coEvery { observeIsAppsAllowedForUsage() } returns flowOf(result)
         }
 
         fun withConversationDetails(conversationId: ConversationId) = apply {

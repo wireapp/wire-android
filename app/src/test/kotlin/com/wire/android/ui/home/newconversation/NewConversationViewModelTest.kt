@@ -403,7 +403,7 @@ class NewConversationViewModelTest {
         // dirty state
         viewModel.newGroupNameTextState = TextFieldState("Test Group")
         viewModel.groupOptionsState = viewModel.groupOptionsState.copy(
-            isTeamAllowedToUseApps = AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS),
+            isTeamAllowedToUseApps = AppsAllowedResult.Disabled,
             isAllowAppsEnabled = false
         )
 
@@ -411,7 +411,7 @@ class NewConversationViewModelTest {
         viewModel.resetState()
         advanceUntilIdle()
 
-        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps is AppsAllowedResult.Disabled)
+        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps is AppsAllowedResult.Enabled)
         assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
         assertEquals("", viewModel.newGroupNameTextState.text)
     }

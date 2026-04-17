@@ -81,17 +81,8 @@ class ServiceDetailsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
-    private val serviceId = when (serviceDetailsNavArgs.id) {
-        is ServiceDetailsNavArgs.Id.BotServiceId -> ServiceId(
-            serviceDetailsNavArgs.id.botService.id,
-            serviceDetailsNavArgs.id.botService.provider
-        )
-        is ServiceDetailsNavArgs.Id.AppId -> ServiceId(
-            serviceDetailsNavArgs.id.userId.value,
-            serviceDetailsNavArgs.id.userId.domain
-        )
-    }
-    private val appId = (serviceDetailsNavArgs.id as? ServiceDetailsNavArgs.Id.AppId)?.userId
+
+    private val serviceId: ServiceId = serviceDetailsNavArgs.id.serviceId
     private val conversationId: QualifiedID? = serviceDetailsNavArgs.conversationId
 
     var serviceDetailsState by mutableStateOf(ServiceDetailsState())
@@ -132,39 +123,46 @@ class ServiceDetailsViewModel @Inject constructor(
                 is AppsAllowedResult.Disabled -> false
             }
 
-            if (isAppsEnabled) {
-                getAppDetailsAndUpdateViewState()?.let { observeIsAppConversationMember() }
-            } else {
-                getServiceDetailsAndUpdateViewState()?.let { observeIsServiceConversationMember() }
+            when {
+                isAppsEnabled && serviceDetailsNavArgs.id is ServiceDetailsNavArgs.Id.AppId -> {
+                    getAppDetailsAndUpdateViewState(serviceDetailsNavArgs.id.appId)
+                        ?.let { observeIsAppConversationMember(serviceDetailsNavArgs.id.appId) }
+                }
+                !isAppsEnabled -> {
+                    getServiceDetailsAndUpdateViewState()
+                        ?.let { observeIsServiceConversationMember() }
+                }
+                else -> serviceNotFound()
             }
         }
     }
 
     fun addService() {
         viewModelScope.launch {
-            val responseMessage = if (isAppsEnabled) {
-                val response = withContext(dispatchers.io()) {
-                    addMemberToConversation.invoke(
+            val responseMessage = when (val id = serviceDetailsNavArgs.id) {
+                is ServiceDetailsNavArgs.Id.AppId -> {
+                    val response = addMemberToConversation.invoke(
                         conversationId = requireNotNull(conversationId),
-                        userIdList = listOf(appId!!)
+                        userIdList = listOf(id.appId)
                     )
-                }
 
-                 when (response) {
-                    is AddMemberToConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorAddService
-                    is AddMemberToConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessAddService
+                    when (response) {
+                        is AddMemberToConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorAddService
+                        is AddMemberToConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessAddService
+                    }
                 }
-            } else {
-                val response = withContext(dispatchers.io()) {
-                    addServiceToConversation.invoke(
-                        conversationId = requireNotNull(conversationId),
-                        serviceId = serviceId
-                    )
-                }
+                is ServiceDetailsNavArgs.Id.BotServiceId -> {
+                    val response = withContext(dispatchers.io()) {
+                        addServiceToConversation.invoke(
+                            conversationId = requireNotNull(conversationId),
+                            serviceId = id.serviceId
+                        )
+                    }
 
-                when (response) {
-                    is AddServiceToConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorAddService
-                    is AddServiceToConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessAddService
+                    when (response) {
+                        is AddServiceToConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorAddService
+                        is AddServiceToConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessAddService
+                    }
                 }
             }
 
@@ -210,8 +208,8 @@ class ServiceDetailsViewModel @Inject constructor(
             }
         }
 
-    private suspend fun getAppDetailsAndUpdateViewState(): ServiceDetails? =
-        getAppById(appId = appId!!).also { app ->
+    private suspend fun getAppDetailsAndUpdateViewState(appId: UserId): ServiceDetails? =
+        getAppById(appId = appId).also { app ->
             if (app != null) {
                 val appAvatarAsset = app.completeAssetId?.let { asset ->
                     ImageAsset.UserAvatarAsset(asset)
@@ -260,10 +258,10 @@ class ServiceDetailsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun observeIsAppConversationMember() {
+    private suspend fun observeIsAppConversationMember(appId: UserId) {
         conversationId?.let {
             observeIsAppMember(
-                appId = appId!!,
+                appId = appId,
                 conversationId = conversationId
             )
                 .combine(observeGroupInfo(), ::Pair)
@@ -289,13 +287,11 @@ class ServiceDetailsViewModel @Inject constructor(
         serviceMemberId: UserId?,
         groupInfo: ServiceDetailsGroupState
     ) {
-        val buttonState = when (groupInfo.isSelfAdmin) {
-            true -> {
-                serviceMemberId?.let { ServiceDetailsButtonState.REMOVE }
-                    ?: ServiceDetailsButtonState.ADD
-            }
-
-            false -> ServiceDetailsButtonState.HIDDEN
+        val buttonState = if (conversationId != null && groupInfo.isSelfAdmin) {
+            if (serviceMemberId != null) ServiceDetailsButtonState.REMOVE
+            else ServiceDetailsButtonState.ADD
+        } else {
+            ServiceDetailsButtonState.HIDDEN
         }
 
         serviceDetailsState = serviceDetailsState.copy(

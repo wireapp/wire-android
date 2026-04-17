@@ -22,6 +22,7 @@ import com.ramcosta.composedestinations.navargs.NavTypeSerializer
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.VALUE_DOMAIN_SEPARATOR
+import com.wire.kalium.logic.data.service.ServiceId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.serialization.Serializable
@@ -32,8 +33,19 @@ data class ServiceDetailsNavArgs(
     val id: Id
 ) {
     sealed interface Id {
-        data class BotServiceId(val botService: BotService) : Id
-        data class AppId(val userId: UserId) : Id
+        val serviceId: ServiceId
+
+        data class BotServiceId(val botService: BotService) : Id {
+            override val serviceId: ServiceId
+                get() = ServiceId(botService.id, botService.provider)
+        }
+
+        data class AppId(val userId: UserId) : Id {
+            override val serviceId: ServiceId
+                get() = ServiceId(userId.value, userId.domain)
+
+            val appId: UserId get() = userId
+        }
     }
 }
 

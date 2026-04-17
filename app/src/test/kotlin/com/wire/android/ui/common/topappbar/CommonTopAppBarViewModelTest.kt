@@ -99,6 +99,25 @@ class CommonTopAppBarViewModelTest {
         }
 
     @Test
+    fun givenNoCallAndHomeScreenAndWaiting_whenGettingState_thenShouldHaveNoneInfo() =
+        runTest {
+            val (_, commonTopAppBarViewModel) = Arrangement()
+                .withCurrentSessionExist()
+                .withoutOngoingCall()
+                .withoutOutgoingCall()
+                .withoutIncomingCall()
+                .withCurrentScreen(CurrentScreen.Home)
+                .withSyncState(SyncState.Waiting)
+                .arrange()
+
+            advanceUntilIdle()
+            val state = commonTopAppBarViewModel.state
+
+            val info = state.connectivityState
+            info shouldBeInstanceOf ConnectivityUIState.None::class
+        }
+
+    @Test
     fun givenAnOngoingCallAndHomeScreenAndConnectivityIssues_whenGettingState_thenShouldHaveActiveCallInfo() =
         runTest {
             val (_, commonTopAppBarViewModel) = Arrangement()

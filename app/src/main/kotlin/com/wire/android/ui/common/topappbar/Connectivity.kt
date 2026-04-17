@@ -25,4 +25,5 @@ sealed interface Connectivity {
     data class WaitingConnection(val cause: CoreFailure?, val retryDelay: Duration?) : Connectivity
     data object Connecting : Connectivity
     data object Connected : Connectivity
+    data object Idle : Connectivity
 }

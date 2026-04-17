@@ -31,11 +31,9 @@ import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.sync.SyncState.Failed
 import com.wire.kalium.logic.data.sync.SyncState.GatheringPendingEvents
-import com.wire.kalium.logic.data.sync.SyncState.Live
 import com.wire.kalium.logic.data.sync.SyncState.SlowSync
 import com.wire.kalium.logic.data.sync.SyncState.Waiting
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.network.NetworkState
 import dagger.Lazy
@@ -69,7 +67,7 @@ class CommonTopAppBarViewModel @AssistedInject constructor(
     private fun connectivityFlow(userId: UserId): Flow<Connectivity> =
         coreLogic.get().sessionScope(userId) {
             combine(observeSyncState(), coreLogic.get().networkStateObserver.observeNetworkState()) { syncState, networkState ->
-                when  {
+                when {
                     syncState is Waiting -> Connectivity.WaitingConnection(null, null)
                     syncState is Failed -> Connectivity.WaitingConnection(syncState.cause, syncState.retryDelay)
                     networkState !is NetworkState.ConnectedWithInternet -> Connectivity.WaitingConnection(null, null)

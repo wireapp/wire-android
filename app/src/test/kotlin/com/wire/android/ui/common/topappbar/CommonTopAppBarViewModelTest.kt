@@ -290,7 +290,6 @@ class CommonTopAppBarViewModelTest {
         networkStateFlow.value = NetworkState.NotConnected
         advanceUntilIdle()
         commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.WaitingConnection::class
-
     }
 
     @Test

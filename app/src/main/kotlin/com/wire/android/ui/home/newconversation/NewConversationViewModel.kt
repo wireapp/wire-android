@@ -47,6 +47,7 @@ import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -97,10 +98,10 @@ class NewConversationViewModel @Inject constructor(
     private fun observeAllowanceOfAppsUsageInitialState() {
         viewModelScope.launch {
             observeIsAppsAllowedForUsage()
-                .collectLatest { isAppsAllowed ->
+                .collectLatest { isAppsAllowedResult ->
                     groupOptionsState = groupOptionsState.copy(
-                        isTeamAllowedToUseApps = isAppsAllowed,
-                        isAllowAppsEnabled = isAppsAllowed
+                        isTeamAllowedToUseApps = isAppsAllowedResult,
+                        isAllowAppsEnabled = isAppsAllowedResult is AppsAllowedResult.Enabled
                     )
                 }
         }

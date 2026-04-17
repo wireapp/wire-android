@@ -40,6 +40,7 @@ import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -62,7 +63,7 @@ internal class NewConversationViewModelArrangement {
         coEvery { observeChannelsCreationPermissionUseCase() } returns flowOf(ChannelCreationPermission.Forbidden)
         coEvery { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
         coEvery { isWireCellsEnabled() } returns false
-        withAppsAllowedResult(false)
+        withAppsAllowedResult(AppsAllowedResult.Disabled)
     }
 
     @MockK
@@ -211,7 +212,7 @@ internal class NewConversationViewModelArrangement {
         coEvery { getDefaultProtocol() } returns supportedProtocol
     }
 
-    fun withAppsAllowedResult(result: Boolean) = apply {
+    fun withAppsAllowedResult(result: AppsAllowedResult) = apply {
         coEvery { observeIsAppsAllowedForUsage() } returns flowOf(result)
     }
 

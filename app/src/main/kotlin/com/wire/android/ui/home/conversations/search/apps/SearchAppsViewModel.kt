@@ -26,13 +26,20 @@ import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.app.ObserveAllAppsUseCase
 import com.wire.kalium.logic.feature.app.SearchAppsByNameUseCase
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -44,10 +51,10 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class SearchAppsViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = SearchAppsViewModel.Factory::class)
+class SearchAppsViewModel @AssistedInject constructor(
+    @Assisted val protocolInfo: Conversation.ProtocolInfo?,
     private val getAllServices: ObserveAllServicesUseCase,
     private val getAllApps: ObserveAllAppsUseCase,
     private val contactMapper: ContactMapper,
@@ -66,12 +73,12 @@ class SearchAppsViewModel @Inject constructor(
                 observeSelfUser(),
                 isAppsAllowedForUsage(),
                 searchQueryTextFlow.onStart { emit(String.EMPTY) }
-            ) { selfUser, isEnabled, query ->
-                Triple(selfUser, isEnabled, query)
-            }.debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE).collectLatest { (selfUser, isEnabled, query) ->
-                state = state.copy(isTeamAllowedToUseApps = isEnabled, isSelfATeamAdmin = selfUser.userType.isTeamAdmin())
-                if (isEnabled) {
-                    search(query)
+            ) { selfUser, isEnabledResult, query ->
+                Triple(selfUser, isEnabledResult, query)
+            }.debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE).collectLatest { (selfUser, isEnabledResult, query) ->
+                state = state.copy(isTeamAllowedToUseApps = isEnabledResult, isSelfATeamAdmin = selfUser.userType.isTeamAdmin())
+                if (isEnabledResult is AppsAllowedResult.Enabled) {
+                    search(query, isEnabledResult)
                 } else {
                     state = state.copy(isLoading = false, result = persistentListOf())
                 }
@@ -85,24 +92,44 @@ class SearchAppsViewModel @Inject constructor(
         }
     }
 
-    private fun search(query: String) {
+    private fun search(query: String, appsAllowedResult: AppsAllowedResult.Enabled) {
         viewModelScope.launch {
-            val result = when {
-                state.isTeamAllowedToUseApps && query.isEmpty() -> getAllApps()
-                state.isTeamAllowedToUseApps -> searchAppsByName(query)
-                query.isEmpty() -> getAllServices()
-                else -> searchServicesByName(query)
-            }.first()
+            val showNewApps = when (appsAllowedResult.protocol) {
+                AppsAllowedProtocol.MLS -> true
+                AppsAllowedProtocol.PROTEUS -> false
+                is AppsAllowedProtocol.MIXED -> when (protocolInfo) {
+                    is Conversation.ProtocolInfo.MLS -> true
+                    is Conversation.ProtocolInfo.Proteus -> false
+                    null, is Conversation.ProtocolInfo.Mixed ->
+                        (appsAllowedResult.protocol as AppsAllowedProtocol.MIXED)
+                            .defaultProtocol == SupportedProtocol.MLS
+                }
+            }
 
-            state = state.copy(isLoading = false, searchQuery = query, result = result.map(contactMapper::fromService).toImmutableList())
+            val result = if (showNewApps) {
+                if (query.isEmpty()) getAllApps() else searchAppsByName(query)
+            } else {
+                if (query.isEmpty()) getAllServices() else searchServicesByName(query)
+            }
+
+            state = state.copy(
+                isLoading = false,
+                searchQuery = query,
+                result = result.first().map(contactMapper::fromService).toImmutableList()
+            )
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel
     }
 }
 
 data class SearchServicesState(
     val result: ImmutableList<Contact> = persistentListOf(),
     val searchQuery: String = String.EMPTY,
-    val isTeamAllowedToUseApps: Boolean = false,
+    val isTeamAllowedToUseApps: AppsAllowedResult = AppsAllowedResult.Disabled,
     val isSelfATeamAdmin: Boolean = false,
     val isLoading: Boolean = false,
 )

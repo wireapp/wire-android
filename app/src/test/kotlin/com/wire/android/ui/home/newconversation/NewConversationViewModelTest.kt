@@ -43,6 +43,8 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import io.mockk.coVerify
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -62,7 +64,7 @@ class NewConversationViewModelTest {
 
     @Test
     fun `given sync failure, when creating group, then should update options state with connectivity error`() = runTest {
-        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+        val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
             .withSyncFailureOnCreatingGroup()
             .arrange()
@@ -75,7 +77,7 @@ class NewConversationViewModelTest {
 
     @Test
     fun `given unknown failure, when creating group, then should update options state with unknown error`() = runTest {
-        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+        val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
             .withUnknownFailureOnCreatingGroup()
             .arrange()
@@ -88,7 +90,7 @@ class NewConversationViewModelTest {
 
     @Test
     fun `given no failure, when creating group, then options state should have no error`() = runTest {
-        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+        val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
             .arrange()
 
@@ -186,8 +188,8 @@ class NewConversationViewModelTest {
 
         // then
         assertEquals(CreateConversationParam.Protocol.MLS, result)
-        assertEquals(false, result2.isAllowAppsEnabled)
-        assertEquals(false, result2.isTeamAllowedToUseApps)
+        assertFalse(result2.isAllowAppsEnabled)
+        assertTrue(result2.isTeamAllowedToUseApps is AppsAllowedResult.Disabled)
     }
 
     @Test
@@ -370,13 +372,12 @@ class NewConversationViewModelTest {
         // Given
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
-            .withAppsAllowedResult(false)
+            .withAppsAllowedResult(AppsAllowedResult.Disabled)
             .arrange()
 
         // then
-        // WPB-21835: even if team does not allow apps, we still allow enabling/disabling apps based on protocol, later this will change
-        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps)
-        assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
+        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps is AppsAllowedResult.Disabled)
+        assertFalse(viewModel.groupOptionsState.isAllowAppsEnabled)
     }
 
     @Test
@@ -384,10 +385,10 @@ class NewConversationViewModelTest {
         // Given
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
             .arrange()
 
-        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps)
+        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps is AppsAllowedResult.Enabled)
         assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
     }
 
@@ -396,13 +397,13 @@ class NewConversationViewModelTest {
         // Given
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
             .arrange()
 
         // dirty state
         viewModel.newGroupNameTextState = TextFieldState("Test Group")
         viewModel.groupOptionsState = viewModel.groupOptionsState.copy(
-            isTeamAllowedToUseApps = true,
+            isTeamAllowedToUseApps = AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS),
             isAllowAppsEnabled = false
         )
 
@@ -410,7 +411,7 @@ class NewConversationViewModelTest {
         viewModel.resetState()
         advanceUntilIdle()
 
-        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps)
+        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps is AppsAllowedResult.Disabled)
         assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
         assertEquals("", viewModel.newGroupNameTextState.text)
     }

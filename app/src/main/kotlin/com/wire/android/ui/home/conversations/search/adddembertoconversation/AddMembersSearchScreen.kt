@@ -30,8 +30,10 @@ import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.BotService
+import com.wire.kalium.logic.data.user.UserId
 
 @WireRootDestination(
     navArgs = AddMembersSearchNavArgs::class
@@ -57,14 +59,22 @@ fun AddMembersSearchScreen(
         isGroupSubmitVisible = true,
         onClose = navigator::navigateBack,
         onAppClicked = { contact: Contact ->
-            ServiceDetailsScreenDestination(BotService(contact.id, contact.domain), navArgs.conversationId)
-                .let { navigator.navigate(NavigationCommand(it)) }
+            val serviceId = when (navArgs.isConversationAppsEnabled) {
+                true -> ServiceDetailsNavArgs.Id.AppId(UserId(contact.id, contact.domain))
+                false -> ServiceDetailsNavArgs.Id.BotServiceId(BotService(contact.id, contact.domain))
+            }
+
+            ServiceDetailsScreenDestination(
+                navArgs.conversationId,
+                serviceId
+            ).let { navigator.navigate(NavigationCommand(it)) }
         },
         screenType = SearchPeopleScreenType.CONVERSATION_DETAILS,
         selectedContacts = addMembersToConversationViewModel.newGroupState.selectedContacts,
         isAppsTabVisible = navArgs.isSelfPartOfATeam,
         isUserAllowedToCreateChannels = false,
         shouldShowChannelPromotion = false,
-        isConversationAppsEnabled = navArgs.isConversationAppsEnabled
+        isConversationAppsEnabled = navArgs.isConversationAppsEnabled,
+        conversationProtocol = navArgs.protocolInfo
     )
 }

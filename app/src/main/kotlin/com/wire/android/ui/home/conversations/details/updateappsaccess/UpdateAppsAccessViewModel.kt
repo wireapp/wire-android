@@ -35,6 +35,7 @@ import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -97,9 +98,9 @@ class UpdateAppsAccessViewModel @Inject constructor(
                 conversationDetailsFlow,
                 isSelfAdminFlow,
                 selfUser()
-            ) { isTeamAllowedToUseApps, conversationDetails, isSelfAnAdmin, selfUser ->
-                CombineFour(isTeamAllowedToUseApps, conversationDetails, isSelfAnAdmin, selfUser)
-            }.collect { (isTeamAllowedToUseApps, conversationDetails, isSelfAnAdmin, selfUser) ->
+            ) { isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser ->
+                CombineFour(isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser)
+            }.collect { (isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser) ->
                 val isTeamAdmin = selfUser.userType.isTeamAdmin()
                 val isSelfInConversationTeam = selfUser.teamId == conversationDetails.conversation.teamId
                 val isSelfChannelTeamAdmin =
@@ -107,13 +108,13 @@ class UpdateAppsAccessViewModel @Inject constructor(
                 val canSelfPerformAdminActions = isSelfAnAdmin || isSelfChannelTeamAdmin
 
                 // WPB-21835: Apps availability logic controlled by feature flag
-                val isAppAccessAllowed = computeAppsEnabledStatus(conversationDetails, isTeamAllowedToUseApps)
+                val isAppAccessAllowed = computeAppsEnabledStatus(conversationDetails, isAppsAllowedResult)
                 val isUpdatingAppAccessAllowed =
-                    computeAppsAllowedStatus(canSelfPerformAdminActions, isTeamAllowedToUseApps)
+                    computeAppsAllowedStatus(canSelfPerformAdminActions, isAppsAllowedResult)
 
                 updateAppsAccessState = updateAppsAccessState.copy(
-                    isAppAccessAllowed = isAppAccessAllowed,
                     isUpdatingAppAccessAllowed = isUpdatingAppAccessAllowed,
+                    isAppAccessAllowed = isAppAccessAllowed,
                     isLoadingAppsOption = false,
                     shouldShowDisableAppsConfirmationDialog = false
                 )
@@ -127,8 +128,8 @@ class UpdateAppsAccessViewModel @Inject constructor(
      */
     private fun computeAppsEnabledStatus(
         conversationDetails: ConversationDetails,
-        isTeamAllowedToUseApps: Boolean
-    ) = conversationDetails.conversation.isServicesAllowed() && isTeamAllowedToUseApps
+        appsAllowedResult: AppsAllowedResult
+    ) = conversationDetails.conversation.isServicesAllowed() && appsAllowedResult is AppsAllowedResult.Enabled
 
     /**
      * Determine apps visibility based on feature flag and team settings
@@ -136,11 +137,11 @@ class UpdateAppsAccessViewModel @Inject constructor(
      */
     private fun computeAppsAllowedStatus(
         canSelfPerformAdminActions: Boolean,
-        isTeamAllowedToUseApps: Boolean
-    ) = canSelfPerformAdminActions && isTeamAllowedToUseApps
+        appsAllowedResult: AppsAllowedResult
+    ) = canSelfPerformAdminActions && appsAllowedResult is AppsAllowedResult.Enabled
 
     private data class CombineFour(
-        val isAppsUsageAllowed: Boolean,
+        val appsAllowedResult: AppsAllowedResult,
         val conversationDetails: ConversationDetails,
         val isSelfAnAdmin: Boolean,
         val selfUser: SelfUser

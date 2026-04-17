@@ -33,7 +33,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
-import com.wire.kalium.logic.data.service.toQualifiedID
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.app.GetAppByIdUseCase
 import com.wire.kalium.logic.feature.app.ObserveIsAppMemberResult
@@ -42,6 +42,8 @@ import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberResult
@@ -75,16 +77,26 @@ class ServiceDetailsViewModel @Inject constructor(
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val addServiceToConversation: AddServiceToConversationUseCase,
     private val addMemberToConversation: AddMemberToConversationUseCase,
-    serviceDetailsMapper: ServiceDetailsMapper,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
-    private val serviceId: ServiceId = serviceDetailsMapper.fromBotServiceToServiceId(serviceDetailsNavArgs.botService)
+    private val serviceId = when (serviceDetailsNavArgs.id) {
+        is ServiceDetailsNavArgs.Id.BotServiceId -> ServiceId(
+            serviceDetailsNavArgs.id.botService.id,
+            serviceDetailsNavArgs.id.botService.provider
+        )
+        is ServiceDetailsNavArgs.Id.AppId -> ServiceId(
+            serviceDetailsNavArgs.id.userId.value,
+            serviceDetailsNavArgs.id.userId.domain
+        )
+    }
+    private val appId = (serviceDetailsNavArgs.id as? ServiceDetailsNavArgs.Id.AppId)?.userId
     private val conversationId: QualifiedID? = serviceDetailsNavArgs.conversationId
 
     var serviceDetailsState by mutableStateOf(ServiceDetailsState())
     var isAppsEnabled by mutableStateOf(false)
+
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
 
@@ -97,26 +109,33 @@ class ServiceDetailsViewModel @Inject constructor(
                 isAvatarLoading = true
             )
 
-            val isTeamAllowedToUseApps = observeIsAppsAllowedForUsage().first()
-            val isConversationServicesAllowed = conversationId?.let {
-                observeConversationDetails(conversationId)
-                    .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
-                    .map { it.conversationDetails.conversation.isServicesAllowed() }
-                    .first()
-            } ?: false
+            val appsAllowedResult = observeIsAppsAllowedForUsage().first()
 
-            isAppsEnabled = conversationId?.let {
-                isTeamAllowedToUseApps && isConversationServicesAllowed
-            } ?: isTeamAllowedToUseApps
+            val conversationProtocolInfo = conversationId?.let {
+                observeConversationDetails(it)
+                    .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
+                    .map { result -> result.conversationDetails.conversation.protocol }
+                    .first()
+            }
+
+            isAppsEnabled = when (appsAllowedResult) {
+                is AppsAllowedResult.Enabled -> when (appsAllowedResult.protocol) {
+                    AppsAllowedProtocol.MLS -> true
+                    AppsAllowedProtocol.PROTEUS -> false
+                    is AppsAllowedProtocol.MIXED -> when (conversationProtocolInfo) {
+                        is Conversation.ProtocolInfo.MLS -> true
+                        is Conversation.ProtocolInfo.Proteus -> false
+                        null, is Conversation.ProtocolInfo.Mixed ->
+                            (appsAllowedResult.protocol as AppsAllowedProtocol.MIXED).defaultProtocol == SupportedProtocol.MLS
+                    }
+                }
+                is AppsAllowedResult.Disabled -> false
+            }
 
             if (isAppsEnabled) {
-                getAppDetailsAndUpdateViewState()?.let {
-                    observeIsAppConversationMember()
-                }
+                getAppDetailsAndUpdateViewState()?.let { observeIsAppConversationMember() }
             } else {
-                getServiceDetailsAndUpdateViewState()?.let {
-                    observeIsServiceConversationMember()
-                }
+                getServiceDetailsAndUpdateViewState()?.let { observeIsServiceConversationMember() }
             }
         }
     }
@@ -127,7 +146,7 @@ class ServiceDetailsViewModel @Inject constructor(
                 val response = withContext(dispatchers.io()) {
                     addMemberToConversation.invoke(
                         conversationId = requireNotNull(conversationId),
-                        userIdList = listOf(serviceId.toQualifiedID())
+                        userIdList = listOf(appId!!)
                     )
                 }
 
@@ -192,7 +211,7 @@ class ServiceDetailsViewModel @Inject constructor(
         }
 
     private suspend fun getAppDetailsAndUpdateViewState(): ServiceDetails? =
-        getAppById(appId = serviceId.toQualifiedID()).also { app ->
+        getAppById(appId = appId!!).also { app ->
             if (app != null) {
                 val appAvatarAsset = app.completeAssetId?.let { asset ->
                     ImageAsset.UserAvatarAsset(asset)
@@ -244,7 +263,7 @@ class ServiceDetailsViewModel @Inject constructor(
     private suspend fun observeIsAppConversationMember() {
         conversationId?.let {
             observeIsAppMember(
-                appId = serviceId.toQualifiedID(),
+                appId = appId!!,
                 conversationId = conversationId
             )
                 .combine(observeGroupInfo(), ::Pair)

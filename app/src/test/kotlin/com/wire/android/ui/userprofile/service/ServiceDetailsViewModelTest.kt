@@ -27,7 +27,8 @@ import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
+import com.wire.android.framework.TestConversation
+import com.wire.android.framework.TestConversationDetails
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -36,8 +37,15 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
 import com.wire.kalium.logic.data.user.BotService
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.app.GetAppByIdUseCase
+import com.wire.kalium.logic.feature.app.ObserveIsAppMemberResult
+import com.wire.kalium.logic.feature.app.ObserveIsAppMemberUseCase
+import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberResult
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
@@ -63,7 +71,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
-                .withService(service = BOT_SERVICE)
+                .withServiceBot(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberResult = ObserveIsServiceMemberResult.Success(MEMBER_ID))
@@ -84,7 +92,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
-                .withService(service = BOT_SERVICE)
+                .withServiceBot(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberResult = ObserveIsServiceMemberResult.Failure(StorageFailure.DataNotFound))
@@ -104,7 +112,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
-                .withService(service = BOT_SERVICE)
+                .withServiceBot(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(
                     roleData = CONVERSATION_ROLE_DATA.copy(
@@ -129,7 +137,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
-                .withService(service = BOT_SERVICE)
+                .withServiceBot(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = null)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberResult = ObserveIsServiceMemberResult.Failure(StorageFailure.DataNotFound))
@@ -149,7 +157,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
-                .withService(service = BOT_SERVICE)
+                .withServiceBot(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberResult = ObserveIsServiceMemberResult.Success(MEMBER_ID))
@@ -176,7 +184,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
-                .withService(service = BOT_SERVICE)
+                .withServiceBot(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberResult = ObserveIsServiceMemberResult.Success(MEMBER_ID))
@@ -203,7 +211,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
-                .withService(service = BOT_SERVICE)
+                .withServiceBot(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberResult = ObserveIsServiceMemberResult.Success(MEMBER_ID))
@@ -230,7 +238,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
-                .withService(service = BOT_SERVICE)
+                .withServiceBot(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberResult = ObserveIsServiceMemberResult.Success(MEMBER_ID))
@@ -252,11 +260,226 @@ class ServiceDetailsViewModelTest {
             }
         }
 
+    @Test
+    fun `given user opens service details screen, when app is member of conversation, then data is loaded correctly`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withServiceApp(APP_ID)
+                .withAppsAllowedForUsage()
+                .withConversationDetails(CONVERSATION_ID)
+                .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withIsAppMember(ObserveIsAppMemberResult.Success(APP_ID))
+                .arrange()
+
+            // when
+            // view model is initialized
+
+            // then
+            assertEquals(null, viewModel.serviceDetailsState.serviceAvatarAsset)
+            assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
+            assertEquals(APP_ID, viewModel.serviceDetailsState.serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.REMOVE, viewModel.serviceDetailsState.buttonState)
+        }
+
+    @Test
+    fun `given user opens service details screen, when app is not member of conversation, then data is loaded correctly`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withServiceApp(APP_ID)
+                .withAppsAllowedForUsage()
+                .withConversationDetails(CONVERSATION_ID)
+                .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withIsAppMember(ObserveIsAppMemberResult.Failure(StorageFailure.DataNotFound))
+                .arrange()
+
+            // when
+            // view model is initialized
+
+            // then
+            assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
+            assertEquals(null, viewModel.serviceDetailsState.serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.ADD, viewModel.serviceDetailsState.buttonState)
+        }
+
+    @Test
+    fun `given user opens service details screen for an app, when user is not admin, then buttons are hidden`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withServiceApp(APP_ID)
+                .withAppsAllowedForUsage()
+                .withConversationDetails(CONVERSATION_ID)
+                .withConversationRoleForUser(
+                    roleData = CONVERSATION_ROLE_DATA.copy(
+                        userRole = Conversation.Member.Role.Member,
+                        selfRole = Conversation.Member.Role.Member
+                    )
+                )
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withIsAppMember(ObserveIsAppMemberResult.Success(APP_ID))
+                .arrange()
+
+            // when
+            // view model is initialized
+
+            // then
+            assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
+            assertEquals(APP_ID, viewModel.serviceDetailsState.serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState.buttonState)
+        }
+
+    @Test
+    fun `given user opens service details screen, when app doesn't exist, then service not found screen is shown`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withServiceApp(APP_ID)
+                .withAppsAllowedForUsage()
+                .withConversationDetails(CONVERSATION_ID)
+                .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
+                .withAppDetails(APP_ID, null)
+                .withIsAppMember(ObserveIsAppMemberResult.Failure(StorageFailure.DataNotFound))
+                .arrange()
+
+            // when
+            // view model is initialized
+
+            // then
+            assertEquals(null, viewModel.serviceDetailsState.serviceDetails)
+            assertEquals(null, viewModel.serviceDetailsState.serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState.buttonState)
+        }
+
+    @Test
+    fun `given user opens service details screen, when removing app successfully, then request is sent correctly`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withServiceApp(APP_ID)
+                .withAppsAllowedForUsage()
+                .withConversationDetails(CONVERSATION_ID)
+                .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withIsAppMember(ObserveIsAppMemberResult.Success(APP_ID))
+                .withRemoveService(result = RemoveMemberFromConversationUseCase.Result.Success)
+                .arrange()
+
+            // when
+            viewModel.infoMessage.test {
+                viewModel.removeService()
+
+                // then
+                coVerify(exactly = 1) {
+                    arrangement.removeMemberFromConversation(
+                        conversationId = CONVERSATION_ID,
+                        userIdToRemove = APP_ID
+                    )
+                }
+
+                assertEquals(ServiceDetailsInfoMessageType.SuccessRemoveService.uiText, awaitItem())
+            }
+        }
+
+    @Test
+    fun `given user opens service details screen, when removing app fails, then request is sent correctly`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withServiceApp(APP_ID)
+                .withAppsAllowedForUsage()
+                .withConversationDetails(CONVERSATION_ID)
+                .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withIsAppMember(ObserveIsAppMemberResult.Success(APP_ID))
+                .withRemoveService(result = RemoveMemberFromConversationUseCase.Result.Failure(cause = CoreFailure.Unknown(null)))
+                .arrange()
+
+            // when
+            viewModel.infoMessage.test {
+                viewModel.removeService()
+
+                // then
+                coVerify(exactly = 1) {
+                    arrangement.removeMemberFromConversation(
+                        conversationId = CONVERSATION_ID,
+                        userIdToRemove = APP_ID
+                    )
+                }
+
+                assertEquals(ServiceDetailsInfoMessageType.ErrorRemoveService.uiText, awaitItem())
+            }
+        }
+
+    @Test
+    fun `given user opens service details screen, when adding app successfully, then request is sent correctly`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withServiceApp(APP_ID)
+                .withAppsAllowedForUsage()
+                .withConversationDetails(CONVERSATION_ID)
+                .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withIsAppMember(ObserveIsAppMemberResult.Success(APP_ID))
+                .withAddApp(AddMemberToConversationUseCase.Result.Success)
+                .arrange()
+
+            // when
+            viewModel.infoMessage.test {
+                viewModel.addService()
+
+                // then
+                coVerify(exactly = 1) {
+                    arrangement.addMemberToConversation(
+                        conversationId = CONVERSATION_ID,
+                        userIdList = listOf(APP_ID)
+                    )
+                }
+
+                assertEquals(ServiceDetailsInfoMessageType.SuccessAddService.uiText, awaitItem())
+            }
+        }
+
+    @Test
+    fun `given user opens service details screen, when adding app fails, then request is sent correctly`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withServiceApp(APP_ID)
+                .withAppsAllowedForUsage()
+                .withConversationDetails(CONVERSATION_ID)
+                .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withIsAppMember(ObserveIsAppMemberResult.Success(APP_ID))
+                .withAddApp(AddMemberToConversationUseCase.Result.Failure(CoreFailure.Unknown(null)))
+                .arrange()
+
+            // when
+            viewModel.infoMessage.test {
+                viewModel.addService()
+
+                // then
+                coVerify(exactly = 1) {
+                    arrangement.addMemberToConversation(
+                        conversationId = CONVERSATION_ID,
+                        userIdList = listOf(APP_ID)
+                    )
+                }
+
+                assertEquals(ServiceDetailsInfoMessageType.ErrorAddService.uiText, awaitItem())
+            }
+        }
+
     companion object {
         const val serviceId = "serviceId"
         const val providerId = "providerId"
         val SERVICE_ID = ServiceId(id = serviceId, provider = providerId)
         val BOT_SERVICE = BotService(id = serviceId, provider = providerId)
+        val APP_ID = UserId(value = serviceId, domain = "wire.com")
         val CONVERSATION_ID = ConversationId(value = "conversationId", domain = "conversationDomain")
         val MEMBER_ID = QualifiedID(value = "memberValue", domain = "memberDomain")
         val SERVICE_DETAILS = ServiceDetails(
@@ -269,11 +492,30 @@ class ServiceDetailsViewModelTest {
             previewAssetId = null,
             completeAssetId = null
         )
+
+        val APP_SERVICE_DETAILS = SERVICE_DETAILS.copy(
+            id = ServiceId(
+                APP_ID.value,
+                APP_ID.domain
+            )
+        )
+
         val CONVERSATION_ROLE_DATA = ConversationRoleData(
             "some_name",
             Conversation.Member.Role.Admin,
             Conversation.Member.Role.Admin,
-            OtherUserProfileScreenViewModelTest.CONVERSATION_ID
+            CONVERSATION_ID
+        )
+
+        val CONVERSATION_GROUP = TestConversationDetails.GROUP.copy(
+            conversation = TestConversation.GROUP().copy(
+                id = CONVERSATION_ID,
+                protocol = TestConversation.MLS_PROTOCOL_INFO,
+                accessRole = Conversation.defaultGroupAccessRoles.toMutableList().apply {
+                    add(Conversation.AccessRole.GUEST)
+                    add(Conversation.AccessRole.SERVICE)
+                }
+            )
         )
     }
 
@@ -283,7 +525,19 @@ class ServiceDetailsViewModelTest {
         lateinit var getServiceById: GetServiceByIdUseCase
 
         @MockK
+        lateinit var getAppById: GetAppByIdUseCase
+
+        @MockK
+        lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+
+        @MockK
         lateinit var observeIsServiceMember: ObserveIsServiceMemberUseCase
+
+        @MockK
+        lateinit var observeIsAppMember: ObserveIsAppMemberUseCase
+
+        @MockK
+        lateinit var observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
 
         @MockK
         lateinit var observeConversationRoleForUser: ObserveConversationRoleForUserUseCase
@@ -294,7 +548,8 @@ class ServiceDetailsViewModelTest {
         @MockK
         lateinit var addServiceToConversation: AddServiceToConversationUseCase
 
-        val serviceDetailsMapper: ServiceDetailsMapper = ServiceDetailsMapper()
+        @MockK
+        lateinit var addMemberToConversation: AddMemberToConversationUseCase
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -306,11 +561,15 @@ class ServiceDetailsViewModelTest {
                 TestDispatcherProvider(),
                 selfUserId = selfUser.id,
                 getServiceById,
+                getAppById,
+                observeConversationDetails,
                 observeIsServiceMember,
+                observeIsAppMember,
+                observeIsAppsAllowedForUsage,
                 observeConversationRoleForUser,
                 removeMemberFromConversation,
                 addServiceToConversation,
-                serviceDetailsMapper,
+                addMemberToConversation,
                 savedStateHandle
             )
         }
@@ -318,10 +577,57 @@ class ServiceDetailsViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
+            coEvery {
+                observeIsAppMember(any(), any())
+            } returns flowOf(ObserveIsAppMemberResult.Success(null))
+            coEvery {
+                observeIsAppsAllowedForUsage()
+            } returns flowOf(false)
+            coEvery {
+                observeConversationDetails(any())
+            } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(CONVERSATION_GROUP))
         }
 
-        fun withService(service: BotService) = apply {
-            every { savedStateHandle.navArgs<ServiceDetailsNavArgs>() } returns ServiceDetailsNavArgs(service, CONVERSATION_ID)
+        fun withServiceBot(service: BotService) = apply {
+            every { savedStateHandle.navArgs<ServiceDetailsNavArgs>() } returns ServiceDetailsNavArgs(
+                CONVERSATION_ID,
+                ServiceDetailsNavArgs.Id.BotServiceId(service)
+            )
+        }
+
+        fun withServiceApp(service: UserId) = apply {
+            every { savedStateHandle.navArgs<ServiceDetailsNavArgs>() } returns ServiceDetailsNavArgs(
+                CONVERSATION_ID,
+                ServiceDetailsNavArgs.Id.AppId(service)
+            )
+        }
+
+        fun withAppsAllowedForUsage() = apply {
+            coEvery { observeIsAppsAllowedForUsage() } returns flowOf(true)
+        }
+
+        fun withConversationDetails(conversationId: ConversationId) = apply {
+            coEvery { observeConversationDetails(conversationId) } returns flowOf(
+                ObserveConversationDetailsUseCase.Result.Success(CONVERSATION_GROUP)
+            )
+        }
+
+        fun withIsAppMember(memberResult: ObserveIsAppMemberResult) = apply {
+            coEvery {
+                observeIsAppMember(any(), any())
+            } returns flowOf(memberResult)
+        }
+
+        fun withAppDetails(appId: UserId, serviceDetails: ServiceDetails?) = apply {
+            coEvery {
+                getAppById(appId)
+            } returns serviceDetails
+        }
+
+        fun withAddApp(result: AddMemberToConversationUseCase.Result) = apply {
+            coEvery {
+                addMemberToConversation(any(), any())
+            } returns result
         }
 
         fun withConversationRoleForUser(roleData: ConversationRoleData) = apply {

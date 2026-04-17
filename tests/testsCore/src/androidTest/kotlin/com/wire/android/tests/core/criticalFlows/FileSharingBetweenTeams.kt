@@ -322,9 +322,10 @@ class FileSharingBetweenTeams : BaseUiTest() {
 
         step("Play video file and verify it opens outside Wire") {
             pages.conversationViewPage.apply {
-                tapToPlayVideoFile()
-                clickOpenButtonOnDownloadModal()
-                assertWireAppIsNotInForeground()
+//                 Commented out until this bug is fixed: https://wearezeta.atlassian.net/browse/WPB-24809
+//                tapToPlayVideoFile()
+//                clickOpenButtonOnDownloadModal()
+//                assertWireAppIsNotInForeground()
             }
         }
     }

@@ -26,8 +26,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -40,12 +43,15 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.stateDescription
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowLeftIcon
+import com.wire.android.ui.common.bottomsheet.BuildMenuSheetItems
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemTitle
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
-import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.ModalSheetHeaderItem
+import com.wire.android.ui.common.bottomsheet.ModalSheetHeaderTitle
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
@@ -61,35 +67,54 @@ fun CallNetworkQualitySheetContent(
     modifier: Modifier = Modifier,
 ) {
     BackHandler(onBack = onBackPressed)
-    WireMenuModalSheetContent(
-        modifier = modifier,
-        header = MenuModalSheetHeader.Visible(
-            title = stringResource(R.string.calling_details_network_quality_title),
-            titleFillsRemainingSpace = false,
-            leadingIcon = {
-                IconButton(onClick = onBackPressed) {
-                    ArrowLeftIcon(modifier = Modifier.size(dimensions().spacing16x))
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(colorsScheme().surface)
+    ) {
+        ModalSheetHeaderItem(
+            title = {
+                val title = stringResource(R.string.calling_details_network_quality_title)
+                val value = callQualityData.quality.toCallQualityIndicatorValue().text
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clearAndSetSemantics {
+                            stateDescription = "$title: $value"
+                        }
+                        .padding(vertical = dimensions().modalBottomSheetHeaderVerticalPadding)
+
+                ) {
+                    ModalSheetHeaderTitle(title = stringResource(R.string.calling_details_network_quality_title))
+                    CallQualityIndicator(
+                        callQuality = callQualityData.quality,
+                        modifier = Modifier
+                            .weight(1f, fill = true)
+                            .padding(horizontal = dimensions().spacing16x)
+                    )
                 }
             },
-            trailingIcon = {
-                CallQualityIndicator(
-                    callQuality = callQualityData.quality,
-                    modifier = Modifier
-                        .weight(1f, fill = true)
-                        .padding(horizontal = dimensions().spacing16x)
-                )
+            leadingIcon = {
+                IconButton(onClick = onBackPressed) {
+                    ArrowLeftIcon(
+                        modifier = Modifier.size(dimensions().spacing16x),
+                        contentDescription = R.string.content_description_call_network_quality_close_details
+                    )
+                }
             },
-            customVerticalPadding = dimensions().spacing0x,
-        ),
-        menuItems = listOf(
-            { PeerValueItem(callQualityData.peer) },
-            { ConnectionValueItem(callQualityData.connection) },
-            { PacketLossValueItem(callQualityData.packetLoss) },
-            { PingValueItem(callQualityData.ping) },
-            { JitterValueItem(callQualityData.jitter) },
-            { LearnMoreItem() },
+            verticalPadding = dimensions().spacing0x,
         )
-    )
+        BuildMenuSheetItems(
+            items = listOf(
+                { PeerValueItem(callQualityData.peer) },
+                { ConnectionValueItem(callQualityData.connection) },
+                { PacketLossValueItem(callQualityData.packetLoss) },
+                { PingValueItem(callQualityData.ping) },
+                { JitterValueItem(callQualityData.jitter) },
+                { LearnMoreItem() },
+            )
+        )
+    }
 }
 
 @Composable
@@ -169,6 +194,9 @@ private fun JitterValueItem(jitter: CallQualityData.Jitter) = QualityValueItem(
 private fun QualityValueItem(title: String, value: String, indicator: CallQualityIndicatorValue = CallQualityIndicatorValue.GOOD) {
     MenuBottomSheetItem(
         title = title,
+        modifier = Modifier.clearAndSetSemantics {
+            stateDescription = "$title: $value"
+        },
         trailing = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MenuItemTitle(

@@ -52,9 +52,7 @@ fun AdditionalOptionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: IsFileSharingEnabledViewModel =
-        hiltViewModelScoped<IsFileSharingEnabledViewModelImpl, IsFileSharingEnabledViewModel, IsFileSharingEnabledArgs>(
-            IsFileSharingEnabledArgs
-        )
+        hiltViewModelScoped<IsFileSharingEnabledViewModelImpl, IsFileSharingEnabledViewModel>()
 ) {
     var enableAgain by remember { mutableStateOf(true) }
     LaunchedEffect(enableAgain, block = {

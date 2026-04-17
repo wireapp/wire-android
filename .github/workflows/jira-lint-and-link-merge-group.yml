@@ -1,0 +1,13 @@
+name: Link and Lint PR with Jira Ticket Number
+
+on:
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  add-jira-description-merge:
+    name: add-jira-description / add-jira-description
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip Jira check on merge queue
+        run: echo "Skipping Jira check on merge queue"

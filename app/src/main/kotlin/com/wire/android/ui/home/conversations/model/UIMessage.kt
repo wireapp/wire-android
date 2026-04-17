@@ -382,7 +382,6 @@ sealed interface UIMessageContent {
         val assetExtension: String,
         val assetId: AssetId,
         val assetSizeInBytes: Long,
-        val assetDataPath: String?,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular, PartialDeliverable
 
@@ -400,7 +399,6 @@ sealed interface UIMessageContent {
         val assetExtension: String,
         val assetId: AssetId,
         val assetSizeInBytes: Long,
-        val assetDataPath: String?,
         val params: VisualMediaParams,
         val duration: Long?,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery

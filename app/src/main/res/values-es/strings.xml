@@ -107,10 +107,8 @@
     <string name="content_description_conversation_mention_someone">Mencionar a alguien</string>
     <string name="content_description_conversation_back_btn">Volver a la lista de conversaciones</string>
     <string name="content_description_conversation_open_details_label">abrir detalles de conversación</string>
-    <string name="content_description_back_button">Botón atrás</string>
     <string name="content_description_send_button">Enviar</string>
     <string name="content_description_timed_message_button">Botón, mensaje con autoborrado</string>
-    <string name="content_description_close_button">Botón de Cerrar</string>
     <string name="content_description_menu_button">Navegación principal</string>
     <string name="content_description_drop_down_icon">Menú desplegable</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Dispositivo</string>

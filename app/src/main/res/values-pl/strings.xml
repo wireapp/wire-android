@@ -17,11 +17,15 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
+    <string name="app_version">Wersja aplikacji</string>
     <string name="label_new">Nowy</string>
     <string name="label_login">Zaloguj</string>
+    <string name="label_ok">OK</string>
+    <string name="label_open">Otwórz</string>
     <string name="label_cancel">Anuluj</string>
     <string name="label_confirm">Potwierd&#378;</string>
     <string name="label_continue">Kontynuuj</string>
+    <string name="label_apply">Zastosuj</string>
     <string name="label_save">Zapisz</string>
     <string name="label_get_started">Rozpocznij</string>
     <string name="label_remove">Usu&#324;</string>
@@ -32,6 +36,8 @@
     <string name="label_removing">Usuwanie...</string>
     <string name="label_logging_in">Logowanie...</string>
     <string name="label_user_deleted">Usuni&#281;te</string>
+    <string name="label_try_again">Spróbuj ponownie</string>
+    <string name="label_done">Gotowe</string>
     <string name="label_message_sent_failure">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
     <string name="label_message_edit_sent_failure">Edytowana wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
     <string name="label_message_receive_failure">B&#322;&#261;d Pobierania</string>
@@ -71,10 +77,8 @@
     <string name="content_description_conversation_send_emoticon">Wy&#347;lij emotikon&#281;</string>
     <string name="content_description_conversation_send_gif">Wy&#347;lij GIF</string>
     <string name="content_description_conversation_mention_someone">Wspomnij kogo&#347;</string>
-    <string name="content_description_back_button">Przycisk powrotu</string>
     <string name="content_description_send_button">Wy&#347;lij</string>
     <string name="content_description_timed_message_button">Samodeletuj&#261;ce wiadomo&#347;ci, przycisk</string>
-    <string name="content_description_close_button">Przycisk zamykaj&#261;cy</string>
     <string name="content_description_menu_button">G&#322;&#243;wne menu nawigacyjne</string>
     <string name="content_description_drop_down_icon">Strza&#322;ka rozwijaj&#261;ca list&#281;</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Element urz&#261;dzenia</string>

@@ -118,10 +118,10 @@
     <string name="content_description_conversation_open_details_label">open conversation details</string>
     <string name="content_description_new_conversation">New. Start a new conversation</string>
     <string name="content_description_new_meeting">Start or schedule a new Wire Meeting</string>
-    <string name="content_description_back_button">Back button</string>
+    <string name="content_description_back_button">Back</string>
     <string name="content_description_send_button">Send</string>
     <string name="content_description_timed_message_button">Self-deleting messages, button</string>
-    <string name="content_description_close_button">Close button</string>
+    <string name="content_description_close_button">Close</string>
     <string name="content_description_menu_button">Main navigation</string>
     <string name="content_description_drop_down_icon">Drop down arrow</string>
     <string name="content_description_expand_text_icon">Expand text input field</string>
@@ -163,6 +163,8 @@
     <string name="content_description_calling_in_call_reactions_hide">Hide in call reactions panel</string>
     <string name="content_description_call_open_calling_details">Open calling details</string>
     <string name="content_description_call_low_network_quality">Low network quality</string>
+    <string name="content_description_call_network_quality_view_details">View details</string>
+    <string name="content_description_call_network_quality_close_details">Close details</string>
     <string name="content_description_reply_to_messge">Reply to the message</string>
     <string name="content_description_reply_cancel">Cancel message reply</string>
     <string name="content_description_ping_message">Ping message</string>
@@ -1123,6 +1125,7 @@
     <string name="calling_ongoing_call_join_anyway">Join Anyway</string>
     <string name="calling_ongoing_double_tap_for_full_screen">Double tap on a tile for fullscreen</string>
     <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
+    <string name ="calling_ongoing_muted_by">You were muted by %s</string>
     <string name="calling_feature_unavailable_title_alert">Feature unavailable</string>
     <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
     <string name="calling_feature_unavailable_team_member_message_alert">To start a conference call, your team needs to upgrade to the Enterprise plan.</string>

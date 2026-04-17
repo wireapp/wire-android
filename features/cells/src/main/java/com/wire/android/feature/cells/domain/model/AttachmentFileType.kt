@@ -34,6 +34,7 @@ enum class AttachmentFileType(val extensions: List<String>) {
             "py", "cs", "java", "jsp", "sql", "cgi", "pl", "inc", "xsl", "c", "cpp", "kt"
         )
     ),
+    TEXT(listOf("txt", "md", "markdown", "log")),
     OTHER(emptyList());
 
     companion object {
@@ -87,6 +88,13 @@ enum class AttachmentFileType(val extensions: List<String>) {
                     "text/x-c",
                     "text/x-java-source"
                 ) -> CODE
+
+                lowerMime in listOf(
+                    "text/plain",
+                    "text/markdown",
+                    "text/csv"
+                ) -> TEXT
+
                 else -> OTHER
             }
         }
@@ -104,6 +112,7 @@ fun AttachmentFileType.icon(): Int =
         AttachmentFileType.PRESENTATION -> R.drawable.ic_file_type_presentation
         AttachmentFileType.ARCHIVE -> R.drawable.ic_file_type_archive
         AttachmentFileType.CODE -> R.drawable.ic_file_type_code
+        AttachmentFileType.TEXT -> R.drawable.ic_file_type_text
         AttachmentFileType.OTHER -> R.drawable.ic_file_type_other
     }
 

@@ -40,11 +40,9 @@ data class ServiceDetailsNavArgs(
                 get() = ServiceId(botService.id, botService.provider)
         }
 
-        data class AppId(val userId: UserId) : Id {
+        data class AppId(val appId: UserId) : Id {
             override val serviceId: ServiceId
-                get() = ServiceId(userId.value, userId.domain)
-
-            val appId: UserId get() = userId
+                get() = ServiceId(appId.value, appId.domain)
         }
     }
 }
@@ -52,7 +50,7 @@ data class ServiceDetailsNavArgs(
 @NavTypeSerializer
 class ServiceDetailsIdNavTypeSerializer : DestinationsNavTypeSerializer<ServiceDetailsNavArgs.Id> {
     override fun toRouteString(value: ServiceDetailsNavArgs.Id): String = when (value) {
-        is ServiceDetailsNavArgs.Id.AppId -> APP_PREFIX + value.userId.toString()
+        is ServiceDetailsNavArgs.Id.AppId -> APP_PREFIX + value.appId.toString()
         is ServiceDetailsNavArgs.Id.BotServiceId -> BOT_PREFIX + value.botService.toString()
     }
 

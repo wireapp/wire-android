@@ -37,6 +37,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
 import com.wire.kalium.logic.data.user.BotService
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.app.GetAppByIdUseCase
 import com.wire.kalium.logic.feature.app.ObserveIsAppMemberResult
@@ -77,6 +78,50 @@ class ServiceDetailsViewModelTest {
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberResult = ObserveIsServiceMemberResult.Success(MEMBER_ID))
+                .arrange()
+
+            // when
+            // view model is initialized
+
+            // then
+            assertEquals(null, viewModel.serviceDetailsState.serviceAvatarAsset)
+            assertEquals(SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
+            assertEquals(MEMBER_ID, viewModel.serviceDetailsState.serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.REMOVE, viewModel.serviceDetailsState.buttonState)
+        }
+
+    @Test
+    fun `given user opens service details screen, when apps allowed is Proteus protocol, then data is loaded correctly`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withServiceBot(service = BOT_SERVICE)
+                .withServiceDetails(serviceDetails = SERVICE_DETAILS)
+                .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
+                .withIsServiceMember(memberResult = ObserveIsServiceMemberResult.Success(MEMBER_ID))
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
+                .arrange()
+
+            // when
+            // view model is initialized
+
+            // then
+            assertEquals(null, viewModel.serviceDetailsState.serviceAvatarAsset)
+            assertEquals(SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
+            assertEquals(MEMBER_ID, viewModel.serviceDetailsState.serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.REMOVE, viewModel.serviceDetailsState.buttonState)
+        }
+
+    @Test
+    fun `given user opens service details screen, when apps allowed is Mixed and default protocol is Proteus, then data is loaded correctly`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withServiceBot(service = BOT_SERVICE)
+                .withServiceDetails(serviceDetails = SERVICE_DETAILS)
+                .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
+                .withIsServiceMember(memberResult = ObserveIsServiceMemberResult.Success(MEMBER_ID))
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
                 .arrange()
 
             // when
@@ -291,7 +336,7 @@ class ServiceDetailsViewModelTest {
             // given
             val (_, viewModel) = Arrangement()
                 .withServiceApp(APP_ID)
-                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.MLS)))
                 .withConversationDetails(CONVERSATION_ID)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
@@ -305,6 +350,29 @@ class ServiceDetailsViewModelTest {
             assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
             assertEquals(null, viewModel.serviceDetailsState.serviceMemberId)
             assertEquals(ServiceDetailsButtonState.ADD, viewModel.serviceDetailsState.buttonState)
+        }
+
+    @Test
+    fun `given user opens service details screen, when is from create a conversation flow, then data is loaded correctly`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withServiceApp(
+                    service = APP_ID,
+                    conversationId = null
+                )
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.MLS)))
+                .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .arrange()
+
+            // when
+            // view model is initialized
+
+            // then
+            assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
+            assertEquals(null, viewModel.serviceDetailsState.serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState.buttonState)
         }
 
     @Test
@@ -590,16 +658,16 @@ class ServiceDetailsViewModelTest {
             } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(CONVERSATION_GROUP))
         }
 
-        fun withServiceBot(service: BotService) = apply {
+        fun withServiceBot(service: BotService, conversationId: ConversationId? = CONVERSATION_ID) = apply {
             every { savedStateHandle.navArgs<ServiceDetailsNavArgs>() } returns ServiceDetailsNavArgs(
-                CONVERSATION_ID,
+                conversationId,
                 ServiceDetailsNavArgs.Id.BotServiceId(service)
             )
         }
 
-        fun withServiceApp(service: UserId) = apply {
+        fun withServiceApp(service: UserId, conversationId: ConversationId? = CONVERSATION_ID) = apply {
             every { savedStateHandle.navArgs<ServiceDetailsNavArgs>() } returns ServiceDetailsNavArgs(
-                CONVERSATION_ID,
+                conversationId,
                 ServiceDetailsNavArgs.Id.AppId(service)
             )
         }

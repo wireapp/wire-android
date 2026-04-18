@@ -288,8 +288,11 @@ class ServiceDetailsViewModel @Inject constructor(
         groupInfo: ServiceDetailsGroupState
     ) {
         val buttonState = if (conversationId != null && groupInfo.isSelfAdmin) {
-            if (serviceMemberId != null) ServiceDetailsButtonState.REMOVE
-            else ServiceDetailsButtonState.ADD
+            if (serviceMemberId != null) {
+                ServiceDetailsButtonState.REMOVE
+            } else {
+                ServiceDetailsButtonState.ADD
+            }
         } else {
             ServiceDetailsButtonState.HIDDEN
         }

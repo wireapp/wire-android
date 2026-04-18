@@ -24,7 +24,6 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
-import androidx.test.uiautomator.type
 import junit.framework.TestCase.assertFalse
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
@@ -81,7 +80,7 @@ data class ConversationViewPage(private val device: UiDevice) {
         UiSelectorParams(textContains = "Layer Security (MLS) protocol"),
         UiSelectorParams(textContains = "latest version of Wire on your devices")
     )
-    
+
     private fun selfDeleteOption(label: String): UiSelectorParams {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
     }
@@ -292,6 +291,7 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    @Suppress("ReturnCount")
     private fun buildSavedFileToastPattern(expectedMessage: String): String {
         val suffix = " $fileSavedToastMessage"
 
@@ -311,7 +311,13 @@ data class ConversationViewPage(private val device: UiDevice) {
         val fileName = fileWithExtension.substring(0, lastDotIndex)
         val extension = fileWithExtension.substring(lastDotIndex + 1)
 
-        return "${Regex.escape(fileSavedToastPrefix)}${Regex.escape(fileName)}(?: \\([0-9]+\\))?\\.${Regex.escape(extension)}${Regex.escape(suffix)}"
+        return buildString {
+            append(Regex.escape(fileSavedToastPrefix))
+            append(Regex.escape(fileName))
+            append("(?: \\([0-9]+\\))?\\.")
+            append(Regex.escape(extension))
+            append(Regex.escape(suffix))
+        }
     }
 
     fun scrollToBottomOfConversationScreen() {

@@ -147,7 +147,7 @@ class GroupVideoCall : BaseUiTest() {
             }
         }
 
-        step("And conference calling is enabled for WeLikeCalls and IJoinCalls via backdoor") {
+        step("And conference calling is enabled for WeLikeCalls and IJoinCalls via backend") {
             runBlocking {
                 callHelper.enableConferenceCallingFeatureViaBackdoorTeam(
                     "user1Name",
@@ -189,7 +189,6 @@ class GroupVideoCall : BaseUiTest() {
                 clickDeclineShareDataAlert()
             }
         }
-
 
         step("And I verify GroupVideoCall conversation is visible and start new conversation flow") {
             pages.conversationListPage.apply {

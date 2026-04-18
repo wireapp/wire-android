@@ -30,11 +30,13 @@ import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
-import java.util.regex.Pattern
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.assertEquals
 
 data class ConversationViewPage(private val device: UiDevice) {
+    private val fileSavedToastPrefix = "The file "
+    private val fileSavedToastMessage = "was saved successfully to the Downloads folder"
+
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
     private val typeMessageField = UiSelectorParams(description = " Type a message")
     private val sentQRImage = UiSelectorParams(description = "Image message")
@@ -50,8 +52,6 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val downloadButton = UiSelectorParams(text = "Download")
 
     private val modalTextLocator = UiSelectorParams(textContains = "save it to your device")
-
-    private val saveButtonLocator = UiSelectorParams(text = "Save")
 
     private val saveButton = UiSelectorParams(text = "Save")
 
@@ -186,7 +186,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertFileActionModalIsVisible(timeoutMs: Long = 8_000): ConversationViewPage {
-        val modalAnchors = listOf(modalTextLocator, saveButtonLocator, openButton, cancelButton)
+        val modalAnchors = listOf(modalTextLocator, saveButton, openButton, cancelButton)
         val deadline = SystemClock.uptimeMillis() + timeoutMs
 
         while (SystemClock.uptimeMillis() < deadline) {
@@ -203,11 +203,6 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
 
         throw AssertionError("The file action modal was not visible within ${timeoutMs}ms.")
-    }
-
-    fun tapSaveButtonOnModal(): ConversationViewPage {
-        UiWaitUtils.waitElement(saveButtonLocator).click()
-        return this
     }
 
     fun assertImageFileWithNameIsVisible(fileName: String): ConversationViewPage {
@@ -275,24 +270,48 @@ data class ConversationViewPage(private val device: UiDevice) {
     fun waitForPreviousFileSavedToastToDisappear(timeoutMillis: Long = 7_000): ConversationViewPage {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         uiDevice.wait(
-            Until.gone(By.textContains("was saved successfully to the Downloads folder")),
+            Until.gone(By.textContains(fileSavedToastMessage)),
             timeoutMillis
         )
         return this
     }
 
-    fun assertFileSavedToastContain(partialText: String): ConversationViewPage {
-        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    fun assertFileSavedToast(
+        expectedMessage: String,
+        timeoutMs: Long = 7_000
+    ): ConversationViewPage {
+        val toastPattern = buildSavedFileToastPattern(expectedMessage)
 
-        // Toasts are short-lived; wait for regex match by presence.
-        val toast = uiDevice.wait(Until.findObject(By.text(Pattern.compile(partialText))), 7_000)
-
-        Assert.assertTrue(
-            "Toast message matching regex '$partialText' is not displayed.",
-            toast != null
+        UiWaitUtils.waitUntilVisible(
+            params = UiSelectorParams(
+                textMatches = toastPattern
+            ),
+            timeoutMs = timeoutMs,
+            errorMessage = "Toast '$expectedMessage' was not displayed within ${timeoutMs}ms."
         )
-
         return this
+    }
+
+    private fun buildSavedFileToastPattern(expectedMessage: String): String {
+        val suffix = " $fileSavedToastMessage"
+
+        if (!expectedMessage.startsWith(fileSavedToastPrefix) || !expectedMessage.endsWith(suffix)) {
+            return Regex.escape(expectedMessage)
+        }
+
+        val fileWithExtension = expectedMessage
+            .removePrefix(fileSavedToastPrefix)
+            .removeSuffix(suffix)
+
+        val lastDotIndex = fileWithExtension.lastIndexOf('.')
+        if (lastDotIndex <= 0 || lastDotIndex == fileWithExtension.lastIndex) {
+            return Regex.escape(expectedMessage)
+        }
+
+        val fileName = fileWithExtension.substring(0, lastDotIndex)
+        val extension = fileWithExtension.substring(lastDotIndex + 1)
+
+        return "${Regex.escape(fileSavedToastPrefix)}${Regex.escape(fileName)}(?: \\([0-9]+\\))?\\.${Regex.escape(extension)}${Regex.escape(suffix)}"
     }
 
     fun scrollToBottomOfConversationScreen() {

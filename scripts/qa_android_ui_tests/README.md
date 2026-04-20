@@ -21,6 +21,31 @@ Flavor resolution is runner-driven, not hardcoded in the repo.
 - `run_ui_tests.sh`: instrumentation execution/sharding plus failed-test auto-reruns (explicit per-device retry lists with even count balancing).
 - `reporting.sh`: Allure pull/merge/generate/publish plus cleanup subcommands.
 
+## Retry Flow
+
+The rerun feature is controlled by workflow inputs:
+
+- `rerunFailedEnabled`: turn failed-test reruns on or off for this workflow run.
+- `rerunFailedCount`: maximum number of rerun attempts after attempt `0` completes. Default is `2`.
+
+Execution flow:
+
+1. Run attempt `0` on the selected device set using the normal CI selector (`testCaseId` or `category`).
+2. Pull Allure results immediately after that attempt finishes.
+3. Extract only the failed test IDs in `Class#method` format.
+4. Evenly assign those failed tests across the retry devices.
+5. Run rerun attempts with explicit rerun lists so only the previously failed tests execute.
+6. Merge all attempts into one final Allure dataset and keep the latest outcome per logical test.
+
+Reporting behavior:
+
+- A test that fails first and passes later is reported as `passed` in the final merged report.
+- That recovered test also receives the Allure label `passed_on_rerun=true`.
+- The merged `environment.properties` file records:
+  - `failed_first_attempt`
+  - `passed_on_rerun`
+  - `failed_after_retries`
+
 ## Python Helpers
 
 - `resolve_flavor.py`: parse `flavors.json` and export flavor-derived env vars.

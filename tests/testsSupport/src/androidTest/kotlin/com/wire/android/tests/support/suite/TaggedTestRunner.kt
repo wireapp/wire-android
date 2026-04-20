@@ -25,6 +25,9 @@ import io.qameta.allure.android.runners.AllureAndroidJUnitRunner
  * Custom test runner that delegates to Allure's Android runner,
  * and filters tests by @TestCaseId, @Category, and @Tag BEFORE
  * they are executed (and before Allure sees them).
+ *
+ * Retry attempts use the same runner entry point, but pass an explicit rerun
+ * list through instrumentation args so only previously failed tests execute.
  */
 class TaggedTestRunner : AllureAndroidJUnitRunner() {
 
@@ -40,6 +43,8 @@ class TaggedTestRunner : AllureAndroidJUnitRunner() {
         val rerunListInlinePartCount = arguments.keySet()
             .count { key -> key.startsWith(RetryContract.ARG_RERUN_LIST_INLINE_PART_PREFIX) }
 
+        // Log the retry inputs once so CI failures can confirm whether the
+        // instrumentation process received the expected rerun contract.
         Log.i(
             "TaggedTestRunner",
             "onCreate called. " +
@@ -53,10 +58,11 @@ class TaggedTestRunner : AllureAndroidJUnitRunner() {
     }
 
     override fun onStart() {
-        //  before running any tests, clear previous Allure results on the device
+        // Each instrumentation attempt writes its own Allure payload, so wipe
+        // any stale device-side results before a new attempt starts.
         clearAllureResultsOnDevice()
 
-        //  then let Allure/AndroidJUnitRunner do its normal startup
+        // Then let Allure/AndroidJUnitRunner do its normal startup.
         super.onStart()
     }
 

@@ -76,9 +76,9 @@ on:
         type: boolean
 
       rerunFailedCount:
-        description: "How many failed-test rerun attempts (0-3). Default is 1."
+        description: "How many failed-test rerun attempts (0-3). Default is 2."
         required: true
-        default: "1"
+        default: "2"
         type: string
 
 permissions:

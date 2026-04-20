@@ -1224,6 +1224,7 @@
     <string name="allow_services_regular_group_description">Open this conversation to apps. You can always change it later.</string>
     <string name="allow_apps_switch_description">Open this conversation to apps.</string>
     <string name="service_details_label">App</string>
+    <string name="service_details_created_by">Created by %1$s</string>
     <string name="service_details_add_service_label">Add To Conversation</string>
     <string name="service_details_remove_service_label">Remove From Conversation</string>
     <string name="service_remove_success">App removed from conversation</string>

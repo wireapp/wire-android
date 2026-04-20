@@ -169,7 +169,7 @@ jobs:
           cache: gradle
 
       - name: Set up Android SDK (ANDROID_HOME + adb)
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       # Verify required CLIs on the runner before setup continues.
       - name: Ensure required tools exist

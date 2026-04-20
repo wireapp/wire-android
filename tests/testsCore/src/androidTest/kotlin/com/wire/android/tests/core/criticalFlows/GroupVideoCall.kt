@@ -99,6 +99,10 @@ class GroupVideoCall : BaseUiTest() {
                 backendClient,
                 context
             )
+            teamOwnerA = teamHelper.usersManager.findUserBy(
+                "user1Name",
+                ClientUserManager.FindBy.NAME_ALIAS
+            )
 
             teamHelper.userXAddsUsersToTeam(
                 "user1Name",
@@ -117,6 +121,10 @@ class GroupVideoCall : BaseUiTest() {
                 true,
                 backendClient,
                 context
+            )
+            teamOwnerB = teamHelper.usersManager.findUserBy(
+                "user4Name",
+                ClientUserManager.FindBy.NAME_ALIAS
             )
         }
 
@@ -139,18 +147,7 @@ class GroupVideoCall : BaseUiTest() {
             }
         }
 
-        step("And team owners for WeLikeCalls and IJoinCalls are resolved") {
-            teamOwnerA = teamHelper.usersManager.findUserBy(
-                "user1Name",
-                ClientUserManager.FindBy.NAME_ALIAS
-            )
-            teamOwnerB = teamHelper.usersManager.findUserBy(
-                "user4Name",
-                ClientUserManager.FindBy.NAME_ALIAS
-            )
-        }
-
-        step("And conference calling is enabled for WeLikeCalls and IJoinCalls via backdoor") {
+        step("And conference calling is enabled for WeLikeCalls and IJoinCalls via backend") {
             runBlocking {
                 callHelper.enableConferenceCallingFeatureViaBackdoorTeam(
                     "user1Name",

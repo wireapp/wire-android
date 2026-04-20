@@ -97,7 +97,6 @@ class PersonalUserRegistrationTest : BaseUiTest() {
                 closeKeyboardIfOpened()
             }
         }
-
         step("Accept anonymous usage data option and continue") {
             pages.registrationPage.apply {
                 checkIAgreeToShareAnonymousUsageData()

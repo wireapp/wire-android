@@ -218,10 +218,8 @@ class FileSharingBetweenTeams : BaseUiTest() {
             pages.conversationViewPage.apply {
                 tapDownloadButton()
                 assertFileActionModalIsVisible()
-                tapSaveButtonOnModal()
-                assertFileSavedToastContain(
-                    "The file AudioFile( ?\\([0-9]+\\))?\\.mp3 was saved successfully to the Downloads folder"
-                )
+                clickSaveButtonOnDownloadModal()
+                assertFileSavedToast("The file AudioFile.mp3 was saved successfully to the Downloads folder")
             }
         }
 
@@ -247,9 +245,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
             pages.conversationViewPage.apply {
                 waitForPreviousFileSavedToastToDisappear()
                 clickSaveButtonOnDownloadModal()
-                assertFileSavedToastContain(
-                    "The file ImageFile( ?\\([0-9]+\\))?\\.jpg was saved successfully to the Downloads folder"
-                )
+                assertFileSavedToast("The file ImageFile.jpg was saved successfully to the Downloads folder")
             }
         }
 
@@ -275,9 +271,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
             pages.conversationViewPage.apply {
                 waitForPreviousFileSavedToastToDisappear()
                 clickSaveButtonOnDownloadModal()
-                assertFileSavedToastContain(
-                    "The file TextFile( ?\\([0-9]+\\))?\\.txt was saved successfully to the Downloads folder"
-                )
+                assertFileSavedToast("The file TextFile.txt was saved successfully to the Downloads folder")
             }
         }
 
@@ -314,17 +308,16 @@ class FileSharingBetweenTeams : BaseUiTest() {
             pages.conversationViewPage.apply {
                 waitForPreviousFileSavedToastToDisappear()
                 clickSaveButtonOnDownloadModal()
-                assertFileSavedToastContain(
-                    "The file VideoFile( ?\\([0-9]+\\))?\\.mp4 was saved successfully to the Downloads folder"
-                )
+                assertFileSavedToast("The file VideoFile.mp4 was saved successfully to the Downloads folder")
             }
         }
 
         step("Play video file and verify it opens outside Wire") {
             pages.conversationViewPage.apply {
-                tapToPlayVideoFile()
-                clickOpenButtonOnDownloadModal()
-                assertWireAppIsNotInForeground()
+//                 Commented out until this bug is fixed: https://wearezeta.atlassian.net/browse/WPB-24809
+//                tapToPlayVideoFile()
+//                clickOpenButtonOnDownloadModal()
+//                assertWireAppIsNotInForeground()
             }
         }
     }

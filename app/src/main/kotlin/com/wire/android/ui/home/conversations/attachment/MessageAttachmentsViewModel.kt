@@ -323,4 +323,3 @@ private fun String.sanitizeIncompatibleFileNameCharacters(): String =
         .replace("\\", "_")
         .replace("\"", "_")
         .ifEmpty { "file" }
-

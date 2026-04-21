@@ -190,7 +190,12 @@ class MessageAttachmentsViewModelTest {
 
         coVerify(exactly = 1) {
             arrangement.addAttachment(
-                any(), eq("hidden.txt"), any(), any(), any(), any()
+                any(),
+                eq("hidden.txt"),
+                any(),
+                any(),
+                any(),
+                any()
             )
         }
     }
@@ -354,7 +359,6 @@ class MessageAttachmentsViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-
 
             coEvery { observeAttachments(any()) } returns MutableSharedFlow()
             coEvery { uploadManager.getUploadInfo(any()) } returns null

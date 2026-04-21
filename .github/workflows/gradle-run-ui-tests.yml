@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   ui-tests:
-    runs-on: warp-ubuntu-latest-arm64-8x
+    runs-on: ghcr.io/cirruslabs/ubuntu-runner-amd64:24.04-lg
     strategy:
       matrix:
         api-level: [ 29 ]
@@ -56,7 +56,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-arm64-${{ matrix.api-level }}
+          key: avd-${{ matrix.api-level }}
 
       - name: create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
@@ -64,7 +64,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           target: google_apis
-          arch: arm64-v8a
+          arch: x86_64
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
@@ -75,7 +75,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           target: google_apis
-          arch: arm64-v8a
+          arch: x86_64
           script: ./gradlew runAcceptanceTests
         env:
           GITHUB_USER: ${{ github.actor }}

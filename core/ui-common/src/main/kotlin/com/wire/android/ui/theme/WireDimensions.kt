@@ -36,6 +36,7 @@ data class WireDimensions(
     val topBarElevationHeight: Dp,
     // Avatar
     val avatarDefaultSize: Dp,
+    val avatarDefaultMediumSize: Dp,
     val avatarDefaultBigSize: Dp,
     val avatarClickablePadding: Dp,
     val avatarBorderWidth: Dp,
@@ -242,6 +243,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     topBarSearchFieldHeight = 64.dp,
     topBarElevationHeight = 8.dp,
     avatarDefaultSize = 32.dp,
+    avatarDefaultMediumSize = 96.dp,
     avatarDefaultBigSize = 160.dp,
     avatarClickablePadding = 8.dp,
     avatarBorderWidth = 1.dp,

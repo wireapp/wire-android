@@ -18,26 +18,27 @@
 package com.wire.android.ui.userprofile.service
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.avatar.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatarType
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.user.ConnectionState
 
@@ -45,42 +46,33 @@ import com.wire.kalium.logic.data.user.ConnectionState
 fun ServiceDetailsNotFoundScreen(
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(top = dimensions().spacing16x)
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            UserProfileAvatar(
-                size = dimensions().avatarDefaultBigSize,
-                temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,
-                avatarData = UserAvatarData(
-                    asset = null,
-                    connectionState = ConnectionState.ACCEPTED,
-                    membership = Membership.Service
-                )
+            .padding(
+                horizontal = dimensions().spacing16x,
+                vertical = dimensions().spacing16x
             )
-        }
-        ConstraintLayout(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            val (serviceDescription) = createRefs()
+    ) {
+        UserProfileAvatar(
+            size = dimensions().avatarDefaultMediumSize,
+            temporaryUserBorderWidth = dimensions().avatarTemporaryUserBorderWidth,
+            avatarData = UserAvatarData(
+                asset = null,
+                connectionState = ConnectionState.ACCEPTED,
+                membership = Membership.Service
+            ),
+            clickable = remember { Clickable(enabled = false) },
+            type = UserProfileAvatarType.WithoutIndicators,
+        )
 
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .wrapContentSize(Alignment.Center)
-                    .constrainAs(serviceDescription) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
+        Spacer(modifier = Modifier.width(dimensions().spacing12x))
+
+        Column(verticalArrangement = Arrangement.spacedBy(dimensions().spacing4x)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
             ) {
                 Text(
                     text = stringResource(id = R.string.service_no_information_available_title),
@@ -89,13 +81,14 @@ fun ServiceDetailsNotFoundScreen(
                     style = MaterialTheme.wireTypography.title02,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                Text(
-                    text = stringResource(id = R.string.service_no_information_available_subtitle),
-                    style = MaterialTheme.wireTypography.body01,
-                    maxLines = 2,
-                    color = MaterialTheme.wireColorScheme.onBackground
-                )
             }
+
+            Text(
+                text = stringResource(id = R.string.service_no_information_available_subtitle),
+                maxLines = 2,
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.colorScheme.onBackground
+            )
         }
     }
 }

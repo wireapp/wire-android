@@ -35,6 +35,8 @@ import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
@@ -69,7 +71,7 @@ class UpdateAppsAccessViewModelTest {
             )
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .arrange()
 
         // When
@@ -100,7 +102,7 @@ class UpdateAppsAccessViewModelTest {
             )
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .arrange()
 
         // When
@@ -143,7 +145,7 @@ class UpdateAppsAccessViewModelTest {
             )
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .arrange()
 
         // When
@@ -171,7 +173,7 @@ class UpdateAppsAccessViewModelTest {
         val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .arrange()
 
         advanceUntilIdle()
@@ -189,7 +191,7 @@ class UpdateAppsAccessViewModelTest {
         val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .arrange()
 
         advanceUntilIdle()
@@ -207,7 +209,7 @@ class UpdateAppsAccessViewModelTest {
         )
 
         val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .withConversationDetailUpdate(TestConversationDetails.GROUP.copy(conversation = conversation))
             .withConversationMembersUpdate(conversationParticipantsData)
             .arrange()
@@ -227,7 +229,7 @@ class UpdateAppsAccessViewModelTest {
         )
 
         val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .withConversationDetailUpdate(TestConversationDetails.GROUP.copy(conversation = conversation))
             .withConversationMembersUpdate(conversationParticipantsData)
             .arrange()
@@ -247,15 +249,14 @@ class UpdateAppsAccessViewModelTest {
         val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(false)
+            .withAppsAllowedResult(AppsAllowedResult.Disabled)
             .arrange()
 
         advanceUntilIdle()
 
         // Then
-        // WPB-21835: even if team does not allow apps, we still allow enabling/disabling apps based on protocol, later this will change
-        assertEquals(true, viewModel.updateAppsAccessState.isUpdatingAppAccessAllowed)
-        assertEquals(true, viewModel.updateAppsAccessState.isAppAccessAllowed)
+        assertEquals(false, viewModel.updateAppsAccessState.isUpdatingAppAccessAllowed)
+        assertEquals(false, viewModel.updateAppsAccessState.isAppAccessAllowed)
     }
 
     @Test
@@ -271,7 +272,7 @@ class UpdateAppsAccessViewModelTest {
         val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .arrange()
 
         advanceUntilIdle()
@@ -380,7 +381,7 @@ internal class UpdateAppsAccessViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observeParticipantsForConversationUseCase(any()) } returns flowOf()
         coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
-        withAppsAllowedResult(false)
+        withAppsAllowedResult(AppsAllowedResult.Disabled)
     }
 
     fun withGuestDisabledNavArgs() = apply {
@@ -393,7 +394,7 @@ internal class UpdateAppsAccessViewModelArrangement {
         )
     }
 
-    fun withAppsAllowedResult(result: Boolean) = apply {
+    fun withAppsAllowedResult(result: AppsAllowedResult) = apply {
         coEvery { observeIsAppsAllowedForUsage() } returns flowOf(result)
     }
 

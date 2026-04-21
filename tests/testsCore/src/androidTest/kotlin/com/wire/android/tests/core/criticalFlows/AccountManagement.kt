@@ -67,9 +67,6 @@ class AccountManagement : BaseUiTest() {
 
     @After
     fun tearDown() {
-        UiAutomatorSetup.stopApp()
-        // To delete team member
-       // runCatching { registeredUser?.deleteTeamMember(backendClient, teamMember?.getUserId().orEmpty()) }
         // To delete team
         runCatching { registeredUser?.deleteTeam(backendClient) }
     }
@@ -92,6 +89,7 @@ class AccountManagement : BaseUiTest() {
                     backendClient,
                     context
                 )
+                registeredUser = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
 
                 teamHelper.userXAddsUsersToTeam(
                     "user1Name",
@@ -110,7 +108,6 @@ class AccountManagement : BaseUiTest() {
                     "AccountManagement"
                 )
 
-                registeredUser = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
                 teamMember = teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
                 newEmail = teamHelper.usersManager.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
             }

@@ -54,6 +54,8 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -153,7 +155,7 @@ class GroupDetailsViewModelTest {
         val selfTeam = Team("team_id", "team_name", "icon")
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(details)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .withSelfTeamUseCaseReturns(selfTeam)
             .arrange()
 
@@ -282,7 +284,7 @@ class GroupDetailsViewModelTest {
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
             .withGetSelfUserReturns(self)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .withSelfTeamUseCaseReturns(selfTeamId?.let { Team(it.value, "team_name", "icon") })
             .arrange()
         assertResult(viewModel.groupOptionsState.value)
@@ -779,10 +781,10 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
         coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
         coEvery { isWireCellsEnabled() } returns false
-        withAppsAllowedResult(false)
+        withAppsAllowedResult(AppsAllowedResult.Disabled)
     }
 
-    fun withAppsAllowedResult(result: Boolean) = apply {
+    fun withAppsAllowedResult(result: AppsAllowedResult) = apply {
         coEvery { observeIsAppsAllowedForUsage() } returns flowOf(result)
     }
 

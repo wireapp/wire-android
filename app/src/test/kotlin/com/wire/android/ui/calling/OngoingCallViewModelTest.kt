@@ -33,6 +33,7 @@ import com.wire.android.ui.calling.model.ReactionSender
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallState
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
+import com.wire.android.ui.calling.ongoing.details.CallQualityState
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel.Companion.DELAY_TO_SHOW_DOUBLE_TAP_TOAST
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel.Companion.DOUBLE_TAP_TOAST_DISPLAY_TIME
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel.Companion.MODERATION_ACTION_TOAST_DISPLAY_TIME
@@ -67,6 +68,8 @@ import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
 import com.wire.kalium.logic.feature.message.MessageOperationResult
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -78,6 +81,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -369,19 +373,44 @@ class OngoingCallViewModelTest {
 
     @Test
     fun givenCallQualityChanges_WhenObservingQualityState_ThenStateIsUpdated() = runTest {
+        val networkState = NetworkState.ConnectedWithInternet
         val initialQuality = CallQualityData(quality = CallQualityData.Quality.NORMAL, ping = 0)
+        val expectedInitialQualityState = CallQualityState(quality = CallQualityState.Quality.GOOD, ping = 0)
         val callQualityFlow = MutableStateFlow(initialQuality)
         val (_, ongoingCallViewModel) = Arrangement()
             .withLastActiveCall(provideCall())
             .withCallQualityDataFlow(callQualityFlow)
+            .withNetworkStateFlow(MutableStateFlow(networkState))
             .arrange()
         advanceUntilIdle()
-        assertEquals(initialQuality, ongoingCallViewModel.state.callQualityData)
+        assertEquals(expectedInitialQualityState, ongoingCallViewModel.state.callQuality)
 
         val changedQuality = CallQualityData(CallQualityData.Quality.POOR, ping = 300)
+        val expectedChangedQualityState = CallQualityState(CallQualityState.Quality.POOR, ping = 300)
         callQualityFlow.value = changedQuality
         advanceUntilIdle()
-        assertEquals(changedQuality, ongoingCallViewModel.state.callQualityData)
+        assertEquals(expectedChangedQualityState, ongoingCallViewModel.state.callQuality)
+    }
+
+    @Test
+    fun givenNetworkStateChanges_WhenObservingQualityState_ThenStateIsUpdated() = runTest {
+        val callQuality = CallQualityData(quality = CallQualityData.Quality.NORMAL, ping = 0)
+        val initialNetworkState = NetworkState.ConnectedWithInternet
+        val expectedInitialQualityState = CallQualityState(CallQualityState.Quality.GOOD, ping = 0)
+        val networkStateFlow = MutableStateFlow<NetworkState>(initialNetworkState)
+        val (_, ongoingCallViewModel) = Arrangement()
+            .withLastActiveCall(provideCall())
+            .withCallQualityDataFlow(flowOf(callQuality))
+            .withNetworkStateFlow(networkStateFlow)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(expectedInitialQualityState, ongoingCallViewModel.state.callQuality)
+
+        val changedNetworkState = NetworkState.ConnectedWithoutInternet
+        val expectedChangedQualityState = CallQualityState(CallQualityState.Quality.NO_INTERNET, ping = -1)
+        networkStateFlow.value = changedNetworkState
+        advanceUntilIdle()
+        assertEquals(expectedChangedQualityState, ongoingCallViewModel.state.callQuality)
     }
 
     @Test
@@ -683,6 +712,9 @@ class OngoingCallViewModelTest {
         @MockK(relaxUnitFun = true)
         lateinit var globalDataStore: GlobalDataStore
 
+        @MockK
+        lateinit var networkStateObserver: NetworkStateObserver
+
         val reactionsFlow = MutableSharedFlow<InCallReactionMessage>()
         val moderationActionsFlow = MutableSharedFlow<CallModerationAction>()
 
@@ -701,6 +733,7 @@ class OngoingCallViewModelTest {
                 getCurrentClientId = getCurrentClientId,
                 observeCallModerationActions = observeCallModerationActions,
                 uiCallParticipantMapper = UICallParticipantMapper(UserTypeMapper()),
+                networkStateObserver = networkStateObserver,
                 dispatchers = TestDispatcherProvider(dispatcher),
                 currentTime = dispatcher.scheduler::currentTime
             )
@@ -708,6 +741,7 @@ class OngoingCallViewModelTest {
 
         init {
             MockKAnnotations.init(this)
+            coEvery { networkStateObserver.observeNetworkState() } returns MutableStateFlow(NetworkState.ConnectedWithInternet)
             coEvery { observeCallQualityData(any()) } returns emptyFlow()
             coEvery { observeInCallReactionsUseCase(any()) } returns reactionsFlow
             coEvery { getCurrentClientId() } returns flowOf(currentClientId)
@@ -736,6 +770,10 @@ class OngoingCallViewModelTest {
 
         fun withCallQualityDataFlow(callQualityDataFlow: Flow<CallQualityData>) = apply {
             coEvery { observeCallQualityData(any()) } returns callQualityDataFlow
+        }
+
+        fun withNetworkStateFlow(networkStateFlow: StateFlow<NetworkState>) = apply {
+            coEvery { networkStateObserver.observeNetworkState() } returns networkStateFlow
         }
 
         fun withSendInCallReactionUseCaseReturning(result: MessageOperationResult) = apply {

@@ -1141,6 +1141,7 @@
     <string name="calling_details_network_quality_good">Хорошее</string>
     <string name="calling_details_network_quality_fair">Приемлемое</string>
     <string name="calling_details_network_quality_poor">Плохое</string>
+    <string name="calling_details_network_quality_no_internet">Нет интернета</string>
     <string name="calling_details_turn_off_other_videos_title">Отключить другие видео</string>
     <string name="calling_details_turn_off_other_videos_description">Это улучшит качество звука при плохом качестве сети.</string>
     <string name="calling_details_network_quality_peer">Пир</string>
@@ -1219,6 +1220,7 @@
     <string name="allow_services_regular_group_description">Открыть эту беседу для приложений. Вы всегда сможете изменить это позже.</string>
     <string name="allow_apps_switch_description">Открыть эту беседу для приложений.</string>
     <string name="service_details_label">Приложение</string>
+    <string name="service_details_created_by">Создано %1$s</string>
     <string name="service_details_add_service_label">Добавить в беседу</string>
     <string name="service_details_remove_service_label">Удалить из беседы</string>
     <string name="service_remove_success">Приложение удалено из беседы</string>

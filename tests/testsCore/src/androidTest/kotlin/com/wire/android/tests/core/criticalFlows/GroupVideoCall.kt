@@ -24,7 +24,6 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
-import backendUtils.team.deleteTeam
 import call.CallHelper
 import call.CallingManager
 import com.wire.android.tests.core.BaseUiTest
@@ -80,8 +79,7 @@ class GroupVideoCall : BaseUiTest() {
 
     @After
     fun tearDown() {
-        runCatching { teamOwnerA?.deleteTeam(backendClient) }
-        runCatching { teamOwnerB?.deleteTeam(backendClient) }
+        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")

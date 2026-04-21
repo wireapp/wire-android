@@ -24,8 +24,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
-import backendUtils.team.deleteTeam
-import backendUtils.user.deleteUser
 import com.wire.android.testSupport.BuildConfig
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -66,8 +64,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
 
     @After
     fun tearDown() {
-         teamOwner?.deleteTeam(backendClient)
-         personalUser?.deleteUser(backendClient)
+         cleanupCreatedUsers(backendClient, teamHelper.usersManager, deletePersonalUsers = true)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -149,6 +146,8 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 clickDeclineShareDataAlert()
                 assertConversationPageVisible()
             }
+            // Register the UI-created personal user so shared teardown can see and delete it.
+            personalUser?.let(teamHelper.usersManager::appendCustomUser)
         }
 
         step("Send connection request to existing team owner") {

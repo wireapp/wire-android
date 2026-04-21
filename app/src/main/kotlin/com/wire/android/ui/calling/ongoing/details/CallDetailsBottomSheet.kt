@@ -33,7 +33,7 @@ import kotlinx.serialization.Serializable
 @Composable
 fun CallDetailsBottomSheet(
     sheetState: WireModalSheetState<CallDetailsSheetState>,
-    callQualityData: CallQualityData,
+    callQualityState: CallQualityState,
     othersVideosDisabled: Boolean,
     setOthersVideosDisabled: (othersVideosDisabled: Boolean) -> Unit,
 ) {
@@ -54,7 +54,7 @@ fun CallDetailsBottomSheet(
             ) { callDetailsSheetState ->
                 when (callDetailsSheetState) {
                     CallDetailsSheetState.Details -> CallDetailsSheetContent(
-                        callQuality = callQualityData.quality,
+                        callQuality = callQualityState.quality,
                         onOpenNetworkQuality = {
                             sheetState.show(CallDetailsSheetState.Quality)
                         },
@@ -63,7 +63,7 @@ fun CallDetailsBottomSheet(
                     )
 
                     CallDetailsSheetState.Quality -> CallNetworkQualitySheetContent(
-                        callQualityData = callQualityData,
+                        callQualityState = callQualityState,
                         onBackPressed = {
                             sheetState.show(CallDetailsSheetState.Details)
                         }
@@ -83,8 +83,8 @@ enum class CallDetailsSheetState {
 private fun CallDetailsBottomSheetPreview(callDetailsSheetState: CallDetailsSheetState) = WireTheme {
     CallDetailsBottomSheet(
         sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(callDetailsSheetState)),
-        callQualityData = CallQualityData(
-            quality = CallQualityData.Quality.NORMAL,
+        callQualityState = CallQualityState(
+            quality = CallQualityState.Quality.GOOD,
             peer = CallQualityData.Peer.USER,
             connection = CallQualityData.Connection(
                 protocol = CallQualityData.Connection.Protocol.UDP,

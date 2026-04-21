@@ -17,13 +17,29 @@
  */
 package uiautomatorutils
 
+import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 
 object KeyboardUtils {
+    private const val keyboardSettleDelayMs = 300L
+
     fun closeKeyboardIfOpened() {
-        val d = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        d.executeShellCommand("ime reset")
-        d.waitForIdle()
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        if (isKeyboardVisible(device)) {
+            device.pressBack()
+            device.waitForIdle()
+            SystemClock.sleep(keyboardSettleDelayMs)
+        }
+    }
+
+    private fun isKeyboardVisible(device: UiDevice): Boolean {
+        val dump = runCatching {
+            device.executeShellCommand("dumpsys input_method")
+        }.getOrDefault("")
+
+        return dump.contains("mInputShown=true") ||
+            dump.contains("isInputViewShown=true") ||
+            dump.contains("imeVisible=true")
     }
 }

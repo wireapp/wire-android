@@ -43,7 +43,6 @@ import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.common.ProximitySensorManager
-import com.wire.android.ui.calling.ongoing.OngoingCallActivity.Companion.TAG
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
@@ -55,7 +54,6 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.getValue
 
 @AndroidEntryPoint
 abstract class CallActivity : BaseActivity() {
@@ -75,6 +73,7 @@ abstract class CallActivity : BaseActivity() {
         const val EXTRA_USER_ID = "user_id"
         const val EXTRA_SCREEN_TYPE = "screen_type"
         const val EXTRA_SHOULD_ANSWER_CALL = "should_answer_call"
+        const val TAG = "CallActivity"
     }
 
     private val callActivityViewModel: CallActivityViewModel by viewModels()

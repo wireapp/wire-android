@@ -73,7 +73,8 @@ class CommonTopAppBarViewModel @AssistedInject constructor(
                     // to Idle (no banner) rather than WaitingConnection or Connecting.
                     syncState is Waiting -> Connectivity.Idle
                     syncState is Failed -> Connectivity.WaitingConnection(syncState.cause, syncState.retryDelay)
-                    networkState !is NetworkState.ConnectedWithInternet -> Connectivity.WaitingConnection(null, null)
+                    networkState !is NetworkState.ConnectedWithInternet && params.showNoNetwork ->
+                        Connectivity.WaitingConnection(null, null)
                     syncState is SlowSync && params.showSync -> Connectivity.Connecting
                     syncState is GatheringPendingEvents && params.showSync -> Connectivity.Connecting
                     else -> Connectivity.Connected

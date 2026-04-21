@@ -28,12 +28,12 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.AppsUtil
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
-import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.app.GetAppByIdUseCase
 import com.wire.kalium.logic.feature.app.ObserveIsAppMemberResult
@@ -42,8 +42,6 @@ import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
-import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
-import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberResult
@@ -54,7 +52,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -101,7 +98,7 @@ class ServiceDetailsViewModel @Inject constructor(
                 isAvatarLoading = true
             )
 
-            val appsAllowedResult = observeIsAppsAllowedForUsage().first()
+            val appsAllowedResult = observeIsAppsAllowedForUsage().firstOrNull()
 
             val conversationProtocolInfo = conversationId?.let {
                 observeConversationDetails(it)
@@ -110,26 +107,17 @@ class ServiceDetailsViewModel @Inject constructor(
                     .firstOrNull()
             }
 
-            isAppsEnabled = when (appsAllowedResult) {
-                is AppsAllowedResult.Enabled -> when (appsAllowedResult.protocol) {
-                    AppsAllowedProtocol.MLS -> true
-                    AppsAllowedProtocol.PROTEUS -> false
-                    is AppsAllowedProtocol.MIXED -> when (conversationProtocolInfo) {
-                        is Conversation.ProtocolInfo.MLS -> true
-                        is Conversation.ProtocolInfo.Proteus -> false
-                        null, is Conversation.ProtocolInfo.Mixed ->
-                            (appsAllowedResult.protocol as AppsAllowedProtocol.MIXED).defaultProtocol == SupportedProtocol.MLS
-                    }
-                }
-                is AppsAllowedResult.Disabled -> false
-            }
+            isAppsEnabled = AppsUtil.isAppsAllowed(
+                appsAllowedResult = appsAllowedResult,
+                conversationProtocol = conversationProtocolInfo
+            )
 
             when {
                 isAppsEnabled && serviceDetailsNavArgs.id is ServiceDetailsNavArgs.Id.AppId -> {
                     getAppDetailsAndUpdateViewState(serviceDetailsNavArgs.id.appId)
                         ?.let { observeIsAppConversationMember(serviceDetailsNavArgs.id.appId) }
                 }
-                !isAppsEnabled -> {
+                !isAppsEnabled && serviceDetailsNavArgs.id is ServiceDetailsNavArgs.Id.BotServiceId -> {
                     getServiceDetailsAndUpdateViewState()
                         ?.let { observeIsServiceConversationMember() }
                 }

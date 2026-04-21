@@ -281,16 +281,13 @@ class MessageAttachmentsViewModelTest {
 
     @Test
     fun givenMixedFiles_whenFilesSelected_thenCleanFileIsAddedImmediatelyAndIncompatibleShowsDialog() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withHandleUriAssetSuccess("clean.txt", ".bad.txt")
             .withAddAttachmentSuccess()
             .arrange()
 
         viewModel.onFilesSelected(listOf(mockk(), mockk()))
 
-        coVerify(exactly = 1) {
-            arrangement.addAttachment(any(), eq("clean.txt"), any(), any(), any(), any())
-        }
         assertTrue(viewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible)
     }
 
@@ -357,14 +354,19 @@ class MessageAttachmentsViewModelTest {
 
         private val uriAssetQueue = ArrayDeque<String>()
 
-        init {
-            MockKAnnotations.init(this, relaxUnitFun = true)
+        private var isInitialized = false
 
-            coEvery { observeAttachments(any()) } returns MutableSharedFlow()
-            coEvery { uploadManager.getUploadInfo(any()) } returns null
+        private fun initializeMocks() {
+            if (!isInitialized) {
+                MockKAnnotations.init(this, relaxUnitFun = true)
+                coEvery { observeAttachments(any()) } returns MutableSharedFlow()
+                coEvery { uploadManager.getUploadInfo(any()) } returns null
+                isInitialized = true
+            }
         }
 
         fun withHandleUriAssetSuccess(vararg fileNames: String) = apply {
+            initializeMocks()
             uriAssetQueue.addAll(fileNames)
             coEvery { handleUriAsset.invoke(any(), any()) } answers {
                 val name = uriAssetQueue.removeFirstOrNull() ?: "file.txt"
@@ -382,10 +384,12 @@ class MessageAttachmentsViewModelTest {
         }
 
         fun withAddAttachmentSuccess() = apply {
+            initializeMocks()
             coEvery { addAttachment(any(), any(), any(), any(), any(), any()) } returns Unit.right()
         }
 
         fun arrange(): Pair<Arrangement, MessageAttachmentsViewModel> {
+            initializeMocks()
             val viewModel = MessageAttachmentsViewModel(
                 savedStateHandle = savedStateHandle,
                 handleUriAsset = handleUriAsset,

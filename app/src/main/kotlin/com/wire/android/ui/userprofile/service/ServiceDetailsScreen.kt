@@ -165,11 +165,7 @@ private fun ServiceDetailsProfileInfo(state: ServiceDetailsState) {
                     Text(
                         text = serviceDetails.name,
                         style = MaterialTheme.wireTypography.title02,
-                        color = if (serviceDetails.name.isNotBlank()) {
-                            MaterialTheme.colorScheme.onBackground
-                        } else {
-                            MaterialTheme.wireColorScheme.secondaryText
-                        },
+                        color = MaterialTheme.colorScheme.onBackground,
                         overflow = TextOverflow.Visible,
                         maxLines = 1,
                     )
@@ -179,15 +175,11 @@ private fun ServiceDetailsProfileInfo(state: ServiceDetailsState) {
                     )
                 }
 
-                serviceDetails.creator?.let { creator ->
+                serviceDetails.creator?.takeIf { it.isNotBlank() }?.let { creator ->
                     Text(
                         text = stringResource(id = R.string.service_details_created_by, creator),
                         style = MaterialTheme.wireTypography.body01,
-                        color = if (creator.isNotBlank()) {
-                            MaterialTheme.colorScheme.onBackground
-                        } else {
-                            MaterialTheme.wireColorScheme.secondaryText
-                        },
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
 

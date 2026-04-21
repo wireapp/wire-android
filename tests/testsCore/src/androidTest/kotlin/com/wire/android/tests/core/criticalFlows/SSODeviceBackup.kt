@@ -89,15 +89,15 @@ class SSODeviceBackup : BaseUiTest() {
                     "Messaging",
                     oktaApiClient
                 )
+                teamOwner = teamHelper.usersManager.findUserBy(
+                    "user1Name",
+                    ClientUserManager.FindBy.NAME_ALIAS
+                )
 
                 testServiceHelper.userAddsOktaUser("user1Name", "user2Name", oktaApiClient)
 
                 testServiceHelper.userXIsMe("user2Name")
 
-                teamOwner = teamHelper.usersManager.findUserBy(
-                    "user1Name",
-                    ClientUserManager.FindBy.NAME_ALIAS
-                )
                 member1 = teamHelper.usersManager.findUserBy(
                     "user2Name",
                     ClientUserManager.FindBy.NAME_ALIAS

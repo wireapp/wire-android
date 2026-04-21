@@ -67,7 +67,7 @@ fun SearchAppsScreen(
     onServiceClicked: (Contact) -> Unit,
     isConversationAppsEnabled: Boolean,
     searchAppsViewModel: SearchAppsViewModel = hiltViewModel<SearchAppsViewModel, SearchAppsViewModel.Factory>(
-        key = "search_apps_protocol_info",
+        key = "search_apps_protocol_info_${protocolInfo?.name()}",
         creationCallback = { factory -> factory.create(protocolInfo = protocolInfo) }
     ),
     lazyListState: LazyListState = rememberLazyListState()

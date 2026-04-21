@@ -26,12 +26,11 @@ import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
+import com.wire.android.util.AppsUtil
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.app.ObserveAllAppsUseCase
 import com.wire.kalium.logic.feature.app.SearchAppsByNameUseCase
-import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
@@ -94,17 +93,10 @@ class SearchAppsViewModel @AssistedInject constructor(
 
     private fun search(query: String, appsAllowedResult: AppsAllowedResult.Enabled) {
         viewModelScope.launch {
-            val showNewApps = when (appsAllowedResult.protocol) {
-                AppsAllowedProtocol.MLS -> true
-                AppsAllowedProtocol.PROTEUS -> false
-                is AppsAllowedProtocol.MIXED -> when (protocolInfo) {
-                    is Conversation.ProtocolInfo.MLS -> true
-                    is Conversation.ProtocolInfo.Proteus -> false
-                    null, is Conversation.ProtocolInfo.Mixed ->
-                        (appsAllowedResult.protocol as AppsAllowedProtocol.MIXED)
-                            .defaultProtocol == SupportedProtocol.MLS
-                }
-            }
+            val showNewApps = AppsUtil.isAppsAllowed(
+                appsAllowedResult = appsAllowedResult,
+                conversationProtocol = protocolInfo
+            )
 
             val result = if (showNewApps) {
                 if (query.isEmpty()) getAllApps() else searchAppsByName(query)

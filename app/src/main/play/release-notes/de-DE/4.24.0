@@ -1,0 +1,9 @@
+Verbessert
+- Reihenfolge der Teilnehmer bei Telefonkonferenzen
+
+Behoben
+- Probleme beim Anrufen in Unterhaltungen mit gemischten Protokollen
+- Entschlüsselungsfehler beim Senden von Nachrichten
+- Probleme mit Reaktionen und Lesebestätigungen
+- Falscher Link zu http://support.wire.com für Proteus-Nutzer
+- Probleme bei der MLS-Verarbeitung

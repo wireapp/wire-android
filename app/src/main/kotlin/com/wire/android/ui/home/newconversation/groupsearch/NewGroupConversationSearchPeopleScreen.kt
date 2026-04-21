@@ -67,6 +67,7 @@ fun NewGroupConversationSearchPeopleScreen(
         screenType = SearchPeopleScreenType.NEW_GROUP_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
         onAppClicked = { },
-        isAppsTabVisible = false
+        isAppsTabVisible = false,
+        conversationProtocol = null
     )
 }

@@ -24,6 +24,10 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.ScopedArgsTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.feature.aiassistant.AiModelManager
+import com.wire.android.feature.aiassistant.model.AiModelDownloadState
+import com.wire.android.feature.aiassistant.model.AiModelStatus
+import com.wire.android.feature.aiassistant.model.FailureReason
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.debug.DebugDataOptionsViewModelImpl
 import com.wire.android.util.getDeviceIdString
@@ -59,11 +63,13 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.verify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -308,6 +314,105 @@ class DebugDataOptionsViewModelTest {
         coVerify(exactly = 1) { arrangement.setDebugCRLExpirationAfterOneMinute(true) }
         coVerify(exactly = 1) { arrangement.checkCrlRevocationList(forceUpdate = true) }
     }
+
+    @Test
+    fun `given ai model is not downloaded, then ai model option shows download button`() = runTest {
+        // given
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withAiModelStatus(AiModelStatus.NotDownloaded)
+            .arrange()
+
+        assertEquals("Not downloaded", viewModel.state.aiModelOptionState.statusText)
+        assertEquals(true, viewModel.state.aiModelOptionState.showDownloadButton)
+        assertEquals(false, viewModel.state.aiModelOptionState.isDownloading)
+    }
+
+    @Test
+    fun `given ai model is downloading with progress, then ai model option shows progress and loading button`() = runTest {
+        // given
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withAiModelStatus(AiModelStatus.Downloading(0.5F))
+            .arrange()
+
+        assertEquals("Downloading 50%", viewModel.state.aiModelOptionState.statusText)
+        assertEquals(true, viewModel.state.aiModelOptionState.showDownloadButton)
+        assertEquals(true, viewModel.state.aiModelOptionState.isDownloading)
+    }
+
+    @Test
+    fun `given ai model is ready, then ai model option shows downloaded and hides download button`() = runTest {
+        // given
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withAiModelStatus(AiModelStatus.Ready("localPath"))
+            .arrange()
+
+        assertEquals("Downloaded", viewModel.state.aiModelOptionState.statusText)
+        assertEquals(false, viewModel.state.aiModelOptionState.showDownloadButton)
+        assertEquals(false, viewModel.state.aiModelOptionState.isDownloading)
+    }
+
+    @Test
+    fun `given ai model is not downloaded, when downloading, then model download is started`() = runTest {
+        // given
+        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
+            .withAiModelStatus(AiModelStatus.NotDownloaded)
+            .withAiModelDownloadState(AiModelDownloadState.Ready("localPath"))
+            .arrange()
+
+        // when
+        viewModel.downloadAiModel()
+
+        // then
+        verify(exactly = 1) { arrangement.aiModelManager.downloadModel() }
+    }
+
+    @Test
+    fun `given ai model is downloading, when downloading, then model download is not started again`() = runTest {
+        // given
+        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
+            .withAiModelStatus(AiModelStatus.Downloading(0.5F))
+            .arrange()
+
+        // when
+        viewModel.downloadAiModel()
+
+        // then
+        verify(exactly = 0) { arrangement.aiModelManager.downloadModel() }
+    }
+
+    @Test
+    fun `given ai model authorization is required, when downloading, then info message emits authorization error`() = runTest {
+        // given
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withAiModelStatus(AiModelStatus.NotDownloaded)
+            .withAiModelDownloadState(AiModelDownloadState.AuthRequired)
+            .arrange()
+
+        viewModel.infoMessage.test {
+            // when
+            viewModel.downloadAiModel()
+
+            // then
+            assertEquals(UIText.DynamicString("AI model download requires Hugging Face authorization"), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given ai model download fails, when downloading, then info message emits failure`() = runTest {
+        // given
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withAiModelStatus(AiModelStatus.NotDownloaded)
+            .withAiModelDownloadState(AiModelDownloadState.Failed(FailureReason.Network))
+            .arrange()
+
+        viewModel.infoMessage.test {
+            // when
+            viewModel.downloadAiModel()
+
+            // then
+            assertEquals(UIText.DynamicString("AI model download failed: Network"), awaitItem())
+        }
+    }
 }
 
 internal class DebugDataOptionsArrangement {
@@ -362,6 +467,9 @@ internal class DebugDataOptionsArrangement {
     @MockK
     lateinit var setDebugCRLExpirationAfterOneMinute: SetDebugCRLExpirationAfterOneMinuteUseCase
 
+    @MockK
+    lateinit var aiModelManager: AiModelManager
+
     private val viewModel by lazy {
         DebugDataOptionsViewModelImpl(
             context = context,
@@ -381,7 +489,8 @@ internal class DebugDataOptionsArrangement {
             getDebugE2EICertificateExpiration = getDebugE2EICertificateExpiration,
             setDebugE2EICertificateExpiration = setDebugE2EICertificateExpiration,
             observeDebugCRLExpirationAfterOneMinute = observeDebugCRLExpirationAfterOneMinute,
-            setDebugCRLExpirationAfterOneMinute = setDebugCRLExpirationAfterOneMinute
+            setDebugCRLExpirationAfterOneMinute = setDebugCRLExpirationAfterOneMinute,
+            aiModelManager = aiModelManager
         )
     }
 
@@ -424,6 +533,8 @@ internal class DebugDataOptionsArrangement {
             coEvery { setDebugE2EICertificateExpiration(any()) } returns Unit
             every { observeDebugCRLExpirationAfterOneMinute() } returns flowOf(false)
             coEvery { setDebugCRLExpirationAfterOneMinute(any()) } returns Unit
+            withAiModelStatus(AiModelStatus.NotDownloaded)
+            withAiModelDownloadState()
         }
     }
 
@@ -553,6 +664,18 @@ internal class DebugDataOptionsArrangement {
         } returns SelfServerConfigUseCase.Result.Failure(
             CoreFailure.Unknown(IllegalStateException())
         )
+    }
+
+    fun withAiModelStatus(status: AiModelStatus) = apply {
+        every {
+            aiModelManager.observeModelStatus()
+        } returns flowOf(status)
+    }
+
+    fun withAiModelDownloadState(state: AiModelDownloadState? = null) = apply {
+        every {
+            aiModelManager.downloadModel()
+        } returns if (state == null) emptyFlow() else flowOf(state)
     }
 
     fun arrange() = this to viewModel

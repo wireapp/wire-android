@@ -89,7 +89,7 @@ internal fun VideoAssetPreview(
     )
 
     val fileNameColor = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
         MessageStyle.BUBBLE_OTHER -> colorsScheme().onSurface
         MessageStyle.NORMAL -> colorsScheme().onSurface
     }

@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -29,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -148,7 +150,9 @@ fun MessageContentItem(
             ) {
                 VerticalSpace.x4()
                 Row(
-                    Modifier.padding(innerPadding),
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .applyIf(hasAssetParams) { fillMaxWidth() },
                     horizontalArrangement = if (source == MessageSource.Self) Arrangement.End else Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {

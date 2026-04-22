@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Run attempt 0 and retry only failed tests based on workflow rerun inputs.
+# Run attempt 0 on the normal selector, then rerun only the tests that still
+# fail. Each retry attempt gets an explicit per-device test list so the
+# workflow, not Android sharding, controls which leftover failures execute.
 : "${DEVICE_LIST:?DEVICE_LIST missing}"
 : "${DEVICE_COUNT:?DEVICE_COUNT missing}"
 : "${APP_ID:?APP_ID missing}"
@@ -210,7 +212,9 @@ pull_allure_results_for_attempt() {
   local attempt_dir="${ALLURE_RESULTS_ROOT}/attempt-${attempt}"
   mkdir -p "${attempt_dir}"
 
-  # Support both pull layouts: <serial>/allure-results/* and <serial>/*.
+  # The immediate per-attempt pull creates <serial>/allure-results/*.
+  # The later fallback pull creates <serial>/*.
+  # Accept both layouts so failed-test extraction and merge work in either case.
   has_result_files() {
     local device_dir="$1"
     if compgen -G "${device_dir}/allure-results/*-result.json" >/dev/null; then
@@ -251,7 +255,8 @@ pull_allure_results_for_attempt() {
     done
 
     if (( pulled_ok == 0 )); then
-      # Some shards legitimately execute zero tests; in that case there is nothing to pull.
+      # Some shards legitimately execute zero tests; in that case there is
+      # nothing to pull, and that should not fail the run.
       if device_reported_zero_tests "${attempt}" "${serial}"; then
         echo "[${serial}] No Allure result files for attempt ${attempt} because this shard executed zero tests."
         continue
@@ -270,6 +275,9 @@ run_attempt_on_devices() {
   local failed=0
   local pids=()
   local shard_index=0
+
+  # Attempt 0 uses the normal selector contract. Retry attempts run one shard
+  # per device and receive explicit rerun lists prepared from failed tests.
 
   for serial in "${devices[@]}"; do
     (
@@ -296,6 +304,8 @@ run_attempt_on_devices() {
       fi
 
       local instr_list instrumentation
+      # Prefer the custom runner so retry args go through TaggedFilter.
+      # Fall back to the app-targeted instrumentation if needed.
       instr_list="$(${adb_cmd} shell pm list instrumentation 2>/dev/null | tr -d '\r' || true)"
       instrumentation="$(printf '%s\n' "${instr_list}" | grep -m1 'TaggedTestRunner' | sed -E 's/^instrumentation:([^ ]+).*/\1/' || true)"
       if [[ -z "${instrumentation}" ]]; then
@@ -315,6 +325,7 @@ run_attempt_on_devices() {
       echo "[${serial}] attempt=${attempt} shardIndex=${this_shard_index}/${num_shards}"
 
       local allure_device_dir="/sdcard/googletest/test_outputfiles/allure-results"
+      # Make each device attempt write into a fresh device-side Allure directory.
       ${adb_cmd} shell "rm -rf '${allure_device_dir}' && mkdir -p '${allure_device_dir}'" >/dev/null 2>&1 || true
 
       local args=()
@@ -366,6 +377,8 @@ run_attempt_on_devices() {
 
       local log_file="${LOG_DIR}/attempt-${attempt}-instrument-${serial}.log"
 
+      # Android instrumentation can return non-zero for normal test failures.
+      # Keep that separate from real infra failures so retries can still proceed.
       set +e
       ${adb_cmd} shell am instrument -w -r "${args[@]}" "${instrumentation}" 2>&1 \
         | sed -u "s/^/[${serial}] /" | tee "${log_file}"

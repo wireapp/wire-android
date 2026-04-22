@@ -20,6 +20,12 @@ package com.wire.android.tests.support.suite
 /**
  * Shared retry contract between CI and instrumentation code.
  *
+ * Attempt 0 still uses the normal selector contract (`testCaseId`, `category`).
+ * Later attempts switch to explicit test IDs so only previously failed tests rerun.
+ *
+ * Retry test IDs may be passed inline or split across multiple inline parts
+ * when the list is too large for one instrumentation arg.
+ *
  * Test IDs must be in this exact format:
  *   com.example.ClassName#testMethodName
  */
@@ -29,6 +35,5 @@ object RetryContract {
     const val ARG_RERUN_LIST_PATH = "rerunListPath"
     const val ARG_RERUN_LIST_INLINE = "rerunListInline"
     const val ARG_RERUN_LIST_INLINE_PART_PREFIX = "rerunListInlinePart"
-
     const val ALLURE_LABEL_PASSED_ON_RERUN = "passed_on_rerun"
 }

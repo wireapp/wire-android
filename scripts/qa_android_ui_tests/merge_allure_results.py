@@ -100,6 +100,8 @@ def add_parameter(data: dict, name: str, value: str) -> dict:
 
 
 def result_identity(data: dict, fallback: str) -> str:
+    # Build one stable logical test identity across attempts so retries replace
+    # earlier outcomes instead of appearing as unrelated extra test entries.
     full_name = data.get("fullName")
     if isinstance(full_name, str) and full_name.strip():
         return full_name.strip()
@@ -153,8 +155,10 @@ for _, device_dir in attempt_device_dirs:
 
 first_status: dict[str, str] = {}
 latest_by_test: dict[str, dict] = {}
+# Keep the first and latest status for each logical test so the merged report
+# can mark recovered flakes without keeping duplicate test entries.
 
-# Walk every device/attempt result and keep the latest outcome for each logical test.
+# Walk every attempt result and keep only the latest outcome for each logical test.
 for attempt, device_dir in attempt_device_dirs:
     serial = device_dir.name
     src_dir = resolve_src_dir(device_dir)
@@ -178,7 +182,7 @@ for attempt, device_dir in attempt_device_dirs:
             data = add_parameter(data, "device", label)
             data = add_parameter(data, "attempt", str(attempt))
 
-            # Use one stable identity across attempts so the final report keeps the latest outcome per test.
+            # Match retries back to the same logical test.
             identity = result_identity(data, fallback=item.stem)
             status = str(data.get("status") or "").strip().lower()
             if identity not in first_status:
@@ -193,6 +197,8 @@ for attempt, device_dir in attempt_device_dirs:
                     "data": data,
                 }
         else:
+            # Copy attachments and sidecar files as-is; only *-result.json needs
+            # retry-aware de-duplication.
             shutil.copy2(item, merged_dir / item.name)
 
 # Write the final reportable result set after all attempts have been compared.
@@ -200,7 +206,7 @@ for identity, info in latest_by_test.items():
     data = info["data"]
     initial_status = first_status.get(identity, "")
     final_status = str(info.get("status", "")).lower()
-    # Merge logic is the single owner of passed_on_rerun because it can see first and final status together.
+    # Only the merge step can see both the first and final status together.
     if initial_status in FAILED_STATUSES and final_status == "passed":
         data = add_label(data, PASSED_ON_RERUN_LABEL, "true")
 
@@ -214,6 +220,7 @@ failed_after_retries = sum(
     if str(info.get("status", "")).lower() in FAILED_STATUSES
 )
 passed_on_rerun_count = 0
+# Derive summary counts from the same merged view that writes the final report.
 for identity, info in latest_by_test.items():
     initial_status = first_status.get(identity, "")
     final_status = str(info.get("status", "")).lower()

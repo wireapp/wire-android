@@ -43,8 +43,8 @@ class TaggedTestRunner : AllureAndroidJUnitRunner() {
         val rerunListInlinePartCount = arguments.keySet()
             .count { key -> key.startsWith(RetryContract.ARG_RERUN_LIST_INLINE_PART_PREFIX) }
 
-        // Log the retry inputs once so CI failures can confirm whether the
-        // instrumentation process received the expected rerun contract.
+        // Log the retry contract once so CI failures can confirm the runner saw
+        // the expected inputs without dumping every rerun test ID into logcat.
         Log.i(
             "TaggedTestRunner",
             "onCreate called. " +
@@ -58,18 +58,13 @@ class TaggedTestRunner : AllureAndroidJUnitRunner() {
     }
 
     override fun onStart() {
-        // Each instrumentation attempt writes its own Allure payload, so wipe
-        // any stale device-side results before a new attempt starts.
+        // Before running any tests, clear previous Allure results on the device.
         clearAllureResultsOnDevice()
 
         // Then let Allure/AndroidJUnitRunner do its normal startup.
         super.onStart()
     }
 
-    /**
-     * Clears the Allure results directory on the device so each run starts clean.
-     * This runs once per test run (when the runner starts).
-     */
     private fun clearAllureResultsOnDevice() {
         try {
             // This is where Allure stores results on the device in our setup.

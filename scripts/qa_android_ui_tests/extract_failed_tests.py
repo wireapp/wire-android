@@ -65,6 +65,8 @@ def resolve_test_id(data: dict) -> str:
 
 def result_dirs(base: Path) -> list[Path]:
     out = []
+    # Per-attempt pull -> <serial>/allure-results/*
+    # Fallback pull -> <serial>/*
     for device_dir in sorted(p for p in base.iterdir() if p.is_dir()):
         candidate = device_dir / "allure-results"
         out.append(candidate if candidate.is_dir() else device_dir)
@@ -79,6 +81,7 @@ for src_dir in result_dirs(attempt_dir):
         try:
             data = json.loads(result_file.read_text(encoding="utf-8"))
         except Exception:
+            # Ignore unreadable files.
             continue
         test_id = resolve_test_id(data)
         if not test_id:

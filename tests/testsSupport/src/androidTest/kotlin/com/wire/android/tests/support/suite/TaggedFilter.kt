@@ -33,17 +33,10 @@ import java.io.File
 /**
  * JUnit filter used by AndroidJUnitRunner / AllureAndroidJUnitRunner.
  *
- * Includes only tests that match instrumentation args:
- *  - testCaseId
- *  - category
- *  - tagKey / tagValue
- *  - rerun list (Class#method) when rerun mode is enabled
- *
- * Tests that don't match are excluded from the run.
+ * Supports normal selector args (@TestCaseId, @Category, @Tag),
+ * and rerun selector args (Class#method).
  */
 class TaggedFilter : Filter() {
-
-    // Read instrumentation arguments once
     private val args = InstrumentationRegistry.getArguments()
 
     private val filterTestCaseId: String? = args.getString("testCaseId")
@@ -63,6 +56,7 @@ class TaggedFilter : Filter() {
         get() = rerunModeEnabled && rerunAttempt > 0
 
     override fun shouldRun(description: Description): Boolean {
+        // Rerun mode -> only run explicit retry tests.
         if (rerunModeActive) {
             return shouldRunInRerunMode(description)
         }
@@ -136,6 +130,7 @@ class TaggedFilter : Filter() {
         return args.keySet()
             .filter { it.startsWith(prefix) }
             .sortedWith(
+                // Sort part2 before part10.
                 compareBy<String> { key ->
                     key.removePrefix(prefix).toIntOrNull() ?: Int.MAX_VALUE
                 }.thenBy { key -> key }
@@ -149,6 +144,7 @@ class TaggedFilter : Filter() {
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .onEach { value ->
+                // Fail fast on malformed retry IDs.
                 if (!value.contains('#')) {
                     throw IllegalStateException(
                         "Invalid rerun test id '$value'. Expected format: ClassName#methodName."

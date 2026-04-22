@@ -39,7 +39,6 @@
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": true,
-            "nomad_profiles_enabled": true,
             "enforce_configuration_signature": false
         },
         "staging": {
@@ -176,7 +175,7 @@
         "1": "MCowBQYDK2VwAyEAA3lA6/1j+VJNKUsbHdlmTcjIOtjdnxzG4TkYr4nEFJw="
     },
     "enforce_configuration_signature": true,
-    "nomad_profiles_enabled": false,
     "call_quality_menu_enabled": true,
-    "call_reactions_enabled": true
+    "call_reactions_enabled": true,
+    "nomad_profiles_enabled": true
 }

@@ -71,6 +71,7 @@ fun CommonTopAppBar(
     onReturnToIncomingCallClick: (ConnectivityUIState.Call.Incoming) -> Unit,
     onReturnToOutgoingCallClick: (ConnectivityUIState.Call.Outgoing) -> Unit,
     modifier: Modifier = Modifier,
+    animateContentSize: Boolean = true,
 ) {
     val transition = updateTransition(
         targetState = MaterialTheme.wireColorScheme to getColorType(commonTopAppBarState.connectivityState, backgroundType),
@@ -96,7 +97,7 @@ fun CommonTopAppBar(
             onReturnToCallClick = onReturnToCallClick,
             onReturnToIncomingCallClick = onReturnToIncomingCallClick,
             onReturnToOutgoingCallClick = onReturnToOutgoingCallClick,
-            modifier = modifier,
+            animateContentSize = animateContentSize,
         )
     }
 }
@@ -136,10 +137,13 @@ private fun ConnectivityStatusBar(
     onReturnToIncomingCallClick: (ConnectivityUIState.Call.Incoming) -> Unit,
     onReturnToOutgoingCallClick: (ConnectivityUIState.Call.Outgoing) -> Unit,
     modifier: Modifier = Modifier,
+    animateContentSize: Boolean = true,
 ) {
     Column(
         modifier = modifier
-            .animateContentSize()
+            .let {
+                if (animateContentSize) it.animateContentSize() else it
+            }
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center

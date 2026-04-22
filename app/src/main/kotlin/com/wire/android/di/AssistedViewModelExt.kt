@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,19 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.di
 
-package com.wire.android.ui.home.newconversation.groupOptions
+import androidx.activity.ComponentActivity
+import androidx.activity.viewModels
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.withCreationCallback
 
-import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
-
-data class GroupOptionState(
-    val continueEnabled: Boolean = true,
-    val isLoading: Boolean = false,
-    val isAllowGuestEnabled: Boolean = true,
-    val isAllowAppsEnabled: Boolean = false,
-    val isReadReceiptEnabled: Boolean = true,
-    val showAllowGuestsDialog: Boolean = false,
-    // feature flag for allowing apps usage for the team
-    val isTeamAllowedToUseApps: AppsAllowedResult = AppsAllowedResult.Disabled,
-    val isWireCellsEnabled: Boolean? = null,
-)
+inline fun <reified VM : ViewModel, reified VMF> ComponentActivity.assistedViewModels(
+    crossinline create: (VMF) -> VM
+) = viewModels<VM>(extrasProducer = {
+    defaultViewModelCreationExtras.withCreationCallback<VMF> { factory -> create(factory) }
+})

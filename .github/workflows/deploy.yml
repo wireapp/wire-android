@@ -102,6 +102,7 @@ jobs:
           tag_name: ${{ github.event.release.tag_name }}
           name: ${{ github.event.release.name }}
           body: ${{ github.event.release.body }}
+          make_latest: false
 
   deployment-summary:
     needs: deploy

@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -54,7 +55,8 @@ class AddMembersToConversationViewModelTest {
                     AddMembersSearchNavArgs(
                         conversationId = ConversationId("conversationId", "domain"),
                         isConversationAppsEnabled = false,
-                        isSelfPartOfATeam = true
+                        isSelfPartOfATeam = true,
+                        protocolInfo = Conversation.ProtocolInfo.Proteus
                     )
                 )
             }
@@ -83,7 +85,8 @@ class AddMembersToConversationViewModelTest {
                     AddMembersSearchNavArgs(
                         conversationId = ConversationId("conversationId", "domain"),
                         isConversationAppsEnabled = false,
-                        isSelfPartOfATeam = true
+                        isSelfPartOfATeam = true,
+                        protocolInfo = Conversation.ProtocolInfo.Proteus
                     )
                 )
             }
@@ -114,7 +117,8 @@ class AddMembersToConversationViewModelTest {
                     AddMembersSearchNavArgs(
                         conversationId = ConversationId("conversationId", "domain"),
                         isConversationAppsEnabled = false,
-                        isSelfPartOfATeam = true
+                        isSelfPartOfATeam = true,
+                        protocolInfo = Conversation.ProtocolInfo.Proteus
                     )
                 )
                 withAddMemberToConversationUseCase(AddMemberToConversationUseCase.Result.Success)

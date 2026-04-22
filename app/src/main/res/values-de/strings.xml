@@ -1046,6 +1046,7 @@
     <string name="calling_details_network_quality_good">Gut</string>
     <string name="calling_details_network_quality_fair">Befriedigend</string>
     <string name="calling_details_network_quality_poor">Schlecht</string>
+    <string name="calling_details_network_quality_no_internet">Kein Internet</string>
     <string name="calling_details_turn_off_other_videos_title">Andere Videos ausschalten</string>
     <string name="calling_details_turn_off_other_videos_description">Dies verbessert die Audioqualität, wenn Ihre Netzwerkbedingungen schlecht sind.</string>
     <string name="calling_details_network_quality_peer">Peer</string>

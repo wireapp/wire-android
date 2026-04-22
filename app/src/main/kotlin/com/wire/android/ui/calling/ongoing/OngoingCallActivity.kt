@@ -25,15 +25,11 @@ import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.util.Rational
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -45,16 +41,11 @@ import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.endOngoingCallPendingIntent
 import com.wire.android.services.ServicesManager
-import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
-import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.calling.ongoing.OngoingCallActivity.Companion.TAG
-import com.wire.android.ui.common.setupOrientationForDevice
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,9 +63,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class OngoingCallActivity : CallActivity() {
     @Inject
-    lateinit var proximitySensorManager: ProximitySensorManager
-
-    @Inject
     lateinit var servicesManager: ServicesManager
 
     @Inject
@@ -84,7 +72,7 @@ class OngoingCallActivity : CallActivity() {
     var userId: String? by mutableStateOf(null)
     private var shouldAnswerCall: Boolean by mutableStateOf(false)
 
-    private fun handleNewIntent(intent: Intent) {
+    override fun handleNewIntent(intent: Intent) {
         conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
         userId = intent.extras?.getString(EXTRA_USER_ID)
         shouldAnswerCall = intent.extras?.getBoolean(EXTRA_SHOULD_ANSWER_CALL) ?: false
@@ -93,22 +81,9 @@ class OngoingCallActivity : CallActivity() {
         switchAccountIfNeeded(userId)
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        handleNewIntent(intent)
-        setIntent(intent)
-    }
-
     @SuppressLint("UnusedContentLambdaTargetStateParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupOrientationForDevice()
-        setUpScreenshotPreventionFlag()
-        setUpCallingFlags()
-
-        enableEdgeToEdge()
-
-        handleNewIntent(intent)
 
         if (shouldAnswerCall && userId != null && conversationId != null) {
             callNotificationManager.hideIncomingCallNotification(userId!!, conversationId!!)
@@ -117,38 +92,29 @@ class OngoingCallActivity : CallActivity() {
                 qualifiedIdMapper.fromStringToQualifiedID(conversationId!!),
             )
         }
+    }
 
-        appLogger.i("$TAG Initializing proximity sensor..")
-        proximitySensorManager.initialize()
-
-        setContent {
-            val snackbarHostState = remember { SnackbarHostState() }
-            CompositionLocalProvider(
-                LocalSnackbarHostState provides snackbarHostState,
-                LocalActivity provides this
-            ) {
-                WireTheme {
-                    conversationId?.let { conversationId ->
-                        AnimatedContent(
-                            targetState = TAG,
-                            transitionSpec = {
-                                TransitionAnimationType.POP_UP.enterTransition.togetherWith(
-                                    TransitionAnimationType.POP_UP.exitTransition
-                                )
-                            },
-                            modifier = Modifier.semantics { testTagsAsResourceId = true },
-                            label = TAG
-                        ) { _ ->
-                            OngoingCallScreen(
-                                qualifiedIdMapper.fromStringToQualifiedID(
-                                    conversationId
-                                )
-                            )
-                        }
-                    } ?: run { finish() }
-                }
+    @SuppressLint("UnusedContentLambdaTargetStateParameter")
+    @Composable
+    override fun Content() {
+        conversationId?.let { conversationId ->
+            AnimatedContent(
+                targetState = TAG,
+                transitionSpec = {
+                    TransitionAnimationType.POP_UP.enterTransition.togetherWith(
+                        TransitionAnimationType.POP_UP.exitTransition
+                    )
+                },
+                modifier = Modifier.semantics { testTagsAsResourceId = true },
+                label = TAG
+            ) { _ ->
+                OngoingCallScreen(
+                    qualifiedIdMapper.fromStringToQualifiedID(
+                        conversationId
+                    )
+                )
             }
-        }
+        } ?: run { finish() }
     }
 
     override fun onResume() {

@@ -30,7 +30,6 @@ import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.home.newconversation.channelaccess.toUiEnum
 import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -146,11 +145,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         else -> false
                     }
 
-                // WPB-21835: Apps availability logic controlled by feature flag
-                val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
-                val isAppsAllowedForConversation = computeAppsEnabledStatus(groupDetails, isMLSConversation)
+                val isAppsAllowedForConversation = computeAppsEnabledStatus(groupDetails)
                 val isUpdatingAppsAllowedForConversation =
-                    computeAppsAllowedStatus(canSelfPerformAdminTasks, isSelfInTeamThatOwnsConversation, isMLSConversation)
+                    computeAppsAllowedStatus(canSelfPerformAdminTasks, isSelfInTeamThatOwnsConversation)
 
                 _isFetchingInitialData.value = false
 
@@ -201,30 +198,16 @@ class GroupConversationDetailsViewModel @Inject constructor(
      */
     private fun computeAppsAllowedStatus(
         canSelfPerformAdminTasks: Boolean,
-        isSelfInTeamThatOwnsConversation: Boolean,
-        isMLSConversation: Boolean
-    ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
-        // current logic: based on protocol
-        canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation && !isMLSConversation
-    } else {
-        // new logic: based on permissions
-        canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation
-    }
+        isSelfInTeamThatOwnsConversation: Boolean
+    ) = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation
 
     /**
      * Determine apps visibility based on feature flag and team settings
      * Or just should be protocol based in case of current logic
      */
     private fun computeAppsEnabledStatus(
-        groupDetails: ConversationDetails.Group,
-        isMLSConversation: Boolean
-    ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
-        // current logic: based on protocol (apps disabled for MLS)
-        groupDetails.conversation.isServicesAllowed() && !isMLSConversation
-    } else {
-        // new logic: based on feature flags
-        groupDetails.conversation.isServicesAllowed()
-    }
+        groupDetails: ConversationDetails.Group
+    ) = groupDetails.conversation.isServicesAllowed()
 
     private fun ConversationDetails.getChannelPermissionType(): ChannelAddPermissionType? = if (this is ConversationDetails.Group.Channel) {
         this.permission.toUiEnum()

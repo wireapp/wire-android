@@ -53,11 +53,7 @@ fun LazyListScope.participantsFoldersWithElements(
     if (state.data.allAppsCount > 0) {
         sectionWithElements(
             header = context.getString(
-                if (shouldUseNewAppsUi) {
-                    R.string.conversation_details_conversation_apps
-                } else {
-                    R.string.conversation_details_conversation_bots
-                },
+                R.string.conversation_details_conversation_apps,
                 state.data.allAppsCount
             ),
             items = state.data.apps,

@@ -632,7 +632,6 @@
     <string name="conversation_details_conversation_admins">ADMINS (%d)</string>
     <string name="conversation_details_conversation_members">MEMBERS (%d)</string>
     <string name="conversation_details_conversation_apps">APPS (%d)</string>
-    <string name="conversation_details_conversation_bots">BOTS (%d)</string>
     <string name="conversation_details_participants_info">This conversation has %s participants.\nUp to 500 people can join a conversation.</string>
     <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
@@ -651,16 +650,11 @@
     <string name="conversation_options_services_label">Apps</string>
     <string name="conversation_details_apps_description">When this is ON, you open this conversation to apps.</string>
     <string name="conversation_options_services_description">Turn this option ON to open this conversation to apps.</string>
-    <string name="conversation_options_bots_label">Bots</string>
-    <string name="conversation_details_bots_description">When this is ON, you open this conversation to bots.</string>
-    <string name="conversation_options_bots_description">Turn this option ON to open this conversation to bots.</string>
     <string name="conversation_options_renamed">Conversation renamed</string>
     <string name="disable_guest_dialog_title">Disable guest access?</string>
     <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
     <string name="disable_services_dialog_title">Disable app access?</string>
     <string name="disable_services_dialog_text">Current apps will be removed from the conversation. New apps will not be allowed.</string>
-    <string name="disable_bots_dialog_title">Disable bot access?</string>
-    <string name="disable_bots_dialog_text">Current bots will be removed from the conversation. New bots will not be allowed.</string>
     <string name="leave_conversation_menu_item">Leave Conversation…</string>
     <string name="leave_conversation_dialog_title">Leave “%s”?</string>
     <string name="leave_conversation_dialog_description">You will then no longer be able to send or read messages in this conversation on any device.</string>
@@ -1943,10 +1937,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="apps_upgrade_teams_for_apps_banner_title">Your team doesn\'t use apps yet</string>
     <string name="apps_upgrade_teams_for_apps_banner_content">To improve your workflow with apps, your team needs configuration. Please contact your team admin.</string>
     <string name="apps_edit_apps_option_title">Apps</string>
-    <string name="bots_edit_bots_option_title">Bots</string>
     <string name="content_description_edit_apps_option_back_btn">Go back to conversation details</string>
     <string name="content_description_conversation_details_apps_action">adjust apps access</string>
-    <string name="content_description_conversation_details_bots_action">adjust bots access</string>
     <string name="search_results_apps_empty_title">Your team hasn\'t added apps yet</string>
     <string name="search_results_apps_empty_description_team_admin">Apps are helpers that can improve your workflow. As a team admin, you can add them in team management.</string>
     <string name="search_results_apps_empty_description_non_team_admin">Apps are helpers that can improve your workflow. To use them, ask your team admin.</string>

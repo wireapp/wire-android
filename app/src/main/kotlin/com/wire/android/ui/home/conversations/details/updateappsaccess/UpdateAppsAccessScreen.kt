@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.details.updateappsaccess
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,9 +30,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -62,7 +62,6 @@ fun UpdateAppsAccessScreen(
         onDisableAppsConfirm = updateAppsAccessViewModel::onServiceDialogConfirm,
         onDisableAppsDismiss = updateAppsAccessViewModel::onAppsDialogDismiss,
         state = updateAppsAccessViewModel.updateAppsAccessState,
-        shouldUseNewAppsUi = updateAppsAccessViewModel.shouldUseNewAppsUi,
     )
 }
 
@@ -73,7 +72,6 @@ private fun UpdateAppsAccessContent(
     onDisableAppsConfirm: () -> Unit,
     onDisableAppsDismiss: () -> Unit,
     state: UpdateAppsAccessState,
-    shouldUseNewAppsUi: Boolean,
     modifier: Modifier = Modifier
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
@@ -82,18 +80,13 @@ private fun UpdateAppsAccessContent(
     WireScaffold(
         modifier = modifier,
         topBar = {
-            val title = stringResource(
-                id = if (shouldUseNewAppsUi) {
-                    R.string.apps_edit_apps_option_title
-                } else {
-                    R.string.bots_edit_bots_option_title
-                }
-            )
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 navigationIconType = NavigationIconType.Back(R.string.content_description_edit_apps_option_back_btn),
                 onNavigationPressed = onNavigateBack,
-                title = title
+                title = stringResource(
+                    id = R.string.apps_edit_apps_option_title
+                )
             )
         }
     ) { internalPadding ->
@@ -106,16 +99,6 @@ private fun UpdateAppsAccessContent(
                     .fillMaxSize()
             ) {
                 item {
-                    val servicesTitleResId = if (shouldUseNewAppsUi) {
-                        R.string.conversation_options_services_label
-                    } else {
-                        R.string.conversation_options_bots_label
-                    }
-                    val servicesDescriptionResId = if (shouldUseNewAppsUi) {
-                        R.string.conversation_options_services_description
-                    } else {
-                        R.string.conversation_options_bots_description
-                    }
                     with(state) {
                         GroupOptionWithSwitch(
                             switchClickable = isUpdatingAppAccessAllowed,
@@ -123,8 +106,8 @@ private fun UpdateAppsAccessContent(
                             switchState = isAppAccessAllowed,
                             onClick = onChangeAppAccess,
                             isLoading = isLoadingAppsOption,
-                            title = servicesTitleResId,
-                            subTitle = servicesDescriptionResId
+                            title = R.string.conversation_options_services_label,
+                            subTitle = R.string.conversation_options_services_description
                         )
                     }
                 }
@@ -141,7 +124,6 @@ private fun UpdateAppsAccessContent(
         DisableServicesConfirmationDialog(
             onConfirm = onDisableAppsConfirm,
             onDialogDismiss = onDisableAppsDismiss,
-            shouldUseNewAppsUi = shouldUseNewAppsUi
         )
     }
 
@@ -159,19 +141,10 @@ private fun UpdateAppsAccessContent(
 private fun DisableServicesConfirmationDialog(
     onConfirm: () -> Unit,
     onDialogDismiss: () -> Unit,
-    shouldUseNewAppsUi: Boolean
 ) {
     DisableConfirmationDialog(
-        title = if (shouldUseNewAppsUi) {
-            R.string.disable_services_dialog_title
-        } else {
-            R.string.disable_bots_dialog_title
-        },
-        text = if (shouldUseNewAppsUi) {
-            R.string.disable_services_dialog_text
-        } else {
-            R.string.disable_bots_dialog_text
-        },
+        title = R.string.disable_services_dialog_title,
+        text = R.string.disable_services_dialog_text,
         onDismiss = onDialogDismiss,
         onConfirm = onConfirm
     )
@@ -191,7 +164,6 @@ fun UpdateAppsAccessEnabledPreview() = WireTheme {
             isLoadingAppsOption = false,
             shouldShowDisableAppsConfirmationDialog = false
         ),
-        shouldUseNewAppsUi = true,
     )
 }
 
@@ -209,6 +181,5 @@ fun UpdateAppsAccessDisabledPreview() = WireTheme {
             isLoadingAppsOption = false,
             shouldShowDisableAppsConfirmationDialog = false
         ),
-        shouldUseNewAppsUi = true,
     )
 }

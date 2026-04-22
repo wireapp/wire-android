@@ -12,7 +12,7 @@ env:
 
 jobs:
   generate-screenshots:
-    runs-on: ubuntu-24.04
+    runs-on: warp-ubuntu-2404-x64-8x
 
     if: github.ref == 'refs/heads/develop'
 
@@ -24,14 +24,22 @@ jobs:
           fetch-depth: 0
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
+
+      - uses: WarpBuilds/cache@v1
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5
+        uses: gradle/actions/wrapper-validation@v6
 
       - name: Install Git LFS
         run: |
@@ -71,7 +79,7 @@ jobs:
       - name: Clear changes before generating new screenshots
         run: |
           git reset --hard HEAD
-          git clean -fd        
+          git clean -fd
 
       - name: Update Screenshot Reference Images
         run: ./gradlew updateInternalDebugScreenshotTest

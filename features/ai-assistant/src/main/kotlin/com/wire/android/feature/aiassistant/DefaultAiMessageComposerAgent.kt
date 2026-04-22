@@ -67,9 +67,8 @@ class DefaultAiMessageComposerAgent @Inject constructor(
 
         fun String.toProofreadPrompt(): String =
             """
-            Proofread the following message.
+            Proofread the following message. Ensure the message is clear and easy to read. 
             Return only the corrected message text.
-            Preserve the original meaning, tone, language, formatting, and line breaks.
             Do not add explanations, comments, labels, or quotation marks.
 
             Message:

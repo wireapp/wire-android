@@ -30,6 +30,15 @@ class DefaultAiMessageComposerAgent @Inject constructor(
 ) : AiMessageComposerAgent {
 
     override suspend fun proofread(inputText: String): AiMessageComposerResult =
+        generateUpdatedMessage(inputText) { it.toProofreadPrompt() }
+
+    override suspend fun adjustTone(inputText: String, toneType: AiMessageToneType): AiMessageComposerResult =
+        generateUpdatedMessage(inputText) { it.toAdjustTonePrompt(toneType) }
+
+    private suspend fun generateUpdatedMessage(
+        inputText: String,
+        promptFactory: (String) -> String
+    ): AiMessageComposerResult =
         withContext(Dispatchers.IO) {
             if (inputText.isBlank()) {
                 return@withContext AiMessageComposerResult.EmptyInput
@@ -45,7 +54,7 @@ class DefaultAiMessageComposerAgent @Inject constructor(
 
             runCatching {
                 inferenceFactory.create(modelStatus.localPath).use { inference ->
-                    inference.generateResponse(inputText.toProofreadPrompt())
+                    inference.generateResponse(promptFactory(inputText))
                 }
             }.fold(
                 onSuccess = { response ->
@@ -74,5 +83,21 @@ class DefaultAiMessageComposerAgent @Inject constructor(
             Message:
             $this
             """.trimIndent()
+
+        fun String.toAdjustTonePrompt(toneType: AiMessageToneType): String {
+            val toneInstruction = when (toneType) {
+                AiMessageToneType.Formal -> "more formal"
+                AiMessageToneType.Informal -> "more informal"
+            }
+            return """
+            Rewrite the following message to make its tone $toneInstruction.
+            Preserve the original meaning and language.
+            Return only the rewritten message text.
+            Do not add explanations, comments, labels, or quotation marks.
+
+            Message:
+            $this
+            """.trimIndent()
+        }
     }
 }

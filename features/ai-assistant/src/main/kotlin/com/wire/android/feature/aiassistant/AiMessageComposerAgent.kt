@@ -18,6 +18,12 @@ package com.wire.android.feature.aiassistant
 
 interface AiMessageComposerAgent {
     suspend fun proofread(inputText: String): AiMessageComposerResult
+    suspend fun adjustTone(inputText: String, toneType: AiMessageToneType): AiMessageComposerResult
+}
+
+enum class AiMessageToneType {
+    Formal,
+    Informal
 }
 
 sealed interface AiMessageComposerResult {

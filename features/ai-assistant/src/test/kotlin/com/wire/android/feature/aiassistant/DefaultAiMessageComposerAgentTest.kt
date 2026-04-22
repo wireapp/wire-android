@@ -155,6 +155,148 @@ class DefaultAiMessageComposerAgentTest {
         assertTrue(arrangement.inferenceFactory.inference.isClosed)
     }
 
+    @Test
+    fun givenBlankInput_whenAdjustToneIsCalled_thenEmptyInputIsReturnedAndInferenceIsNotCreated() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceResponse("Hello")
+            .arrange()
+
+        val result = arrangement.agent.adjustTone("  ", AiMessageToneType.Formal)
+
+        assertEquals(AiMessageComposerResult.EmptyInput, result)
+        assertEquals(0, arrangement.inferenceFactory.createCount)
+    }
+
+    @Test
+    fun givenModelIsNotDownloaded_whenAdjustToneIsCalled_thenMissingModelIsReturned() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.NotDownloaded)
+            .withInferenceResponse("Hello")
+            .arrange()
+
+        val result = arrangement.agent.adjustTone("Hey", AiMessageToneType.Informal)
+
+        assertEquals(AiMessageComposerResult.MissingModel, result)
+        assertEquals(0, arrangement.inferenceFactory.createCount)
+    }
+
+    @Test
+    fun givenModelIsDownloading_whenAdjustToneIsCalled_thenMissingModelIsReturned() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Downloading(progress = 0.5F))
+            .withInferenceResponse("Hello")
+            .arrange()
+
+        val result = arrangement.agent.adjustTone("Hey", AiMessageToneType.Formal)
+
+        assertEquals(AiMessageComposerResult.MissingModel, result)
+        assertEquals(0, arrangement.inferenceFactory.createCount)
+    }
+
+    @Test
+    fun givenReadyModelIsNotLiteRtLm_whenAdjustToneIsCalled_thenUnsupportedModelIsReturned() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready("/tmp/model.task"))
+            .withInferenceResponse("Hello")
+            .arrange()
+
+        val result = arrangement.agent.adjustTone("Hey", AiMessageToneType.Informal)
+
+        assertEquals(AiMessageComposerResult.UnsupportedModel, result)
+        assertEquals(0, arrangement.inferenceFactory.createCount)
+    }
+
+    @Test
+    fun givenReadyModel_whenAdjustToneFormalIsCalled_thenPromptIsSentAndUpdatedTextIsReturned() = runTest {
+        val inputText = "Can you send it today?"
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceResponse("Could you please send it today?")
+            .arrange()
+
+        val result = arrangement.agent.adjustTone(inputText, AiMessageToneType.Formal)
+
+        assertEquals(AiMessageComposerResult.Success("Could you please send it today?"), result)
+        assertTrue(arrangement.inferenceFactory.inference.prompt.contains(inputText))
+        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("more formal"))
+        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("Return only the rewritten message text."))
+        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("Preserve the original meaning and language."))
+        assertEquals(MODEL_PATH, arrangement.inferenceFactory.modelPath)
+        assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
+    @Test
+    fun givenReadyModel_whenAdjustToneInformalIsCalled_thenPromptIsSentAndUpdatedTextIsReturned() = runTest {
+        val inputText = "Could you please send it today?"
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceResponse("Can you send it today?")
+            .arrange()
+
+        val result = arrangement.agent.adjustTone(inputText, AiMessageToneType.Informal)
+
+        assertEquals(AiMessageComposerResult.Success("Can you send it today?"), result)
+        assertTrue(arrangement.inferenceFactory.inference.prompt.contains(inputText))
+        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("more informal"))
+        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("Return only the rewritten message text."))
+        assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
+    @Test
+    fun givenInferenceReturnsBlankText_whenAdjustToneIsCalled_thenEmptyResponseIsReturned() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceResponse(" ")
+            .arrange()
+
+        val result = arrangement.agent.adjustTone("Hey", AiMessageToneType.Formal)
+
+        assertEquals(AiMessageComposerResult.EmptyResponse, result)
+        assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
+    @Test
+    fun givenInferenceFactoryThrows_whenAdjustToneIsCalled_thenInferenceFailedIsReturned() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withFactoryThrowable(IllegalStateException("Engine init failed"))
+            .arrange()
+
+        val result = arrangement.agent.adjustTone("Hey", AiMessageToneType.Informal)
+
+        assertEquals(AiMessageComposerResult.InferenceFailed("Engine init failed"), result)
+    }
+
+    @Test
+    fun givenInferenceThrows_whenAdjustToneIsCalled_thenInferenceFailedIsReturnedAndInferenceIsClosed() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceThrowable(IllegalStateException("Cannot run model"))
+            .arrange()
+
+        val result = arrangement.agent.adjustTone("Hey", AiMessageToneType.Formal)
+
+        assertEquals(AiMessageComposerResult.InferenceFailed("Cannot run model"), result)
+        assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
+    @Test
+    fun givenInferenceIsCancelled_whenAdjustToneIsCalled_thenCancellationIsRethrownAndInferenceIsClosed() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceThrowable(CancellationException("Cancelled"))
+            .arrange()
+
+        try {
+            arrangement.agent.adjustTone("Hey", AiMessageToneType.Informal)
+            fail("Expected adjustTone to rethrow cancellation")
+        } catch (exception: CancellationException) {
+            assertEquals("Cancelled", exception.message)
+        }
+        assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
     private class Arrangement {
         private var modelStatus: AiModelStatus = AiModelStatus.NotDownloaded
         private var response: String = ""

@@ -51,6 +51,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationCryptoStatsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.AiAssistantDebugScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.DebugFeatureFlagsScreenDestination
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
@@ -85,6 +86,9 @@ fun DebugScreen(
         },
         onShowCryptoStats = {
             navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
+        },
+        onShowAiAssistantDebugOptions = {
+            navigator.navigate(NavigationCommand(AiAssistantDebugScreenDestination))
         }
     )
 }
@@ -101,6 +105,7 @@ internal fun UserDebugContent(
     onShowCryptoStats: () -> Unit,
     debugDataOptionsViewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel(),
     exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel(),
+    onShowAiAssistantDebugOptions: () -> Unit,
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
 
@@ -136,6 +141,7 @@ internal fun UserDebugContent(
                     onCopyText = debugContentState::copyToClipboard,
                     onShowFeatureFlags = onShowFeatureFlags,
                     onShowCryptoStats = onShowCryptoStats,
+                    onShowAiAssistantDebugOptions = onShowAiAssistantDebugOptions,
                     viewModel = debugDataOptionsViewModel,
                 )
                 if (BuildConfig.PRIVATE_BUILD) {
@@ -255,5 +261,6 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onDatabaseLoggerEnabledChanged = {},
         onShowFeatureFlags = {},
         onShowCryptoStats = {},
+        onShowAiAssistantDebugOptions = {},
     )
 }

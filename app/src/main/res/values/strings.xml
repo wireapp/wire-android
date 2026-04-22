@@ -1868,6 +1868,15 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_repair_faulty_keys" translatable="false">Reset</string>
     <string name="debug_settings_feature_flags" translatable="false">Feature Flags</string>
     <string name="debug_settings_conversation_crypto_stats" translatable="false">Conversation Crypto Stats</string>
+    <string name="debug_settings_ai_assistant" translatable="false">AI assistant</string>
+    <string name="debug_settings_ai_assistant_model" translatable="false">AI assistant model</string>
+    <string name="debug_settings_ai_model_not_downloaded" translatable="false">Not downloaded</string>
+    <string name="debug_settings_ai_model_downloading" translatable="false">Downloading</string>
+    <string name="debug_settings_ai_model_downloading_with_progress" translatable="false">Downloading %1$d%%</string>
+    <string name="debug_settings_ai_model_downloaded" translatable="false">Downloaded</string>
+    <string name="debug_settings_ai_model_download" translatable="false">Download</string>
+    <string name="debug_settings_ai_model_auth_required" translatable="false">AI model download requires Hugging Face authorization</string>
+    <string name="debug_settings_ai_model_download_failed" translatable="false">AI model download failed: %1$s</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

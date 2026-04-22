@@ -32,7 +32,6 @@ data class DebugDataOptionsState(
     val currentApiVersion: String = "null",
     val defaultProtocol: String = "null",
     val mlsInfoState: MLSInfoState = MLSInfoState(),
-    val aiModelOptionState: AiModelOptionState = AiModelOptionState()
 )
 
 data class MLSInfoState(
@@ -40,10 +39,4 @@ data class MLSInfoState(
     val mlsErrorMessage: String = "-",
     val keyPackagesCount: Int = 0,
     val isLoadingRepair: Boolean = false,
-)
-
-data class AiModelOptionState(
-    val statusText: String = "Not downloaded",
-    val showDownloadButton: Boolean = true,
-    val isDownloading: Boolean = false,
 )

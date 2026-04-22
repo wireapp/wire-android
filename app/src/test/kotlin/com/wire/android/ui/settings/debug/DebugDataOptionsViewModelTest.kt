@@ -24,10 +24,6 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.ScopedArgsTestExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.feature.aiassistant.AiModelManager
-import com.wire.android.feature.aiassistant.model.AiModelDownloadState
-import com.wire.android.feature.aiassistant.model.AiModelStatus
-import com.wire.android.feature.aiassistant.model.FailureReason
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.debug.DebugDataOptionsViewModelImpl
 import com.wire.android.util.getDeviceIdString
@@ -63,13 +59,11 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.verify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -664,18 +658,6 @@ internal class DebugDataOptionsArrangement {
         } returns SelfServerConfigUseCase.Result.Failure(
             CoreFailure.Unknown(IllegalStateException())
         )
-    }
-
-    fun withAiModelStatus(status: AiModelStatus) = apply {
-        every {
-            aiModelManager.observeModelStatus()
-        } returns flowOf(status)
-    }
-
-    fun withAiModelDownloadState(state: AiModelDownloadState? = null) = apply {
-        every {
-            aiModelManager.downloadModel()
-        } returns if (state == null) emptyFlow() else flowOf(state)
     }
 
     fun arrange() = this to viewModel

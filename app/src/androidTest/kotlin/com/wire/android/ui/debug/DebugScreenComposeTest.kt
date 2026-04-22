@@ -17,7 +17,10 @@
  */
 package com.wire.android.ui.debug
 
+import androidx.compose.ui.test.assertDoesNotExist
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import com.wire.android.extensions.waitUntilExists
 import com.wire.android.ui.WireTestTheme
 import kotlinx.coroutines.CompletableDeferred
@@ -42,6 +45,7 @@ class DebugScreenComposeTest {
                         onDatabaseLoggerEnabledChanged = {},
                         onShowFeatureFlags = {},
                         onShowCryptoStats = {},
+                        onShowAiAssistantDebugOptions = {},
                         onFlushLogs = { CompletableDeferred(Unit) },
                         debugDataOptionsViewModel = object : DebugDataOptionsViewModel {},
                         exportObfuscatedCopyViewModel = object : ExportObfuscatedCopyViewModel {},
@@ -53,17 +57,11 @@ class DebugScreenComposeTest {
     }
 
     @Test
-    fun givenAiModelIsNotDownloaded_DebugDataOptionsShouldShowDownloadButton() = runTest {
+    fun givenPrivateBuild_DebugDataOptionsShouldShowAiAssistantDebugNavigation() = runTest {
         composeTestRule.setContent {
             WireTestTheme {
                 DebugDataOptionsContent(
-                    state = DebugDataOptionsState(
-                        aiModelOptionState = AiModelOptionState(
-                            statusText = "Not downloaded",
-                            showDownloadButton = true,
-                            isDownloading = false
-                        )
-                    ),
+                    state = DebugDataOptionsState(),
                     appVersion = "1.0.0",
                     buildVariant = "devDebug",
                     onCopyText = {},
@@ -78,6 +76,28 @@ class DebugScreenComposeTest {
                     onResendFCMToken = {},
                     onShowFeatureFlags = {},
                     onRepairFaultyRemovalKeys = {},
+                    onShowAiAssistantDebugOptions = {}
+                )
+            }
+        }
+
+        composeTestRule.waitUntilExists("AI assistant model")
+        composeTestRule.onNodeWithText("Download").assertDoesNotExist()
+    }
+
+    @Test
+    fun givenAiModelIsNotDownloaded_AiAssistantDebugScreenShouldShowDownloadButton() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                AiAssistantDebugScreenContent(
+                    state = AiAssistantDebugState(
+                        aiModelOptionState = AiModelOptionState(
+                            status = AiModelUiStatus.NotDownloaded,
+                            showDownloadButton = true,
+                            isDownloading = false
+                        )
+                    ),
+                    onNavigationPressed = {},
                     onDownloadAiModel = {}
                 )
             }
@@ -86,5 +106,49 @@ class DebugScreenComposeTest {
         composeTestRule.waitUntilExists("AI assistant model")
         composeTestRule.waitUntilExists("Not downloaded")
         composeTestRule.waitUntilExists("Download")
+    }
+
+    @Test
+    fun givenAiModelIsDownloading_AiAssistantDebugScreenShouldShowProgressAndDisabledButton() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                AiAssistantDebugScreenContent(
+                    state = AiAssistantDebugState(
+                        aiModelOptionState = AiModelOptionState(
+                            status = AiModelUiStatus.Downloading(0.5F),
+                            showDownloadButton = true,
+                            isDownloading = true
+                        )
+                    ),
+                    onNavigationPressed = {},
+                    onDownloadAiModel = {}
+                )
+            }
+        }
+
+        composeTestRule.waitUntilExists("Downloading 50%")
+        composeTestRule.onNodeWithText("Download").assertIsNotEnabled()
+    }
+
+    @Test
+    fun givenAiModelIsDownloaded_AiAssistantDebugScreenShouldHideDownloadButton() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                AiAssistantDebugScreenContent(
+                    state = AiAssistantDebugState(
+                        aiModelOptionState = AiModelOptionState(
+                            status = AiModelUiStatus.Downloaded,
+                            showDownloadButton = false,
+                            isDownloading = false
+                        )
+                    ),
+                    onNavigationPressed = {},
+                    onDownloadAiModel = {}
+                )
+            }
+        }
+
+        composeTestRule.waitUntilExists("Downloaded")
+        composeTestRule.onNodeWithText("Download").assertDoesNotExist()
     }
 }

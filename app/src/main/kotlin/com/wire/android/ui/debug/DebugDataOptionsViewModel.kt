@@ -28,9 +28,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR
 import com.wire.android.appLogger
 import com.wire.android.di.ViewModelScopedPreview
-import com.wire.android.feature.aiassistant.AiModelManager
-import com.wire.android.feature.aiassistant.model.AiModelDownloadState
-import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
@@ -91,7 +88,6 @@ interface DebugDataOptionsViewModel {
     fun disableEventProcessing(disabled: Boolean) {}
     fun forceSendFCMToken() {}
     fun enableAsyncNotifications(enabled: Boolean) {}
-    fun downloadAiModel() {}
 
     fun repairFaultRemovalKeys() {}
 }
@@ -296,28 +292,6 @@ class DebugDataOptionsViewModelImpl(
                         _infoMessage.emit(UIText.DynamicString("Can't enable async notifications, error: ${result.coreFailure.uiText()}"))
 
                     is StartUsingAsyncNotificationsResult.Success -> state = state.copy(isAsyncNotificationsEnabled = enabled)
-                }
-            }
-        }
-    }
-
-    override fun downloadAiModel() {
-        if (state.aiModelOptionState.isDownloading) return
-
-        viewModelScope.launch {
-            aiModelManager.downloadModel().collect { downloadState ->
-                when (downloadState) {
-                    AiModelDownloadState.AuthRequired ->
-                        _infoMessage.emit(UIText.DynamicString("AI model download requires Hugging Face authorization"))
-
-                    is AiModelDownloadState.Failed ->
-                        _infoMessage.emit(UIText.DynamicString("AI model download failed: ${downloadState.reason}"))
-
-                    is AiModelDownloadState.Downloading,
-                    is AiModelDownloadState.Ready,
-                    AiModelDownloadState.Starting -> {
-                        // Status is exposed through observeModelStatus.
-                    }
                 }
             }
         }

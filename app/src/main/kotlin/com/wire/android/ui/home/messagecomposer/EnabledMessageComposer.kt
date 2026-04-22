@@ -274,6 +274,7 @@ fun EnabledMessageComposer(
                             onCancelEdit = ::cancelEdit,
                             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                             onSendButtonClicked = onSendButtonClicked,
+                            onProofreadButtonClicked = {},
                             onEditButtonClicked = {
                                 onSendButtonClicked()
                                 messageCompositionInputStateHolder.toComposing()

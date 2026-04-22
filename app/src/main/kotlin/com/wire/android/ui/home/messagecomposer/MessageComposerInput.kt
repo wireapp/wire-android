@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -55,6 +56,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.atMost
 import com.wire.android.R
+import com.wire.android.di.wireViewModelScoped
+import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -72,6 +75,7 @@ import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
@@ -89,6 +93,7 @@ fun ActiveMessageComposerInput(
     onKeyboardAction: KeyboardActionHandler?,
     canSendMessage: Boolean,
     onSendButtonClicked: () -> Unit,
+    onProofreadButtonClicked: () -> Unit = {},
     onEditButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onToggleInputSize: () -> Unit,
@@ -132,6 +137,7 @@ fun ActiveMessageComposerInput(
             inputType = inputType,
             focusRequester = focusRequester,
             onSendButtonClicked = onSendButtonClicked,
+            onProofreadButtonClicked = onProofreadButtonClicked,
             keyboardOptions = keyboardOptions,
             onKeyboardAction = onKeyboardAction,
             canSendMessage = canSendMessage,
@@ -174,6 +180,7 @@ private fun InputContent(
     onKeyboardAction: KeyboardActionHandler?,
     canSendMessage: Boolean,
     onSendButtonClicked: () -> Unit,
+    onProofreadButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onFocused: () -> Unit,
     onSelectedLineIndexChanged: (Int) -> Unit,
@@ -187,7 +194,8 @@ private fun InputContent(
 ) {
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()
-        val buttonsTopBarrier = createTopBarrier(additionalOptionButton, actions)
+        val proofreadAction = createRef()
+        val buttonsTopBarrier = createTopBarrier(additionalOptionButton, proofreadAction, actions)
         Box(
             contentAlignment = Alignment.BottomStart,
             modifier = Modifier.constrainAs(additionalOptionButton) {
@@ -199,6 +207,20 @@ private fun InputContent(
                 AdditionalOptionButton(
                     isSelected = optionsSelected,
                     onClick = onPlusClick,
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            }
+        }
+        Box(
+            contentAlignment = Alignment.BottomStart,
+            modifier = Modifier.constrainAs(proofreadAction) {
+                start.linkTo(parent.start)
+                bottom.linkTo(parent.bottom)
+            }
+        ) {
+            if (isTextExpanded) {
+                ProofreadMessageAction(
+                    onProofreadButtonClicked = onProofreadButtonClicked,
                     modifier = Modifier.padding(start = dimensions().spacing8x)
                 )
             }
@@ -260,6 +282,22 @@ private fun InputContent(
             }
         }
     }
+}
+
+@Composable
+private fun ProofreadMessageAction(
+    onProofreadButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    WireSecondaryIconButton(
+        onButtonClicked = onProofreadButtonClicked,
+        iconResource = R.drawable.ic_proofread,
+        contentDescription = R.string.content_description_proofread_message,
+        shape = CircleShape,
+        minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+        modifier = modifier
+    )
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

@@ -28,6 +28,10 @@ import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.DefaultAiModelDescriptor
 import com.wire.android.feature.aiassistant.storage.AiModelStorage
 import com.wire.android.feature.aiassistant.storage.PrivateFileAiModelStorage
+import com.wire.android.feature.aiassistant.test.AiModelTestEngine
+import com.wire.android.feature.aiassistant.test.DefaultMediaPipeLlmInferenceFactory
+import com.wire.android.feature.aiassistant.test.MediaPipeLlmInferenceFactory
+import com.wire.android.feature.aiassistant.test.MediaPipeTestEngine
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -58,6 +62,14 @@ abstract class AiAssistantModule {
     @Binds
     @Singleton
     abstract fun bindHuggingFaceTokenProvider(implementation: BuildConfigHuggingFaceTokenProvider): HuggingFaceTokenProvider
+
+    @Binds
+    @Singleton
+    abstract fun bindAiModelTestEngine(implementation: MediaPipeTestEngine): AiModelTestEngine
+
+    @Binds
+    @Singleton
+    abstract fun bindMediaPipeLlmInferenceFactory(implementation: DefaultMediaPipeLlmInferenceFactory): MediaPipeLlmInferenceFactory
 
     companion object {
         @Provides

@@ -27,6 +27,7 @@ android {
 dependencies {
     implementation(projects.core.uiCommon)
     implementation(libs.androidx.core)
+    implementation(libs.mediapipe.tasksGenai)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

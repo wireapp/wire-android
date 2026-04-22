@@ -28,7 +28,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
 
       - uses: WarpBuilds/cache@v1
         with:

@@ -12,7 +12,7 @@ env:
 
 jobs:
   generate-screenshots:
-    runs-on: ubuntu-24.04
+    runs-on: warp-ubuntu-2404-x64-8x
 
     if: github.ref == 'refs/heads/develop'
 
@@ -28,7 +28,15 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
+
+      - uses: WarpBuilds/cache@v1
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-     
 
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6

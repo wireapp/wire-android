@@ -39,9 +39,7 @@
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": true,
-            "nomad_profiles_enabled": true,
-            "enforce_configuration_signature": false,
-            "call_quality_menu_enabled": true
+            "enforce_configuration_signature": false
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -64,8 +62,7 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "enforce_configuration_signature": true,
-            "call_quality_menu_enabled": true
+            "enforce_configuration_signature": true
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -78,8 +75,7 @@
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
             "enforce_configuration_signature": true,
-            "use_async_flush_logging": true,
-            "call_quality_menu_enabled": true
+            "use_async_flush_logging": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -95,8 +91,7 @@
             "use_strict_mls_filter": false,
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
-            "db_invalidation_control_enabled": false,
-            "call_quality_menu_enabled": true
+            "db_invalidation_control_enabled": false
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -180,7 +175,7 @@
         "1": "MCowBQYDK2VwAyEAA3lA6/1j+VJNKUsbHdlmTcjIOtjdnxzG4TkYr4nEFJw="
     },
     "enforce_configuration_signature": true,
-    "nomad_profiles_enabled": false,
-    "call_quality_menu_enabled": false,
-    "call_reactions_enabled": true
+    "call_quality_menu_enabled": true,
+    "call_reactions_enabled": true,
+    "nomad_profiles_enabled": true
 }

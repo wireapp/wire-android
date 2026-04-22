@@ -44,7 +44,15 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
+
+      - uses: WarpBuilds/cache@v1
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-    
 
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6
@@ -56,13 +64,15 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: AVD cache
-        uses: actions/cache@v5
+        uses: WarpBuilds/cache@v1
         id: avd-cache
         with:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ matrix.api-level }}
+          key: ${{ runner.os }}-avd-${{ matrix.api-level }}
+          restore-keys: |
+            ${{ runner.os }}-avd-
 
       - name: create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
@@ -100,7 +110,7 @@ jobs:
           zip -r integration-tests-android_${{ env.COMMIT_HASH }}.zip acceptanceTests/flavors/
 
       - name: Upload zipped test results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: integration-tests-android_${{ env.COMMIT_HASH }}-${{ inputs.artifact-suffix }}
           path: integration-tests-android_${{ env.COMMIT_HASH }}.zip

@@ -95,7 +95,8 @@ class DebugScreenComposeTest {
                             status = AiModelUiStatus.NotDownloaded,
                             showDownloadButton = true,
                             isDownloading = false
-                        )
+                        ),
+                        healthCheckState = AiModelHealthCheckState.Unavailable
                     ),
                     onNavigationPressed = {},
                     onDownloadAiModel = {}
@@ -106,6 +107,8 @@ class DebugScreenComposeTest {
         composeTestRule.waitUntilExists("AI assistant model")
         composeTestRule.waitUntilExists("Not downloaded")
         composeTestRule.waitUntilExists("Download")
+        composeTestRule.waitUntilExists("Model health check")
+        composeTestRule.waitUntilExists("Waiting for downloaded model")
     }
 
     @Test
@@ -118,7 +121,8 @@ class DebugScreenComposeTest {
                             status = AiModelUiStatus.Downloading(0.5F),
                             showDownloadButton = true,
                             isDownloading = true
-                        )
+                        ),
+                        healthCheckState = AiModelHealthCheckState.Running
                     ),
                     onNavigationPressed = {},
                     onDownloadAiModel = {}
@@ -127,6 +131,7 @@ class DebugScreenComposeTest {
         }
 
         composeTestRule.waitUntilExists("Downloading 50%")
+        composeTestRule.waitUntilExists("Checking")
         composeTestRule.onNodeWithText("Download").assertIsNotEnabled()
     }
 
@@ -140,7 +145,8 @@ class DebugScreenComposeTest {
                             status = AiModelUiStatus.Downloaded,
                             showDownloadButton = false,
                             isDownloading = false
-                        )
+                        ),
+                        healthCheckState = AiModelHealthCheckState.Healthy
                     ),
                     onNavigationPressed = {},
                     onDownloadAiModel = {}
@@ -149,6 +155,30 @@ class DebugScreenComposeTest {
         }
 
         composeTestRule.waitUntilExists("Downloaded")
+        composeTestRule.waitUntilExists("Healthy")
         composeTestRule.onNodeWithText("Download").assertDoesNotExist()
+    }
+
+    @Test
+    fun givenAiModelHealthCheckFails_AiAssistantDebugScreenShouldShowFailure() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                AiAssistantDebugScreenContent(
+                    state = AiAssistantDebugState(
+                        aiModelOptionState = AiModelOptionState(
+                            status = AiModelUiStatus.Downloaded,
+                            showDownloadButton = false,
+                            isDownloading = false
+                        ),
+                        healthCheckState = AiModelHealthCheckState.Failed("Model returned an empty response")
+                    ),
+                    onNavigationPressed = {},
+                    onDownloadAiModel = {}
+                )
+            }
+        }
+
+        composeTestRule.waitUntilExists("Model health check")
+        composeTestRule.waitUntilExists("Failed: Model returned an empty response")
     }
 }

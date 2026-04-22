@@ -39,6 +39,8 @@ import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.feature.aiassistant.AiModelManager
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
 import com.wire.android.feature.aiassistant.model.AiModelStatus
+import com.wire.android.feature.aiassistant.test.AiModelHealthCheckResult
+import com.wire.android.feature.aiassistant.test.AiModelTestEngine
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.common.button.WireButtonState
@@ -60,6 +62,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -120,6 +123,7 @@ fun AiAssistantDebugScreenContent(
                     state = state.aiModelOptionState,
                     onDownloadAiModel = onDownloadAiModel
                 )
+                AiModelHealthCheckOption(state = state.healthCheckState)
             }
         }
     )
@@ -172,6 +176,36 @@ private fun AiModelOptionState.statusText(): String =
         AiModelUiStatus.Downloaded -> stringResource(R.string.debug_settings_ai_model_downloaded)
     }
 
+@Composable
+private fun AiModelHealthCheckOption(state: AiModelHealthCheckState) {
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Column(modifier = Modifier.padding(start = dimensions().spacing8x)) {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = stringResource(R.string.debug_settings_ai_model_health_check)
+                )
+                Text(
+                    style = MaterialTheme.wireTypography.body02,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
+                    text = state.statusText()
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun AiModelHealthCheckState.statusText(): String =
+    when (this) {
+        AiModelHealthCheckState.Unavailable -> stringResource(R.string.debug_settings_ai_model_health_check_unavailable)
+        AiModelHealthCheckState.Running -> stringResource(R.string.debug_settings_ai_model_health_check_running)
+        AiModelHealthCheckState.Healthy -> stringResource(R.string.debug_settings_ai_model_health_check_healthy)
+        is AiModelHealthCheckState.Failed -> stringResource(R.string.debug_settings_ai_model_health_check_failed, reason)
+    }
+
 @ViewModelScopedPreview
 interface AiAssistantDebugViewModel {
     val infoMessage: SharedFlow<UIText> get() = MutableSharedFlow()
@@ -182,12 +216,15 @@ interface AiAssistantDebugViewModel {
 @HiltViewModel
 class AiAssistantDebugViewModelImpl @Inject constructor(
     private val aiModelManager: AiModelManager,
+    private val aiModelTestEngine: AiModelTestEngine,
 ) : ViewModel(), AiAssistantDebugViewModel {
 
     override var state by mutableStateOf(AiAssistantDebugState())
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     override val infoMessage = _infoMessage.asSharedFlow()
+    private var healthCheckJob: Job? = null
+    private var checkedModelPath: String? = null
 
     init {
         observeAiModelStatus()
@@ -224,7 +261,33 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
         viewModelScope.launch {
             aiModelManager.observeModelStatus().collect { modelStatus ->
                 state = state.copy(aiModelOptionState = modelStatus.toUiState())
+                updateHealthCheck(modelStatus)
             }
+        }
+    }
+
+    private fun updateHealthCheck(modelStatus: AiModelStatus) {
+        when (modelStatus) {
+            AiModelStatus.NotDownloaded,
+            is AiModelStatus.Downloading -> {
+                checkedModelPath = null
+                healthCheckJob?.cancel()
+                healthCheckJob = null
+                state = state.copy(healthCheckState = AiModelHealthCheckState.Unavailable)
+            }
+
+            is AiModelStatus.Ready -> runHealthCheckIfNeeded(modelStatus.localPath)
+        }
+    }
+
+    private fun runHealthCheckIfNeeded(modelPath: String) {
+        if (checkedModelPath == modelPath) return
+
+        healthCheckJob?.cancel()
+        checkedModelPath = modelPath
+        state = state.copy(healthCheckState = AiModelHealthCheckState.Running)
+        healthCheckJob = viewModelScope.launch {
+            state = state.copy(healthCheckState = aiModelTestEngine.runHealthCheck(modelPath).toUiState())
         }
     }
 
@@ -248,10 +311,26 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
                 isDownloading = false
             )
         }
+
+    private fun AiModelHealthCheckResult.toUiState(): AiModelHealthCheckState =
+        when (this) {
+            AiModelHealthCheckResult.Healthy -> AiModelHealthCheckState.Healthy
+            AiModelHealthCheckResult.EmptyResponse -> AiModelHealthCheckState.Failed(
+                reason = EMPTY_RESPONSE_FAILURE_REASON
+            )
+            AiModelHealthCheckResult.MissingModel -> AiModelHealthCheckState.Failed(
+                reason = MISSING_MODEL_FAILURE_REASON
+            )
+            AiModelHealthCheckResult.UnsupportedModel -> AiModelHealthCheckState.Failed(
+                reason = UNSUPPORTED_MODEL_FAILURE_REASON
+            )
+            is AiModelHealthCheckResult.InferenceFailed -> AiModelHealthCheckState.Failed(message)
+        }
 }
 
 data class AiAssistantDebugState(
-    val aiModelOptionState: AiModelOptionState = AiModelOptionState()
+    val aiModelOptionState: AiModelOptionState = AiModelOptionState(),
+    val healthCheckState: AiModelHealthCheckState = AiModelHealthCheckState.Unavailable
 )
 
 data class AiModelOptionState(
@@ -266,7 +345,17 @@ sealed interface AiModelUiStatus {
     data object Downloaded : AiModelUiStatus
 }
 
+sealed interface AiModelHealthCheckState {
+    data object Unavailable : AiModelHealthCheckState
+    data object Running : AiModelHealthCheckState
+    data object Healthy : AiModelHealthCheckState
+    data class Failed(val reason: String) : AiModelHealthCheckState
+}
+
 private const val PERCENT_MULTIPLIER = 100
+private const val EMPTY_RESPONSE_FAILURE_REASON = "Model returned an empty response"
+private const val MISSING_MODEL_FAILURE_REASON = "Model file is missing"
+private const val UNSUPPORTED_MODEL_FAILURE_REASON = "Model type is not supported by the MediaPipe health check"
 
 @PreviewMultipleThemes
 @Composable

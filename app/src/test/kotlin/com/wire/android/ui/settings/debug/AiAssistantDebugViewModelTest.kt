@@ -26,13 +26,19 @@ import com.wire.android.feature.aiassistant.AiModelManager
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
 import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.feature.aiassistant.model.FailureReason
+import com.wire.android.feature.aiassistant.test.AiModelHealthCheckResult
+import com.wire.android.feature.aiassistant.test.AiModelTestEngine
 import com.wire.android.ui.debug.AiAssistantDebugViewModelImpl
+import com.wire.android.ui.debug.AiModelHealthCheckState
 import com.wire.android.ui.debug.AiModelUiStatus
 import com.wire.android.util.ui.UIText
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
@@ -81,6 +87,104 @@ class AiAssistantDebugViewModelTest {
         assertEquals(AiModelUiStatus.Downloaded, viewModel.state.aiModelOptionState.status)
         assertEquals(false, viewModel.state.aiModelOptionState.showDownloadButton)
         assertEquals(false, viewModel.state.aiModelOptionState.isDownloading)
+    }
+
+    @Test
+    fun `given ai model is ready, then health check is started automatically`() = runTest {
+        // given
+        val (arrangement, _) = AiAssistantDebugArrangement()
+            .withAiModelStatus(AiModelStatus.Ready("localPath"))
+            .arrange()
+
+        // then
+        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath") }
+    }
+
+    @Test
+    fun `given ai model is not downloaded, then health check is not started`() = runTest {
+        // given
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withAiModelStatus(AiModelStatus.NotDownloaded)
+            .arrange()
+
+        // then
+        assertEquals(AiModelHealthCheckState.Unavailable, viewModel.state.healthCheckState)
+        coVerify(exactly = 0) { arrangement.aiModelTestEngine.runHealthCheck(any()) }
+    }
+
+    @Test
+    fun `given ai model is downloading, then health check is not started`() = runTest {
+        // given
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withAiModelStatus(AiModelStatus.Downloading(0.5F))
+            .arrange()
+
+        // then
+        assertEquals(AiModelHealthCheckState.Unavailable, viewModel.state.healthCheckState)
+        coVerify(exactly = 0) { arrangement.aiModelTestEngine.runHealthCheck(any()) }
+    }
+
+    @Test
+    fun `given ai model is ready, when health check is suspended, then running state is shown`() = runTest {
+        // given
+        val healthCheckResult = CompletableDeferred<AiModelHealthCheckResult>()
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withAiModelStatus(AiModelStatus.Ready("localPath"))
+            .withAiModelHealthCheckResult { healthCheckResult.await() }
+            .arrange()
+
+        // then
+        assertEquals(AiModelHealthCheckState.Running, viewModel.state.healthCheckState)
+    }
+
+    @Test
+    fun `given ai model is ready, when health check succeeds, then healthy state is shown`() = runTest {
+        // given
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withAiModelStatus(AiModelStatus.Ready("localPath"))
+            .withAiModelHealthCheckResult(AiModelHealthCheckResult.Healthy)
+            .arrange()
+
+        // then
+        assertEquals(AiModelHealthCheckState.Healthy, viewModel.state.healthCheckState)
+    }
+
+    @Test
+    fun `given ai model is ready, when health check returns empty response, then failed state is shown`() = runTest {
+        // given
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withAiModelStatus(AiModelStatus.Ready("localPath"))
+            .withAiModelHealthCheckResult(AiModelHealthCheckResult.EmptyResponse)
+            .arrange()
+
+        // then
+        assertEquals(
+            AiModelHealthCheckState.Failed("Model returned an empty response"),
+            viewModel.state.healthCheckState
+        )
+    }
+
+    @Test
+    fun `given ai model is ready, when health check fails, then failed state is shown`() = runTest {
+        // given
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withAiModelStatus(AiModelStatus.Ready("localPath"))
+            .withAiModelHealthCheckResult(AiModelHealthCheckResult.InferenceFailed("Inference failed"))
+            .arrange()
+
+        // then
+        assertEquals(AiModelHealthCheckState.Failed("Inference failed"), viewModel.state.healthCheckState)
+    }
+
+    @Test
+    fun `given same ready model path is emitted twice, then health check is started once`() = runTest {
+        // given
+        val (arrangement, _) = AiAssistantDebugArrangement()
+            .withAiModelStatuses(AiModelStatus.Ready("localPath"), AiModelStatus.Ready("localPath"))
+            .arrange()
+
+        // then
+        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath") }
     }
 
     @Test
@@ -152,9 +256,13 @@ private class AiAssistantDebugArrangement {
     @MockK
     lateinit var aiModelManager: AiModelManager
 
+    @MockK
+    lateinit var aiModelTestEngine: AiModelTestEngine
+
     private val viewModel by lazy {
         AiAssistantDebugViewModelImpl(
-            aiModelManager = aiModelManager
+            aiModelManager = aiModelManager,
+            aiModelTestEngine = aiModelTestEngine
         )
     }
 
@@ -163,18 +271,35 @@ private class AiAssistantDebugArrangement {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         withAiModelStatus(AiModelStatus.NotDownloaded)
         withAiModelDownloadState()
+        withAiModelHealthCheckResult(AiModelHealthCheckResult.Healthy)
     }
 
     fun withAiModelStatus(status: AiModelStatus) = apply {
+        withAiModelStatuses(status)
+    }
+
+    fun withAiModelStatuses(vararg statuses: AiModelStatus) = apply {
         every {
             aiModelManager.observeModelStatus()
-        } returns flowOf(status)
+        } returns flowOf(*statuses)
     }
 
     fun withAiModelDownloadState(state: AiModelDownloadState? = null) = apply {
         every {
             aiModelManager.downloadModel()
         } returns if (state == null) emptyFlow() else flowOf(state)
+    }
+
+    fun withAiModelHealthCheckResult(result: AiModelHealthCheckResult) = apply {
+        withAiModelHealthCheckResult { result }
+    }
+
+    fun withAiModelHealthCheckResult(result: suspend () -> AiModelHealthCheckResult) = apply {
+        coEvery {
+            aiModelTestEngine.runHealthCheck(any())
+        } coAnswers {
+            result()
+        }
     }
 
     fun arrange() = this to viewModel

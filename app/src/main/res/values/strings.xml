@@ -1877,6 +1877,12 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_ai_model_download" translatable="false">Download</string>
     <string name="debug_settings_ai_model_auth_required" translatable="false">AI model download requires Hugging Face authorization</string>
     <string name="debug_settings_ai_model_download_failed" translatable="false">AI model download failed: %1$s</string>
+    <string name="debug_settings_ai_model_health_check" translatable="false">Model health check</string>
+    <string name="debug_settings_ai_model_health_check_unavailable" translatable="false">Waiting for downloaded model</string>
+    <string name="debug_settings_ai_model_health_check_running" translatable="false">Checking</string>
+    <string name="debug_settings_ai_model_health_check_healthy" translatable="false">Healthy</string>
+    <string name="debug_settings_ai_model_health_check_failed" translatable="false">Failed: %1$s</string>
+    <string name="debug_settings_ai_model_health_check_empty_response" translatable="false">Model returned an empty response</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

@@ -40,8 +40,8 @@ class HuggingFaceAiModelDownloader @Inject constructor(
     override fun download(descriptor: AiModelDescriptor): Flow<AiModelDownloadState> = flow {
         emit(AiModelDownloadState.Starting)
 
-        val token = tokenProvider.getToken()?.takeIf { it.isNotBlank() }
-        if (token == null) {
+        val authorization = tokenProvider.getDownloadAuthorization(descriptor)
+        if (authorization == null) {
             emit(AiModelDownloadState.AuthRequired)
             return@flow
         }
@@ -54,8 +54,8 @@ class HuggingFaceAiModelDownloader @Inject constructor(
             tempFile.deleteIfExists()
 
             httpClient.open(
-                url = descriptor.huggingFaceDownloadUrl(),
-                headers = mapOf(AUTHORIZATION_HEADER to "$BEARER_PREFIX $token")
+                url = authorization.downloadUrl,
+                headers = mapOf(AUTHORIZATION_HEADER to "$BEARER_PREFIX ${authorization.token}")
             ).use { response ->
                 when (response.code) {
                     HTTP_UNAUTHORIZED, HTTP_FORBIDDEN -> {
@@ -148,13 +148,9 @@ class HuggingFaceAiModelDownloader @Inject constructor(
         }
     }
 
-    private fun AiModelDescriptor.huggingFaceDownloadUrl(): String =
-        "$HUGGING_FACE_BASE_URL/$repositoryId/resolve/$revision/$artifactPath"
-
     private companion object {
         const val AUTHORIZATION_HEADER = "Authorization"
         const val BEARER_PREFIX = "Bearer"
-        const val HUGGING_FACE_BASE_URL = "https://huggingface.co"
         const val HTTP_UNAUTHORIZED = 401
         const val HTTP_FORBIDDEN = 403
         const val SHA_256 = "SHA-256"

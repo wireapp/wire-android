@@ -16,10 +16,38 @@
  */
 package com.wire.android.feature.aiassistant.download
 
+import com.wire.android.feature.ai_assistant.BuildConfig
+import com.wire.android.feature.aiassistant.model.AiModelDescriptor
+import javax.inject.Inject
+
+data class HuggingFaceDownloadAuthorization(
+    val token: String,
+    val downloadUrl: String
+)
+
 interface HuggingFaceTokenProvider {
-    suspend fun getToken(): String?
+    suspend fun getDownloadAuthorization(descriptor: AiModelDescriptor): HuggingFaceDownloadAuthorization?
 }
 
-class NoOpHuggingFaceTokenProvider : HuggingFaceTokenProvider {
-    override suspend fun getToken(): String? = null
+class BuildConfigHuggingFaceTokenProvider(
+    private val token: String?,
+    private val baseUrl: String
+) : HuggingFaceTokenProvider {
+
+    @Inject
+    constructor() : this(
+        token = BuildConfig.HUGGING_FACE_TOKEN,
+        baseUrl = BuildConfig.HUGGING_FACE_BASE_URL
+    )
+
+    override suspend fun getDownloadAuthorization(descriptor: AiModelDescriptor): HuggingFaceDownloadAuthorization? {
+        val nonBlankToken = token?.takeIf { it.isNotBlank() } ?: return null
+        return HuggingFaceDownloadAuthorization(
+            token = nonBlankToken,
+            downloadUrl = descriptor.huggingFaceDownloadUrl()
+        )
+    }
+
+    private fun AiModelDescriptor.huggingFaceDownloadUrl(): String =
+        "${baseUrl.trimEnd('/')}/$repositoryId/resolve/$revision/$artifactPath"
 }

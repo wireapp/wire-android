@@ -20,9 +20,9 @@ import com.wire.android.feature.aiassistant.AiModelManager
 import com.wire.android.feature.aiassistant.DefaultAiModelManager
 import com.wire.android.feature.aiassistant.download.AiModelDownloader
 import com.wire.android.feature.aiassistant.download.AiModelHttpClient
+import com.wire.android.feature.aiassistant.download.BuildConfigHuggingFaceTokenProvider
 import com.wire.android.feature.aiassistant.download.HuggingFaceAiModelDownloader
 import com.wire.android.feature.aiassistant.download.HuggingFaceTokenProvider
-import com.wire.android.feature.aiassistant.download.NoOpHuggingFaceTokenProvider
 import com.wire.android.feature.aiassistant.download.UrlConnectionAiModelHttpClient
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.DefaultAiModelDescriptor
@@ -55,13 +55,13 @@ abstract class AiAssistantModule {
     @Singleton
     abstract fun bindAiModelHttpClient(implementation: UrlConnectionAiModelHttpClient): AiModelHttpClient
 
+    @Binds
+    @Singleton
+    abstract fun bindHuggingFaceTokenProvider(implementation: BuildConfigHuggingFaceTokenProvider): HuggingFaceTokenProvider
+
     companion object {
         @Provides
         @Singleton
         fun provideDefaultAiModelDescriptor(): AiModelDescriptor = DefaultAiModelDescriptor.gemma3nE2bIt
-
-        @Provides
-        @Singleton
-        fun provideHuggingFaceTokenProvider(): HuggingFaceTokenProvider = NoOpHuggingFaceTokenProvider()
     }
 }

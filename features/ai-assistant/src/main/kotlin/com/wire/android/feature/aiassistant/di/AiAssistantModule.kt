@@ -29,7 +29,10 @@ import com.wire.android.feature.aiassistant.model.DefaultAiModelDescriptor
 import com.wire.android.feature.aiassistant.storage.AiModelStorage
 import com.wire.android.feature.aiassistant.storage.PrivateFileAiModelStorage
 import com.wire.android.feature.aiassistant.test.AiModelTestEngine
+import com.wire.android.feature.aiassistant.test.DefaultLiteRtLmInferenceFactory
 import com.wire.android.feature.aiassistant.test.DefaultMediaPipeLlmInferenceFactory
+import com.wire.android.feature.aiassistant.test.LiteRtLmInferenceFactory
+import com.wire.android.feature.aiassistant.test.LiteRtLmTestEngine
 import com.wire.android.feature.aiassistant.test.MediaPipeLlmInferenceFactory
 import com.wire.android.feature.aiassistant.test.MediaPipeTestEngine
 import dagger.Binds
@@ -65,7 +68,11 @@ abstract class AiAssistantModule {
 
     @Binds
     @Singleton
-    abstract fun bindAiModelTestEngine(implementation: MediaPipeTestEngine): AiModelTestEngine
+    abstract fun bindAiModelTestEngine(implementation: LiteRtLmTestEngine): AiModelTestEngine
+
+    @Binds
+    @Singleton
+    abstract fun bindLiteRtLmInferenceFactory(implementation: DefaultLiteRtLmInferenceFactory): LiteRtLmInferenceFactory
 
     @Binds
     @Singleton

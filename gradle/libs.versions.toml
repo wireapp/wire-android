@@ -71,6 +71,7 @@ material3 = "1.4.0"
 coil = "3.4.0"
 commonmark = "0.28.0"
 mediapipe = "0.10.27"
+litertlm = "0.10.2"
 
 # Countly
 countly = "26.1.2"
@@ -281,6 +282,7 @@ commonmark-tables = { module = "org.commonmark:commonmark-ext-gfm-tables", versi
 
 # MediaPipe
 mediapipe-tasksGenai = { module = "com.google.mediapipe:tasks-genai", version.ref = "mediapipe" }
+litertlm-android = { module = "com.google.ai.edge.litertlm:litertlm-android", version.ref = "litertlm" }
 
 # Countly
 countly-sdk = { module = "ly.count.android:sdk", version.ref = "countly" }

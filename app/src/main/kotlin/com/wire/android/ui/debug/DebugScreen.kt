@@ -51,6 +51,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationCryptoStatsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.AiAssistantDebugScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.DebugFeatureFlagsScreenDestination
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
@@ -96,6 +97,9 @@ fun DebugScreen(
                 viewModel = debugDataOptionsViewModel,
             )
         },
+        onShowAiAssistantDebugOptions = {
+            navigator.navigate(NavigationCommand(AiAssistantDebugScreenDestination))
+        },
         dangerOptionsContent = {
             DangerOptions(exportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel)
         },
@@ -111,6 +115,7 @@ internal fun UserDebugContent(
     onDeleteLogs: () -> Unit,
     onFlushLogs: () -> Deferred<Unit>,
     debugDataOptionsContent: @Composable (DebugContentState) -> Unit,
+    onShowAiAssistantDebugOptions: () -> Unit,
     dangerOptionsContent: @Composable () -> Unit,
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
@@ -267,6 +272,7 @@ internal fun PreviewUserDebugContent() = WireTheme {
                 viewModel = object : DebugDataOptionsViewModel {},
             )
         },
+        onShowAiAssistantDebugOptions = {},
         dangerOptionsContent = {
             DangerOptions(exportObfuscatedCopyViewModel = object : ExportObfuscatedCopyViewModel {})
         },

@@ -36,7 +36,6 @@ fun LazyListScope.participantsFoldersWithElements(
     state: GroupConversationParticipantsState,
     onRowItemClicked: (UIParticipant) -> Unit,
     participantsExpansionState: ParticipantsExpansionState,
-    shouldUseNewAppsUi: Boolean
 ) {
     sectionWithElements(
         header = context.getString(R.string.conversation_details_conversation_admins, state.data.allAdminsCount),

@@ -125,7 +125,6 @@ private fun GroupConversationAllParticipantsContent(
                     groupParticipantsState,
                     onProfilePressed,
                     participantsExpansionState,
-                    shouldUseNewAppsUi = true
                 )
             }
         }

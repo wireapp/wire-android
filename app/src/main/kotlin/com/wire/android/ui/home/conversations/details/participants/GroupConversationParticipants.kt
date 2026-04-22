@@ -52,7 +52,6 @@ fun GroupConversationParticipants(
     onProfilePressed: (UIParticipant) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     lazyListState: LazyListState,
-    shouldUseNewAppsUi: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -86,7 +85,6 @@ fun GroupConversationParticipants(
                 state = groupParticipantsState,
                 onRowItemClicked = onProfilePressed,
                 participantsExpansionState = participantsExpansionState,
-                shouldUseNewAppsUi = shouldUseNewAppsUi
             )
         }
     }

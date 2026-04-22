@@ -539,7 +539,6 @@ private fun GroupConversationDetailsContent(
                             groupParticipantsState = groupParticipantsState,
                             onProfilePressed = onProfilePressed,
                             lazyListState = lazyListStates[pageIndex],
-                            shouldUseNewAppsUi = groupConversationOptionsState.shouldUseNewAppsUi
                         )
                     }
                 }

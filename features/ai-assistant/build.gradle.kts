@@ -28,6 +28,7 @@ dependencies {
     implementation(projects.core.uiCommon)
     implementation(libs.androidx.core)
     implementation(libs.mediapipe.tasksGenai)
+    implementation(libs.litertlm.android)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

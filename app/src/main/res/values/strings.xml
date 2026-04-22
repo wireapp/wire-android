@@ -1070,6 +1070,10 @@
     <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
     <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
     <string name="error_conversation_generic">Something went wrong. The message could not be sent.</string>
+    <string name="error_proofread_message_empty_input">Enter a message to proofread</string>
+    <string name="error_proofread_message_missing_model">AI proofread is not ready yet</string>
+    <string name="error_proofread_message_unsupported_model">This AI model does not support proofread</string>
+    <string name="error_proofread_message_generic">Message could not be proofread. Please try again.</string>
     <string name="conversation_on_file_downloaded">The file %s was saved successfully to the Downloads folder</string>
     <string name="error_blocking_user">User could not be blocked</string>
     <string name="blocking_user_success">%s blocked</string>

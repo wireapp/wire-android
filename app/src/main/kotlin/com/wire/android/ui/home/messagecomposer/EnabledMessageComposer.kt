@@ -47,6 +47,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -83,6 +84,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.allUploaded
@@ -127,6 +129,7 @@ fun EnabledMessageComposer(
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     modifier: Modifier = Modifier,
+    aiMessageComposerViewModel: AiMessageComposerViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -136,6 +139,20 @@ fun EnabledMessageComposer(
     val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
     val rippleProgress = remember { Animatable(0f) }
     var hideRipple by remember { mutableStateOf(true) }
+
+    LaunchedEffect(aiMessageComposerViewModel) {
+        aiMessageComposerViewModel.effect.collect { effect ->
+            when (effect) {
+                is AiMessageComposerEffect.ReplaceText -> {
+                    messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState
+                        .setTextAndPlaceCursorAtEnd(effect.updatedText)
+                }
+                is AiMessageComposerEffect.ShowError -> {
+                    Toast.makeText(context, effect.messageResId, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
@@ -274,7 +291,10 @@ fun EnabledMessageComposer(
                             onCancelEdit = ::cancelEdit,
                             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                             onSendButtonClicked = onSendButtonClicked,
-                            onProofreadButtonClicked = {},
+                            isProofreading = aiMessageComposerViewModel.isProofreading,
+                            onProofreadButtonClicked = {
+                                aiMessageComposerViewModel.proofread(inputStateHolder.messageTextState.text.toString())
+                            },
                             onEditButtonClicked = {
                                 onSendButtonClicked()
                                 messageCompositionInputStateHolder.toComposing()

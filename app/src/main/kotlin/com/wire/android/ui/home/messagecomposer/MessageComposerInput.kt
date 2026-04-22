@@ -92,6 +92,7 @@ fun ActiveMessageComposerInput(
     keyboardOptions: KeyboardOptions,
     onKeyboardAction: KeyboardActionHandler?,
     canSendMessage: Boolean,
+    isProofreading: Boolean = false,
     onSendButtonClicked: () -> Unit,
     onProofreadButtonClicked: () -> Unit = {},
     onEditButtonClicked: () -> Unit,
@@ -141,6 +142,7 @@ fun ActiveMessageComposerInput(
             keyboardOptions = keyboardOptions,
             onKeyboardAction = onKeyboardAction,
             canSendMessage = canSendMessage,
+            isProofreading = isProofreading,
             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
             onFocused = onFocused,
             onSelectedLineIndexChanged = onSelectedLineIndexChanged,
@@ -179,6 +181,7 @@ private fun InputContent(
     keyboardOptions: KeyboardOptions,
     onKeyboardAction: KeyboardActionHandler?,
     canSendMessage: Boolean,
+    isProofreading: Boolean,
     onSendButtonClicked: () -> Unit,
     onProofreadButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
@@ -221,6 +224,7 @@ private fun InputContent(
             if (isTextExpanded) {
                 ProofreadMessageAction(
                     onProofreadButtonClicked = onProofreadButtonClicked,
+                    isProofreading = isProofreading,
                     modifier = Modifier.padding(start = dimensions().spacing8x)
                 )
             }
@@ -287,12 +291,14 @@ private fun InputContent(
 @Composable
 private fun ProofreadMessageAction(
     onProofreadButtonClicked: () -> Unit,
+    isProofreading: Boolean,
     modifier: Modifier = Modifier,
 ) {
     WireSecondaryIconButton(
         onButtonClicked = onProofreadButtonClicked,
         iconResource = R.drawable.ic_proofread,
         contentDescription = R.string.content_description_proofread_message,
+        loading = isProofreading,
         shape = CircleShape,
         minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
         minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,

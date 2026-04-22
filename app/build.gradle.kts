@@ -210,6 +210,7 @@ dependencies {
     implementationWithCoverage(projects.features.sketch)
     implementationWithCoverage(projects.features.meetings)
     implementationWithCoverage(projects.features.sync)
+    implementationWithCoverage(projects.features.aiAssistant)
 
     // Anonymous Analytics
     val flavors = getFlavorsSettings()

@@ -43,6 +43,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.maxLengthDigits
 import com.wire.android.ui.common.textfield.WireTextField
@@ -90,7 +91,8 @@ fun DebugDataOptions(
         onEnableAsyncNotificationsChange = viewModel::enableAsyncNotifications,
         onShowFeatureFlags = onShowFeatureFlags,
         onShowCryptoStats = onShowCryptoStats,
-        onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys
+        onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys,
+        onDownloadAiModel = viewModel::downloadAiModel
     )
 }
 
@@ -116,6 +118,7 @@ fun DebugDataOptionsContent(
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
     onRepairFaultyRemovalKeys: () -> Unit,
+    onDownloadAiModel: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -192,6 +195,11 @@ fun DebugDataOptionsContent(
                     text = state.currentApiVersion,
                 )
             }
+
+            AiModelOption(
+                state = state.aiModelOptionState,
+                onDownloadAiModel = onDownloadAiModel
+            )
 
             SettingsItem(
                 text = stringResource(R.string.debug_settings_feature_flags),
@@ -328,6 +336,43 @@ private fun E2EICertificateEnrollmentSection(
     }
 }
 
+@Composable
+private fun AiModelOption(
+    state: AiModelOptionState,
+    onDownloadAiModel: () -> Unit,
+) {
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Column(modifier = Modifier.padding(start = dimensions().spacing8x)) {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = "AI assistant model"
+                )
+                Text(
+                    style = MaterialTheme.wireTypography.body02,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
+                    text = state.statusText
+                )
+            }
+        },
+        actions = {
+            if (state.showDownloadButton) {
+                WirePrimaryButton(
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    onClick = onDownloadAiModel,
+                    text = "Download",
+                    fillMaxWidth = false,
+                    loading = state.isDownloading,
+                    state = if (state.isDownloading) WireButtonState.Disabled else WireButtonState.Default
+                )
+            }
+        }
+    )
+}
+
 //region MLS Options
 @Composable
 private fun MLSOptions(
@@ -418,6 +463,7 @@ fun PreviewOtherDebugOptions() = WireTheme {
         onEnableAsyncNotificationsChange = {},
         onShowFeatureFlags = {},
         onShowCryptoStats = {},
-        onRepairFaultyRemovalKeys = {}
+        onRepairFaultyRemovalKeys = {},
+        onDownloadAiModel = {}
     )
 }

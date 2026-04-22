@@ -51,4 +51,40 @@ class DebugScreenComposeTest {
 
         composeTestRule.waitUntilExists("Debug Settings")
     }
+
+    @Test
+    fun givenAiModelIsNotDownloaded_DebugDataOptionsShouldShowDownloadButton() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                DebugDataOptionsContent(
+                    state = DebugDataOptionsState(
+                        aiModelOptionState = AiModelOptionState(
+                            statusText = "Not downloaded",
+                            showDownloadButton = true,
+                            isDownloading = false
+                        )
+                    ),
+                    appVersion = "1.0.0",
+                    buildVariant = "devDebug",
+                    onCopyText = {},
+                    onDisableEventProcessingChange = {},
+                    onEnableAsyncNotificationsChange = {},
+                    onRestartSlowSyncForRecovery = {},
+                    onForceUpdateApiVersions = {},
+                    enrollE2EICertificate = {},
+                    handleE2EIEnrollmentResult = {},
+                    dismissCertificateDialog = {},
+                    checkCrlRevocationList = {},
+                    onResendFCMToken = {},
+                    onShowFeatureFlags = {},
+                    onRepairFaultyRemovalKeys = {},
+                    onDownloadAiModel = {}
+                )
+            }
+        }
+
+        composeTestRule.waitUntilExists("AI assistant model")
+        composeTestRule.waitUntilExists("Not downloaded")
+        composeTestRule.waitUntilExists("Download")
+    }
 }

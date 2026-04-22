@@ -20,7 +20,7 @@ object DefaultAiModelDescriptor {
     val gemma3nE2bIt = AiModelDescriptor(
         displayName = "Gemma 3n E2B IT",
         repositoryId = "google/gemma-3n-E2B-it-litert-lm",
-        artifactPath = "gemma-3n-E2B-it-int4",
+        artifactPath = "gemma-3n-E2B-it-int4.litertlm",
         localDirectoryName = "gemma-3n-e2b-it",
         localFileName = "model.litertlm"
     )

@@ -28,6 +28,9 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR
 import com.wire.android.appLogger
 import com.wire.android.di.ViewModelScopedPreview
+import com.wire.android.feature.aiassistant.AiModelManager
+import com.wire.android.feature.aiassistant.model.AiModelDownloadState
+import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
@@ -88,6 +91,7 @@ interface DebugDataOptionsViewModel {
     fun disableEventProcessing(disabled: Boolean) {}
     fun forceSendFCMToken() {}
     fun enableAsyncNotifications(enabled: Boolean) {}
+    fun downloadAiModel() {}
 
     fun repairFaultRemovalKeys() {}
 }
@@ -112,6 +116,7 @@ class DebugDataOptionsViewModelImpl(
     private val setDebugE2EICertificateExpiration: SetDebugE2EICertificateExpirationUseCase,
     private val observeDebugCRLExpirationAfterOneMinute: ObserveDebugCRLExpirationAfterOneMinuteUseCase,
     private val setDebugCRLExpirationAfterOneMinute: SetDebugCRLExpirationAfterOneMinuteUseCase,
+    private val aiModelManager: AiModelManager,
 ) : ViewModel(), DebugDataOptionsViewModel {
     private companion object {
         val DEFAULT_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS = 90.days.inWholeSeconds
@@ -139,6 +144,7 @@ class DebugDataOptionsViewModelImpl(
         setServerConfigData()
         setDefaultProtocol()
         loadDebugE2EICertificateExpiration()
+        observeAiModelStatus()
     }
 
     private fun observeAsyncNotificationsEnabledData() {
@@ -295,6 +301,28 @@ class DebugDataOptionsViewModelImpl(
         }
     }
 
+    override fun downloadAiModel() {
+        if (state.aiModelOptionState.isDownloading) return
+
+        viewModelScope.launch {
+            aiModelManager.downloadModel().collect { downloadState ->
+                when (downloadState) {
+                    AiModelDownloadState.AuthRequired ->
+                        _infoMessage.emit(UIText.DynamicString("AI model download requires Hugging Face authorization"))
+
+                    is AiModelDownloadState.Failed ->
+                        _infoMessage.emit(UIText.DynamicString("AI model download failed: ${downloadState.reason}"))
+
+                    is AiModelDownloadState.Downloading,
+                    is AiModelDownloadState.Ready,
+                    AiModelDownloadState.Starting -> {
+                        // Status is exposed through observeModelStatus.
+                    }
+                }
+            }
+        }
+    }
+
     override fun repairFaultRemovalKeys() {
         viewModelScope.launch {
             state = state.copy(mlsInfoState = state.mlsInfoState.copy(isLoadingRepair = true))
@@ -435,6 +463,39 @@ class DebugDataOptionsViewModelImpl(
         viewModelScope.launch {
             setDebugE2EICertificateExpiration(expiration)
         }
+    }
+
+    private fun observeAiModelStatus() {
+        viewModelScope.launch {
+            aiModelManager.observeModelStatus().collect { modelStatus ->
+                state = state.copy(aiModelOptionState = modelStatus.toUiState())
+            }
+        }
+    }
+
+    private fun AiModelStatus.toUiState(): AiModelOptionState =
+        when (this) {
+            AiModelStatus.NotDownloaded -> AiModelOptionState(
+                statusText = "Not downloaded",
+                showDownloadButton = true,
+                isDownloading = false
+            )
+
+            is AiModelStatus.Downloading -> AiModelOptionState(
+                statusText = progress?.let { "Downloading ${(it * PERCENT_MULTIPLIER).toInt()}%" } ?: "Downloading",
+                showDownloadButton = true,
+                isDownloading = true
+            )
+
+            is AiModelStatus.Ready -> AiModelOptionState(
+                statusText = "Downloaded",
+                showDownloadButton = false,
+                isDownloading = false
+            )
+        }
+
+    private companion object {
+        const val PERCENT_MULTIPLIER = 100
     }
     //endregion
 }

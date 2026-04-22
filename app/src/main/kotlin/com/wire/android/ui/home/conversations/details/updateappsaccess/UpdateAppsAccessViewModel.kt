@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.util.AppsUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -64,6 +65,7 @@ class UpdateAppsAccessViewModel @Inject constructor(
     private val updateAppsAccessNavArgs: UpdateAppsAccessNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = updateAppsAccessNavArgs.conversationId
     private val currentAccessParams = updateAppsAccessNavArgs.updateAppsAccessParams
+    val shouldUseNewAppsUi: Boolean = currentAccessParams.shouldUseNewAppsUi
 
     var updateAppsAccessState by mutableStateOf(
         UpdateAppsAccessState(
@@ -110,7 +112,7 @@ class UpdateAppsAccessViewModel @Inject constructor(
                 // WPB-21835: Apps availability logic controlled by feature flag
                 val isAppAccessAllowed = computeAppsEnabledStatus(conversationDetails, isAppsAllowedResult)
                 val isUpdatingAppAccessAllowed =
-                    computeAppsAllowedStatus(canSelfPerformAdminActions, isAppsAllowedResult)
+                    computeAppsAllowedStatus(canSelfPerformAdminActions, conversationDetails, isAppsAllowedResult)
 
                 updateAppsAccessState = updateAppsAccessState.copy(
                     isUpdatingAppAccessAllowed = isUpdatingAppAccessAllowed,
@@ -129,7 +131,8 @@ class UpdateAppsAccessViewModel @Inject constructor(
     private fun computeAppsEnabledStatus(
         conversationDetails: ConversationDetails,
         appsAllowedResult: AppsAllowedResult
-    ) = conversationDetails.conversation.isServicesAllowed() && appsAllowedResult is AppsAllowedResult.Enabled
+    ) = conversationDetails.conversation.isServicesAllowed() &&
+        isServicesSupportedForConversation(conversationDetails.conversation.protocol, appsAllowedResult)
 
     /**
      * Determine apps visibility based on feature flag and team settings
@@ -137,8 +140,20 @@ class UpdateAppsAccessViewModel @Inject constructor(
      */
     private fun computeAppsAllowedStatus(
         canSelfPerformAdminActions: Boolean,
+        conversationDetails: ConversationDetails,
         appsAllowedResult: AppsAllowedResult
-    ) = canSelfPerformAdminActions && appsAllowedResult is AppsAllowedResult.Enabled
+    ) = canSelfPerformAdminActions &&
+        isServicesSupportedForConversation(conversationDetails.conversation.protocol, appsAllowedResult)
+
+    private fun isServicesSupportedForConversation(
+        protocolInfo: Conversation.ProtocolInfo,
+        appsAllowedResult: AppsAllowedResult
+    ) = appsAllowedResult is AppsAllowedResult.Enabled &&
+        when (protocolInfo) {
+            is Conversation.ProtocolInfo.MLS -> AppsUtil.isAppsAllowed(appsAllowedResult, protocolInfo)
+            is Conversation.ProtocolInfo.Proteus -> true
+            is Conversation.ProtocolInfo.Mixed -> AppsUtil.isAppsAllowed(appsAllowedResult, protocolInfo)
+        }
 
     private data class CombineFour(
         val appsAllowedResult: AppsAllowedResult,

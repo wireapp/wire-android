@@ -75,15 +75,27 @@ class SearchAppsViewModel @AssistedInject constructor(
             ) { selfUser, isEnabledResult, query ->
                 Triple(selfUser, isEnabledResult, query)
             }.debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE).collectLatest { (selfUser, isEnabledResult, query) ->
-                state = state.copy(isTeamAllowedToUseApps = isEnabledResult, isSelfATeamAdmin = selfUser.userType.isTeamAdmin())
-                if (isEnabledResult is AppsAllowedResult.Enabled) {
-                    search(query, isEnabledResult)
+                val protocolAwareResult = resolveProtocolAwareAppsAllowedResult(isEnabledResult)
+                state = state.copy(isTeamAllowedToUseApps = protocolAwareResult, isSelfATeamAdmin = selfUser.userType.isTeamAdmin())
+                if (protocolAwareResult is AppsAllowedResult.Enabled) {
+                    search(query, protocolAwareResult)
                 } else {
                     state = state.copy(isLoading = false, result = persistentListOf())
                 }
             }
         }
     }
+
+    private fun resolveProtocolAwareAppsAllowedResult(appsAllowedResult: AppsAllowedResult): AppsAllowedResult =
+        if (
+            appsAllowedResult is AppsAllowedResult.Enabled &&
+            protocolInfo is Conversation.ProtocolInfo.MLS &&
+            !AppsUtil.isAppsAllowed(appsAllowedResult, protocolInfo)
+        ) {
+            AppsAllowedResult.Disabled
+        } else {
+            appsAllowedResult
+        }
 
     fun searchQueryChanged(searchQuery: String) {
         viewModelScope.launch {

@@ -224,7 +224,8 @@ fun GroupConversationDetailsScreen(
                         conversationId = viewModel.conversationId,
                         isConversationAppsEnabled = groupOptions.isAppsAllowed,
                         isSelfPartOfATeam = groupOptions.isSelfPartOfATeam,
-                        protocolInfo = groupOptions.protocolInfo
+                        protocolInfo = groupOptions.protocolInfo,
+                        shouldUseNewAppsUi = groupOptions.shouldUseNewAppsUi
                     )
                 )
             )
@@ -251,7 +252,8 @@ fun GroupConversationDetailsScreen(
                         viewModel.conversationId,
                         UpdateAppsAccessParams(
                             isGuestAllowed = groupOptions.isGuestAllowed,
-                            isAppsAllowed = groupOptions.isAppsAllowed
+                            isAppsAllowed = groupOptions.isAppsAllowed,
+                            shouldUseNewAppsUi = groupOptions.shouldUseNewAppsUi
                         )
                     )
                 )
@@ -536,7 +538,8 @@ private fun GroupConversationDetailsContent(
                         GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
                             groupParticipantsState = groupParticipantsState,
                             onProfilePressed = onProfilePressed,
-                            lazyListState = lazyListStates[pageIndex]
+                            lazyListState = lazyListStates[pageIndex],
+                            shouldUseNewAppsUi = groupConversationOptionsState.shouldUseNewAppsUi
                         )
                     }
                 }

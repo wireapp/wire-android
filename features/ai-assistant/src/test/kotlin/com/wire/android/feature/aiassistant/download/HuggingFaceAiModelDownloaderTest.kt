@@ -42,7 +42,7 @@ class HuggingFaceAiModelDownloaderTest {
     @Test
     fun givenTokenExists_whenDownloading_thenBearerTokenIsSent() = runTest {
         val arrangement = Arrangement(tempDir)
-            .withToken("hf_token")
+            .withAuthorization(token = "hf_token")
             .withHttpResponse(FakeAiModelHttpResponse(body = MODEL_BYTES))
             .arrange()
 
@@ -52,9 +52,9 @@ class HuggingFaceAiModelDownloaderTest {
     }
 
     @Test
-    fun givenTokenIsMissing_whenDownloading_thenAuthRequiredIsEmittedAndRequestIsNotSent() = runTest {
+    fun givenAuthorizationIsMissing_whenDownloading_thenAuthRequiredIsEmittedAndRequestIsNotSent() = runTest {
         val arrangement = Arrangement(tempDir)
-            .withToken(null)
+            .withAuthorization(null)
             .arrange()
 
         val states = arrangement.downloader.download(arrangement.descriptor).toList()
@@ -64,9 +64,21 @@ class HuggingFaceAiModelDownloaderTest {
     }
 
     @Test
+    fun givenAuthorizationExists_whenDownloading_thenProviderDownloadUrlIsUsed() = runTest {
+        val arrangement = Arrangement(tempDir)
+            .withAuthorization(downloadUrl = CUSTOM_DOWNLOAD_URL)
+            .withHttpResponse(FakeAiModelHttpResponse(body = MODEL_BYTES))
+            .arrange()
+
+        arrangement.downloader.download(arrangement.descriptor).toList()
+
+        assertEquals(CUSTOM_DOWNLOAD_URL, arrangement.httpClient.lastUrl)
+    }
+
+    @Test
     fun givenUnauthorizedResponse_whenDownloading_thenAuthRequiredIsEmitted() = runTest {
         val arrangement = Arrangement(tempDir)
-            .withToken("hf_token")
+            .withAuthorization(token = "hf_token")
             .withHttpResponse(FakeAiModelHttpResponse(code = 401))
             .arrange()
 
@@ -78,7 +90,7 @@ class HuggingFaceAiModelDownloaderTest {
     @Test
     fun givenForbiddenResponse_whenDownloading_thenAuthRequiredIsEmitted() = runTest {
         val arrangement = Arrangement(tempDir)
-            .withToken("hf_token")
+            .withAuthorization(token = "hf_token")
             .withHttpResponse(FakeAiModelHttpResponse(code = 403))
             .arrange()
 
@@ -90,7 +102,7 @@ class HuggingFaceAiModelDownloaderTest {
     @Test
     fun givenSuccessfulResponse_whenDownloading_thenTempFileIsPromotedToFinalFile() = runTest {
         val arrangement = Arrangement(tempDir)
-            .withToken("hf_token")
+            .withAuthorization(token = "hf_token")
             .withHttpResponse(FakeAiModelHttpResponse(body = MODEL_BYTES))
             .arrange()
 
@@ -105,7 +117,7 @@ class HuggingFaceAiModelDownloaderTest {
     @Test
     fun givenResponseWithContentLength_whenDownloading_thenProgressIsEmitted() = runTest {
         val arrangement = Arrangement(tempDir)
-            .withToken("hf_token")
+            .withAuthorization(token = "hf_token")
             .withHttpResponse(FakeAiModelHttpResponse(body = MODEL_BYTES, contentLength = MODEL_BYTES.size.toLong()))
             .arrange()
 
@@ -117,7 +129,7 @@ class HuggingFaceAiModelDownloaderTest {
     @Test
     fun givenHttpClientFails_whenDownloading_thenTempFileIsRemoved() = runTest {
         val arrangement = Arrangement(tempDir)
-            .withToken("hf_token")
+            .withAuthorization(token = "hf_token")
             .withFailingHttpClient()
             .arrange()
         arrangement.storage.ensureModelDirectoryExists(arrangement.descriptor)
@@ -132,7 +144,7 @@ class HuggingFaceAiModelDownloaderTest {
     @Test
     fun givenDownloadIsCancelled_whenDownloading_thenTempFileIsRemoved() = runTest {
         val arrangement = Arrangement(tempDir)
-            .withToken("hf_token")
+            .withAuthorization(token = "hf_token")
             .withHttpResponse(FakeAiModelHttpResponse(inputStream = CancellingInputStream()))
             .arrange()
 
@@ -154,10 +166,20 @@ class HuggingFaceAiModelDownloaderTest {
         )
         val storage = FakeAiModelStorage(tempDir, descriptor)
         var httpClient = FakeAiModelHttpClient(FakeAiModelHttpResponse())
-        private var tokenProvider = FakeHuggingFaceTokenProvider("hf_token")
+        private var tokenProvider = FakeHuggingFaceTokenProvider(
+            HuggingFaceDownloadAuthorization(
+                token = "hf_token",
+                downloadUrl = DEFAULT_DOWNLOAD_URL
+            )
+        )
 
-        fun withToken(token: String?) = apply {
-            tokenProvider = FakeHuggingFaceTokenProvider(token)
+        fun withAuthorization(
+            token: String = "hf_token",
+            downloadUrl: String = DEFAULT_DOWNLOAD_URL
+        ) = withAuthorization(HuggingFaceDownloadAuthorization(token, downloadUrl))
+
+        fun withAuthorization(authorization: HuggingFaceDownloadAuthorization?) = apply {
+            tokenProvider = FakeHuggingFaceTokenProvider(authorization)
         }
 
         fun withHttpResponse(response: FakeAiModelHttpResponse) = apply {
@@ -189,13 +211,19 @@ class HuggingFaceAiModelDownloaderTest {
     )
 
     private companion object {
+        const val DEFAULT_DOWNLOAD_URL =
+            "https://huggingface.co/google/test-model/resolve/main/model/test-model.litertlm"
+        const val CUSTOM_DOWNLOAD_URL = "https://example.com/model.litertlm"
         const val MODEL_TEXT = "model"
         val MODEL_BYTES = MODEL_TEXT.toByteArray()
     }
 }
 
-private class FakeHuggingFaceTokenProvider(private val token: String?) : HuggingFaceTokenProvider {
-    override suspend fun getToken(): String? = token
+private class FakeHuggingFaceTokenProvider(
+    private val authorization: HuggingFaceDownloadAuthorization?
+) : HuggingFaceTokenProvider {
+    override suspend fun getDownloadAuthorization(descriptor: AiModelDescriptor): HuggingFaceDownloadAuthorization? =
+        authorization
 }
 
 private class FakeAiModelHttpClient(
@@ -205,9 +233,12 @@ private class FakeAiModelHttpClient(
         private set
     var lastHeaders = emptyMap<String, String>()
         private set
+    var lastUrl: String? = null
+        private set
 
     override suspend fun open(url: String, headers: Map<String, String>): AiModelHttpResponse {
         requestCount++
+        lastUrl = url
         lastHeaders = headers
         return response ?: throw java.io.IOException("Failed request")
     }

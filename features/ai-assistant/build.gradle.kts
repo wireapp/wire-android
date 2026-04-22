@@ -7,6 +7,23 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
+android {
+    buildFeatures {
+        buildConfig = true
+    }
+
+    defaultConfig {
+        val huggingFaceTokenKey = "HUGGING_FACE_TOKEN"
+        val huggingFaceToken: String? = System.getenv(huggingFaceTokenKey) ?: project.getLocalProperty(huggingFaceTokenKey, null)
+        buildConfigField("String", huggingFaceTokenKey, huggingFaceToken?.let { "\"$it\"" } ?: "null")
+
+        val huggingFaceBaseUrlKey = "HUGGING_FACE_BASE_URL"
+        val huggingFaceBaseUrl: String = System.getenv(huggingFaceBaseUrlKey)
+            ?: project.getLocalProperty(huggingFaceBaseUrlKey, "https://huggingface.co")
+        buildConfigField("String", huggingFaceBaseUrlKey, "\"$huggingFaceBaseUrl\"")
+    }
+}
+
 dependencies {
     implementation(projects.core.uiCommon)
     implementation(libs.androidx.core)

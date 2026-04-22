@@ -17,7 +17,9 @@
 package com.wire.android.feature.aiassistant.di
 
 import com.wire.android.feature.aiassistant.AiModelManager
+import com.wire.android.feature.aiassistant.AiMessageComposerAgent
 import com.wire.android.feature.aiassistant.DefaultAiModelManager
+import com.wire.android.feature.aiassistant.DefaultAiMessageComposerAgent
 import com.wire.android.feature.aiassistant.download.AiModelDownloader
 import com.wire.android.feature.aiassistant.download.AiModelHttpClient
 import com.wire.android.feature.aiassistant.download.BuildConfigHuggingFaceTokenProvider
@@ -34,7 +36,6 @@ import com.wire.android.feature.aiassistant.test.DefaultMediaPipeLlmInferenceFac
 import com.wire.android.feature.aiassistant.test.LiteRtLmInferenceFactory
 import com.wire.android.feature.aiassistant.test.LiteRtLmTestEngine
 import com.wire.android.feature.aiassistant.test.MediaPipeLlmInferenceFactory
-import com.wire.android.feature.aiassistant.test.MediaPipeTestEngine
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -49,6 +50,10 @@ abstract class AiAssistantModule {
     @Binds
     @Singleton
     abstract fun bindAiModelManager(implementation: DefaultAiModelManager): AiModelManager
+
+    @Binds
+    @Singleton
+    abstract fun bindAiMessageComposerAgent(implementation: DefaultAiMessageComposerAgent): AiMessageComposerAgent
 
     @Binds
     @Singleton

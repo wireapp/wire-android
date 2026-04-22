@@ -1,0 +1,32 @@
+<!--
+  ~ Wire
+  ~ Copyright (C) 2024 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#000000"
+        android:pathData="M1,3H7.4V4.4H1V3ZM1,6H6.2V7.4H1V6ZM1,9H4.8V10.4H1V9ZM5.4,13.7L3,14.2L3.5,11.8L10.6,4.7L12.5,6.6L5.4,13.7ZM11.2,4.1L11.7,3.6C12.2,3.1 13,3.1 13.5,3.6C14,4.1 14,4.9 13.5,5.4L13,5.9L11.2,4.1Z"
+        android:fillType="evenOdd" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M12.2,0.8L12.7,2.2L14.2,2.8L12.7,3.3L12.2,4.8L11.6,3.3L10.2,2.8L11.6,2.2L12.2,0.8ZM14.1,8.1L14.4,8.9L15.2,9.2L14.4,9.6L14.1,10.4L13.7,9.6L12.9,9.2L13.7,8.9L14.1,8.1Z"
+        android:fillType="evenOdd" />
+</vector>

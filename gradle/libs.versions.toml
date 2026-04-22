@@ -100,7 +100,7 @@ benchmark-macro-junit4 = "1.3.3"
 profileinstaller = "1.4.1"
 
 # Testing
-androidx-espresso = "3.6.1"
+androidx-espresso = "3.7.0"
 androidx-test-core = "1.6.1"
 androidx-test-extensions = "1.2.1"
 androidx-test-orchestrator = "1.5.1"

@@ -291,9 +291,15 @@ fun EnabledMessageComposer(
                             onCancelEdit = ::cancelEdit,
                             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                             onSendButtonClicked = onSendButtonClicked,
-                            isProofreading = aiMessageComposerViewModel.isProofreading,
+                            activeAiAction = aiMessageComposerViewModel.activeAction,
                             onProofreadButtonClicked = {
                                 aiMessageComposerViewModel.proofread(inputStateHolder.messageTextState.text.toString())
+                            },
+                            onAdjustToneButtonClicked = { toneType ->
+                                aiMessageComposerViewModel.adjustTone(
+                                    inputText = inputStateHolder.messageTextState.text.toString(),
+                                    toneType = toneType
+                                )
                             },
                             onEditButtonClicked = {
                                 onSendButtonClicked()

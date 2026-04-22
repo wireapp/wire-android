@@ -23,8 +23,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -57,6 +59,9 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.atMost
 import com.wire.android.R
 import com.wire.android.di.wireViewModelScoped
+import com.wire.android.feature.aiassistant.AiMessageToneType
+import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -92,9 +97,10 @@ fun ActiveMessageComposerInput(
     keyboardOptions: KeyboardOptions,
     onKeyboardAction: KeyboardActionHandler?,
     canSendMessage: Boolean,
-    isProofreading: Boolean = false,
+    activeAiAction: AiMessageComposerAction? = null,
     onSendButtonClicked: () -> Unit,
     onProofreadButtonClicked: () -> Unit = {},
+    onAdjustToneButtonClicked: (AiMessageToneType) -> Unit = {},
     onEditButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onToggleInputSize: () -> Unit,
@@ -139,10 +145,11 @@ fun ActiveMessageComposerInput(
             focusRequester = focusRequester,
             onSendButtonClicked = onSendButtonClicked,
             onProofreadButtonClicked = onProofreadButtonClicked,
+            onAdjustToneButtonClicked = onAdjustToneButtonClicked,
             keyboardOptions = keyboardOptions,
             onKeyboardAction = onKeyboardAction,
             canSendMessage = canSendMessage,
-            isProofreading = isProofreading,
+            activeAiAction = activeAiAction,
             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
             onFocused = onFocused,
             onSelectedLineIndexChanged = onSelectedLineIndexChanged,
@@ -181,9 +188,10 @@ private fun InputContent(
     keyboardOptions: KeyboardOptions,
     onKeyboardAction: KeyboardActionHandler?,
     canSendMessage: Boolean,
-    isProofreading: Boolean,
+    activeAiAction: AiMessageComposerAction?,
     onSendButtonClicked: () -> Unit,
     onProofreadButtonClicked: () -> Unit,
+    onAdjustToneButtonClicked: (AiMessageToneType) -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onFocused: () -> Unit,
     onSelectedLineIndexChanged: (Int) -> Unit,
@@ -197,8 +205,8 @@ private fun InputContent(
 ) {
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()
-        val proofreadAction = createRef()
-        val buttonsTopBarrier = createTopBarrier(additionalOptionButton, proofreadAction, actions)
+        val aiActions = createRef()
+        val buttonsTopBarrier = createTopBarrier(additionalOptionButton, aiActions, actions)
         Box(
             contentAlignment = Alignment.BottomStart,
             modifier = Modifier.constrainAs(additionalOptionButton) {
@@ -214,18 +222,36 @@ private fun InputContent(
                 )
             }
         }
-        Box(
-            contentAlignment = Alignment.BottomStart,
-            modifier = Modifier.constrainAs(proofreadAction) {
-                start.linkTo(parent.start)
-                bottom.linkTo(parent.bottom)
-            }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(start = dimensions().spacing8x)
+                .constrainAs(aiActions) {
+                    start.linkTo(parent.start)
+                    end.linkTo(actions.start)
+                    bottom.linkTo(parent.bottom)
+                    width = Dimension.fillToConstraints
+                }
         ) {
             if (isTextExpanded) {
                 ProofreadMessageAction(
                     onProofreadButtonClicked = onProofreadButtonClicked,
-                    isProofreading = isProofreading,
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                    activeAiAction = activeAiAction
+                )
+                AdjustToneMessageAction(
+                    text = stringResource(R.string.label_adjust_tone_formal),
+                    contentDescription = stringResource(R.string.content_description_adjust_tone_formal),
+                    action = AiMessageComposerAction.FormalTone,
+                    activeAiAction = activeAiAction,
+                    onButtonClicked = { onAdjustToneButtonClicked(AiMessageToneType.Formal) }
+                )
+                AdjustToneMessageAction(
+                    text = stringResource(R.string.label_adjust_tone_informal),
+                    contentDescription = stringResource(R.string.content_description_adjust_tone_informal),
+                    action = AiMessageComposerAction.InformalTone,
+                    activeAiAction = activeAiAction,
+                    onButtonClicked = { onAdjustToneButtonClicked(AiMessageToneType.Informal) }
                 )
             }
         }
@@ -291,16 +317,47 @@ private fun InputContent(
 @Composable
 private fun ProofreadMessageAction(
     onProofreadButtonClicked: () -> Unit,
-    isProofreading: Boolean,
+    activeAiAction: AiMessageComposerAction?,
     modifier: Modifier = Modifier,
 ) {
     WireSecondaryIconButton(
         onButtonClicked = onProofreadButtonClicked,
         iconResource = R.drawable.ic_proofread,
         contentDescription = R.string.content_description_proofread_message,
-        loading = isProofreading,
+        loading = activeAiAction == AiMessageComposerAction.Proofread,
+        state = if (activeAiAction == null || activeAiAction == AiMessageComposerAction.Proofread) {
+            WireButtonState.Default
+        } else {
+            WireButtonState.Disabled
+        },
         shape = CircleShape,
         minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun AdjustToneMessageAction(
+    text: String,
+    contentDescription: String,
+    action: AiMessageComposerAction,
+    activeAiAction: AiMessageComposerAction?,
+    onButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    WireSecondaryButton(
+        onClick = onButtonClicked,
+        text = text,
+        loading = activeAiAction == action,
+        state = if (activeAiAction == null || activeAiAction == action) {
+            WireButtonState.Default
+        } else {
+            WireButtonState.Disabled
+        },
+        description = contentDescription,
+        fillMaxWidth = false,
+        minSize = MaterialTheme.wireDimensions.buttonMinSize.copy(height = MaterialTheme.wireDimensions.buttonCircleMinSize.height),
         minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
         modifier = modifier
     )

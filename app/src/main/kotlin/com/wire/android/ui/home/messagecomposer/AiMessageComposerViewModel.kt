@@ -25,6 +25,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.feature.aiassistant.AiMessageComposerAgent
 import com.wire.android.feature.aiassistant.AiMessageComposerResult
+import com.wire.android.feature.aiassistant.AiMessageToneType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -37,42 +38,89 @@ class AiMessageComposerViewModel @Inject constructor(
     private val aiMessageComposerAgent: AiMessageComposerAgent
 ) : ViewModel() {
 
-    var isProofreading by mutableStateOf(false)
+    var activeAction by mutableStateOf<AiMessageComposerAction?>(null)
         private set
 
     private val _effect = MutableSharedFlow<AiMessageComposerEffect>()
     val effect: SharedFlow<AiMessageComposerEffect> = _effect.asSharedFlow()
 
     fun proofread(inputText: String) {
-        if (isProofreading) return
+        runAiAction(AiMessageComposerAction.Proofread) {
+            aiMessageComposerAgent.proofread(inputText)
+        }
+    }
+
+    fun adjustTone(inputText: String, toneType: AiMessageToneType) {
+        runAiAction(toneType.toAction()) {
+            aiMessageComposerAgent.adjustTone(inputText, toneType)
+        }
+    }
+
+    private fun runAiAction(
+        action: AiMessageComposerAction,
+        request: suspend () -> AiMessageComposerResult
+    ) {
+        if (activeAction != null) return
 
         viewModelScope.launch {
             try {
-                isProofreading = true
-                when (val result = aiMessageComposerAgent.proofread(inputText)) {
+                activeAction = action
+                when (val result = request()) {
                     is AiMessageComposerResult.Success -> _effect.emit(
                         AiMessageComposerEffect.ReplaceText(result.updatedText)
                     )
                     AiMessageComposerResult.EmptyInput -> _effect.emit(
-                        AiMessageComposerEffect.ShowError(R.string.error_proofread_message_empty_input)
+                        AiMessageComposerEffect.ShowError(action.emptyInputErrorResId)
                     )
                     AiMessageComposerResult.MissingModel -> _effect.emit(
-                        AiMessageComposerEffect.ShowError(R.string.error_proofread_message_missing_model)
+                        AiMessageComposerEffect.ShowError(action.missingModelErrorResId)
                     )
                     AiMessageComposerResult.UnsupportedModel -> _effect.emit(
-                        AiMessageComposerEffect.ShowError(R.string.error_proofread_message_unsupported_model)
+                        AiMessageComposerEffect.ShowError(action.unsupportedModelErrorResId)
                     )
                     AiMessageComposerResult.EmptyResponse,
                     is AiMessageComposerResult.InferenceFailed -> _effect.emit(
-                        AiMessageComposerEffect.ShowError(R.string.error_proofread_message_generic)
+                        AiMessageComposerEffect.ShowError(action.genericErrorResId)
                     )
                 }
             } finally {
-                isProofreading = false
+                activeAction = null
             }
         }
     }
 }
+
+enum class AiMessageComposerAction(
+    @param:StringRes val emptyInputErrorResId: Int,
+    @param:StringRes val missingModelErrorResId: Int,
+    @param:StringRes val unsupportedModelErrorResId: Int,
+    @param:StringRes val genericErrorResId: Int
+) {
+    Proofread(
+        emptyInputErrorResId = R.string.error_proofread_message_empty_input,
+        missingModelErrorResId = R.string.error_proofread_message_missing_model,
+        unsupportedModelErrorResId = R.string.error_proofread_message_unsupported_model,
+        genericErrorResId = R.string.error_proofread_message_generic
+    ),
+    FormalTone(
+        emptyInputErrorResId = R.string.error_adjust_tone_message_empty_input,
+        missingModelErrorResId = R.string.error_adjust_tone_message_missing_model,
+        unsupportedModelErrorResId = R.string.error_adjust_tone_message_unsupported_model,
+        genericErrorResId = R.string.error_adjust_tone_message_generic
+    ),
+    InformalTone(
+        emptyInputErrorResId = R.string.error_adjust_tone_message_empty_input,
+        missingModelErrorResId = R.string.error_adjust_tone_message_missing_model,
+        unsupportedModelErrorResId = R.string.error_adjust_tone_message_unsupported_model,
+        genericErrorResId = R.string.error_adjust_tone_message_generic
+    )
+}
+
+private fun AiMessageToneType.toAction(): AiMessageComposerAction =
+    when (this) {
+        AiMessageToneType.Formal -> AiMessageComposerAction.FormalTone
+        AiMessageToneType.Informal -> AiMessageComposerAction.InformalTone
+    }
 
 sealed interface AiMessageComposerEffect {
     data class ReplaceText(val updatedText: String) : AiMessageComposerEffect

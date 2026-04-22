@@ -21,6 +21,7 @@ import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.feature.aiassistant.AiMessageComposerAgent
 import com.wire.android.feature.aiassistant.AiMessageComposerResult
+import com.wire.android.feature.aiassistant.AiMessageToneType
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -30,8 +31,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -56,7 +56,47 @@ class AiMessageComposerViewModelTest {
         coVerify(exactly = 1) {
             arrangement.aiMessageComposerAgent.proofread(inputText)
         }
-        assertFalse(viewModel.isProofreading)
+        assertNull(viewModel.activeAction)
+    }
+
+    @Test
+    fun `given formal tone succeeds when tone adjustment is requested then replace text effect is emitted and exact input is used`() = runTest {
+        val inputText = "Send this today."
+        val updatedText = "Please send this today."
+        val (arrangement, viewModel) = Arrangement()
+            .withAdjustToneResult(inputText, AiMessageToneType.Formal, AiMessageComposerResult.Success(updatedText))
+            .arrange()
+
+        viewModel.effect.test {
+            viewModel.adjustTone(inputText, AiMessageToneType.Formal)
+
+            assertEquals(AiMessageComposerEffect.ReplaceText(updatedText), awaitItem())
+        }
+
+        coVerify(exactly = 1) {
+            arrangement.aiMessageComposerAgent.adjustTone(inputText, AiMessageToneType.Formal)
+        }
+        assertNull(viewModel.activeAction)
+    }
+
+    @Test
+    fun `given informal tone succeeds when tone adjustment is requested then replace text effect is emitted and exact input is used`() = runTest {
+        val inputText = "Please send this today."
+        val updatedText = "Can you send this today?"
+        val (arrangement, viewModel) = Arrangement()
+            .withAdjustToneResult(inputText, AiMessageToneType.Informal, AiMessageComposerResult.Success(updatedText))
+            .arrange()
+
+        viewModel.effect.test {
+            viewModel.adjustTone(inputText, AiMessageToneType.Informal)
+
+            assertEquals(AiMessageComposerEffect.ReplaceText(updatedText), awaitItem())
+        }
+
+        coVerify(exactly = 1) {
+            arrangement.aiMessageComposerAgent.adjustTone(inputText, AiMessageToneType.Informal)
+        }
+        assertNull(viewModel.activeAction)
     }
 
     @Test
@@ -100,7 +140,47 @@ class AiMessageComposerViewModelTest {
     }
 
     @Test
-    fun `given proofread is running when proofread is requested again then second request is ignored`() = runTest {
+    fun `given empty input when tone adjustment is requested then empty input error effect is emitted`() = runTest {
+        assertToneErrorEffect(
+            result = AiMessageComposerResult.EmptyInput,
+            expectedEffect = AiMessageComposerEffect.ShowError(R.string.error_adjust_tone_message_empty_input)
+        )
+    }
+
+    @Test
+    fun `given missing model when tone adjustment is requested then missing model error effect is emitted`() = runTest {
+        assertToneErrorEffect(
+            result = AiMessageComposerResult.MissingModel,
+            expectedEffect = AiMessageComposerEffect.ShowError(R.string.error_adjust_tone_message_missing_model)
+        )
+    }
+
+    @Test
+    fun `given unsupported model when tone adjustment is requested then unsupported model error effect is emitted`() = runTest {
+        assertToneErrorEffect(
+            result = AiMessageComposerResult.UnsupportedModel,
+            expectedEffect = AiMessageComposerEffect.ShowError(R.string.error_adjust_tone_message_unsupported_model)
+        )
+    }
+
+    @Test
+    fun `given empty response when tone adjustment is requested then generic error effect is emitted`() = runTest {
+        assertToneErrorEffect(
+            result = AiMessageComposerResult.EmptyResponse,
+            expectedEffect = AiMessageComposerEffect.ShowError(R.string.error_adjust_tone_message_generic)
+        )
+    }
+
+    @Test
+    fun `given inference failure when tone adjustment is requested then generic error effect is emitted`() = runTest {
+        assertToneErrorEffect(
+            result = AiMessageComposerResult.InferenceFailed("Cannot run model"),
+            expectedEffect = AiMessageComposerEffect.ShowError(R.string.error_adjust_tone_message_generic)
+        )
+    }
+
+    @Test
+    fun `given ai action is running when another action is requested then second request is ignored`() = runTest {
         val proofreadStarted = CompletableDeferred<Unit>()
         val completeProofread = CompletableDeferred<AiMessageComposerResult>()
         val (arrangement, viewModel) = Arrangement()
@@ -114,9 +194,9 @@ class AiMessageComposerViewModelTest {
         viewModel.proofread(FIRST_INPUT)
         proofreadStarted.await()
 
-        assertTrue(viewModel.isProofreading)
+        assertEquals(AiMessageComposerAction.Proofread, viewModel.activeAction)
 
-        viewModel.proofread(SECOND_INPUT)
+        viewModel.adjustTone(SECOND_INPUT, AiMessageToneType.Formal)
         completeProofread.complete(AiMessageComposerResult.Success("Hello"))
         advanceUntilIdle()
 
@@ -124,9 +204,9 @@ class AiMessageComposerViewModelTest {
             arrangement.aiMessageComposerAgent.proofread(FIRST_INPUT)
         }
         coVerify(exactly = 0) {
-            arrangement.aiMessageComposerAgent.proofread(SECOND_INPUT)
+            arrangement.aiMessageComposerAgent.adjustTone(SECOND_INPUT, AiMessageToneType.Formal)
         }
-        assertFalse(viewModel.isProofreading)
+        assertNull(viewModel.activeAction)
     }
 
     private suspend fun assertErrorEffect(
@@ -140,6 +220,22 @@ class AiMessageComposerViewModelTest {
 
         viewModel.effect.test {
             viewModel.proofread(inputText)
+
+            assertEquals(expectedEffect, awaitItem())
+        }
+    }
+
+    private suspend fun assertToneErrorEffect(
+        result: AiMessageComposerResult,
+        expectedEffect: AiMessageComposerEffect.ShowError
+    ) {
+        val inputText = "Hey"
+        val (_, viewModel) = Arrangement()
+            .withAdjustToneResult(inputText, AiMessageToneType.Formal, result)
+            .arrange()
+
+        viewModel.effect.test {
+            viewModel.adjustTone(inputText, AiMessageToneType.Formal)
 
             assertEquals(expectedEffect, awaitItem())
         }
@@ -160,6 +256,14 @@ class AiMessageComposerViewModelTest {
 
         fun withProofreadResult(inputText: String, result: AiMessageComposerResult) = apply {
             coEvery { aiMessageComposerAgent.proofread(inputText) } returns result
+        }
+
+        fun withAdjustToneResult(
+            inputText: String,
+            toneType: AiMessageToneType,
+            result: AiMessageComposerResult
+        ) = apply {
+            coEvery { aiMessageComposerAgent.adjustTone(inputText, toneType) } returns result
         }
 
         fun withSuspendedProofread(

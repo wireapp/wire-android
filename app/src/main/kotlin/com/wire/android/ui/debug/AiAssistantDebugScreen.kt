@@ -19,6 +19,7 @@ package com.wire.android.ui.debug
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
@@ -37,12 +38,14 @@ import com.wire.android.R
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.feature.aiassistant.AiModelManager
+import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
 import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.feature.aiassistant.test.AiModelHealthCheckResult
 import com.wire.android.feature.aiassistant.test.AiModelTestEngine
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
+import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -83,6 +86,7 @@ fun AiAssistantDebugScreen(
         state = viewModel.state,
         onNavigationPressed = navigator::navigateBack,
         onDownloadAiModel = viewModel::downloadAiModel,
+        onModelSelected = viewModel::selectModel,
         modifier = modifier
     )
 }
@@ -92,6 +96,7 @@ fun AiAssistantDebugScreenContent(
     state: AiAssistantDebugState,
     onNavigationPressed: () -> Unit,
     onDownloadAiModel: () -> Unit,
+    onModelSelected: (AiModelDescriptor) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
@@ -119,11 +124,51 @@ fun AiAssistantDebugScreenContent(
                     .padding(paddingValues)
                     .verticalScroll(scrollState)
             ) {
+                if (state.availableModels.isNotEmpty()) {
+                    AiModelSelectorOption(
+                        availableModels = state.availableModels,
+                        selectedModel = state.selectedModel,
+                        onModelSelected = onModelSelected
+                    )
+                }
                 AiModelOption(
                     state = state.aiModelOptionState,
                     onDownloadAiModel = onDownloadAiModel
                 )
                 AiModelHealthCheckOption(state = state.healthCheckState)
+            }
+        }
+    )
+}
+
+@Composable
+private fun AiModelSelectorOption(
+    availableModels: List<AiModelDescriptor>,
+    selectedModel: AiModelDescriptor?,
+    onModelSelected: (AiModelDescriptor) -> Unit,
+) {
+    val modelNames = availableModels.map { it.displayName }
+    val selectedIndex = availableModels.indexOf(selectedModel).takeIf { it >= 0 } ?: 0
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Column(modifier = Modifier.padding(start = dimensions().spacing8x)) {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = stringResource(R.string.debug_settings_ai_model_select)
+                )
+                WireDropDown(
+                    items = modelNames,
+                    label = null,
+                    selectedItemIndex = selectedIndex,
+                    autoUpdateSelection = false,
+                    showDefaultTextIndicator = false,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = dimensions().spacing8x, end = dimensions().spacing24x),
+                    onSelected = { index -> onModelSelected(availableModels[index]) }
+                )
             }
         }
     )
@@ -211,6 +256,7 @@ interface AiAssistantDebugViewModel {
     val infoMessage: SharedFlow<UIText> get() = MutableSharedFlow()
     val state: AiAssistantDebugState get() = AiAssistantDebugState()
     fun downloadAiModel() {}
+    fun selectModel(descriptor: AiModelDescriptor) {}
 }
 
 @HiltViewModel
@@ -227,6 +273,11 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
     private var checkedModelPath: String? = null
 
     init {
+        state = state.copy(
+            availableModels = aiModelManager.availableModels,
+            selectedModel = aiModelManager.selectedModel.value
+        )
+        observeSelectedModel()
         observeAiModelStatus()
     }
 
@@ -253,6 +304,18 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
                         // Status is exposed through observeModelStatus.
                     }
                 }
+            }
+        }
+    }
+
+    override fun selectModel(descriptor: AiModelDescriptor) {
+        aiModelManager.selectModel(descriptor)
+    }
+
+    private fun observeSelectedModel() {
+        viewModelScope.launch {
+            aiModelManager.selectedModel.collect { descriptor ->
+                state = state.copy(selectedModel = descriptor)
             }
         }
     }
@@ -329,6 +392,8 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
 }
 
 data class AiAssistantDebugState(
+    val availableModels: List<AiModelDescriptor> = emptyList(),
+    val selectedModel: AiModelDescriptor? = null,
     val aiModelOptionState: AiModelOptionState = AiModelOptionState(),
     val healthCheckState: AiModelHealthCheckState = AiModelHealthCheckState.Unavailable
 )
@@ -363,6 +428,7 @@ fun PreviewAiAssistantDebugScreen() = WireTheme {
     AiAssistantDebugScreenContent(
         state = AiAssistantDebugState(),
         onNavigationPressed = {},
-        onDownloadAiModel = {}
+        onDownloadAiModel = {},
+        onModelSelected = {}
     )
 }

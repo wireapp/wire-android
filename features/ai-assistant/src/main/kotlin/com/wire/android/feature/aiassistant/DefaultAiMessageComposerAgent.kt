@@ -30,17 +30,32 @@ class DefaultAiMessageComposerAgent @Inject constructor(
 ) : AiMessageComposerAgent {
 
     override suspend fun proofread(inputText: String): AiMessageComposerResult =
-        generateUpdatedMessage(inputText) { it.toProofreadPrompt() }
+        generateUpdatedMessage(
+            inputText = inputText,
+            userMessage = "Fix grammar, return one result only:\n\"$inputText\"",
+            initialExchanges = PROOFREAD_EXAMPLES
+        )
 
-    override suspend fun adjustTone(inputText: String, toneType: AiMessageToneType): AiMessageComposerResult =
-        generateUpdatedMessage(inputText) { it.toAdjustTonePrompt(toneType) }
+    override suspend fun adjustTone(inputText: String, toneType: AiMessageToneType): AiMessageComposerResult {
+        val instruction = toneType.toInstruction()
+        return generateUpdatedMessage(
+            inputText = inputText,
+            userMessage = "$instruction, return one result only:\n\"$inputText\"",
+            initialExchanges = toneType.toExamples()
+        )
+    }
 
     override suspend fun customPrompt(inputText: String, userPrompt: String): AiMessageComposerResult =
-        generateUpdatedMessage(inputText) { it.toCustomPrompt(userPrompt) }
+        generateUpdatedMessage(
+            inputText = inputText,
+            userMessage = "$userPrompt, return one result only:\n\"$inputText\"",
+            initialExchanges = emptyList()
+        )
 
     private suspend fun generateUpdatedMessage(
         inputText: String,
-        promptFactory: (String) -> String
+        userMessage: String,
+        initialExchanges: List<Pair<String, String>>
     ): AiMessageComposerResult =
         withContext(Dispatchers.IO) {
             if (inputText.isBlank()) {
@@ -56,15 +71,16 @@ class DefaultAiMessageComposerAgent @Inject constructor(
             }
 
             runCatching {
-                inferenceFactory.create(modelStatus.localPath).use { inference ->
-                    inference.generateResponse(promptFactory(inputText))
+                inferenceFactory.create(modelStatus.localPath, initialExchanges).use { inference ->
+                    inference.generateResponse(userMessage)
                 }
             }.fold(
                 onSuccess = { response ->
-                    if (response.isBlank()) {
+                    val trimmed = response.trimMatchingQuotes()
+                    if (trimmed.isBlank()) {
                         AiMessageComposerResult.EmptyResponse
                     } else {
-                        AiMessageComposerResult.Success(response)
+                        AiMessageComposerResult.Success(trimmed)
                     }
                 },
                 onFailure = { throwable ->
@@ -77,43 +93,35 @@ class DefaultAiMessageComposerAgent @Inject constructor(
     private companion object {
         const val LITERT_LM_EXTENSION = ".litertlm"
 
-        fun String.toProofreadPrompt(): String =
-            """
-            Proofread the following message. Ensure the message is clear and easy to read. 
-            Return only the corrected message text.
-            Do not add explanations, comments, labels, or quotation marks.
-
-            Message:
-            $this
-            """.trimIndent()
-
-        fun String.toAdjustTonePrompt(toneType: AiMessageToneType): String {
-            val toneInstruction = when (toneType) {
-                AiMessageToneType.Formal -> "more formal"
-                AiMessageToneType.Informal -> "more informal"
+        fun String.trimMatchingQuotes(): String {
+            if (length < 2) return this
+            return when {
+                first() == '"' && last() == '"' -> substring(1, length - 1)
+                first() == '\u201C' && last() == '\u201D' -> substring(1, length - 1) // " "
+                first() == '\'' && last() == '\'' -> substring(1, length - 1)
+                else -> this
             }
-            return """
-            Rewrite the following message to make its tone $toneInstruction.
-            Preserve the original meaning and language.
-            Return only the rewritten message text.
-            Do not add explanations, comments, labels, or quotation marks.
-
-            Message:
-            $this
-            """.trimIndent()
         }
 
-        fun String.toCustomPrompt(userPrompt: String): String =
-            """
-            Apply the following instruction to the message below.
-            Return only the resulting message text.
-            Do not add explanations, comments, labels, or quotation marks.
+        val PROOFREAD_EXAMPLES = listOf(
+            "Fix grammar, return one result only:\n\"She dont know nothing about it.\"" to
+                "She doesn't know anything about it."
+        )
 
-            Instruction:
-            $userPrompt
+        fun AiMessageToneType.toInstruction(): String = when (this) {
+            AiMessageToneType.Formal -> "Rewrite more formally"
+            AiMessageToneType.Informal -> "Rewrite more casually"
+        }
 
-            Message:
-            $this
-            """.trimIndent()
+        fun AiMessageToneType.toExamples(): List<Pair<String, String>> = when (this) {
+            AiMessageToneType.Formal -> listOf(
+                "Rewrite more formally, return one result only:\n\"Hey can u help me with this?\"" to
+                    "Could you please assist me with this?"
+            )
+            AiMessageToneType.Informal -> listOf(
+                "Rewrite more casually, return one result only:\n\"I would like to request your assistance with this matter.\"" to
+                    "Can you help me out with this?"
+            )
+        }
     }
 }

@@ -16,12 +16,15 @@
  */
 package com.wire.android.feature.aiassistant
 
+import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
 import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.feature.aiassistant.test.LiteRtLmInference
 import com.wire.android.feature.aiassistant.test.LiteRtLmInferenceFactory
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -95,10 +98,60 @@ class DefaultAiMessageComposerAgentTest {
         val result = arrangement.agent.proofread(inputText)
 
         assertEquals(AiMessageComposerResult.Success("Hello,\nthis is a message."), result)
-        assertTrue(arrangement.inferenceFactory.inference.prompt.contains(inputText))
-        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("Return only the corrected message text."))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains(inputText))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("grammar"))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("one result only"))
+        assertTrue(arrangement.inferenceFactory.initialExchanges.isNotEmpty())
         assertEquals(MODEL_PATH, arrangement.inferenceFactory.modelPath)
         assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
+    @Test
+    fun givenInferenceReturnsTextWrappedInDoubleQuotes_whenProofreadIsCalled_thenQuotesAreStripped() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceResponse("\"Hello, this is a message.\"")
+            .arrange()
+
+        val result = arrangement.agent.proofread("Helo, this is a mesage.")
+
+        assertEquals(AiMessageComposerResult.Success("Hello, this is a message."), result)
+    }
+
+    @Test
+    fun givenInferenceReturnsTextWrappedInCurlyQuotes_whenProofreadIsCalled_thenQuotesAreStripped() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceResponse("\u201CHello, this is a message.\u201D")
+            .arrange()
+
+        val result = arrangement.agent.proofread("Helo, this is a mesage.")
+
+        assertEquals(AiMessageComposerResult.Success("Hello, this is a message."), result)
+    }
+
+    @Test
+    fun givenInferenceReturnsTextWrappedInSingleQuotes_whenProofreadIsCalled_thenQuotesAreStripped() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceResponse("'Hello, this is a message.'")
+            .arrange()
+
+        val result = arrangement.agent.proofread("Helo, this is a mesage.")
+
+        assertEquals(AiMessageComposerResult.Success("Hello, this is a message."), result)
+    }
+
+    @Test
+    fun givenInferenceReturnsTextWithInternalQuotes_whenProofreadIsCalled_thenInternalQuotesArePreserved() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceResponse("She said \"hello\" to me.")
+            .arrange()
+
+        val result = arrangement.agent.proofread("She said hello to me")
+
+        assertEquals(AiMessageComposerResult.Success("She said \"hello\" to me."), result)
     }
 
     @Test
@@ -218,10 +271,10 @@ class DefaultAiMessageComposerAgentTest {
         val result = arrangement.agent.adjustTone(inputText, AiMessageToneType.Formal)
 
         assertEquals(AiMessageComposerResult.Success("Could you please send it today?"), result)
-        assertTrue(arrangement.inferenceFactory.inference.prompt.contains(inputText))
-        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("more formal"))
-        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("Return only the rewritten message text."))
-        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("Preserve the original meaning and language."))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains(inputText))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("formally"))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("one result only"))
+        assertTrue(arrangement.inferenceFactory.initialExchanges.isNotEmpty())
         assertEquals(MODEL_PATH, arrangement.inferenceFactory.modelPath)
         assertTrue(arrangement.inferenceFactory.inference.isClosed)
     }
@@ -237,9 +290,10 @@ class DefaultAiMessageComposerAgentTest {
         val result = arrangement.agent.adjustTone(inputText, AiMessageToneType.Informal)
 
         assertEquals(AiMessageComposerResult.Success("Can you send it today?"), result)
-        assertTrue(arrangement.inferenceFactory.inference.prompt.contains(inputText))
-        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("more informal"))
-        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("Return only the rewritten message text."))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains(inputText))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("casually"))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("one result only"))
+        assertTrue(arrangement.inferenceFactory.initialExchanges.isNotEmpty())
         assertTrue(arrangement.inferenceFactory.inference.isClosed)
     }
 
@@ -361,9 +415,10 @@ class DefaultAiMessageComposerAgentTest {
         val result = arrangement.agent.customPrompt(inputText, userPrompt)
 
         assertEquals(AiMessageComposerResult.Success("Hello, short message."), result)
-        assertTrue(arrangement.inferenceFactory.inference.prompt.contains(inputText))
-        assertTrue(arrangement.inferenceFactory.inference.prompt.contains(userPrompt))
-        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("Return only the resulting message text."))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains(inputText))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains(userPrompt))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("one result only"))
+        assertTrue(arrangement.inferenceFactory.initialExchanges.isEmpty())
         assertEquals(MODEL_PATH, arrangement.inferenceFactory.modelPath)
         assertTrue(arrangement.inferenceFactory.inference.isClosed)
     }
@@ -469,8 +524,17 @@ class DefaultAiMessageComposerAgentTest {
 private class FakeAiModelManager(
     private val modelStatus: AiModelStatus
 ) : AiModelManager {
+    private val descriptor = AiModelDescriptor(
+        displayName = "Test model",
+        repositoryId = "test/model",
+        artifactPath = "model.litertlm",
+        localDirectoryName = "test-model",
+        localFileName = "model.litertlm"
+    )
+    override val availableModels: List<AiModelDescriptor> = listOf(descriptor)
+    override val selectedModel: StateFlow<AiModelDescriptor> = MutableStateFlow(descriptor)
+    override fun selectModel(descriptor: AiModelDescriptor) = Unit
     override fun observeModelStatus(): Flow<AiModelStatus> = flowOf(modelStatus)
-
     override fun downloadModel(): Flow<AiModelDownloadState> = flowOf(AiModelDownloadState.AuthRequired)
 }
 
@@ -484,10 +548,13 @@ private class FakeLiteRtLmInferenceFactory(
         private set
     var modelPath: String? = null
         private set
+    var initialExchanges: List<Pair<String, String>> = emptyList()
+        private set
 
-    override fun create(modelPath: String): LiteRtLmInference {
+    override fun create(modelPath: String, initialExchanges: List<Pair<String, String>>): LiteRtLmInference {
         createCount++
         this.modelPath = modelPath
+        this.initialExchanges = initialExchanges
         factoryThrowable?.let { throw it }
         return inference
     }
@@ -497,14 +564,14 @@ private class FakeLiteRtLmInference(
     private val response: String,
     private val throwable: Throwable?
 ) : LiteRtLmInference {
-    var prompt: String = ""
+    var userMessage: String = ""
         private set
     var isClosed = false
         private set
 
-    override fun generateResponse(prompt: String): String {
+    override fun generateResponse(userMessage: String): String {
         assertFalse(isClosed)
-        this.prompt = prompt
+        this.userMessage = userMessage
         throwable?.let { throw it }
         return response
     }

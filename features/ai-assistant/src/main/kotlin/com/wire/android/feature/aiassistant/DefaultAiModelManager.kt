@@ -24,24 +24,41 @@ import com.wire.android.feature.aiassistant.storage.AiModelStorage
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 
 class DefaultAiModelManager @Inject constructor(
-    private val descriptor: AiModelDescriptor,
+    @JvmSuppressWildcards private val models: List<AiModelDescriptor>,
     private val storage: AiModelStorage,
     private val downloader: AiModelDownloader
 ) : AiModelManager {
 
-    private val activeDownloadStatus = MutableStateFlow<AiModelStatus.Downloading?>(null)
+    override val availableModels: List<AiModelDescriptor> = models
+
+    private val _selectedModel = MutableStateFlow(models.first())
+    override val selectedModel: StateFlow<AiModelDescriptor> = _selectedModel.asStateFlow()
+
+    private val activeDownloadStatus = MutableStateFlow<ActiveDownloadState?>(null)
+
+    override fun selectModel(descriptor: AiModelDescriptor) {
+        require(descriptor in models) { "Unknown descriptor: $descriptor" }
+        _selectedModel.value = descriptor
+    }
 
     override fun observeModelStatus(): Flow<AiModelStatus> =
-        activeDownloadStatus
-            .map { activeStatus -> activeStatus ?: currentStatus() }
-            .distinctUntilChanged()
+        combine(_selectedModel, activeDownloadStatus) { selected, active ->
+            if (active?.descriptor == selected) {
+                active.status
+            } else {
+                currentStatus(selected)
+            }
+        }.distinctUntilChanged()
 
     override fun downloadModel(): Flow<AiModelDownloadState> = flow {
+        val descriptor = _selectedModel.value
         val modelFile = storage.getModelFile(descriptor)
         if (modelFile.exists()) {
             emit(AiModelDownloadState.Ready(modelFile.absolutePath))
@@ -50,7 +67,7 @@ class DefaultAiModelManager @Inject constructor(
 
         try {
             downloader.download(descriptor).collect { state ->
-                activeDownloadStatus.value = state.asActiveDownloadStatus()
+                activeDownloadStatus.value = state.asActiveDownloadStatus(descriptor)
                 emit(state)
             }
         } finally {
@@ -58,7 +75,7 @@ class DefaultAiModelManager @Inject constructor(
         }
     }
 
-    private fun currentStatus(): AiModelStatus {
+    private fun currentStatus(descriptor: AiModelDescriptor): AiModelStatus {
         val modelFile = storage.getModelFile(descriptor)
         return if (modelFile.exists()) {
             AiModelStatus.Ready(modelFile.absolutePath)
@@ -67,12 +84,17 @@ class DefaultAiModelManager @Inject constructor(
         }
     }
 
-    private fun AiModelDownloadState.asActiveDownloadStatus(): AiModelStatus.Downloading? =
+    private fun AiModelDownloadState.asActiveDownloadStatus(descriptor: AiModelDescriptor): ActiveDownloadState? =
         when (this) {
-            AiModelDownloadState.Starting -> AiModelStatus.Downloading(progress = null)
-            is AiModelDownloadState.Downloading -> AiModelStatus.Downloading(progress)
+            AiModelDownloadState.Starting -> ActiveDownloadState(descriptor, AiModelStatus.Downloading(progress = null))
+            is AiModelDownloadState.Downloading -> ActiveDownloadState(descriptor, AiModelStatus.Downloading(progress))
             AiModelDownloadState.AuthRequired,
             is AiModelDownloadState.Failed,
             is AiModelDownloadState.Ready -> null
         }
+
+    private data class ActiveDownloadState(
+        val descriptor: AiModelDescriptor,
+        val status: AiModelStatus.Downloading
+    )
 }

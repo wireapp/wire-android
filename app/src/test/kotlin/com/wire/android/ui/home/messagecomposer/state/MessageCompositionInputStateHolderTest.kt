@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.assertions.shouldBeInstanceOf
@@ -217,6 +218,31 @@ class MessageCompositionInputStateHolderTest {
     }
 
     @Test
+    fun `given editing mode when state holder is restored then editing state is preserved`() = runTest {
+        // Given
+        val messageText = "edited message"
+        val originalMessageText = "original message"
+        val arrangement = Arrangement().withText(messageText)
+        val (state, _) = arrangement.arrange()
+        state.toEdit(originalMessageText, false)
+
+        val saver = MessageCompositionInputStateHolder.saver(
+            messageTextState = arrangement.textFieldState,
+            keyboardController = arrangement.softwareKeyboardController,
+            focusManager = arrangement.focusManager,
+            focusRequester = arrangement.focusRequester,
+            density = Density(1f)
+        )
+
+        // When
+        val savedState = saver.save(state)
+        val restoredState = saver.restore(savedState)
+
+        // Then
+        restoredState!!.inputType.shouldBeInstanceOf<InputType.Editing>().isEditButtonEnabled shouldBeEqualTo true
+    }
+
+    @Test
     fun `given additional space is added to the keyboard when handling IME offset change then options height adjusts but keyboard height remains`() =
         runTest {
             // Given
@@ -248,12 +274,12 @@ class MessageCompositionInputStateHolderTest {
 
     class Arrangement {
 
-        private val textFieldState = TextFieldState()
+        val textFieldState = TextFieldState()
 
         val softwareKeyboardController = mockk<SoftwareKeyboardController>()
 
-        private val focusManager = mockk<FocusManager>()
-        private val focusRequester = mockk<FocusRequester>()
+        val focusManager = mockk<FocusManager>()
+        val focusRequester = mockk<FocusRequester>()
 
         private val state by lazy {
             MessageCompositionInputStateHolder(textFieldState, softwareKeyboardController, focusManager, focusRequester)

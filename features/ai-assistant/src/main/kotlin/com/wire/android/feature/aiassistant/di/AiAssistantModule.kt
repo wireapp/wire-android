@@ -86,6 +86,6 @@ abstract class AiAssistantModule {
     companion object {
         @Provides
         @Singleton
-        fun provideDefaultAiModelDescriptor(): AiModelDescriptor = DefaultAiModelDescriptor.gemma3nE2bIt
+        fun provideAiModelDescriptors(): List<AiModelDescriptor> = DefaultAiModelDescriptor.allModels
     }
 }

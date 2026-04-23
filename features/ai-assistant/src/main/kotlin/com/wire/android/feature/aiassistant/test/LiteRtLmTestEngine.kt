@@ -16,7 +16,6 @@
  */
 package com.wire.android.feature.aiassistant.test
 
-import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import java.io.File
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -24,7 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class LiteRtLmTestEngine @Inject constructor(
-    private val descriptor: AiModelDescriptor,
     private val inferenceFactory: LiteRtLmInferenceFactory
 ) : AiModelTestEngine {
     override suspend fun runHealthCheck(modelPath: String): AiModelHealthCheckResult =
@@ -32,7 +30,7 @@ class LiteRtLmTestEngine @Inject constructor(
             if (!File(modelPath).exists()) {
                 return@withContext AiModelHealthCheckResult.MissingModel
             }
-            if (!descriptor.isSupportedByLiteRtLm()) {
+            if (!modelPath.endsWith(LITERT_LM_EXTENSION, ignoreCase = true)) {
                 return@withContext AiModelHealthCheckResult.UnsupportedModel
             }
 
@@ -57,8 +55,6 @@ class LiteRtLmTestEngine @Inject constructor(
 
     private companion object {
         const val HEALTH_CHECK_PROMPT = "Reply with OK if you can read this."
-
-        private fun AiModelDescriptor.isSupportedByLiteRtLm(): Boolean =
-            localFileName.endsWith(".litertlm", ignoreCase = true)
+        const val LITERT_LM_EXTENSION = ".litertlm"
     }
 }

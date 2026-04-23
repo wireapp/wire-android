@@ -113,7 +113,7 @@ class DefaultAiModelManagerTest {
         }
 
         fun arrange() = Result(
-            manager = DefaultAiModelManager(descriptor, storage, downloader),
+            manager = DefaultAiModelManager(listOf(descriptor), storage, downloader),
             storage = storage
         )
     }

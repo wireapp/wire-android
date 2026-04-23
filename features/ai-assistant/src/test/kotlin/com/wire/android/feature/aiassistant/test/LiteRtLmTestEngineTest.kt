@@ -16,7 +16,6 @@
  */
 package com.wire.android.feature.aiassistant.test
 
-import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import java.io.File
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -32,7 +31,6 @@ class LiteRtLmTestEngineTest {
     @Test
     fun `given model file does not exist, when health check runs, then missing model is returned`() = runTest {
         val engine = LiteRtLmTestEngine(
-            descriptor = litertlmDescriptor(),
             inferenceFactory = FakeLiteRtLmInferenceFactory(response = "OK")
         )
 
@@ -45,10 +43,7 @@ class LiteRtLmTestEngineTest {
     fun `given model is not a litertlm file, when health check runs, then unsupported model is returned and inference is not created`() =
         runTest {
             val factory = FakeLiteRtLmInferenceFactory(response = "OK")
-            val engine = LiteRtLmTestEngine(
-                descriptor = litertlmDescriptor(localFileName = "model.task"),
-                inferenceFactory = factory
-            )
+            val engine = LiteRtLmTestEngine(inferenceFactory = factory)
 
             val result = engine.runHealthCheck(modelFile("model.task").absolutePath)
 
@@ -59,10 +54,7 @@ class LiteRtLmTestEngineTest {
     @Test
     fun `given inference returns text, when health check runs, then healthy is returned and inference is closed`() = runTest {
         val factory = FakeLiteRtLmInferenceFactory(response = "OK")
-        val engine = LiteRtLmTestEngine(
-            descriptor = litertlmDescriptor(),
-            inferenceFactory = factory
-        )
+        val engine = LiteRtLmTestEngine(inferenceFactory = factory)
 
         val result = engine.runHealthCheck(modelFile().absolutePath)
 
@@ -73,7 +65,6 @@ class LiteRtLmTestEngineTest {
     @Test
     fun `given inference returns blank text, when health check runs, then empty response is returned`() = runTest {
         val engine = LiteRtLmTestEngine(
-            descriptor = litertlmDescriptor(),
             inferenceFactory = FakeLiteRtLmInferenceFactory(response = " ")
         )
 
@@ -85,7 +76,6 @@ class LiteRtLmTestEngineTest {
     @Test
     fun `given inference throws, when health check runs, then inference failed is returned`() = runTest {
         val engine = LiteRtLmTestEngine(
-            descriptor = litertlmDescriptor(),
             inferenceFactory = FakeLiteRtLmInferenceFactory(throwable = IllegalStateException("Engine init failed"))
         )
 
@@ -97,17 +87,6 @@ class LiteRtLmTestEngineTest {
 
     private fun modelFile(name: String = "model.litertlm"): File =
         File(tempDir, name).also { it.writeText("model") }
-
-    private fun litertlmDescriptor(
-        localFileName: String = "model.litertlm"
-    ): AiModelDescriptor =
-        AiModelDescriptor(
-            displayName = "Gemma 3n E2B IT",
-            repositoryId = "google/gemma-3n-E2B-it-litert-lm",
-            artifactPath = "gemma-3n-E2B-it-int4.litertlm",
-            localDirectoryName = "gemma-3n-e2b-it",
-            localFileName = localFileName
-        )
 }
 
 private class FakeLiteRtLmInferenceFactory(
@@ -118,7 +97,7 @@ private class FakeLiteRtLmInferenceFactory(
     var createCount = 0
         private set
 
-    override fun create(modelPath: String): LiteRtLmInference {
+    override fun create(modelPath: String, initialExchanges: List<Pair<String, String>>): LiteRtLmInference {
         createCount++
         return inference
     }
@@ -131,7 +110,7 @@ private class FakeLiteRtLmInference(
     var isClosed = false
         private set
 
-    override fun generateResponse(prompt: String): String {
+    override fun generateResponse(userMessage: String): String {
         throwable?.let { throw it }
         return response
     }

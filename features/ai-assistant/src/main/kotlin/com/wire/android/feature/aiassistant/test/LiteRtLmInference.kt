@@ -17,36 +17,45 @@
 package com.wire.android.feature.aiassistant.test
 
 import com.google.ai.edge.litertlm.Content
+import com.google.ai.edge.litertlm.ConversationConfig
 import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
+import com.google.ai.edge.litertlm.Message
 import javax.inject.Inject
 
 interface LiteRtLmInferenceFactory {
-    fun create(modelPath: String): LiteRtLmInference
+    fun create(modelPath: String, initialExchanges: List<Pair<String, String>> = emptyList()): LiteRtLmInference
 }
 
 interface LiteRtLmInference : AutoCloseable {
-    fun generateResponse(prompt: String): String
+    fun generateResponse(userMessage: String): String
 }
 
 class DefaultLiteRtLmInferenceFactory @Inject constructor() : LiteRtLmInferenceFactory {
-    override fun create(modelPath: String): LiteRtLmInference {
+    override fun create(modelPath: String, initialExchanges: List<Pair<String, String>>): LiteRtLmInference {
         val config = EngineConfig(modelPath = modelPath)
         val engine = Engine(config)
         engine.initialize()
-        return DefaultLiteRtLmInference(engine)
+        return DefaultLiteRtLmInference(engine, initialExchanges)
     }
 }
 
 private class DefaultLiteRtLmInference(
-    private val engine: Engine
+    private val engine: Engine,
+    private val initialExchanges: List<Pair<String, String>>
 ) : LiteRtLmInference {
-    override fun generateResponse(prompt: String): String =
-        engine.createConversation().use { conversation ->
-            conversation.sendMessage(prompt).contents.contents
+    override fun generateResponse(userMessage: String): String {
+        val conversationConfig = ConversationConfig(
+            initialMessages = initialExchanges.flatMap { (userMsg, modelMsg) ->
+                listOf(Message.user(userMsg), Message.model(modelMsg))
+            }
+        )
+        return engine.createConversation(conversationConfig).use { conversation ->
+            conversation.sendMessage(userMessage).contents.contents
                 .filterIsInstance<Content.Text>()
                 .joinToString("") { it.text }
         }
+    }
 
     override fun close() {
         engine.close()

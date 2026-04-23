@@ -23,6 +23,7 @@ import app.cash.turbine.test
 import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.feature.aiassistant.AiModelManager
+import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
 import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.feature.aiassistant.model.FailureReason
@@ -41,6 +42,7 @@ import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -217,6 +219,29 @@ class AiAssistantDebugViewModelTest {
     }
 
     @Test
+    fun `given available models, then state contains available models and selected model`() = runTest {
+        // given
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .arrange()
+
+        assertEquals(listOf(testDescriptor), viewModel.state.availableModels)
+        assertEquals(testDescriptor, viewModel.state.selectedModel)
+    }
+
+    @Test
+    fun `given available models, when model is selected, then selectModel is called on manager`() = runTest {
+        // given
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .arrange()
+
+        // when
+        viewModel.selectModel(testDescriptor)
+
+        // then
+        verify(exactly = 1) { arrangement.aiModelManager.selectModel(testDescriptor) }
+    }
+
+    @Test
     fun `given ai model authorization is required, when downloading, then info message emits authorization error`() = runTest {
         // given
         val (_, viewModel) = AiAssistantDebugArrangement()
@@ -251,6 +276,14 @@ class AiAssistantDebugViewModelTest {
     }
 }
 
+private val testDescriptor = AiModelDescriptor(
+    displayName = "Test model",
+    repositoryId = "google/test-model",
+    artifactPath = "test-model.litertlm",
+    localDirectoryName = "test-model",
+    localFileName = "model.litertlm"
+)
+
 private class AiAssistantDebugArrangement {
 
     @MockK
@@ -269,6 +302,8 @@ private class AiAssistantDebugArrangement {
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(UnconfinedTestDispatcher())
+        every { aiModelManager.availableModels } returns listOf(testDescriptor)
+        every { aiModelManager.selectedModel } returns MutableStateFlow(testDescriptor)
         withAiModelStatus(AiModelStatus.NotDownloaded)
         withAiModelDownloadState()
         withAiModelHealthCheckResult(AiModelHealthCheckResult.Healthy)

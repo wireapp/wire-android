@@ -1892,6 +1892,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_conversation_crypto_stats" translatable="false">Conversation Crypto Stats</string>
     <string name="debug_settings_ai_assistant" translatable="false">AI assistant</string>
     <string name="debug_settings_ai_assistant_model" translatable="false">AI assistant model</string>
+    <string name="debug_settings_ai_model_select" translatable="false">Select model</string>
     <string name="debug_settings_ai_model_not_downloaded" translatable="false">Not downloaded</string>
     <string name="debug_settings_ai_model_downloading" translatable="false">Downloading</string>
     <string name="debug_settings_ai_model_downloading_with_progress" translatable="false">Downloading %1$d%%</string>

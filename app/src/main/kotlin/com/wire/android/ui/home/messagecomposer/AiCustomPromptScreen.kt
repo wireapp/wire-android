@@ -16,8 +16,11 @@
  */
 package com.wire.android.ui.home.messagecomposer
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,12 +35,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -60,18 +65,29 @@ fun AiCustomPromptScreen(
         textState = textState,
         onApply = { resultNavigator.navigateBack(textState.text.toString()) },
         onBack = { resultNavigator.navigateBack() },
+        onSelectPredefinedPrompt = { resultNavigator.navigateBack(it) },
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AiCustomPromptContent(
     textState: TextFieldState,
     onApply: () -> Unit,
     onBack: () -> Unit,
+    onSelectPredefinedPrompt: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
     val isApplyEnabled by remember { derivedStateOf { textState.text.isNotBlank() } }
+    val predefinedPrompts = listOf(
+        stringResource(R.string.ai_predefined_prompt_shorter),
+        stringResource(R.string.ai_predefined_prompt_longer),
+        stringResource(R.string.ai_predefined_prompt_fix_grammar),
+        stringResource(R.string.ai_predefined_prompt_professional),
+        stringResource(R.string.ai_predefined_prompt_simplify),
+        stringResource(R.string.ai_predefined_prompt_casual),
+    )
 
     WireScaffold(
         modifier = modifier,
@@ -104,6 +120,22 @@ private fun AiCustomPromptContent(
                 )
             }
 
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.wireDimensions.spacing8x),
+                horizontalArrangement = Arrangement.Start,
+            ) {
+                predefinedPrompts.forEach { prompt ->
+                    WireTertiaryButton(
+                        text = prompt,
+                        onClick = { onSelectPredefinedPrompt(prompt) },
+                        fillMaxWidth = false,
+                        borderWidth = 0.dp,
+                    )
+                }
+            }
+
             Surface(
                 shadowElevation = scrollState.rememberBottomBarElevationState().value,
                 color = MaterialTheme.wireColorScheme.background,
@@ -129,5 +161,6 @@ fun PreviewAiCustomPromptContent() = WireTheme {
         textState = TextFieldState("Make this shorter"),
         onApply = {},
         onBack = {},
+        onSelectPredefinedPrompt = {},
     )
 }

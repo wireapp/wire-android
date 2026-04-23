@@ -27,7 +27,6 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import com.wire.android.tests.support.suite.AllureFailureScreenshotRule
 import com.wire.android.tests.support.suite.AllureLabelsRule
-import com.wire.android.tests.support.suite.AllureLogcatRule
 import io.qameta.allure.kotlin.Allure
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
@@ -51,10 +50,6 @@ abstract class BaseUiTest : KoinTest {
     // Screenshot ONLY for real failures
     @get:Rule
     val failureScreenshotRule = AllureFailureScreenshotRule()
-
-    // logcat on failure
-    @get:Rule
-    val logcatRule = AllureLogcatRule(maxLines = 500)
 
     protected fun step(name: String, block: () -> Unit) {
         Allure.step(name) { block() }

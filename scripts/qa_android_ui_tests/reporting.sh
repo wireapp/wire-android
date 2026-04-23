@@ -9,6 +9,8 @@ usage() {
 }
 
 remove_runtime_secrets() {
+  # Remove both the repo symlink and the runner-owned backing file so publish
+  # and cleanup steps cannot accidentally carry runtime secrets forward.
   rm -f secrets.json || true
   if [[ -n "${SECRETS_JSON_PATH:-}" ]]; then
     rm -f "${SECRETS_JSON_PATH}" || true
@@ -16,17 +18,28 @@ remove_runtime_secrets() {
 }
 
 pull_allure_results() {
+  local out_dir="${OUT_DIR:?OUT_DIR not set}"
+  mkdir -p "${out_dir}"
+
+  # Retry-aware runs already persist per-attempt results during execution.
+  if compgen -G "${out_dir}/attempt-*" >/dev/null; then
+    if find "${out_dir}"/attempt-* -type f -name '*-result.json' -print -quit | grep -q .; then
+      echo "Per-attempt Allure results already present under ${out_dir}; skipping fallback pull."
+      return
+    fi
+    echo "Attempt folders exist but no result files found yet; running fallback pull."
+  fi
+
   if [[ -z "${DEVICE_LIST:-}" ]]; then
     echo "No devices detected (skipping allure pull)"
     return
   fi
 
-  local out_dir="${OUT_DIR:?OUT_DIR not set}"
-  mkdir -p "${out_dir}"
-
   read -ra DEVICES <<< "${DEVICE_LIST}"
   local idx=1
   for serial in "${DEVICES[@]}"; do
+    # Keep this fallback pull best-effort only; per-attempt pulls are the
+    # primary source of truth once retry mode is enabled.
     echo "Pulling allure-results from device ${idx}/${DEVICE_COUNT}..."
     mkdir -p "${out_dir}/${serial}"
     adb -s "${serial}" pull "/sdcard/googletest/test_outputfiles/allure-results" "${out_dir}/${serial}" >/dev/null 2>&1 || true
@@ -35,6 +48,8 @@ pull_allure_results() {
 }
 
 merge_allure_results() {
+  # One merged dataset lets the final report reflect the latest outcome per
+  # logical test instead of showing each rerun attempt as a separate result.
   python3 scripts/qa_android_ui_tests/merge_allure_results.py
 }
 
@@ -72,6 +87,8 @@ HTML
   # Update this checksum when bumping allure_version.
   local allure_sha256="a217155db9670ab36ce7b0569b3fb0530a657c81bd7ce5bc974f0bba2a4d84fb"
   local allure_tgz="${RUNNER_TEMP}/allure-${allure_version}.tgz"
+  # Download Allure on demand so the runner image does not need to prebundle
+  # one specific version forever.
   curl -fsSL -o "${allure_tgz}" \
     "https://github.com/allure-framework/allure2/releases/download/${allure_version}/allure-${allure_version}.tgz"
 
@@ -122,11 +139,15 @@ publish_allure_report() {
     run_folder="${run_folder}_apk-${safe_apk}"
   fi
 
+  # Publish each run to its own dated folder so report URLs stay stable and the
+  # index page can keep a simple chronological history.
   rm -rf "${PAGES_DIR}/${run_folder}"
   mkdir -p "${PAGES_DIR}/${run_folder}"
   cp -a "${REPORT_DIR}/." "${PAGES_DIR}/${run_folder}/"
 
   if [[ -n "${KEEP_DAYS}" ]]; then
+    # Retention cleanup is date-folder based; deleting old folders keeps Pages
+    # size under control without touching newer report snapshots.
     local cutoff
     cutoff="$(date -u -d "${KEEP_DAYS} days ago" +%s)"
     for run_dir in "${PAGES_DIR}"/20??-??-??_run-*; do
@@ -183,6 +204,8 @@ cleanup_workspace() {
   : "${ALLURE_RESULTS_MERGED_DIR:?ALLURE_RESULTS_MERGED_DIR not set}"
   : "${ALLURE_REPORT_DIR:?ALLURE_REPORT_DIR not set}"
 
+  # Cleanup must be safe to run after both success and failure because every
+  # workflow path reaches this step via if: always().
   rm -f "secrets.json" "${RUNNER_TEMP}/secrets.json" || true
   rm -f "${RUNNER_TEMP}/Wire.apk" "${RUNNER_TEMP}/Wire.old.apk" || true
 

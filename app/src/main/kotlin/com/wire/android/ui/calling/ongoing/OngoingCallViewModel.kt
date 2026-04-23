@@ -32,6 +32,8 @@ import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.ui.calling.model.InCallReaction
 import com.wire.android.ui.calling.model.ReactionSender
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.details.CallQualityState
+import com.wire.android.ui.calling.ongoing.details.CallQualityState.Quality
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions
 import com.wire.android.ui.calling.ongoing.toast.InCallToast
@@ -42,6 +44,7 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.call.CallModerationAction
+import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.kalium.logic.data.call.CallResolutionQuality
 import com.wire.kalium.logic.data.call.CallingParticipantsOrderType
 import com.wire.kalium.logic.data.call.VideoState
@@ -57,6 +60,8 @@ import com.wire.kalium.logic.feature.call.usecase.SetCallQualityIntervalUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -87,6 +92,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
     @CurrentAccount val currentUserId: UserId,
     private val globalDataStore: GlobalDataStore,
+    private val networkStateObserver: NetworkStateObserver,
     private val observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val setVideoSendState: SetVideoSendStateUseCase,
@@ -182,8 +188,33 @@ class OngoingCallViewModel @AssistedInject constructor(
 
     fun observeCallQuality() {
         viewModelScope.launch {
-            observeCallQualityData(conversationId).collectLatest { callQualityData ->
-                state = state.copy(callQualityData = callQualityData)
+            combine(
+                observeCallQualityData(conversationId),
+                networkStateObserver.observeNetworkState()
+            ) { callQualityData, networkState ->
+                when (networkState) {
+                    NetworkState.NotConnected,
+                    NetworkState.ConnectedWithoutInternet -> CallQualityState(
+                        quality = Quality.NO_INTERNET // no internet state with other values being defaulted to unknown
+                    )
+                    NetworkState.ConnectedWithInternet -> CallQualityState(
+                        quality = when (callQualityData.quality) {
+                            CallQualityData.Quality.UNKNOWN -> Quality.UNKNOWN
+                            CallQualityData.Quality.NORMAL -> Quality.GOOD
+                            CallQualityData.Quality.MEDIUM -> Quality.FAIR
+                            CallQualityData.Quality.POOR,
+                            CallQualityData.Quality.NETWORK_PROBLEM,
+                            CallQualityData.Quality.RECONNECTING -> Quality.POOR
+                        },
+                        peer = callQualityData.peer,
+                        connection = callQualityData.connection,
+                        ping = callQualityData.ping,
+                        packetLoss = callQualityData.packetLoss,
+                        jitter = callQualityData.jitter
+                    )
+                }
+            }.collectLatest {
+                state = state.copy(callQuality = it)
             }
         }
     }
@@ -258,7 +289,7 @@ class OngoingCallViewModel @AssistedInject constructor(
         viewModelScope.launch {
             participants
                 .filter {
-                    (it.isCameraOn || it.isSharingScreen) && !state.othersVideosDisabled
+                    it.isSharingScreen || (it.isCameraOn && !state.othersVideosDisabled)
                 }
                 .also {
                     val clients: List<CallClient> = it.map { uiParticipant ->
@@ -357,6 +388,6 @@ private suspend fun SharedFlow<Call?>.senderName(userId: QualifiedID) =
     filterNotNull().filter { it.participants.isNotEmpty() }.first().senderName(userId)
 
 private fun OngoingCallState.currentOrderType(): CallingParticipantsOrderType = when (othersVideosDisabled) {
-    true -> CallingParticipantsOrderType.ALPHABETICALLY
-    false -> CallingParticipantsOrderType.VIDEOS_FIRST
+    true -> CallingParticipantsOrderType.PRESENTERS_FIRST
+    false -> CallingParticipantsOrderType.ALL_MEDIA_FIRST
 }

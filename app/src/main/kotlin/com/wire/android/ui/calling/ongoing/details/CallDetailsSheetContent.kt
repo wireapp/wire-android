@@ -32,9 +32,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
@@ -46,12 +49,11 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun CallDetailsSheetContent(
-    callQuality: CallQualityData.Quality,
+    callQuality: CallQualityState.Quality,
     onOpenNetworkQuality: () -> Unit,
     othersVideosDisabled: Boolean,
     onOthersVideosDisabledChanged: (othersVideosDisabled: Boolean) -> Unit,
@@ -102,12 +104,12 @@ private fun EncryptedCallItem() {
 
 @Composable
 private fun NetworkQualityItem(
-    callQuality: CallQualityData.Quality,
+    callQuality: CallQualityState.Quality,
     onOpenNetworkQuality: () -> Unit
 ) {
     val title = stringResource(R.string.calling_details_network_quality_title)
     val clickLabel = stringResource(R.string.content_description_call_network_quality_view_details)
-    val value = callQuality.toCallQualityIndicatorValue().text
+    val value = callQuality.text
     MenuBottomSheetItem(
         title = title,
         trailing = {
@@ -121,7 +123,7 @@ private fun NetworkQualityItem(
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_right),
-                    contentDescription = "",
+                    contentDescription = stringResource(R.string.content_description_call_network_quality_view_details),
                     tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
                     modifier = Modifier.size(dimensions().spacing16x)
                 )
@@ -129,8 +131,10 @@ private fun NetworkQualityItem(
         },
         onItemClick = onOpenNetworkQuality,
         modifier = Modifier.clearAndSetSemantics {
-            contentDescription = "$title: $value"
-            onClick(label = clickLabel, action = null)
+            contentDescription = clickLabel
+            stateDescription = "$title: $value"
+            role = Role.Button
+            onClick(action = null)
         }
     )
 }
@@ -176,7 +180,7 @@ private fun TurnOffOtherVideosItem(
 @Composable
 fun CallDetailsSheetContentPreview() = WireTheme {
     CallDetailsSheetContent(
-        callQuality = CallQualityData.Quality.NORMAL,
+        callQuality = CallQualityState.Quality.GOOD,
         onOpenNetworkQuality = {},
         othersVideosDisabled = true,
         onOthersVideosDisabledChanged = {},

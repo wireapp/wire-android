@@ -24,6 +24,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
 import com.wire.kalium.logic.feature.debug.DebugScope
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
+import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
 import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
 import dagger.Module
 import dagger.Provides
@@ -78,6 +79,11 @@ class DebugModule {
     @ViewModelScoped
     @Provides
     fun provideFeatureConfigUseCase(debugScope: DebugScope): GetFeatureConfigUseCase = debugScope.getFeatureConfig
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetConversationEpochFromCCUseCase(debugScope: DebugScope): GetConversationEpochFromCCUseCase =
+        debugScope.getConversationEpochFromCC
 
     @ViewModelScoped
     @Provides

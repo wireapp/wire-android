@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.home.newconversation.groupOptions
 
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
+
 data class GroupOptionState(
     val continueEnabled: Boolean = true,
     val isLoading: Boolean = false,
@@ -26,6 +28,6 @@ data class GroupOptionState(
     val isReadReceiptEnabled: Boolean = true,
     val showAllowGuestsDialog: Boolean = false,
     // feature flag for allowing apps usage for the team
-    val isTeamAllowedToUseApps: Boolean = false,
+    val isTeamAllowedToUseApps: AppsAllowedResult = AppsAllowedResult.Disabled,
     val isWireCellsEnabled: Boolean? = null,
 )

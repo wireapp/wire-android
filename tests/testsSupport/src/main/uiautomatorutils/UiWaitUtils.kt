@@ -50,9 +50,10 @@ data class UiSelectorParams(
 )
 
 /**
- * ✔️ Waits until the element exists
- * ✔️ Confirms it's visibly rendered on screen
- * ✔️ Works for both interactive (buttons) and passive (labels) elements without extra parameters
+ * Utility methods for robust UIAutomator synchronization in instrumentation tests.
+ *
+ * This object centralizes visibility/gone waits, polling retries, and click retries so page objects
+ * in `:tests:testsCore` can avoid local wait/sleep loops and share consistent timeout semantics.
  */
 
 @Suppress("TooManyFunctions")
@@ -78,10 +79,18 @@ object UiWaitUtils {
         return requireNotNull(selector) { "At least one selector must be provided" }
     }
 
+    /**
+     * Converts [UiSelectorParams] into a [BySelector] used by UIAutomator `By.*` based queries.
+     */
     fun UiSelectorParams.toBySelector(): BySelector {
         return UiWaitUtils.buildSelector(this)
     }
 
+    /**
+     * Finds an element once and returns `null` when it is not currently available.
+     *
+     * This is intentionally non-throwing and is useful in polling loops or optional element checks.
+     */
     fun findElementOrNull(selector: UiSelectorParams): UiObject2? {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         return try {
@@ -91,6 +100,11 @@ object UiWaitUtils {
         }
     }
 
+    /**
+     * Repeatedly evaluates [condition] until it returns `true` or [timeoutMs] expires.
+     *
+     * @return `true` if [condition] succeeded before timeout, otherwise `false`.
+     */
     fun retryUntilTimeout(
         timeoutMs: Long,
         pollingIntervalMs: Long = DEFAULT_POLLING_INTERVAL_MS,
@@ -106,6 +120,11 @@ object UiWaitUtils {
         return condition()
     }
 
+    /**
+     * Waits until an element matching [params] is visible, then returns.
+     *
+     * Throws [AssertionError] with [errorMessage] when the element does not appear in time.
+     */
     fun waitUntilVisibleOrThrow(
         params: UiSelectorParams,
         timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
@@ -126,6 +145,11 @@ object UiWaitUtils {
         }
     }
 
+    /**
+     * Waits until any selector from [selectors] resolves to a visible element.
+     *
+     * @return the first visible [UiObject2], or `null` when no selector becomes visible in time.
+     */
     fun waitAnyVisible(
         selectors: List<UiSelectorParams>,
         timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
@@ -148,6 +172,13 @@ object UiWaitUtils {
         return if (isFound) found else null
     }
 
+    /**
+     * Waits for an element to become visible and enabled, then clicks it.
+     *
+     * Handles transient `StaleObjectException` by retrying until timeout.
+     *
+     * @return `true` if the click succeeded within timeout, otherwise `false`.
+     */
     fun clickWhenClickable(
         params: UiSelectorParams,
         timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
@@ -171,6 +202,11 @@ object UiWaitUtils {
         }
     }
 
+    /**
+     * Waits until an element matched by [selector] disappears from the UI hierarchy.
+     *
+     * Throws [AssertionError] with [errorMessage] when the element is still present after timeout.
+     */
     fun waitUntilGoneOrThrow(
         selector: BySelector,
         timeoutMs: Long = 30_000,
@@ -183,6 +219,11 @@ object UiWaitUtils {
         }
     }
 
+    /**
+     * Waits until an element matched by [UiSelector] disappears.
+     *
+     * This variant is intended for call sites still using classic `UiSelector`.
+     */
     fun waitUntilGoneOrThrow(
         device: UiDevice,
         selector: UiSelector,
@@ -201,6 +242,12 @@ object UiWaitUtils {
         }
     }
 
+    /**
+     * Waits for an element to appear and then stabilizes it before returning.
+     *
+     * Stabilization requires visible, on-screen, enabled bounds repeated across two probes, reducing
+     * flaky interactions caused by transient or stale nodes.
+     */
     @Suppress("MagicNumber", "NestedBlockDepth", "CyclomaticComplexMethod", "ComplexCondition")
     fun waitElement(
         params: UiSelectorParams,
@@ -266,6 +313,11 @@ object UiWaitUtils {
         params.description?.let { "description='$it'" }
     ).joinToString(", ")
 
+    /**
+     * Compatibility wrapper for existing callers using the old `waitUntilElementGone` API.
+     *
+     * Internally delegates to [waitUntilGoneOrThrow].
+     */
     fun waitUntilElementGone(
         device: UiDevice,
         selector: UiSelector,
@@ -282,6 +334,11 @@ object UiWaitUtils {
 
     @Suppress("MagicNumber")
     object WaitUtils {
+        /**
+         * Legacy fixed sleep helper used by existing test flows.
+         *
+         * Kept for compatibility in PR-1; call sites migrate in later cleanups.
+         */
         fun waitFor(seconds: Int, startPinging: () -> Unit = {}, stopPinging: () -> Unit = {}) {
             if (seconds > 20) {
                 startPinging()
@@ -294,6 +351,9 @@ object UiWaitUtils {
         }
     }
 
+    /**
+     * Compatibility wrapper for older callers. Uses [waitUntilVisibleOrThrow] internally.
+     */
     fun waitUntilVisible(
         params: UiSelectorParams,
         timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
@@ -306,6 +366,9 @@ object UiWaitUtils {
         )
     }
 
+    /**
+     * Waits until a toast containing [message] is visible.
+     */
     fun waitUntilToastIsDisplayed(
         message: String,
         timeoutMs: Long = 5_000
@@ -317,6 +380,9 @@ object UiWaitUtils {
         )
     }
 
+    /**
+     * Waits until a system message containing [message] is visible.
+     */
     fun iSeeSystemMessage(
         message: String,
         timeoutMs: Long = 5_000
@@ -328,6 +394,11 @@ object UiWaitUtils {
         )
     }
 
+    /**
+     * Asserts a toast with [text] is emitted while executing [trigger].
+     *
+     * This uses accessibility events and is useful when UI tree based lookup is not reliable.
+     */
     @Suppress("MagicNumber")
     fun assertToastDisplayed(text: String, trigger: () -> Unit, timeoutMs: Long = 5_000L) {
         var toastDisplayed = false

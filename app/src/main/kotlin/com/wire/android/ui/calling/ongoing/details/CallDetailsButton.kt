@@ -18,13 +18,13 @@
 package com.wire.android.ui.calling.ongoing.details
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,9 +32,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
@@ -44,11 +46,10 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.data.call.CallQualityData
 
 @Composable
 fun CallDetailsButton(
-    callQuality: CallQualityData.Quality,
+    callQuality: CallQualityState.Quality,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -70,18 +71,19 @@ fun CallDetailsButton(
 }
 
 @Composable
-private fun LowNetworkItem(callQuality: CallQualityData.Quality) {
+private fun LowNetworkItem(callQuality: CallQualityState.Quality) {
     AnimatedVisibility(
         visible = callQuality.isLowQuality,
         enter = fadeIn() + scaleIn() + expandIn(expandFrom = Alignment.Center),
         exit = fadeOut() + scaleOut() + shrinkOut(shrinkTowards = Alignment.Center)
     ) {
+        val color by animateColorAsState(targetValue = callQuality.color)
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(dimensions().wireIconButtonSize)
+                .drawBehind { drawCircle(color = color, radius = size.minDimension / 2) }
                 .clip(CircleShape)
-                .background(color = colorsScheme().warning, shape = CircleShape)
                 .padding(horizontal = dimensions().spacing2x, vertical = dimensions().spacing4x),
         ) {
             Icon(
@@ -106,11 +108,11 @@ private fun InfoItem() {
 @PreviewMultipleThemes
 @Composable
 fun CallDetailsButtonPreview() = WireTheme {
-    CallDetailsButton(callQuality = CallQualityData.Quality.NORMAL, onClick = {})
+    CallDetailsButton(callQuality = CallQualityState.Quality.GOOD, onClick = {})
 }
 
 @PreviewMultipleThemes
 @Composable
 fun CallDetailsButtonWithLowNetworkPreview() = WireTheme {
-    CallDetailsButton(callQuality = CallQualityData.Quality.POOR, onClick = {})
+    CallDetailsButton(callQuality = CallQualityState.Quality.POOR, onClick = {})
 }

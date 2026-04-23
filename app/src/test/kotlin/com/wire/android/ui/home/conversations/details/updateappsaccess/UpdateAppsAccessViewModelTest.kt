@@ -31,10 +31,15 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.GroupID
 import com.wire.kalium.logic.data.id.TeamId
+import com.wire.kalium.logic.data.mls.CipherSuite
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
@@ -69,7 +74,7 @@ class UpdateAppsAccessViewModelTest {
             )
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .arrange()
 
         // When
@@ -100,7 +105,7 @@ class UpdateAppsAccessViewModelTest {
             )
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .arrange()
 
         // When
@@ -143,7 +148,7 @@ class UpdateAppsAccessViewModelTest {
             )
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .arrange()
 
         // When
@@ -171,7 +176,7 @@ class UpdateAppsAccessViewModelTest {
         val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .arrange()
 
         advanceUntilIdle()
@@ -189,7 +194,7 @@ class UpdateAppsAccessViewModelTest {
         val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .arrange()
 
         advanceUntilIdle()
@@ -199,15 +204,22 @@ class UpdateAppsAccessViewModelTest {
     }
 
     @Test
-    fun `given isAppsAllowed for team and conversation has SERVICE role, then state should reflect this to allow`() = runTest {
+    fun `given apps are enabled for current conversation protocol and conversation has SERVICE role, then state should reflect this to allow`() = runTest {
         // Given
         val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
         val conversation = TestConversation.GROUP().copy(
-            accessRole = listOf(Conversation.AccessRole.SERVICE)
+            accessRole = listOf(Conversation.AccessRole.SERVICE),
+            protocol = Conversation.ProtocolInfo.MLS(
+                groupId = GroupID("group-id"),
+                groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.ESTABLISHED,
+                epoch = 1UL,
+                keyingMaterialLastUpdate = Instant.parse("2022-04-04T16:11:28.388Z"),
+                cipherSuite = CipherSuite.MLS_128_DHKEMP256_AES128GCM_SHA256_P256
+            )
         )
 
         val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
             .withConversationDetailUpdate(TestConversationDetails.GROUP.copy(conversation = conversation))
             .withConversationMembersUpdate(conversationParticipantsData)
             .arrange()
@@ -227,7 +239,7 @@ class UpdateAppsAccessViewModelTest {
         )
 
         val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
             .withConversationDetailUpdate(TestConversationDetails.GROUP.copy(conversation = conversation))
             .withConversationMembersUpdate(conversationParticipantsData)
             .arrange()
@@ -247,15 +259,64 @@ class UpdateAppsAccessViewModelTest {
         val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(false)
+            .withAppsAllowedResult(AppsAllowedResult.Disabled)
             .arrange()
 
         advanceUntilIdle()
 
         // Then
-        // WPB-21835: even if team does not allow apps, we still allow enabling/disabling apps based on protocol, later this will change
-        assertEquals(true, viewModel.updateAppsAccessState.isUpdatingAppAccessAllowed)
+        assertEquals(false, viewModel.updateAppsAccessState.isUpdatingAppAccessAllowed)
+        assertEquals(false, viewModel.updateAppsAccessState.isAppAccessAllowed)
+    }
+
+    @Test
+    fun `given mixed team falls back to Proteus, when conversation is Proteus with SERVICE role, then bots access is enabled`() = runTest {
+        val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(
+                accessRole = listOf(Conversation.AccessRole.SERVICE),
+                protocol = Conversation.ProtocolInfo.Proteus
+            )
+        )
+
+        val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
+            .withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.PROTEUS)))
+            .arrange()
+
+        advanceUntilIdle()
+
         assertEquals(true, viewModel.updateAppsAccessState.isAppAccessAllowed)
+        assertEquals(true, viewModel.updateAppsAccessState.isUpdatingAppAccessAllowed)
+    }
+
+    @Test
+    fun `given mixed team falls back to Proteus, when conversation is MLS, then apps access is disabled`() = runTest {
+        val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(
+                accessRole = listOf(Conversation.AccessRole.SERVICE),
+                protocol = Conversation.ProtocolInfo.MLS(
+                    groupId = GroupID("group-id"),
+                    groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.ESTABLISHED,
+                    epoch = 1UL,
+                    keyingMaterialLastUpdate = Instant.parse("2022-04-04T16:11:28.388Z"),
+                    cipherSuite = CipherSuite.MLS_128_DHKEMP256_AES128GCM_SHA256_P256
+                )
+            )
+        )
+
+        val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
+            .withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.PROTEUS)))
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.updateAppsAccessState.isAppAccessAllowed)
+        assertEquals(false, viewModel.updateAppsAccessState.isUpdatingAppAccessAllowed)
     }
 
     @Test
@@ -264,14 +325,21 @@ class UpdateAppsAccessViewModelTest {
         val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
         val details = testGroup.copy(
             conversation = testGroup.conversation.copy(
-                accessRole = listOf(Conversation.AccessRole.SERVICE, Conversation.AccessRole.TEAM_MEMBER)
+                accessRole = listOf(Conversation.AccessRole.SERVICE, Conversation.AccessRole.TEAM_MEMBER),
+                protocol = Conversation.ProtocolInfo.MLS(
+                    groupId = GroupID("group-id"),
+                    groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.ESTABLISHED,
+                    epoch = 1UL,
+                    keyingMaterialLastUpdate = Instant.parse("2022-04-04T16:11:28.388Z"),
+                    cipherSuite = CipherSuite.MLS_128_DHKEMP256_AES128GCM_SHA256_P256
+                )
             )
         )
 
         val (_, viewModel) = UpdateAppsAccessViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
-            .withAppsAllowedResult(true)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
             .arrange()
 
         advanceUntilIdle()
@@ -372,7 +440,8 @@ internal class UpdateAppsAccessViewModelArrangement {
             conversationId = conversationId,
             updateAppsAccessParams = UpdateAppsAccessParams(
                 isGuestAllowed = true,
-                isAppsAllowed = true
+                isAppsAllowed = true,
+                shouldUseNewAppsUi = true
             )
         )
 
@@ -380,7 +449,7 @@ internal class UpdateAppsAccessViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observeParticipantsForConversationUseCase(any()) } returns flowOf()
         coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
-        withAppsAllowedResult(false)
+        withAppsAllowedResult(AppsAllowedResult.Disabled)
     }
 
     fun withGuestDisabledNavArgs() = apply {
@@ -388,12 +457,13 @@ internal class UpdateAppsAccessViewModelArrangement {
             conversationId = conversationId,
             updateAppsAccessParams = UpdateAppsAccessParams(
                 isGuestAllowed = false,
-                isAppsAllowed = true
+                isAppsAllowed = true,
+                shouldUseNewAppsUi = true
             )
         )
     }
 
-    fun withAppsAllowedResult(result: Boolean) = apply {
+    fun withAppsAllowedResult(result: AppsAllowedResult) = apply {
         coEvery { observeIsAppsAllowedForUsage() } returns flowOf(result)
     }
 

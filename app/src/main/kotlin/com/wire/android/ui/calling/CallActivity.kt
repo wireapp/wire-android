@@ -21,11 +21,34 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.lifecycleScope
+import com.wire.android.appLogger
+import com.wire.android.di.assistedViewModels
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
+import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.common.setupOrientationForDevice
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.topappbar.WireTopAppBar
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,20 +61,72 @@ abstract class CallActivity : BaseActivity() {
     @Inject
     lateinit var switchAccountObserver: SwitchAccountObserver
 
+    @Inject
+    lateinit var proximitySensorManager: ProximitySensorManager
+
+    private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
+        factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false))
+    }
+
     companion object {
         const val EXTRA_CONVERSATION_ID = "conversation_id"
         const val EXTRA_USER_ID = "user_id"
         const val EXTRA_SCREEN_TYPE = "screen_type"
         const val EXTRA_SHOULD_ANSWER_CALL = "should_answer_call"
+        const val TAG = "CallActivity"
     }
 
     private val callActivityViewModel: CallActivityViewModel by viewModels()
     protected val qualifiedIdMapper = QualifiedIdMapper(null)
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNewIntent(intent)
+        setIntent(intent)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupOrientationForDevice()
+        setUpScreenshotPreventionFlag()
+        setUpCallingFlags()
+
+        enableEdgeToEdge()
+
+        handleNewIntent(intent)
+
+        appLogger.i("$TAG Initializing proximity sensor..")
+        proximitySensorManager.initialize()
+
+        setContent {
+            val snackbarHostState = remember { SnackbarHostState() }
+            CompositionLocalProvider(
+                LocalSnackbarHostState provides snackbarHostState,
+                LocalActivity provides this
+            ) {
+                WireTheme {
+                    Column(
+                        modifier = Modifier.semantics { testTagsAsResourceId = true }
+                    ) {
+                        WireTopAppBar(
+                            commonTopAppBarState = commonTopAppBarViewModel.state,
+                            animateContentSize = false, // with animations, participant videos are blinking
+                        )
+                        Box(
+                            modifier = Modifier.consumeWindowInsets(WindowInsets.statusBars)
+                        ) {
+                            Content()
+                        }
+                    }
+                }
+            }
+        }
     }
+
+    protected abstract fun handleNewIntent(intent: Intent)
+
+    @Composable
+    protected abstract fun Content()
 
     fun switchAccountIfNeeded(userId: String?) {
         userId?.let {

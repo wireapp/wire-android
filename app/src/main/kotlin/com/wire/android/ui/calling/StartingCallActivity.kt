@@ -19,37 +19,25 @@ package com.wire.android.ui.calling
 
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import com.wire.android.appLogger
 import com.wire.android.navigation.style.TransitionAnimationType
-import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
-import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
-import com.wire.android.ui.common.setupOrientationForDevice
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 /**
  * Activity that handles starting call screens, Incoming and Outgoing
@@ -63,15 +51,12 @@ import javax.inject.Inject
 @OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 class StartingCallActivity : CallActivity() {
-    @Inject
-    lateinit var proximitySensorManager: ProximitySensorManager
-
     private var conversationId: String? by mutableStateOf(null)
     private var userId: String? by mutableStateOf(null)
     private var screenType: StartingCallScreenType? by mutableStateOf(null)
     private var shouldAnswerCall: Boolean by mutableStateOf(false)
 
-    private fun handleNewIntent(intent: Intent) {
+    override fun handleNewIntent(intent: Intent) {
         conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
         userId = intent.extras?.getString(EXTRA_USER_ID)
         screenType = intent.extras?.getString(EXTRA_SCREEN_TYPE)?.let { StartingCallScreenType.byName(it) }
@@ -82,78 +67,49 @@ class StartingCallActivity : CallActivity() {
         switchAccountIfNeeded(userId)
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        handleNewIntent(intent)
-        setIntent(intent)
-    }
-
-    @Suppress("LongMethod")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setupOrientationForDevice()
-
-        setUpScreenshotPreventionFlag()
-        setUpCallingFlags()
-
-        enableEdgeToEdge()
-
-        handleNewIntent(intent)
-
-        appLogger.i("$TAG Initializing proximity sensor..")
-        proximitySensorManager.initialize()
-
-        setContent {
-            val snackbarHostState = remember { SnackbarHostState() }
-            CompositionLocalProvider(
-                LocalSnackbarHostState provides snackbarHostState,
-                LocalActivity provides this
-            ) {
-                WireTheme {
-                    screenType?.let { currentScreenType ->
-                        AnimatedContent(
-                            targetState = currentScreenType,
-                            transitionSpec = {
-                                TransitionAnimationType.POP_UP.enterTransition.togetherWith(
-                                    TransitionAnimationType.POP_UP.exitTransition
-                                )
-                            },
-                            modifier = Modifier.semantics { testTagsAsResourceId = true },
-                            label = currentScreenType.name
-                        ) { screenType ->
-                            conversationId?.let { conversationId ->
-                                userId?.let { userId ->
-                                    when (screenType) {
-                                        StartingCallScreenType.Outgoing -> {
-                                            OutgoingCallScreen(
-                                                conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
-                                            ) {
-                                                getOngoingCallIntent(this@StartingCallActivity, conversationId, userId).run {
-                                                    this@StartingCallActivity.startActivity(this)
-                                                }
-                                                this@StartingCallActivity.finishAndRemoveTask()
-                                            }
-                                        }
-
-                                        StartingCallScreenType.Incoming -> {
-                                            IncomingCallScreen(
-                                                conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId),
-                                                shouldTryToAnswerCallAutomatically = shouldAnswerCall,
-                                            ) {
-                                                this@StartingCallActivity.startActivity(
-                                                    getOngoingCallIntent(this@StartingCallActivity, conversationId, userId)
-                                                )
-                                                this@StartingCallActivity.finishAndRemoveTask()
-                                            }
-                                        }
+    @Composable
+    override fun Content() {
+        screenType?.let { currentScreenType ->
+            AnimatedContent(
+                targetState = currentScreenType,
+                transitionSpec = {
+                    TransitionAnimationType.POP_UP.enterTransition.togetherWith(
+                        TransitionAnimationType.POP_UP.exitTransition
+                    )
+                },
+                modifier = Modifier.semantics { testTagsAsResourceId = true },
+                label = currentScreenType.name
+            ) { screenType ->
+                conversationId?.let { conversationId ->
+                    userId?.let { userId ->
+                        when (screenType) {
+                            StartingCallScreenType.Outgoing -> {
+                                OutgoingCallScreen(
+                                    conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
+                                ) {
+                                    getOngoingCallIntent(this@StartingCallActivity, conversationId, userId).run {
+                                        this@StartingCallActivity.startActivity(this)
                                     }
+                                    this@StartingCallActivity.finishAndRemoveTask()
+                                }
+                            }
+
+                            StartingCallScreenType.Incoming -> {
+                                IncomingCallScreen(
+                                    conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId),
+                                    shouldTryToAnswerCallAutomatically = shouldAnswerCall,
+                                ) {
+                                    this@StartingCallActivity.startActivity(
+                                        getOngoingCallIntent(this@StartingCallActivity, conversationId, userId)
+                                    )
+                                    this@StartingCallActivity.finishAndRemoveTask()
                                 }
                             }
                         }
-                    } ?: run { finish() }
+                    }
                 }
             }
-        }
+        } ?: run { finish() }
     }
 
     override fun onResume() {

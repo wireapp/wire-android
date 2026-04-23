@@ -37,7 +37,6 @@ import com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryTyp
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.user.UserId
@@ -48,6 +47,7 @@ import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -98,27 +98,13 @@ class NewConversationViewModel @Inject constructor(
     private fun observeAllowanceOfAppsUsageInitialState() {
         viewModelScope.launch {
             observeIsAppsAllowedForUsage()
-                .collectLatest { appsAllowed ->
-                    val isMLS = newGroupState.groupProtocol == CreateConversationParam.Protocol.MLS
-                    val isAppsAllowed = computeAppsAllowedStatus(isMLS, appsAllowed)
+                .collectLatest { isAppsAllowedResult ->
                     groupOptionsState = groupOptionsState.copy(
-                        isTeamAllowedToUseApps = isAppsAllowed,
-                        isAllowAppsEnabled = isAppsAllowed
+                        isTeamAllowedToUseApps = isAppsAllowedResult,
+                        isAllowAppsEnabled = isAppsAllowedResult is AppsAllowedResult.Enabled
                     )
                 }
         }
-    }
-
-    /**
-     * Determine apps visibility based on feature flag and team settings
-     * Or just should be protocol based in case of current logic
-     */
-    private fun computeAppsAllowedStatus(isMLS: Boolean, appsAllowed: Boolean) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
-        // current logic: based on protocol (apps disabled for MLS)
-        !isMLS
-    } else {
-        // new logic: based on feature flags
-        appsAllowed
     }
 
     fun resetState() {

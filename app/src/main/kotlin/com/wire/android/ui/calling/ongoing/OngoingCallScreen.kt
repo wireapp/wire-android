@@ -84,6 +84,7 @@ import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.details.CallDetailsBottomSheet
 import com.wire.android.ui.calling.ongoing.details.CallDetailsButton
 import com.wire.android.ui.calling.ongoing.details.CallDetailsSheetState
+import com.wire.android.ui.calling.ongoing.details.CallQualityState
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactionsPanel
@@ -121,7 +122,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
 import com.wire.android.util.ui.PreviewMultipleThemesForPortrait
 import com.wire.android.util.ui.PreviewMultipleThemesForSquare
-import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -237,7 +237,7 @@ fun OngoingCallScreen(
         participants = ongoingCallViewModel.state.participants,
         inPictureInPictureMode = inPictureInPictureMode,
         recentReactions = ongoingCallViewModel.recentReactions,
-        callQuality = ongoingCallViewModel.state.callQualityData.quality,
+        callQuality = ongoingCallViewModel.state.callQuality.quality,
         onOpenCallDetails = {
             callDetailsBottomSheetState.show(CallDetailsSheetState.Details)
         },
@@ -283,7 +283,7 @@ fun OngoingCallScreen(
 
     CallDetailsBottomSheet(
         sheetState = callDetailsBottomSheetState,
-        callQualityData = ongoingCallViewModel.state.callQualityData,
+        callQualityState = ongoingCallViewModel.state.callQuality,
         othersVideosDisabled = ongoingCallViewModel.state.othersVideosDisabled,
         setOthersVideosDisabled = ongoingCallViewModel::setOthersVideosDisabled,
     )
@@ -374,7 +374,7 @@ private fun OngoingCallContent(
     participants: PersistentList<UICallParticipant>,
     recentReactions: Map<UserId, String>,
     inPictureInPictureMode: Boolean,
-    callQuality: CallQualityData.Quality,
+    callQuality: CallQualityState.Quality,
     othersVideosDisabled: Boolean,
     toasts: Set<InCallToast>,
     onToastClick: (toastKey: InCallToast.Key) -> Unit,
@@ -612,7 +612,7 @@ private fun OngoingCallTopBar(
     protocolInfo: Conversation.ProtocolInfo?,
     mlsVerificationStatus: Conversation.VerificationStatus?,
     proteusVerificationStatus: Conversation.VerificationStatus?,
-    callQuality: CallQualityData.Quality,
+    callQuality: CallQualityState.Quality,
     onCollapse: () -> Unit,
     onOpenCallDetails: () -> Unit,
     modifier: Modifier = Modifier
@@ -760,7 +760,7 @@ fun PreviewOngoingCallContent(
         recentReactions = emptyMap(),
         inCallReactionsEnabled = true,
         initialShowInCallReactionsPanel = inCallReactionsPanelVisible,
-        callQuality = CallQualityData.Quality.NORMAL,
+        callQuality = CallQualityState.Quality.GOOD,
         onOpenCallDetails = {},
         othersVideosDisabled = true,
         toasts = toasts,
@@ -833,13 +833,13 @@ fun PreviewOngoingCallScreen_WithToasts() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingCallTopBar() = WireTheme {
-    OngoingCallTopBar("Default", true, null, null, null, CallQualityData.Quality.NORMAL, {}, {})
+    OngoingCallTopBar("Default", true, null, null, null, CallQualityState.Quality.GOOD, {}, {})
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingCallTopBarWithPoorQuality() = WireTheme {
-    OngoingCallTopBar("Default", true, null, null, null, CallQualityData.Quality.POOR, {}, {})
+    OngoingCallTopBar("Default", true, null, null, null, CallQualityState.Quality.POOR, {}, {})
 }
 
 fun buildPreviewParticipantsList(count: Int = 10) = buildList {

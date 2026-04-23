@@ -775,8 +775,8 @@
     <string name="label_system_message_conversation_started_by_other">%1$s hat die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_with_members">Mit %1$s</string>
     <plurals name="label_system_message_conversation_failed_add_members_header">
-        <item quantity="one">**%1$sTeilnehmer** konnte der Unterhaltung nicht hinzugefügt werden.</item>
-        <item quantity="other">**%1$sTeilnehmer** konnten der Unterhaltung nicht hinzugefügt werden.</item>
+        <item quantity="one">**%1$s Teilnehmer** konnte der Unterhaltung nicht hinzugefügt werden.</item>
+        <item quantity="other">**%1$s Teilnehmer** konnten der Unterhaltung nicht hinzugefügt werden.</item>
     </plurals>
     <plurals name="label_system_message_conversation_failed_add_members_details_legal_hold">
         <item quantity="one">%1$s konnte der Unterhaltung aufgrund der gesetzlichen Aufbewahrung nicht hinzugefügt werden.</item>
@@ -1046,6 +1046,7 @@
     <string name="calling_details_network_quality_good">Gut</string>
     <string name="calling_details_network_quality_fair">Befriedigend</string>
     <string name="calling_details_network_quality_poor">Schlecht</string>
+    <string name="calling_details_network_quality_no_internet">Kein Internet</string>
     <string name="calling_details_turn_off_other_videos_title">Andere Videos ausschalten</string>
     <string name="calling_details_turn_off_other_videos_description">Dies verbessert die Audioqualität, wenn Ihre Netzwerkbedingungen schlecht sind.</string>
     <string name="calling_details_network_quality_peer">Peer</string>
@@ -1124,6 +1125,7 @@
     <string name="allow_services_regular_group_description">Öffnen Sie diese Unterhaltung für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="allow_apps_switch_description">Öffnen Sie diese Unterhaltung für Apps.</string>
     <string name="service_details_label">App</string>
+    <string name="service_details_created_by">Erstellt von %1$s</string>
     <string name="service_details_add_service_label">Zur Unterhaltung hinzufügen</string>
     <string name="service_details_remove_service_label">Aus Unterhaltung entfernen</string>
     <string name="service_remove_success">App aus der Unterhaltung entfernt</string>

@@ -50,20 +50,26 @@ import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.sectionWithElements
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 
 @Composable
 fun SearchAppsScreen(
+    protocolInfo: Conversation.ProtocolInfo?,
     searchQuery: String,
     onServiceClicked: (Contact) -> Unit,
     isConversationAppsEnabled: Boolean,
-    searchAppsViewModel: SearchAppsViewModel = hiltViewModel(),
+    searchAppsViewModel: SearchAppsViewModel = hiltViewModel<SearchAppsViewModel, SearchAppsViewModel.Factory>(
+        key = "search_apps_protocol_info_${protocolInfo?.name()}",
+        creationCallback = { factory -> factory.create(protocolInfo = protocolInfo) }
+    ),
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     LaunchedEffect(key1 = searchQuery) {
@@ -76,7 +82,7 @@ fun SearchAppsScreen(
             onServiceClicked = onServiceClicked,
             result = state.result,
             isLoading = state.isLoading,
-            isTeamAllowedToUseApps = state.isTeamAllowedToUseApps,
+            appsAllowedResult = state.isTeamAllowedToUseApps,
             isSelfATeamAdmin = state.isSelfATeamAdmin,
             lazyListState = lazyListState,
             isConversationAppsEnabled = isConversationAppsEnabled
@@ -90,7 +96,7 @@ private fun SearchAllAppsContent(
     result: ImmutableList<Contact>,
     isLoading: Boolean,
     onServiceClicked: (Contact) -> Unit,
-    isTeamAllowedToUseApps: Boolean,
+    appsAllowedResult: AppsAllowedResult,
     isSelfATeamAdmin: Boolean,
     isConversationAppsEnabled: Boolean,
     lazyListState: LazyListState = rememberLazyListState()
@@ -98,7 +104,7 @@ private fun SearchAllAppsContent(
     val appsContentState by rememberAppsContentState(
         isConversationAppsEnabled = isConversationAppsEnabled,
         isLoading = isLoading,
-        isTeamAllowedToUseApps = isTeamAllowedToUseApps,
+        appsAllowedResult = appsAllowedResult,
         searchQuery = searchQuery,
         result = result
     )
@@ -154,21 +160,16 @@ private fun SearchAllAppsContent(
 private fun rememberAppsContentState(
     isConversationAppsEnabled: Boolean,
     isLoading: Boolean,
-    isTeamAllowedToUseApps: Boolean,
+    appsAllowedResult: AppsAllowedResult,
     searchQuery: String,
     result: ImmutableList<Contact>
-): State<AppsContentState> = remember(isConversationAppsEnabled, isLoading, isTeamAllowedToUseApps, searchQuery, result) {
+): State<AppsContentState> = remember(isConversationAppsEnabled, isLoading, appsAllowedResult, searchQuery, result) {
     derivedStateOf {
-        // WPB-21835: Apps availability checks controlled by feature flag
-        if (!FeatureVisibilityFlags.AppsBasedOnProtocol) {
-            // new logic: check team and conversation settings first
-            if (!isTeamAllowedToUseApps) return@derivedStateOf AppsContentState.TEAM_NOT_ALLOWED
-            if (!isConversationAppsEnabled) return@derivedStateOf AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
-        }
-        // current logic: protocol-based, skip the above checks (screen shouldn't be accessible if apps disabled)
+        if (isLoading) return@derivedStateOf AppsContentState.LOADING
+        if (appsAllowedResult is AppsAllowedResult.Disabled) return@derivedStateOf AppsContentState.TEAM_NOT_ALLOWED
+        if (!isConversationAppsEnabled) return@derivedStateOf AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
 
         when {
-            isLoading -> AppsContentState.LOADING
             searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
             searchQuery.isNotBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
             else -> AppsContentState.SHOW_RESULTS
@@ -186,7 +187,6 @@ private fun AppsList(
     LazyColumn(
         state = lazyListState,
         modifier = Modifier
-
     ) {
         sectionWithElements(
             header = null as String?,
@@ -239,7 +239,7 @@ fun PreviewSearchAllServicesScreen_TeamNotEnabledForApps() = WireTheme {
         result = persistentListOf(),
         isLoading = false,
         onServiceClicked = {},
-        isTeamAllowedToUseApps = false,
+        appsAllowedResult = AppsAllowedResult.Disabled,
         isSelfATeamAdmin = true,
         isConversationAppsEnabled = true
     )
@@ -253,7 +253,7 @@ fun PreviewSearchAllServicesScreen_InitialResults() = WireTheme {
         result = previewServiceList(count = 10).toPersistentList(),
         isLoading = false,
         onServiceClicked = {},
-        isTeamAllowedToUseApps = true,
+        appsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
         isSelfATeamAdmin = true,
         isConversationAppsEnabled = true
     )
@@ -267,7 +267,7 @@ fun PreviewSearchAllServicesScreen_EmptyInitialResults_TeamAdmin() = WireTheme {
         result = persistentListOf(),
         isLoading = false,
         onServiceClicked = {},
-        isTeamAllowedToUseApps = true,
+        appsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
         isSelfATeamAdmin = true,
         isConversationAppsEnabled = true
     )
@@ -281,7 +281,7 @@ fun PreviewSearchAllServicesScreen_EmptyInitialResults_NonTeamAdmin() = WireThem
         result = persistentListOf(),
         isLoading = false,
         onServiceClicked = {},
-        isTeamAllowedToUseApps = true,
+        appsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
         isSelfATeamAdmin = false,
         isConversationAppsEnabled = true
     )
@@ -295,7 +295,7 @@ fun PreviewSearchAllServicesScreen_SearchResults() = WireTheme {
         result = previewServiceList(count = 10).toPersistentList(),
         isLoading = false,
         onServiceClicked = {},
-        isTeamAllowedToUseApps = true,
+        appsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
         isSelfATeamAdmin = true,
         isConversationAppsEnabled = true
     )
@@ -309,7 +309,7 @@ fun PreviewSearchAllServicesScreen_EmptySearchResults() = WireTheme {
         result = persistentListOf(),
         isLoading = false,
         onServiceClicked = {},
-        isTeamAllowedToUseApps = true,
+        appsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
         isSelfATeamAdmin = true,
         isConversationAppsEnabled = true
     )
@@ -323,7 +323,7 @@ fun PreviewSearchAllServicesScreen_EmptySearchResultsDisabledInConversation() = 
         result = persistentListOf(),
         isLoading = false,
         onServiceClicked = {},
-        isTeamAllowedToUseApps = true,
+        appsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
         isSelfATeamAdmin = true,
         isConversationAppsEnabled = false
     )

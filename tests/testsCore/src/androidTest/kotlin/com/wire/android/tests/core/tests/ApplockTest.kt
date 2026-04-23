@@ -24,7 +24,6 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
-import backendUtils.team.deleteTeam
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.core.pages.AllPages
 import org.junit.After
@@ -57,11 +56,7 @@ class ApplockTest : BaseUiTest() {
 
     @After
     fun tearDown() {
-        //  UiAutomatorSetup.stopApp()
-        // To delete team member
-        // runCatching { registeredUser?.deleteTeamMember(backendClient, teamMember?.getUserId().orEmpty()) }
-        // To delete team
-        runCatching { registeredUser?.deleteTeam(backendClient) }
+        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
     }
 
     @TestCaseId("TC-8143")
@@ -70,7 +65,7 @@ class ApplockTest : BaseUiTest() {
     fun givenUserEnablesAppLock_whenAppIsBackgroundedForOneMinute_thenAppRequiresUnlockOnReturn() {
 
         step("Prepare backend team (owner + members)") {
-            teamHelper.usersManager!!.createTeamOwnerByAlias(
+            teamHelper.usersManager.createTeamOwnerByAlias(
                 "user1Name",
                 "AppLock",
                 "en_US",

@@ -17,6 +17,10 @@
  */
 package com.wire.android.tests.core
 
+import backendUtils.BackendClient
+import backendUtils.team.deleteTeam
+import backendUtils.user.deleteUser
+import backendUtils.user.removeBackendClients
 import com.wire.android.tests.core.di.testModule
 import org.junit.Rule
 import org.koin.test.KoinTest
@@ -24,6 +28,8 @@ import org.koin.test.KoinTestRule
 import com.wire.android.tests.support.suite.AllureFailureScreenshotRule
 import com.wire.android.tests.support.suite.AllureLabelsRule
 import io.qameta.allure.kotlin.Allure
+import user.usermanager.ClientUserManager
+import user.utils.ClientUser
 
 /**
  * Base class for all UI tests.
@@ -47,5 +53,54 @@ abstract class BaseUiTest : KoinTest {
 
     protected fun step(name: String, block: () -> Unit) {
         Allure.step(name) { block() }
+    }
+
+    /**
+     * Removes backend clients/devices for the given user during teardown.
+     *
+     * Important:
+     * - This does NOT delete the user account.
+     * - This does NOT delete the team.
+     * - This only removes backend clients/devices for that user.
+     */
+    protected fun cleanupBackendClient(
+        backendClient: BackendClient,
+        user: ClientUser?
+    ) {
+        runCatching { user?.removeBackendClients(backendClient) }
+    }
+
+    /**
+     * Shared teardown cleanup for users created through TeamHelper/ClientUserManager.
+     *
+     * What this method does:
+     * 1. Removes backend clients/devices for every tracked created user.
+     * 2. Deletes teams for tracked team owners.
+     * 3. Optionally deletes tracked personal users when deletePersonalUsers = true.
+     *
+     */
+    protected fun cleanupCreatedUsers(
+        backendClient: BackendClient,
+        usersManager: ClientUserManager,
+        deletePersonalUsers: Boolean = false
+    ) {
+        // Removes backend clients/devices only. This does not delete the user.
+        usersManager.createdUsers.forEach { user ->
+            cleanupBackendClient(backendClient, user)
+        }
+
+        // Deletes tracked teams. Deleting a team also removes its members on the backend.
+        usersManager.getAllTeamOwners().forEach { owner ->
+            runCatching { owner.deleteTeam(backendClient) }
+        }
+
+        if (deletePersonalUsers) {
+            // Deletes tracked personal users only when the test explicitly opts in.
+            usersManager.createdUsers
+                .filter { it.teamId.isNullOrBlank() }
+                .forEach { user ->
+                    runCatching { user.deleteUser(backendClient) }
+                }
+        }
     }
 }

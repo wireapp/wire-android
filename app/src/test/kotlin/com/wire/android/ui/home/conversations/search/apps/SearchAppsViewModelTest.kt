@@ -137,6 +137,32 @@ class SearchAppsViewModelTest {
         }
 
     @Test
+    fun `given AppsAllowedProtocol is MIXED with Proteus fallback, when MLS conversation, then apps are disabled for team`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.PROTEUS)))
+                .withGetAllApps(listOf(SERVICE_DETAILS, SERVICE_DETAILS2))
+                .withGetAllServices(listOf(SERVICE_DETAILS, SERVICE_DETAILS2))
+                .arrange(protocolInfo = TestConversation.MLS_PROTOCOL_INFO)
+
+            // when
+            // viewModel is initialized
+            advanceUntilIdle()
+
+            // then
+            coVerify(exactly = 0) {
+                arrangement.getAllApps()
+            }
+            coVerify(exactly = 0) {
+                arrangement.getAllServices()
+            }
+            assertEquals(AppsAllowedResult.Disabled, viewModel.state.isTeamAllowedToUseApps)
+            assertTrue(viewModel.state.result.isEmpty())
+            assertFalse(viewModel.state.isLoading)
+        }
+
+    @Test
     fun `given AppsAllowedProtocol is MIXED, when init view model, then load existing Apps based on conversation protocol (Proteus)`() =
         runTest {
             // given

@@ -124,7 +124,7 @@ private fun GroupConversationAllParticipantsContent(
                     context,
                     groupParticipantsState,
                     onProfilePressed,
-                    participantsExpansionState
+                    participantsExpansionState,
                 )
             }
         }

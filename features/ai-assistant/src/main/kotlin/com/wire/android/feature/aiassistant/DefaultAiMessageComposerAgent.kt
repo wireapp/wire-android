@@ -16,6 +16,7 @@
  */
 package com.wire.android.feature.aiassistant
 
+import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.feature.aiassistant.test.LiteRtLmInferenceFactory
 import javax.inject.Inject
@@ -30,38 +31,33 @@ class DefaultAiMessageComposerAgent @Inject constructor(
 ) : AiMessageComposerAgent {
 
     override suspend fun proofread(inputText: String): AiMessageComposerResult =
-        generateUpdatedMessage(
-            inputText = inputText,
-            userMessage = "Fix grammar, return one result only:\n\"$inputText\"",
-            initialExchanges = PROOFREAD_EXAMPLES
-        )
+        generateUpdatedMessage(inputText) { descriptor ->
+            AiMessagePromptPolicy.proofread(descriptor, inputText)
+        }
 
     override suspend fun adjustTone(inputText: String, toneType: AiMessageToneType): AiMessageComposerResult {
-        val instruction = toneType.toInstruction()
-        return generateUpdatedMessage(
-            inputText = inputText,
-            userMessage = "$instruction, return one result only:\n\"$inputText\"",
-            initialExchanges = toneType.toExamples()
-        )
+        return generateUpdatedMessage(inputText) { descriptor ->
+            AiMessagePromptPolicy.adjustTone(descriptor, inputText, toneType)
+        }
     }
 
     override suspend fun customPrompt(inputText: String, userPrompt: String): AiMessageComposerResult =
-        generateUpdatedMessage(
-            inputText = inputText,
-            userMessage = "$userPrompt, return one result only:\n\"$inputText\"",
-            initialExchanges = emptyList()
-        )
+        generateUpdatedMessage(inputText) { descriptor ->
+            AiMessagePromptPolicy.customPrompt(descriptor, inputText, userPrompt)
+        }
 
     private suspend fun generateUpdatedMessage(
         inputText: String,
-        userMessage: String,
-        initialExchanges: List<Pair<String, String>>
+        promptBuilder: (
+            descriptor: AiModelDescriptor
+        ) -> AiMessagePromptPolicy.PromptRequest
     ): AiMessageComposerResult =
         withContext(Dispatchers.IO) {
             if (inputText.isBlank()) {
                 return@withContext AiMessageComposerResult.EmptyInput
             }
 
+            val selectedModel = aiModelManager.selectedModel.value
             val modelStatus = aiModelManager.observeModelStatus().first()
             if (modelStatus !is AiModelStatus.Ready) {
                 return@withContext AiMessageComposerResult.MissingModel
@@ -70,9 +66,10 @@ class DefaultAiMessageComposerAgent @Inject constructor(
                 return@withContext AiMessageComposerResult.UnsupportedModel
             }
 
+            val promptRequest = promptBuilder(selectedModel)
             runCatching {
-                inferenceFactory.create(modelStatus.localPath, initialExchanges).use { inference ->
-                    inference.generateResponse(userMessage)
+                inferenceFactory.create(modelStatus.localPath, promptRequest.initialExchanges).use { inference ->
+                    inference.generateResponse(promptRequest.userMessage)
                 }
             }.fold(
                 onSuccess = { response ->
@@ -101,27 +98,6 @@ class DefaultAiMessageComposerAgent @Inject constructor(
                 first() == '\'' && last() == '\'' -> substring(1, length - 1)
                 else -> this
             }
-        }
-
-        val PROOFREAD_EXAMPLES = listOf(
-            "Fix grammar, return one result only:\n\"She dont know nothing about it.\"" to
-                "She doesn't know anything about it."
-        )
-
-        fun AiMessageToneType.toInstruction(): String = when (this) {
-            AiMessageToneType.Formal -> "Rewrite more formally"
-            AiMessageToneType.Informal -> "Rewrite more casually"
-        }
-
-        fun AiMessageToneType.toExamples(): List<Pair<String, String>> = when (this) {
-            AiMessageToneType.Formal -> listOf(
-                "Rewrite more formally, return one result only:\n\"Hey can u help me with this?\"" to
-                    "Could you please assist me with this?"
-            )
-            AiMessageToneType.Informal -> listOf(
-                "Rewrite more casually, return one result only:\n\"I would like to request your assistance with this matter.\"" to
-                    "Can you help me out with this?"
-            )
         }
     }
 }

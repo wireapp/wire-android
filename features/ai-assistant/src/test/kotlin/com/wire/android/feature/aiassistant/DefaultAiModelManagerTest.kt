@@ -21,6 +21,7 @@ import app.cash.turbine.testIn
 import app.cash.turbine.turbineScope
 import com.wire.android.feature.aiassistant.download.AiModelDownloader
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
+import com.wire.android.feature.aiassistant.model.AiPromptCapability
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
 import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.feature.aiassistant.storage.FakeAiModelStorage
@@ -93,7 +94,8 @@ class DefaultAiModelManagerTest {
             repositoryId = "google/test-model",
             artifactPath = "test-model.litertlm",
             localDirectoryName = "test-model",
-            localFileName = "model.litertlm"
+            localFileName = "model.litertlm",
+            promptCapability = AiPromptCapability.Weak
         )
         val storage = FakeAiModelStorage(tempDir, descriptor)
         private var downloader: AiModelDownloader = AiModelDownloader {

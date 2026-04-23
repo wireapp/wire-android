@@ -22,6 +22,7 @@ data class AiModelDescriptor(
     val artifactPath: String,
     val localDirectoryName: String,
     val localFileName: String,
+    val promptCapability: AiPromptCapability = AiPromptCapability.Weak,
     val revision: String = DEFAULT_REVISION,
     val expectedByteSize: Long? = null,
     val sha256: String? = null
@@ -42,4 +43,9 @@ data class AiModelDescriptor(
 
         private val SHA_256_REGEX = Regex("[a-fA-F0-9]{64}")
     }
+}
+
+enum class AiPromptCapability {
+    Weak,
+    Capable
 }

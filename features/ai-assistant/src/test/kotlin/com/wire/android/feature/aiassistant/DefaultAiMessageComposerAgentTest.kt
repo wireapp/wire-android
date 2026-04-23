@@ -17,6 +17,7 @@
 package com.wire.android.feature.aiassistant
 
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
+import com.wire.android.feature.aiassistant.model.AiPromptCapability
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
 import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.feature.aiassistant.test.LiteRtLmInference
@@ -92,6 +93,7 @@ class DefaultAiMessageComposerAgentTest {
         val inputText = "Helo,\nthis is a mesage."
         val arrangement = Arrangement()
             .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withSelectedModelCapability(AiPromptCapability.Weak)
             .withInferenceResponse("Hello,\nthis is a message.")
             .arrange()
 
@@ -104,6 +106,25 @@ class DefaultAiMessageComposerAgentTest {
         assertTrue(arrangement.inferenceFactory.initialExchanges.isNotEmpty())
         assertEquals(MODEL_PATH, arrangement.inferenceFactory.modelPath)
         assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
+    @Test
+    fun givenCapableModel_whenProofreadIsCalled_thenDetailedPromptIsSentWithoutWeakExamples() = runTest {
+        val inputText = "Helo,\nthis is a mesage."
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withSelectedModelCapability(AiPromptCapability.Capable)
+            .withInferenceResponse("Hello,\nthis is a message.")
+            .arrange()
+
+        val result = arrangement.agent.proofread(inputText)
+
+        assertEquals(AiMessageComposerResult.Success("Hello,\nthis is a message."), result)
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("Proofread the message below"))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("Fix grammar, spelling, punctuation"))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("Return exactly one rewritten message and nothing else"))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains(inputText))
+        assertTrue(arrangement.inferenceFactory.initialExchanges.isEmpty())
     }
 
     @Test
@@ -265,6 +286,7 @@ class DefaultAiMessageComposerAgentTest {
         val inputText = "Can you send it today?"
         val arrangement = Arrangement()
             .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withSelectedModelCapability(AiPromptCapability.Weak)
             .withInferenceResponse("Could you please send it today?")
             .arrange()
 
@@ -284,6 +306,7 @@ class DefaultAiMessageComposerAgentTest {
         val inputText = "Could you please send it today?"
         val arrangement = Arrangement()
             .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withSelectedModelCapability(AiPromptCapability.Weak)
             .withInferenceResponse("Can you send it today?")
             .arrange()
 
@@ -295,6 +318,43 @@ class DefaultAiMessageComposerAgentTest {
         assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("one result only"))
         assertTrue(arrangement.inferenceFactory.initialExchanges.isNotEmpty())
         assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
+    @Test
+    fun givenCapableModel_whenAdjustToneFormalIsCalled_thenDetailedPromptIsSentWithoutWeakExamples() = runTest {
+        val inputText = "Can you send it today?"
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withSelectedModelCapability(AiPromptCapability.Capable)
+            .withInferenceResponse("Could you please send it today?")
+            .arrange()
+
+        val result = arrangement.agent.adjustTone(inputText, AiMessageToneType.Formal)
+
+        assertEquals(AiMessageComposerResult.Success("Could you please send it today?"), result)
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("more formal tone"))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("Preserve the original meaning, key details, and language"))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("Return exactly one rewritten message and nothing else"))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains(inputText))
+        assertTrue(arrangement.inferenceFactory.initialExchanges.isEmpty())
+    }
+
+    @Test
+    fun givenCapableModel_whenAdjustToneInformalIsCalled_thenDetailedPromptIsSentWithoutWeakExamples() = runTest {
+        val inputText = "Could you please send it today?"
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withSelectedModelCapability(AiPromptCapability.Capable)
+            .withInferenceResponse("Can you send it today?")
+            .arrange()
+
+        val result = arrangement.agent.adjustTone(inputText, AiMessageToneType.Informal)
+
+        assertEquals(AiMessageComposerResult.Success("Can you send it today?"), result)
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("more casual tone"))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("Return exactly one rewritten message and nothing else"))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains(inputText))
+        assertTrue(arrangement.inferenceFactory.initialExchanges.isEmpty())
     }
 
     @Test
@@ -409,6 +469,7 @@ class DefaultAiMessageComposerAgentTest {
         val userPrompt = "Make this shorter"
         val arrangement = Arrangement()
             .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withSelectedModelCapability(AiPromptCapability.Weak)
             .withInferenceResponse("Hello, short message.")
             .arrange()
 
@@ -421,6 +482,35 @@ class DefaultAiMessageComposerAgentTest {
         assertTrue(arrangement.inferenceFactory.initialExchanges.isEmpty())
         assertEquals(MODEL_PATH, arrangement.inferenceFactory.modelPath)
         assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
+    @Test
+    fun givenCapableModel_whenCustomPromptIsCalled_thenPromptContainsGuardrailsAndUpdatedTextIsReturned() = runTest {
+        val inputText = "Hello, this is a long message about something."
+        val userPrompt = "Make this shorter"
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withSelectedModelCapability(AiPromptCapability.Capable)
+            .withInferenceResponse("Hello, short message.")
+            .arrange()
+
+        val result = arrangement.agent.customPrompt(inputText, userPrompt)
+
+        assertEquals(AiMessageComposerResult.Success("Hello, short message."), result)
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains("Apply the following instruction to the message below"))
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains(userPrompt))
+        assertTrue(
+            arrangement.inferenceFactory.inference.userMessage.contains(
+                "Preserve the original language unless the instruction explicitly asks to change it"
+            )
+        )
+        assertTrue(
+            arrangement.inferenceFactory.inference.userMessage.contains(
+                "Return exactly one final rewritten message and nothing else"
+            )
+        )
+        assertTrue(arrangement.inferenceFactory.inference.userMessage.contains(inputText))
+        assertTrue(arrangement.inferenceFactory.initialExchanges.isEmpty())
     }
 
     @Test
@@ -479,12 +569,17 @@ class DefaultAiMessageComposerAgentTest {
 
     private class Arrangement {
         private var modelStatus: AiModelStatus = AiModelStatus.NotDownloaded
+        private var descriptor: AiModelDescriptor = testDescriptor()
         private var response: String = ""
         private var inferenceThrowable: Throwable? = null
         private var factoryThrowable: Throwable? = null
 
         fun withModelStatus(status: AiModelStatus) = apply {
             modelStatus = status
+        }
+
+        fun withSelectedModelCapability(promptCapability: AiPromptCapability) = apply {
+            descriptor = testDescriptor(promptCapability)
         }
 
         fun withInferenceResponse(response: String) = apply {
@@ -503,7 +598,7 @@ class DefaultAiMessageComposerAgentTest {
             val inferenceFactory = FakeLiteRtLmInferenceFactory(response, inferenceThrowable, factoryThrowable)
             return Result(
                 agent = DefaultAiMessageComposerAgent(
-                    aiModelManager = FakeAiModelManager(modelStatus),
+                    aiModelManager = FakeAiModelManager(modelStatus, descriptor),
                     inferenceFactory = inferenceFactory
                 ),
                 inferenceFactory = inferenceFactory
@@ -522,15 +617,9 @@ class DefaultAiMessageComposerAgentTest {
 }
 
 private class FakeAiModelManager(
-    private val modelStatus: AiModelStatus
+    private val modelStatus: AiModelStatus,
+    private val descriptor: AiModelDescriptor
 ) : AiModelManager {
-    private val descriptor = AiModelDescriptor(
-        displayName = "Test model",
-        repositoryId = "test/model",
-        artifactPath = "model.litertlm",
-        localDirectoryName = "test-model",
-        localFileName = "model.litertlm"
-    )
     override val availableModels: List<AiModelDescriptor> = listOf(descriptor)
     override val selectedModel: StateFlow<AiModelDescriptor> = MutableStateFlow(descriptor)
     override fun selectModel(descriptor: AiModelDescriptor) = Unit
@@ -580,3 +669,13 @@ private class FakeLiteRtLmInference(
         isClosed = true
     }
 }
+
+private fun testDescriptor(promptCapability: AiPromptCapability = AiPromptCapability.Weak): AiModelDescriptor =
+    AiModelDescriptor(
+        displayName = "Test model",
+        repositoryId = "test/model",
+        artifactPath = "model.litertlm",
+        localDirectoryName = "test-model",
+        localFileName = "model.litertlm",
+        promptCapability = promptCapability
+    )

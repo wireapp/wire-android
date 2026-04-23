@@ -1125,6 +1125,7 @@
     <string name="allow_services_regular_group_description">Öffnen Sie diese Unterhaltung für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="allow_apps_switch_description">Öffnen Sie diese Unterhaltung für Apps.</string>
     <string name="service_details_label">App</string>
+    <string name="service_details_created_by">Erstellt von %1$s</string>
     <string name="service_details_add_service_label">Zur Unterhaltung hinzufügen</string>
     <string name="service_details_remove_service_label">Aus Unterhaltung entfernen</string>
     <string name="service_remove_success">App aus der Unterhaltung entfernt</string>

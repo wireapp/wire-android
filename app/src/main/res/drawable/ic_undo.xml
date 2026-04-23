@@ -18,15 +18,9 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
         android:width="16dp"
         android:height="16dp"
-        android:viewportWidth="16"
-        android:viewportHeight="16">
+        android:viewportWidth="24"
+        android:viewportHeight="24">
     <path
-            android:pathData="M2.343,2.343C3.791,0.895 5.791,0 8,0C12.418,0 16,3.582 16,8C16,12.418 12.418,16 8,16C4.272,16 1.14,13.45 0.252,10H2.341C3.165,12.33 5.388,14 8,14C11.314,14 14,11.314 14,8C14,4.686 11.314,2 8,2C6.343,2 4.843,2.672 3.757,3.757L7,7H0V0L2.343,2.343Z"
-            android:fillColor="@color/default_icon_color"
-            android:fillType="evenOdd"/>
-    <group>
-        <clip-path
-                android:pathData="M2.343,2.343C3.791,0.895 5.791,0 8,0C12.418,0 16,3.582 16,8C16,12.418 12.418,16 8,16C4.272,16 1.14,13.45 0.252,10H2.341C3.165,12.33 5.388,14 8,14C11.314,14 14,11.314 14,8C14,4.686 11.314,2 8,2C6.343,2 4.843,2.672 3.757,3.757L7,7H0V0L2.343,2.343Z"
-                android:fillType="evenOdd"/>
-    </group>
+            android:pathData="M12.5,8C9.85,8 7.45,8.99 5.6,10.6L2,7v9h9l-3.62,-3.62C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16l2.37,-0.78C21.08,11.03 17.15,8 12.5,8z"
+            android:fillColor="@color/default_icon_color"/>
 </vector>

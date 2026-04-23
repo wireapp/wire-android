@@ -33,6 +33,9 @@ import java.util.regex.Pattern
 import junit.framework.TestCase.assertTrue
 
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
+private const val DEFAULT_POLLING_INTERVAL_MS = 200L
+private const val STABILIZE_TIMEOUT_MS = 3_000L
+private const val STABILIZE_POLLING_INTERVAL_MS = 100L
 
 data class UiSelectorParams(
     val text: String? = null,
@@ -52,6 +55,7 @@ data class UiSelectorParams(
  * ✔️ Works for both interactive (buttons) and passive (labels) elements without extra parameters
  */
 
+@Suppress("TooManyFunctions")
 object UiWaitUtils {
 
     private fun buildSelector(params: UiSelectorParams): BySelector {
@@ -87,6 +91,116 @@ object UiWaitUtils {
         }
     }
 
+    fun retryUntilTimeout(
+        timeoutMs: Long,
+        pollingIntervalMs: Long = DEFAULT_POLLING_INTERVAL_MS,
+        condition: () -> Boolean
+    ): Boolean {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+        while (SystemClock.uptimeMillis() < deadline) {
+            if (condition()) {
+                return true
+            }
+            SystemClock.sleep(pollingIntervalMs)
+        }
+        return condition()
+    }
+
+    fun waitUntilVisibleOrThrow(
+        params: UiSelectorParams,
+        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
+        errorMessage: String
+    ) {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val isVisible = retryUntilTimeout(
+            timeoutMs = timeoutMs,
+            pollingIntervalMs = DEFAULT_POLLING_INTERVAL_MS
+        ) {
+            runCatching {
+                device.wait(Until.hasObject(params.toBySelector()), DEFAULT_POLLING_INTERVAL_MS)
+            }.getOrDefault(false)
+        }
+
+        if (!isVisible) {
+            throw AssertionError(errorMessage)
+        }
+    }
+
+    fun waitAnyVisible(
+        selectors: List<UiSelectorParams>,
+        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
+        pollingIntervalMs: Long = DEFAULT_POLLING_INTERVAL_MS
+    ): UiObject2? {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        var found: UiObject2? = null
+
+        val isFound = retryUntilTimeout(
+            timeoutMs = timeoutMs,
+            pollingIntervalMs = pollingIntervalMs
+        ) {
+            found = selectors
+                .asSequence()
+                .mapNotNull(::findElementOrNull)
+                .firstOrNull { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) }
+            found != null
+        }
+
+        return if (isFound) found else null
+    }
+
+    fun clickWhenClickable(
+        params: UiSelectorParams,
+        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
+        pollingIntervalMs: Long = DEFAULT_POLLING_INTERVAL_MS
+    ): Boolean {
+        return retryUntilTimeout(
+            timeoutMs = timeoutMs,
+            pollingIntervalMs = pollingIntervalMs
+        ) {
+            val element = findElementOrNull(params) ?: return@retryUntilTimeout false
+            try {
+                if (!element.visibleBounds.isEmpty && element.isEnabled) {
+                    element.click()
+                    true
+                } else {
+                    false
+                }
+            } catch (_: StaleObjectException) {
+                false
+            }
+        }
+    }
+
+    fun waitUntilGoneOrThrow(
+        selector: BySelector,
+        timeoutMs: Long = 30_000,
+        errorMessage: String
+    ) {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val isGone = device.wait(Until.gone(selector), timeoutMs)
+        if (!isGone) {
+            throw AssertionError(errorMessage)
+        }
+    }
+
+    fun waitUntilGoneOrThrow(
+        device: UiDevice,
+        selector: UiSelector,
+        timeoutMillis: Long = 30_000,
+        pollingInterval: Long = 500,
+        errorMessage: String = "Element matching selector [$selector] did not disappear within timeout."
+    ) {
+        val isGone = retryUntilTimeout(
+            timeoutMs = timeoutMillis,
+            pollingIntervalMs = pollingInterval
+        ) {
+            !device.findObject(selector).exists()
+        }
+        if (!isGone) {
+            throw AssertionError(errorMessage)
+        }
+    }
+
     @Suppress("MagicNumber", "NestedBlockDepth", "CyclomaticComplexMethod", "ComplexCondition")
     fun waitElement(
         params: UiSelectorParams,
@@ -103,10 +217,13 @@ object UiWaitUtils {
         device.waitForIdle(500)
 
         // 2) Stabilize: refetch until bounds are stable & usable
-        val end = SystemClock.uptimeMillis() + 3_000
         var lastBounds: Rect? = null
+        var stableElement: UiObject2? = null
 
-        while (SystemClock.uptimeMillis() < end) {
+        retryUntilTimeout(
+            timeoutMs = STABILIZE_TIMEOUT_MS,
+            pollingIntervalMs = STABILIZE_POLLING_INTERVAL_MS
+        ) {
             val obj = try {
                 device.findObject(sel)
             } catch (_: StaleObjectException) {
@@ -122,15 +239,19 @@ object UiWaitUtils {
 
                     // Same bounds twice in a row → considered stable
                     if (onScreen && nonZero && enabled && lastBounds != null && lastBounds == b) {
-                        return obj
+                        stableElement = obj
+                        return@retryUntilTimeout true
                     }
                     lastBounds = b
                 } catch (_: StaleObjectException) {
                     // re-loop
                 }
             }
+            false
+        }
 
-            SystemClock.sleep(100)
+        if (stableElement != null) {
+            return stableElement as UiObject2
         }
 
         throw AssertionError("Element found but not stable/visible with selector: ${describe(params)}")
@@ -151,18 +272,12 @@ object UiWaitUtils {
         timeoutMillis: Long = 30_000,
         pollingInterval: Long = 500
     ) {
-        val deadline = SystemClock.uptimeMillis() + timeoutMillis
-
-        while (SystemClock.uptimeMillis() < deadline) {
-            val element = device.findObject(selector)
-            if (!element.exists()) {
-                return
-            }
-
-            SystemClock.sleep(pollingInterval)
-        }
-
-        throw AssertionError("Element matching selector [$selector] did not disappear within timeout.")
+        waitUntilGoneOrThrow(
+            device = device,
+            selector = selector,
+            timeoutMillis = timeoutMillis,
+            pollingInterval = pollingInterval
+        )
     }
 
     @Suppress("MagicNumber")
@@ -184,15 +299,11 @@ object UiWaitUtils {
         timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
         errorMessage: String
     ) {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        try {
-            val sel = params.toBySelector()
-            if (!device.wait(Until.hasObject(sel), timeoutMs)) {
-                throw AssertionError()
-            }
-        } catch (e: AssertionError) {
-            throw AssertionError(errorMessage, e)
-        }
+        waitUntilVisibleOrThrow(
+            params = params,
+            timeoutMs = timeoutMs,
+            errorMessage = errorMessage
+        )
     }
 
     fun waitUntilToastIsDisplayed(

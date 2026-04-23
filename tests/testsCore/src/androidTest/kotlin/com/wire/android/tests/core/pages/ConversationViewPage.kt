@@ -23,7 +23,6 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import androidx.test.uiautomator.Until
 import junit.framework.TestCase.assertFalse
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
@@ -123,9 +122,11 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertAudioTimeIsNotZeroAnymore(): ConversationViewPage {
-        val gone = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-            .wait(Until.gone(By.text("00:00")), 5000)
-        assertTrue("Audio time is still at 00:00, expected it to have changed", gone)
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = By.text("00:00"),
+            timeoutMs = 5_000,
+            errorMessage = "Audio time is still at 00:00, expected it to have changed"
+        )
         return this
     }
 
@@ -186,22 +187,15 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     fun assertFileActionModalIsVisible(timeoutMs: Long = 8_000): ConversationViewPage {
         val modalAnchors = listOf(modalTextLocator, saveButton, openButton, cancelButton)
-        val deadline = SystemClock.uptimeMillis() + timeoutMs
-
-        while (SystemClock.uptimeMillis() < deadline) {
-            val isVisible = modalAnchors
-                .asSequence()
-                .mapNotNull(UiWaitUtils::findElementOrNull)
-                .any { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) }
-
-            if (isVisible) {
-                return this
-            }
-
-            SystemClock.sleep(150)
+        val visibleAnchor = UiWaitUtils.waitAnyVisible(
+            selectors = modalAnchors,
+            timeoutMs = timeoutMs,
+            pollingIntervalMs = 150
+        )
+        if (visibleAnchor == null) {
+            throw AssertionError("The file action modal was not visible within ${timeoutMs}ms.")
         }
-
-        throw AssertionError("The file action modal was not visible within ${timeoutMs}ms.")
+        return this
     }
 
     fun assertImageFileWithNameIsVisible(fileName: String): ConversationViewPage {
@@ -267,10 +261,10 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun waitForPreviousFileSavedToastToDisappear(timeoutMillis: Long = 7_000): ConversationViewPage {
-        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        uiDevice.wait(
-            Until.gone(By.textContains(fileSavedToastMessage)),
-            timeoutMillis
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = By.textContains(fileSavedToastMessage),
+            timeoutMs = timeoutMillis,
+            errorMessage = "File saved toast did not disappear within ${timeoutMillis}ms."
         )
         return this
     }
@@ -379,20 +373,16 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertMessageNotVisible(text: String, timeoutSeconds: Int = 5) {
-        try {
-            val deadline = System.currentTimeMillis() + timeoutSeconds * 1000L
-
-            while (System.currentTimeMillis() < deadline) {
-                val element = findElementOrNull(UiSelectorParams(text = text))
-                if (element != null) {
-                    throw AssertionError("Message '$text' is still present in the conversation.")
-                }
-                Thread.sleep(250)
-            }
-        } catch (e: AssertionError) {
+        val notVisible = UiWaitUtils.retryUntilTimeout(
+            timeoutMs = timeoutSeconds * 1_000L,
+            pollingIntervalMs = 250
+        ) {
+            findElementOrNull(UiSelectorParams(text = text)) == null
+        }
+        if (!notVisible) {
             throw AssertionError(
                 "Expected message '$text' to be absent, but it was found within ${timeoutSeconds}s.",
-                e
+                AssertionError("Message '$text' is still present in the conversation.")
             )
         }
     }
@@ -551,25 +541,18 @@ data class ConversationViewPage(private val device: UiDevice) {
         timeoutMs: Long = 20_000,
         settleAfterDetectedMs: Long = 0
     ): ConversationViewPage {
-        val deadline = SystemClock.uptimeMillis() + timeoutMs
-
-        while (SystemClock.uptimeMillis() < deadline) {
-            val mlsMarker = mlsUpgradeMessageSelectors
-                .asSequence()
-                .mapNotNull(UiWaitUtils::findElementOrNull)
-                .firstOrNull { !it.visibleBounds.isEmpty }
-
-            if (mlsMarker != null) {
-                // MLS banner can appear slightly before the conversation is fully ready for a first outbound message.
-                if (settleAfterDetectedMs > 0) {
-                    SystemClock.sleep(settleAfterDetectedMs)
-                }
-                return this
+        val mlsMarker = UiWaitUtils.waitAnyVisible(
+            selectors = mlsUpgradeMessageSelectors,
+            timeoutMs = timeoutMs,
+            pollingIntervalMs = 200
+        )
+        if (mlsMarker != null) {
+            // MLS banner can appear slightly before the conversation is fully ready for a first outbound message.
+            if (settleAfterDetectedMs > 0) {
+                SystemClock.sleep(settleAfterDetectedMs)
             }
-
-            SystemClock.sleep(200)
+            return this
         }
-
         throw AssertionError("MLS upgrade system message was not visible within ${timeoutMs}ms.")
     }
 

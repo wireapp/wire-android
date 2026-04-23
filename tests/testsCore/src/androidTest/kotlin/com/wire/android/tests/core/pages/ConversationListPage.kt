@@ -19,7 +19,6 @@ package com.wire.android.tests.core.pages
 
 import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.By
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
@@ -51,6 +50,7 @@ data class ConversationListPage(private val device: UiDevice) {
 
     private val userConversationNamePendingLabelSelector =
         UiSelector().description("pending approval of connection request")
+    private val pendingApprovalLabel = UiSelectorParams(description = "pending approval of connection request")
     fun assertConversationListVisible(): ConversationListPage {
         val heading = UiWaitUtils.waitElement(conversationListHeading)
         Assert.assertTrue(
@@ -70,25 +70,29 @@ data class ConversationListPage(private val device: UiDevice) {
      * Retry for a short window, reopening the drawer at a throttled pace until the Settings row is stable.
      */
     fun clickSettingsButtonOnMenuEntry(timeoutMs: Long = 10_000): ConversationListPage {
-        val deadline = SystemClock.uptimeMillis() + timeoutMs
         var lastMenuClickAt = 0L
 
-        while (SystemClock.uptimeMillis() < deadline) {
-            if (tryClickIfVisible(settingsButton)) {
-                return this
+        val success = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 120) {
+            if (UiWaitUtils.clickWhenClickable(settingsButton, timeoutMs = 200, pollingIntervalMs = 100)) {
+                true
+            } else {
+                lastMenuClickAt = reopenMenuIfNeeded(lastMenuClickAt)
+                false
             }
-
-            lastMenuClickAt = reopenMenuIfNeeded(lastMenuClickAt)
-
-            SystemClock.sleep(120)
         }
 
-        throw AssertionError("Settings menu entry was not found within ${timeoutMs}ms.")
+        if (!success) {
+            throw AssertionError("Settings menu entry was not found within ${timeoutMs}ms.")
+        }
+        return this
     }
 
     private fun reopenMenuIfNeeded(lastMenuClickAt: Long, minIntervalMs: Long = 600L): Long {
         val now = SystemClock.uptimeMillis()
-        if (now - lastMenuClickAt < minIntervalMs || !tryClickIfVisible(mainMenuButton)) {
+        if (
+            now - lastMenuClickAt < minIntervalMs ||
+            !UiWaitUtils.clickWhenClickable(mainMenuButton, timeoutMs = 200, pollingIntervalMs = 100)
+        ) {
             return lastMenuClickAt
         }
 
@@ -152,14 +156,13 @@ data class ConversationListPage(private val device: UiDevice) {
     }
 
     fun clickGroupConversation(conversationName: String): ConversationListPage {
-        val conversation = device.wait(
-            androidx.test.uiautomator.Until.findObject(By.text(conversationName)),
-            10_000
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(text = conversationName),
+            timeoutMs = 10_000,
+            errorMessage = "Group conversation '$conversationName' was not found."
         )
-        if (conversation == null) {
-            throw AssertionError("Group conversation '$conversationName' was not found.")
-        }
 
+        val conversation = UiWaitUtils.waitElement(UiSelectorParams(text = conversationName))
         conversation.click()
         return this
     }
@@ -189,18 +192,16 @@ data class ConversationListPage(private val device: UiDevice) {
     }
 
     fun clickCloseButtonOnNewConversationScreen(timeoutMs: Long = 5_000): ConversationListPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
-        val close = device.findObject(
-            UiSelector()
-                .className("android.view.View")
-                .description("Close new conversation view")
+        val closeButton = UiSelectorParams(
+            className = "android.view.View",
+            description = "Close new conversation view"
         )
-
-        if (!close.waitForExists(timeoutMs)) {
-            throw AssertionError("Close button not found within ${timeoutMs}ms")
-        }
-
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = closeButton,
+            timeoutMs = timeoutMs,
+            errorMessage = "Close button not found within ${timeoutMs}ms"
+        )
+        val close = UiWaitUtils.waitElement(closeButton)
         close.click()
 
         return this
@@ -214,24 +215,22 @@ data class ConversationListPage(private val device: UiDevice) {
 
     @Suppress("ThrowsCount")
     fun assertConversationNameWithPendingStatusVisibleInConversationList(userName: String): ConversationListPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
-        // 1) Assert user name is visible
         try {
-            val userObj = device.findObject(UiSelector().text(userName))
-            if (!userObj.waitForExists(10_000)) {
-                throw AssertionError("User '$userName' is not visible in the conversation list")
-            }
+            UiWaitUtils.waitUntilVisibleOrThrow(
+                params = UiSelectorParams(text = userName),
+                timeoutMs = 10_000,
+                errorMessage = "User '$userName' is not visible in the conversation list"
+            )
         } catch (e: Throwable) {
             throw AssertionError("User '$userName' is not visible in the conversation list", e)
         }
 
-        // 2) Assert the 'pending' badge is visible
         try {
-            val pendingObj = device.findObject(userConversationNamePendingLabelSelector)
-            if (!pendingObj.waitForExists(10_000)) {
-                throw AssertionError("Pending status is not visible for user '$userName'")
-            }
+            UiWaitUtils.waitUntilVisibleOrThrow(
+                params = pendingApprovalLabel,
+                timeoutMs = 10_000,
+                errorMessage = "Pending status is not visible for user '$userName'"
+            )
         } catch (e: Throwable) {
             throw AssertionError("Pending status is not visible for user '$userName'", e)
         }

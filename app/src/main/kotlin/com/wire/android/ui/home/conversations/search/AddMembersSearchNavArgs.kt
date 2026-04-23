@@ -24,5 +24,6 @@ data class AddMembersSearchNavArgs(
     val conversationId: ConversationId,
     val isConversationAppsEnabled: Boolean,
     val isSelfPartOfATeam: Boolean,
-    val protocolInfo: Conversation.ProtocolInfo
+    val protocolInfo: Conversation.ProtocolInfo,
+    val shouldUseNewAppsUi: Boolean = true
 )

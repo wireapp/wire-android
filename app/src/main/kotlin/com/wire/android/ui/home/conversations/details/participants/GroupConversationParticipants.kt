@@ -80,7 +80,12 @@ fun GroupConversationParticipants(
                     }
                 }
             }
-            participantsFoldersWithElements(context, groupParticipantsState, onProfilePressed, participantsExpansionState)
+            participantsFoldersWithElements(
+                context = context,
+                state = groupParticipantsState,
+                onRowItemClicked = onProfilePressed,
+                participantsExpansionState = participantsExpansionState,
+            )
         }
     }
 }

@@ -23,6 +23,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestTeam
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
@@ -44,6 +45,7 @@ import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
@@ -213,6 +215,50 @@ class GroupDetailsViewModelTest {
 
         // When - Then
         assertEquals(false, viewModel.groupOptionsState.value.isUpdatingGuestAllowed)
+    }
+
+    @Test
+    fun `given mixed team falls back to Proteus, when conversation is Proteus, then details stay on legacy bots mode`() = runTest {
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(
+                accessRole = listOf(Conversation.AccessRole.SERVICE),
+                protocol = Conversation.ProtocolInfo.Proteus
+            ),
+            selfRole = Conversation.Member.Role.Admin
+        )
+        val selfTeam = Team("team_id", "team_name", "icon")
+
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withConversationDetailUpdate(details)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.PROTEUS)))
+            .withSelfTeamUseCaseReturns(selfTeam)
+            .arrange()
+
+        assertEquals(true, viewModel.groupOptionsState.value.isAppsAllowed)
+        assertEquals(false, viewModel.groupOptionsState.value.shouldUseNewAppsUi)
+        assertEquals(true, viewModel.groupOptionsState.value.isUpdatingAppsAllowed)
+    }
+
+    @Test
+    fun `given mixed team falls back to Proteus, when conversation is MLS, then apps are disabled`() = runTest {
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(
+                accessRole = listOf(Conversation.AccessRole.SERVICE),
+                protocol = TestConversation.MLS_PROTOCOL_INFO
+            ),
+            selfRole = Conversation.Member.Role.Admin
+        )
+        val selfTeam = Team("team_id", "team_name", "icon")
+
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withConversationDetailUpdate(details)
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.PROTEUS)))
+            .withSelfTeamUseCaseReturns(selfTeam)
+            .arrange()
+
+        assertEquals(false, viewModel.groupOptionsState.value.isAppsAllowed)
+        assertEquals(false, viewModel.groupOptionsState.value.shouldUseNewAppsUi)
+        assertEquals(false, viewModel.groupOptionsState.value.isUpdatingAppsAllowed)
     }
 
     @Test
@@ -748,6 +794,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             observeConversationDetails = observeConversationDetails,
             observeConversationMembers = observeParticipantsForConversationUseCase,
             observeSelfUserWithTeam = observeSelfUserWithTeam,
+            observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
             savedStateHandle = savedStateHandle,
             updateConversationReceiptMode = updateConversationReceiptMode,
             isMLSEnabled = isMLSEnabledUseCase,

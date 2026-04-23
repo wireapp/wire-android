@@ -297,6 +297,131 @@ class DefaultAiMessageComposerAgentTest {
         assertTrue(arrangement.inferenceFactory.inference.isClosed)
     }
 
+    @Test
+    fun givenBlankInput_whenCustomPromptIsCalled_thenEmptyInputIsReturnedAndInferenceIsNotCreated() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceResponse("Result")
+            .arrange()
+
+        val result = arrangement.agent.customPrompt("  ", "Make this shorter")
+
+        assertEquals(AiMessageComposerResult.EmptyInput, result)
+        assertEquals(0, arrangement.inferenceFactory.createCount)
+    }
+
+    @Test
+    fun givenModelIsNotDownloaded_whenCustomPromptIsCalled_thenMissingModelIsReturned() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.NotDownloaded)
+            .withInferenceResponse("Result")
+            .arrange()
+
+        val result = arrangement.agent.customPrompt("Hello", "Make this shorter")
+
+        assertEquals(AiMessageComposerResult.MissingModel, result)
+        assertEquals(0, arrangement.inferenceFactory.createCount)
+    }
+
+    @Test
+    fun givenModelIsDownloading_whenCustomPromptIsCalled_thenMissingModelIsReturned() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Downloading(progress = 0.5F))
+            .withInferenceResponse("Result")
+            .arrange()
+
+        val result = arrangement.agent.customPrompt("Hello", "Make this shorter")
+
+        assertEquals(AiMessageComposerResult.MissingModel, result)
+        assertEquals(0, arrangement.inferenceFactory.createCount)
+    }
+
+    @Test
+    fun givenReadyModelIsNotLiteRtLm_whenCustomPromptIsCalled_thenUnsupportedModelIsReturned() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready("/tmp/model.task"))
+            .withInferenceResponse("Result")
+            .arrange()
+
+        val result = arrangement.agent.customPrompt("Hello", "Make this shorter")
+
+        assertEquals(AiMessageComposerResult.UnsupportedModel, result)
+        assertEquals(0, arrangement.inferenceFactory.createCount)
+    }
+
+    @Test
+    fun givenReadyModel_whenCustomPromptIsCalled_thenPromptContainsInputAndInstructionAndUpdatedTextIsReturned() = runTest {
+        val inputText = "Hello, this is a long message about something."
+        val userPrompt = "Make this shorter"
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceResponse("Hello, short message.")
+            .arrange()
+
+        val result = arrangement.agent.customPrompt(inputText, userPrompt)
+
+        assertEquals(AiMessageComposerResult.Success("Hello, short message."), result)
+        assertTrue(arrangement.inferenceFactory.inference.prompt.contains(inputText))
+        assertTrue(arrangement.inferenceFactory.inference.prompt.contains(userPrompt))
+        assertTrue(arrangement.inferenceFactory.inference.prompt.contains("Return only the resulting message text."))
+        assertEquals(MODEL_PATH, arrangement.inferenceFactory.modelPath)
+        assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
+    @Test
+    fun givenInferenceReturnsBlankText_whenCustomPromptIsCalled_thenEmptyResponseIsReturned() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceResponse(" ")
+            .arrange()
+
+        val result = arrangement.agent.customPrompt("Hello", "Make this shorter")
+
+        assertEquals(AiMessageComposerResult.EmptyResponse, result)
+        assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
+    @Test
+    fun givenInferenceFactoryThrows_whenCustomPromptIsCalled_thenInferenceFailedIsReturned() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withFactoryThrowable(IllegalStateException("Engine init failed"))
+            .arrange()
+
+        val result = arrangement.agent.customPrompt("Hello", "Make this shorter")
+
+        assertEquals(AiMessageComposerResult.InferenceFailed("Engine init failed"), result)
+    }
+
+    @Test
+    fun givenInferenceThrows_whenCustomPromptIsCalled_thenInferenceFailedIsReturnedAndInferenceIsClosed() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceThrowable(IllegalStateException("Cannot run model"))
+            .arrange()
+
+        val result = arrangement.agent.customPrompt("Hello", "Make this shorter")
+
+        assertEquals(AiMessageComposerResult.InferenceFailed("Cannot run model"), result)
+        assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
+    @Test
+    fun givenInferenceIsCancelled_whenCustomPromptIsCalled_thenCancellationIsRethrownAndInferenceIsClosed() = runTest {
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceThrowable(CancellationException("Cancelled"))
+            .arrange()
+
+        try {
+            arrangement.agent.customPrompt("Hello", "Make this shorter")
+            fail("Expected customPrompt to rethrow cancellation")
+        } catch (exception: CancellationException) {
+            assertEquals("Cancelled", exception.message)
+        }
+        assertTrue(arrangement.inferenceFactory.inference.isClosed)
+    }
+
     private class Arrangement {
         private var modelStatus: AiModelStatus = AiModelStatus.NotDownloaded
         private var response: String = ""

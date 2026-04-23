@@ -56,6 +56,12 @@ class AiMessageComposerViewModel @Inject constructor(
         }
     }
 
+    fun customPrompt(inputText: String, userPrompt: String) {
+        runAiAction(AiMessageComposerAction.CustomPrompt) {
+            aiMessageComposerAgent.customPrompt(inputText, userPrompt)
+        }
+    }
+
     private fun runAiAction(
         action: AiMessageComposerAction,
         request: suspend () -> AiMessageComposerResult
@@ -113,6 +119,12 @@ enum class AiMessageComposerAction(
         missingModelErrorResId = R.string.error_adjust_tone_message_missing_model,
         unsupportedModelErrorResId = R.string.error_adjust_tone_message_unsupported_model,
         genericErrorResId = R.string.error_adjust_tone_message_generic
+    ),
+    CustomPrompt(
+        emptyInputErrorResId = R.string.error_custom_prompt_message_empty_input,
+        missingModelErrorResId = R.string.error_custom_prompt_message_missing_model,
+        unsupportedModelErrorResId = R.string.error_custom_prompt_message_unsupported_model,
+        genericErrorResId = R.string.error_custom_prompt_message_generic
     )
 }
 

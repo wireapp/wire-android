@@ -427,7 +427,7 @@ class BackendClient(
 
     fun getBackendClientIds(forUser: ClientUser): List<String> {
         val token = runBlocking { getAuthToken(forUser) }
-        val url = URL("clients".composeCompleteUrl())
+        val url = URI("clients".composeCompleteUrl()).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put("Authorization", "${token?.type} ${token?.value}")
@@ -454,7 +454,7 @@ class BackendClient(
 
     fun removeBackendClient(forUser: ClientUser, clientId: String) {
         val token = runBlocking { getAuthToken(forUser) }
-        val url = URL("clients/$clientId".composeCompleteUrl())
+        val url = URI("clients/$clientId".composeCompleteUrl()).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put("Authorization", "${token?.type} ${token?.value}")

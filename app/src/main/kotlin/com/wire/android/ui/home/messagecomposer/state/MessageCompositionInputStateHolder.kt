@@ -98,8 +98,8 @@ class MessageCompositionInputStateHolder(
             if (keyboardHeight > 0.dp) {
                 optionsHeight = keyboardHeight
             }
-            inputFocused = false
-            isTextExpanded = false
+//            inputFocused = false
+//            isTextExpanded = false
         }
     }
 

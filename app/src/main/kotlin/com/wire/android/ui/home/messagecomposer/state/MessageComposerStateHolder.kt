@@ -25,14 +25,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.wire.android.ui.home.conversations.MessageComposerViewState
+import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.message.mention.MessageMention
@@ -51,7 +54,9 @@ fun rememberMessageComposerStateHolder(
 ): MessageComposerStateHolder {
     val density = LocalDensity.current
 
-    val messageComposition = remember(draftMessageComposition) {
+    val messageComposition = rememberSaveable(
+        saver = messageCompositionSaver(draftMessageComposition)
+    ) {
         mutableStateOf(draftMessageComposition)
     }
 
@@ -176,3 +181,47 @@ class MessageComposerStateHolder(
         messageCompositionHolder.value.clearMessage()
     }
 }
+
+private fun messageCompositionSaver(
+    initialValue: MessageComposition
+): Saver<androidx.compose.runtime.MutableState<MessageComposition>, *> = Saver(
+    save = { state ->
+        listOf(
+            state.value.editMessageId,
+            state.value.quotedMessageId,
+            state.value.isMultipart,
+            state.value.selectedMentions.map { mention ->
+                listOf(
+                    mention.start,
+                    mention.length,
+                    mention.userId.value,
+                    mention.userId.domain,
+                    mention.handler
+                )
+            }
+        )
+    },
+    restore = { savedState ->
+        val savedMentions = (savedState[3] as List<*>).map { savedMention ->
+            val values = savedMention as List<*>
+            UIMention(
+                start = values[0] as Int,
+                length = values[1] as Int,
+                userId = QualifiedID(
+                    value = values[2] as String,
+                    domain = values[3] as String
+                ),
+                handler = values[4] as String
+            )
+        }
+
+        mutableStateOf(
+            initialValue.copy(
+                editMessageId = savedState[0] as String?,
+                quotedMessageId = savedState[1] as String?,
+                isMultipart = savedState[2] as Boolean,
+                selectedMentions = savedMentions
+            )
+        )
+    }
+)

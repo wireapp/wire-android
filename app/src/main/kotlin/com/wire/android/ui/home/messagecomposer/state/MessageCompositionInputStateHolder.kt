@@ -184,12 +184,17 @@ class MessageCompositionInputStateHolder(
             density: Density
         ): Saver<MessageCompositionInputStateHolder, *> = Saver(
             save = {
+                val compositionStateToSave = when (val state = it.compositionState) {
+                    is CompositionState.Composing -> listOf(false, "", false)
+                    is CompositionState.Editing -> listOf(true, state.originalMessageText, state.allowEmptyText)
+                }
                 with(density) {
                     listOf(
                         it.inputFocused,
                         it.keyboardHeight.toPx(),
                         it.optionsHeight.toPx(),
-                        it.isTextExpanded
+                        it.isTextExpanded,
+                        compositionStateToSave
                     )
                 }
             },
@@ -205,6 +210,15 @@ class MessageCompositionInputStateHolder(
                         keyboardHeight = (savedState[1] as Float).toDp()
                         optionsHeight = (savedState[2] as Float).toDp()
                         isTextExpanded = savedState[3] as Boolean
+                        val restoredCompositionState = savedState[4] as List<*>
+                        compositionState = if (restoredCompositionState[0] as Boolean) {
+                            CompositionState.Editing(
+                                originalMessageText = restoredCompositionState[1] as String,
+                                allowEmptyText = restoredCompositionState[2] as Boolean
+                            )
+                        } else {
+                            CompositionState.Composing
+                        }
                     }
                 }
             }

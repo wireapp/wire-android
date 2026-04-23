@@ -31,6 +31,7 @@ import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
+import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
@@ -148,6 +149,22 @@ class MessageComposerStateHolderTest {
         }
         assertInstanceOf(InputType.Editing::class.java, messageCompositionInputStateHolder.inputType).also {
             assertEquals(true, it.isEditButtonEnabled)
+        }
+    }
+
+    @Test
+    fun `given message edit, when converting composition to message bundle, then edit bundle is created`() = runTest {
+        state.toEdit(
+            messageId = "messageId",
+            editMessageText = "edit_message_text",
+            mentions = listOf(),
+            isMultipart = false,
+        )
+
+        val result = state.messageCompositionHolder.value.toMessageBundle(TestConversation.ID, emptyList())
+
+        assertInstanceOf(ComposableMessageBundle.EditMessageBundle::class.java, result).also {
+            assertEquals("messageId", it.originalMessageId)
         }
     }
 

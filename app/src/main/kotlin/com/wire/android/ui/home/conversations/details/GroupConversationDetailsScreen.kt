@@ -123,6 +123,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -195,7 +196,23 @@ fun GroupConversationDetailsScreen(
             when {
                 participant.isSelf -> navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
                 participant.isService && participant.botService != null ->
-                    navigator.navigate(NavigationCommand(ServiceDetailsScreenDestination(participant.botService, viewModel.conversationId)))
+                    navigator.navigate(
+                        NavigationCommand(
+                            ServiceDetailsScreenDestination(
+                                viewModel.conversationId,
+                                ServiceDetailsNavArgs.Id.BotServiceId(participant.botService)
+                            )
+                        )
+                    )
+                participant.isService ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            ServiceDetailsScreenDestination(
+                                viewModel.conversationId,
+                                ServiceDetailsNavArgs.Id.AppId(participant.id)
+                            )
+                        )
+                    )
 
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
             }
@@ -206,7 +223,9 @@ fun GroupConversationDetailsScreen(
                     AddMembersSearchScreenDestination(
                         conversationId = viewModel.conversationId,
                         isConversationAppsEnabled = groupOptions.isAppsAllowed,
-                        isSelfPartOfATeam = groupOptions.isSelfPartOfATeam
+                        isSelfPartOfATeam = groupOptions.isSelfPartOfATeam,
+                        protocolInfo = groupOptions.protocolInfo,
+                        shouldUseNewAppsUi = groupOptions.shouldUseNewAppsUi
                     )
                 )
             )
@@ -233,7 +252,8 @@ fun GroupConversationDetailsScreen(
                         viewModel.conversationId,
                         UpdateAppsAccessParams(
                             isGuestAllowed = groupOptions.isGuestAllowed,
-                            isAppsAllowed = groupOptions.isAppsAllowed
+                            isAppsAllowed = groupOptions.isAppsAllowed,
+                            shouldUseNewAppsUi = groupOptions.shouldUseNewAppsUi
                         )
                     )
                 )
@@ -518,7 +538,7 @@ private fun GroupConversationDetailsContent(
                         GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
                             groupParticipantsState = groupParticipantsState,
                             onProfilePressed = onProfilePressed,
-                            lazyListState = lazyListStates[pageIndex]
+                            lazyListState = lazyListStates[pageIndex],
                         )
                     }
                 }

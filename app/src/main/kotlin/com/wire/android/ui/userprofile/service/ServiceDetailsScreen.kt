@@ -25,24 +25,31 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.model.NameBasedAvatar
+import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.avatar.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatarType
+import com.wire.android.model.Clickable
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -53,8 +60,6 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.common.EditableState
-import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.kalium.logic.data.service.ServiceDetails
 
 @WireRootDestination(
@@ -103,9 +108,7 @@ private fun ServiceDetailsContent(
                 serviceDetailsState.serviceDetails?.let { serviceDetails ->
                     ServiceDetailsProfileInfo(state = serviceDetailsState)
                     ServiceDetailsDescription(serviceDetails = serviceDetails)
-                } ?: ServiceDetailsNotFoundScreen(
-                    modifier = Modifier.padding(bottom = dimensions().spacing16x)
-                )
+                } ?: ServiceDetailsNotFoundScreen()
             }
         },
         bottomBar = {
@@ -130,46 +133,89 @@ private fun ServiceDetailsTopAppBar(
 }
 
 @Composable
-private fun ServiceDetailsProfileInfo(
-    state: ServiceDetailsState
-) {
+private fun ServiceDetailsProfileInfo(state: ServiceDetailsState) {
     state.serviceDetails?.let { serviceDetails ->
-        UserProfileInfo(
-            userId = state.serviceMemberId,
-            isLoading = state.isAvatarLoading,
-            avatarAsset = state.serviceAvatarAsset,
-            fullName = serviceDetails.name,
-            userName = "",
-            teamName = null,
-            membership = Membership.Service,
-            editableState = EditableState.NotEditable,
-            modifier = Modifier.padding(bottom = dimensions().spacing16x)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = dimensions().spacing16x,
+                    vertical = dimensions().spacing16x
+                )
+        ) {
+            UserProfileAvatar(
+                size = dimensions().avatarDefaultMediumSize,
+                avatarData = UserAvatarData(
+                    asset = state.serviceAvatarAsset,
+                    membership = Membership.Service,
+                    nameBasedAvatar = NameBasedAvatar(serviceDetails.name, -1)
+                ),
+                clickable = remember { Clickable(enabled = false) },
+                type = UserProfileAvatarType.WithoutIndicators,
+            )
+
+            Spacer(modifier = Modifier.width(dimensions().spacing12x))
+
+            Column(verticalArrangement = Arrangement.spacedBy(dimensions().spacing4x)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+                ) {
+                    Text(
+                        text = serviceDetails.name,
+                        style = MaterialTheme.wireTypography.title02,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        overflow = TextOverflow.Visible,
+                        maxLines = 1,
+                    )
+                    UserBadge(
+                        membership = Membership.Service,
+                        connectionState = null
+                    )
+                }
+
+                serviceDetails.creator?.takeIf { it.isNotBlank() }?.let { creator ->
+                    Text(
+                        text = stringResource(id = R.string.service_details_created_by, creator),
+                        style = MaterialTheme.wireTypography.body01,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+
+                val categoryOrTag = serviceDetails.category ?: serviceDetails.tags.firstOrNull()
+                categoryOrTag?.let {
+                    Text(
+                        text = categoryOrTag.replaceFirstChar { it.uppercaseChar() },
+                        style = MaterialTheme.wireTypography.body01,
+                        color = colorsScheme().secondaryText
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun ServiceDetailsDescription(
-    serviceDetails: ServiceDetails
-) {
+private fun ServiceDetailsDescription(serviceDetails: ServiceDetails) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentSize(Alignment.Center)
+            .padding(horizontal = dimensions().spacing16x)
     ) {
-        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing16x))
+        if (serviceDetails.summary.isNotBlank()) {
+            Text(
+                text = serviceDetails.summary,
+                style = MaterialTheme.wireTypography.body02
+            )
+
+            Spacer(modifier = Modifier.height(dimensions().spacing12x))
+        }
+
         Text(
             text = serviceDetails.description,
-            style = MaterialTheme.wireTypography.body01
-        )
-        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing24x))
-        Text(
-            text = serviceDetails.summary,
             style = MaterialTheme.wireTypography.body01,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(horizontal = dimensions().spacing18x)
+            color = colorsScheme().secondaryText
         )
     }
 }

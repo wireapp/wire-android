@@ -48,6 +48,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetail
 import com.wire.android.ui.home.conversations.details.participants.model.ParticipantsExpansionState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 
 @WireRootDestination(
     navArgs = GroupConversationAllParticipantsNavArgs::class
@@ -65,7 +66,23 @@ fun GroupConversationAllParticipantsScreen(
             when {
                 participant.isSelf -> navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
                 participant.isService && participant.botService != null ->
-                    navigator.navigate(NavigationCommand(ServiceDetailsScreenDestination(participant.botService, navArgs.conversationId)))
+                    navigator.navigate(
+                        NavigationCommand(
+                            ServiceDetailsScreenDestination(
+                                navArgs.conversationId,
+                                ServiceDetailsNavArgs.Id.BotServiceId(participant.botService)
+                            )
+                        )
+                    )
+                participant.isService ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            ServiceDetailsScreenDestination(
+                                navArgs.conversationId,
+                                ServiceDetailsNavArgs.Id.AppId(participant.id)
+                            )
+                        )
+                    )
 
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, navArgs.conversationId)))
             }
@@ -107,7 +124,7 @@ private fun GroupConversationAllParticipantsContent(
                     context,
                     groupParticipantsState,
                     onProfilePressed,
-                    participantsExpansionState
+                    participantsExpansionState,
                 )
             }
         }

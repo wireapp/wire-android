@@ -28,14 +28,21 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.AppsUtil
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.app.GetAppByIdUseCase
+import com.wire.kalium.logic.feature.app.ObserveIsAppMemberResult
+import com.wire.kalium.logic.feature.app.ObserveIsAppMemberUseCase
+import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberResult
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
@@ -44,6 +51,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -56,19 +66,26 @@ class ServiceDetailsViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     @CurrentAccount private val selfUserId: UserId,
     private val getServiceById: GetServiceByIdUseCase,
+    private val getAppById: GetAppByIdUseCase,
+    private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeIsServiceMember: ObserveIsServiceMemberUseCase,
+    private val observeIsAppMember: ObserveIsAppMemberUseCase,
+    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val addServiceToConversation: AddServiceToConversationUseCase,
-    serviceDetailsMapper: ServiceDetailsMapper,
+    private val addMemberToConversation: AddMemberToConversationUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
-    private val serviceId: ServiceId = serviceDetailsMapper.fromBotServiceToServiceId(serviceDetailsNavArgs.botService)
-    private val conversationId: QualifiedID = serviceDetailsNavArgs.conversationId
+
+    private val serviceId: ServiceId = serviceDetailsNavArgs.id.serviceId
+    private val conversationId: QualifiedID? = serviceDetailsNavArgs.conversationId
 
     var serviceDetailsState by mutableStateOf(ServiceDetailsState())
+    var isAppsEnabled by mutableStateOf(false)
+
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
 
@@ -81,24 +98,61 @@ class ServiceDetailsViewModel @Inject constructor(
                 isAvatarLoading = true
             )
 
-            getServiceDetailsAndUpdateViewState()?.let {
-                observeIsServiceConversationMember()
+            val appsAllowedResult = observeIsAppsAllowedForUsage().firstOrNull()
+
+            val conversationProtocolInfo = conversationId?.let {
+                observeConversationDetails(it)
+                    .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
+                    .map { result -> result.conversationDetails.conversation.protocol }
+                    .firstOrNull()
+            }
+
+            isAppsEnabled = AppsUtil.isAppsAllowed(
+                appsAllowedResult = appsAllowedResult,
+                conversationProtocol = conversationProtocolInfo
+            )
+
+            when {
+                isAppsEnabled && serviceDetailsNavArgs.id is ServiceDetailsNavArgs.Id.AppId -> {
+                    getAppDetailsAndUpdateViewState(serviceDetailsNavArgs.id.appId)
+                        ?.let { observeIsAppConversationMember(serviceDetailsNavArgs.id.appId) }
+                }
+                !isAppsEnabled && serviceDetailsNavArgs.id is ServiceDetailsNavArgs.Id.BotServiceId -> {
+                    getServiceDetailsAndUpdateViewState()
+                        ?.let { observeIsServiceConversationMember() }
+                }
+                else -> serviceNotFound()
             }
         }
     }
 
     fun addService() {
         viewModelScope.launch {
-            val response = withContext(dispatchers.io()) {
-                addServiceToConversation.invoke(
-                    conversationId = conversationId,
-                    serviceId = serviceId
-                )
-            }
+            val responseMessage = when (val id = serviceDetailsNavArgs.id) {
+                is ServiceDetailsNavArgs.Id.AppId -> {
+                    val response = addMemberToConversation.invoke(
+                        conversationId = requireNotNull(conversationId),
+                        userIdList = listOf(id.appId)
+                    )
 
-            val responseMessage = when (response) {
-                is AddServiceToConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorAddService
-                is AddServiceToConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessAddService
+                    when (response) {
+                        is AddMemberToConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorAddService
+                        is AddMemberToConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessAddService
+                    }
+                }
+                is ServiceDetailsNavArgs.Id.BotServiceId -> {
+                    val response = withContext(dispatchers.io()) {
+                        addServiceToConversation.invoke(
+                            conversationId = requireNotNull(conversationId),
+                            serviceId = id.serviceId
+                        )
+                    }
+
+                    when (response) {
+                        is AddServiceToConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorAddService
+                        is AddServiceToConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessAddService
+                    }
+                }
             }
 
             _infoMessage.emit(responseMessage.uiText)
@@ -110,7 +164,7 @@ class ServiceDetailsViewModel @Inject constructor(
             serviceDetailsState.serviceMemberId?.let { serviceMemberId ->
                 val response = withContext(dispatchers.io()) {
                     removeMemberFromConversation(
-                        conversationId = conversationId,
+                        conversationId = requireNotNull(conversationId),
                         userIdToRemove = serviceMemberId
                     )
                 }
@@ -143,30 +197,72 @@ class ServiceDetailsViewModel @Inject constructor(
             }
         }
 
-    private suspend fun observeGroupInfo(): Flow<ServiceDetailsGroupState> {
-        return observeConversationRoleForUser(conversationId, selfUserId)
-            .map { conversationRoleData ->
-                ServiceDetailsGroupState(
-                    role = conversationRoleData.userRole,
-                    isSelfAdmin = conversationRoleData.selfRole is Conversation.Member.Role.Admin
+    private suspend fun getAppDetailsAndUpdateViewState(appId: UserId): ServiceDetails? =
+        getAppById(appId = appId).also { app ->
+            if (app != null) {
+                val appAvatarAsset = app.completeAssetId?.let { asset ->
+                    ImageAsset.UserAvatarAsset(asset)
+                } ?: app.previewAssetId?.let { asset ->
+                    ImageAsset.UserAvatarAsset(asset)
+                }
+
+                serviceDetailsState = serviceDetailsState.copy(
+                    isDataLoading = false,
+                    isAvatarLoading = false,
+                    serviceAvatarAsset = appAvatarAsset,
+                    serviceDetails = app
                 )
+            } else {
+                serviceNotFound()
             }
-    }
+        }
+
+    private suspend fun observeGroupInfo(): Flow<ServiceDetailsGroupState> =
+        conversationId?.let {
+            observeConversationRoleForUser(conversationId, selfUserId)
+                .map { conversationRoleData ->
+                    ServiceDetailsGroupState(
+                        role = conversationRoleData.userRole,
+                        isSelfAdmin = conversationRoleData.selfRole is Conversation.Member.Role.Admin
+                    )
+                }
+        } ?: flowOf()
 
     private suspend fun observeIsServiceConversationMember() {
-        observeIsServiceMember(
-            serviceId = serviceId,
-            conversationId = conversationId
-        )
-            .combine(observeGroupInfo(), ::Pair)
-            .flowOn(dispatchers.io())
-            .collect { (serviceMemberResult: ObserveIsServiceMemberResult, groupInfo: ServiceDetailsGroupState) ->
-                val memberId = (serviceMemberResult as? ObserveIsServiceMemberResult.Success)?.userId
-                updateViewStateButton(
-                    serviceMemberId = memberId,
-                    groupInfo = groupInfo
-                )
-            }
+        conversationId?.let {
+            observeIsServiceMember(
+                serviceId = serviceId,
+                conversationId = conversationId
+            )
+                .combine(observeGroupInfo(), ::Pair)
+                .flowOn(dispatchers.io())
+                .collect { (serviceMemberResult: ObserveIsServiceMemberResult, groupInfo: ServiceDetailsGroupState) ->
+                    val memberId =
+                        (serviceMemberResult as? ObserveIsServiceMemberResult.Success)?.userId
+                    updateViewStateButton(
+                        serviceMemberId = memberId,
+                        groupInfo = groupInfo
+                    )
+                }
+        }
+    }
+
+    private suspend fun observeIsAppConversationMember(appId: UserId) {
+        conversationId?.let {
+            observeIsAppMember(
+                appId = appId,
+                conversationId = conversationId
+            )
+                .combine(observeGroupInfo(), ::Pair)
+                .flowOn(dispatchers.io())
+                .collect { (appMemberResult: ObserveIsAppMemberResult, groupInfo: ServiceDetailsGroupState) ->
+                    val memberId = (appMemberResult as? ObserveIsAppMemberResult.Success)?.userId
+                    updateViewStateButton(
+                        serviceMemberId = memberId,
+                        groupInfo
+                    )
+                }
+        }
     }
 
     private fun serviceNotFound() {
@@ -180,13 +276,14 @@ class ServiceDetailsViewModel @Inject constructor(
         serviceMemberId: UserId?,
         groupInfo: ServiceDetailsGroupState
     ) {
-        val buttonState = when (groupInfo.isSelfAdmin) {
-            true -> {
-                serviceMemberId?.let { ServiceDetailsButtonState.REMOVE }
-                    ?: ServiceDetailsButtonState.ADD
+        val buttonState = if (conversationId != null && groupInfo.isSelfAdmin) {
+            if (serviceMemberId != null) {
+                ServiceDetailsButtonState.REMOVE
+            } else {
+                ServiceDetailsButtonState.ADD
             }
-
-            false -> ServiceDetailsButtonState.HIDDEN
+        } else {
+            ServiceDetailsButtonState.HIDDEN
         }
 
         serviceDetailsState = serviceDetailsState.copy(

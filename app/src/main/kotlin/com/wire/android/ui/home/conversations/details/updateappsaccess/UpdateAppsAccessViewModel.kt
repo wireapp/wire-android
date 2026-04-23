@@ -25,7 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.util.debug.FeatureVisibilityFlags
+import com.wire.android.util.AppsUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -36,6 +36,7 @@ import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
+import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -64,6 +65,7 @@ class UpdateAppsAccessViewModel @Inject constructor(
     private val updateAppsAccessNavArgs: UpdateAppsAccessNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = updateAppsAccessNavArgs.conversationId
     private val currentAccessParams = updateAppsAccessNavArgs.updateAppsAccessParams
+    val shouldUseNewAppsUi: Boolean = currentAccessParams.shouldUseNewAppsUi
 
     var updateAppsAccessState by mutableStateOf(
         UpdateAppsAccessState(
@@ -98,9 +100,9 @@ class UpdateAppsAccessViewModel @Inject constructor(
                 conversationDetailsFlow,
                 isSelfAdminFlow,
                 selfUser()
-            ) { isTeamAllowedToUseApps, conversationDetails, isSelfAnAdmin, selfUser ->
-                CombineFour(isTeamAllowedToUseApps, conversationDetails, isSelfAnAdmin, selfUser)
-            }.collect { (isTeamAllowedToUseApps, conversationDetails, isSelfAnAdmin, selfUser) ->
+            ) { isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser ->
+                CombineFour(isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser)
+            }.collect { (isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser) ->
                 val isTeamAdmin = selfUser.userType.isTeamAdmin()
                 val isSelfInConversationTeam = selfUser.teamId == conversationDetails.conversation.teamId
                 val isSelfChannelTeamAdmin =
@@ -108,14 +110,13 @@ class UpdateAppsAccessViewModel @Inject constructor(
                 val canSelfPerformAdminActions = isSelfAnAdmin || isSelfChannelTeamAdmin
 
                 // WPB-21835: Apps availability logic controlled by feature flag
-                val isMLSConversation = conversationDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
-                val isAppAccessAllowed = computeAppsEnabledStatus(conversationDetails, isMLSConversation, isTeamAllowedToUseApps)
+                val isAppAccessAllowed = computeAppsEnabledStatus(conversationDetails, isAppsAllowedResult)
                 val isUpdatingAppAccessAllowed =
-                    computeAppsAllowedStatus(canSelfPerformAdminActions, isMLSConversation, isTeamAllowedToUseApps)
+                    computeAppsAllowedStatus(canSelfPerformAdminActions, conversationDetails, isAppsAllowedResult)
 
                 updateAppsAccessState = updateAppsAccessState.copy(
-                    isAppAccessAllowed = isAppAccessAllowed,
                     isUpdatingAppAccessAllowed = isUpdatingAppAccessAllowed,
+                    isAppAccessAllowed = isAppAccessAllowed,
                     isLoadingAppsOption = false,
                     shouldShowDisableAppsConfirmationDialog = false
                 )
@@ -129,15 +130,9 @@ class UpdateAppsAccessViewModel @Inject constructor(
      */
     private fun computeAppsEnabledStatus(
         conversationDetails: ConversationDetails,
-        isMLSConversation: Boolean,
-        isTeamAllowedToUseApps: Boolean
-    ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
-        // New logic: based on protocol (apps disabled for MLS)o
-        conversationDetails.conversation.isServicesAllowed() && !isMLSConversation
-    } else {
-        // Old logic: based on team settings and feature flags
-        conversationDetails.conversation.isServicesAllowed() && isTeamAllowedToUseApps
-    }
+        appsAllowedResult: AppsAllowedResult
+    ) = conversationDetails.conversation.isServicesAllowed() &&
+        isServicesSupportedForConversation(conversationDetails.conversation.protocol, appsAllowedResult)
 
     /**
      * Determine apps visibility based on feature flag and team settings
@@ -145,18 +140,23 @@ class UpdateAppsAccessViewModel @Inject constructor(
      */
     private fun computeAppsAllowedStatus(
         canSelfPerformAdminActions: Boolean,
-        isMLSConversation: Boolean,
-        isTeamAllowedToUseApps: Boolean
-    ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
-        // New logic: based on protocol
-        canSelfPerformAdminActions && !isMLSConversation
-    } else {
-        // Old logic: based on permissions and team settings
-        canSelfPerformAdminActions && isTeamAllowedToUseApps
-    }
+        conversationDetails: ConversationDetails,
+        appsAllowedResult: AppsAllowedResult
+    ) = canSelfPerformAdminActions &&
+        isServicesSupportedForConversation(conversationDetails.conversation.protocol, appsAllowedResult)
+
+    private fun isServicesSupportedForConversation(
+        protocolInfo: Conversation.ProtocolInfo,
+        appsAllowedResult: AppsAllowedResult
+    ) = appsAllowedResult is AppsAllowedResult.Enabled &&
+        when (protocolInfo) {
+            is Conversation.ProtocolInfo.MLS -> AppsUtil.isAppsAllowed(appsAllowedResult, protocolInfo)
+            is Conversation.ProtocolInfo.Proteus -> true
+            is Conversation.ProtocolInfo.Mixed -> AppsUtil.isAppsAllowed(appsAllowedResult, protocolInfo)
+        }
 
     private data class CombineFour(
-        val isAppsUsageAllowed: Boolean,
+        val appsAllowedResult: AppsAllowedResult,
         val conversationDetails: ConversationDetails,
         val isSelfAnAdmin: Boolean,
         val selfUser: SelfUser

@@ -1087,6 +1087,12 @@
     <string name="content_description_custom_prompt">Apply custom AI instruction to message</string>
     <string name="title_ai_custom_prompt">Custom AI prompt</string>
     <string name="hint_ai_custom_prompt">Enter your instruction (e.g. Make this shorter)</string>
+    <string name="ai_predefined_prompt_shorter">Make this text shorter</string>
+    <string name="ai_predefined_prompt_longer">Make this text longer</string>
+    <string name="ai_predefined_prompt_fix_grammar">Fix grammar and spelling</string>
+    <string name="ai_predefined_prompt_professional">Make it more professional</string>
+    <string name="ai_predefined_prompt_simplify">Simplify the language</string>
+    <string name="ai_predefined_prompt_casual">Make it more casual</string>
     <string name="error_custom_prompt_message_empty_input">Enter a message to apply a custom prompt</string>
     <string name="error_custom_prompt_message_missing_model">AI custom prompt is not ready yet</string>
     <string name="error_custom_prompt_message_unsupported_model">This AI model does not support custom prompts</string>

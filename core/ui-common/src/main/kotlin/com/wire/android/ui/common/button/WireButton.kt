@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.Tint
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.rememberClickBlockAction
 import com.wire.android.ui.theme.wireDimensions
@@ -173,7 +174,7 @@ private fun InnerButtonBox(
     val trailingItem: (@Composable () -> Unit) = {
         Crossfade(targetState = trailingIcon to loading) { (trailingIcon, loading) ->
             when {
-                loading -> WireCircularProgressIndicator(progressColor = contentColor)
+                loading -> WireCircularProgressIndicator(progressColor = contentColor, modifier = Modifier.padding(start = dimensions().spacing8x))
                 trailingIcon != null -> Tint(contentColor = contentColor, content = trailingIcon)
             }
         }

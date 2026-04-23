@@ -4,7 +4,7 @@ set -euo pipefail
 # Set up runner, device, and app prerequisites for qa-android-ui-tests workflow.
 
 usage() {
-  echo "Usage: $0 {ensure-required-tools|resolve-flavor|download-apks|detect-target-devices|install-apks-on-devices|fetch-runtime-secrets|build-test-apk|resolve-test-apk-path|resolve-test-services-apks}" >&2
+  echo "Usage: $0 {ensure-required-tools|resolve-flavor|download-apks|detect-target-devices|clear-allure-results-on-devices|install-apks-on-devices|fetch-runtime-secrets|build-test-apk|resolve-test-apk-path|resolve-test-services-apks}" >&2
   exit 2
 }
 
@@ -12,6 +12,8 @@ ensure_required_tools() {
   command -v adb >/dev/null 2>&1 || { echo "ERROR: adb not found"; exit 1; }
   command -v python3 >/dev/null 2>&1 || { echo "ERROR: python3 not found on this runner"; exit 1; }
 
+  # Prefer the runner's preinstalled AWS CLI, but keep a self-contained
+  # fallback so new runners do not need manual AWS tooling bootstrap.
   if command -v aws >/dev/null 2>&1; then
     aws --version
     return
@@ -29,6 +31,8 @@ ensure_required_tools() {
   local aws_root="${RUNNER_TEMP}/awscli"
   local zip_path="${RUNNER_TEMP}/awscliv2.zip"
 
+  # Remove any previous partial install so checksum verification and PATH
+  # export always refer to one known-good local copy.
   rm -rf "${aws_root}" "${zip_path}" "${RUNNER_TEMP}/aws"
   mkdir -p "${aws_root}"
 
@@ -62,6 +66,8 @@ ensure_required_tools() {
 }
 
 resolve_flavor() {
+  # The runner-owned JSON file is the single source of truth for flavor-to-S3
+  # and package mapping, so repo changes are not required for runner updates.
   python3 scripts/qa_android_ui_tests/resolve_flavor.py
   echo "Resolved flavor from runner config: '${FLAVOR_INPUT:-}'"
 }
@@ -80,6 +86,8 @@ download_apks() {
     --output json > "${RUNNER_TEMP}/apk_keys.json"
 
   local apk_env_file="${RUNNER_TEMP}/apk_env.txt"
+  # select_apks.py is the single owner of build selection rules so the shell
+  # step only exports the resolved values and downloads the chosen APK(s).
   python3 scripts/qa_android_ui_tests/select_apks.py > "${apk_env_file}"
 
   local new_s3_key=""
@@ -149,12 +157,16 @@ detect_target_devices() {
   local target="${TARGET_DEVICE_ID:-}"
   local device_list
   if [[ -n "${target}" ]]; then
+    # Explicit device targeting keeps retries and manual investigations pinned
+    # to one known phone instead of the shared auto-selected pool.
     if ! printf '%s\n' "$device_lines" | grep -qx "$target"; then
       echo "ERROR: androidDeviceId '$target' not found in adb devices."
       exit 1
     fi
     device_list="$target"
   elif [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
+    # Single-testcase runs stay on one device so the same test is not fanned
+    # out across multiple phones by the default sharding logic.
     device_list="$(printf '%s\n' "$device_lines" | head -n 1)"
     echo "Single-testcase mode (${RESOLVED_TESTCASE_ID}): selected device ${device_list}"
   else
@@ -167,6 +179,17 @@ detect_target_devices() {
   echo "DEVICE_LIST=${device_list}" >> "$GITHUB_ENV"
   echo "DEVICE_COUNT=${device_count}" >> "$GITHUB_ENV"
   echo "Using ${device_count} device(s)"
+}
+
+clear_allure_results_on_devices() {
+  : "${DEVICE_LIST:?DEVICE_LIST missing}"
+
+  read -ra DEVICES <<< "${DEVICE_LIST}"
+  for serial in "${DEVICES[@]}"; do
+    adb -s "${serial}" wait-for-device
+    # Clear stale device-side Allure files before the workflow reaches any later setup step that might fail.
+    adb -s "${serial}" shell "rm -rf '/sdcard/googletest/test_outputfiles/allure-results' && mkdir -p '/sdcard/googletest/test_outputfiles/allure-results'" >/dev/null 2>&1 || true
+  done
 }
 
 install_apks_on_devices() {
@@ -195,6 +218,8 @@ install_apks_on_devices() {
 
     local installed
     installed="$(${adb_cmd} shell pm list packages || true)"
+    # Remove every flavor variant the runner config says can conflict so the
+    # device starts from one predictable app installation state.
     for pkg in "${PACKAGES[@]}"; do
       if [[ -n "${pkg}" ]] && echo "${installed}" | grep -qx "package:${pkg}"; then
         ${adb_cmd} uninstall "${pkg}" || true
@@ -203,6 +228,8 @@ install_apks_on_devices() {
 
     if [[ "${IS_UPGRADE:-}" == "true" ]]; then
       : "${OLD_APK_PATH:?OLD_APK_PATH missing for upgrade}"
+      # Upgrade tests need both APKs on the device because instrumentation
+      # receives those paths and performs the in-test upgrade flow itself.
       ${adb_cmd} shell rm -f "${new_apk_device_path}" "${old_apk_device_path}" || true
       ${adb_cmd} push "${OLD_APK_PATH}" "${old_apk_device_path}" >/dev/null
       ${adb_cmd} push "${NEW_APK_PATH}" "${new_apk_device_path}" >/dev/null
@@ -235,6 +262,8 @@ fetch_runtime_secrets() {
   export SECRETS_JSON_PATH="${secrets_json_path}"
   echo "SECRETS_JSON_PATH=${secrets_json_path}" >> "$GITHUB_ENV"
 
+  # Keep secrets outside the repo checkout and symlink them in only for the
+  # test run, so cleanup can remove one runtime file without touching source.
   python3 scripts/qa_android_ui_tests/fetch_secrets_json.py
 
   test -s "${secrets_json_path}"
@@ -249,6 +278,8 @@ fetch_runtime_secrets() {
 }
 
 build_test_apk() {
+  # Build the androidTest APK once on the runner, then reuse that same artifact
+  # across all selected devices and retry attempts.
   ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon --no-configuration-cache
 }
 
@@ -256,6 +287,8 @@ resolve_test_apk_path() {
   : "${GITHUB_ENV:?GITHUB_ENV not set}"
 
   local test_apk_path
+  # The assemble task writes exactly one debug androidTest APK; export it once
+  # so downstream execution steps do not rediscover the file independently.
   test_apk_path="$(ls -1 tests/testsCore/build/outputs/apk/androidTest/debug/*.apk | head -n 1 || true)"
   if [[ -z "${test_apk_path}" || ! -f "${test_apk_path}" ]]; then
     echo "ERROR: Could not find built androidTest APK under tests/testsCore/build/outputs/apk/androidTest/debug/"
@@ -283,6 +316,8 @@ resolve_test_services_apks() {
     local newest=""
     local candidates=()
 
+    # Search every known Gradle cache root because self-hosted runners may use
+    # either GRADLE_USER_HOME or the default ~/.gradle layout.
     for r in "$@"; do
       while IFS= read -r -d '' f; do
         candidates+=("$f")
@@ -301,9 +336,50 @@ resolve_test_services_apks() {
   test_services_apk="$(find_newest "*test-services*.apk" "${roots[@]}")"
   orchestrator_apk="$(find_newest "*orchestrator*.apk" "${roots[@]}")"
 
+  read_version_from_catalog() {
+    local key="$1"
+    awk -F'"' -v wanted="${key}" '$1 ~ ("^" wanted " *= *$") { print $2; exit }' gradle/libs.versions.toml
+  }
+
+  download_from_google_maven() {
+    local group_path="$1"
+    local artifact="$2"
+    local version="$3"
+    local out_dir="${RUNNER_TEMP:-/tmp}/androidx-test-apks"
+    local out_path="${out_dir}/${artifact}-${version}.apk"
+
+    mkdir -p "${out_dir}"
+    # Download the published APK directly instead of invoking Gradle again;
+    # this keeps the workflow self-contained on a cold runner.
+    curl -fsSL \
+      -o "${out_path}" \
+      "https://dl.google.com/dl/android/maven2/${group_path}/${artifact}/${version}/${artifact}-${version}.apk"
+    echo "${out_path}"
+  }
+
+  # On a clean/self-hosted runner, these APK artifacts may not exist in cache yet.
+  # If cache lookup misses, download them directly from the official Google Maven repository.
   if [[ -z "${test_services_apk}" || ! -f "${test_services_apk}" ]]; then
-    echo "ERROR: Could not locate AndroidX Test Services APK in Gradle cache."
+    local test_services_version
+    test_services_version="$(read_version_from_catalog "androidx-test-services")"
+    if [[ -n "${test_services_version}" ]]; then
+      test_services_apk="$(download_from_google_maven "androidx/test/services" "test-services" "${test_services_version}")"
+    fi
+  fi
+
+  if [[ -z "${orchestrator_apk}" || ! -f "${orchestrator_apk}" ]]; then
+    local orchestrator_version
+    orchestrator_version="$(read_version_from_catalog "androidx-test-orchestrator")"
+    if [[ -n "${orchestrator_version}" ]]; then
+      orchestrator_apk="$(download_from_google_maven "androidx/test" "orchestrator" "${orchestrator_version}")"
+    fi
+  fi
+
+  if [[ -z "${test_services_apk}" || ! -f "${test_services_apk}" ]]; then
+    echo "ERROR: Could not locate or download AndroidX Test Services APK."
     echo "This APK is required for Allure TestStorage (content://androidx.test.services.storage...)."
+    printf 'Searched cache roots:\n' >&2
+    printf '  - %s\n' "${roots[@]}" >&2
     exit 1
   fi
 
@@ -325,6 +401,9 @@ case "${1:-}" in
     ;;
   detect-target-devices)
     detect_target_devices
+    ;;
+  clear-allure-results-on-devices)
+    clear_allure_results_on_devices
     ;;
   install-apks-on-devices)
     install_apks_on_devices

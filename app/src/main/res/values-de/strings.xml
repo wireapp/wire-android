@@ -775,8 +775,8 @@
     <string name="label_system_message_conversation_started_by_other">%1$s hat die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_with_members">Mit %1$s</string>
     <plurals name="label_system_message_conversation_failed_add_members_header">
-        <item quantity="one">**%1$sTeilnehmer** konnte der Unterhaltung nicht hinzugefügt werden.</item>
-        <item quantity="other">**%1$sTeilnehmer** konnten der Unterhaltung nicht hinzugefügt werden.</item>
+        <item quantity="one">**%1$s Teilnehmer** konnte der Unterhaltung nicht hinzugefügt werden.</item>
+        <item quantity="other">**%1$s Teilnehmer** konnten der Unterhaltung nicht hinzugefügt werden.</item>
     </plurals>
     <plurals name="label_system_message_conversation_failed_add_members_details_legal_hold">
         <item quantity="one">%1$s konnte der Unterhaltung aufgrund der gesetzlichen Aufbewahrung nicht hinzugefügt werden.</item>

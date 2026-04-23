@@ -76,6 +76,12 @@
     <string name="cells_create_folder">Create Folder</string>
     <string name="cells_folder_name">Folder Name</string>
     <string name="loading_files">Loading files…</string>
+    <string name="tap_to_cancel_loading">Tap to cancel loading</string>
+    <string name="unable_to_load_retry">Unable to load, retry</string>
+    <string name="ready_to_open">Ready to open</string>
+    <string name="cancel_loading_label">Cancel loading…</string>
+    <string name="file_open_snackbar_message">\"%1$s\" ready to open</string>
+    <string name="file_open_snackbar_action">Open</string>
     <string name="create_folder_error">Unable to create folder. Please try again</string>
     <string name="move_to_folder">Move to folder</string>
     <string name="move_here">Move Here</string>

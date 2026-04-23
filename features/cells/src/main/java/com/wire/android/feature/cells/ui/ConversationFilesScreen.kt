@@ -86,6 +86,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 
 /**
@@ -119,7 +120,8 @@ fun ConversationFilesScreen(
         breadcrumbs = viewModel.breadcrumbs(),
         sendIntent = viewModel::sendIntent,
         onRefresh = viewModel::onPullToRefresh,
-        retryEditNodeError = viewModel::editNode
+        retryEditNodeError = viewModel::editNode,
+        fileReadyFlow = viewModel.fileReadyFlow,
     )
 
     LaunchedEffect(Unit) {
@@ -148,6 +150,7 @@ fun ConversationFilesScreenContent(
     isRecycleBin: Boolean = false,
     isRestoreInProgress: Boolean = false,
     breadcrumbs: Array<String>? = emptyArray(),
+    fileReadyFlow: Flow<CellNodeUi.File> = emptyFlow(),
 ) {
     val sharedScope = LocalSharedTransitionScope.current
 
@@ -353,7 +356,8 @@ fun ConversationFilesScreenContent(
                 },
                 retryEditNodeError = { retryEditNodeError(it) },
                 isRefreshing = isRefreshing,
-                onRefresh = onRefresh
+                onRefresh = onRefresh,
+                fileReadyFlow = fileReadyFlow,
             )
         }
     }

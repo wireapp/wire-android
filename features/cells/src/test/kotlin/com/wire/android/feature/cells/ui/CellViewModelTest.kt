@@ -50,8 +50,10 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -148,9 +150,10 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when file clicked and local file is not present and url is not openable then download dialog shown`() = runTest {
-        val (_, viewModel) = Arrangement()
+    fun `given view model when file clicked and local file is not present and url is not openable then download starts immediately`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
+            .withDownloadSuccess()
             .arrange()
 
         val testFile = testFiles[0].copy(
@@ -158,13 +161,53 @@ class CellViewModelTest {
             contentUrl = null
         ).toUiModel()
 
-        viewModel.downloadFileSheet.test {
-            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
+        // Advance time so download coroutine can complete
+        advanceUntilIdle()
 
-            with(expectMostRecentItem()) {
-                assertEquals(testFile, this)
-            }
+        // No download dialog shown — download starts silently
+        assertEquals(null, viewModel.downloadFileSheet.value)
+        // Download use case was called
+        coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given view model when file tap triggers slow download then file ready event is emitted to shared cache`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withSlowDownloadSuccess()
+            .arrange()
+
+        val testFile = testFiles[0].copy(
+            localPath = null,
+            contentUrl = null
+        ).toUiModel()
+
+        arrangement.sharedPathCache.fileReadyEvents.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
+            advanceUntilIdle()
+
+            val file = awaitItem()
+            assertEquals(testFile.uuid, file.uuid)
         }
+    }
+
+    @Test
+    fun `given cached local path in shared cache when file clicked then file is opened without re-downloading`() = runTest {
+        val cachedPath = "/cache/fileName"
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withCachedPath(testFiles[0].uuid, cachedPath)
+            .arrange()
+
+        val testFile = testFiles[0].copy(localPath = null, contentUrl = null).toUiModel()
+
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
+        advanceUntilIdle()
+
+        // Should open the cached file, not trigger a new download
+        coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
     @Test
@@ -272,6 +315,8 @@ class CellViewModelTest {
         @MockK
         lateinit var fileNameResolver: FileNameResolver
 
+        val sharedPathCache = CellFileLocalPathCache()
+
         @MockK
         lateinit var getEditorUrlUseCase: GetEditorUrlUseCase
 
@@ -329,8 +374,21 @@ class CellViewModelTest {
             )
         }
 
+        fun withCachedPath(uuid: String, path: String) = apply {
+            sharedPathCache.put(uuid, path)
+            mockkStatic(java.io.File::class)
+            every { java.io.File(path).exists() } returns true
+        }
+
         fun withDownloadSuccess() = apply {
             coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any()) } returns Unit.right()
+        }
+
+        fun withSlowDownloadSuccess() = apply {
+            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any()) } coAnswers {
+                delay(500) // Simulate download taking 500ms (longer than the 300ms threshold)
+                Unit.right()
+            }
         }
 
         fun withDownloadFailure() = apply {
@@ -350,6 +408,7 @@ class CellViewModelTest {
 
             mockkStatic(Environment::class)
 
+            every { fileHelper.getCacheDir() } returns File("")
             every { fileNameResolver.getUniqueFile(any(), any()) } returns File("")
             coEvery { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) } returns File("")
 
@@ -368,6 +427,7 @@ class CellViewModelTest {
                 getEditorUrl = getEditorUrlUseCase,
                 cellFileActionsMenu = cellFileActionsMenu,
                 getWireCellsConfig = getWireCellsConfig,
+                sharedPathCache = sharedPathCache,
             )
         }
     }

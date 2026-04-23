@@ -55,6 +55,7 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -91,6 +92,7 @@ class CellViewModel @Inject constructor(
     private val onlineEditor: OnlineEditor,
     private val cellFileActionsMenu: CellFileActionsMenu,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
+    private val sharedPathCache: CellFileLocalPathCache,
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
@@ -118,6 +120,33 @@ class CellViewModel @Inject constructor(
     // Download progress value for each file being downloaded.
     private val downloadDataFlow = MutableStateFlow<Map<String, DownloadData>>(emptyMap())
 
+    // Active storage-download jobs keyed by node UUID.
+    private val downloadJobs = mutableMapOf<String, Job>()
+
+    // Active open-download jobs keyed by node UUID, used to support cancellation of loading.
+    private val openDownloadJobs = mutableMapOf<String, Job>()
+
+    // Monotonically-increasing generation per UUID — incremented on every new startOpenDownload call.
+    // Stale progress callbacks from a previous (cancelled) download carry an old generation and are ignored.
+    private val openDownloadGeneration = mutableMapOf<String, Long>()
+
+    // Open-loading state: tracks files being silently downloaded for immediate open.
+    private val openLoadStateFlow = MutableStateFlow<Map<String, OpenLoadState>>(emptyMap())
+
+    /** Public map of uuid → (isOpenLoading, isOpenReady) for screens that build their own paging flow (e.g. Search). */
+    internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = openLoadStateFlow.asStateFlow()
+
+    /**
+     * File-ready events for the "ready to open" snackbar. Backed by the singleton channel so the
+     * event reaches whichever screen is currently active, even if the download finished on a different
+     * screen (e.g. completed in Search while the user navigated back to All Files).
+     */
+    internal val fileReadyFlow = sharedPathCache.fileReadyEvents
+
+    /** Cached local file paths from completed open-downloads, keyed by uuid. Used by Search screen overlay. */
+    private val _cachedLocalPaths = MutableStateFlow<Map<String, String>>(emptyMap())
+    internal val cachedLocalPaths: StateFlow<Map<String, String>> = _cachedLocalPaths.asStateFlow()
+
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
     // Used to navigate to the root of the recycle bin after restoring a parent folder.
@@ -139,6 +168,13 @@ class CellViewModel @Inject constructor(
     init {
         loadWireCellConfig()
         checkCellAvailabilityAndRefresh()
+        viewModelScope.launch {
+            try {
+                sharedPathCache.paths.collect { _cachedLocalPaths.value = it }
+            } catch (_: Throwable) {
+                // sharedPathCache.paths unavailable — cachedLocalPaths stays empty
+            }
+        }
     }
 
     private fun checkCellAvailabilityAndRefresh() = viewModelScope.launch {
@@ -166,8 +202,10 @@ class CellViewModel @Inject constructor(
                     ),
                 ).cachedIn(viewModelScope),
                 removedItemsFlow,
-                downloadDataFlow
-            ) { pagingData, removedItems, downloadData ->
+                downloadDataFlow,
+                openLoadStateFlow,
+                _cachedLocalPaths,
+            ) { pagingData, removedItems, downloadData, openLoadStates, cachedPaths ->
                 var emittedRefreshDone = false
 
                 pagingData
@@ -183,6 +221,7 @@ class CellViewModel @Inject constructor(
                             _pagingRefreshDone.tryEmit(Unit)
                         }
 
+                        val openLoadState = openLoadStates[node.uuid]
                         when (node) {
                             is Node.Folder -> node.toUiModel().copy(
                                 downloadProgress = downloadData[node.uuid]?.progress
@@ -191,6 +230,13 @@ class CellViewModel @Inject constructor(
                             is Node.File -> node.toUiModel().copy(
                                 downloadProgress = downloadData[node.uuid]?.progress,
                                 localPath = downloadData[node.uuid]?.localPath?.toString()
+                                    ?: (openLoadState as? OpenLoadState.Ready)?.localPath?.toString()
+                                    ?: cachedPaths[node.uuid]
+                                    ?: node.localPath,
+                                isOpenLoading = openLoadState is OpenLoadState.Loading,
+                                isOpenReady = openLoadState is OpenLoadState.Ready,
+                                isOpenError = openLoadState is OpenLoadState.Error,
+                                openLoadProgress = (openLoadState as? OpenLoadState.Loading)?.progress,
                             )
                         }
                     }
@@ -231,6 +277,8 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnNodeRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
             is CellViewIntent.OnParentFolderRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
+            is CellViewIntent.OnCancelDownload -> cancelDownload(intent.uuid)
+            is CellViewIntent.OnScreenLeave -> clearAllErrorStates()
         }
     }
 
@@ -244,10 +292,94 @@ class CellViewModel @Inject constructor(
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {
+            cellNode.isOpenReady -> openLocalFile(cellNode)
+            cellNode.isOpenLoading -> cancelOpenDownload(cellNode.uuid)
+            cellNode.isOpenError -> startOpenDownload(cellNode)
             cellNode.localFileAvailable() -> openLocalFile(cellNode)
             cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
-            else -> viewModelScope.launch { _downloadFileSheet.emit(cellNode) }
+            else -> startOpenDownload(cellNode)
         }
+    }
+
+    private fun startOpenDownload(cellNode: CellNodeUi.File) {
+        // Stamp a new generation for this download session.
+        val myGeneration = (openDownloadGeneration[cellNode.uuid] ?: 0L) + 1L
+        openDownloadGeneration[cellNode.uuid] = myGeneration
+
+        val job = viewModelScope.launch {
+            val nodeName = cellNode.name ?: run {
+                sendAction(ShowError(CellError.OTHER_ERROR))
+                return@launch
+            }
+
+            val cacheDir = fileHelper.getCacheDir()
+            val filePath = fileNameResolver.getUniqueFile(cacheDir, nodeName).toPath().toOkioPath()
+
+            // Track whether the 300ms threshold was crossed before download completed
+            var spinnerShown = false
+
+            val showSpinnerJob = launch {
+                delay(OPEN_SPINNER_DELAY_MS)
+                spinnerShown = true
+                updateOpenLoadState(cellNode.uuid) { OpenLoadState.Loading() }
+            }
+
+            download(
+                assetId = cellNode.uuid,
+                outFilePath = filePath,
+                remoteFilePath = cellNode.remotePath,
+                assetSize = cellNode.size ?: 0,
+            ) { progress ->
+                // Dispatch to main thread. Guard with generation check so stale callbacks
+                // from a cancelled download never overwrite state belonging to a newer session.
+                viewModelScope.launch {
+                    if (openDownloadGeneration[cellNode.uuid] == myGeneration) {
+                        val assetSize = cellNode.size ?: 0
+                        if (assetSize > 0) {
+                            val progressValue = (progress.toFloat() / assetSize).coerceIn(0f, 1f)
+                            updateOpenLoadState(cellNode.uuid) { OpenLoadState.Loading(progressValue) }
+                        }
+                    }
+                }
+            }
+                .onSuccess {
+                    showSpinnerJob.cancel()
+                    openDownloadJobs.remove(cellNode.uuid)
+                    openDownloadGeneration[cellNode.uuid] = (openDownloadGeneration[cellNode.uuid] ?: 0L) + 1L
+                    // Cache the local path so future taps open directly
+                    updateDownloadData(cellNode.uuid) { DownloadData(localPath = filePath) }
+                    if (!spinnerShown) {
+                        // Fast path: download completed before 300ms threshold — open instantly
+                        clearOpenLoadState(cellNode.uuid)
+                        openLocalFile(cellNode.copy(localPath = filePath.toString()))
+                    } else {
+                        // Slow path: spinner was already shown — show ready state + snackbar
+                        updateOpenLoadState(cellNode.uuid) { OpenLoadState.Ready(filePath) }
+                        sharedPathCache.emitFileReady(cellNode.copy(localPath = filePath.toString()))
+                        // Auto-dismiss the "Ready" state after 3 seconds
+                        launch {
+                            delay(OPEN_READY_DISMISS_MS)
+                            clearOpenLoadState(cellNode.uuid)
+                        }
+                    }
+                }
+                .onFailure {
+                    showSpinnerJob.cancel()
+                    openDownloadJobs.remove(cellNode.uuid)
+                    openDownloadGeneration[cellNode.uuid] = (openDownloadGeneration[cellNode.uuid] ?: 0L) + 1L
+                    updateOpenLoadState(cellNode.uuid) { OpenLoadState.Error }
+                }
+        }
+        openDownloadJobs[cellNode.uuid] = job
+    }
+
+    internal fun cancelOpenDownload(uuid: String) {
+        openDownloadJobs.remove(uuid)?.cancel()
+        // Increment instead of removing so that any already-dispatched viewModelScope.launch
+        // callbacks from the cancelled download (which escape job cancellation) never match
+        // the generation of the next download session.
+        openDownloadGeneration[uuid] = (openDownloadGeneration[uuid] ?: 0L) + 1L
+        clearOpenLoadState(uuid)
     }
 
     private fun onFolderClick(cellNode: CellNodeUi.Folder) {
@@ -281,40 +413,48 @@ class CellViewModel @Inject constructor(
         )
     }
 
-    private fun downloadNode(node: CellNodeUi) = viewModelScope.launch {
+    private fun downloadNode(node: CellNodeUi) {
+        val job = viewModelScope.launch {
 
-        val (nodeName, nodeRemotePath) = when (node) {
-            is CellNodeUi.File -> Pair(node.name, node.remotePath)
-            is CellNodeUi.Folder -> Pair(node.name + ZIP_EXTENSION, node.remotePath + ZIP_EXTENSION)
-        }
-
-        if (nodeName.isNullOrBlank()) {
-            sendAction(ShowError(CellError.OTHER_ERROR))
-            return@launch
-        }
-
-        val publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        val filePath = fileNameResolver.getUniqueFile(publicDir, nodeName).toPath().toOkioPath()
-
-        download(
-            assetId = node.uuid,
-            outFilePath = filePath,
-            remoteFilePath = nodeRemotePath,
-            assetSize = node.size ?: 0,
-        ) { progress ->
-            node.size?.let {
-                updateDownloadProgress(progress, it, node, filePath)
+            val (nodeName, nodeRemotePath) = when (node) {
+                is CellNodeUi.File -> Pair(node.name, node.remotePath)
+                is CellNodeUi.Folder -> Pair(node.name + ZIP_EXTENSION, node.remotePath + ZIP_EXTENSION)
             }
-        }.onSuccess {
-            updateDownloadData(node.uuid) {
-                DownloadData(
-                    localPath = filePath
-                )
+
+            if (nodeName.isNullOrBlank()) {
+                sendAction(ShowError(CellError.OTHER_ERROR))
+                return@launch
             }
-        }.onFailure {
-            _downloadFileSheet.update { null }
-            sendAction(ShowError(CellError.DOWNLOAD_FAILED))
+
+            val publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val filePath = fileNameResolver.getUniqueFile(publicDir, nodeName).toPath().toOkioPath()
+
+            download(
+                assetId = node.uuid,
+                outFilePath = filePath,
+                remoteFilePath = nodeRemotePath,
+                assetSize = node.size ?: 0,
+            ) { progress ->
+                node.size?.let {
+                    updateDownloadProgress(progress, it, node, filePath)
+                }
+            }.onSuccess {
+                updateDownloadData(node.uuid) {
+                    DownloadData(
+                        localPath = filePath
+                    )
+                }
+            }.onFailure {
+                downloadJobs.remove(node.uuid)
+                _downloadFileSheet.update { null }
+                sendAction(ShowError(CellError.DOWNLOAD_FAILED))
+            }
         }
+        downloadJobs[node.uuid] = job
+    }
+
+    internal fun cancelDownload(uuid: String) {
+        cancelOpenDownload(uuid)
     }
 
     private fun updateDownloadProgress(progress: Long, it: Long, node: CellNodeUi, path: Path) = viewModelScope.launch {
@@ -395,6 +535,7 @@ class CellViewModel @Inject constructor(
                 is CellFileActionsMenu.Download -> downloadNode(result.node)
                 is CellFileActionsMenu.Edit -> editNode(result.node.uuid)
                 is CellFileActionsMenu.Share -> shareFile(result.node)
+                is CellFileActionsMenu.CancelLoading -> cancelDownload(result.node.uuid)
             }
         }
     }
@@ -495,10 +636,34 @@ class CellViewModel @Inject constructor(
     }
 
     private fun updateDownloadData(uuid: String, block: () -> DownloadData) {
+        val data = block()
+        // Persist to the process-scoped cache so other CellViewModel instances (e.g. AllFiles ↔ Search)
+        // can see locally-available files without re-downloading.
+        data.localPath?.toString()?.let { sharedPathCache.put(uuid, it) }
         downloadDataFlow.update { map ->
             val progressMap = map.toMutableMap()
-            progressMap[uuid] = block()
+            progressMap[uuid] = data
             progressMap.toImmutableMap()
+        }
+    }
+
+    private fun updateOpenLoadState(uuid: String, block: () -> OpenLoadState) {
+        openLoadStateFlow.update { map ->
+            map.toMutableMap().apply { put(uuid, block()) }.toImmutableMap()
+        }
+    }
+
+    private fun clearOpenLoadState(uuid: String) {
+        openLoadStateFlow.update { map ->
+            map.toMutableMap().apply { remove(uuid) }.toImmutableMap()
+        }
+    }
+
+    internal fun clearAllErrorStates() {
+        openLoadStateFlow.update { map ->
+            map.toMutableMap().apply {
+                entries.removeAll { it.value is OpenLoadState.Error }
+            }.toImmutableMap()
         }
     }
 
@@ -529,6 +694,8 @@ sealed interface CellViewIntent {
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnParentFolderRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data object OnDownloadMenuClosed : CellViewIntent
+    data class OnCancelDownload(val uuid: String) : CellViewIntent
+    data object OnScreenLeave : CellViewIntent
 }
 
 sealed interface CellViewAction
@@ -566,4 +733,12 @@ private data class DownloadData(
     val localPath: Path? = null,
 )
 
+internal sealed interface OpenLoadState {
+    data class Loading(val progress: Float = 0f) : OpenLoadState
+    data class Ready(val localPath: Path) : OpenLoadState
+    data object Error : OpenLoadState
+}
+
 private const val RESTORE_DELAY_MS = 300L
+private const val OPEN_SPINNER_DELAY_MS = 300L
+private const val OPEN_READY_DISMISS_MS = 3_000L

@@ -38,6 +38,10 @@ sealed class CellNodeUi {
     abstract val size: Long?
     abstract val downloadProgress: Float?
     abstract val tags: List<String>
+    abstract val isOpenLoading: Boolean
+    abstract val isOpenReady: Boolean
+    abstract val isOpenError: Boolean
+    abstract val openLoadProgress: Float?
 
     data class Folder(
         override val name: String?,
@@ -52,6 +56,10 @@ sealed class CellNodeUi {
         override val size: Long?,
         override val downloadProgress: Float? = null,
         override val tags: List<String> = emptyList(),
+        override val isOpenLoading: Boolean = false,
+        override val isOpenReady: Boolean = false,
+        override val isOpenError: Boolean = false,
+        override val openLoadProgress: Float? = null,
     ) : CellNodeUi()
 
     data class File(
@@ -74,6 +82,10 @@ sealed class CellNodeUi {
         val previewUrl: String? = null,
         override val tags: List<String> = emptyList(),
         val isEditSupported: Boolean = false,
+        override val isOpenLoading: Boolean = false,
+        override val isOpenReady: Boolean = false,
+        override val isOpenError: Boolean = false,
+        override val openLoadProgress: Float? = null,
     ) : CellNodeUi()
 }
 

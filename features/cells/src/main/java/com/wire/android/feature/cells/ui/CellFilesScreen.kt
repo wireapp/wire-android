@@ -66,6 +66,8 @@ internal fun CellFilesScreen(
     modifier: Modifier = Modifier,
     isPullToRefreshEnabled: Boolean = true,
     lazyListState: LazyListState = rememberLazyListState(),
+    externalOpenLoadStates: Map<String, OpenLoadState> = emptyMap(),
+    cachedLocalPaths: Map<String, String> = emptyMap(),
     onItemMenuClick: (CellNodeUi) -> Unit
 ) {
     if (isPullToRefreshEnabled) {
@@ -78,7 +80,9 @@ internal fun CellFilesScreen(
                 cellNodes = cellNodes,
                 lazyListState = lazyListState,
                 onItemClick = onItemClick,
-                onItemMenuClick = onItemMenuClick
+                onItemMenuClick = onItemMenuClick,
+                externalOpenLoadStates = externalOpenLoadStates,
+                cachedLocalPaths = cachedLocalPaths,
             )
         }
     } else {
@@ -87,7 +91,9 @@ internal fun CellFilesScreen(
             cellNodes = cellNodes,
             lazyListState = lazyListState,
             onItemClick = onItemClick,
-            onItemMenuClick = onItemMenuClick
+            onItemMenuClick = onItemMenuClick,
+            externalOpenLoadStates = externalOpenLoadStates,
+            cachedLocalPaths = cachedLocalPaths,
         )
     }
 }
@@ -98,7 +104,9 @@ private fun ContentList(
     lazyListState: LazyListState,
     onItemClick: (CellNodeUi) -> Unit,
     onItemMenuClick: (CellNodeUi) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    externalOpenLoadStates: Map<String, OpenLoadState> = emptyMap(),
+    cachedLocalPaths: Map<String, String> = emptyMap(),
 ) {
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -112,13 +120,34 @@ private fun ContentList(
         ) { index ->
 
             cellNodes[index]?.let { item ->
+                // Apply external open-load state overlay for items whose paging data doesn't carry it (e.g. Search)
+                val overlaidItem = if (item is CellNodeUi.File) {
+                    val state = externalOpenLoadStates[item.uuid]
+                    val cachedPath = cachedLocalPaths[item.uuid]
+                    if (state != null || cachedPath != null) {
+                        item.copy(
+                            isOpenLoading = state is OpenLoadState.Loading,
+                            isOpenReady = state is OpenLoadState.Ready,
+                            isOpenError = state is OpenLoadState.Error,
+                            openLoadProgress = (state as? OpenLoadState.Loading)?.progress,
+                            // Prefer cached localPath so re-tapping after "Ready" dismissal opens from cache
+                            localPath = (state as? OpenLoadState.Ready)?.localPath?.toString()
+                                ?: cachedPath
+                                ?: item.localPath,
+                        )
+                    } else {
+                        item
+                    }
+                } else {
+                    item
+                }
                 CellListItem(
                     modifier = Modifier
                         .animateItem()
                         .background(color = colorsScheme().surface)
-                        .clickable { onItemClick(item) },
-                    cell = item,
-                    onMenuClick = { onItemMenuClick(item) }
+                        .clickable { onItemClick(overlaidItem) },
+                    cell = overlaidItem,
+                    onMenuClick = { onItemMenuClick(overlaidItem) }
                 )
                 WireDivider(modifier = Modifier.fillMaxWidth())
             }

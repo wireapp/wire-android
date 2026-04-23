@@ -31,10 +31,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
@@ -91,6 +94,7 @@ private fun SecurityClassificationBanner(
     state: SecurityClassificationType,
     modifier: Modifier = Modifier
 ) {
+    val state = if (LocalInspectionMode.current) (LocalPreviewSecurityClassificationBannerState.current ?: state) else state
     if (state != SecurityClassificationType.NONE) {
         Column(modifier = modifier) {
             HorizontalDivider(color = getDividerColorFor(state))
@@ -118,6 +122,16 @@ private fun SecurityClassificationBanner(
         }
     }
 }
+
+@Composable
+fun PreviewSecurityClassificationBannerState(state: SecurityClassificationType, content: @Composable () -> Unit) {
+        CompositionLocalProvider(LocalPreviewSecurityClassificationBannerState provides state) {
+            content()
+        }
+    }
+
+private val LocalPreviewSecurityClassificationBannerState =
+    staticCompositionLocalOf<SecurityClassificationType?> { null }
 
 @Composable
 private fun getTextFor(securityClassificationType: SecurityClassificationType): String {

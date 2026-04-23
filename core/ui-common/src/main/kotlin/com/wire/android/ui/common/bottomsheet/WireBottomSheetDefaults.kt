@@ -17,13 +17,8 @@
  */
 package com.wire.android.ui.common.bottomsheet
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
@@ -39,15 +34,4 @@ object WireBottomSheetDefaults {
     val WireContainerColor: Color @Composable get() = colorsScheme().background
     val WireContentColor: Color @Composable get() = colorsScheme().onBackground
     val WireSheetTonalElevation: Dp @Composable get() = 0.dp
-
-    @Composable
-    fun WireDragHandle(modifier: Modifier = Modifier) {
-        Box(
-            modifier
-                .padding(vertical = dimensions().spacing12x)
-                .size(width = dimensions().modalBottomSheetDividerWidth, height = dimensions().spacing4x)
-                .background(color = colorsScheme().secondaryText, shape = RoundedCornerShape(size = dimensions().spacing2x))
-
-        )
-    }
 }

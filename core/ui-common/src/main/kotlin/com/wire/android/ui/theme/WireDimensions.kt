@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import io.github.esentsov.PackagePrivate
-import kotlin.Float
 
 @Immutable
 data class WireDimensions(
@@ -189,7 +188,6 @@ data class WireDimensions(
     val notificationBadgeHeight: Dp,
     val notificationBadgeRadius: Dp,
     // Wire ModalSheetLayout
-    val modalBottomSheetDividerWidth: Dp,
     val modalBottomSheetHeaderHorizontalPadding: Dp,
     val modalBottomSheetHeaderVerticalPadding: Dp,
     val modalBottomSheetNoHeaderVerticalPadding: Dp,
@@ -371,7 +369,6 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     corner100x = 100.dp,
     notificationBadgeHeight = 18.dp,
     notificationBadgeRadius = 6.dp,
-    modalBottomSheetDividerWidth = 48.dp,
     modalBottomSheetHeaderHorizontalPadding = 8.dp,
     modalBottomSheetHeaderVerticalPadding = 16.dp,
     modalBottomSheetNoHeaderVerticalPadding = 24.dp,

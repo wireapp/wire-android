@@ -41,29 +41,43 @@ class AiMessageComposerViewModel @Inject constructor(
     var activeAction by mutableStateOf<AiMessageComposerAction?>(null)
         private set
 
+    var canUndo by mutableStateOf(false)
+        private set
+
+    private val undoStack = mutableListOf<String>()
+
     private val _effect = MutableSharedFlow<AiMessageComposerEffect>()
     val effect: SharedFlow<AiMessageComposerEffect> = _effect.asSharedFlow()
 
     fun proofread(inputText: String) {
-        runAiAction(AiMessageComposerAction.Proofread) {
+        runAiAction(AiMessageComposerAction.Proofread, inputText) {
             aiMessageComposerAgent.proofread(inputText)
         }
     }
 
     fun adjustTone(inputText: String, toneType: AiMessageToneType) {
-        runAiAction(toneType.toAction()) {
+        runAiAction(toneType.toAction(), inputText) {
             aiMessageComposerAgent.adjustTone(inputText, toneType)
         }
     }
 
     fun customPrompt(inputText: String, userPrompt: String) {
-        runAiAction(AiMessageComposerAction.CustomPrompt) {
+        runAiAction(AiMessageComposerAction.CustomPrompt, inputText) {
             aiMessageComposerAgent.customPrompt(inputText, userPrompt)
+        }
+    }
+
+    fun undo() {
+        val previousText = undoStack.removeLastOrNull() ?: return
+        canUndo = undoStack.isNotEmpty()
+        viewModelScope.launch {
+            _effect.emit(AiMessageComposerEffect.ReplaceText(previousText))
         }
     }
 
     private fun runAiAction(
         action: AiMessageComposerAction,
+        inputText: String,
         request: suspend () -> AiMessageComposerResult
     ) {
         if (activeAction != null) return
@@ -72,9 +86,11 @@ class AiMessageComposerViewModel @Inject constructor(
             try {
                 activeAction = action
                 when (val result = request()) {
-                    is AiMessageComposerResult.Success -> _effect.emit(
-                        AiMessageComposerEffect.ReplaceText(result.updatedText)
-                    )
+                    is AiMessageComposerResult.Success -> {
+                        undoStack.add(inputText)
+                        canUndo = true
+                        _effect.emit(AiMessageComposerEffect.ReplaceText(result.updatedText))
+                    }
                     AiMessageComposerResult.EmptyInput -> _effect.emit(
                         AiMessageComposerEffect.ShowError(action.emptyInputErrorResId)
                     )

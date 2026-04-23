@@ -1082,6 +1082,7 @@
     <string name="error_adjust_tone_message_generic">Message tone could not be adjusted. Please try again.</string>
     <string name="label_adjust_tone_formal">formal</string>
     <string name="label_adjust_tone_informal">informal</string>
+    <string name="content_description_undo_ai_action">Undo last AI enhancement</string>
     <string name="label_custom_prompt">Custom</string>
     <string name="content_description_custom_prompt">Apply custom AI instruction to message</string>
     <string name="title_ai_custom_prompt">Custom AI prompt</string>

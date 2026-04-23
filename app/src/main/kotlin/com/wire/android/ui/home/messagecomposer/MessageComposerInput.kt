@@ -63,6 +63,7 @@ import com.wire.android.feature.aiassistant.AiMessageToneType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireSecondaryIconButton
+import com.wire.android.ui.common.button.WireTertiaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -98,7 +99,9 @@ fun ActiveMessageComposerInput(
     onKeyboardAction: KeyboardActionHandler?,
     canSendMessage: Boolean,
     activeAiAction: AiMessageComposerAction? = null,
+    canUndo: Boolean = false,
     onSendButtonClicked: () -> Unit,
+    onUndoButtonClicked: () -> Unit = {},
     onProofreadButtonClicked: () -> Unit = {},
     onAdjustToneButtonClicked: (AiMessageToneType) -> Unit = {},
     onCustomPromptButtonClicked: () -> Unit = {},
@@ -145,6 +148,8 @@ fun ActiveMessageComposerInput(
             inputType = inputType,
             focusRequester = focusRequester,
             onSendButtonClicked = onSendButtonClicked,
+            canUndo = canUndo,
+            onUndoButtonClicked = onUndoButtonClicked,
             onProofreadButtonClicked = onProofreadButtonClicked,
             onAdjustToneButtonClicked = onAdjustToneButtonClicked,
             onCustomPromptButtonClicked = onCustomPromptButtonClicked,
@@ -191,7 +196,9 @@ private fun InputContent(
     onKeyboardAction: KeyboardActionHandler?,
     canSendMessage: Boolean,
     activeAiAction: AiMessageComposerAction?,
+    canUndo: Boolean,
     onSendButtonClicked: () -> Unit,
+    onUndoButtonClicked: () -> Unit,
     onProofreadButtonClicked: () -> Unit,
     onAdjustToneButtonClicked: (AiMessageToneType) -> Unit,
     onCustomPromptButtonClicked: () -> Unit,
@@ -225,9 +232,7 @@ private fun InputContent(
                 )
             }
         }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
             modifier = Modifier
                 .padding(start = dimensions().spacing8x)
                 .constrainAs(aiActions) {
@@ -237,29 +242,40 @@ private fun InputContent(
                     width = Dimension.fillToConstraints
                 }
         ) {
-            if (isTextExpanded) {
-                ProofreadMessageAction(
-                    onProofreadButtonClicked = onProofreadButtonClicked,
+            if (isTextExpanded && canUndo) {
+                UndoMessageAction(
+                    onUndoButtonClicked = onUndoButtonClicked,
                     activeAiAction = activeAiAction
                 )
-                AdjustToneMessageAction(
-                    text = stringResource(R.string.label_adjust_tone_formal),
-                    contentDescription = stringResource(R.string.content_description_adjust_tone_formal),
-                    action = AiMessageComposerAction.FormalTone,
-                    activeAiAction = activeAiAction,
-                    onButtonClicked = { onAdjustToneButtonClicked(AiMessageToneType.Formal) }
-                )
-                AdjustToneMessageAction(
-                    text = stringResource(R.string.label_adjust_tone_informal),
-                    contentDescription = stringResource(R.string.content_description_adjust_tone_informal),
-                    action = AiMessageComposerAction.InformalTone,
-                    activeAiAction = activeAiAction,
-                    onButtonClicked = { onAdjustToneButtonClicked(AiMessageToneType.Informal) }
-                )
-                CustomPromptMessageAction(
-                    activeAiAction = activeAiAction,
-                    onButtonClicked = onCustomPromptButtonClicked,
-                )
+            }
+            if (isTextExpanded) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    ProofreadMessageAction(
+                        onProofreadButtonClicked = onProofreadButtonClicked,
+                        activeAiAction = activeAiAction
+                    )
+                    AdjustToneMessageAction(
+                        text = stringResource(R.string.label_adjust_tone_formal),
+                        contentDescription = stringResource(R.string.content_description_adjust_tone_formal),
+                        action = AiMessageComposerAction.FormalTone,
+                        activeAiAction = activeAiAction,
+                        onButtonClicked = { onAdjustToneButtonClicked(AiMessageToneType.Formal) }
+                    )
+                    AdjustToneMessageAction(
+                        text = stringResource(R.string.label_adjust_tone_informal),
+                        contentDescription = stringResource(R.string.content_description_adjust_tone_informal),
+                        action = AiMessageComposerAction.InformalTone,
+                        activeAiAction = activeAiAction,
+                        onButtonClicked = { onAdjustToneButtonClicked(AiMessageToneType.Informal) }
+                    )
+                    CustomPromptMessageAction(
+                        activeAiAction = activeAiAction,
+                        onButtonClicked = onCustomPromptButtonClicked,
+                    )
+                }
             }
         }
 
@@ -337,6 +353,24 @@ private fun ProofreadMessageAction(
         } else {
             WireButtonState.Disabled
         },
+        shape = CircleShape,
+        minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun UndoMessageAction(
+    onUndoButtonClicked: () -> Unit,
+    activeAiAction: AiMessageComposerAction?,
+    modifier: Modifier = Modifier,
+) {
+    WireTertiaryIconButton(
+        onButtonClicked = onUndoButtonClicked,
+        iconResource = R.drawable.ic_undo,
+        contentDescription = R.string.content_description_undo_ai_action,
+        state = if (activeAiAction == null) WireButtonState.Default else WireButtonState.Disabled,
         shape = CircleShape,
         minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
         minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,

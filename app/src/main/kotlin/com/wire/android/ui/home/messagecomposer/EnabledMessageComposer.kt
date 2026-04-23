@@ -293,6 +293,8 @@ fun EnabledMessageComposer(
                             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                             onSendButtonClicked = onSendButtonClicked,
                             activeAiAction = aiMessageComposerViewModel.activeAction,
+                            canUndo = aiMessageComposerViewModel.canUndo,
+                            onUndoButtonClicked = { aiMessageComposerViewModel.undo() },
                             onProofreadButtonClicked = {
                                 aiMessageComposerViewModel.proofread(inputStateHolder.messageTextState.text.toString())
                             },

@@ -31,7 +31,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -238,6 +240,80 @@ class AiMessageComposerViewModelTest {
             result = AiMessageComposerResult.InferenceFailed("Cannot run model"),
             expectedEffect = AiMessageComposerEffect.ShowError(R.string.error_custom_prompt_message_generic)
         )
+    }
+
+    @Test
+    fun `given ai action succeeds when undo is called then previous text is restored and canUndo becomes false`() = runTest {
+        val inputText = "Helo"
+        val updatedText = "Hello"
+        val (arrangement, viewModel) = Arrangement()
+            .withProofreadResult(inputText, AiMessageComposerResult.Success(updatedText))
+            .arrange()
+
+        viewModel.effect.test {
+            viewModel.proofread(inputText)
+            assertEquals(AiMessageComposerEffect.ReplaceText(updatedText), awaitItem())
+            assertTrue(viewModel.canUndo)
+
+            viewModel.undo()
+            assertEquals(AiMessageComposerEffect.ReplaceText(inputText), awaitItem())
+            assertFalse(viewModel.canUndo)
+        }
+    }
+
+    @Test
+    fun `given multiple ai actions succeed when undo is called repeatedly then texts are restored in LIFO order`() = runTest {
+        val firstInput = "Helo"
+        val afterProofread = "Hello"
+        val afterTone = "Dear colleague, Hello"
+        val (arrangement, viewModel) = Arrangement()
+            .withProofreadResult(firstInput, AiMessageComposerResult.Success(afterProofread))
+            .withAdjustToneResult(afterProofread, AiMessageToneType.Formal, AiMessageComposerResult.Success(afterTone))
+            .arrange()
+
+        viewModel.effect.test {
+            viewModel.proofread(firstInput)
+            assertEquals(AiMessageComposerEffect.ReplaceText(afterProofread), awaitItem())
+
+            viewModel.adjustTone(afterProofread, AiMessageToneType.Formal)
+            assertEquals(AiMessageComposerEffect.ReplaceText(afterTone), awaitItem())
+            assertTrue(viewModel.canUndo)
+
+            viewModel.undo()
+            assertEquals(AiMessageComposerEffect.ReplaceText(afterProofread), awaitItem())
+            assertTrue(viewModel.canUndo)
+
+            viewModel.undo()
+            assertEquals(AiMessageComposerEffect.ReplaceText(firstInput), awaitItem())
+            assertFalse(viewModel.canUndo)
+        }
+    }
+
+    @Test
+    fun `given no ai action has succeeded when undo is called then no effect is emitted`() = runTest {
+        val (_, viewModel) = Arrangement().arrange()
+
+        assertFalse(viewModel.canUndo)
+
+        viewModel.effect.test {
+            viewModel.undo()
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `given ai action fails when proofread is called then canUndo remains false`() = runTest {
+        val inputText = "Helo"
+        val (_, viewModel) = Arrangement()
+            .withProofreadResult(inputText, AiMessageComposerResult.EmptyResponse)
+            .arrange()
+
+        viewModel.effect.test {
+            viewModel.proofread(inputText)
+            awaitItem() // consume the error effect
+        }
+
+        assertFalse(viewModel.canUndo)
     }
 
     @Test

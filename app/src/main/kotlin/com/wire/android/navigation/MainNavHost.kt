@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.generated.app.destinations.AiCustomPromptScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
@@ -34,6 +35,7 @@ import com.ramcosta.composedestinations.generated.app.navArgs
 import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
+import com.ramcosta.composedestinations.navargs.primitives.stringNavType
 import com.ramcosta.composedestinations.generated.app.navtype.groupConversationDetailsNavBackArgsNavType
 import com.ramcosta.composedestinations.generated.app.navtype.imagesPreviewNavBackArgsNavType
 import com.ramcosta.composedestinations.generated.app.navtype.mediaGalleryNavBackArgsNavType
@@ -121,6 +123,9 @@ fun MainNavHost(
                             imagePreviewScreenResultRecipient = resultRecipient(imagesPreviewNavBackArgsNavType),
                             drawingCanvasScreenResultRecipient = resultRecipient<DrawingCanvasScreenDestination, DrawingCanvasNavBackArgs>(
                                 drawingCanvasNavBackArgsNavType
+                            ),
+                            customAiPromptResultRecipient = resultRecipient<AiCustomPromptScreenDestination, String>(
+                                stringNavType
                             ),
                             resultNavigator = resultBackNavigator(groupConversationDetailsNavBackArgsNavType),
                         )

@@ -180,6 +180,67 @@ class AiMessageComposerViewModelTest {
     }
 
     @Test
+    fun `given custom prompt succeeds when customPrompt is requested then replace text effect is emitted and exact inputs are used`() = runTest {
+        val inputText = "Hello, this is long."
+        val userPrompt = "Make this shorter"
+        val updatedText = "Hello."
+        val (arrangement, viewModel) = Arrangement()
+            .withCustomPromptResult(inputText, userPrompt, AiMessageComposerResult.Success(updatedText))
+            .arrange()
+
+        viewModel.effect.test {
+            viewModel.customPrompt(inputText, userPrompt)
+
+            assertEquals(AiMessageComposerEffect.ReplaceText(updatedText), awaitItem())
+        }
+
+        coVerify(exactly = 1) {
+            arrangement.aiMessageComposerAgent.customPrompt(inputText, userPrompt)
+        }
+        assertNull(viewModel.activeAction)
+    }
+
+    @Test
+    fun `given empty input when customPrompt is requested then empty input error effect is emitted`() = runTest {
+        assertCustomPromptErrorEffect(
+            result = AiMessageComposerResult.EmptyInput,
+            expectedEffect = AiMessageComposerEffect.ShowError(R.string.error_custom_prompt_message_empty_input)
+        )
+    }
+
+    @Test
+    fun `given missing model when customPrompt is requested then missing model error effect is emitted`() = runTest {
+        assertCustomPromptErrorEffect(
+            result = AiMessageComposerResult.MissingModel,
+            expectedEffect = AiMessageComposerEffect.ShowError(R.string.error_custom_prompt_message_missing_model)
+        )
+    }
+
+    @Test
+    fun `given unsupported model when customPrompt is requested then unsupported model error effect is emitted`() = runTest {
+        assertCustomPromptErrorEffect(
+            result = AiMessageComposerResult.UnsupportedModel,
+            expectedEffect = AiMessageComposerEffect.ShowError(R.string.error_custom_prompt_message_unsupported_model)
+        )
+    }
+
+    @Test
+    fun `given empty response when customPrompt is requested then generic error effect is emitted`() = runTest {
+        assertCustomPromptErrorEffect(
+            result = AiMessageComposerResult.EmptyResponse,
+            expectedEffect = AiMessageComposerEffect.ShowError(R.string.error_custom_prompt_message_generic)
+        )
+    }
+
+    @Test
+    fun `given inference failure when customPrompt is requested then generic error effect is emitted`() = runTest {
+        assertCustomPromptErrorEffect(
+            result = AiMessageComposerResult.InferenceFailed("Cannot run model"),
+            expectedEffect = AiMessageComposerEffect.ShowError(R.string.error_custom_prompt_message_generic)
+        )
+    }
+
+    @Test
     fun `given ai action is running when another action is requested then second request is ignored`() = runTest {
         val proofreadStarted = CompletableDeferred<Unit>()
         val completeProofread = CompletableDeferred<AiMessageComposerResult>()
@@ -225,6 +286,23 @@ class AiMessageComposerViewModelTest {
         }
     }
 
+    private suspend fun assertCustomPromptErrorEffect(
+        result: AiMessageComposerResult,
+        expectedEffect: AiMessageComposerEffect.ShowError
+    ) {
+        val inputText = "Hello"
+        val userPrompt = "Make this shorter"
+        val (_, viewModel) = Arrangement()
+            .withCustomPromptResult(inputText, userPrompt, result)
+            .arrange()
+
+        viewModel.effect.test {
+            viewModel.customPrompt(inputText, userPrompt)
+
+            assertEquals(expectedEffect, awaitItem())
+        }
+    }
+
     private suspend fun assertToneErrorEffect(
         result: AiMessageComposerResult,
         expectedEffect: AiMessageComposerEffect.ShowError
@@ -264,6 +342,14 @@ class AiMessageComposerViewModelTest {
             result: AiMessageComposerResult
         ) = apply {
             coEvery { aiMessageComposerAgent.adjustTone(inputText, toneType) } returns result
+        }
+
+        fun withCustomPromptResult(
+            inputText: String,
+            userPrompt: String,
+            result: AiMessageComposerResult
+        ) = apply {
+            coEvery { aiMessageComposerAgent.customPrompt(inputText, userPrompt) } returns result
         }
 
         fun withSuspendedProofread(

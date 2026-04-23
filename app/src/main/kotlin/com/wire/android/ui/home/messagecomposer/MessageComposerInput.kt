@@ -101,6 +101,7 @@ fun ActiveMessageComposerInput(
     onSendButtonClicked: () -> Unit,
     onProofreadButtonClicked: () -> Unit = {},
     onAdjustToneButtonClicked: (AiMessageToneType) -> Unit = {},
+    onCustomPromptButtonClicked: () -> Unit = {},
     onEditButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onToggleInputSize: () -> Unit,
@@ -146,6 +147,7 @@ fun ActiveMessageComposerInput(
             onSendButtonClicked = onSendButtonClicked,
             onProofreadButtonClicked = onProofreadButtonClicked,
             onAdjustToneButtonClicked = onAdjustToneButtonClicked,
+            onCustomPromptButtonClicked = onCustomPromptButtonClicked,
             keyboardOptions = keyboardOptions,
             onKeyboardAction = onKeyboardAction,
             canSendMessage = canSendMessage,
@@ -192,6 +194,7 @@ private fun InputContent(
     onSendButtonClicked: () -> Unit,
     onProofreadButtonClicked: () -> Unit,
     onAdjustToneButtonClicked: (AiMessageToneType) -> Unit,
+    onCustomPromptButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onFocused: () -> Unit,
     onSelectedLineIndexChanged: (Int) -> Unit,
@@ -252,6 +255,10 @@ private fun InputContent(
                     action = AiMessageComposerAction.InformalTone,
                     activeAiAction = activeAiAction,
                     onButtonClicked = { onAdjustToneButtonClicked(AiMessageToneType.Informal) }
+                )
+                CustomPromptMessageAction(
+                    activeAiAction = activeAiAction,
+                    onButtonClicked = onCustomPromptButtonClicked,
                 )
             }
         }
@@ -356,6 +363,29 @@ private fun AdjustToneMessageAction(
             WireButtonState.Disabled
         },
         description = contentDescription,
+        fillMaxWidth = false,
+        minSize = MaterialTheme.wireDimensions.buttonMinSize.copy(height = MaterialTheme.wireDimensions.buttonCircleMinSize.height),
+        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun CustomPromptMessageAction(
+    activeAiAction: AiMessageComposerAction?,
+    onButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    WireSecondaryButton(
+        onClick = onButtonClicked,
+        text = stringResource(R.string.label_custom_prompt),
+        loading = activeAiAction == AiMessageComposerAction.CustomPrompt,
+        state = if (activeAiAction == null || activeAiAction == AiMessageComposerAction.CustomPrompt) {
+            WireButtonState.Default
+        } else {
+            WireButtonState.Disabled
+        },
+        description = stringResource(R.string.content_description_custom_prompt),
         fillMaxWidth = false,
         minSize = MaterialTheme.wireDimensions.buttonMinSize.copy(height = MaterialTheme.wireDimensions.buttonCircleMinSize.height),
         minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,

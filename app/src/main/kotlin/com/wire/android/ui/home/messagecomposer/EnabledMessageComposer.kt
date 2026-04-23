@@ -124,6 +124,7 @@ fun EnabledMessageComposer(
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     openDrawingCanvas: () -> Unit,
+    openAiCustomPrompt: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     tempWritableVideoUri: Uri?,
@@ -301,6 +302,7 @@ fun EnabledMessageComposer(
                                     toneType = toneType
                                 )
                             },
+                            onCustomPromptButtonClicked = openAiCustomPrompt,
                             onEditButtonClicked = {
                                 onSendButtonClicked()
                                 messageCompositionInputStateHolder.toComposing()

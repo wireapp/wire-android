@@ -84,6 +84,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.ramcosta.composedestinations.generated.app.destinations.AiCustomPromptScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
@@ -181,6 +182,7 @@ import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsMo
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
+import com.wire.android.ui.home.messagecomposer.AiMessageComposerViewModel
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerComponent
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
@@ -259,6 +261,7 @@ fun ConversationScreen(
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
     imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
+    customAiPromptResultRecipient: ResultRecipient<AiCustomPromptScreenDestination, String>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     conversationInfoViewModel: ConversationInfoViewModel = conversationInfoViewModel(),
     conversationBannerViewModel: ConversationBannerViewModel = conversationBannerViewModel(),
@@ -269,6 +272,7 @@ fun ConversationScreen(
     conversationMigrationViewModel: ConversationMigrationViewModel = conversationMigrationViewModel(),
     messageDraftViewModel: MessageDraftViewModel = messageDraftViewModel(),
     messageAttachmentsViewModel: MessageAttachmentsViewModel = messageAttachmentsViewModel(),
+    aiMessageComposerViewModel: AiMessageComposerViewModel = hiltViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
@@ -721,6 +725,9 @@ fun ConversationScreen(
                 )
             )
         },
+        openAiCustomPrompt = {
+            navigator.navigate(NavigationCommand(AiCustomPromptScreenDestination))
+        },
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow,
         onReachedOldestMessage = {
             conversationMessagesViewModel.fetchOlderMessagesIfNeeded()
@@ -892,6 +899,18 @@ fun ConversationScreen(
             }
         }
     }
+
+    customAiPromptResultRecipient.onNavResult { result ->
+        messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
+        when (result) {
+            is Canceled -> {}
+            is Value -> {
+                val inputText = messageComposerStateHolder
+                    .messageCompositionInputStateHolder.messageTextState.text.toString()
+                aiMessageComposerViewModel.customPrompt(inputText, result.value)
+            }
+        }
+    }
 }
 
 private fun conversationScreenOnBackButtonClick(
@@ -998,6 +1017,7 @@ private fun ConversationScreen(
     messageComposerStateHolder: MessageComposerStateHolder,
     onLinkClick: (String) -> Unit,
     openDrawingCanvas: () -> Unit,
+    openAiCustomPrompt: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
@@ -1103,6 +1123,7 @@ private fun ConversationScreen(
                         currentTimeInMillisFlow = currentTimeInMillisFlow,
                         onReachedOldestMessage = onReachedOldestMessage,
                         openDrawingCanvas = openDrawingCanvas,
+                        openAiCustomPrompt = openAiCustomPrompt,
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
@@ -1189,6 +1210,7 @@ private fun ConversationScreenContent(
     onLinkClick: (String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
     openDrawingCanvas: () -> Unit,
+    openAiCustomPrompt: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
@@ -1259,6 +1281,7 @@ private fun ConversationScreenContent(
         tempWritableImageUri = tempWritableImageUri,
         onImagesPicked = onImagesPicked,
         openDrawingCanvas = openDrawingCanvas,
+        openAiCustomPrompt = openAiCustomPrompt,
         onAttachmentClick = onAttachmentClick,
         onAttachmentMenuClick = onAttachmentMenuClick,
         onAttachmentPicked = onAttachmentPicked,
@@ -2006,6 +2029,7 @@ fun PreviewConversationScreen() = WireTheme {
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { _ -> },
         openDrawingCanvas = {},
+        openAiCustomPrompt = {},
         onImagesPicked = { _, _ -> },
         onAttachmentClick = {},
         onAttachmentMenuClick = {},

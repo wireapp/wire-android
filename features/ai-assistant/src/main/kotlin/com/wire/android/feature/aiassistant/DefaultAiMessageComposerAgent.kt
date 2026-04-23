@@ -35,6 +35,9 @@ class DefaultAiMessageComposerAgent @Inject constructor(
     override suspend fun adjustTone(inputText: String, toneType: AiMessageToneType): AiMessageComposerResult =
         generateUpdatedMessage(inputText) { it.toAdjustTonePrompt(toneType) }
 
+    override suspend fun customPrompt(inputText: String, userPrompt: String): AiMessageComposerResult =
+        generateUpdatedMessage(inputText) { it.toCustomPrompt(userPrompt) }
+
     private suspend fun generateUpdatedMessage(
         inputText: String,
         promptFactory: (String) -> String
@@ -99,5 +102,18 @@ class DefaultAiMessageComposerAgent @Inject constructor(
             $this
             """.trimIndent()
         }
+
+        fun String.toCustomPrompt(userPrompt: String): String =
+            """
+            Apply the following instruction to the message below.
+            Return only the resulting message text.
+            Do not add explanations, comments, labels, or quotation marks.
+
+            Instruction:
+            $userPrompt
+
+            Message:
+            $this
+            """.trimIndent()
     }
 }

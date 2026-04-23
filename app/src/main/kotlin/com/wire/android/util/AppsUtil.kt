@@ -32,7 +32,8 @@ object AppsUtil {
             AppsAllowedProtocol.MLS -> true
             AppsAllowedProtocol.PROTEUS -> false
             is AppsAllowedProtocol.MIXED -> when (conversationProtocol) {
-                is Conversation.ProtocolInfo.MLS -> true
+                is Conversation.ProtocolInfo.MLS ->
+                    (appsAllowedResult.protocol as AppsAllowedProtocol.MIXED).defaultProtocol == SupportedProtocol.MLS
                 is Conversation.ProtocolInfo.Proteus -> false
                 null, is Conversation.ProtocolInfo.Mixed ->
                     (appsAllowedResult.protocol as AppsAllowedProtocol.MIXED).defaultProtocol == SupportedProtocol.MLS

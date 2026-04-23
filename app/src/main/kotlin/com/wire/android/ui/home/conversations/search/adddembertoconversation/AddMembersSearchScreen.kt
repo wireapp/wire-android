@@ -59,7 +59,7 @@ fun AddMembersSearchScreen(
         isGroupSubmitVisible = true,
         onClose = navigator::navigateBack,
         onAppClicked = { contact: Contact ->
-            val serviceId = when (navArgs.isConversationAppsEnabled) {
+            val serviceId = when (navArgs.shouldUseNewAppsUi) {
                 true -> ServiceDetailsNavArgs.Id.AppId(UserId(contact.id, contact.domain))
                 false -> ServiceDetailsNavArgs.Id.BotServiceId(BotService(contact.id, contact.domain))
             }

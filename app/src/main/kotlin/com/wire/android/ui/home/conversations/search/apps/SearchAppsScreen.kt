@@ -165,11 +165,11 @@ private fun rememberAppsContentState(
     result: ImmutableList<Contact>
 ): State<AppsContentState> = remember(isConversationAppsEnabled, isLoading, appsAllowedResult, searchQuery, result) {
     derivedStateOf {
+        if (isLoading) return@derivedStateOf AppsContentState.LOADING
         if (appsAllowedResult is AppsAllowedResult.Disabled) return@derivedStateOf AppsContentState.TEAM_NOT_ALLOWED
         if (!isConversationAppsEnabled) return@derivedStateOf AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
 
         when {
-            isLoading -> AppsContentState.LOADING
             searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
             searchQuery.isNotBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
             else -> AppsContentState.SHOW_RESULTS

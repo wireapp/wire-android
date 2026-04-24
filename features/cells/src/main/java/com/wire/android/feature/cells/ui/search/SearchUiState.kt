@@ -28,7 +28,7 @@ import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 data class SearchUiState(
     val availableTags: List<FilterTagUi> = emptyList(),
     val availableOwners: List<FilterOwnerUi> = emptyList(),
-    val availableConversations: List<FilterConversationUi> = emptyList(),
+    val selectedConversation: FilterConversationUi? = null,
     val availableTypes: List<FilterTypeUi> = TypeFilter.typeItems,
 
     val filesWithPublicLink: Boolean = false,
@@ -40,7 +40,7 @@ data class SearchUiState(
     val tagsCount: Int get() = availableTags.count { it.selected }
     val typeCount: Int get() = availableTypes.count { it.selected }
     val ownerCount: Int get() = availableOwners.count { it.selected }
-    val conversationCount: Int get() = availableConversations.count { it.selected }
+    val conversationCount: Int get() = if (selectedConversation != null) 1 else 0
 
     val hasAnyFilter: Boolean
         get() = tagsCount > 0 || typeCount > 0 || ownerCount > 0 || conversationCount > 0 || filesWithPublicLink

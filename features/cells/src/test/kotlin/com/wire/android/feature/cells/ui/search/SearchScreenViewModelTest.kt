@@ -19,18 +19,20 @@ package com.wire.android.feature.cells.ui.search
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
+import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
-import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
+import com.wire.kalium.cells.domain.usecase.GetPaginatedCellConversationsFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.data.id.ConversationId
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -47,6 +49,8 @@ import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -71,7 +75,7 @@ class SearchScreenViewModelTest {
     private lateinit var getOwners: GetOwnersUseCase
 
     @MockK
-    private lateinit var getCellGroupConversations: GetCellGroupConversationsUseCase
+    private lateinit var getPaginatedConversations: GetPaginatedCellConversationsFlowUseCase
 
     private lateinit var savedStateHandle: SavedStateHandle
 
@@ -96,6 +100,8 @@ class SearchScreenViewModelTest {
         coEvery { getAllTagsUseCase() } returns Either.Right(mockTags)
         coEvery { getCellFilesPaged(any(), any(), any(), any()) } returns emptyFlow<PagingData<Node>>()
         coEvery { getOwners(any()) } returns GetOwnersUseCaseResult.Failure(CoreFailure.InvalidEventSenderID)
+        // getPaginatedConversations is not called for SHARED_DRIVE screen type, but set up defensively
+        every { getPaginatedConversations(any()) } returns emptyFlow()
         coEvery { getCellGroupConversations() } returns GetCellGroupConversationsUseCaseResult.Success(emptyList())
     }
 
@@ -288,13 +294,75 @@ class SearchScreenViewModelTest {
         assertEquals(0, viewModel.uiState.value.typeCount)
     }
 
+    @Test
+    fun `givenNoConversationSelected_whenOnSaveConversation_thenSelectedConversationIsStored`() = runTest {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        val conversation = FilterConversationUi(
+            id = ConversationId("conv1", "domain"),
+            name = "Engineering",
+        )
+
+        viewModel.onSaveConversation(conversation)
+        advanceUntilIdle()
+
+        assertEquals(conversation, viewModel.uiState.value.selectedConversation)
+        assertEquals(1, viewModel.uiState.value.conversationCount)
+    }
+
+    @Test
+    fun `givenConversationSelected_whenOnRemoveConversations_thenSelectedConversationIsNull`() = runTest {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.onSaveConversation(
+            FilterConversationUi(id = ConversationId("conv1", "domain"), name = "Engineering")
+        )
+        advanceUntilIdle()
+
+        viewModel.onRemoveConversations()
+        advanceUntilIdle()
+
+        assertNull(viewModel.uiState.value.selectedConversation)
+        assertEquals(0, viewModel.uiState.value.conversationCount)
+    }
+
+    @Test
+    fun `givenConversationSelected_whenOnRemoveAllFilters_thenConversationFilterIsCleared`() = runTest {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.onSaveConversation(
+            FilterConversationUi(id = ConversationId("conv1", "domain"), name = "Engineering")
+        )
+        advanceUntilIdle()
+
+        viewModel.onRemoveAllFilters()
+        advanceUntilIdle()
+
+        assertNull(viewModel.uiState.value.selectedConversation)
+    }
+
+    @Test
+    fun `givenNoQuery_whenOnConversationSearchQueryChanged_thenConversationsFlowIsNotNull`() = runTest {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.onConversationSearchQueryChanged("Engineering")
+        advanceUntilIdle()
+
+        // conversationsFlow is a valid non-null property
+        assertNotNull(viewModel.conversationsFlow)
+    }
+
     private fun createViewModel(): SearchScreenViewModel {
         return SearchScreenViewModel(
             savedStateHandle = savedStateHandle,
             getAllTagsUseCase = getAllTagsUseCase,
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,
-            getCellGroupConversations = getCellGroupConversations,
+            getPaginatedConversations = getPaginatedConversations,
         )
     }
 

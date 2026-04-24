@@ -284,17 +284,21 @@ fun SearchScreen(
         onRemoveAll = { searchScreenViewModel.onRemoveOwners() }
     )
 
+    val lazyConversations = searchScreenViewModel.conversationsFlow.collectAsLazyPagingItems()
+
     FilterByConversationBottomSheet(
         sheetState = filterConversationSheetState,
-        conversations = uiState.availableConversations,
+        conversations = lazyConversations,
+        selectedConversation = uiState.selectedConversation,
+        onSearchQueryChanged = { searchScreenViewModel.onConversationSearchQueryChanged(it) },
         onDismiss = {
             filterConversationSheetState.hide()
         },
         onRemoveAll = {
             searchScreenViewModel.onRemoveConversations()
         },
-        onSave = { selectedItems ->
-            searchScreenViewModel.onSaveConversations(selectedItems)
+        onSave = { selectedConversation ->
+            searchScreenViewModel.onSaveConversation(selectedConversation)
             filterConversationSheetState.hide()
         }
     )

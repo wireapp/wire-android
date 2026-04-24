@@ -38,10 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavBackStackEntry
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
@@ -76,25 +74,10 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 fun SearchScreen(
     navigator: WireNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
+    cellViewModel: CellViewModel,
     modifier: Modifier = Modifier,
     searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
 ) {
-    // Reuse the same CellViewModel instance from the parent screen if available in the backstack.
-    // Try parentRoute first, then ConversationFilesScreen, then fallback.
-    val backStackEntry: NavBackStackEntry? = remember(navigator) {
-        val parentRoute = searchScreenViewModel.parentRoute
-        if (parentRoute != null) {
-            navigator.getBackStackEntry(parentRoute)
-        } else {
-            navigator.getBackStackEntry(ConversationFilesScreenDestination.route)
-        }
-    }
-    val cellViewModel: CellViewModel = if (backStackEntry != null) {
-        hiltViewModel(backStackEntry)
-    } else {
-        hiltViewModel()
-    }
-
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
 
     val filterTypeSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)

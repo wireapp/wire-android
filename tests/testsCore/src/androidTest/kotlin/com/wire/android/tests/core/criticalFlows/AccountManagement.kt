@@ -25,7 +25,6 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
-import backendUtils.team.deleteTeam
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.core.pages.AllPages
@@ -67,8 +66,7 @@ class AccountManagement : BaseUiTest() {
 
     @After
     fun tearDown() {
-        // To delete team
-        runCatching { registeredUser?.deleteTeam(backendClient) }
+        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
     }
 
         @Suppress("LongMethod", "CyclomaticComplexMethod")
@@ -213,6 +211,7 @@ class AccountManagement : BaseUiTest() {
                     waitUntilNewEmailIsVisible(newEmail.email ?: "")
                     assertDisplayedEmailAddressIsNewEmail(newEmail.email ?: "")
                 }
+                teamMember?.email = newEmail.email
             }
 
             step("Start reset password flow and verify the reset URL") {

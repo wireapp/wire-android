@@ -25,7 +25,6 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
-import backendUtils.team.deleteTeam
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.core.pages.AllPages
 import deleteDownloadedFilesContaining
@@ -54,6 +53,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
     private lateinit var testServiceHelper: TestServiceHelper
     private var teamOwner1: ClientUser? = null
     private var teamOwner2: ClientUser? = null
+    private var loggedInUser: ClientUser? = null
 
     @Before
     fun setUp() {
@@ -66,8 +66,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
 
     @After
     fun tearDown() {
-        runCatching { teamOwner1?.deleteTeam(backendClient) }
-        runCatching { teamOwner2?.deleteTeam(backendClient) }
+        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
         deleteDownloadedFilesContaining("File")
     }
 
@@ -122,6 +121,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
             teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
         val connectionReceiverFromReceiveTeam =
             teamHelper.usersManager.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
+        loggedInUser = connectionReceiverFromReceiveTeam
 
         step("Login as receiver team member in Android app") {
             pages.registrationPage.apply {

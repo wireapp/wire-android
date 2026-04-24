@@ -90,6 +90,10 @@
     <string name="dialog_unable_to_restore_folder_description">Ordner konnte nicht wiederhergestellt werden.</string>
     <string name="dialog_unable_to_restore_file_description">Datei konnte nicht wiederhergestellt werden.</string>
     <string name="ok_label">OK</string>
+    <string name="incompatible_file_name_dialog_title">Inkompatible Zeichen ersetzen</string>
+    <string name="incompatible_file_name_dialog_description">Der Name darf nicht mit einem Punkt beginnen, und die Zeichen /, \\ und \" dürfen nicht verwendet werden. Ersetzen Sie sie automatisch oder benennen Sie die Datei manuell um.</string>
+    <string name="incompatible_file_name_replace_automatically">Ersetzen</string>
+    <string name="incompatible_file_name_cancel_upload">Hochladen abbrechen</string>
     <string name="dialog_restore_parent_folder_button">Übergeordneten Ordner wiederherstellen</string>
     <string name="dialog_restore_parent_folder_description">Sie können keine Ordner oder Dateien aus einem gelöschten Ordner wiederherstellen. Um das gewünschte Objekt wiederzuverwenden, müssen Sie den übergeordneten Ordner wiederherstellen.\n\nDer Ordner %1$s mit allen Dateien und Unterordnern wird wiederhergestellt und steht allen Teilnehmern dieser Unterhaltung zur Verfügung.</string>
     <string name="rename_file_label">Datei umbenennen</string>

@@ -146,8 +146,6 @@ class SearchScreenViewModel @Inject constructor(
         if (screenType == DriveSearchScreenType.DRIVE) {
             emitAll(
                 _conversationSearchQuery
-                    .debounce(SEARCH_DEBOUNCE_MILLIS)
-                    .distinctUntilChanged()
                     .flatMapLatest { query ->
                         getPaginatedConversations(query)
                             .map { pagingData -> pagingData.map { it.toFilterConversationUi() } }

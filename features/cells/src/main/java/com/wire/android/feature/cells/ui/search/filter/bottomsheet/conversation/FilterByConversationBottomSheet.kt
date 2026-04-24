@@ -84,9 +84,8 @@ fun FilterByConversationBottomSheet(
 
     val searchState = remember { TextFieldState() }
 
-    LaunchedEffect(searchState) {
-        snapshotFlow { searchState.text.toString() }
-            .collect { onSearchQueryChanged(it) }
+    LaunchedEffect(searchState.text) {
+        onSearchQueryChanged(searchState.text.toString())
     }
 
     fun dismiss() {

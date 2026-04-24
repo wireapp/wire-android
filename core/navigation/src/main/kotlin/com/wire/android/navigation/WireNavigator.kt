@@ -17,12 +17,9 @@
  */
 package com.wire.android.navigation
 
-import androidx.navigation.NavBackStackEntry
-
 interface WireNavigator {
     fun navigate(navigationCommand: NavigationCommand)
     fun navigateBack()
     fun navigateBackAndRemoveAllConsecutive(currentRoute: String)
     fun navigateBackAndRemoveAllConsecutiveXTimes(currentRoute: String, stepsBack: Int)
-    fun getBackStackEntry(route: String): NavBackStackEntry?
 }

@@ -33,7 +33,6 @@ import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPassw
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
 import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.ramcosta.composedestinations.generated.app.navtype.groupConversationDetailsNavBackArgsNavType
@@ -98,13 +97,10 @@ fun MainNavHost(
                         dependency(hiltViewModel<LoginEmailViewModel>(loginPasswordEntry))
                     }
 
-                    // 👇 To reuse CellViewModel from the parent screen on SearchScreen.
-                    // If the parent entry is not found, fall back to a fresh ViewModel scoped to SearchScreen.
+                    // 👇 To reuse CellViewModel from the parent screen on SearchScreen
                     destination(SearchScreenDestination) {
-                        val navArgs = SearchScreenDestination.argsFrom(navBackStackEntry)
                         val parentEntry = remember(navBackStackEntry) {
-                            val route = navArgs.parentRoute ?: ConversationFilesScreenDestination.route
-                            runCatching { navController.getBackStackEntry(route) }.getOrNull()
+                            navController.previousBackStackEntry
                         }
                         dependency(hiltViewModel<CellViewModel>(parentEntry ?: navBackStackEntry))
                     }

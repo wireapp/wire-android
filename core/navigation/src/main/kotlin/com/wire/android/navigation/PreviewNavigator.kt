@@ -22,5 +22,4 @@ object PreviewNavigator : WireNavigator {
     override fun navigateBack() { /* No-op */ }
     override fun navigateBackAndRemoveAllConsecutive(currentRoute: String) { /* No-op */ }
     override fun navigateBackAndRemoveAllConsecutiveXTimes(currentRoute: String, stepsBack: Int) { /* No-op */ }
-    override fun getBackStackEntry(route: String) = null
 }

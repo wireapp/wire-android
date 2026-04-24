@@ -38,6 +38,7 @@ import network.HttpRequestException
 import network.NetworkBackendClient
 import network.NumberSequence
 import network.RequestOptions
+import org.json.JSONArray
 import org.json.JSONObject
 import service.models.Connection
 import service.models.TeamMember
@@ -422,6 +423,61 @@ class BackendClient(
                 add(Team.fromJSON(teams.getJSONObject(i)))
             }
         }
+    }
+
+    fun getBackendClientIds(forUser: ClientUser): List<String> {
+        val token = runBlocking { getAuthToken(forUser) }
+        val url = URI("clients".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+            put("Accept", applicationJson)
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "GET",
+            headers = headers,
+            options = RequestOptions(
+                accessToken = token,
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+
+        val clients = JSONArray(response.body)
+        return buildList {
+            for (i in 0 until clients.length()) {
+                add(clients.getJSONObject(i).getString("id"))
+            }
+        }
+    }
+
+    fun removeBackendClient(forUser: ClientUser, clientId: String) {
+        val token = runBlocking { getAuthToken(forUser) }
+        val url = URI("clients/$clientId".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+            put("Accept", applicationJson)
+        }
+
+        NetworkBackendClient.makeRequest(
+            url = url,
+            method = "DELETE",
+            body = JSONObject().apply {
+                put("password", forUser.password)
+            }.toString(),
+            headers = headers,
+            options = RequestOptions(
+                accessToken = token,
+                expectedResponseCodes = NumberSequence.Array(
+                    intArrayOf(
+                        HttpURLConnection.HTTP_OK,
+                        HttpURLConnection.HTTP_NO_CONTENT
+                    )
+                )
+            )
+        )
     }
 
     fun getTeamMembers(asUser: ClientUser): List<TeamMember> {

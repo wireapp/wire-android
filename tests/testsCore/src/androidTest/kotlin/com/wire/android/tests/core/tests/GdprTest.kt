@@ -53,6 +53,7 @@ class GdprTest : BaseUiTest() {
     @After
     fun tearDown() {
         runCatching {
+            cleanupBackendClient(backendClient, registeredUser)
             registeredUser?.deleteUser(backendClient)
         }
     }

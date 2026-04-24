@@ -29,6 +29,27 @@ import org.json.JSONObject
 import user.utils.ClientUser
 import java.net.URL
 
+/**
+ * Removes backend clients/devices for this user.
+ *
+ * This is device cleanup only.
+ * It does NOT delete the user account and it does NOT delete the team.
+ */
+fun ClientUser.removeBackendClients(backend: BackendClient) {
+    backend.getBackendClientIds(this).forEach { clientId ->
+        runCatching {
+            backend.removeBackendClient(this, clientId)
+            WireTestLogger.getLog("UserClient").info("Removed backend client $clientId")
+        }.onFailure { error ->
+            WireTestLogger.getLog("UserClient")
+                .info("Could not remove backend client $clientId: ${error.message}")
+        }
+    }
+}
+
+/**
+ * Deletes this user account from the backend.
+ */
 fun ClientUser.deleteUser(backend: BackendClient) {
     val token = runBlocking {
         backend.getAuthToken(this@deleteUser)

@@ -38,6 +38,7 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTables
 import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTextAndLinks
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockMessageWithTextContent
+import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.ui.home.conversations.mock.mockedMultipartMessage
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageEditStatus
@@ -46,6 +47,7 @@ import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.message.Message
 import kotlinx.datetime.Instant
 import kotlin.time.DurationUnit
@@ -434,6 +436,22 @@ fun PreviewMessageBubbleOtherWithMultipartAsset() {
         Box(modifier = Modifier.background(color = colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedMultipartMessage(source = MessageSource.OtherUser),
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewBubbleSelfImageFailedDownload() {
+    WireTheme {
+        Box(modifier = Modifier.background(color = colorsScheme().surface)) {
+            RegularMessageItem(
+                message = mockedImageUIMessage(source = MessageSource.Self),
+                assetStatus = AssetTransferStatus.FAILED_DOWNLOAD,
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
                 isBubbleUiEnabled = true

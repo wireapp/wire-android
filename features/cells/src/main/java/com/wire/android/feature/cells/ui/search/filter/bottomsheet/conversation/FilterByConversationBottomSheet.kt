@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -35,8 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -44,6 +42,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FooterButtons
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
@@ -60,6 +62,7 @@ import com.wire.android.ui.home.conversationslist.common.RegularGroupConversatio
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import com.wire.android.ui.common.R as CommonR
 
@@ -67,21 +70,21 @@ import com.wire.android.ui.common.R as CommonR
 @Composable
 fun FilterByConversationBottomSheet(
     sheetState: WireModalSheetState<Unit>,
-    conversations: List<FilterConversationUi>,
+    conversations: LazyPagingItems<FilterConversationUi>,
+    selectedConversation: FilterConversationUi?,
+    onSearchQueryChanged: (String) -> Unit,
     onDismiss: () -> Unit,
     onRemoveAll: () -> Unit,
-    onSave: (List<FilterConversationUi>) -> Unit,
+    onSave: (FilterConversationUi?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-
-    val state = rememberConversationFilterSheetState(conversations)
+    val state = rememberConversationFilterSheetState(selectedConversation)
     val scope = rememberCoroutineScope()
 
     val searchState = remember { TextFieldState() }
-    val filteredConversations by remember(state, searchState) {
-        derivedStateOf {
-            state.filteredConversations(searchState.text.toString())
-        }
+
+    LaunchedEffect(searchState.text) {
+        onSearchQueryChanged(searchState.text.toString())
     }
 
     fun dismiss() {
@@ -132,13 +135,18 @@ fun FilterByConversationBottomSheet(
                 contentPadding = PaddingValues(top = dimensions().spacing8x, bottom = dimensions().spacing8x)
             ) {
                 items(
-                    items = filteredConversations,
-                ) { item ->
-                    ConversationRow(
-                        item = item,
-                        onClick = { state.selectConversation(item.id.toString()) }
-                    )
-                    HorizontalDivider()
+                    count = conversations.itemCount,
+                    key = conversations.itemKey { it.id.toString() },
+                ) { index ->
+                    val item = conversations[index]
+                    if (item != null) {
+                        ConversationRow(
+                            item = item,
+                            isSelected = item.id == state.selectedConversation?.id,
+                            onClick = { state.selectConversation(item) }
+                        )
+                        HorizontalDivider()
+                    }
                 }
             }
 
@@ -148,7 +156,7 @@ fun FilterByConversationBottomSheet(
                     state.removeAll()
                     onRemoveAll()
                 },
-                onSave = { onSave(state.selectedConversation()) },
+                onSave = { onSave(state.selectedConversation) },
                 hasChanges = state.hasChanges
             )
         }
@@ -158,6 +166,7 @@ fun FilterByConversationBottomSheet(
 @Composable
 private fun ConversationRow(
     item: FilterConversationUi,
+    isSelected: Boolean,
     onClick: () -> Unit,
 ) {
     Row(
@@ -184,9 +193,7 @@ private fun ConversationRow(
             )
         }
 
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.name,
                 style = typography().body01,
@@ -197,7 +204,7 @@ private fun ConversationRow(
         }
 
         RadioButton(
-            selected = item.selected,
+            selected = isSelected,
             onClick = onClick
         )
     }
@@ -207,14 +214,18 @@ private fun ConversationRow(
 @MultipleThemePreviews
 @Composable
 fun PreviewFilterByConversationBottomSheet() {
+    val previewItems = listOf(
+        FilterConversationUi(id = ConversationId("1", "d"), name = "Conversation 1"),
+        FilterConversationUi(id = ConversationId("2", "d"), name = "Conversation 2"),
+        FilterConversationUi(id = ConversationId("3", "d"), name = "Conversation 3"),
+    )
+    val pagingItems = flowOf(PagingData.from(previewItems)).collectAsLazyPagingItems()
     WireTheme {
         FilterByConversationBottomSheet(
             sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit)),
-            conversations = listOf(
-                FilterConversationUi(id = ConversationId("1", "d"), name = "Conversation 1", selected = false),
-                FilterConversationUi(id = ConversationId("2", "d"), name = "Conversation 2", selected = true),
-                FilterConversationUi(id = ConversationId("3", "d"), name = "Conversation 3", selected = false),
-            ),
+            conversations = pagingItems,
+            selectedConversation = previewItems[1],
+            onSearchQueryChanged = {},
             onDismiss = {},
             onRemoveAll = {},
             onSave = {}

@@ -39,7 +39,6 @@ object SSOServiceHelper {
         enableSSOFeature(owner, teamName)
         val backend = loadBackend(owner.backendName.orEmpty())
         val finalizeUrl = OktaApiClient.getFinalizeUrlDependingOnBackend(backend.backendUrl)
-        val client = OktaApiClient()
         client.createApplication(owner.name + " " + teamName + UUID.randomUUID().toString(), finalizeUrl, context)
 
         val metadata = client.getApplicationMetadata()

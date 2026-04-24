@@ -146,6 +146,8 @@ import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldH
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldShowHeader
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
+import com.wire.android.ui.home.conversations.attachment.IncompatibleFileNameDialogState
+import com.wire.android.feature.cells.ui.dialog.IncompatibleFileNameDialog
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewActions
@@ -743,6 +745,13 @@ fun ConversationScreen(
         },
         onDismiss = messageAttachmentsViewModel::onFailedAttachmentDialogDismissed,
     )
+
+    if (messageAttachmentsViewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible) {
+        IncompatibleFileNameDialog(
+            onReplaceAutomatically = messageAttachmentsViewModel::onReplaceFileNameAutomatically,
+            onDismiss = messageAttachmentsViewModel::onDismissIncompatibleFileNameDialog,
+        )
+    }
 
     (sendMessageViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
         LegalHoldSubjectMessageDialog(

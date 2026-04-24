@@ -28,7 +28,7 @@ concurrency:
 jobs:
   # Inline simple quality check jobs for better check names
   lint:
-    runs-on: ubuntu-24.04
+    runs-on: warp-ubuntu-2404-x64-8x
     # Override JVM args from gradle.properties which sets 10GB heap
     steps:
       - name: Checkout
@@ -37,11 +37,18 @@ jobs:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
+      - uses: WarpBuilds/cache@v1
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6
       - name: Run Linter
@@ -57,7 +64,7 @@ jobs:
           rm -f ~/.gradle/caches/modules-2/gc.properties
 
   style:
-    runs-on: ubuntu-latest
+    runs-on: warp-ubuntu-2404-x64-2x
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -65,11 +72,18 @@ jobs:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
+      - uses: WarpBuilds/cache@v1
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6
       - name: Run Detekt
@@ -99,7 +113,7 @@ jobs:
   # Build matrix job - only runs if all quality checks pass
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
-    needs: [lint, style, ui-tests, unit-tests]
+    needs: [ lint, style, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false  # Continue building other flavors even if one fails
@@ -112,7 +126,7 @@ jobs:
           echo "## Build Starting" >> $GITHUB_STEP_SUMMARY
           echo "✅ Quality gates passed successfully" >> $GITHUB_STEP_SUMMARY
           echo "🚀 Building ${{ matrix.flavor }}${{ matrix.variant }}..." >> $GITHUB_STEP_SUMMARY
-          
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
@@ -120,7 +134,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -153,11 +167,11 @@ jobs:
               SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}"
               SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}"
               SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}"
-              
+          
               # Mask sensitive values immediately
               echo "::add-mask::${SIGNING_KEY_PASSWORD}"
               echo "::add-mask::${SIGNING_STORE_PASSWORD}"
-              
+          
               # Set environment variables for this keystore type only
               echo "KEYSTORE_KEY_NAME_DEBUG=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
               echo "KEYPWD_DEBUG=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
@@ -167,11 +181,11 @@ jobs:
               SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}"
               SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}"
               SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}"
-              
+          
               # Mask sensitive values immediately
               echo "::add-mask::${SIGNING_KEY_PASSWORD}"
               echo "::add-mask::${SIGNING_STORE_PASSWORD}"
-              
+          
               # Set environment variables for this keystore type only
               echo "KEYSTORE_KEY_NAME_RELEASE=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
               echo "KEYPWD_RELEASE=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
@@ -181,11 +195,11 @@ jobs:
               SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}"
               SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}"
               SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}"
-              
+          
               # Mask sensitive values immediately
               echo "::add-mask::${SIGNING_KEY_PASSWORD}"
               echo "::add-mask::${SIGNING_STORE_PASSWORD}"
-              
+          
               # Set environment variables for this keystore type only
               echo "KEYSTORE_KEY_NAME_COMPAT=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
               echo "KEYPWD_COMPAT=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
@@ -198,11 +212,11 @@ jobs:
               SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}"
               SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}"
               SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}"
-              
+          
               # Mask sensitive values immediately
               echo "::add-mask::${SIGNING_KEY_PASSWORD}"
               echo "::add-mask::${SIGNING_STORE_PASSWORD}"
-              
+          
               # Set environment variables for this keystore type only
               echo "KEYSTORE_KEY_NAME_COMPAT_RELEASE=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
               echo "KEYPWD_COMPAT_RELEASE=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
@@ -239,7 +253,7 @@ jobs:
         run: mv app/version.txt app/build/outputs/
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.flavor }}-${{ matrix.variant }}-artifacts
           path: app/build/outputs/
@@ -253,7 +267,7 @@ jobs:
       - name: Upload SBOM artifact
         if: github.actor != 'dependabot[bot]'
         continue-on-error: true
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: sbom-${{ matrix.flavor }}-${{ matrix.variant }}
           path: build/reports/cyclonedx/

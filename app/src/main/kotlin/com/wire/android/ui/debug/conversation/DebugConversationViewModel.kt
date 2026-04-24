@@ -31,6 +31,8 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.debug.DebugFeedConfig
 import com.wire.kalium.logic.feature.debug.DebugFeedConversationUseCase
 import com.wire.kalium.logic.feature.debug.DebugFeedResult
+import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCResult
+import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,6 +46,7 @@ class DebugConversationViewModel @Inject constructor(
     private val resetMLSConversation: ResetMLSConversationUseCase,
     private val fetchConversation: FetchConversationUseCase,
     private val feedConversation: DebugFeedConversationUseCase,
+    private val getConversationEpochFromCC: GetConversationEpochFromCCUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ActionsViewModel<DebugConversationScreenAction>() {
 
@@ -53,6 +56,7 @@ class DebugConversationViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(DebugConversationViewState())
     val state = _state.asStateFlow()
+    private var hasRequestedInitialCCEpoch = false
 
     init {
         loadConversationDetails()
@@ -67,8 +71,16 @@ class DebugConversationViewModel @Inject constructor(
                             conversationId = conversationId.toString(),
                             conversationName = result.conversationDetails.conversation.name,
                             teamId = result.conversationDetails.conversation.teamId?.value,
-                            mlsProtocolInfo = result.conversationDetails.conversation.protocol as? Conversation.ProtocolInfo.MLS,
+                            mlsProtocolInfo = result.conversationDetails.conversation.protocol as? Conversation.ProtocolInfo.MLSCapable,
                         )
+                    }
+
+                    if (
+                        !hasRequestedInitialCCEpoch &&
+                        result.conversationDetails.conversation.protocol is Conversation.ProtocolInfo.MLSCapable
+                    ) {
+                        hasRequestedInitialCCEpoch = true
+                        refreshConversationEpochFromCC()
                     }
                 }
             }
@@ -93,6 +105,32 @@ class DebugConversationViewModel @Inject constructor(
             .onFailure { error ->
                 appLogger.e("MLS conversation fetch failed: $error")
             }
+    }
+
+    fun refreshConversationEpochFromCC() = viewModelScope.launch {
+        _state.update { it.copy(isRefreshingCCEpoch = true) }
+
+        when (val result = getConversationEpochFromCC(conversationId)) {
+            is GetConversationEpochFromCCResult.Success -> {
+                _state.update {
+                    it.copy(
+                        ccEpoch = result.epoch,
+                        isRefreshingCCEpoch = false
+                    )
+                }
+            }
+
+            GetConversationEpochFromCCResult.Failure.NotMlsConversation -> {
+                _state.update { it.copy(isRefreshingCCEpoch = false) }
+                sendAction(ShowMessage("CC epoch is only available for MLS conversations."))
+            }
+
+            is GetConversationEpochFromCCResult.Failure.Generic -> {
+                appLogger.e("Fetching conversation epoch from CC failed: ${result.coreFailure}")
+                _state.update { it.copy(isRefreshingCCEpoch = false) }
+                sendAction(ShowMessage("Failed to refresh CC epoch."))
+            }
+        }
     }
 
     /**
@@ -191,7 +229,9 @@ data class DebugConversationViewState(
     val conversationId: String? = null,
     val conversationName: String? = null,
     val teamId: String? = null,
-    val mlsProtocolInfo: Conversation.ProtocolInfo.MLS? = null,
+    val mlsProtocolInfo: Conversation.ProtocolInfo.MLSCapable? = null,
+    val ccEpoch: ULong? = null,
+    val isRefreshingCCEpoch: Boolean = false,
     val feedConfig: DebugFeedConfigUiState = DebugFeedConfigUiState(),
 )
 

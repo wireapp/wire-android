@@ -46,7 +46,9 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -94,6 +96,25 @@ class CommonTopAppBarViewModelTest {
 
             val info = state.connectivityState
             info shouldBeInstanceOf ConnectivityUIState.Connecting::class
+        }
+
+    @Test
+    fun givenNoCallAndHomeScreenAndWaiting_whenGettingState_thenShouldHaveNoneInfo() =
+        runTest {
+            val (_, commonTopAppBarViewModel) = Arrangement()
+                .withCurrentSessionExist()
+                .withoutOngoingCall()
+                .withoutOutgoingCall()
+                .withoutIncomingCall()
+                .withCurrentScreen(CurrentScreen.Home)
+                .withSyncState(SyncState.Waiting)
+                .arrange()
+
+            advanceUntilIdle()
+            val state = commonTopAppBarViewModel.state
+
+            val info = state.connectivityState
+            info shouldBeInstanceOf ConnectivityUIState.None::class
         }
 
     @Test
@@ -258,6 +279,66 @@ class CommonTopAppBarViewModelTest {
         }
     }
 
+    @Test
+    fun givenAllShowParamsEnabled_whenGettingState_thenEmitAllStates() = runTest {
+        val networkStateFlow = MutableStateFlow<NetworkState>(NetworkState.ConnectedWithInternet)
+        val ongoingCallsFlow = MutableStateFlow<List<Call>>(listOf(ongoingCall))
+        val syncStateFlow = MutableStateFlow<SyncState>(SyncState.Live)
+        val (_, commonTopAppBarViewModel) = Arrangement()
+            .withCurrentSessionExist()
+            .withOngoingCallsFlow(ongoingCallsFlow)
+            .withoutOutgoingCall()
+            .withoutIncomingCall()
+            .withCurrentScreen(CurrentScreen.Home)
+            .withSyncStateFlow(syncStateFlow)
+            .withNetworkStateFlow(networkStateFlow)
+            .withParams(CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true))
+            .arrange()
+
+        advanceUntilIdle()
+        commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.Calls::class
+
+        ongoingCallsFlow.value = listOf()
+        advanceUntilIdle()
+        commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.None::class
+
+        syncStateFlow.value = SyncState.SlowSync
+        advanceUntilIdle()
+        commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.Connecting::class
+
+        networkStateFlow.value = NetworkState.NotConnected
+        advanceUntilIdle()
+        commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.WaitingConnection::class
+    }
+
+    @Test
+    fun givenOnlyShowNoNetworkEnabledInParams_whenGettingState_thenEmitOnlyNetworkState() = runTest {
+        val networkStateFlow = MutableStateFlow<NetworkState>(NetworkState.NotConnected)
+        val (_, commonTopAppBarViewModel) = Arrangement()
+            .withCurrentSessionExist()
+            .withOngoingCall()
+            .withOutgoingCall()
+            .withIncomingCall()
+            .withCurrentScreen(CurrentScreen.Home)
+            .withSyncState(SyncState.SlowSync)
+            .withNetworkStateFlow(networkStateFlow)
+            .withParams(CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false))
+            .arrange()
+
+        networkStateFlow.value = NetworkState.NotConnected
+        advanceUntilIdle()
+        commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.WaitingConnection::class
+
+        networkStateFlow.value = NetworkState.ConnectedWithoutInternet
+        advanceUntilIdle()
+        commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.WaitingConnection::class
+
+        networkStateFlow.value = NetworkState.ConnectedWithInternet
+        advanceUntilIdle()
+        // even if there are calls and slow sync ongoing, params are set to only show network state
+        commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.None::class
+    }
+
     private class Arrangement {
 
         @MockK
@@ -283,6 +364,8 @@ class CommonTopAppBarViewModelTest {
 
         @MockK
         private lateinit var networkStateObserver: NetworkStateObserver
+
+        private var params: CommonTopAppBarParams = CommonTopAppBarParams()
 
         init {
             MockKAnnotations.init(this)
@@ -334,7 +417,12 @@ class CommonTopAppBarViewModelTest {
             CommonTopAppBarViewModel(
                 currentScreenManager = currentScreenManager,
                 coreLogic = { coreLogic },
+                params = params
             )
+        }
+
+        fun withOngoingCallsFlow(callsFlow: Flow<List<Call>>) = apply {
+            coEvery { observeEstablishedCalls() } returns callsFlow
         }
 
         fun withOngoingCall(isMuted: Boolean = false) = apply {
@@ -371,6 +459,10 @@ class CommonTopAppBarViewModelTest {
             every { observeSyncState() } returns flowOf(syncState)
         }
 
+        fun withSyncStateFlow(syncStateFlow: Flow<SyncState>) = apply {
+            every { observeSyncState() } returns syncStateFlow
+        }
+
         fun withNotCurrentSession() = apply {
             every { coreLogic.globalScope { session.currentSessionFlow() } } returns flowOf(
                 CurrentSessionResult.Failure.SessionNotFound
@@ -389,6 +481,14 @@ class CommonTopAppBarViewModelTest {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(
                 currentScreen
             )
+        }
+
+        fun withNetworkStateFlow(networkStateFlow: StateFlow<NetworkState>) = apply {
+            every { networkStateObserver.observeNetworkState() } returns networkStateFlow
+        }
+
+        fun withParams(params: CommonTopAppBarParams) = apply {
+            this.params = params
         }
 
         fun arrange() = this to commonTopAppBarViewModel

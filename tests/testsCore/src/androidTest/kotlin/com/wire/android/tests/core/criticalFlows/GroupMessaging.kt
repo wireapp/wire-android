@@ -24,7 +24,6 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
-import backendUtils.team.deleteTeam
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.core.pages.AllPages
 import org.junit.After
@@ -61,7 +60,7 @@ class GroupMessaging : BaseUiTest() {
 
     @After
     fun tearDown() {
-        runCatching { teamOwner?.deleteTeam(backendClient) }
+        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")

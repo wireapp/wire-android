@@ -62,6 +62,7 @@ import com.wire.android.ui.home.newconversation.common.ContinueButton
 import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.launch
@@ -84,6 +85,7 @@ fun SearchUsersAndAppsScreen(
     isAppsTabVisible: Boolean = false,
     isConversationAppsEnabled: Boolean = true,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
+    conversationProtocol: Conversation.ProtocolInfo? = null,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
     onCreateNewChannel: () -> Unit = {},
@@ -188,6 +190,7 @@ fun SearchUsersAndAppsScreen(
 
                         SearchPeopleTabItem.SERVICES -> {
                             SearchAppsScreen(
+                                protocolInfo = conversationProtocol,
                                 searchQuery = searchBarState.searchQueryTextState.text.toString(),
                                 onServiceClicked = onAppClicked,
                                 lazyListState = lazyListStates[pageIndex],

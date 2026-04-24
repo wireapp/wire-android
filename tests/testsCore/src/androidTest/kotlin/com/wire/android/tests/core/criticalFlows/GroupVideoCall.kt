@@ -24,7 +24,6 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
-import backendUtils.team.deleteTeam
 import call.CallHelper
 import call.CallingManager
 import com.wire.android.tests.core.BaseUiTest
@@ -80,8 +79,7 @@ class GroupVideoCall : BaseUiTest() {
 
     @After
     fun tearDown() {
-        runCatching { teamOwnerA?.deleteTeam(backendClient) }
-        runCatching { teamOwnerB?.deleteTeam(backendClient) }
+        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -98,6 +96,10 @@ class GroupVideoCall : BaseUiTest() {
                 true,
                 backendClient,
                 context
+            )
+            teamOwnerA = teamHelper.usersManager.findUserBy(
+                "user1Name",
+                ClientUserManager.FindBy.NAME_ALIAS
             )
 
             teamHelper.userXAddsUsersToTeam(
@@ -117,6 +119,10 @@ class GroupVideoCall : BaseUiTest() {
                 true,
                 backendClient,
                 context
+            )
+            teamOwnerB = teamHelper.usersManager.findUserBy(
+                "user4Name",
+                ClientUserManager.FindBy.NAME_ALIAS
             )
         }
 
@@ -139,18 +145,7 @@ class GroupVideoCall : BaseUiTest() {
             }
         }
 
-        step("And team owners for WeLikeCalls and IJoinCalls are resolved") {
-            teamOwnerA = teamHelper.usersManager.findUserBy(
-                "user1Name",
-                ClientUserManager.FindBy.NAME_ALIAS
-            )
-            teamOwnerB = teamHelper.usersManager.findUserBy(
-                "user4Name",
-                ClientUserManager.FindBy.NAME_ALIAS
-            )
-        }
-
-        step("And conference calling is enabled for WeLikeCalls and IJoinCalls via backdoor") {
+        step("And conference calling is enabled for WeLikeCalls and IJoinCalls via backend") {
             runBlocking {
                 callHelper.enableConferenceCallingFeatureViaBackdoorTeam(
                     "user1Name",

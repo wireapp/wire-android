@@ -100,9 +100,7 @@ class SearchScreenViewModelTest {
         coEvery { getAllTagsUseCase() } returns Either.Right(mockTags)
         coEvery { getCellFilesPaged(any(), any(), any(), any()) } returns emptyFlow<PagingData<Node>>()
         coEvery { getOwners(any()) } returns GetOwnersUseCaseResult.Failure(CoreFailure.InvalidEventSenderID)
-        // getPaginatedConversations is not called for SHARED_DRIVE screen type, but set up defensively
         every { getPaginatedConversations(any()) } returns emptyFlow()
-        coEvery { getCellGroupConversations() } returns GetCellGroupConversationsUseCaseResult.Success(emptyList())
     }
 
     @AfterEach
@@ -164,7 +162,7 @@ class SearchScreenViewModelTest {
             getAllTagsUseCase = getAllTagsUseCase,
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,
-            getCellGroupConversations = getCellGroupConversations,
+            getPaginatedConversations = getPaginatedConversations,
         )
         advanceUntilIdle()
 
@@ -284,7 +282,7 @@ class SearchScreenViewModelTest {
     }
 
     @Test
-    fun `given state, when onRemoveTypeFilter is called, then all types are deselected`() = runTest {
+    fun givenState_whenOnRemoveTypeFilterIsCalled_thenAllTypesAreDeselected() = runTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
@@ -295,7 +293,7 @@ class SearchScreenViewModelTest {
     }
 
     @Test
-    fun `givenNoConversationSelected_whenOnSaveConversation_thenSelectedConversationIsStored`() = runTest {
+    fun givenNoConversationSelected_whenOnSaveConversation_thenSelectedConversationIsStored() = runTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
@@ -312,7 +310,7 @@ class SearchScreenViewModelTest {
     }
 
     @Test
-    fun `givenConversationSelected_whenOnRemoveConversations_thenSelectedConversationIsNull`() = runTest {
+    fun givenConversationSelected_whenOnRemoveConversations_thenSelectedConversationIsNull() = runTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
@@ -329,7 +327,7 @@ class SearchScreenViewModelTest {
     }
 
     @Test
-    fun `givenConversationSelected_whenOnRemoveAllFilters_thenConversationFilterIsCleared`() = runTest {
+    fun givenConversationSelected_whenOnRemoveAllFilters_thenConversationFilterIsCleared() = runTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
@@ -345,7 +343,7 @@ class SearchScreenViewModelTest {
     }
 
     @Test
-    fun `givenNoQuery_whenOnConversationSearchQueryChanged_thenConversationsFlowIsNotNull`() = runTest {
+    fun givenNoQuery_whenOnConversationSearchQueryChanged_thenConversationsFlowIsNotNull() = runTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
@@ -378,7 +376,7 @@ class SearchScreenViewModelTest {
             getAllTagsUseCase = getAllTagsUseCase,
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,
-            getCellGroupConversations = getCellGroupConversations,
+            getPaginatedConversations = getPaginatedConversations,
         )
     }
 }

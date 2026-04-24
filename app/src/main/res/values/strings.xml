@@ -1906,6 +1906,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_ai_model_downloaded" translatable="false">Downloaded</string>
     <string name="debug_settings_ai_model_download" translatable="false">Download</string>
     <string name="debug_settings_ai_model_auth_required" translatable="false">AI model download requires Hugging Face authorization</string>
+    <string name="debug_settings_ai_model_auth_required_title" translatable="false">AI model authorization required</string>
+    <string name="debug_settings_ai_model_authorize" translatable="false">Authorize</string>
     <string name="debug_settings_ai_model_download_failed" translatable="false">AI model download failed: %1$s</string>
     <string name="debug_settings_ai_model_health_check" translatable="false">Model health check</string>
     <string name="debug_settings_ai_model_health_check_unavailable" translatable="false">Waiting for downloaded model</string>

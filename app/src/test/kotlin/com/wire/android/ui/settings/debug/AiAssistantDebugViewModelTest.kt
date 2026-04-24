@@ -32,7 +32,9 @@ import com.wire.android.feature.aiassistant.test.AiModelTestEngine
 import com.wire.android.ui.debug.AiAssistantDebugViewModelImpl
 import com.wire.android.ui.debug.AiModelHealthCheckState
 import com.wire.android.ui.debug.AiModelUiStatus
+import com.wire.android.ui.debug.extractFirstUrl
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.resolveForTest
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -242,20 +244,77 @@ class AiAssistantDebugViewModelTest {
     }
 
     @Test
-    fun `given ai model authorization is required, when downloading, then info message emits authorization error`() = runTest {
+    fun `given ai model authorization is required with message, when downloading, then authorization dialog is shown`() = runTest {
         // given
         val (_, viewModel) = AiAssistantDebugArrangement()
             .withAiModelStatus(AiModelStatus.NotDownloaded)
-            .withAiModelDownloadState(AiModelDownloadState.AuthRequired)
+            .withAiModelDownloadState(AiModelDownloadState.AuthRequired(AUTH_REQUIRED_MESSAGE))
             .arrange()
 
-        viewModel.infoMessage.test {
-            // when
-            viewModel.downloadAiModel()
+        // when
+        viewModel.downloadAiModel()
 
-            // then
-            assertEquals(UIText.StringResource(R.string.debug_settings_ai_model_auth_required), awaitItem())
+        // then
+        assertEquals(UIText.DynamicString(AUTH_REQUIRED_MESSAGE), viewModel.state.authorizationDialogState?.message)
+        assertEquals(
+            "https://huggingface.co/litert-community/gemma-3-270m-it",
+            viewModel.state.authorizationDialogState?.authorizeUrl
+        )
+    }
+
+    @Test
+    fun `given ai model authorization is required without message, when downloading, then dialog falls back to generic copy`() = runTest {
+        // given
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withAiModelStatus(AiModelStatus.NotDownloaded)
+            .withAiModelDownloadState(AiModelDownloadState.AuthRequired())
+            .arrange()
+
+        // when
+        viewModel.downloadAiModel()
+
+        // then
+        assertEquals(
+            "AI model download requires Hugging Face authorization",
+            viewModel.state.authorizationDialogState?.message?.resolveForTest(fakeStrings)
+        )
+        assertEquals(null, viewModel.state.authorizationDialogState?.authorizeUrl)
+    }
+
+    @Test
+    fun `given authorization dialog is shown, when dismissed, then dialog is cleared`() = runTest {
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withAiModelStatus(AiModelStatus.NotDownloaded)
+            .withAiModelDownloadState(AiModelDownloadState.AuthRequired(AUTH_REQUIRED_MESSAGE))
+            .arrange()
+
+        viewModel.downloadAiModel()
+
+        viewModel.dismissAuthorizationDialog()
+
+        assertEquals(null, viewModel.state.authorizationDialogState)
+    }
+
+    @Test
+    fun `given authorization dialog is shown, when authorizing, then url is emitted and dialog is cleared`() = runTest {
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withAiModelStatus(AiModelStatus.NotDownloaded)
+            .withAiModelDownloadState(AiModelDownloadState.AuthRequired(AUTH_REQUIRED_MESSAGE))
+            .arrange()
+
+        viewModel.downloadAiModel()
+
+        viewModel.authorizationUrl.test {
+            viewModel.authorizeModelAccess("https://huggingface.co/litert-community/gemma-3-270m-it")
+
+            assertEquals("https://huggingface.co/litert-community/gemma-3-270m-it", awaitItem())
         }
+        assertEquals(null, viewModel.state.authorizationDialogState)
+    }
+
+    @Test
+    fun `given auth message without valid url, when extracting url, then result is null`() {
+        assertEquals(null, "Access denied without link".extractFirstUrl())
     }
 
     @Test
@@ -282,6 +341,14 @@ private val testDescriptor = AiModelDescriptor(
     artifactPath = "test-model.litertlm",
     localDirectoryName = "test-model",
     localFileName = "model.litertlm"
+)
+
+private const val AUTH_REQUIRED_MESSAGE =
+    "Access to model litert-community/gemma-3-270m-it is restricted and you are " +
+        "not in the authorized list. Visit https://huggingface.co/litert-community/" +
+        "gemma-3-270m-it to ask for access."
+private val fakeStrings = mapOf(
+    R.string.debug_settings_ai_model_auth_required to "AI model download requires Hugging Face authorization"
 )
 
 private class AiAssistantDebugArrangement {

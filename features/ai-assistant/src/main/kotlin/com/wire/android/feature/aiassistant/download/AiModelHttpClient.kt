@@ -26,6 +26,8 @@ interface AiModelHttpClient {
 interface AiModelHttpResponse : Closeable {
     val code: Int
     val contentLength: Long?
+    val contentType: String?
+    val errorBody: String?
 
     fun inputStream(): InputStream
 }

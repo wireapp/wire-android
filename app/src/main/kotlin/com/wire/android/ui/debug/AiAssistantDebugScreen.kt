@@ -27,9 +27,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
@@ -46,6 +48,9 @@ import com.wire.android.feature.aiassistant.test.AiModelTestEngine
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.common.WireDropDown
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -62,6 +67,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -71,6 +77,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.text.Regex
 
 @WireRootDestination
 @Composable
@@ -80,6 +87,8 @@ fun AiAssistantDebugScreen(
     viewModel: AiAssistantDebugViewModel =
         hiltViewModelScoped<AiAssistantDebugViewModelImpl, AiAssistantDebugViewModel>(),
 ) {
+    val context = LocalContext.current
+
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
 
     AiAssistantDebugScreenContent(
@@ -87,8 +96,16 @@ fun AiAssistantDebugScreen(
         onNavigationPressed = navigator::navigateBack,
         onDownloadAiModel = viewModel::downloadAiModel,
         onModelSelected = viewModel::selectModel,
+        onDismissAuthorizationDialog = viewModel::dismissAuthorizationDialog,
+        onAuthorizeModelAccess = viewModel::authorizeModelAccess,
         modifier = modifier
     )
+
+    LaunchedEffect(viewModel, context) {
+        viewModel.authorizationUrl.collect { url ->
+            CustomTabsHelper.launchUrl(context, url)
+        }
+    }
 }
 
 @Composable
@@ -97,9 +114,19 @@ fun AiAssistantDebugScreenContent(
     onNavigationPressed: () -> Unit,
     onDownloadAiModel: () -> Unit,
     onModelSelected: (AiModelDescriptor) -> Unit,
+    onDismissAuthorizationDialog: () -> Unit,
+    onAuthorizeModelAccess: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
+
+    state.authorizationDialogState?.let { dialogState ->
+        AiModelAuthorizationDialog(
+            state = dialogState,
+            onDismiss = onDismissAuthorizationDialog,
+            onAuthorize = onAuthorizeModelAccess
+        )
+    }
 
     WireScaffold(
         modifier = modifier,
@@ -137,6 +164,32 @@ fun AiAssistantDebugScreenContent(
                 )
                 AiModelHealthCheckOption(state = state.healthCheckState)
             }
+        }
+    )
+}
+
+@Composable
+private fun AiModelAuthorizationDialog(
+    state: AiModelAuthorizationDialogState,
+    onDismiss: () -> Unit,
+    onAuthorize: (String) -> Unit,
+) {
+    WireDialog(
+        title = stringResource(R.string.debug_settings_ai_model_auth_required_title),
+        text = state.message.asString(),
+        onDismiss = onDismiss,
+        buttonsHorizontalAlignment = false,
+        dismissButtonProperties = WireDialogButtonProperties(
+            text = stringResource(R.string.label_cancel),
+            type = WireDialogButtonType.Secondary,
+            onClick = onDismiss
+        ),
+        optionButton1Properties = state.authorizeUrl?.let { url ->
+            WireDialogButtonProperties(
+                text = stringResource(R.string.debug_settings_ai_model_authorize),
+                type = WireDialogButtonType.Primary,
+                onClick = { onAuthorize(url) }
+            )
         }
     )
 }
@@ -254,9 +307,12 @@ private fun AiModelHealthCheckState.statusText(): String =
 @ViewModelScopedPreview
 interface AiAssistantDebugViewModel {
     val infoMessage: SharedFlow<UIText> get() = MutableSharedFlow()
+    val authorizationUrl: SharedFlow<String> get() = MutableSharedFlow()
     val state: AiAssistantDebugState get() = AiAssistantDebugState()
     fun downloadAiModel() {}
     fun selectModel(descriptor: AiModelDescriptor) {}
+    fun dismissAuthorizationDialog() {}
+    fun authorizeModelAccess(url: String) {}
 }
 
 @HiltViewModel
@@ -269,6 +325,8 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     override val infoMessage = _infoMessage.asSharedFlow()
+    private val _authorizationUrl = MutableSharedFlow<String>()
+    override val authorizationUrl = _authorizationUrl.asSharedFlow()
     private var healthCheckJob: Job? = null
     private var checkedModelPath: String? = null
 
@@ -287,8 +345,10 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
         viewModelScope.launch {
             aiModelManager.downloadModel().collect { downloadState ->
                 when (downloadState) {
-                    AiModelDownloadState.AuthRequired ->
-                        _infoMessage.emit(UIText.StringResource(R.string.debug_settings_ai_model_auth_required))
+                    is AiModelDownloadState.AuthRequired ->
+                        state = state.copy(
+                            authorizationDialogState = downloadState.toAuthorizationDialogState()
+                        )
 
                     is AiModelDownloadState.Failed ->
                         _infoMessage.emit(
@@ -310,6 +370,17 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
 
     override fun selectModel(descriptor: AiModelDescriptor) {
         aiModelManager.selectModel(descriptor)
+    }
+
+    override fun dismissAuthorizationDialog() {
+        state = state.copy(authorizationDialogState = null)
+    }
+
+    override fun authorizeModelAccess(url: String) {
+        dismissAuthorizationDialog()
+        viewModelScope.launch {
+            _authorizationUrl.emit(url)
+        }
     }
 
     private fun observeSelectedModel() {
@@ -389,13 +460,26 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
             )
             is AiModelHealthCheckResult.InferenceFailed -> AiModelHealthCheckState.Failed(message)
         }
+
+    private fun AiModelDownloadState.AuthRequired.toAuthorizationDialogState(): AiModelAuthorizationDialogState =
+        AiModelAuthorizationDialogState(
+            message = message?.takeIf { it.isNotBlank() }?.let(UIText::DynamicString)
+                ?: UIText.StringResource(R.string.debug_settings_ai_model_auth_required),
+            authorizeUrl = message?.extractFirstUrl()
+        )
 }
 
 data class AiAssistantDebugState(
     val availableModels: List<AiModelDescriptor> = emptyList(),
     val selectedModel: AiModelDescriptor? = null,
     val aiModelOptionState: AiModelOptionState = AiModelOptionState(),
-    val healthCheckState: AiModelHealthCheckState = AiModelHealthCheckState.Unavailable
+    val healthCheckState: AiModelHealthCheckState = AiModelHealthCheckState.Unavailable,
+    val authorizationDialogState: AiModelAuthorizationDialogState? = null
+)
+
+data class AiModelAuthorizationDialogState(
+    val message: UIText,
+    val authorizeUrl: String?
 )
 
 data class AiModelOptionState(
@@ -421,6 +505,9 @@ private const val PERCENT_MULTIPLIER = 100
 private const val EMPTY_RESPONSE_FAILURE_REASON = "Model returned an empty response"
 private const val MISSING_MODEL_FAILURE_REASON = "Model file is missing"
 private const val UNSUPPORTED_MODEL_FAILURE_REASON = "Model type is not supported by the MediaPipe health check"
+private val URL_REGEX = Regex("""https?://[^\s"'<>]+""")
+
+internal fun String.extractFirstUrl(): String? = URL_REGEX.find(this)?.value
 
 @PreviewMultipleThemes
 @Composable
@@ -429,6 +516,8 @@ fun PreviewAiAssistantDebugScreen() = WireTheme {
         state = AiAssistantDebugState(),
         onNavigationPressed = {},
         onDownloadAiModel = {},
-        onModelSelected = {}
+        onModelSelected = {},
+        onDismissAuthorizationDialog = {},
+        onAuthorizeModelAccess = {}
     )
 }

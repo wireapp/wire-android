@@ -29,16 +29,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runBlocking
 
 class DefaultAiModelManager @Inject constructor(
     @JvmSuppressWildcards private val models: List<AiModelDescriptor>,
     private val storage: AiModelStorage,
-    private val downloader: AiModelDownloader
+    private val downloader: AiModelDownloader,
+    private val selectionStore: AiModelSelectionStore
 ) : AiModelManager {
 
     override val availableModels: List<AiModelDescriptor> = models
 
-    private val _selectedModel = MutableStateFlow(models.first())
+    private val _selectedModel = MutableStateFlow(resolveInitialSelection())
     override val selectedModel: StateFlow<AiModelDescriptor> = _selectedModel.asStateFlow()
 
     private val activeDownloadStatus = MutableStateFlow<ActiveDownloadState?>(null)
@@ -46,6 +48,9 @@ class DefaultAiModelManager @Inject constructor(
     override fun selectModel(descriptor: AiModelDescriptor) {
         require(descriptor in models) { "Unknown descriptor: $descriptor" }
         _selectedModel.value = descriptor
+        runBlocking {
+            selectionStore.setSelectedModelId(descriptor.repositoryId)
+        }
     }
 
     override fun observeModelStatus(): Flow<AiModelStatus> =
@@ -92,6 +97,11 @@ class DefaultAiModelManager @Inject constructor(
             is AiModelDownloadState.Failed,
             is AiModelDownloadState.Ready -> null
         }
+
+    private fun resolveInitialSelection(): AiModelDescriptor = runBlocking {
+        val selectedModelId = selectionStore.getSelectedModelId()
+        models.firstOrNull { it.repositoryId == selectedModelId } ?: models.first()
+    }
 
     private data class ActiveDownloadState(
         val descriptor: AiModelDescriptor,

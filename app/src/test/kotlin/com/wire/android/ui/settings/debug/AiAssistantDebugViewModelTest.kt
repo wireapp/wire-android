@@ -231,6 +231,20 @@ class AiAssistantDebugViewModelTest {
     }
 
     @Test
+    fun `given restored selected model from manager, then state contains restored selection`() = runTest {
+        val restoredDescriptor = testDescriptor.copy(
+            displayName = "Restored model",
+            repositoryId = "google/restored-model"
+        )
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withAvailableModels(listOf(testDescriptor, restoredDescriptor))
+            .withSelectedModel(restoredDescriptor)
+            .arrange()
+
+        assertEquals(restoredDescriptor, viewModel.state.selectedModel)
+    }
+
+    @Test
     fun `given available models, when model is selected, then selectModel is called on manager`() = runTest {
         // given
         val (arrangement, viewModel) = AiAssistantDebugArrangement()
@@ -378,6 +392,14 @@ private class AiAssistantDebugArrangement {
 
     fun withAiModelStatus(status: AiModelStatus) = apply {
         withAiModelStatuses(status)
+    }
+
+    fun withAvailableModels(models: List<AiModelDescriptor>) = apply {
+        every { aiModelManager.availableModels } returns models
+    }
+
+    fun withSelectedModel(descriptor: AiModelDescriptor) = apply {
+        every { aiModelManager.selectedModel } returns MutableStateFlow(descriptor)
     }
 
     fun withAiModelStatuses(vararg statuses: AiModelStatus) = apply {

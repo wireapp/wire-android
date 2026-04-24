@@ -26,6 +26,9 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.BuildConfig
+import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.aiassistant.AiModelSelectionStore
+import com.wire.android.feature.aiassistant.GlobalDataStoreAiModelSelectionStore
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.MessageResourceProvider
@@ -125,4 +128,8 @@ object AppModule {
 
     @Provides
     fun provideGetMediaMetadataUseCase(): GetMediaMetadataUseCase = GetMediaMetadataUseCaseImpl()
+
+    @Singleton
+    @Provides
+    fun provideAiModelSelectionStore(store: GlobalDataStore): AiModelSelectionStore = GlobalDataStoreAiModelSelectionStore(store)
 }

@@ -546,13 +546,13 @@ data class ConversationViewPage(private val device: UiDevice) {
             timeoutMs = timeoutMs,
             pollingIntervalMs = 200
         )
-        if (mlsMarker != null) {
-            // MLS banner can appear slightly before the conversation is fully ready for a first outbound message.
-            if (settleAfterDetectedMs > 0) {
-                SystemClock.sleep(settleAfterDetectedMs)
+            if (mlsMarker != null) {
+                // MLS banner can appear slightly before the conversation is fully ready for a first outbound message.
+                if (settleAfterDetectedMs > 0) {
+                    UiWaitUtils.waitForMillis(settleAfterDetectedMs)
+                }
+                return this
             }
-            return this
-        }
         throw AssertionError("MLS upgrade system message was not visible within ${timeoutMs}ms.")
     }
 

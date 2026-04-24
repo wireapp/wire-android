@@ -37,7 +37,7 @@ import org.junit.Before
 import org.junit.Test
 import org.koin.test.inject
 import service.TestServiceHelper
-import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
+import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.getValue
@@ -105,7 +105,7 @@ class SSODeviceBackup : BaseUiTest() {
 
             step("Get SSO code and wait for Okta app assignment sync") {
                 val ssoCode = SSOServiceHelper.getSSOCode()
-                waitFor(20) // Delay added to allow Okta app assignment to fully sync and avoid 403 error
+                UiWaitUtils.waitFor(20) // Delay added to allow Okta app assignment to fully sync and avoid 403 error
 
                 step("Start SSO login flow using SSO code") {
                     pages.registrationPage.apply {
@@ -127,7 +127,7 @@ class SSODeviceBackup : BaseUiTest() {
                         enterOktaEmail(member1?.email ?: "")
                         enterOktaPassword(member1?.password ?: "")
                         tapOktaSignIn()
-                        waitFor(5) // Wait for Okta → Wire auth handoff to finish; otherwise, setting up wire page will not succeed.
+                        UiWaitUtils.waitFor(5) // Wait for Okta → Wire auth handoff to finish; otherwise, setting up wire page will not succeed.
                     }
                 }
 
@@ -234,7 +234,7 @@ class SSODeviceBackup : BaseUiTest() {
                         clickLoginButton()
                     }
 
-                    waitFor(5) // Wait for Okta → Wire auth handoff to finish;
+                    UiWaitUtils.waitFor(5) // Wait for Okta → Wire auth handoff to finish;
                 }
 
                 step("Finish login flow after logout (decline share data)") {

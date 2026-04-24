@@ -29,8 +29,6 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import junit.framework.TestCase.assertTrue
-import uiautomatorutils.UiWaitUtils.waitUntilGoneOrThrow
-import uiautomatorutils.UiWaitUtils.waitUntilVisibleOrThrow
 import java.io.IOException
 import java.util.regex.Pattern
 
@@ -350,6 +348,22 @@ object UiWaitUtils {
                 stopPinging()
             }
         }
+    }
+
+    /**
+     * Preferred entrypoint for fixed waits in UI tests.
+     *
+     * Internally delegates to [WaitUtils.waitFor] to keep backward compatibility with existing logic.
+     */
+    fun waitFor(seconds: Int, startPinging: () -> Unit = {}, stopPinging: () -> Unit = {}) {
+        WaitUtils.waitFor(seconds, startPinging, stopPinging)
+    }
+
+    /**
+     * Fixed millisecond sleep used by callers that already compute millisecond values.
+     */
+    fun waitForMillis(milliseconds: Long) {
+        Thread.sleep(milliseconds)
     }
 
     /**

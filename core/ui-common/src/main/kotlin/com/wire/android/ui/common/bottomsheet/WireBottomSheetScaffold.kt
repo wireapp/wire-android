@@ -53,6 +53,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
@@ -199,18 +200,20 @@ private fun StatusBarScrim(
     alpha: Float = 0f,
     topInset: Int = 0,
 ) {
-    Popup(
-        alignment = Alignment.TopCenter,
-        offset = IntOffset(x = 0, y = -topInset),
-        properties = PopupProperties(focusable = false, clippingEnabled = false)
-    ) {
-        Scrim(
-            color = color,
-            alpha = alpha,
-            onDismissRequest = null, // status bar scrim should not be clickable
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(with(LocalDensity.current) { topInset.toDp() })
-        )
+    if (!LocalInspectionMode.current) {
+        Popup(
+            alignment = Alignment.TopCenter,
+            offset = IntOffset(x = 0, y = -topInset),
+            properties = PopupProperties(focusable = false, clippingEnabled = false)
+        ) {
+            Scrim(
+                color = color,
+                alpha = alpha,
+                onDismissRequest = null, // status bar scrim should not be clickable
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(with(LocalDensity.current) { topInset.toDp() })
+            )
+        }
     }
 }

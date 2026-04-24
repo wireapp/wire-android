@@ -28,7 +28,10 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -251,7 +254,13 @@ fun MessageImage(
                         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
                     )
             }
-            .wrapContentSize()
+            .applyIf(messageStyle.isBubble()) {
+                fillMaxWidth()
+                    .height(imageSize.height)
+            }
+            .applyIf(!messageStyle.isBubble()) {
+                requiredSize(imageSize)
+            }
             .combinedClickable(
                 enabled = onImageClick.enabled,
                 onClick = onImageClick.onClick,
@@ -293,23 +302,41 @@ private fun MessageImageOverlay(
     transferStatus: AssetTransferStatus,
     messageStyle: MessageStyle,
 ) {
+    if (hasImageSource && transferStatus.shouldHideLoadingWhenSourceExists()) {
+        return
+    }
+
     when (transferStatus) {
-        UPLOAD_IN_PROGRESS, DOWNLOAD_IN_PROGRESS -> {
+        UPLOAD_IN_PROGRESS -> {
             ImageMessageInProgress(
                 size = size,
-                isDownloading = transferStatus == DOWNLOAD_IN_PROGRESS,
+                isDownloading = false,
+                color = colorsScheme().onScrim,
+            )
+        }
+
+        DOWNLOAD_IN_PROGRESS -> {
+            ImageMessageInProgress(
+                size = size,
+                isDownloading = true,
                 color = colorsScheme().onScrim,
             )
         }
 
         AssetTransferStatus.NOT_DOWNLOADED -> {
-            if (!hasImageSource) {
-                ImageMessageInProgress(
-                    size = size,
-                    isDownloading = true,
-                    color = messageStyle.textColor(),
-                )
-            }
+            ImageMessageInProgress(
+                size = size,
+                isDownloading = true,
+                color = messageStyle.textColor(),
+            )
+        }
+
+        AssetTransferStatus.SAVED_INTERNALLY, AssetTransferStatus.UPLOADED -> {
+            ImageMessageInProgress(
+                size = size,
+                isDownloading = true,
+                color = messageStyle.textColor(),
+            )
         }
 
         NOT_FOUND -> {
@@ -332,6 +359,16 @@ private fun MessageImageOverlay(
     }
 }
 
+private fun AssetTransferStatus.shouldHideLoadingWhenSourceExists(): Boolean =
+    when (this) {
+        DOWNLOAD_IN_PROGRESS,
+        AssetTransferStatus.NOT_DOWNLOADED,
+        AssetTransferStatus.SAVED_INTERNALLY,
+        AssetTransferStatus.UPLOADED -> true
+
+        else -> false
+    }
+
 @Composable
 fun MediaAssetImage(
     asset: ImageAsset.Remote?,
@@ -340,7 +377,7 @@ fun MediaAssetImage(
     messageStyle: MessageStyle,
     onImageClick: Clickable,
     modifier: Modifier = Modifier,
-    assetPath: Path? = null
+    assetPath: Path? = null,
 ) {
     Box(
         modifier
@@ -355,21 +392,10 @@ fun MediaAssetImage(
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
-            .wrapContentSize()
+            .requiredSize(size)
             .clickable(onImageClick)
     ) {
         when {
-            // Trying to upload the asset
-            transferStatus == DOWNLOAD_IN_PROGRESS -> {
-                ImageMessageInProgress(
-                    size = size,
-                    isDownloading = true,
-                    showText = false,
-                    color = messageStyle.textColor(),
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-
             LocalInspectionMode.current -> { // preview
                 DisplayableImageMessage(
                     imageData = mockedPrivateAsset(),
@@ -387,6 +413,17 @@ fun MediaAssetImage(
                     imageData = asset,
                     size = size,
                     messageStyle = messageStyle,
+                )
+            }
+
+            // Download in progress and no available image source yet.
+            transferStatus == DOWNLOAD_IN_PROGRESS -> {
+                ImageMessageInProgress(
+                    size = size,
+                    isDownloading = true,
+                    showText = false,
+                    color = messageStyle.textColor(),
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
 

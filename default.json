@@ -36,7 +36,6 @@
             "enable_new_registration": true,
             "channels_history_options_enabled": true,
             "meetings_enabled": true,
-            "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": true,
             "enforce_configuration_signature": false
@@ -75,7 +74,6 @@
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
             "enforce_configuration_signature": true,
-            "use_async_flush_logging": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -89,7 +87,6 @@
             "enable_new_registration": true,
             "enforce_configuration_signature": true,
             "use_strict_mls_filter": false,
-            "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": false
         },
@@ -155,7 +152,7 @@
     "paginated_conversation_list_enabled": true,
     "should_display_release_notes": true,
     "public_channels_enabled": false,
-    "use_async_flush_logging": false,
+    "use_async_flush_logging": true,
     "channels_history_options_enabled": false,
     "use_new_login_for_default_backend": true,
     "enable_crossplatform_backup": true,

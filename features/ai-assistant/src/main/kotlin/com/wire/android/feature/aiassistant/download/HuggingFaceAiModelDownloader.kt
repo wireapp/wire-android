@@ -24,6 +24,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import java.io.File
 import java.io.IOException
 import java.security.MessageDigest
+import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
@@ -42,7 +43,7 @@ class HuggingFaceAiModelDownloader @Inject constructor(
 
         val authorization = tokenProvider.getDownloadAuthorization(descriptor)
         if (authorization == null) {
-            emit(AiModelDownloadState.AuthRequired)
+            emit(AiModelDownloadState.AuthRequired())
             return@flow
         }
 
@@ -60,9 +61,15 @@ class HuggingFaceAiModelDownloader @Inject constructor(
                 when (response.code) {
                     HTTP_UNAUTHORIZED, HTTP_FORBIDDEN -> {
                         tempFile.deleteIfExists()
-                        emit(AiModelDownloadState.AuthRequired)
+                        emit(AiModelDownloadState.AuthRequired(response.errorBody))
                     }
                     in HTTP_SUCCESS_RANGE -> {
+                        val authorizationMessage = response.readAuthorizationMessageIfPresent()
+                        if (authorizationMessage != null) {
+                            tempFile.deleteIfExists()
+                            emit(AiModelDownloadState.AuthRequired(authorizationMessage))
+                            return@use
+                        }
                         emit(AiModelDownloadState.Downloading(0F))
                         response.copyToTempFile(tempFile) { progress ->
                             emit(AiModelDownloadState.Downloading(progress))
@@ -78,7 +85,12 @@ class HuggingFaceAiModelDownloader @Inject constructor(
                     }
                     else -> {
                         tempFile.deleteIfExists()
-                        emit(AiModelDownloadState.Failed(FailureReason.InvalidResponse))
+                        val authorizationMessage = response.errorBody?.extractAuthorizationMessage()
+                        if (authorizationMessage != null) {
+                            emit(AiModelDownloadState.AuthRequired(authorizationMessage))
+                        } else {
+                            emit(AiModelDownloadState.Failed(FailureReason.InvalidResponse))
+                        }
                     }
                 }
             }
@@ -111,6 +123,40 @@ class HuggingFaceAiModelDownloader @Inject constructor(
                     bytesRead = input.read(buffer)
                 }
             }
+        }
+    }
+
+    private fun AiModelHttpResponse.readAuthorizationMessageIfPresent(): String? {
+        if (!isTextResponse()) return null
+        return inputStream()
+            .bufferedReader()
+            .use { reader -> reader.readText() }
+            .extractAuthorizationMessage()
+    }
+
+    private fun AiModelHttpResponse.isTextResponse(): Boolean {
+        val normalizedContentType = contentType
+            ?.substringBefore(';')
+            ?.trim()
+            ?.lowercase(Locale.ROOT)
+        return normalizedContentType in TEXT_RESPONSE_CONTENT_TYPES
+    }
+
+    private fun String.extractAuthorizationMessage(): String? {
+        val normalized = replace(HTML_TAG_REGEX, " ")
+            .replace(WHITESPACE_REGEX, " ")
+            .replace("&quot;", "\"")
+            .replace("&amp;", "&")
+            .trim()
+            .takeIf { it.isNotEmpty() }
+            ?: return null
+
+        return normalized.takeIf { message ->
+            HUGGING_FACE_HOST in message && (
+                "ask for access" in message.lowercase(Locale.ROOT) ||
+                    "authorized list" in message.lowercase(Locale.ROOT) ||
+                    "access to model" in message.lowercase(Locale.ROOT)
+                )
         }
     }
 
@@ -151,10 +197,14 @@ class HuggingFaceAiModelDownloader @Inject constructor(
     private companion object {
         const val AUTHORIZATION_HEADER = "Authorization"
         const val BEARER_PREFIX = "Bearer"
+        const val HUGGING_FACE_HOST = "https://huggingface.co/"
         const val HTTP_UNAUTHORIZED = 401
         const val HTTP_FORBIDDEN = 403
         const val SHA_256 = "SHA-256"
 
+        val HTML_TAG_REGEX = Regex("<[^>]+>")
         val HTTP_SUCCESS_RANGE = 200..299
+        val TEXT_RESPONSE_CONTENT_TYPES = setOf("text/html", "text/plain", "application/json")
+        val WHITESPACE_REGEX = Regex("\\s+")
     }
 }

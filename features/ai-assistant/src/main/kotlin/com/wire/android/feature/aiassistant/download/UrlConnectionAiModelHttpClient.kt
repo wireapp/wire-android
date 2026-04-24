@@ -17,6 +17,7 @@
 package com.wire.android.feature.aiassistant.download
 
 import java.io.InputStream
+import java.nio.charset.Charset
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
@@ -46,6 +47,14 @@ private class UrlConnectionAiModelHttpResponse(
 
     override val contentLength: Long?
         get() = connection.contentLengthLong.takeIf { it > 0L }
+
+    override val contentType: String?
+        get() = connection.contentType
+
+    override val errorBody: String?
+        get() = connection.errorStream?.bufferedReader(Charset.defaultCharset())?.use { reader ->
+            reader.readText().trim().takeIf { it.isNotEmpty() }
+        }
 
     override fun inputStream(): InputStream = connection.inputStream
 

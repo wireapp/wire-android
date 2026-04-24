@@ -99,7 +99,7 @@ class DefaultAiModelManagerTest {
         )
         val storage = FakeAiModelStorage(tempDir, descriptor)
         private var downloader: AiModelDownloader = AiModelDownloader {
-            flow { emit(AiModelDownloadState.AuthRequired) }
+            flow { emit(AiModelDownloadState.AuthRequired()) }
         }
 
         fun withFinalModelFile() = apply {

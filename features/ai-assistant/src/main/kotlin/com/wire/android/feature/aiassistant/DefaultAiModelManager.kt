@@ -88,7 +88,7 @@ class DefaultAiModelManager @Inject constructor(
         when (this) {
             AiModelDownloadState.Starting -> ActiveDownloadState(descriptor, AiModelStatus.Downloading(progress = null))
             is AiModelDownloadState.Downloading -> ActiveDownloadState(descriptor, AiModelStatus.Downloading(progress))
-            AiModelDownloadState.AuthRequired,
+            is AiModelDownloadState.AuthRequired,
             is AiModelDownloadState.Failed,
             is AiModelDownloadState.Ready -> null
         }

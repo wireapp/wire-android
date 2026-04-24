@@ -59,7 +59,7 @@ class HuggingFaceAiModelDownloaderTest {
 
         val states = arrangement.downloader.download(arrangement.descriptor).toList()
 
-        assertEquals(listOf(AiModelDownloadState.Starting, AiModelDownloadState.AuthRequired), states)
+        assertEquals(listOf(AiModelDownloadState.Starting, AiModelDownloadState.AuthRequired()), states)
         assertEquals(0, arrangement.httpClient.requestCount)
     }
 
@@ -79,24 +79,56 @@ class HuggingFaceAiModelDownloaderTest {
     fun givenUnauthorizedResponse_whenDownloading_thenAuthRequiredIsEmitted() = runTest {
         val arrangement = Arrangement(tempDir)
             .withAuthorization(token = "hf_token")
-            .withHttpResponse(FakeAiModelHttpResponse(code = 401))
+            .withHttpResponse(FakeAiModelHttpResponse(code = 401, errorBody = AUTH_ERROR_MESSAGE))
             .arrange()
 
         val states = arrangement.downloader.download(arrangement.descriptor).toList()
 
-        assertEquals(AiModelDownloadState.AuthRequired, states.last())
+        assertEquals(AiModelDownloadState.AuthRequired(AUTH_ERROR_MESSAGE), states.last())
     }
 
     @Test
     fun givenForbiddenResponse_whenDownloading_thenAuthRequiredIsEmitted() = runTest {
         val arrangement = Arrangement(tempDir)
             .withAuthorization(token = "hf_token")
-            .withHttpResponse(FakeAiModelHttpResponse(code = 403))
+            .withHttpResponse(FakeAiModelHttpResponse(code = 403, errorBody = AUTH_ERROR_MESSAGE))
             .arrange()
 
         val states = arrangement.downloader.download(arrangement.descriptor).toList()
 
-        assertEquals(AiModelDownloadState.AuthRequired, states.last())
+        assertEquals(AiModelDownloadState.AuthRequired(AUTH_ERROR_MESSAGE), states.last())
+    }
+
+    @Test
+    fun givenSuccessfulHtmlAuthorizationPage_whenDownloading_thenAuthRequiredIsEmitted() = runTest {
+        val arrangement = Arrangement(tempDir)
+            .withAuthorization(token = "hf_token")
+            .withHttpResponse(
+                FakeAiModelHttpResponse(
+                    body = AUTH_ERROR_HTML.toByteArray(),
+                    contentType = "text/html; charset=utf-8"
+                )
+            )
+            .arrange()
+
+        val states = arrangement.downloader.download(arrangement.descriptor).toList()
+
+        assertEquals(AiModelDownloadState.AuthRequired(AUTH_ERROR_MESSAGE), states.last())
+    }
+
+    @Test
+    fun givenUnauthorizedResponseWithPartialFile_whenDownloading_thenTempFileIsRemoved() = runTest {
+        val arrangement = Arrangement(tempDir)
+            .withAuthorization(token = "hf_token")
+            .withHttpResponse(FakeAiModelHttpResponse(code = 401, errorBody = AUTH_ERROR_MESSAGE))
+            .arrange()
+        arrangement.storage.ensureModelDirectoryExists(arrangement.descriptor)
+        arrangement.storage.tempModelFile.writeText("partial")
+
+        val states = arrangement.downloader.download(arrangement.descriptor).toList()
+
+        assertEquals(AiModelDownloadState.AuthRequired(AUTH_ERROR_MESSAGE), states.last())
+        assertFalse(arrangement.storage.tempModelFile.exists())
     }
 
     @Test
@@ -214,6 +246,12 @@ class HuggingFaceAiModelDownloaderTest {
         const val DEFAULT_DOWNLOAD_URL =
             "https://huggingface.co/google/test-model/resolve/main/model/test-model.litertlm"
         const val CUSTOM_DOWNLOAD_URL = "https://example.com/model.litertlm"
+        const val AUTH_ERROR_MESSAGE =
+            "Access to model litert-community/gemma-3-270m-it is restricted. Visit " +
+                "https://huggingface.co/litert-community/gemma-3-270m-it to ask for access."
+        const val AUTH_ERROR_HTML =
+            "<html><body><p>Access to model litert-community/gemma-3-270m-it is restricted." +
+                " Visit https://huggingface.co/litert-community/gemma-3-270m-it to ask for access.</p></body></html>"
         const val MODEL_TEXT = "model"
         val MODEL_BYTES = MODEL_TEXT.toByteArray()
     }
@@ -248,6 +286,8 @@ private class FakeAiModelHttpResponse(
     override val code: Int = 200,
     private val body: ByteArray = ByteArray(0),
     override val contentLength: Long? = null,
+    override val contentType: String? = null,
+    override val errorBody: String? = null,
     private val inputStream: InputStream? = null
 ) : AiModelHttpResponse {
     override fun inputStream(): InputStream = inputStream ?: ByteArrayInputStream(body)

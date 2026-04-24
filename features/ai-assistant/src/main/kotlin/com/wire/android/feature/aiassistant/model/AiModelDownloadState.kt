@@ -23,7 +23,7 @@ sealed interface AiModelDownloadState {
 
     data class Ready(val localPath: String) : AiModelDownloadState
 
-    data object AuthRequired : AiModelDownloadState
+    data class AuthRequired(val message: String? = null) : AiModelDownloadState
 
     data class Failed(val reason: FailureReason) : AiModelDownloadState
 }

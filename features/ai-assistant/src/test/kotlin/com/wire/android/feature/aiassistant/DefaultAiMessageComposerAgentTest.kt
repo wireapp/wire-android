@@ -624,7 +624,7 @@ private class FakeAiModelManager(
     override val selectedModel: StateFlow<AiModelDescriptor> = MutableStateFlow(descriptor)
     override fun selectModel(descriptor: AiModelDescriptor) = Unit
     override fun observeModelStatus(): Flow<AiModelStatus> = flowOf(modelStatus)
-    override fun downloadModel(): Flow<AiModelDownloadState> = flowOf(AiModelDownloadState.AuthRequired)
+    override fun downloadModel(): Flow<AiModelDownloadState> = flowOf(AiModelDownloadState.AuthRequired())
 }
 
 private class FakeLiteRtLmInferenceFactory(

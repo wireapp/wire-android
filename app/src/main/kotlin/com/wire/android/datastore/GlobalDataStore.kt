@@ -58,6 +58,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val ANONYMOUS_REGISTRATION_TRACK_ID = stringPreferencesKey("anonymous_registration_track_id")
         private val IS_ANONYMOUS_REGISTRATION_ENABLED = booleanPreferencesKey("is_anonymous_registration_enabled")
         private val PERSISTENT_WEBSOCKET_ENFORCED_BY_MDM = booleanPreferencesKey("persistent_websocket_enforced_by_mdm")
+        private val SELECTED_AI_MODEL_ID = stringPreferencesKey("selected_ai_model_id")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
@@ -137,6 +138,12 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =
         getBooleanPreference(userDoubleTapToastStatusKey(userId), true).first()
+
+    suspend fun getSelectedAiModelId(): String? = context.dataStore.data.firstOrNull()?.get(SELECTED_AI_MODEL_ID)
+
+    suspend fun setSelectedAiModelId(modelId: String) {
+        context.dataStore.edit { it[SELECTED_AI_MODEL_ID] = modelId }
+    }
 
     /**
      * returns a flow with decoded passcode

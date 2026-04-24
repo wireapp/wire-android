@@ -21,8 +21,8 @@ import app.cash.turbine.testIn
 import app.cash.turbine.turbineScope
 import com.wire.android.feature.aiassistant.download.AiModelDownloader
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
-import com.wire.android.feature.aiassistant.model.AiPromptCapability
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
+import com.wire.android.feature.aiassistant.model.AiPromptCapability
 import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.feature.aiassistant.storage.FakeAiModelStorage
 import java.nio.file.Path
@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
@@ -88,16 +89,64 @@ class DefaultAiModelManagerTest {
         }
     }
 
-    private class Arrangement(tempDir: Path) {
-        val descriptor = AiModelDescriptor(
-            displayName = "Test model",
-            repositoryId = "google/test-model",
-            artifactPath = "test-model.litertlm",
-            localDirectoryName = "test-model",
-            localFileName = "model.litertlm",
-            promptCapability = AiPromptCapability.Weak
-        )
-        val storage = FakeAiModelStorage(tempDir, descriptor)
+    @Test
+    fun givenStoredSelectedModelId_whenManagerIsCreated_thenStoredModelIsSelected() = runTest {
+        val secondDescriptor = secondDescriptor()
+        val arrangement = Arrangement(tempDir)
+            .withModels(listOf(descriptor(), secondDescriptor))
+            .withStoredSelectedModelId(secondDescriptor.repositoryId)
+            .arrange()
+
+        assertEquals(secondDescriptor, arrangement.manager.selectedModel.value)
+    }
+
+    @Test
+    fun givenMissingStoredSelectedModelId_whenManagerIsCreated_thenFirstModelIsSelected() = runTest {
+        val secondDescriptor = secondDescriptor()
+        val arrangement = Arrangement(tempDir)
+            .withModels(listOf(descriptor(), secondDescriptor))
+            .arrange()
+
+        assertEquals(descriptor(), arrangement.manager.selectedModel.value)
+    }
+
+    @Test
+    fun givenUnknownStoredSelectedModelId_whenManagerIsCreated_thenFirstModelIsSelected() = runTest {
+        val secondDescriptor = secondDescriptor()
+        val arrangement = Arrangement(tempDir)
+            .withModels(listOf(descriptor(), secondDescriptor))
+            .withStoredSelectedModelId("unknown/model")
+            .arrange()
+
+        assertEquals(descriptor(), arrangement.manager.selectedModel.value)
+    }
+
+    @Test
+    fun givenKnownDescriptor_whenSelectingModel_thenSelectionIsPersisted() = runTest {
+        val secondDescriptor = secondDescriptor()
+        val arrangement = Arrangement(tempDir)
+            .withModels(listOf(descriptor(), secondDescriptor))
+            .arrange()
+
+        arrangement.manager.selectModel(secondDescriptor)
+
+        assertEquals(secondDescriptor, arrangement.manager.selectedModel.value)
+        assertEquals(secondDescriptor.repositoryId, arrangement.selectionStore.selectedModelId)
+    }
+
+    @Test
+    fun givenUnknownDescriptor_whenSelectingModel_thenSelectionFails() = runTest {
+        val arrangement = Arrangement(tempDir).arrange()
+
+        assertThrows(IllegalArgumentException::class.java) {
+            arrangement.manager.selectModel(secondDescriptor())
+        }
+    }
+
+    private class Arrangement(private val tempDir: Path) {
+        private var models: List<AiModelDescriptor> = listOf(descriptor())
+        private var storage = FakeAiModelStorage(tempDir, models.first())
+        val selectionStore = FakeAiModelSelectionStore()
         private var downloader: AiModelDownloader = AiModelDownloader {
             flow { emit(AiModelDownloadState.AuthRequired()) }
         }
@@ -110,18 +159,59 @@ class DefaultAiModelManagerTest {
             storage.tempModelFile.toPath().createFile()
         }
 
+        fun withModels(models: List<AiModelDescriptor>) = apply {
+            this.models = models
+            storage = FakeAiModelStorage(tempDir, models.first())
+        }
+
+        fun withStoredSelectedModelId(modelId: String) = apply {
+            selectionStore.selectedModelId = modelId
+        }
+
         fun withDownloaderFlow(downloadStates: Flow<AiModelDownloadState>) = apply {
             downloader = AiModelDownloader { downloadStates }
         }
 
         fun arrange() = Result(
-            manager = DefaultAiModelManager(listOf(descriptor), storage, downloader),
-            storage = storage
+            manager = DefaultAiModelManager(models, storage, downloader, selectionStore),
+            storage = storage,
+            selectionStore = selectionStore
         )
     }
 
     private data class Result(
         val manager: DefaultAiModelManager,
-        val storage: FakeAiModelStorage
+        val storage: FakeAiModelStorage,
+        val selectionStore: FakeAiModelSelectionStore
     )
+
+    private companion object {
+        fun descriptor() = AiModelDescriptor(
+            displayName = "Test model",
+            repositoryId = "google/test-model",
+            artifactPath = "test-model.litertlm",
+            localDirectoryName = "test-model",
+            localFileName = "model.litertlm",
+            promptCapability = AiPromptCapability.Weak
+        )
+
+        fun secondDescriptor() = AiModelDescriptor(
+            displayName = "Second test model",
+            repositoryId = "google/test-model-2",
+            artifactPath = "test-model-2.litertlm",
+            localDirectoryName = "test-model-2",
+            localFileName = "model.litertlm",
+            promptCapability = AiPromptCapability.Capable
+        )
+    }
+}
+
+private class FakeAiModelSelectionStore : AiModelSelectionStore {
+    var selectedModelId: String? = null
+
+    override suspend fun getSelectedModelId(): String? = selectedModelId
+
+    override suspend fun setSelectedModelId(modelId: String) {
+        selectedModelId = modelId
+    }
 }

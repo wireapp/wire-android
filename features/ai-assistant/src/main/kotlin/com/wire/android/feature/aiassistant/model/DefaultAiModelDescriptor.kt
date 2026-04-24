@@ -41,10 +41,19 @@ object DefaultAiModelDescriptor {
         localFileName = "model.litertlm",
         promptCapability = AiPromptCapability.Capable
     )
+    val gemma4E2bIt = AiModelDescriptor(
+        displayName = "Gemma 4 E2B IT",
+        repositoryId = "aufklarer/Gemma-4-E2B-LiteRT-LM",
+        artifactPath = "model.litertlm",
+        localDirectoryName = "gemma-4-e2b-it",
+        localFileName = "model.litertlm",
+        promptCapability = AiPromptCapability.Capable
+    )
 
     val allModels: List<AiModelDescriptor> = listOf(
         gemma3_270M_IT,
         gemma3_1B_IT_int4,
-        gemma3nE2bIt
+        gemma3nE2bIt,
+        gemma4E2bIt,
     )
 }

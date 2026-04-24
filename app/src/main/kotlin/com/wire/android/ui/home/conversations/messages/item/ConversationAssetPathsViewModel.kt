@@ -64,6 +64,7 @@ class ConversationAssetPathsViewModelImpl @Inject constructor(
         val shouldResolve = when {
             downloadIfNeeded ->
                 transferStatus == AssetTransferStatus.NOT_DOWNLOADED ||
+                    transferStatus == AssetTransferStatus.DOWNLOAD_IN_PROGRESS ||
                     transferStatus == AssetTransferStatus.SAVED_INTERNALLY ||
                     transferStatus == AssetTransferStatus.UPLOADED
 

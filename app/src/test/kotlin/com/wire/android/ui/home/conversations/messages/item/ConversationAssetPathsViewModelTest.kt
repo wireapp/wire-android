@@ -63,6 +63,27 @@ class ConversationAssetPathsViewModelTest {
     }
 
     @Test
+    fun givenDownloadInProgressStatus_whenResolveIfNeededWithDownloadIfNeeded_thenPathIsResolved() = runTest {
+        // given
+        val expectedPath = "/local/path/image.jpg"
+        val (arrangement, viewModel) = Arrangement()
+            .withGetMessageAssetSuccess(expectedPath)
+            .arrange()
+
+        // when
+        viewModel.resolveIfNeeded(
+            conversationId = arrangement.conversationId,
+            messageId = arrangement.messageId,
+            transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
+            downloadIfNeeded = true
+        )
+
+        // then
+        assertEquals(expectedPath, viewModel.localAssetPath(arrangement.messageId))
+        coVerify(exactly = 1) { arrangement.getMessageAsset(any(), any()) }
+    }
+
+    @Test
     fun givenPathAlreadyResolved_whenResolveIfNeededCalledAgain_thenGetAssetIsNotCalledAgain() = runTest {
         // given
         val expectedPath = "/local/path/image.jpg"

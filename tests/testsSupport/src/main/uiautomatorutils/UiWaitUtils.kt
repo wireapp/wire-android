@@ -28,9 +28,11 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
+import junit.framework.TestCase.assertTrue
+import uiautomatorutils.UiWaitUtils.waitUntilGoneOrThrow
+import uiautomatorutils.UiWaitUtils.waitUntilVisibleOrThrow
 import java.io.IOException
 import java.util.regex.Pattern
-import junit.framework.TestCase.assertTrue
 
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
 private const val DEFAULT_POLLING_INTERVAL_MS = 200L
@@ -155,7 +157,6 @@ object UiWaitUtils {
         timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
         pollingIntervalMs: Long = DEFAULT_POLLING_INTERVAL_MS
     ): UiObject2? {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         var found: UiObject2? = null
 
         val isFound = retryUntilTimeout(

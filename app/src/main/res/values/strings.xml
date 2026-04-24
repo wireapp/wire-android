@@ -1085,6 +1085,7 @@
     <string name="content_description_undo_ai_action">Undo last AI enhancement</string>
     <string name="label_custom_prompt">Custom</string>
     <string name="content_description_custom_prompt">Apply custom AI instruction to message</string>
+    <string name="label_ai_processing_on_device">Processing on device...</string>
     <string name="title_ai_custom_prompt">Custom AI prompt</string>
     <string name="hint_ai_custom_prompt">Enter your instruction (e.g. Make this shorter)</string>
     <string name="ai_predefined_prompt_shorter">Make this text shorter</string>

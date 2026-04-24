@@ -86,6 +86,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.allUploaded
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
@@ -100,6 +101,9 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
+import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
+import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModel
+import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelImpl
 import com.wire.android.util.isImage
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
@@ -131,6 +135,15 @@ fun EnabledMessageComposer(
     tempWritableImageUri: Uri?,
     modifier: Modifier = Modifier,
     aiMessageComposerViewModel: AiMessageComposerViewModel = hiltViewModel(),
+    selfDeletingMessageActionViewModel: SelfDeletingMessageActionViewModel =
+        hiltViewModelScoped<
+                SelfDeletingMessageActionViewModelImpl,
+                SelfDeletingMessageActionViewModel,
+                SelfDeletingMessageActionArgs,
+                SelfDeletingMessageActionViewModelImpl.Factory
+                >(
+            SelfDeletingMessageActionArgs(conversationId = conversationId)
+        ),
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -282,6 +295,7 @@ fun EnabledMessageComposer(
                             keyboardOptions = keyboardOptions,
                             onKeyboardAction = keyboardActionHandler,
                             canSendMessage = canSendMessage,
+                            selfDeletionTimer = selfDeletingMessageActionViewModel.state(),
                             messageTextState = inputStateHolder.messageTextState,
                             isTextExpanded = inputStateHolder.isTextExpanded,
                             inputType = messageCompositionInputStateHolder.inputType,

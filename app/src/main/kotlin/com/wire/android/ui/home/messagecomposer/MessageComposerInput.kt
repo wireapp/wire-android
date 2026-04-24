@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,6 +41,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,6 +55,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -66,6 +70,7 @@ import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.button.WireTertiaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.MessageComposerDefault
 import com.wire.android.ui.common.textfield.WireTextField
@@ -98,6 +103,7 @@ fun ActiveMessageComposerInput(
     keyboardOptions: KeyboardOptions,
     onKeyboardAction: KeyboardActionHandler?,
     canSendMessage: Boolean,
+    selfDeletionTimer: SelfDeletionTimer,
     activeAiAction: AiMessageComposerAction? = null,
     canUndo: Boolean = false,
     onSendButtonClicked: () -> Unit,
@@ -156,6 +162,7 @@ fun ActiveMessageComposerInput(
             keyboardOptions = keyboardOptions,
             onKeyboardAction = onKeyboardAction,
             canSendMessage = canSendMessage,
+            selfDeletionTimer = selfDeletionTimer,
             activeAiAction = activeAiAction,
             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
             onFocused = onFocused,
@@ -195,6 +202,7 @@ private fun InputContent(
     keyboardOptions: KeyboardOptions,
     onKeyboardAction: KeyboardActionHandler?,
     canSendMessage: Boolean,
+    selfDeletionTimer: SelfDeletionTimer,
     activeAiAction: AiMessageComposerAction?,
     canUndo: Boolean,
     onSendButtonClicked: () -> Unit,
@@ -216,6 +224,7 @@ private fun InputContent(
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()
         val aiActions = createRef()
+        val isAiProcessing = activeAiAction != null
         val buttonsTopBarrier = createTopBarrier(additionalOptionButton, aiActions, actions)
         Box(
             contentAlignment = Alignment.BottomStart,
@@ -242,10 +251,10 @@ private fun InputContent(
                     width = Dimension.fillToConstraints
                 }
         ) {
-            if (isTextExpanded && canUndo) {
+            if (isTextExpanded && canUndo && !isAiProcessing) {
                 UndoMessageAction(
                     onUndoButtonClicked = onUndoButtonClicked,
-                    activeAiAction = activeAiAction
+                    modifier = Modifier.semantics { testTag = AI_UNDO_BUTTON_TAG }
                 )
             }
             if (isTextExpanded) {
@@ -253,28 +262,32 @@ private fun InputContent(
                     horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    ProofreadMessageAction(
-                        onProofreadButtonClicked = onProofreadButtonClicked,
-                        activeAiAction = activeAiAction
-                    )
-                    AdjustToneMessageAction(
-                        text = stringResource(R.string.label_adjust_tone_formal),
-                        contentDescription = stringResource(R.string.content_description_adjust_tone_formal),
-                        action = AiMessageComposerAction.FormalTone,
-                        activeAiAction = activeAiAction,
-                        onButtonClicked = { onAdjustToneButtonClicked(AiMessageToneType.Formal) }
-                    )
-                    AdjustToneMessageAction(
-                        text = stringResource(R.string.label_adjust_tone_informal),
-                        contentDescription = stringResource(R.string.content_description_adjust_tone_informal),
-                        action = AiMessageComposerAction.InformalTone,
-                        activeAiAction = activeAiAction,
-                        onButtonClicked = { onAdjustToneButtonClicked(AiMessageToneType.Informal) }
-                    )
-                    CustomPromptMessageAction(
-                        activeAiAction = activeAiAction,
-                        onButtonClicked = onCustomPromptButtonClicked,
-                    )
+                    if (isAiProcessing) {
+                        ProcessingOnDeviceIndicator(
+                            modifier = Modifier.semantics { testTag = AI_PROCESSING_INDICATOR_TAG }
+                        )
+                    } else {
+                        ProofreadMessageAction(
+                            onProofreadButtonClicked = onProofreadButtonClicked,
+                            modifier = Modifier.semantics { testTag = AI_PROOFREAD_BUTTON_TAG }
+                        )
+                        AdjustToneMessageAction(
+                            text = stringResource(R.string.label_adjust_tone_formal),
+                            contentDescription = stringResource(R.string.content_description_adjust_tone_formal),
+                            onButtonClicked = { onAdjustToneButtonClicked(AiMessageToneType.Formal) },
+                            modifier = Modifier.semantics { testTag = AI_FORMAL_TONE_BUTTON_TAG }
+                        )
+                        AdjustToneMessageAction(
+                            text = stringResource(R.string.label_adjust_tone_informal),
+                            contentDescription = stringResource(R.string.content_description_adjust_tone_informal),
+                            onButtonClicked = { onAdjustToneButtonClicked(AiMessageToneType.Informal) },
+                            modifier = Modifier.semantics { testTag = AI_INFORMAL_TONE_BUTTON_TAG }
+                        )
+                        CustomPromptMessageAction(
+                            onButtonClicked = onCustomPromptButtonClicked,
+                            modifier = Modifier.semantics { testTag = AI_CUSTOM_PROMPT_BUTTON_TAG }
+                        )
+                    }
                 }
             }
         }
@@ -282,9 +295,9 @@ private fun InputContent(
         val collapsedMaxHeight = dimensions().messageComposerActiveInputMaxHeight
         MessageComposerTextInput(
             focusRequester = focusRequester,
-            colors = inputType.inputTextColor(isSelfDeleting = viewModel.state().duration != null),
+            colors = inputType.inputTextColor(isSelfDeleting = selfDeletionTimer.duration != null),
             messageTextState = messageTextState,
-            placeHolderText = viewModel.state().duration?.let { stringResource(id = R.string.self_deleting_message_label) }
+            placeHolderText = selfDeletionTimer.duration?.let { stringResource(id = R.string.self_deleting_message_label) }
                 ?: inputType.labelText(),
             onFocused = onFocused,
             onSelectedLineIndexChanged = onSelectedLineIndexChanged,
@@ -324,13 +337,15 @@ private fun InputContent(
                 }
             }
             // Only show send button when not in editing mode
-            if (inputType !is InputType.Editing) {
+            if (inputType !is InputType.Editing && !isAiProcessing) {
                 MessageSendActions(
                     onSendButtonClicked = onSendButtonClicked,
                     sendButtonEnabled = canSendMessage,
-                    selfDeletionTimer = viewModel.state(),
+                    selfDeletionTimer = selfDeletionTimer,
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                    modifier = Modifier.padding(end = dimensions().spacing8x)
+                    modifier = Modifier
+                        .padding(end = dimensions().spacing8x)
+                        .semantics { testTag = AI_SEND_ACTIONS_TAG }
                 )
             }
         }
@@ -340,19 +355,13 @@ private fun InputContent(
 @Composable
 private fun ProofreadMessageAction(
     onProofreadButtonClicked: () -> Unit,
-    activeAiAction: AiMessageComposerAction?,
     modifier: Modifier = Modifier,
 ) {
     WireSecondaryIconButton(
         onButtonClicked = onProofreadButtonClicked,
         iconResource = R.drawable.ic_proofread,
         contentDescription = R.string.content_description_proofread_message,
-        loading = activeAiAction == AiMessageComposerAction.Proofread,
-        state = if (activeAiAction == null || activeAiAction == AiMessageComposerAction.Proofread) {
-            WireButtonState.Default
-        } else {
-            WireButtonState.Disabled
-        },
+        state = WireButtonState.Default,
         shape = CircleShape,
         minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
         minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
@@ -363,14 +372,13 @@ private fun ProofreadMessageAction(
 @Composable
 private fun UndoMessageAction(
     onUndoButtonClicked: () -> Unit,
-    activeAiAction: AiMessageComposerAction?,
     modifier: Modifier = Modifier,
 ) {
     WireTertiaryIconButton(
         onButtonClicked = onUndoButtonClicked,
         iconResource = R.drawable.ic_undo,
         contentDescription = R.string.content_description_undo_ai_action,
-        state = if (activeAiAction == null) WireButtonState.Default else WireButtonState.Disabled,
+        state = WireButtonState.Default,
         shape = CircleShape,
         minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
         minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
@@ -382,20 +390,13 @@ private fun UndoMessageAction(
 private fun AdjustToneMessageAction(
     text: String,
     contentDescription: String,
-    action: AiMessageComposerAction,
-    activeAiAction: AiMessageComposerAction?,
     onButtonClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     WireSecondaryButton(
         onClick = onButtonClicked,
         text = text,
-        loading = activeAiAction == action,
-        state = if (activeAiAction == null || activeAiAction == action) {
-            WireButtonState.Default
-        } else {
-            WireButtonState.Disabled
-        },
+        state = WireButtonState.Default,
         description = contentDescription,
         fillMaxWidth = false,
         minSize = MaterialTheme.wireDimensions.buttonMinSize.copy(height = MaterialTheme.wireDimensions.buttonCircleMinSize.height),
@@ -406,25 +407,39 @@ private fun AdjustToneMessageAction(
 
 @Composable
 private fun CustomPromptMessageAction(
-    activeAiAction: AiMessageComposerAction?,
     onButtonClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     WireSecondaryButton(
         onClick = onButtonClicked,
         text = stringResource(R.string.label_custom_prompt),
-        loading = activeAiAction == AiMessageComposerAction.CustomPrompt,
-        state = if (activeAiAction == null || activeAiAction == AiMessageComposerAction.CustomPrompt) {
-            WireButtonState.Default
-        } else {
-            WireButtonState.Disabled
-        },
+        state = WireButtonState.Default,
         description = stringResource(R.string.content_description_custom_prompt),
         fillMaxWidth = false,
         minSize = MaterialTheme.wireDimensions.buttonMinSize.copy(height = MaterialTheme.wireDimensions.buttonCircleMinSize.height),
         minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
         modifier = modifier
     )
+}
+
+@Composable
+private fun RowScope.ProcessingOnDeviceIndicator(
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
+        modifier = modifier
+            .weight(1f, fill = false)
+            .padding(vertical = dimensions().spacing8x)
+    ) {
+        WireCircularProgressIndicator(progressColor = colorsScheme().primary)
+        Text(
+            text = stringResource(R.string.label_ai_processing_on_device),
+            style = MaterialTheme.wireTypography.body02,
+            color = colorsScheme().secondaryText,
+        )
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -519,6 +534,7 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
         keyboardOptions = KeyboardOptions.Companion.MessageComposerDefault,
         onKeyboardAction = null,
         canSendMessage = true,
+        selfDeletionTimer = SelfDeletionTimer.Disabled,
         focusRequester = remember { FocusRequester() },
         onSendButtonClicked = {},
         onEditButtonClicked = {},
@@ -561,3 +577,11 @@ fun PreviewActiveMessageComposerInputExpanded() = WireTheme {
         isTextExpanded = true
     )
 }
+
+internal const val AI_PROCESSING_INDICATOR_TAG = "ai_processing_indicator"
+internal const val AI_PROOFREAD_BUTTON_TAG = "ai_proofread_button"
+internal const val AI_FORMAL_TONE_BUTTON_TAG = "ai_formal_tone_button"
+internal const val AI_INFORMAL_TONE_BUTTON_TAG = "ai_informal_tone_button"
+internal const val AI_CUSTOM_PROMPT_BUTTON_TAG = "ai_custom_prompt_button"
+internal const val AI_UNDO_BUTTON_TAG = "ai_undo_button"
+internal const val AI_SEND_ACTIONS_TAG = "ai_send_actions"

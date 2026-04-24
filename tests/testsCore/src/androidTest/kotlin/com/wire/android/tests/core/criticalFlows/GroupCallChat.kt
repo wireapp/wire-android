@@ -25,7 +25,6 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
-import backendUtils.team.deleteTeam
 import call.CallHelper
 import call.CallingManager
 import com.wire.android.tests.core.pages.AllPages
@@ -77,7 +76,7 @@ class GroupCallChat : BaseUiTest() {
 
     @After
     fun tearDown() {
-        runCatching { teamOwner?.deleteTeam(backendClient) }
+        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
         deleteDownloadedFilesContaining("my-test-qr.png")
     }
 

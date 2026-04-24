@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -158,30 +159,35 @@ fun ImageMessageInProgress(
 
 @Composable
 fun ImageMessageFailed(size: DpSize, isDownloadFailure: Boolean, errorColor: Color, modifier: Modifier = Modifier) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Box(
         modifier = modifier
             .requiredSize(size)
             .padding(MaterialTheme.wireDimensions.spacing8x)
     ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_gallery),
-            contentDescription = null,
-            tint = errorColor,
-            modifier = Modifier
-        )
-        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))
-        Text(
-            text = stringResource(
-                id = if (isDownloadFailure) {
-                    R.string.error_downloading_image_message
-                } else {
-                    R.string.error_uploading_image_message
-                }
-            ),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.wireTypography.subline01.copy(color = errorColor)
-        )
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_gallery),
+                contentDescription = null,
+                tint = errorColor,
+                modifier = Modifier
+            )
+            Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))
+            Text(
+                text = stringResource(
+                    id = if (isDownloadFailure) {
+                        R.string.error_downloading_image_message
+                    } else {
+                        R.string.error_uploading_image_message
+                    }
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.wireTypography.subline01.copy(color = errorColor)
+            )
+        }
     }
 }

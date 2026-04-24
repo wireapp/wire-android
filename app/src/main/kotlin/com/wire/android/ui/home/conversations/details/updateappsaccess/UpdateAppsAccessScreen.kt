@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.details.updateappsaccess
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,9 +30,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -80,12 +80,13 @@ private fun UpdateAppsAccessContent(
     WireScaffold(
         modifier = modifier,
         topBar = {
-            val title = stringResource(id = R.string.apps_edit_apps_option_title)
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 navigationIconType = NavigationIconType.Back(R.string.content_description_edit_apps_option_back_btn),
                 onNavigationPressed = onNavigateBack,
-                title = title
+                title = stringResource(
+                    id = R.string.apps_edit_apps_option_title
+                )
             )
         }
     ) { internalPadding ->
@@ -122,7 +123,7 @@ private fun UpdateAppsAccessContent(
     if (state.shouldShowDisableAppsConfirmationDialog) {
         DisableServicesConfirmationDialog(
             onConfirm = onDisableAppsConfirm,
-            onDialogDismiss = onDisableAppsDismiss
+            onDialogDismiss = onDisableAppsDismiss,
         )
     }
 
@@ -137,7 +138,10 @@ private fun UpdateAppsAccessContent(
 }
 
 @Composable
-private fun DisableServicesConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
+private fun DisableServicesConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDialogDismiss: () -> Unit,
+) {
     DisableConfirmationDialog(
         title = R.string.disable_services_dialog_title,
         text = R.string.disable_services_dialog_text,

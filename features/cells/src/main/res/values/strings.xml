@@ -97,6 +97,10 @@
     <string name="dialog_unable_to_restore_folder_description">Unable to restore your folder.</string>
     <string name="dialog_unable_to_restore_file_description">Unable to restore your file.</string>
     <string name="ok_label">Ok</string>
+    <string name="incompatible_file_name_dialog_title">Replace incompatible characters</string>
+    <string name="incompatible_file_name_dialog_description">You can\'t start with a . and can\'t use the characters / \\ and \". Replace them automatically or rename the file manually.</string>
+    <string name="incompatible_file_name_replace_automatically">Replace</string>
+    <string name="incompatible_file_name_cancel_upload">Cancel upload</string>
     <string name="dialog_restore_parent_folder_button">Restore Parent Folder</string>
     <string name="dialog_restore_parent_folder_description">You can’t restore folders or files from a deleted folder. To reuse the desired item, you must restore its parent folder.\n\nThe folder %1$s with all files and subfolders will be restored and available to everyone in this conversation.</string>
     <string name="rename_file_label">Rename file</string>

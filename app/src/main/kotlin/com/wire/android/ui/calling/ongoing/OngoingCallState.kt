@@ -18,8 +18,8 @@
 package com.wire.android.ui.calling.ongoing
 
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.details.CallQualityState
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
-import com.wire.kalium.logic.data.call.CallQualityData
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -27,7 +27,7 @@ data class OngoingCallState(
     val flowState: FlowState = FlowState.Default,
     val participants: PersistentList<UICallParticipant> = persistentListOf(),
     val selectedParticipant: SelectedParticipant? = null,
-    val callQualityData: CallQualityData = CallQualityData(),
+    val callQuality: CallQualityState = CallQualityState(),
     val othersVideosDisabled: Boolean = false,
 ) {
     sealed interface FlowState {

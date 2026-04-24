@@ -64,6 +64,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.AsyncImag
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
+import com.wire.android.ui.home.conversations.model.messagetypes.image.MaxBounds
 import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.size
 import com.wire.android.ui.markdown.DisplayMention
@@ -225,7 +226,16 @@ fun MessageImage(
     modifier: Modifier = Modifier,
     assetPath: Path? = null,
 ) {
-    val imageSize = imgParams.normalizedSize().size()
+    val imageSize = if (messageStyle.isBubble()) {
+        imgParams.normalizedSize(
+            maxBounds = MaxBounds.ScreenFraction(
+                maxWFraction = dimensions().messageVisualMaxFractionWidth,
+                maxHFraction = dimensions().messageVisualMaxFractionHeight
+            )
+        ).size()
+    } else {
+        imgParams.normalizedSize().size()
+    }
     Box(
         modifier
             .applyIf(!messageStyle.isBubble()) {
@@ -385,7 +395,7 @@ fun MediaAssetImage(
                 ImageMessageFailed(
                     size = size,
                     isDownloadFailure = true,
-                    errorColor = colorsScheme().error
+                    errorColor = messageStyle.error()
                 )
             }
 
@@ -393,7 +403,7 @@ fun MediaAssetImage(
                 ImageMessageFailed(
                     size = size,
                     isDownloadFailure = true,
-                    errorColor = colorsScheme().error
+                    errorColor = messageStyle.error()
                 )
             }
         }

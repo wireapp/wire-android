@@ -1145,6 +1145,7 @@
     <string name="calling_details_network_quality_good">Good</string>
     <string name="calling_details_network_quality_fair">Fair</string>
     <string name="calling_details_network_quality_poor">Poor</string>
+    <string name="calling_details_network_quality_no_internet">No internet</string>
     <string name="calling_details_turn_off_other_videos_title">Turn off other videos</string>
     <string name="calling_details_turn_off_other_videos_description">This improves the audio quality when your network conditions are poor.</string>
     <string name="calling_details_network_quality_peer">Peer</string>
@@ -1224,6 +1225,7 @@
     <string name="allow_services_regular_group_description">Open this conversation to apps. You can always change it later.</string>
     <string name="allow_apps_switch_description">Open this conversation to apps.</string>
     <string name="service_details_label">App</string>
+    <string name="service_details_created_by">Created by %1$s</string>
     <string name="service_details_add_service_label">Add To Conversation</string>
     <string name="service_details_remove_service_label">Remove From Conversation</string>
     <string name="service_remove_success">App removed from conversation</string>

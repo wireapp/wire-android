@@ -67,7 +67,7 @@ class CallingManager(private val usersManager: ClientUserManager) {
         private const val FLOWCHECK_POLLING_MS = 2000L
 
         private const val CHROME_SUPPORT_VERSION = "102.0.5005.115"
-        private const val CHROME_CURRENT_VERSION = "103.0.5060.53"
+        private const val CHROME_CURRENT_VERSION = "128.0.6613.137"
     }
 
     private val client = CallingServiceClient()
@@ -456,8 +456,19 @@ class CallingManager(private val usersManager: ClientUserManager) {
         userNames.forEach { name ->
             val user = usersManager.findUserByNameOrNameAlias(name)
             val flowsBefore = safeGetFlows(user)
-            for (flowBefore in flowsBefore)
-                assertPositiveFlowChange(user, flowBefore, audioRecv = true, videoRecv = true)
+
+            check(flowsBefore.isNotEmpty()) {
+                "Found no flows for ${user.name}"
+            }
+
+            for (flowBefore in flowsBefore) {
+                assertPositiveFlowChange(
+                    user,
+                    flowBefore,
+                    audioRecv = true,
+                    videoRecv = true
+                )
+            }
         }
     }
 

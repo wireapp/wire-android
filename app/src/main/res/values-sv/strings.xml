@@ -83,10 +83,8 @@
     <string name="content_description_conversation_phone_icon">Starta ljudsamtal</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">Nämn någon</string>
-    <string name="content_description_back_button">Bakåt-knapp</string>
     <string name="content_description_send_button">Skicka</string>
     <string name="content_description_timed_message_button">Självraderande meddelanden, knapp</string>
-    <string name="content_description_close_button">Stäng-knapp</string>
     <string name="content_description_remove_devices_screen_remove_icon">Ta bort enhet</string>
     <string name="content_description_avatar_preview">Förhandsgranskning av profilbild</string>
     <string name="content_description_choose_from_gallery">Välj från galleri</string>

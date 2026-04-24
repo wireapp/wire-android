@@ -25,6 +25,9 @@ import io.qameta.allure.android.runners.AllureAndroidJUnitRunner
  * Custom test runner that delegates to Allure's Android runner,
  * and filters tests by @TestCaseId, @Category, and @Tag BEFORE
  * they are executed (and before Allure sees them).
+ *
+ * Retry attempts use the same runner entry point, but pass an explicit rerun
+ * list through instrumentation args so only previously failed tests execute.
  */
 class TaggedTestRunner : AllureAndroidJUnitRunner() {
 
@@ -33,28 +36,35 @@ class TaggedTestRunner : AllureAndroidJUnitRunner() {
         val category = arguments.getString("category")
         val tagKey = arguments.getString("tagKey")
         val tagValue = arguments.getString("tagValue")
+        val rerunMode = arguments.getString(RetryContract.ARG_ENABLE_RERUN_MODE)
+        val rerunAttempt = arguments.getString(RetryContract.ARG_RERUN_ATTEMPT)
+        val rerunListPath = arguments.getString(RetryContract.ARG_RERUN_LIST_PATH)
+        val rerunListInline = arguments.getString(RetryContract.ARG_RERUN_LIST_INLINE)
+        val rerunListInlinePartCount = arguments.keySet()
+            .count { key -> key.startsWith(RetryContract.ARG_RERUN_LIST_INLINE_PART_PREFIX) }
 
+        // Log the retry contract once so CI failures can confirm the runner saw
+        // the expected inputs without dumping every rerun test ID into logcat.
         Log.i(
             "TaggedTestRunner",
             "onCreate called. " +
-                    "testCaseId=$filterId, category=$category, tagKey=$tagKey, tagValue=$tagValue"
+                    "testCaseId=$filterId, category=$category, tagKey=$tagKey, tagValue=$tagValue, " +
+                    "rerunMode=$rerunMode, rerunAttempt=$rerunAttempt, " +
+                    "rerunListPath=$rerunListPath, rerunListInlineLength=${rerunListInline?.length ?: 0}, " +
+                    "rerunListInlinePartCount=$rerunListInlinePartCount"
         )
 
         super.onCreate(arguments)
     }
 
     override fun onStart() {
-        //  before running any tests, clear previous Allure results on the device
+        // Before running any tests, clear previous Allure results on the device.
         clearAllureResultsOnDevice()
 
-        //  then let Allure/AndroidJUnitRunner do its normal startup
+        // Then let Allure/AndroidJUnitRunner do its normal startup.
         super.onStart()
     }
 
-    /**
-     * Clears the Allure results directory on the device so each run starts clean.
-     * This runs once per test run (when the runner starts).
-     */
     private fun clearAllureResultsOnDevice() {
         try {
             // This is where Allure stores results on the device in our setup.

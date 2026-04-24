@@ -17,10 +17,13 @@
  */
 package com.wire.android.ui.home.conversations.search
 
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 
 data class AddMembersSearchNavArgs(
     val conversationId: ConversationId,
     val isConversationAppsEnabled: Boolean,
-    val isSelfPartOfATeam: Boolean
+    val isSelfPartOfATeam: Boolean,
+    val protocolInfo: Conversation.ProtocolInfo,
+    val shouldUseNewAppsUi: Boolean = true
 )

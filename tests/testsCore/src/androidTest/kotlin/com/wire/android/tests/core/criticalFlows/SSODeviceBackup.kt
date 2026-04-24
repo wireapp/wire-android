@@ -27,7 +27,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
-import backendUtils.team.deleteTeam
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
 import deleteDownloadedFilesContaining
@@ -71,7 +70,7 @@ class SSODeviceBackup : BaseUiTest() {
 
     @After
     fun tearDown() {
-        runCatching { teamOwner?.deleteTeam(backendClient) }
+        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
         deleteDownloadedFilesContaining("Wire")
         oktaApiClient.cleanUp()
     }
@@ -89,15 +88,15 @@ class SSODeviceBackup : BaseUiTest() {
                     "Messaging",
                     oktaApiClient
                 )
+                teamOwner = teamHelper.usersManager.findUserBy(
+                    "user1Name",
+                    ClientUserManager.FindBy.NAME_ALIAS
+                )
 
                 testServiceHelper.userAddsOktaUser("user1Name", "user2Name", oktaApiClient)
 
                 testServiceHelper.userXIsMe("user2Name")
 
-                teamOwner = teamHelper.usersManager.findUserBy(
-                    "user1Name",
-                    ClientUserManager.FindBy.NAME_ALIAS
-                )
                 member1 = teamHelper.usersManager.findUserBy(
                     "user2Name",
                     ClientUserManager.FindBy.NAME_ALIAS

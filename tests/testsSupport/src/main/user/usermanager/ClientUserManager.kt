@@ -528,7 +528,9 @@ class ClientUserManager(
         context: Context
     ): List<ClientUser> {
         verifyUsersCountSatisfiesConstraints(members.size)
-        return generateTeamMembers(members, teamOwner, teamId, membersHaveHandles, role, backend, context)
+        val createdMembers = generateTeamMembers(members, teamOwner, teamId, membersHaveHandles, role, backend, context)
+        createdMembers.forEach(::appendCustomUser)
+        return createdMembers
     }
 
     fun createXPersonalUsers(count: Int, backend: BackendClient) {
@@ -542,6 +544,7 @@ class ClientUserManager(
             .collect(Collectors.toList())
         verifyUsersCountSatisfiesConstraints(usersToBeCreated.size)
         generatePersonalUsers(usersToBeCreated, backend)
+        usersToBeCreated.forEach(::appendCustomUser)
         return Collections.unmodifiableList(usersToBeCreated)
     }
 
@@ -559,6 +562,7 @@ class ClientUserManager(
         WireTestLogger.getLog("Hello").info(owner.toString() + "innnnn")
         owner = runBlocking { backend.createTeamOwnerViaBackend(owner, teamName, locale, updateHandle, context) }
         owner.backendName = backend.name
+        appendCustomUser(owner)
         // remember all owners to later be able to delete all created teams
         owner.isTeamOwner = true
     }

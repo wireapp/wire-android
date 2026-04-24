@@ -24,17 +24,18 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
-import androidx.test.uiautomator.type
 import junit.framework.TestCase.assertFalse
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
-import java.util.regex.Pattern
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.assertEquals
 
 data class ConversationViewPage(private val device: UiDevice) {
+    private val fileSavedToastPrefix = "The file "
+    private val fileSavedToastMessage = "was saved successfully to the Downloads folder"
+
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
     private val typeMessageField = UiSelectorParams(description = " Type a message")
     private val sentQRImage = UiSelectorParams(description = "Image message")
@@ -50,8 +51,6 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val downloadButton = UiSelectorParams(text = "Download")
 
     private val modalTextLocator = UiSelectorParams(textContains = "save it to your device")
-
-    private val saveButtonLocator = UiSelectorParams(text = "Save")
 
     private val saveButton = UiSelectorParams(text = "Save")
 
@@ -75,12 +74,6 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val selfDeletingMessageLabel = UiSelectorParams(description = " Self-deleting message")
     private val pingButton = UiSelectorParams(description = "Ping")
     private val pingButtonOnModal = UiSelectorParams(text = "Ping")
-
-    private val mlsUpgradeMessageSelectors = listOf(
-        UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
-        UiSelectorParams(textContains = "Layer Security (MLS) protocol"),
-        UiSelectorParams(textContains = "latest version of Wire on your devices")
-    )
 
     private val mlsUpgradeMessageSelectors = listOf(
         UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
@@ -192,7 +185,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertFileActionModalIsVisible(timeoutMs: Long = 8_000): ConversationViewPage {
-        val modalAnchors = listOf(modalTextLocator, saveButtonLocator, openButton, cancelButton)
+        val modalAnchors = listOf(modalTextLocator, saveButton, openButton, cancelButton)
         val deadline = SystemClock.uptimeMillis() + timeoutMs
 
         while (SystemClock.uptimeMillis() < deadline) {
@@ -209,11 +202,6 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
 
         throw AssertionError("The file action modal was not visible within ${timeoutMs}ms.")
-    }
-
-    fun tapSaveButtonOnModal(): ConversationViewPage {
-        UiWaitUtils.waitElement(saveButtonLocator).click()
-        return this
     }
 
     fun assertImageFileWithNameIsVisible(fileName: String): ConversationViewPage {
@@ -281,24 +269,55 @@ data class ConversationViewPage(private val device: UiDevice) {
     fun waitForPreviousFileSavedToastToDisappear(timeoutMillis: Long = 7_000): ConversationViewPage {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         uiDevice.wait(
-            Until.gone(By.textContains("was saved successfully to the Downloads folder")),
+            Until.gone(By.textContains(fileSavedToastMessage)),
             timeoutMillis
         )
         return this
     }
 
-    fun assertFileSavedToastContain(partialText: String): ConversationViewPage {
-        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    fun assertFileSavedToast(
+        expectedMessage: String,
+        timeoutMs: Long = 7_000
+    ): ConversationViewPage {
+        val toastPattern = buildSavedFileToastPattern(expectedMessage)
 
-        // Toasts are short-lived; wait for regex match by presence.
-        val toast = uiDevice.wait(Until.findObject(By.text(Pattern.compile(partialText))), 7_000)
-
-        Assert.assertTrue(
-            "Toast message matching regex '$partialText' is not displayed.",
-            toast != null
+        UiWaitUtils.waitUntilVisible(
+            params = UiSelectorParams(
+                textMatches = toastPattern
+            ),
+            timeoutMs = timeoutMs,
+            errorMessage = "Toast '$expectedMessage' was not displayed within ${timeoutMs}ms."
         )
-
         return this
+    }
+
+    @Suppress("ReturnCount")
+    private fun buildSavedFileToastPattern(expectedMessage: String): String {
+        val suffix = " $fileSavedToastMessage"
+
+        if (!expectedMessage.startsWith(fileSavedToastPrefix) || !expectedMessage.endsWith(suffix)) {
+            return Regex.escape(expectedMessage)
+        }
+
+        val fileWithExtension = expectedMessage
+            .removePrefix(fileSavedToastPrefix)
+            .removeSuffix(suffix)
+
+        val lastDotIndex = fileWithExtension.lastIndexOf('.')
+        if (lastDotIndex <= 0 || lastDotIndex == fileWithExtension.lastIndex) {
+            return Regex.escape(expectedMessage)
+        }
+
+        val fileName = fileWithExtension.substring(0, lastDotIndex)
+        val extension = fileWithExtension.substring(lastDotIndex + 1)
+
+        return buildString {
+            append(Regex.escape(fileSavedToastPrefix))
+            append(Regex.escape(fileName))
+            append("(?: \\([0-9]+\\))?\\.")
+            append(Regex.escape(extension))
+            append(Regex.escape(suffix))
+        }
     }
 
     fun scrollToBottomOfConversationScreen() {
@@ -337,8 +356,9 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun typeMessageInInputField(message: String): ConversationViewPage {
-        UiWaitUtils.waitElement(messageInputField).click()
-        device.type(message)
+        val field = UiWaitUtils.waitElement(messageInputField)
+        field.click()
+        field.text = message
         return this
     }
 

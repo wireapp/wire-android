@@ -125,6 +125,7 @@ jobs:
             **Note**: This is not a final release. Use for testing only.
           prerelease: true
           draft: false
+          make_latest: false
 
   build-rc:
     needs: create-github-release

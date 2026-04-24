@@ -32,6 +32,9 @@ dependencies {
 
     implementation(libs.visibilityModifiers)
 
+    implementation(libs.androidx.paging3)
+    implementation(libs.androidx.paging3Compose)
+
     // hilt
     implementation(libs.hilt.navigationCompose)
     implementation(libs.hilt.work)

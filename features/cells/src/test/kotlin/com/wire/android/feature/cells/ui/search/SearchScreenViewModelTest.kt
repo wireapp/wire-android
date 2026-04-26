@@ -26,7 +26,6 @@ import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
-import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetPaginatedCellConversationsFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase

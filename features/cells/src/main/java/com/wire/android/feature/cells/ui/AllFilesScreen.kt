@@ -72,7 +72,6 @@ fun AllFilesScreen(
             pagingListItems = pagingListItems,
             sendIntent = { viewModel.sendIntent(it) },
             openFolder = { _, _, _ -> },
-            downloadFileState = viewModel.downloadFileSheet,
             menuState = viewModel.menu,
             isAllFiles = true,
             isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,

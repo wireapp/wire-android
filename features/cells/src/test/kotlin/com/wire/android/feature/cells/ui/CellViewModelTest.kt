@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui
 
-import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -38,8 +37,6 @@ import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
-import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import io.mockk.MockKAnnotations
@@ -61,7 +58,6 @@ import okio.Path.Companion.toPath
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -165,8 +161,6 @@ class CellViewModelTest {
         // Advance time so download coroutine can complete
         advanceUntilIdle()
 
-        // No download dialog shown — download starts silently
-        assertEquals(null, viewModel.downloadFileSheet.value)
         // Download use case was called
         coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
     }
@@ -210,36 +204,6 @@ class CellViewModelTest {
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
-    @Test
-    fun `given view model when download confirmed then file is downloaded`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .withDownloadSuccess()
-            .arrange()
-
-        viewModel.sendIntent(CellViewIntent.OnFileDownloadConfirmed(testFiles[0].toUiModel()))
-
-        coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
-    }
-
-    @Test
-    fun `given view model when download confirmed and download fails then error is emitted`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .withDownloadFailure()
-            .arrange()
-
-        viewModel.actions.test {
-
-            viewModel.sendIntent(CellViewIntent.OnFileDownloadConfirmed(testFiles[0].toUiModel()))
-
-            with(expectMostRecentItem()) {
-                assertTrue(this is ShowError)
-            }
-        }
-
-        coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
-    }
 
     @Test
     fun `given view model when delete is confirmed then file is removed from the list`() = runTest {
@@ -391,10 +355,6 @@ class CellViewModelTest {
             }
         }
 
-        fun withDownloadFailure() = apply {
-            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any()) } returns
-                    CoreFailure.Unknown(IllegalStateException("Test")).left()
-        }
 
         fun withDeleteSuccess() = apply {
             coEvery { deleteCellAssetUseCase(any(), any()) } returns Unit.right()
@@ -406,11 +366,8 @@ class CellViewModelTest {
 
         fun arrange(): Pair<Arrangement, CellViewModel> {
 
-            mockkStatic(Environment::class)
-
             every { fileHelper.getCacheDir() } returns File("")
             every { fileNameResolver.getUniqueFile(any(), any()) } returns File("")
-            coEvery { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) } returns File("")
 
             coEvery { getWireCellsConfig() } returns null
 

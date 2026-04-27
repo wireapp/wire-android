@@ -37,7 +37,6 @@
     <string name="restore_label">Restore</string>
     <string name="add_remove_tags_label">Add or Remove Tags</string>
     <string name="move_label">Move to folder</string>
-    <string name="download_label">Download</string>
     <string name="edit_label">Edit file</string>
     <string name="copy_link">Copy Link</string>
     <string name="share_link">Share Link</string>

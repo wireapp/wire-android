@@ -66,7 +66,6 @@ fun ConversationFilesWithSlideInTransitionScreen(
         isRecycleBin = viewModel.isRecycleBin(),
         actions = viewModel.actions,
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
-        downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
         isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,

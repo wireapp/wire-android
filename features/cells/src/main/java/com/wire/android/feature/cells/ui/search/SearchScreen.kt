@@ -183,7 +183,6 @@ fun SearchScreen(
                 actionsFlow = cellViewModel.actions,
                 pagingListItems = lazyItems,
                 sendIntent = { cellViewModel.sendIntent(it) },
-                downloadFileState = cellViewModel.downloadFileSheet,
                 menuState = cellViewModel.menu,
                 isSearchResult = true,
                 isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,

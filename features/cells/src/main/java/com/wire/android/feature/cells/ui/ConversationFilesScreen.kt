@@ -85,7 +85,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 
@@ -111,7 +110,6 @@ fun ConversationFilesScreen(
         isRecycleBin = viewModel.isRecycleBin(),
         actions = viewModel.actions,
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
-        downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
         isSearchResult = false,
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
@@ -138,7 +136,6 @@ fun ConversationFilesScreenContent(
     isSearchResult: Boolean,
     actions: Flow<CellViewAction>,
     pagingListItems: LazyPagingItems<CellNodeUi>,
-    downloadFileSheet: StateFlow<CellNodeUi.File?>,
     menu: SharedFlow<MenuOptions>,
     sendIntent: (CellViewIntent) -> Unit,
     isRefreshing: State<Boolean>,
@@ -288,7 +285,6 @@ fun ConversationFilesScreenContent(
                 actionsFlow = actions,
                 pagingListItems = pagingListItems,
                 sendIntent = sendIntent,
-                downloadFileState = downloadFileSheet,
                 menuState = menu,
                 isSearchResult = isSearchResult,
                 isRestoreInProgress = isRestoreInProgress,
@@ -412,7 +408,6 @@ fun PreviewConversationFilesScreen() {
                             )
                         )
                     ).collectAsLazyPagingItems(),
-                    downloadFileSheet = MutableStateFlow(null),
                     menu = MutableSharedFlow(replay = 0),
                     sendIntent = {},
                     screenTitle = "Android",

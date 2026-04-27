@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test
 class CellFileActionsMenuTest {
 
     @Test
-    fun `GIVEN Search context AND File node with local file available WHEN onItemMenuClick called THEN emits SHARE PUBLIC_LINK DOWNLOAD actions`() =
+    fun `GIVEN Search context AND File node with local file available WHEN onItemMenuClick called THEN emits SHARE PUBLIC_LINK actions`() =
         runTest {
 
             // WHEN
@@ -42,7 +42,6 @@ class CellFileActionsMenuTest {
                 listOf(
                     NodeBottomSheetAction.SHARE,
                     NodeBottomSheetAction.PUBLIC_LINK,
-                    NodeBottomSheetAction.DOWNLOAD
                 ),
                 items
             )
@@ -84,7 +83,6 @@ class CellFileActionsMenuTest {
             assertEquals(
                 listOf(
                     NodeBottomSheetAction.PUBLIC_LINK,
-                    NodeBottomSheetAction.DOWNLOAD,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
@@ -95,7 +93,7 @@ class CellFileActionsMenuTest {
         }
 
     @Test
-    fun `GIVEN AllFiles context AND File node with local file available WHEN onItemMenuClick called THEN emits SHARE PUBLIC_LINK DOWNLOAD actions`() =
+    fun `GIVEN AllFiles context AND File node with local file available WHEN onItemMenuClick called THEN emits SHARE PUBLIC_LINK actions`() =
         runTest {
 
             // WHEN
@@ -108,7 +106,6 @@ class CellFileActionsMenuTest {
                 listOf(
                     NodeBottomSheetAction.SHARE,
                     NodeBottomSheetAction.PUBLIC_LINK,
-                    NodeBottomSheetAction.DOWNLOAD
                 ),
                 items
             )
@@ -131,7 +128,6 @@ class CellFileActionsMenuTest {
                 listOf(
                     NodeBottomSheetAction.SHARE,
                     NodeBottomSheetAction.PUBLIC_LINK,
-                    NodeBottomSheetAction.DOWNLOAD,
                     NodeBottomSheetAction.EDIT,
                     NodeBottomSheetAction.VERSION_HISTORY,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
@@ -159,7 +155,6 @@ class CellFileActionsMenuTest {
                 listOf(
                     NodeBottomSheetAction.SHARE,
                     NodeBottomSheetAction.PUBLIC_LINK,
-                    NodeBottomSheetAction.DOWNLOAD,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
@@ -397,27 +392,6 @@ class CellFileActionsMenuTest {
             )
         }
 
-    @Test
-    fun `GIVEN file menu WHEN download option selected called THEN correct action emitted`() =
-        runTest {
-            // GIVEN
-            val menu = actionsMenu()
-
-            // WHEN
-            menu.onMenuItemAction(
-                conversationId = null,
-                parentFolderUuid = null,
-                node = fileNode,
-                action = NodeBottomSheetAction.DOWNLOAD,
-                onResult = { result ->
-                    // THEN
-                    assertEquals(
-                        CellFileActionsMenu.Download(fileNode),
-                        result
-                    )
-                }
-            )
-        }
 
     @Test
     fun `GIVEN file menu WHEN edit option selected called THEN correct action emitted`() =

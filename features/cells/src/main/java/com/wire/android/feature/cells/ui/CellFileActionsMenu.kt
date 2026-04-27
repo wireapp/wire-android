@@ -53,7 +53,6 @@ class CellFileActionsMenu @Inject constructor(
                             add(NodeBottomSheetAction.SHARE)
                         }
                         add(NodeBottomSheetAction.PUBLIC_LINK)
-                        add(NodeBottomSheetAction.DOWNLOAD)
                     }
                 }
             }
@@ -67,7 +66,6 @@ class CellFileActionsMenu @Inject constructor(
                             add(NodeBottomSheetAction.SHARE)
                         }
                         add(NodeBottomSheetAction.PUBLIC_LINK)
-                        add(NodeBottomSheetAction.DOWNLOAD)
 
                         if (isCollaboraEnabled && featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
                             add(NodeBottomSheetAction.EDIT)
@@ -93,7 +91,6 @@ class CellFileActionsMenu @Inject constructor(
     internal sealed interface MenuActionResult
     internal data class Action(val action: CellViewAction) : MenuActionResult
     internal data class Share(val node: CellNodeUi.File) : MenuActionResult
-    internal data class Download(val node: CellNodeUi) : MenuActionResult
     internal data class Edit(val node: CellNodeUi) : MenuActionResult
     internal data class CancelLoading(val node: CellNodeUi) : MenuActionResult
 
@@ -136,7 +133,6 @@ class CellFileActionsMenu @Inject constructor(
             NodeBottomSheetAction.PUBLIC_LINK -> Action(ShowPublicLinkScreen(node))
             NodeBottomSheetAction.RENAME -> Action(ShowRenameScreen(node))
             NodeBottomSheetAction.DELETE -> Action(ShowDeleteConfirmation(node = node, isPermanentDelete = false))
-            NodeBottomSheetAction.DOWNLOAD -> Download(node)
             NodeBottomSheetAction.EDIT -> Edit(node)
             NodeBottomSheetAction.VERSION_HISTORY -> Action(ShowVersionHistoryScreen(node.uuid, node.name ?: ""))
             NodeBottomSheetAction.CANCEL_LOADING -> CancelLoading(node)

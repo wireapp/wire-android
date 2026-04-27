@@ -59,7 +59,6 @@ import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
-import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
@@ -86,7 +85,6 @@ internal fun CellScreenContent(
     pagingListItems: LazyPagingItems<CellNodeUi>,
     sendIntent: (CellViewIntent) -> Unit,
     openFolder: (String, String, String?) -> Unit,
-    downloadFileState: StateFlow<CellNodeUi.File?>,
     menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
     showRenameScreen: (CellNodeUi) -> Unit,
@@ -122,7 +120,6 @@ internal fun CellScreenContent(
     var editNodeError by remember { mutableStateOf<String?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
-    val downloadFile by downloadFileState.collectAsState()
     val externalLoadStates by externalOpenLoadStates.collectAsState()
     val cachedPaths by cachedLocalPaths.collectAsState()
 
@@ -180,13 +177,6 @@ internal fun CellScreenContent(
         )
     }
 
-    downloadFile?.let { file ->
-        DownloadFileBottomSheet(
-            file = file,
-            onDismiss = { sendIntent(CellViewIntent.OnDownloadMenuClosed) },
-            onDownload = { sendIntent(CellViewIntent.OnFileDownloadConfirmed(file)) },
-        )
-    }
 
     deleteConfirmation?.let { (node, isPermanentDelete) ->
         DeleteConfirmationDialog(

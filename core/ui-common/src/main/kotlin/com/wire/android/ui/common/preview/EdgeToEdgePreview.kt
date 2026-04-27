@@ -17,13 +17,11 @@
  */
 package com.wire.android.ui.common.preview
 
-import android.content.res.Configuration.UI_MODE_NIGHT_NO
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalConfiguration
 import de.drick.compose.edgetoedgepreviewlib.CameraCutoutMode
 import de.drick.compose.edgetoedgepreviewlib.EdgeToEdgeTemplate
+import de.drick.compose.edgetoedgepreviewlib.InsetMode
+import de.drick.compose.edgetoedgepreviewlib.InsetsConfig
 import de.drick.compose.edgetoedgepreviewlib.NavigationMode
 
 @Composable
@@ -31,21 +29,16 @@ fun EdgeToEdgePreview(
     useDarkIcons: Boolean,
     content: @Composable () -> Unit,
 ) {
-    // isAppearanceLightStatusBars cannot be set for previews, so we need to apply it manually
-    // TODO: remove LocalConfiguration and just pass `isDarkMode` into EdgeToEdgeTemplate after updating edgetoedgepreviewlib to 0.6.0
-    CompositionLocalProvider(
-        LocalConfiguration provides LocalConfiguration.current.apply {
-            uiMode = if (useDarkIcons) UI_MODE_NIGHT_NO else UI_MODE_NIGHT_YES
-        }
-    ) {
-        EdgeToEdgeTemplate(
+    EdgeToEdgeTemplate(
+        cfg = InsetsConfig(
             navMode = NavigationMode.Gesture,
             cameraCutoutMode = CameraCutoutMode.Middle,
             isInvertedOrientation = false,
             showInsetsBorder = false,
-            isNavigationBarVisible = true,
-            isStatusBarVisible = true,
-            content = content,
-        )
-    }
+            navigationBarMode = InsetMode.Visible,
+            statusBarMode = InsetMode.Visible,
+        ),
+        isDarkMode = !useDarkIcons,
+        content = content,
+    )
 }

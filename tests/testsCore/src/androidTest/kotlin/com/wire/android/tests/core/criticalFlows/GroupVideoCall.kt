@@ -40,7 +40,7 @@ import org.koin.test.inject
 import service.TestServiceHelper
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.PermissionUtils.grantRuntimePermsForForegroundApp
-import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
+import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.assertToastDisplayed
 import uiautomatorutils.UiWaitUtils.iSeeSystemMessage
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
@@ -431,14 +431,14 @@ class GroupVideoCall : BaseUiTest() {
 
         step("And I play audio message") {
             pages.conversationViewPage.apply {
-                waitFor(1)
+                UiWaitUtils.waitFor(1)
                 clickPlayButtonOnAudioMessage()
             }
         }
 
         step("And I pause audio message after 5 seconds") {
             pages.conversationViewPage.apply {
-                waitFor(5)
+                UiWaitUtils.waitFor(5)
                 clickPauseButtonOnAudioMessage()
             }
         }

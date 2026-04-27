@@ -18,7 +18,6 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
-import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.StaleObjectException
@@ -72,52 +71,52 @@ class RegistrationPage(private val device: UiDevice) {
     }
 
     fun enterPersonalUserRegistrationEmail(email: String): RegistrationPage {
-        repeat(3) {
-            try {
+        val success = UiWaitUtils.retryUntilTimeout(timeoutMs = 6_000, pollingIntervalMs = 150) {
+            runCatching {
                 UiWaitUtils.waitElement(emailInputField, timeoutMillis = 2_000).click()
                 UiWaitUtils.waitElement(emailInputField, timeoutMillis = 2_000).text = email
-                return this
-            } catch (_: StaleObjectException) {
-                SystemClock.sleep(150)
-            } catch (_: AssertionError) {
-                SystemClock.sleep(150)
-            }
+            }.isSuccess
         }
 
-        throw AssertionError("Could not enter registration email: email input field was unstable.")
+        if (!success) {
+            throw AssertionError("Could not enter registration email: email input field was unstable.")
+        }
+        return this
     }
 
     @Suppress("NestedBlockDepth")
     fun clickLoginButton(timeoutMs: Long = 10_000): RegistrationPage {
-        val deadline = SystemClock.uptimeMillis() + timeoutMs
         var lastError: AssertionError? = null
 
-        while (SystemClock.uptimeMillis() < deadline) {
+        val success = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 200) {
             try {
                 UiWaitUtils.waitElement(loginButton, timeoutMillis = 1_500).click()
-                return this
+                true
             } catch (e: AssertionError) {
                 lastError = e
                 try {
                     val button = UiWaitUtils.findElementOrNull(loginButton)
                     if (button != null && !button.visibleBounds.isEmpty && button.isEnabled) {
                         button.click()
-                        return this
+                        true
+                    } else {
+                        false
                     }
                 } catch (_: StaleObjectException) {
-                    // Retry with a freshly resolved node.
+                    false
                 }
             } catch (_: StaleObjectException) {
-                // Retry with a freshly resolved node.
+                false
             }
-
-            SystemClock.sleep(200)
         }
 
-        throw AssertionError(
-            "Login button was not clickable within ${timeoutMs}ms.",
-            lastError
-        )
+        if (!success) {
+            throw AssertionError(
+                "Login button was not clickable within ${timeoutMs}ms.",
+                lastError
+            )
+        }
+        return this
     }
 
     fun clickCreateAccountButton(): RegistrationPage {
@@ -227,20 +226,18 @@ class RegistrationPage(private val device: UiDevice) {
     }
 
     fun clickAllowNotificationButton(timeoutMs: Long = 15_000): RegistrationPage {
-        val deadline = SystemClock.uptimeMillis() + timeoutMs
-
-        while (SystemClock.uptimeMillis() < deadline) {
-            val button = allowNotificationButtons
-                .asSequence()
-                .mapNotNull(UiWaitUtils::findElementOrNull)
-                .firstOrNull { !it.visibleBounds.isEmpty && it.isEnabled }
-
-            if (button != null) {
+        UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 200) {
+            val button = UiWaitUtils.waitAnyVisible(
+                selectors = allowNotificationButtons,
+                timeoutMs = 200,
+                pollingIntervalMs = 100
+            )
+            if (button != null && button.isEnabled) {
                 button.click()
-                return this
+                true
+            } else {
+                false
             }
-
-            SystemClock.sleep(200)
         }
 
         // On some devices/runs the permission is already granted and this dialog never appears.
@@ -249,9 +246,7 @@ class RegistrationPage(private val device: UiDevice) {
 
     @Suppress("MagicNumber")
     fun clickDeclineShareDataAlert(timeoutMs: Long = 10_000): RegistrationPage {
-        val deadline = SystemClock.uptimeMillis() + timeoutMs
-
-        while (SystemClock.uptimeMillis() < deadline) {
+        val dismissed = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 150) {
             val decline = UiWaitUtils.findElementOrNull(declineButton)
             if (decline != null && !decline.visibleBounds.isEmpty && decline.isEnabled) {
                 val bounds = decline.visibleBounds
@@ -265,14 +260,12 @@ class RegistrationPage(private val device: UiDevice) {
 
             val dialogVisible = UiWaitUtils.findElementOrNull(consentDialogTitle)?.let { !it.visibleBounds.isEmpty } == true
             val declineVisible = UiWaitUtils.findElementOrNull(declineButton)?.let { !it.visibleBounds.isEmpty } == true
-            if (!dialogVisible && !declineVisible) {
-                return this
-            }
-
-            SystemClock.sleep(150)
+            !dialogVisible && !declineVisible
         }
-
-        throw AssertionError("Share data consent alert was not dismissed within ${timeoutMs}ms.")
+        if (!dismissed) {
+            throw AssertionError("Share data consent alert was not dismissed within ${timeoutMs}ms.")
+        }
+        return this
     }
 
     fun clickAgreeShareDataAlert(): RegistrationPage {

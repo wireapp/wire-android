@@ -17,12 +17,9 @@
  */
 package com.wire.android.tests.core.pages
 
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.Until
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
-import uiautomatorutils.UiWaitUtils.toBySelector
 
 data class SSOPage(private val device: UiDevice) {
 
@@ -48,18 +45,11 @@ data class SSOPage(private val device: UiDevice) {
     }
 
     fun waitUntilOktaPageLoaded(timeoutMs: Long = 20_000): SSOPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        try {
-            val sel = oktaSignInButton.toBySelector()
-            if (!device.wait(Until.hasObject(sel), timeoutMs)) {
-                throw AssertionError()
-            }
-        } catch (e: AssertionError) {
-            throw AssertionError(
-                "Okta page did not load: Email and password input field is not visible",
-                e
-            )
-        }
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = oktaSignInButton,
+            timeoutMs = timeoutMs,
+            errorMessage = "Okta page did not load: Email and password input field is not visible"
+        )
         return this
     }
 }

@@ -630,6 +630,58 @@ style J fill:#BBDEFB
                 </div>
             </div>
             
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse11">11. Centralized UIAutomator Wait Helpers for Test Modules</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse11" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>11. Centralized UIAutomator Wait Helpers for Test Modules</h1>
+<p>Date: 2026-04-23</p>
+<h2>Status</h2>
+<p>Accepted</p>
+<h2>Context</h2>
+<p>The <code>:tests:testsCore</code> and <code>:tests:testsSupport</code> modules had duplicated synchronization logic:</p>
+<ul>
+<li>manual polling loops</li>
+<li>ad-hoc sleeps</li>
+<li>repeated &quot;wait until visible/gone&quot; patterns</li>
+<li>repeated stale-object retry logic</li>
+</ul>
+<p>This duplication made tests harder to maintain and increased the risk of inconsistent behavior and flaky waits across page objects and critical flows.</p>
+<h2>Decision</h2>
+<p>We centralize reusable wait/select/retry behavior in <code>:tests:testsSupport</code> under <code>uiautomatorutils.UiWaitUtils</code>, and we migrate <code>:tests:testsCore</code> callers to use those helpers.</p>
+<p>The shared helper surface includes:</p>
+<ul>
+<li><code>retryUntilTimeout(...)</code></li>
+<li><code>waitUntilVisibleOrThrow(...)</code></li>
+<li><code>waitUntilGoneOrThrow(...)</code> for <code>BySelector</code> and <code>UiSelector</code></li>
+<li><code>waitAnyVisible(...)</code></li>
+<li><code>clickWhenClickable(...)</code></li>
+</ul>
+<p>Compatibility wrappers remain available (<code>waitUntilVisible</code>, <code>waitUntilElementGone</code>, <code>waitElement</code>) and are internally aligned with the same reusable primitives.</p>
+<h2>Consequences</h2>
+<p>Positive:</p>
+<ul>
+<li>less duplicated synchronization logic in <code>:tests:testsCore</code></li>
+<li>more consistent wait behavior and error handling across tests</li>
+<li>simpler future refactors (for example Kotlin Duration migration in follow-up work)</li>
+</ul>
+<p>Trade-offs:</p>
+<ul>
+<li><code>UiWaitUtils</code> becomes the main synchronization entrypoint and must be kept well documented</li>
+<li>helper behavior changes can affect many tests at once, so updates require targeted regression checks</li>
+</ul>
+</div>
+                </div>
+            </div>
+            
         </div>
         <footer>
             Generated with &lt;3 using ADR Viewer

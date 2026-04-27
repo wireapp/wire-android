@@ -26,39 +26,20 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.wire.android.R
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.LocalWireAccent
-import com.wire.kalium.logic.data.call.CallQualityData
 
 @Composable
 internal fun CallQualityIndicator(
-    callQuality: CallQualityData.Quality,
+    callQuality: CallQualityState.Quality,
     modifier: Modifier = Modifier,
     textAlign: TextAlign = TextAlign.End,
 ) {
-    val callQualityIndicatorValue by remember(callQuality) {
-        derivedStateOf {
-            when (callQuality) { // mapped to a simpler enum to reduce recompositions and make the animations smoother
-                CallQualityData.Quality.UNKNOWN,
-                CallQualityData.Quality.NORMAL -> CallQualityIndicatorValue.GOOD
-                CallQualityData.Quality.MEDIUM -> CallQualityIndicatorValue.FAIR
-                CallQualityData.Quality.POOR,
-                CallQualityData.Quality.NETWORK_PROBLEM,
-                CallQualityData.Quality.RECONNECTING -> CallQualityIndicatorValue.POOR
-            }
-        }
-    }
     AnimatedContent(
-        targetState = callQualityIndicatorValue,
+        targetState = callQuality,
         transitionSpec = {
             val direction = if (targetState.ordinal > initialState.ordinal) 1 else -1
             val enterTransition = slideInVertically { height -> direction * height } + fadeIn()
@@ -75,21 +56,5 @@ internal fun CallQualityIndicator(
                 text = callQualityIndicatorValue.text,
             )
         }
-    }
-}
-
-enum class CallQualityIndicatorValue {
-    GOOD, FAIR, POOR;
-
-    val color @Composable get() = when (this) {
-        GOOD -> colorsScheme().positive
-        FAIR -> colorsScheme().primary
-        POOR -> colorsScheme().warning
-    }
-
-    val text @Composable get() = when (this) {
-        GOOD -> stringResource(R.string.calling_details_network_quality_good)
-        FAIR -> stringResource(R.string.calling_details_network_quality_fair)
-        POOR -> stringResource(R.string.calling_details_network_quality_poor)
     }
 }

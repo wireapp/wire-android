@@ -19,6 +19,7 @@ package uiautomatorutils
 
 import android.graphics.Rect
 import android.os.SystemClock
+import android.view.accessibility.AccessibilityEvent
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
@@ -27,9 +28,14 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
+import junit.framework.TestCase.assertTrue
 import java.io.IOException
 import java.util.regex.Pattern
+
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
+private const val DEFAULT_POLLING_INTERVAL_MS = 200L
+private const val STABILIZE_TIMEOUT_MS = 3_000L
+private const val STABILIZE_POLLING_INTERVAL_MS = 100L
 
 data class UiSelectorParams(
     val text: String? = null,
@@ -44,11 +50,13 @@ data class UiSelectorParams(
 )
 
 /**
- * ✔️ Waits until the element exists
- * ✔️ Confirms it's visibly rendered on screen
- * ✔️ Works for both interactive (buttons) and passive (labels) elements without extra parameters
+ * Utility methods for robust UIAutomator synchronization in instrumentation tests.
+ *
+ * This object centralizes visibility/gone waits, polling retries, and click retries so page objects
+ * in `:tests:testsCore` can avoid local wait/sleep loops and share consistent timeout semantics.
  */
 
+@Suppress("TooManyFunctions")
 object UiWaitUtils {
 
     private fun buildSelector(params: UiSelectorParams): BySelector {
@@ -71,10 +79,18 @@ object UiWaitUtils {
         return requireNotNull(selector) { "At least one selector must be provided" }
     }
 
+    /**
+     * Converts [UiSelectorParams] into a [BySelector] used by UIAutomator `By.*` based queries.
+     */
     fun UiSelectorParams.toBySelector(): BySelector {
         return UiWaitUtils.buildSelector(this)
     }
 
+    /**
+     * Finds an element once and returns `null` when it is not currently available.
+     *
+     * This is intentionally non-throwing and is useful in polling loops or optional element checks.
+     */
     fun findElementOrNull(selector: UiSelectorParams): UiObject2? {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         return try {
@@ -84,6 +100,153 @@ object UiWaitUtils {
         }
     }
 
+    /**
+     * Repeatedly evaluates [condition] until it returns `true` or [timeoutMs] expires.
+     *
+     * @return `true` if [condition] succeeded before timeout, otherwise `false`.
+     */
+    fun retryUntilTimeout(
+        timeoutMs: Long,
+        pollingIntervalMs: Long = DEFAULT_POLLING_INTERVAL_MS,
+        condition: () -> Boolean
+    ): Boolean {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+        while (SystemClock.uptimeMillis() < deadline) {
+            if (condition()) {
+                return true
+            }
+            SystemClock.sleep(pollingIntervalMs)
+        }
+        return condition()
+    }
+
+    /**
+     * Waits until an element matching [params] is visible, then returns.
+     *
+     * Throws [AssertionError] with [errorMessage] when the element does not appear in time.
+     */
+    fun waitUntilVisibleOrThrow(
+        params: UiSelectorParams,
+        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
+        errorMessage: String
+    ) {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val isVisible = retryUntilTimeout(
+            timeoutMs = timeoutMs,
+            pollingIntervalMs = DEFAULT_POLLING_INTERVAL_MS
+        ) {
+            runCatching {
+                device.wait(Until.hasObject(params.toBySelector()), DEFAULT_POLLING_INTERVAL_MS)
+            }.getOrDefault(false)
+        }
+
+        if (!isVisible) {
+            throw AssertionError(errorMessage)
+        }
+    }
+
+    /**
+     * Waits until any selector from [selectors] resolves to a visible element.
+     *
+     * @return the first visible [UiObject2], or `null` when no selector becomes visible in time.
+     */
+    fun waitAnyVisible(
+        selectors: List<UiSelectorParams>,
+        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
+        pollingIntervalMs: Long = DEFAULT_POLLING_INTERVAL_MS
+    ): UiObject2? {
+        var found: UiObject2? = null
+
+        val isFound = retryUntilTimeout(
+            timeoutMs = timeoutMs,
+            pollingIntervalMs = pollingIntervalMs
+        ) {
+            found = selectors
+                .asSequence()
+                .mapNotNull(::findElementOrNull)
+                .firstOrNull { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) }
+            found != null
+        }
+
+        return if (isFound) found else null
+    }
+
+    /**
+     * Waits for an element to become visible and enabled, then clicks it.
+     *
+     * Handles transient `StaleObjectException` by retrying until timeout.
+     *
+     * @return `true` if the click succeeded within timeout, otherwise `false`.
+     */
+    fun clickWhenClickable(
+        params: UiSelectorParams,
+        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
+        pollingIntervalMs: Long = DEFAULT_POLLING_INTERVAL_MS
+    ): Boolean {
+        return retryUntilTimeout(
+            timeoutMs = timeoutMs,
+            pollingIntervalMs = pollingIntervalMs
+        ) {
+            val element = findElementOrNull(params) ?: return@retryUntilTimeout false
+            try {
+                if (!element.visibleBounds.isEmpty && element.isEnabled) {
+                    element.click()
+                    true
+                } else {
+                    false
+                }
+            } catch (_: StaleObjectException) {
+                false
+            }
+        }
+    }
+
+    /**
+     * Waits until an element matched by [selector] disappears from the UI hierarchy.
+     *
+     * Throws [AssertionError] with [errorMessage] when the element is still present after timeout.
+     */
+    fun waitUntilGoneOrThrow(
+        selector: BySelector,
+        timeoutMs: Long = 30_000,
+        errorMessage: String
+    ) {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val isGone = device.wait(Until.gone(selector), timeoutMs)
+        if (!isGone) {
+            throw AssertionError(errorMessage)
+        }
+    }
+
+    /**
+     * Waits until an element matched by [UiSelector] disappears.
+     *
+     * This variant is intended for call sites still using classic `UiSelector`.
+     */
+    fun waitUntilGoneOrThrow(
+        device: UiDevice,
+        selector: UiSelector,
+        timeoutMillis: Long = 30_000,
+        pollingInterval: Long = 500,
+        errorMessage: String = "Element matching selector [$selector] did not disappear within timeout."
+    ) {
+        val isGone = retryUntilTimeout(
+            timeoutMs = timeoutMillis,
+            pollingIntervalMs = pollingInterval
+        ) {
+            !device.findObject(selector).exists()
+        }
+        if (!isGone) {
+            throw AssertionError(errorMessage)
+        }
+    }
+
+    /**
+     * Waits for an element to appear and then stabilizes it before returning.
+     *
+     * Stabilization requires visible, on-screen, enabled bounds repeated across two probes, reducing
+     * flaky interactions caused by transient or stale nodes.
+     */
     @Suppress("MagicNumber", "NestedBlockDepth", "CyclomaticComplexMethod", "ComplexCondition")
     fun waitElement(
         params: UiSelectorParams,
@@ -100,10 +263,13 @@ object UiWaitUtils {
         device.waitForIdle(500)
 
         // 2) Stabilize: refetch until bounds are stable & usable
-        val end = SystemClock.uptimeMillis() + 1_500
         var lastBounds: Rect? = null
+        var stableElement: UiObject2? = null
 
-        while (SystemClock.uptimeMillis() < end) {
+        retryUntilTimeout(
+            timeoutMs = STABILIZE_TIMEOUT_MS,
+            pollingIntervalMs = STABILIZE_POLLING_INTERVAL_MS
+        ) {
             val obj = try {
                 device.findObject(sel)
             } catch (_: StaleObjectException) {
@@ -119,15 +285,19 @@ object UiWaitUtils {
 
                     // Same bounds twice in a row → considered stable
                     if (onScreen && nonZero && enabled && lastBounds != null && lastBounds == b) {
-                        return obj
+                        stableElement = obj
+                        return@retryUntilTimeout true
                     }
                     lastBounds = b
                 } catch (_: StaleObjectException) {
                     // re-loop
                 }
             }
+            false
+        }
 
-            SystemClock.sleep(100)
+        if (stableElement != null) {
+            return stableElement as UiObject2
         }
 
         throw AssertionError("Element found but not stable/visible with selector: ${describe(params)}")
@@ -142,28 +312,32 @@ object UiWaitUtils {
         params.description?.let { "description='$it'" }
     ).joinToString(", ")
 
+    /**
+     * Compatibility wrapper for existing callers using the old `waitUntilElementGone` API.
+     *
+     * Internally delegates to [waitUntilGoneOrThrow].
+     */
     fun waitUntilElementGone(
         device: UiDevice,
         selector: UiSelector,
         timeoutMillis: Long = 30_000,
         pollingInterval: Long = 500
     ) {
-        val deadline = SystemClock.uptimeMillis() + timeoutMillis
-
-        while (SystemClock.uptimeMillis() < deadline) {
-            val element = device.findObject(selector)
-            if (!element.exists()) {
-                return
-            }
-
-            SystemClock.sleep(pollingInterval)
-        }
-
-        throw AssertionError("Element matching selector [$selector] did not disappear within timeout.")
+        waitUntilGoneOrThrow(
+            device = device,
+            selector = selector,
+            timeoutMillis = timeoutMillis,
+            pollingInterval = pollingInterval
+        )
     }
 
     @Suppress("MagicNumber")
     object WaitUtils {
+        /**
+         * Legacy fixed sleep helper used by existing test flows.
+         *
+         * Kept for compatibility in PR-1; call sites migrate in later cleanups.
+         */
         fun waitFor(seconds: Int, startPinging: () -> Unit = {}, stopPinging: () -> Unit = {}) {
             if (seconds > 20) {
                 startPinging()
@@ -173,6 +347,102 @@ object UiWaitUtils {
             if (seconds > 20) {
                 stopPinging()
             }
+        }
+    }
+
+    /**
+     * Preferred entrypoint for fixed waits in UI tests.
+     *
+     * Internally delegates to [WaitUtils.waitFor] to keep backward compatibility with existing logic.
+     */
+    fun waitFor(seconds: Int, startPinging: () -> Unit = {}, stopPinging: () -> Unit = {}) {
+        WaitUtils.waitFor(seconds, startPinging, stopPinging)
+    }
+
+    /**
+     * Fixed millisecond sleep used by callers that already compute millisecond values.
+     */
+    fun waitForMillis(milliseconds: Long) {
+        Thread.sleep(milliseconds)
+    }
+
+    /**
+     * Compatibility wrapper for older callers. Uses [waitUntilVisibleOrThrow] internally.
+     */
+    fun waitUntilVisible(
+        params: UiSelectorParams,
+        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
+        errorMessage: String
+    ) {
+        waitUntilVisibleOrThrow(
+            params = params,
+            timeoutMs = timeoutMs,
+            errorMessage = errorMessage
+        )
+    }
+
+    /**
+     * Waits until a toast containing [message] is visible.
+     */
+    fun waitUntilToastIsDisplayed(
+        message: String,
+        timeoutMs: Long = 5_000
+    ) {
+        waitUntilVisible(
+            params = UiSelectorParams(textContains = message),
+            timeoutMs = timeoutMs,
+            errorMessage = "Toast message containing '$message' was not displayed within ${timeoutMs}ms."
+        )
+    }
+
+    /**
+     * Waits until a system message containing [message] is visible.
+     */
+    fun iSeeSystemMessage(
+        message: String,
+        timeoutMs: Long = 5_000
+    ) {
+        waitUntilVisible(
+            params = UiSelectorParams(textContains = message),
+            timeoutMs = timeoutMs,
+            errorMessage = "System message containing '$message' was not displayed within ${timeoutMs}ms."
+        )
+    }
+
+    /**
+     * Asserts a toast with [text] is emitted while executing [trigger].
+     *
+     * This uses accessibility events and is useful when UI tree based lookup is not reliable.
+     */
+    @Suppress("MagicNumber")
+    fun assertToastDisplayed(text: String, trigger: () -> Unit, timeoutMs: Long = 5_000L) {
+        var toastDisplayed = false
+        val startTimeMs = System.currentTimeMillis()
+
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+
+        uiAutomation.setOnAccessibilityEventListener { event ->
+            if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
+                val className = event.className?.toString().orEmpty()
+                val eventText = event.text?.joinToString(" ").orEmpty()
+
+                if (className.contains("android.widget.Toast") && eventText.contains(text, ignoreCase = true)) {
+                    toastDisplayed = true
+                }
+            }
+        }
+
+        try {
+            // IMPORTANT: trigger AFTER listener is set
+            trigger()
+
+            while (!toastDisplayed && System.currentTimeMillis() - startTimeMs < timeoutMs) {
+                Thread.sleep(50)
+            }
+
+            assertTrue("Toast with text '$text' not found within ${timeoutMs}ms", toastDisplayed)
+        } finally {
+            uiAutomation.setOnAccessibilityEventListener(null)
         }
     }
 }

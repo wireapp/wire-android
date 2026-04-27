@@ -71,6 +71,7 @@ import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.di.assistedViewModels
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
@@ -86,16 +87,13 @@ import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
-import com.wire.android.ui.calling.getIncomingCallIntent
-import com.wire.android.ui.calling.getOutgoingCallIntent
-import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.common.topappbar.CommonTopAppBar
-import com.wire.android.ui.common.topappbar.CommonTopAppBarState
+import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.topappbar.WireTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EICertificateRevokedDialog
@@ -162,7 +160,9 @@ class WireActivity : BaseActivity() {
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
     private val callFeedbackViewModel: CallFeedbackViewModel by viewModels()
 
-    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
+    private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
+        factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true))
+    }
     private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
     private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
 
@@ -315,46 +315,6 @@ class WireActivity : BaseActivity() {
                 }
             }
         }
-    }
-
-    @Composable
-    private fun WireTopAppBar(
-        commonTopAppBarState: CommonTopAppBarState,
-        backgroundType: BackgroundType,
-        modifier: Modifier = Modifier,
-    ) {
-        CommonTopAppBar(
-            modifier = modifier,
-            commonTopAppBarState = commonTopAppBarState,
-            backgroundType = backgroundType,
-            onReturnToCallClick = { establishedCall ->
-                getOngoingCallIntent(
-                    context = this@WireActivity,
-                    conversationId = establishedCall.conversationId.toString(),
-                    userId = establishedCall.userId.toString(),
-                ).run {
-                    startActivity(this)
-                }
-            },
-            onReturnToIncomingCallClick = {
-                getIncomingCallIntent(
-                    context = this@WireActivity,
-                    conversationId = it.conversationId.toString(),
-                    userId = it.userId.toString(),
-                ).run {
-                    startActivity(this)
-                }
-            },
-            onReturnToOutgoingCallClick = {
-                getOutgoingCallIntent(
-                    context = this@WireActivity,
-                    conversationId = it.conversationId.toString(),
-                    userId = it.userId.toString(),
-                ).run {
-                    startActivity(this)
-                }
-            }
-        )
     }
 
     @Composable

@@ -24,7 +24,6 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
-import backendUtils.team.deleteTeam
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
 import org.junit.After
@@ -40,7 +39,7 @@ import kotlin.getValue
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
-import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
+import uiautomatorutils.UiWaitUtils
 
 @RunWith(AndroidJUnit4::class)
 class NewMemberMessaging : BaseUiTest() {
@@ -64,7 +63,7 @@ class NewMemberMessaging : BaseUiTest() {
 
     @After
     fun tearDown() {
-        runCatching { teamOwner?.deleteTeam(backendClient) }
+        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -81,6 +80,7 @@ class NewMemberMessaging : BaseUiTest() {
                 backendClient,
                 context
             )
+            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
 
             teamHelper.userXAddsUsersToTeam(
                 "user1Name",
@@ -92,7 +92,6 @@ class NewMemberMessaging : BaseUiTest() {
                 true
             )
 
-            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
             member1 = teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
 
             testServiceHelper.apply {
@@ -162,7 +161,7 @@ class NewMemberMessaging : BaseUiTest() {
             }
 
             pages.conversationListPage.apply {
-                waitFor(1)
+                UiWaitUtils.waitFor(1)
                 clickCloseButtonOnNewConversationScreen()
                 assertConversationListVisible()
             }

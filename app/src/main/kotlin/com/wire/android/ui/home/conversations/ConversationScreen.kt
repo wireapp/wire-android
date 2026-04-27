@@ -24,6 +24,7 @@ import android.content.Context
 import android.net.Uri
 import android.text.format.DateUtils
 import androidx.activity.compose.BackHandler
+import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -58,10 +59,10 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -82,7 +83,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
@@ -98,11 +98,13 @@ import com.ramcosta.composedestinations.result.NavResult.Value
 import com.ramcosta.composedestinations.result.OpenResultRecipient
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import com.sebaslogen.resaca.rememberKeysInScope
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.feature.cells.ui.dialog.IncompatibleFileNameDialog
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.mapper.MessageDateTimeGroup
@@ -144,6 +146,7 @@ import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldShowHeader
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
+import com.wire.android.ui.home.conversations.attachment.IncompatibleFileNameDialogState
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
@@ -194,6 +197,7 @@ import com.wire.android.util.openDownloadFolder
 import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
@@ -205,7 +209,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.isInternal
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
-import com.sebaslogen.resaca.rememberKeysInScope
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -675,6 +678,8 @@ fun ConversationScreen(
         },
         onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
+        isFetchingOlderMessages = conversationMessagesViewModel.conversationViewState.isFetchingOlderMessages,
+        hasMoreRemoteMessages = conversationMessagesViewModel.conversationViewState.hasMoreRemoteMessages,
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
@@ -740,6 +745,13 @@ fun ConversationScreen(
         },
         onDismiss = messageAttachmentsViewModel::onFailedAttachmentDialogDismissed,
     )
+
+    if (messageAttachmentsViewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible) {
+        IncompatibleFileNameDialog(
+            onReplaceAutomatically = messageAttachmentsViewModel::onReplaceFileNameAutomatically,
+            onDismiss = messageAttachmentsViewModel::onDismissIncompatibleFileNameDialog,
+        )
+    }
 
     (sendMessageViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
         LegalHoldSubjectMessageDialog(
@@ -941,6 +953,8 @@ private fun ConversationScreen(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     onReachedOldestMessage: () -> Unit = {},
+    isFetchingOlderMessages: Boolean = false,
+    hasMoreRemoteMessages: Boolean = false,
     isWireCellsEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -1043,6 +1057,8 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
+                        isFetchingOlderMessages = conversationMessagesViewState.isFetchingOlderMessages,
+                        hasMoreRemoteMessages = conversationMessagesViewState.hasMoreRemoteMessages,
                         isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                     )
@@ -1129,10 +1145,12 @@ private fun ConversationScreenContent(
     currentTimeInMillisFlow: Flow<Long> = flow {},
     onReachedOldestMessage: () -> Unit = {},
     showHistoryLoadingIndicator: Boolean = false,
+    isFetchingOlderMessages: Boolean = false,
+    hasMoreRemoteMessages: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
 ) {
-    val lazyPagingMessages = messages.collectAsLazyPagingItems()
+    val lazyPagingMessages = messages.collectAsLazyPagingItemsWithLifecycle()
 
     val lazyListState = rememberSaveable(unreadEventCount, lazyPagingMessages, saver = LazyListState.Saver) {
         LazyListState(unreadEventCount)
@@ -1176,6 +1194,8 @@ private fun ConversationScreenContent(
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 onReachedOldestMessage = onReachedOldestMessage,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
+                isFetchingOlderMessages = isFetchingOlderMessages,
+                hasMoreRemoteMessages = hasMoreRemoteMessages,
                 isBubbleUiEnabled = isBubbleUiEnabled,
                 isWireCellsEnabled = isWireCellsEnabled,
             )
@@ -1258,6 +1278,8 @@ fun MessageList(
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
+    isFetchingOlderMessages: Boolean = false,
+    hasMoreRemoteMessages: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
     onReachedOldestMessage: () -> Unit = {},
@@ -1277,6 +1299,18 @@ fun MessageList(
             if (canScrollToLastMessage) {
                 lazyListState.stopScroll()
                 lazyListState.animateScrollToItem(0)
+            }
+            if (shouldAutoTriggerOldestFetch(
+                    selectedMessageId = selectedMessageId,
+                    isScrollInProgress = lazyListState.isScrollInProgress,
+                    canScrollForward = lazyListState.canScrollForward,
+                    hasMoreRemoteMessages = hasMoreRemoteMessages,
+                    isFetchingOlderMessages = isFetchingOlderMessages,
+                )
+            ) {
+                onReachedOldestMessage()
+            } else {
+                shouldTriggerOldestMessageFetch.value = true
             }
             prevItemCount.value = lazyPagingMessages.itemCount
         }
@@ -1473,6 +1507,24 @@ fun MessageList(
                         }
                     )
                 }
+                if (isFetchingOlderMessages && hasMoreRemoteMessages && lazyPagingMessages.itemCount > 0) {
+                    item(
+                        key = "nomad_prepend_loading_indicator",
+                        contentType = "nomad_prepend_loading_indicator",
+                        content = {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(dimensions().spacing16x),
+                            ) {
+                                PageLoadingIndicator(
+                                    text = stringResource(R.string.conversation_history_loading),
+                                )
+                            }
+                        }
+                    )
+                }
             }
                 ScrollDateOverlay(
                     lazyListState = lazyListState,
@@ -1488,6 +1540,20 @@ fun MessageList(
         )
     }
 }
+
+@VisibleForTesting
+internal fun shouldAutoTriggerOldestFetch(
+    selectedMessageId: String?,
+    isScrollInProgress: Boolean,
+    canScrollForward: Boolean,
+    hasMoreRemoteMessages: Boolean,
+    isFetchingOlderMessages: Boolean,
+): Boolean =
+    selectedMessageId == null &&
+        !isScrollInProgress &&
+        !canScrollForward &&
+        hasMoreRemoteMessages &&
+        !isFetchingOlderMessages
 
 private fun UIMessage.audioMessageScopedKeyOrNull(): String? =
     (this as? UIMessage.Regular)
@@ -1864,5 +1930,7 @@ fun PreviewConversationScreen() = WireTheme {
         onAttachmentMenuClick = {},
         onAttachmentPicked = {},
         onAudioRecorded = {},
+        isFetchingOlderMessages = false,
+        hasMoreRemoteMessages = false,
     )
 }

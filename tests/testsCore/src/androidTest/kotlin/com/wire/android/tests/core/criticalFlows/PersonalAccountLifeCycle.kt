@@ -24,8 +24,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
-import backendUtils.team.deleteTeam
-import backendUtils.user.deleteUser
 import com.wire.android.testSupport.BuildConfig
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -35,7 +33,7 @@ import org.junit.Before
 import org.junit.Test
 import org.koin.test.inject
 import service.TestServiceHelper
-import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
+import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.getValue
@@ -66,8 +64,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
 
     @After
     fun tearDown() {
-        teamOwner?.deleteTeam(backendClient)
-        personalUser?.deleteUser(backendClient)
+         cleanupCreatedUsers(backendClient, teamHelper.usersManager, deletePersonalUsers = true)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -149,6 +146,8 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 clickDeclineShareDataAlert()
                 assertConversationPageVisible()
             }
+            // Register the UI-created personal user so shared teardown can see and delete it.
+            personalUser?.let(teamHelper.usersManager::appendCustomUser)
         }
 
         step("Send connection request to existing team owner") {
@@ -175,13 +174,20 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 val user = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
                 backendClient.acceptAllIncomingConnectionRequests(user)
             }
-            waitFor(1)
+            UiWaitUtils.waitFor(1)
             pages.conversationListPage.apply {
                 assertPendingStatusIsNoLongerVisible()
                 tapConversationNameInConversationList(teamOwner?.name ?: "")
             }
         }
-
+        // Wait for the personal 1:1 conversation to fully settle in MLS before sending.
+        // The 5s settle window specifically reduces intermittent test-service send flakes right after MLS transition.
+        step("Wait until personal 1:1 conversation is upgraded to MLS") {
+            pages.conversationViewPage.waitUntilConversationTurnsMls(
+                timeoutMs = 20_000,
+                settleAfterDetectedMs = 5_000
+            )
+        }
         step("Send message to team owner in 1:1 conversation") {
             pages.conversationViewPage.apply {
                 typeMessageInInputField("Hello Team Owner")
@@ -191,7 +197,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
         }
 
         step("Receive message from team owner via backend in 1:1 conversation") {
-            testServiceHelper.userSendMessageToConversationObj(
+            testServiceHelper.userSendMessageToPersonalMlsConversation(
                 "user1Name",
                 "Hello to you too!",
                 "Device1",
@@ -199,6 +205,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 false
             )
 
+            closeKeyboardIfOpened()
             pages.conversationViewPage.apply {
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello to you too!")
             }
@@ -227,7 +234,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
             }
         }
 
-        waitFor(1)
+        UiWaitUtils.waitFor(1)
         step("Verify personal account details in settings") {
             pages.settingsPage.apply {
                 tapAccountDetailsButton()

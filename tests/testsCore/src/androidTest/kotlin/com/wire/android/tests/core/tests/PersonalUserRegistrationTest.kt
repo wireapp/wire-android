@@ -34,7 +34,7 @@ import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
-import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
+import uiautomatorutils.UiWaitUtils
 
 /*
 This test works on the following conditions:
@@ -97,7 +97,6 @@ class PersonalUserRegistrationTest : BaseUiTest() {
                 closeKeyboardIfOpened()
             }
         }
-
         step("Accept anonymous usage data option and continue") {
             pages.registrationPage.apply {
                 checkIAgreeToShareAnonymousUsageData()
@@ -128,7 +127,7 @@ class PersonalUserRegistrationTest : BaseUiTest() {
         step("Enter OTP and complete account creation") {
             pages.registrationPage.apply {
                 enter2FAOnCreatePersonalAccountPage(otp)
-                waitFor(5)
+                UiWaitUtils.waitFor(5)
 
                 assertEnterYourUserNameInfoText()
                 assertUserNameHelpText()

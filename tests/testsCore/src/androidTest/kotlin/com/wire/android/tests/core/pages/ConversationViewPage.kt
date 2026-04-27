@@ -22,18 +22,18 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import androidx.test.uiautomator.Until
-import androidx.test.uiautomator.type
 import junit.framework.TestCase.assertFalse
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
-import java.util.regex.Pattern
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.assertEquals
 
 data class ConversationViewPage(private val device: UiDevice) {
+    private val fileSavedToastPrefix = "The file "
+    private val fileSavedToastMessage = "was saved successfully to the Downloads folder"
+
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
     private val typeMessageField = UiSelectorParams(description = " Type a message")
     private val sentQRImage = UiSelectorParams(description = "Image message")
@@ -50,11 +50,10 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val modalTextLocator = UiSelectorParams(textContains = "save it to your device")
 
-    private val saveButtonLocator = UiSelectorParams(text = "Save")
-
     private val saveButton = UiSelectorParams(text = "Save")
 
     private val openButton = UiSelectorParams(text = "Open")
+    private val cancelButton = UiSelectorParams(text = "Cancel")
 
     private val downloadButtonOnVideoFile = UiSelectorParams(text = "Tap to download")
     private val videoDurationLocator = UiSelectorParams(text = "00:03")
@@ -62,6 +61,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
 
     private fun conversationDetails1On1(userName: String) = UiSelector().className("android.widget.TextView").text(userName)
+    private fun conversationDetailsGroup(userName: String) = UiSelectorParams(text = userName)
 
     private val sendButton = UiSelectorParams(description = "Send")
 
@@ -70,6 +70,14 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val selfDeleteTimerButton = UiSelectorParams(description = "Set timer for self-deleting messages")
 
     private val selfDeletingMessageLabel = UiSelectorParams(description = " Self-deleting message")
+    private val pingButton = UiSelectorParams(description = "Ping")
+    private val pingButtonOnModal = UiSelectorParams(text = "Ping")
+
+    private val mlsUpgradeMessageSelectors = listOf(
+        UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
+        UiSelectorParams(textContains = "Layer Security (MLS) protocol"),
+        UiSelectorParams(textContains = "latest version of Wire on your devices")
+    )
 
     private fun selfDeleteOption(label: String): UiSelectorParams {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
@@ -113,9 +121,11 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertAudioTimeIsNotZeroAnymore(): ConversationViewPage {
-        val gone = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-            .wait(Until.gone(By.text("00:00")), 5000)
-        assertTrue("Audio time is still at 00:00, expected it to have changed", gone)
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = By.text("00:00"),
+            timeoutMs = 5_000,
+            errorMessage = "Audio time is still at 00:00, expected it to have changed"
+        )
         return this
     }
 
@@ -174,14 +184,16 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertFileActionModalIsVisible(): ConversationViewPage {
-        val modalText = UiWaitUtils.waitElement(modalTextLocator)
-        assertTrue("The file action modal is not visible.", !modalText.visibleBounds.isEmpty)
-        return this
-    }
-
-    fun tapSaveButtonOnModal(): ConversationViewPage {
-        UiWaitUtils.waitElement(saveButtonLocator).click()
+    fun assertFileActionModalIsVisible(timeoutMs: Long = 8_000): ConversationViewPage {
+        val modalAnchors = listOf(modalTextLocator, saveButton, openButton, cancelButton)
+        val visibleAnchor = UiWaitUtils.waitAnyVisible(
+            selectors = modalAnchors,
+            timeoutMs = timeoutMs,
+            pollingIntervalMs = 150
+        )
+        if (visibleAnchor == null) {
+            throw AssertionError("The file action modal was not visible within ${timeoutMs}ms.")
+        }
         return this
     }
 
@@ -225,8 +237,20 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickSaveButtonOnDownloadModal(): ConversationViewPage {
-        UiWaitUtils.waitElement(saveButton).click()
+    fun clickSaveButtonOnDownloadModal(timeoutMs: Long = 8_000): ConversationViewPage {
+        val save = UiWaitUtils.waitElement(saveButton, timeoutMillis = timeoutMs)
+        val bounds = runCatching { save.visibleBounds }.getOrNull()
+
+        runCatching { save.click() }
+        device.waitForIdle(300)
+
+        val stillVisible = UiWaitUtils.findElementOrNull(saveButton)
+            ?.let { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) } == true
+
+        if (stillVisible && bounds != null && !bounds.isEmpty) {
+            device.click(bounds.centerX(), bounds.centerY())
+        }
+
         return this
     }
 
@@ -236,26 +260,57 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun waitForPreviousFileSavedToastToDisappear(timeoutMillis: Long = 7_000): ConversationViewPage {
-        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        uiDevice.wait(
-            Until.gone(By.textContains("was saved successfully to the Downloads folder")),
-            timeoutMillis
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = By.textContains(fileSavedToastMessage),
+            timeoutMs = timeoutMillis,
+            errorMessage = "File saved toast did not disappear within ${timeoutMillis}ms."
         )
         return this
     }
 
-    fun assertFileSavedToastContain(partialText: String): ConversationViewPage {
-        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    fun assertFileSavedToast(
+        expectedMessage: String,
+        timeoutMs: Long = 7_000
+    ): ConversationViewPage {
+        val toastPattern = buildSavedFileToastPattern(expectedMessage)
 
-        // Toasts are short-lived; wait for regex match by presence.
-        val toast = uiDevice.wait(Until.findObject(By.text(Pattern.compile(partialText))), 7_000)
-
-        Assert.assertTrue(
-            "Toast message matching regex '$partialText' is not displayed.",
-            toast != null
+        UiWaitUtils.waitUntilVisible(
+            params = UiSelectorParams(
+                textMatches = toastPattern
+            ),
+            timeoutMs = timeoutMs,
+            errorMessage = "Toast '$expectedMessage' was not displayed within ${timeoutMs}ms."
         )
-
         return this
+    }
+
+    @Suppress("ReturnCount")
+    private fun buildSavedFileToastPattern(expectedMessage: String): String {
+        val suffix = " $fileSavedToastMessage"
+
+        if (!expectedMessage.startsWith(fileSavedToastPrefix) || !expectedMessage.endsWith(suffix)) {
+            return Regex.escape(expectedMessage)
+        }
+
+        val fileWithExtension = expectedMessage
+            .removePrefix(fileSavedToastPrefix)
+            .removeSuffix(suffix)
+
+        val lastDotIndex = fileWithExtension.lastIndexOf('.')
+        if (lastDotIndex <= 0 || lastDotIndex == fileWithExtension.lastIndex) {
+            return Regex.escape(expectedMessage)
+        }
+
+        val fileName = fileWithExtension.substring(0, lastDotIndex)
+        val extension = fileWithExtension.substring(lastDotIndex + 1)
+
+        return buildString {
+            append(Regex.escape(fileSavedToastPrefix))
+            append(Regex.escape(fileName))
+            append("(?: \\([0-9]+\\))?\\.")
+            append(Regex.escape(extension))
+            append(Regex.escape(suffix))
+        }
     }
 
     fun scrollToBottomOfConversationScreen() {
@@ -294,8 +349,9 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun typeMessageInInputField(message: String): ConversationViewPage {
-        UiWaitUtils.waitElement(messageInputField).click()
-        device.type(message)
+        val field = UiWaitUtils.waitElement(messageInputField)
+        field.click()
+        field.text = message
         return this
     }
 
@@ -316,20 +372,16 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertMessageNotVisible(text: String, timeoutSeconds: Int = 5) {
-        try {
-            val deadline = System.currentTimeMillis() + timeoutSeconds * 1000L
-
-            while (System.currentTimeMillis() < deadline) {
-                val element = findElementOrNull(UiSelectorParams(text = text))
-                if (element != null) {
-                    throw AssertionError("Message '$text' is still present in the conversation.")
-                }
-                Thread.sleep(250)
-            }
-        } catch (e: AssertionError) {
+        val notVisible = UiWaitUtils.retryUntilTimeout(
+            timeoutMs = timeoutSeconds * 1_000L,
+            pollingIntervalMs = 250
+        ) {
+            findElementOrNull(UiSelectorParams(text = text)) == null
+        }
+        if (!notVisible) {
             throw AssertionError(
                 "Expected message '$text' to be absent, but it was found within ${timeoutSeconds}s.",
-                e
+                AssertionError("Message '$text' is still present in the conversation.")
             )
         }
     }
@@ -421,6 +473,19 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun clickOnGroupConversationDetails(userName: String): ConversationViewPage {
+        val params = conversationDetailsGroup(userName)
+
+        UiWaitUtils.waitUntilVisible(
+            params = params,
+            timeoutMs = 5_000,
+            errorMessage = "Group conversation details for user '$userName' not visible"
+        )
+
+        UiWaitUtils.waitElement(params).click()
+        return this
+    }
+
     fun iTapStartCallButton(): ConversationViewPage {
         UiWaitUtils.waitElement(startCallButton).click()
         return this
@@ -466,6 +531,47 @@ data class ConversationViewPage(private val device: UiDevice) {
             UiWaitUtils.waitElement(messageSelector)
         } catch (e: AssertionError) {
             throw AssertionError("Message '$message' was not found or not visible in the conversation.", e)
+        }
+
+        return this
+    }
+
+    fun waitUntilConversationTurnsMls(
+        timeoutMs: Long = 20_000,
+        settleAfterDetectedMs: Long = 0
+    ): ConversationViewPage {
+        val mlsMarker = UiWaitUtils.waitAnyVisible(
+            selectors = mlsUpgradeMessageSelectors,
+            timeoutMs = timeoutMs,
+            pollingIntervalMs = 200
+        )
+            if (mlsMarker != null) {
+                // MLS banner can appear slightly before the conversation is fully ready for a first outbound message.
+                if (settleAfterDetectedMs > 0) {
+                    UiWaitUtils.waitForMillis(settleAfterDetectedMs)
+                }
+                return this
+            }
+        throw AssertionError("MLS upgrade system message was not visible within ${timeoutMs}ms.")
+    }
+
+    fun tapPingButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(pingButton).click()
+        return this
+    }
+
+    fun tapPingButtonModal(): ConversationViewPage {
+        UiWaitUtils.waitElement(pingButtonOnModal).click()
+        return this
+    }
+
+    fun iSeePingModalWithText(message: String): ConversationViewPage {
+        val messageSelector = UiSelectorParams(text = message)
+
+        try {
+            UiWaitUtils.waitElement(messageSelector)
+        } catch (e: AssertionError) {
+            throw AssertionError("Message '$message' is not not visible on ping modal.", e)
         }
 
         return this

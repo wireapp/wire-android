@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.calling.ongoing
 
-import android.os.CountDownTimer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -33,20 +32,26 @@ import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.ui.calling.model.InCallReaction
 import com.wire.android.ui.calling.model.ReactionSender
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.details.CallQualityState
+import com.wire.android.ui.calling.ongoing.details.CallQualityState.Quality
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions
+import com.wire.android.ui.calling.ongoing.toast.InCallToast
 import com.wire.android.util.ExpiringMap
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.withDelayAfterFirst
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
+import com.wire.kalium.logic.data.call.CallModerationAction
+import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.kalium.logic.data.call.CallResolutionQuality
 import com.wire.kalium.logic.data.call.CallingParticipantsOrderType
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.usecase.ObserveCallModerationActionsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveCallQualityDataUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
@@ -55,6 +60,8 @@ import com.wire.kalium.logic.feature.call.usecase.SetCallQualityIntervalUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -69,7 +76,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -83,6 +92,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
     @CurrentAccount val currentUserId: UserId,
     private val globalDataStore: GlobalDataStore,
+    private val networkStateObserver: NetworkStateObserver,
     private val observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val setVideoSendState: SetVideoSendStateUseCase,
@@ -91,10 +101,11 @@ class OngoingCallViewModel @AssistedInject constructor(
     private val getCurrentClientId: ObserveCurrentClientIdUseCase,
     private val observeInCallReactionsUseCase: ObserveInCallReactionsUseCase,
     private val sendInCallReactionUseCase: SendInCallReactionUseCase,
+    private val observeCallModerationActions: ObserveCallModerationActionsUseCase,
     private val uiCallParticipantMapper: UICallParticipantMapper,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val currentTime: () -> Long = { System.currentTimeMillis() },
 ) : ViewModel() {
-    private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null
 
     var state by mutableStateOf(OngoingCallState())
         private set
@@ -104,7 +115,22 @@ class OngoingCallViewModel @AssistedInject constructor(
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
     val inCallReactions = _inCallReactions.receiveAsFlow().withDelayAfterFirst(InCallReactions.reactionsThrottleDelayMs)
-    val recentReactions = recentInCallReactionMap()
+    val recentReactions: MutableMap<UserId, String> = ExpiringMap(
+        scope = viewModelScope,
+        currentTime = currentTime,
+        expirationMs = InCallReactions.recentReactionShowDurationMs,
+        delegate = mutableStateMapOf()
+    )
+
+    val toasts: ExpiringMap<InCallToast.Key, InCallToast> = ExpiringMap(
+        scope = viewModelScope,
+        currentTime = currentTime,
+        expirationMs = MODERATION_ACTION_TOAST_DISPLAY_TIME,
+        delegate = mutableStateMapOf(),
+        onEntryExpired = { toastKey, _ ->
+            handleDismissedToast(toastKey)
+        }
+    )
 
     private val orderTypeStateFlow = MutableStateFlow(state.currentOrderType())
 
@@ -114,13 +140,14 @@ class OngoingCallViewModel @AssistedInject constructor(
                 .flatMapLatest { orderType ->
                     observeLastActiveCall(conversationId = conversationId, orderType = orderType)
                 }
-                .flowOn(dispatchers.default()).shareIn(this, started = SharingStarted.Lazily)
+                .flowOn(dispatchers.default()).shareIn(scope = this, started = SharingStarted.Lazily, replay = 1)
 
             observeCurrentCallFlowState(callSharedFlow)
             observeParticipants(callSharedFlow)
+            observeModerationActions(callSharedFlow)
             if (BuildConfig.CALL_REACTIONS_ENABLED) observeInCallReactions()
             observeCallQuality()
-            showDoubleTapToast()
+            initialShowDoubleTapToFullscreenToast()
         }
     }
 
@@ -161,8 +188,33 @@ class OngoingCallViewModel @AssistedInject constructor(
 
     fun observeCallQuality() {
         viewModelScope.launch {
-            observeCallQualityData(conversationId).collectLatest { callQualityData ->
-                state = state.copy(callQualityData = callQualityData)
+            combine(
+                observeCallQualityData(conversationId),
+                networkStateObserver.observeNetworkState()
+            ) { callQualityData, networkState ->
+                when (networkState) {
+                    NetworkState.NotConnected,
+                    NetworkState.ConnectedWithoutInternet -> CallQualityState(
+                        quality = Quality.NO_INTERNET // no internet state with other values being defaulted to unknown
+                    )
+                    NetworkState.ConnectedWithInternet -> CallQualityState(
+                        quality = when (callQualityData.quality) {
+                            CallQualityData.Quality.UNKNOWN -> Quality.UNKNOWN
+                            CallQualityData.Quality.NORMAL -> Quality.GOOD
+                            CallQualityData.Quality.MEDIUM -> Quality.FAIR
+                            CallQualityData.Quality.POOR,
+                            CallQualityData.Quality.NETWORK_PROBLEM,
+                            CallQualityData.Quality.RECONNECTING -> Quality.POOR
+                        },
+                        peer = callQualityData.peer,
+                        connection = callQualityData.connection,
+                        ping = callQualityData.ping,
+                        packetLoss = callQualityData.packetLoss,
+                        jitter = callQualityData.jitter
+                    )
+                }
+            }.collectLatest {
+                state = state.copy(callQuality = it)
             }
         }
     }
@@ -179,6 +231,28 @@ class OngoingCallViewModel @AssistedInject constructor(
             }.collectLatest {
                 state = state.copy(participants = it)
             }
+        }
+    }
+
+    private fun observeModerationActions(callFlow: SharedFlow<Call?>) {
+        viewModelScope.launch {
+            observeCallModerationActions(conversationId)
+                .map { action ->
+                    callFlow.senderName(action.senderUserId)?.let { senderName ->
+                        InCallToast.ModerationAction(
+                            time = currentTime(),
+                            actionId = action.id,
+                            moderatorName = senderName,
+                            type = when (action.type) {
+                                CallModerationAction.Type.MUTED -> InCallToast.ModerationAction.Type.Muted
+                            }
+                        )
+                    }
+                }
+                .filterNotNull()
+                .collect { inCallToast ->
+                    toasts.putWithExpireIn(inCallToast.key, inCallToast, MODERATION_ACTION_TOAST_DISPLAY_TIME)
+                }
         }
     }
 
@@ -211,18 +285,11 @@ class OngoingCallViewModel @AssistedInject constructor(
         }
     }
 
-    private fun recentInCallReactionMap(): MutableMap<UserId, String> =
-        ExpiringMap<UserId, String>(
-            scope = viewModelScope,
-            expirationMs = InCallReactions.recentReactionShowDurationMs,
-            delegate = mutableStateMapOf<UserId, String>()
-        )
-
     fun requestVideoStreams(participants: List<UICallParticipant>) {
         viewModelScope.launch {
             participants
                 .filter {
-                    (it.isCameraOn || it.isSharingScreen) && !state.othersVideosDisabled
+                    it.isSharingScreen || (it.isCameraOn && !state.othersVideosDisabled)
                 }
                 .also {
                     val clients: List<CallClient> = it.map { uiParticipant ->
@@ -245,47 +312,44 @@ class OngoingCallViewModel @AssistedInject constructor(
         }
     }
 
-    private fun startDoubleTapToastDisplayCountDown() {
-        doubleTapIndicatorCountDownTimer?.cancel()
-        doubleTapIndicatorCountDownTimer =
-            object : CountDownTimer(DOUBLE_TAP_TOAST_DISPLAY_TIME, COUNT_DOWN_INTERVAL) {
-                override fun onTick(p0: Long) {
-                    appLogger.d("$TAG - startDoubleTapToastDisplayCountDown: $p0")
-                }
-
-                override fun onFinish() {
-                    state = state.copy(shouldShowDoubleTapToast = false)
-                    viewModelScope.launch {
-                        globalDataStore.setShouldShowDoubleTapToastStatus(
-                            currentUserId.toString(),
-                            false
-                        )
-                    }
-                }
-            }
-        doubleTapIndicatorCountDownTimer?.start()
-    }
-
-    private fun showDoubleTapToast() {
+    private fun initialShowDoubleTapToFullscreenToast() {
         viewModelScope.launch {
             delay(DELAY_TO_SHOW_DOUBLE_TAP_TOAST)
-            state = state.copy(shouldShowDoubleTapToast = globalDataStore.getShouldShowDoubleTapToast(currentUserId.toString()))
-            if (state.shouldShowDoubleTapToast) {
-                startDoubleTapToastDisplayCountDown()
+            if (globalDataStore.getShouldShowDoubleTapToast(currentUserId.toString())) {
+                val doubleTapToOpenFullscreenToast = InCallToast.Fullscreen(currentTime(), InCallToast.Fullscreen.Type.DoubleTapToOpen)
+                toasts.putWithExpireIn(doubleTapToOpenFullscreenToast.key, doubleTapToOpenFullscreenToast, DOUBLE_TAP_TOAST_DISPLAY_TIME)
             }
         }
     }
 
-    fun hideDoubleTapToast() {
-        state = state.copy(shouldShowDoubleTapToast = false)
-        viewModelScope.launch {
-            globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
+    fun dismissToast(toastKey: InCallToast.Key) {
+        toasts.remove(toastKey)
+        handleDismissedToast(toastKey)
+    }
+
+    private fun handleDismissedToast(toastKey: InCallToast.Key) {
+        // if the "open fullscreen" toast is closed, update the data store so that it won't be shown again automatically
+        if (toastKey == InCallToast.Fullscreen.Type.DoubleTapToOpen) {
+            viewModelScope.launch {
+                globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
+            }
         }
     }
 
     fun onSelectedParticipant(selectedParticipant: SelectedParticipant?) {
         appLogger.d("$TAG - Selected participant: ${selectedParticipant?.toLogString()}")
         state = state.copy(selectedParticipant = selectedParticipant)
+        if (selectedParticipant != null) { // fullscreen opened
+            // remove "open fullscreen" toast when a participant is selected as it's no longer relevant, user already used that
+            toasts.remove(InCallToast.Fullscreen.Type.DoubleTapToOpen)
+            handleDismissedToast(InCallToast.Fullscreen.Type.DoubleTapToOpen)
+            // instead, show "close fullscreen" toast to let user know how to exit the fullscreen, it shouldn't expire automatically
+            val doubleTapToCloseFullscreenToast = InCallToast.Fullscreen(currentTime(), InCallToast.Fullscreen.Type.DoubleTapToClose)
+            toasts.putNonExpiring(doubleTapToCloseFullscreenToast.key, doubleTapToCloseFullscreenToast)
+        } else { // fullscreen closed
+            // when exiting fullscreen, remove "close fullscreen" toast as it's no longer relevant
+            toasts.remove(InCallToast.Fullscreen.Type.DoubleTapToClose)
+        }
     }
 
     fun setOthersVideosDisabled(othersVideosDisabled: Boolean) {
@@ -306,8 +370,8 @@ class OngoingCallViewModel @AssistedInject constructor(
     }
 
     companion object {
-        const val DOUBLE_TAP_TOAST_DISPLAY_TIME = 7000L
-        const val COUNT_DOWN_INTERVAL = 1000L
+        const val MODERATION_ACTION_TOAST_DISPLAY_TIME = 3000L // aligned with other platforms
+        const val DOUBLE_TAP_TOAST_DISPLAY_TIME = 7000L // according to the designs
         const val DELAY_TO_SHOW_DOUBLE_TAP_TOAST = 500L
         const val TAG = "OngoingCallViewModel"
     }
@@ -319,8 +383,11 @@ class OngoingCallViewModel @AssistedInject constructor(
 }
 
 private fun List<UICallParticipant>.senderName(userId: QualifiedID) = firstOrNull { it.id.value == userId.value }?.name
+private fun Call.senderName(userId: QualifiedID) = participants.firstOrNull { it.id.value == userId.value }?.name
+private suspend fun SharedFlow<Call?>.senderName(userId: QualifiedID) =
+    filterNotNull().filter { it.participants.isNotEmpty() }.first().senderName(userId)
 
 private fun OngoingCallState.currentOrderType(): CallingParticipantsOrderType = when (othersVideosDisabled) {
-    true -> CallingParticipantsOrderType.ALPHABETICALLY
-    false -> CallingParticipantsOrderType.VIDEOS_FIRST
+    true -> CallingParticipantsOrderType.PRESENTERS_FIRST
+    false -> CallingParticipantsOrderType.ALL_MEDIA_FIRST
 }

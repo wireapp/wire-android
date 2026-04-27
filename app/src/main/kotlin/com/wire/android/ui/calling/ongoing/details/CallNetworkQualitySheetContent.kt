@@ -26,8 +26,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -40,12 +43,15 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.stateDescription
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowLeftIcon
+import com.wire.android.ui.common.bottomsheet.BuildMenuSheetItems
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemTitle
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
-import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.ModalSheetHeaderItem
+import com.wire.android.ui.common.bottomsheet.ModalSheetHeaderTitle
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
@@ -56,40 +62,59 @@ import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun CallNetworkQualitySheetContent(
-    callQualityData: CallQualityData,
+    callQualityState: CallQualityState,
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     BackHandler(onBack = onBackPressed)
-    WireMenuModalSheetContent(
-        modifier = modifier,
-        header = MenuModalSheetHeader.Visible(
-            title = stringResource(R.string.calling_details_network_quality_title),
-            titleFillsRemainingSpace = false,
-            leadingIcon = {
-                IconButton(onClick = onBackPressed) {
-                    ArrowLeftIcon(modifier = Modifier.size(dimensions().spacing16x))
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(colorsScheme().surface)
+    ) {
+        ModalSheetHeaderItem(
+            title = {
+                val title = stringResource(R.string.calling_details_network_quality_title)
+                val value = callQualityState.quality.text
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clearAndSetSemantics {
+                            stateDescription = "$title: $value"
+                        }
+                        .padding(vertical = dimensions().modalBottomSheetHeaderVerticalPadding)
+
+                ) {
+                    ModalSheetHeaderTitle(title = stringResource(R.string.calling_details_network_quality_title))
+                    CallQualityIndicator(
+                        callQuality = callQualityState.quality,
+                        modifier = Modifier
+                            .weight(1f, fill = true)
+                            .padding(horizontal = dimensions().spacing16x)
+                    )
                 }
             },
-            trailingIcon = {
-                CallQualityIndicator(
-                    callQuality = callQualityData.quality,
-                    modifier = Modifier
-                        .weight(1f, fill = true)
-                        .padding(horizontal = dimensions().spacing16x)
-                )
+            leadingIcon = {
+                IconButton(onClick = onBackPressed) {
+                    ArrowLeftIcon(
+                        modifier = Modifier.size(dimensions().spacing16x),
+                        contentDescription = R.string.content_description_call_network_quality_close_details
+                    )
+                }
             },
-            customVerticalPadding = dimensions().spacing0x,
-        ),
-        menuItems = listOf(
-            { PeerValueItem(callQualityData.peer) },
-            { ConnectionValueItem(callQualityData.connection) },
-            { PacketLossValueItem(callQualityData.packetLoss) },
-            { PingValueItem(callQualityData.ping) },
-            { JitterValueItem(callQualityData.jitter) },
-            { LearnMoreItem() },
+            verticalPadding = dimensions().spacing0x,
         )
-    )
+        BuildMenuSheetItems(
+            items = listOf(
+                { PeerValueItem(callQualityState.peer) },
+                { ConnectionValueItem(callQualityState.connection) },
+                { PacketLossValueItem(callQualityState.packetLoss) },
+                { PingValueItem(callQualityState.ping) },
+                { JitterValueItem(callQualityState.jitter) },
+                { LearnMoreItem() },
+            )
+        )
+    }
 }
 
 @Composable
@@ -118,7 +143,7 @@ private fun PeerValueItem(peer: CallQualityData.Peer) = QualityValueItem(
     value = when (peer) {
         CallQualityData.Peer.USER -> stringResource(R.string.calling_details_network_quality_peer_user)
         CallQualityData.Peer.SERVER -> stringResource(R.string.calling_details_network_quality_peer_server)
-        CallQualityData.Peer.UNKNOWN -> ""
+        CallQualityData.Peer.UNKNOWN -> "-"
     }
 )
 
@@ -133,7 +158,7 @@ private fun ConnectionValueItem(connection: CallQualityData.Connection) = Qualit
         when (connection.protocol) {
             CallQualityData.Connection.Protocol.UDP -> connection.protocol.name
             CallQualityData.Connection.Protocol.TCP -> connection.protocol.name
-            CallQualityData.Connection.Protocol.UNKNOWN -> ""
+            CallQualityData.Connection.Protocol.UNKNOWN -> "-"
         }
     ).joinToString(separator = "/")
 )
@@ -166,9 +191,12 @@ private fun JitterValueItem(jitter: CallQualityData.Jitter) = QualityValueItem(
 )
 
 @Composable
-private fun QualityValueItem(title: String, value: String, indicator: CallQualityIndicatorValue = CallQualityIndicatorValue.GOOD) {
+private fun QualityValueItem(title: String, value: String, indicator: CallQualityState.Quality = CallQualityState.Quality.UNKNOWN) {
     MenuBottomSheetItem(
         title = title,
+        modifier = Modifier.clearAndSetSemantics {
+            stateDescription = "$title: $value"
+        },
         trailing = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MenuItemTitle(
@@ -187,11 +215,11 @@ private fun QualityValueItem(title: String, value: String, indicator: CallQualit
 
 @Composable
 private fun QualityValueIndicator(
-    qualityValueIndicator: CallQualityIndicatorValue,
+    qualityValueIndicator: CallQualityState.Quality,
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
-        visible = qualityValueIndicator >= CallQualityIndicatorValue.POOR,
+        visible = qualityValueIndicator >= CallQualityState.Quality.POOR,
         enter = fadeIn() + scaleIn() + expandIn(expandFrom = Alignment.Center),
         exit = fadeOut() + scaleOut() + shrinkOut(shrinkTowards = Alignment.Center),
     ) {
@@ -208,13 +236,13 @@ private fun QualityValueIndicator(
 
 // returns empty string if the value is negative as it means it's unavailable, otherwise builds a string using the provided builder
 @Composable
-private fun buildStringIfNonNegative(value: Int, builder: @Composable (Int) -> String) = if (value >= 0) builder(value) else ""
+private fun buildStringIfNonNegative(value: Int, builder: @Composable (Int) -> String) = if (value >= 0) builder(value) else "-"
 
 // maps the value to GOOD, FAIR or POOR based on the provided thresholds
 private fun calculateIndicatorValue(value: Int, thresholdPoor: Int, thresholdFair: Int) = when {
-    value > thresholdPoor -> CallQualityIndicatorValue.POOR
-    value >= thresholdFair -> CallQualityIndicatorValue.FAIR
-    else -> CallQualityIndicatorValue.GOOD
+    value > thresholdPoor -> CallQualityState.Quality.POOR
+    value >= thresholdFair -> CallQualityState.Quality.FAIR
+    else -> CallQualityState.Quality.GOOD
 }
 
 private const val PACKET_LOSS_THRESHOLD_POOR = 10 // %
@@ -226,10 +254,10 @@ private const val JITTER_THRESHOLD_FAIR = 10 // ms
 
 @PreviewMultipleThemes
 @Composable
-fun CallNetworkQualitySheetContentPreview() = WireTheme {
+fun CallNetworkQualitySheetContentPreview_PoorQuality() = WireTheme {
     CallNetworkQualitySheetContent(
-        callQualityData = CallQualityData(
-            quality = CallQualityData.Quality.NORMAL,
+        callQualityState = CallQualityState(
+            quality = CallQualityState.Quality.POOR,
             peer = CallQualityData.Peer.USER,
             connection = CallQualityData.Connection(
                 protocol = CallQualityData.Connection.Protocol.UDP,
@@ -242,6 +270,15 @@ fun CallNetworkQualitySheetContentPreview() = WireTheme {
                 video = CallQualityData.VideoJitter(up = 15, down = 25),
             ),
         ),
+        onBackPressed = {},
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun CallNetworkQualitySheetContentPreview_NoInternetQuality() = WireTheme {
+    CallNetworkQualitySheetContent(
+        callQualityState = CallQualityState(quality = CallQualityState.Quality.NO_INTERNET),
         onBackPressed = {},
     )
 }

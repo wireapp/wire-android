@@ -103,7 +103,11 @@ fun DebugConversationScreen(
 
                 state.mlsProtocolInfo?.let {
                     SectionHeader("MLS")
-                    MlsDetailsView(it)
+                    MlsDetailsView(
+                        state = state,
+                        mlsProtocolInfo = it,
+                        onRefreshCcEpoch = viewModel::refreshConversationEpochFromCC,
+                    )
                 }
 
                 SectionHeader("Actions")
@@ -227,7 +231,11 @@ private fun ConversationDetailsView(state: DebugConversationViewState) {
 }
 
 @Composable
-private fun MlsDetailsView(mlsProtocolInfo: Conversation.ProtocolInfo.MLS) {
+private fun MlsDetailsView(
+    state: DebugConversationViewState,
+    mlsProtocolInfo: Conversation.ProtocolInfo.MLSCapable,
+    onRefreshCcEpoch: () -> Unit,
+) {
 
     val clipboard = LocalClipboardManager.current
 
@@ -249,8 +257,32 @@ private fun MlsDetailsView(mlsProtocolInfo: Conversation.ProtocolInfo.MLS) {
         text = mlsProtocolInfo.groupState.toString(),
     )
     SettingsItem(
-        title = "Epoch",
+        title = "Epoch (deprecated)",
         text = mlsProtocolInfo.epoch.toString(),
+    )
+    RowItemTemplate(
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.label01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
+                text = "CC Epoch",
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = state.ccEpoch?.toString() ?: if (state.isRefreshingCCEpoch) "Loading..." else "-",
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WirePrimaryButton(
+                onClick = onRefreshCcEpoch,
+                text = "Refresh",
+                fillMaxWidth = false,
+                loading = state.isRefreshingCCEpoch,
+            )
+        }
     )
 }
 

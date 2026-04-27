@@ -25,7 +25,6 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import androidx.test.uiautomator.Until
 import backendUtils.team.TeamHelper
 import junit.framework.TestCase.assertFalse
 import org.hamcrest.CoreMatchers.`is`
@@ -173,12 +172,11 @@ data class SettingsPage(private val device: UiDevice) {
     }
 
     fun iSeeBackupConfirmation(text: String): SettingsPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val backupConfirmed = device.wait(
-            Until.findObject(By.textContains(text)),
-            5_000
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(textContains = text),
+            timeoutMs = 5_000,
+            errorMessage = "Expected message '$text' was not displayed"
         )
-        assertTrue("Expected message '$text' was not displayed", backupConfirmed != null)
         return this
     }
 
@@ -392,14 +390,11 @@ data class SettingsPage(private val device: UiDevice) {
     }
 
     fun assertEmailVerifiedMessageVisibleOnChrome(timeoutMillis: Long = 15_000): SettingsPage {
-        val emailVerifiedText = device.wait(
-            Until.findObject(By.textContains("Email verified")),
-            timeoutMillis
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(textContains = "Email verified"),
+            timeoutMs = timeoutMillis,
+            errorMessage = "Email Verified text not found in Chrome after 15 seconds."
         )
-
-        if (emailVerifiedText == null) {
-            throw AssertionError("Email Verified text not found in Chrome after 15 seconds.")
-        }
         return this
     }
 
@@ -416,22 +411,20 @@ data class SettingsPage(private val device: UiDevice) {
     }
 
     fun assertChromeUrlIsDisplayed(expectedUrl: String): SettingsPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Wait and find the URL element in the address bar by partial text
-        val urlElement = device.wait(
-            Until.findObject(By.textContains(expectedUrl)),
-            5_000
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(textContains = expectedUrl),
+            timeoutMs = 5_000,
+            errorMessage = "Expected URL '$expectedUrl' was not found in Chrome"
         )
-        assertTrue("Expected URL '$expectedUrl' was not found in Chrome", urlElement != null)
         return this
     }
 
-    fun assertDeleteAccountConfirmationModalIsNoLongerVisible(): SettingsPage {
-        val modal = runCatching {
-            UiWaitUtils.waitElement(deleteAccountConfirmationModal)
-        }.getOrNull()
-
-        if (modal != null && !modal.visibleBounds.isEmpty) {
+    fun assertDeleteAccountConfirmationModalIsNoLongerVisible(timeoutMs: Long = 10_000): SettingsPage {
+        val isGone = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 150) {
+            val modal = UiWaitUtils.findElementOrNull(deleteAccountConfirmationModal)
+            modal == null || modal.visibleBounds.isEmpty
+        }
+        if (!isGone) {
             throw AssertionError("Delete account confirmation modal is still visible (expected it to be gone)")
         }
         return this
@@ -455,12 +448,11 @@ data class SettingsPage(private val device: UiDevice) {
     }
 
     fun waitUntilThisTextIsDisplayedOnBackupAlert(text: String): SettingsPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val text = device.findObject(UiSelector().text(text))
-
-        if (!text.waitForExists(5_000)) {
-            throw AssertionError("Text '$text' was not displayed on the backup alert within timeout")
-        }
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(text = text),
+            timeoutMs = 5_000,
+            errorMessage = "Text '$text' was not displayed on the backup alert within timeout"
+        )
         return this
     }
 

@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModel
 import com.sebaslogen.resaca.KeyInScopeResolver
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
+import kotlin.time.Duration
 
 /**
  * Common assisted factory contract for scoped ViewModels that receive [ScopedArgs].
@@ -44,10 +45,10 @@ interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        hiltViewModelScoped(arguments: R): S where T : ViewModel, T : S = when {
+        hiltViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> hiltViewModelScoped<T, F>(key = arguments.key?.toString()) { factory ->
+    else -> hiltViewModelScoped<T, F>(key = arguments.key?.toString(), clearDelay = clearDelay) { factory ->
         factory.create(arguments)
     }
 }
@@ -58,6 +59,7 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
         hiltViewModelScoped(
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
+    clearDelay: Duration? = null,
 ): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
@@ -65,7 +67,11 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
         val scopedKey = requireNotNull(arguments.key?.toString()) {
             "Scoped key must not be null for ${T::class.qualifiedName}"
         }
-        hiltViewModelScoped<T, F, String>(key = scopedKey, keyInScopeResolver = keyInScopeResolver) { factory ->
+        hiltViewModelScoped<T, F, String>(
+            key = scopedKey,
+            keyInScopeResolver = keyInScopeResolver,
+            clearDelay = clearDelay
+        ) { factory ->
             factory.create(arguments)
         }
     }

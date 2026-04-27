@@ -139,8 +139,7 @@ private fun ActionIcon(
     )
 }
 
-private
-val previewParticipant = buildPreviewParticipantsList(1).first()
+private val previewParticipant = buildPreviewParticipantsList(1).first()
 
 @PreviewMultipleThemes
 @Composable

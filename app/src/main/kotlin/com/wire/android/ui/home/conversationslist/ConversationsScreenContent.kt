@@ -31,7 +31,12 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
+import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.DebugConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
@@ -52,12 +57,6 @@ import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.debug.conversation.DebugConversationScreenNavArgs
-import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.DebugConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -67,6 +66,7 @@ import com.wire.android.ui.home.conversationslist.search.SearchConversationsEmpt
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
+import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
@@ -164,7 +164,7 @@ fun ConversationsScreenContent(
 
     when (val state = conversationListViewModel.conversationListState) {
         is ConversationListState.Paginated -> {
-            val lazyPagingItems = state.conversations.collectAsLazyPagingItems()
+            val lazyPagingItems = state.conversations.collectAsLazyPagingItemsWithLifecycle()
             searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
             when {
                 // when conversation list is not yet fetched, show loading indicator

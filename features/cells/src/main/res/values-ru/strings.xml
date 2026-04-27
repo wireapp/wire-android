@@ -95,6 +95,10 @@
     <string name="dialog_unable_to_restore_folder_description">Не удается восстановить вашу папку.</string>
     <string name="dialog_unable_to_restore_file_description">Не удается восстановить ваш файл.</string>
     <string name="ok_label">OK</string>
+    <string name="incompatible_file_name_dialog_title">Заменить несовместимые символы</string>
+    <string name="incompatible_file_name_dialog_description">Имя файла не может начинаться с символа «.», а также не может содержать символы «/», «\» и «.». Замените их автоматически или переименуйте файл вручную.</string>
+    <string name="incompatible_file_name_replace_automatically">Заменить</string>
+    <string name="incompatible_file_name_cancel_upload">Отменить загрузку</string>
     <string name="dialog_restore_parent_folder_button">Восстановить родительскую папку</string>
     <string name="dialog_restore_parent_folder_description">Вы не можете восстановить папки или файлы из удаленной папки. Чтобы повторно использовать нужный элемент, вы должны восстановить его родительскую папку.\n\n Папка %1$s со всеми файлами и подпапками будет восстановлена и доступна всем участникам этой беседы.</string>
     <string name="rename_file_label">Переименовать файл</string>

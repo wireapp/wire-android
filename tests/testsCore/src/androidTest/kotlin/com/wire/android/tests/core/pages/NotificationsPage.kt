@@ -17,24 +17,22 @@
  */
 package com.wire.android.tests.core.pages
 
-import android.os.SystemClock
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.Until
+import uiautomatorutils.UiWaitUtils
 
 class NotificationsPage(private val device: UiDevice) {
     fun waitUntilNotificationPopUpGone(timeoutMillis: Long = 10_000L) {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val replyButton = By.text("Reply")
-        // Wait 1 second before checking for the notification pop-up
-        SystemClock.sleep(1000L)
-        // If the Reply button is found, wait until it's gone
-        if (device.hasObject(replyButton)) {
-            val disappeared = device.wait(Until.gone(replyButton), timeoutMillis)
-            if (!disappeared) {
-                throw AssertionError("Notification pop-up with 'Reply' did not disappear within $timeoutMillis ms")
-            }
+        val appearedWithinProbeWindow = UiWaitUtils.retryUntilTimeout(timeoutMs = 1_000, pollingIntervalMs = 100) {
+            device.hasObject(replyButton)
+        }
+        if (appearedWithinProbeWindow) {
+            UiWaitUtils.waitUntilGoneOrThrow(
+                selector = replyButton,
+                timeoutMs = timeoutMillis,
+                errorMessage = "Notification pop-up with 'Reply' did not disappear within $timeoutMillis ms"
+            )
         }
     }
 }

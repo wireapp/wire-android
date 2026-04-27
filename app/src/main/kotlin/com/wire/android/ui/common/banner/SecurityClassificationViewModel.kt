@@ -23,17 +23,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ViewModelScopedPreview
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
 @ViewModelScopedPreview
@@ -43,8 +46,7 @@ interface SecurityClassificationViewModel {
 
 @HiltViewModel(assistedFactory = SecurityClassificationViewModelImpl.Factory::class)
 class SecurityClassificationViewModelImpl @AssistedInject constructor(
-    private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
-    private val observeOtherUserSecurityClassificationLabel: ObserveOtherUserSecurityClassificationLabelUseCase,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     @Assisted private val args: SecurityClassificationArgs
 ) : SecurityClassificationViewModel, ViewModel() {
 
@@ -53,24 +55,36 @@ class SecurityClassificationViewModelImpl @AssistedInject constructor(
     override fun state(): SecurityClassificationType = state
 
     init {
-        when (args) {
-            is SecurityClassificationArgs.Conversation -> fetchConversationClassificationType(args.id)
-            is SecurityClassificationArgs.User -> fetchUserClassificationType(args.id)
+        viewModelScope.launch {
+            coreLogic.getGlobalScope().session.currentSessionFlow()
+                .flatMapLatest { currentSession ->
+                    when (currentSession) {
+                        is CurrentSessionResult.Success -> when (args) {
+                            is SecurityClassificationArgs.Conversation -> observeConversationClassificationType(
+                                currentSession.accountInfo.userId,
+                                args.id
+                            )
+
+                            is SecurityClassificationArgs.User -> observeUserClassificationType(
+                                currentSession.accountInfo.userId,
+                                args.id
+                            )
+                        }
+
+                        is CurrentSessionResult.Failure -> flowOf(SecurityClassificationType.NONE)
+                    }
+                }
+                .collect { classificationType ->
+                    state = classificationType
+                }
         }
     }
 
-    private fun fetchConversationClassificationType(conversationId: ConversationId) = viewModelScope.launch {
-        observeSecurityClassificationLabel.invoke(conversationId)
-            .collect { classificationType ->
-                state = classificationType
-            }
-    }
+    private suspend fun observeConversationClassificationType(currentUserId: UserId, conversationId: ConversationId) =
+        coreLogic.getSessionScope(currentUserId).observeSecurityClassificationLabel(conversationId)
 
-    private fun fetchUserClassificationType(userId: UserId) = viewModelScope.launch {
-        observeOtherUserSecurityClassificationLabel(userId).collect { classificationType ->
-            state = classificationType
-        }
-    }
+    private suspend fun observeUserClassificationType(currentUserId: UserId, userId: UserId) =
+        coreLogic.getSessionScope(currentUserId).getOtherUserSecurityClassificationLabel(userId)
 
     @AssistedFactory
     interface Factory : AssistedViewModelFactory<SecurityClassificationViewModelImpl, SecurityClassificationArgs> {

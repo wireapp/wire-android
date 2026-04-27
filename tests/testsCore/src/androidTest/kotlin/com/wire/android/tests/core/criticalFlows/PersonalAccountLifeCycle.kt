@@ -33,7 +33,7 @@ import org.junit.Before
 import org.junit.Test
 import org.koin.test.inject
 import service.TestServiceHelper
-import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
+import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.getValue
@@ -174,7 +174,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 val user = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
                 backendClient.acceptAllIncomingConnectionRequests(user)
             }
-            waitFor(1)
+            UiWaitUtils.waitFor(1)
             pages.conversationListPage.apply {
                 assertPendingStatusIsNoLongerVisible()
                 tapConversationNameInConversationList(teamOwner?.name ?: "")
@@ -234,7 +234,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
             }
         }
 
-        waitFor(1)
+        UiWaitUtils.waitFor(1)
         step("Verify personal account details in settings") {
             pages.settingsPage.apply {
                 tapAccountDetailsButton()

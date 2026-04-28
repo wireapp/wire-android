@@ -18,14 +18,6 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filter
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -52,7 +44,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,12 +75,12 @@ import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.chip.WireDisplayChipWithOverFlow
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
 import com.wire.android.ui.common.R as commonR
 
-@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun CellListItem(
     cell: CellNodeUi,
@@ -103,137 +101,125 @@ internal fun CellListItem(
             }
     }
 
-    Box(modifier = modifier) {
-        Row(
+    Row(
+        modifier = modifier
+            .height(dimensions().spacing64x)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        val iconState = when {
+            cell.isOpenLoading -> CellIconState.Loading(cell.openLoadProgress)
+            showReadyState -> CellIconState.Ready
+            cell is CellNodeUi.File -> CellIconState.FileIcon(cell)
+            else -> CellIconState.FolderIcon(cell as CellNodeUi.Folder)
+        }
+
+        AnimatedContent(
+            targetState = iconState,
+            contentKey = { state ->
+                when (state) {
+                    is CellIconState.Loading -> "loading"
+                    is CellIconState.Ready -> "ready"
+                    is CellIconState.FileIcon -> "file"
+                    is CellIconState.FolderIcon -> "folder"
+                }
+            },
+            transitionSpec = {
+                (scaleIn(initialScale = 0.72f) + fadeIn()) togetherWith (scaleOut(targetScale = 0.72f) + fadeOut())
+            },
+            label = "cell_icon_transition",
+        ) { state ->
+            when (state) {
+                is CellIconState.Loading -> LoadingIconPreview(progress = state.progress)
+                is CellIconState.Ready -> ReadyIconPreview()
+                is CellIconState.FileIcon -> FileIconPreview(state.cell)
+                is CellIconState.FolderIcon -> FolderIconPreview(state.cell)
+            }
+        }
+
+        Column(
             modifier = Modifier
-                .height(dimensions().spacing64x)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+                .fillMaxWidth()
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(dimensions().spacing2x)
         ) {
 
-            val iconState = when {
-                cell.isOpenLoading -> CellIconState.Loading(cell.openLoadProgress)
-                showReadyState -> CellIconState.Ready
-                cell is CellNodeUi.File -> CellIconState.FileIcon(cell)
-                else -> CellIconState.FolderIcon(cell as CellNodeUi.Folder)
-            }
+            Text(
+                text = cell.name ?: "",
+                style = typography().title02,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
 
-            AnimatedContent(
-                targetState = iconState,
-                contentKey = { state ->
-                    when (state) {
-                        is CellIconState.Loading -> "loading"
-                        is CellIconState.Ready -> "ready"
-                        is CellIconState.FileIcon -> "file"
-                        is CellIconState.FolderIcon -> "folder"
-                    }
-                },
-                transitionSpec = {
-                    (scaleIn(initialScale = 0.72f) + fadeIn()) togetherWith (scaleOut(targetScale = 0.72f) + fadeOut())
-                },
-                label = "cell_icon_transition",
-            ) { state ->
-                when (state) {
-                    is CellIconState.Loading -> LoadingIconPreview(progress = state.progress)
-                    is CellIconState.Ready -> ReadyIconPreview()
-                    is CellIconState.FileIcon -> FileIconPreview(state.cell)
-                    is CellIconState.FolderIcon -> FolderIconPreview(state.cell)
-                }
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(dimensions().spacing2x)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                if (cell.isOpenLoading) {
+                    Text(
+                        text = stringResource(R.string.tap_to_cancel_loading),
+                        textAlign = TextAlign.Left,
+                        overflow = TextOverflow.Ellipsis,
+                        style = typography().label04,
+                        color = colorsScheme().secondaryText,
+                        maxLines = 1,
+                    )
+                } else if (cell.isOpenError) {
+                    Text(
+                        text = stringResource(R.string.unable_to_load_retry),
+                        textAlign = TextAlign.Left,
+                        overflow = TextOverflow.Ellipsis,
+                        style = typography().label04,
+                        color = colorsScheme().error,
+                        maxLines = 1,
+                    )
+                } else if (showReadyState) {
+                    Text(
+                        text = stringResource(R.string.ready_to_open),
+                        textAlign = TextAlign.Left,
+                        overflow = TextOverflow.Ellipsis,
+                        style = typography().label04,
+                        color = colorsScheme().primary,
+                        maxLines = 1,
+                    )
+                } else {
+                    if (cell.tags.isNotEmpty()) {
+                        WireDisplayChipWithOverFlow(
+                            label = cell.tags.first(),
+                            chipsCount = cell.tags.size - 1,
+                            modifier = Modifier.padding(end = dimensions().spacing4x)
+                        )
+                    }
 
-                Text(
-                    text = cell.name ?: "",
-                    style = typography().title02,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (cell.isOpenLoading) {
+                    cell.subtitle()?.let {
                         Text(
-                            text = stringResource(R.string.tap_to_cancel_loading),
+                            text = it,
                             textAlign = TextAlign.Left,
                             overflow = TextOverflow.Ellipsis,
                             style = typography().label04,
                             color = colorsScheme().secondaryText,
                             maxLines = 1,
                         )
-                    } else if (cell.isOpenError) {
-                        Text(
-                            text = stringResource(R.string.unable_to_load_retry),
-                            textAlign = TextAlign.Left,
-                            overflow = TextOverflow.Ellipsis,
-                            style = typography().label04,
-                            color = colorsScheme().error,
-                            maxLines = 1,
-                        )
-                    } else if (showReadyState) {
-                        Text(
-                            text = stringResource(R.string.ready_to_open),
-                            textAlign = TextAlign.Left,
-                            overflow = TextOverflow.Ellipsis,
-                            style = typography().label04,
-                            color = colorsScheme().primary,
-                            maxLines = 1,
-                        )
-                    } else {
-                        if (cell.tags.isNotEmpty()) {
-                            WireDisplayChipWithOverFlow(
-                                label = cell.tags.first(),
-                                chipsCount = cell.tags.size - 1,
-                                modifier = Modifier.padding(end = dimensions().spacing4x)
-                            )
-                        }
-
-                        cell.subtitle()?.let {
-                            Text(
-                                text = it,
-                                textAlign = TextAlign.Left,
-                                overflow = TextOverflow.Ellipsis,
-                                style = typography().label04,
-                                color = colorsScheme().secondaryText,
-                                maxLines = 1,
-                            )
-                        }
                     }
                 }
             }
-            Icon(
-                painter = painterResource(commonR.drawable.ic_more_vert),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(end = dimensions().spacing16x)
-                    .clickable(
-                        onClick = { onMenuClick() },
-                        interactionSource = interactionSource,
-                        indication = ripple(
-                            bounded = false,
-                            radius = dimensions().spacing24x,
-                            color = Color.Transparent
-                        )
+        }
+        Icon(
+            painter = painterResource(commonR.drawable.ic_more_vert),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(end = dimensions().spacing16x)
+                .clickable(
+                    onClick = { onMenuClick() },
+                    interactionSource = interactionSource,
+                    indication = ripple(
+                        bounded = false,
+                        radius = dimensions().spacing24x,
+                        color = Color.Transparent
                     )
-                    .then(Modifier.size(dimensions().spacing24x))
-            )
-        }
-        cell.downloadProgress?.let {
-            WireLinearProgressIndicator(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomStart),
-                progress = { it },
-                color = colorsScheme().primary,
-                trackColor = Color.Transparent,
-            )
-        }
+                )
+                .then(Modifier.size(dimensions().spacing24x))
+        )
     }
 }
 
@@ -246,6 +232,10 @@ private sealed class CellIconState {
 
 @Composable
 internal fun LoadingIconPreview(progress: Float?) {
+    val modifier = Modifier.size(dimensions().spacing32x)
+    val color = colorsScheme().primary
+    val trackColor = colorsScheme().primaryVariant
+    val strokeWidth = dimensions().spacing2x
     Box(
         modifier = Modifier.size(dimensions().spacing56x),
         contentAlignment = Alignment.Center
@@ -253,18 +243,18 @@ internal fun LoadingIconPreview(progress: Float?) {
         if (progress != null) {
             CircularProgressIndicator(
                 progress = { progress },
-                modifier = Modifier.size(dimensions().spacing32x),
-                color = colorsScheme().primary,
-                trackColor = colorsScheme().primaryVariant,
-                strokeWidth = dimensions().spacing2x,
+                modifier = modifier,
+                color = color,
+                trackColor = trackColor,
+                strokeWidth = strokeWidth,
                 strokeCap = StrokeCap.Round,
             )
         } else {
             CircularProgressIndicator(
-                modifier = Modifier.size(dimensions().spacing32x),
-                color = colorsScheme().primary,
-                trackColor = colorsScheme().primaryVariant,
-                strokeWidth = dimensions().spacing2x,
+                modifier = modifier,
+                color = color,
+                trackColor = trackColor,
+                strokeWidth = strokeWidth,
                 strokeCap = StrokeCap.Round,
             )
         }
@@ -386,21 +376,19 @@ private fun PublicLinkIcon(
 }
 
 @Composable
-private fun CellNodeUi.subtitle() =
-    when {
-        userName != null && conversationName != null -> {
-            stringResource(R.string.file_subtitle, userName!!, conversationName!!)
-        }
-
-        userName != null && modifiedTime != null -> {
-            stringResource(R.string.file_subtitle_modified, modifiedTime!!, userName!!)
-        }
-
-        userName != null -> userName
-        conversationName != null -> conversationName
-        modifiedTime != null -> modifiedTime
+private fun CellNodeUi.subtitle(): String? {
+    val user = userName
+    val conv = conversationName
+    val time = modifiedTime
+    return when {
+        user != null && conv != null -> stringResource(R.string.file_subtitle, user, conv)
+        user != null && time != null -> stringResource(R.string.file_subtitle_modified, time, user)
+        user != null -> user
+        conv != null -> conv
+        time != null -> time
         else -> null
     }
+}
 
 @PreviewMultipleThemes
 @Composable
@@ -410,7 +398,6 @@ private fun PreviewCellListItem() {
             cell = CellNodeUi.File(
                 uuid = "",
                 name = "file name",
-                downloadProgress = 0.75f,
                 assetType = AttachmentFileType.IMAGE,
                 size = 123214,
                 localPath = null,

@@ -118,8 +118,6 @@ class CellViewModel @Inject constructor(
     // Active open-download jobs keyed by node UUID, used to support cancellation of loading.
     private val openDownloadJobs = mutableMapOf<String, Job>()
 
-    // Monotonically-increasing generation per UUID — incremented on every new startOpenDownload call.
-    // Stale progress callbacks from a previous (cancelled) download carry an old generation and are ignored.
     private val openDownloadGeneration = mutableMapOf<String, Long>()
 
     // Open-loading state: tracks files being silently downloaded for immediate open.
@@ -128,11 +126,6 @@ class CellViewModel @Inject constructor(
     /** Public map of uuid → (isOpenLoading, isOpenReady) for screens that build their own paging flow (e.g. Search). */
     internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = openLoadStateFlow.asStateFlow()
 
-    /**
-     * File-ready events for the "ready to open" snackbar. Backed by the singleton channel so the
-     * event reaches whichever screen is currently active, even if the download finished on a different
-     * screen (e.g. completed in Search while the user navigated back to All Files).
-     */
     internal val fileReadyFlow = sharedPathCache.fileReadyEvents
 
     /** Cached local file paths from completed open-downloads, keyed by uuid. Used by Search screen overlay. */

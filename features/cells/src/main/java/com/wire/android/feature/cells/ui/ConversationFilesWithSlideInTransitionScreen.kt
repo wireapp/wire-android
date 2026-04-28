@@ -73,6 +73,8 @@ fun ConversationFilesWithSlideInTransitionScreen(
         breadcrumbs = cellFilesNavArgs.breadcrumbs,
         sendIntent = viewModel::sendIntent,
         onRefresh = viewModel::onPullToRefresh,
-        retryEditNodeError = viewModel::editNode
+        retryEditNodeError = viewModel::editNode,
+        fileReadyFlow = viewModel.fileReadyFlow,
+        externalOpenLoadStates = viewModel.openLoadStates,
     )
 }

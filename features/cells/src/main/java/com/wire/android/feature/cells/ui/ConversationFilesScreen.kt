@@ -61,6 +61,7 @@ import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.PreviewNavigator
@@ -85,6 +86,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 
@@ -120,6 +122,7 @@ fun ConversationFilesScreen(
         onRefresh = viewModel::onPullToRefresh,
         retryEditNodeError = viewModel::editNode,
         fileReadyFlow = viewModel.fileReadyFlow,
+        externalOpenLoadStates = viewModel.openLoadStates,
     )
 
     LaunchedEffect(Unit) {
@@ -129,7 +132,7 @@ fun ConversationFilesScreen(
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ConversationFilesScreenContent(
+internal fun ConversationFilesScreenContent(
     animatedVisibilityScope: AnimatedVisibilityScope,
     navigator: WireNavigator,
     currentNodeUuid: String?,
@@ -148,6 +151,7 @@ fun ConversationFilesScreenContent(
     isRestoreInProgress: Boolean = false,
     breadcrumbs: Array<String>? = emptyArray(),
     fileReadyFlow: Flow<CellNodeUi.File> = emptyFlow(),
+    externalOpenLoadStates: StateFlow<Map<String, OpenLoadState>> = MutableStateFlow(emptyMap()),
 ) {
     val sharedScope = LocalSharedTransitionScope.current
 
@@ -354,6 +358,7 @@ fun ConversationFilesScreenContent(
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,
                 fileReadyFlow = fileReadyFlow,
+                externalOpenLoadStates = externalOpenLoadStates,
             )
         }
     }
@@ -378,7 +383,6 @@ fun PreviewConversationFilesScreen() {
                                 CellNodeUi.File(
                                     uuid = "file1",
                                     name = "File 1",
-                                    downloadProgress = 0.5f,
                                     assetType = AttachmentFileType.IMAGE,
                                     size = 123456,
                                     localPath = null,

@@ -36,7 +36,6 @@ sealed class CellNodeUi {
     abstract val publicLinkId: String?
     abstract val remotePath: String?
     abstract val size: Long?
-    abstract val downloadProgress: Float?
     abstract val tags: List<String>
     abstract val isOpenLoading: Boolean
     abstract val isOpenReady: Boolean
@@ -54,7 +53,6 @@ sealed class CellNodeUi {
         override val publicLinkId: String? = null,
         override val remotePath: String? = null,
         override val size: Long?,
-        override val downloadProgress: Float? = null,
         override val tags: List<String> = emptyList(),
         override val isOpenLoading: Boolean = false,
         override val isOpenReady: Boolean = false,
@@ -73,7 +71,6 @@ sealed class CellNodeUi {
         override val publicLinkId: String? = null,
         override val remotePath: String? = null,
         override val size: Long?,
-        override val downloadProgress: Float? = null,
         val mimeType: String,
         val assetType: AttachmentFileType,
         val localPath: String?,

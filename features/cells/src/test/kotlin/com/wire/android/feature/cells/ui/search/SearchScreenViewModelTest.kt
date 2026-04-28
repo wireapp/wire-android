@@ -99,7 +99,6 @@ class SearchScreenViewModelTest {
         coEvery { getAllTagsUseCase() } returns Either.Right(mockTags)
         coEvery { getCellFilesPaged(any(), any(), any(), any()) } returns emptyFlow<PagingData<Node>>()
         coEvery { getOwners(any()) } returns GetOwnersUseCaseResult.Failure(CoreFailure.InvalidEventSenderID)
-        // getPaginatedConversations is not called for SHARED_DRIVE screen type, but set up defensively
         every { getPaginatedConversations(any()) } returns emptyFlow()
     }
 
@@ -114,6 +113,59 @@ class SearchScreenViewModelTest {
         advanceUntilIdle()
 
         assertEquals(3, viewModel.uiState.value.availableTags.size)
+    }
+
+    @Test
+    fun `given SHARED_DRIVE ViewModel is created, then initial sorting is FoldersFirst`() = runTest {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        assertEquals(SortingCriteria.FoldersFirst, viewModel.uiState.value.sortingCriteria)
+    }
+
+    @Test
+    fun `given DRIVE ViewModel is created, then initial sorting is ByDate NewestFirst`() = runTest {
+        val viewModel = createViewModelWithScreenType(DriveSearchScreenType.DRIVE)
+        advanceUntilIdle()
+
+        assertEquals(SortingCriteria.ByDate.NewestFirst, viewModel.uiState.value.sortingCriteria)
+    }
+
+    @Test
+    fun `given SHARED_DRIVE ViewModel, then defaultSortingCriteria is FoldersFirst`() = runTest {
+        val viewModel = createViewModel()
+        assertEquals(SortingCriteria.FoldersFirst, viewModel.defaultSortingCriteria)
+    }
+
+    @Test
+    fun `given DRIVE ViewModel, then defaultSortingCriteria is ByDate NewestFirst`() = runTest {
+        val viewModel = createViewModelWithScreenType(DriveSearchScreenType.DRIVE)
+        assertEquals(SortingCriteria.ByDate.NewestFirst, viewModel.defaultSortingCriteria)
+    }
+
+    @Test
+    fun `given parentRoute in nav args, when ViewModel is created, then parentRoute is exposed`() = runTest {
+        val expectedRoute = "app/global_cells_screen"
+        val navArgsWithParentRoute = mapOf<String, Any?>(
+            "conversationId" to CONVERSATION_ID,
+            "screenType" to DriveSearchScreenType.SHARED_DRIVE,
+            "parentRoute" to expectedRoute,
+        )
+        val savedStateHandleWithParentRoute = mockk<SavedStateHandle>(relaxed = true)
+        every { savedStateHandleWithParentRoute.get<Any?>(any()) } answers {
+            navArgsWithParentRoute[firstArg<String>()]
+        }
+
+        val viewModel = SearchScreenViewModel(
+            savedStateHandle = savedStateHandleWithParentRoute,
+            getAllTagsUseCase = getAllTagsUseCase,
+            getCellFilesPaged = getCellFilesPaged,
+            getOwners = getOwners,
+            getPaginatedConversations = getPaginatedConversations,
+        )
+        advanceUntilIdle()
+
+        assertEquals(expectedRoute, viewModel.parentRoute)
     }
 
     @Test
@@ -203,7 +255,8 @@ class SearchScreenViewModelTest {
 
     @Test
     fun `given state, when setSortBy is called with the same sort criteria, then state is not changed`() = runTest {
-        val viewModel = createViewModel()
+        // DRIVE starts with ByDate.NewestFirst (by = Modified); calling setSortBy(Modified) should be a no-op
+        val viewModel = createViewModelWithScreenType(DriveSearchScreenType.DRIVE)
         advanceUntilIdle()
 
         val initialSortingCriteria = viewModel.uiState.value.sortingCriteria
@@ -219,7 +272,7 @@ class SearchScreenViewModelTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
-        val newCriteria = SortingCriteria.Name.ZtoA
+        val newCriteria = SortingCriteria.ByName.ZtoA
 
         viewModel.setSorting(newCriteria)
         advanceUntilIdle()
@@ -228,7 +281,7 @@ class SearchScreenViewModelTest {
     }
 
     @Test
-    fun `given state, when onRemoveTypeFilter is called, then all types are deselected`() = runTest {
+    fun givenState_whenOnRemoveTypeFilterIsCalled_thenAllTypesAreDeselected() = runTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
@@ -239,7 +292,7 @@ class SearchScreenViewModelTest {
     }
 
     @Test
-    fun `givenNoConversationSelected_whenOnSaveConversation_thenSelectedConversationIsStored`() = runTest {
+    fun givenNoConversationSelected_whenOnSaveConversation_thenSelectedConversationIsStored() = runTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
@@ -256,7 +309,7 @@ class SearchScreenViewModelTest {
     }
 
     @Test
-    fun `givenConversationSelected_whenOnRemoveConversations_thenSelectedConversationIsNull`() = runTest {
+    fun givenConversationSelected_whenOnRemoveConversations_thenSelectedConversationIsNull() = runTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
@@ -273,7 +326,7 @@ class SearchScreenViewModelTest {
     }
 
     @Test
-    fun `givenConversationSelected_whenOnRemoveAllFilters_thenConversationFilterIsCleared`() = runTest {
+    fun givenConversationSelected_whenOnRemoveAllFilters_thenConversationFilterIsCleared() = runTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
@@ -289,7 +342,7 @@ class SearchScreenViewModelTest {
     }
 
     @Test
-    fun `givenNoQuery_whenOnConversationSearchQueryChanged_thenConversationsFlowIsNotNull`() = runTest {
+    fun givenNoQuery_whenOnConversationSearchQueryChanged_thenConversationsFlowIsNotNull() = runTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
@@ -303,6 +356,22 @@ class SearchScreenViewModelTest {
     private fun createViewModel(): SearchScreenViewModel {
         return SearchScreenViewModel(
             savedStateHandle = savedStateHandle,
+            getAllTagsUseCase = getAllTagsUseCase,
+            getCellFilesPaged = getCellFilesPaged,
+            getOwners = getOwners,
+            getPaginatedConversations = getPaginatedConversations,
+        )
+    }
+
+    private fun createViewModelWithScreenType(screenType: DriveSearchScreenType): SearchScreenViewModel {
+        val navArgsMap = mapOf<String, Any?>(
+            "conversationId" to CONVERSATION_ID,
+            "screenType" to screenType,
+        )
+        val handle = mockk<SavedStateHandle>(relaxed = true)
+        every { handle.get<Any?>(any()) } answers { navArgsMap[firstArg<String>()] }
+        return SearchScreenViewModel(
+            savedStateHandle = handle,
             getAllTagsUseCase = getAllTagsUseCase,
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,

@@ -64,7 +64,7 @@ import okio.Path.Companion.toPath
 import java.io.File
 import javax.inject.Inject
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class MessageAttachmentsViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,

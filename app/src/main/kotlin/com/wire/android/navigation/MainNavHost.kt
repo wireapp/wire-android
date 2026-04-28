@@ -33,6 +33,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPassw
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
 import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.ramcosta.composedestinations.generated.app.navtype.groupConversationDetailsNavBackArgsNavType
 import com.ramcosta.composedestinations.generated.app.navtype.imagesPreviewNavBackArgsNavType
@@ -46,6 +47,7 @@ import com.ramcosta.composedestinations.navigation.navGraph
 import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Direction
+import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
@@ -93,6 +95,14 @@ fun MainNavHost(
                             navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
                         }
                         dependency(hiltViewModel<LoginEmailViewModel>(loginPasswordEntry))
+                    }
+
+                    // 👇 To reuse CellViewModel from the parent screen on SearchScreen
+                    destination(SearchScreenDestination) {
+                        val parentEntry = remember(navBackStackEntry) {
+                            navController.previousBackStackEntry
+                        }
+                        dependency(hiltViewModel<CellViewModel>(parentEntry ?: navBackStackEntry))
                     }
 
                     // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph,

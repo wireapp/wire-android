@@ -226,24 +226,13 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickAllowNotificationButton(timeoutMs: Long = 15_000): RegistrationPage {
-        val deadline = SystemClock.uptimeMillis() + timeoutMs
-
-        while (SystemClock.uptimeMillis() < deadline) {
-            val button = allowNotificationButtons
-                .asSequence()
-                .mapNotNull(UiWaitUtils::findElementOrNull)
-                .firstOrNull { !it.visibleBounds.isEmpty && it.isEnabled }
-
-            if (button != null) {
-                button.click()
-                return this
-            }
-
-            SystemClock.sleep(200)
-        }
-
-        // On some devices/runs the permission is already granted and this dialog never appears.
+    // Fallback for runs where the PermissionUtils pre-grant does not suppress the Android notification permission dialog.
+    fun clickAllowNotificationButton(): RegistrationPage {
+        allowNotificationButtons
+            .asSequence()
+            .mapNotNull(UiWaitUtils::findElementOrNull)
+            .firstOrNull { !it.visibleBounds.isEmpty && it.isEnabled }
+            ?.let { runCatching { it.click() } }
         return this
     }
 

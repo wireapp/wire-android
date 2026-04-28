@@ -143,9 +143,28 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
-    fun openBackupAndRestoreConversationsMenu(): SettingsPage {
-        UiWaitUtils.waitElement(backUpMenuButton).click()
-        return this
+    fun openBackupAndRestoreConversationsMenu(timeoutMs: Long = 10_000): SettingsPage {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            val menu = UiWaitUtils.findElementOrNull(backUpMenuButton)
+            if (menu != null && !menu.visibleBounds.isEmpty && menu.isEnabled) {
+                runCatching { menu.click() }
+
+                if (isBackupPageOpen()) {
+                    return this
+                }
+            }
+
+            SystemClock.sleep(200)
+        }
+
+        throw AssertionError("Could not open 'Back up & Restore Conversations' within ${timeoutMs}ms.")
+    }
+
+    private fun isBackupPageOpen(): Boolean {
+        return UiWaitUtils.findElementOrNull(restoreBackupButton)?.let { !it.visibleBounds.isEmpty } == true ||
+            UiWaitUtils.findElementOrNull(createBackupButton)?.let { !it.visibleBounds.isEmpty } == true
     }
 
     fun clickRestoreBackupButton(): SettingsPage {

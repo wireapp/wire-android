@@ -63,6 +63,56 @@ class ConversationAssetPathsViewModelTest {
     }
 
     @Test
+    fun givenNoCachedPath_whenLocalAssetPathCalledWithDownloadIfNeeded_thenPathIsResolved() = runTest {
+        // given
+        val expectedPath = "/local/path/image.jpg"
+        val (arrangement, viewModel) = Arrangement()
+            .withGetMessageAssetSuccess(expectedPath)
+            .arrange()
+
+        // when
+        val path = viewModel.localAssetPath(
+            conversationId = arrangement.conversationId,
+            messageId = arrangement.messageId,
+            assetStatus = AssetTransferStatus.UPLOADED,
+            downloadIfNeeded = true
+        )
+
+        // then
+        assertNull(path)
+        assertEquals(expectedPath, viewModel.localAssetPath(arrangement.messageId))
+        coVerify(exactly = 1) { arrangement.getMessageAsset(any(), any()) }
+    }
+
+    @Test
+    fun givenCachedPath_whenLocalAssetPathCalled_thenGetAssetIsNotCalledAgain() = runTest {
+        // given
+        val expectedPath = "/local/path/image.jpg"
+        val (arrangement, viewModel) = Arrangement()
+            .withGetMessageAssetSuccess(expectedPath)
+            .arrange()
+
+        viewModel.resolveIfNeeded(
+            conversationId = arrangement.conversationId,
+            messageId = arrangement.messageId,
+            transferStatus = AssetTransferStatus.UPLOADED,
+            downloadIfNeeded = true
+        )
+
+        // when
+        val path = viewModel.localAssetPath(
+            conversationId = arrangement.conversationId,
+            messageId = arrangement.messageId,
+            assetStatus = AssetTransferStatus.UPLOADED,
+            downloadIfNeeded = true
+        )
+
+        // then
+        assertEquals(expectedPath, path)
+        coVerify(exactly = 1) { arrangement.getMessageAsset(any(), any()) }
+    }
+
+    @Test
     fun givenDownloadInProgressStatus_whenResolveIfNeededWithDownloadIfNeeded_thenPathIsResolved() = runTest {
         // given
         val expectedPath = "/local/path/image.jpg"

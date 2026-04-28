@@ -34,6 +34,13 @@ import javax.inject.Inject
 
 interface ConversationAssetPathsViewModel {
     fun localAssetPath(messageId: String): String? = null
+    fun localAssetPath(
+        conversationId: ConversationId,
+        messageId: String,
+        assetStatus: AssetTransferStatus?,
+        downloadIfNeeded: Boolean = false,
+    ): String? = null
+
     fun resolveIfNeeded(
         conversationId: ConversationId,
         messageId: String,
@@ -54,6 +61,22 @@ class ConversationAssetPathsViewModelImpl @Inject constructor(
     private val resolvingJobs = mutableMapOf<String, Job>()
 
     override fun localAssetPath(messageId: String): String? = localAssetPaths[messageId]
+
+    override fun localAssetPath(
+        conversationId: ConversationId,
+        messageId: String,
+        assetStatus: AssetTransferStatus?,
+        downloadIfNeeded: Boolean,
+    ): String? = localAssetPaths[messageId].also { path ->
+        if (path == null && resolvingJobs[messageId]?.isActive != true) {
+            resolveIfNeeded(
+                conversationId = conversationId,
+                messageId = messageId,
+                transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                downloadIfNeeded = downloadIfNeeded,
+            )
+        }
+    }
 
     override fun resolveIfNeeded(
         conversationId: ConversationId,

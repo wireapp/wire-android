@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -173,15 +172,12 @@ private fun MessageContent(
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
             val messageId = message.header.messageId
-            val localAssetPath = conversationAssetPathsViewModel.localAssetPath(messageId)
-            LaunchedEffect(messageId, assetStatus) {
-                conversationAssetPathsViewModel.resolveIfNeeded(
-                    conversationId = message.conversationId,
-                    messageId = messageId,
-                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    downloadIfNeeded = true
-                )
-            }
+            val localAssetPath = conversationAssetPathsViewModel.localAssetPath(
+                conversationId = message.conversationId,
+                messageId = messageId,
+                assetStatus = assetStatus,
+                downloadIfNeeded = true
+            )
 
             MessageImage(
                 imgParams = messageContent.params,
@@ -194,15 +190,11 @@ private fun MessageContent(
 
         is UIMessageContent.VideoMessage -> {
             val messageId = message.header.messageId
-            val localAssetPath = conversationAssetPathsViewModel.localAssetPath(messageId)
-            LaunchedEffect(messageId, assetStatus) {
-                conversationAssetPathsViewModel.resolveIfNeeded(
-                    conversationId = message.conversationId,
-                    messageId = messageId,
-                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    downloadIfNeeded = false
-                )
-            }
+            val localAssetPath = conversationAssetPathsViewModel.localAssetPath(
+                conversationId = message.conversationId,
+                messageId = messageId,
+                assetStatus = assetStatus
+            )
 
             VideoMessage(
                 assetSize = messageContent.assetSizeInBytes,
@@ -303,15 +295,11 @@ private fun MessageContent(
 
         is UIMessageContent.AssetMessage -> {
             val messageId = message.header.messageId
-            val localAssetPath = conversationAssetPathsViewModel.localAssetPath(messageId)
-            LaunchedEffect(messageId, assetStatus) {
-                conversationAssetPathsViewModel.resolveIfNeeded(
-                    conversationId = message.conversationId,
-                    messageId = messageId,
-                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    downloadIfNeeded = false
-                )
-            }
+            val localAssetPath = conversationAssetPathsViewModel.localAssetPath(
+                conversationId = message.conversationId,
+                messageId = messageId,
+                assetStatus = assetStatus
+            )
 
             MessageAsset(
                 assetName = messageContent.assetName,

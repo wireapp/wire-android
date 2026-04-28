@@ -21,9 +21,6 @@ jobs:
         name: Publish Test Results
         runs-on: ubuntu-latest
         if: github.event.workflow_run.conclusion != 'skipped'
-        env:
-            DD_API_KEY: ${{ secrets.DD_API_KEY }}
-
         # Limit permissions to only what's needed
         permissions:
             checks: write
@@ -68,16 +65,13 @@ jobs:
                   gh pr comment "$PR_NUMBER" --body "APKs built during tests are available [here]($CHECKS_LINK). Scroll down to **Artifacts**!"
 
             - uses: actions/setup-node@v6
-              if: ${{ env.DD_API_KEY != '' }}
               with:
                   node-version: 18
             - name: Install datadog-ci
-              if: ${{ env.DD_API_KEY != '' }}
               run: npm install -g @datadog/datadog-ci
             - name: "Upload results"
-              if: ${{ env.DD_API_KEY != '' }}
               env:
-                  DATADOG_API_KEY: ${{ env.DD_API_KEY }}
+                  DATADOG_API_KEY: ${{ secrets.DD_API_KEY }}
                   DD_ENV: ci
                   DATADOG_SITE: datadoghq.eu
               run: |

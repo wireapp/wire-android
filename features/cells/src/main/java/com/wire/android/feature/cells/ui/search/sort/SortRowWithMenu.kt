@@ -96,7 +96,7 @@ fun SortRowWithMenu(
             onDismissRequest = { expanded = false },
         ) {
             MenuSectionTitle(stringResource(R.string.sort_by))
-            SortBy.entries.forEach { by ->
+            SortBy.entries.filter { it.visible }.forEach { by ->
                 MenuCheckItem(
                     text = stringResource(by.label),
                     checked = sortingCriteria.by == by,
@@ -202,9 +202,10 @@ private fun MenuCheckItem(
 }
 
 fun orderOptionsFor(by: SortBy): List<SortingCriteria> = when (by) {
-    SortBy.Modified -> listOf(SortingCriteria.Modified.NewestFirst, SortingCriteria.Modified.OldestFirst)
-    SortBy.Name -> listOf(SortingCriteria.Name.AtoZ, SortingCriteria.Name.ZtoA)
-    SortBy.Size -> listOf(SortingCriteria.Size.SmallestFirst, SortingCriteria.Size.LargestFirst)
+    SortBy.Default -> listOf()
+    SortBy.Modified -> listOf(SortingCriteria.ByDate.NewestFirst, SortingCriteria.ByDate.OldestFirst)
+    SortBy.Name -> listOf(SortingCriteria.ByName.AtoZ, SortingCriteria.ByName.ZtoA)
+    SortBy.Size -> listOf(SortingCriteria.BySize.SmallestFirst, SortingCriteria.BySize.LargestFirst)
 }
 
 @MultipleThemePreviews
@@ -212,7 +213,7 @@ fun orderOptionsFor(by: SortBy): List<SortingCriteria> = when (by) {
 fun PreviewSortRowWithMenu() {
     WireTheme {
         SortRowWithMenu(
-            sortingCriteria = SortingCriteria.Modified.NewestFirst,
+            sortingCriteria = SortingCriteria.ByDate.NewestFirst,
             onSortByClicked = {},
             onOrderClicked = {},
         )

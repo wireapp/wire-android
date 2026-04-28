@@ -258,7 +258,7 @@ jobs:
         env:
           DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input
           SOURCE_WORKFLOW_NAME: ${{ github.workflow }}
-          SOURCE_WORKFLOW_FILE: ".github/workflows/qa-android-ui-tests.yml"
+          SOURCE_WORKFLOW_FILE: ".github/workflows/qa-android-critical-flow-tests.yml"
           SOURCE_REPOSITORY: ${{ github.repository }}
           SOURCE_RUN_ID: ${{ github.run_id }}
           SOURCE_RUN_NUMBER: ${{ github.run_number }}

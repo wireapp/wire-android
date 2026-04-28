@@ -1,4 +1,4 @@
-name: QA Android UI Tests
+name: QA Android Critical Flow Tests
 
 # Concurrency lock:
 # - If androidDeviceId is set, we lock per-device so only one run can use that specific phone at a time (other devices can run in parallel).
@@ -76,9 +76,9 @@ on:
         type: boolean
 
       rerunFailedCount:
-        description: "How many failed-test rerun attempts (0-3). Default is 2."
+        description: "How many failed-test rerun attempts (0-3). Default is 1."
         required: true
-        default: "2"
+        default: "1"
         type: string
 
 permissions:
@@ -126,9 +126,11 @@ jobs:
       - name: Print resolved values
         shell: bash
         env:
+          WORKFLOW_REF: ${{ github.ref_name }}
           FLAVOR_INPUT: ${{ inputs.flavor }}
           RESOLVED_TESTCASE_ID: ${{ steps.resolve_selector.outputs.testCaseId }}
           RESOLVED_CATEGORY: ${{ steps.resolve_selector.outputs.category }}
+          TESTINY_RUN_NAME: ${{ inputs.testinyRunName }}
         run: bash scripts/qa_android_ui_tests/validation.sh print-resolved-values
 
   run-android-ui-tests:

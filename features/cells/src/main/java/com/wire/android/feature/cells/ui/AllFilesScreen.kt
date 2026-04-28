@@ -44,8 +44,9 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 fun AllFilesScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    viewModel: CellViewModel = hiltViewModel()
+    viewModel: CellViewModel = hiltViewModel(),
 ) {
+
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
 
     WireScaffold(
@@ -59,7 +60,11 @@ fun AllFilesScreen(
                     searchQueryTextState = rememberTextFieldState(),
                     onTap = {
                         navigator.navigate(
-                            NavigationCommand(SearchScreenDestination(screenType = DriveSearchScreenType.DRIVE))
+                            NavigationCommand(
+                                SearchScreenDestination(
+                                    screenType = DriveSearchScreenType.DRIVE,
+                                )
+                            )
                         )
                     },
                 )

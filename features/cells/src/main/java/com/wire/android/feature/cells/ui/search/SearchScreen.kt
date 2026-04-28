@@ -64,7 +64,6 @@ import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @WireCellsDestination(
@@ -75,11 +74,10 @@ import kotlinx.coroutines.flow.first
 fun SearchScreen(
     navigator: WireNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
+    cellViewModel: CellViewModel,
     modifier: Modifier = Modifier,
     searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
-    cellViewModel: CellViewModel = hiltViewModel(),
 ) {
-
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
 
     val filterTypeSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
@@ -166,14 +164,16 @@ fun SearchScreen(
             }
         ) { innerPadding ->
             val lazyListState = rememberLazyListState()
-            val lazyItems = searchScreenViewModel.cellNodesFlow.collectAsLazyPagingItems()
+
+            val isShowingFilteredResults = uiState.hasAnyFilter ||
+                    searchState.text.isNotEmpty() ||
+                    uiState.sortingCriteria != searchScreenViewModel.defaultSortingCriteria
+            val initialItems = cellViewModel.nodesFlow.collectAsLazyPagingItems()
+            val filteredItems = searchScreenViewModel.cellNodesFlow.collectAsLazyPagingItems()
+            val lazyItems = if (isShowingFilteredResults) filteredItems else initialItems
 
             LaunchedEffect(uiState.sortingCriteria) {
-                lazyItems.refresh()
-                // wait for refresh to complete
-                snapshotFlow { lazyItems.loadState.refresh }
-                    .first { it is androidx.paging.LoadState.NotLoading }
-                lazyListState.animateScrollToItem(0)
+                    lazyListState.animateScrollToItem(0)
             }
 
             CellScreenContent(

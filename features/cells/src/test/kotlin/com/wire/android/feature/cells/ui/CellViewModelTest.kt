@@ -115,7 +115,7 @@ class CellViewModelTest {
         val items = viewModel.nodesFlow.asSnapshot()
         assertEquals(items.size, 2)
 
-        coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any()) }
+        coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
     }
 
     @Test
@@ -325,7 +325,7 @@ class CellViewModelTest {
         }
 
         fun withLoadSuccess() = apply {
-            coEvery { getCellFilesPagedUseCase(any(), any()) } returns flowOf(
+            coEvery { getCellFilesPagedUseCase(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(
                     data = testFiles,
                     sourceLoadStates = LoadStates(

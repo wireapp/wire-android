@@ -40,7 +40,10 @@ import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.ui.common.ActionsViewModel
+import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
+import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
 import com.wire.kalium.cells.data.FileFilters
+import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
@@ -151,6 +154,16 @@ class CellViewModel @Inject constructor(
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1, extraBufferCapacity = 1)
 
     private val cellAvailableFlow = MutableStateFlow(false)
+
+    // AllFiles context (no conversationId, not recycle bin) defaults to newest-first;
+    // ConversationFiles and RecycleBin default to folders-first.
+    private val _defaultSortingCriteria = MutableStateFlow(
+        if (navArgs.conversationId == null && !(navArgs.isRecycleBin ?: false)) {
+            SortingCriteria.ByDate.NewestFirst
+        } else {
+            SortingCriteria.FoldersFirst
+        }
+    )
 
     private var isCollaboraEnabled: Boolean = false
 

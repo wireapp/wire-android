@@ -25,7 +25,6 @@ import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.util.FileManager
-import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
@@ -353,9 +352,6 @@ class MessageAttachmentsViewModelTest {
         @MockK
         lateinit var fileManager: FileManager
 
-        @MockK
-        lateinit var getMediaMetadata: GetMediaMetadataUseCase
-
         private val sharedState = MessageSharedState()
 
         private val uriAssetQueue = ArrayDeque<String>()
@@ -367,7 +363,6 @@ class MessageAttachmentsViewModelTest {
                 MockKAnnotations.init(this, relaxUnitFun = true)
                 coEvery { observeAttachments(any()) } returns MutableSharedFlow()
                 coEvery { uploadManager.getUploadInfo(any()) } returns null
-                coEvery { getMediaMetadata(any(), any()) } returns null
                 isInitialized = true
             }
         }
@@ -407,7 +402,6 @@ class MessageAttachmentsViewModelTest {
                 uploadManager = uploadManager,
                 fileManager = fileManager,
                 sharedState = sharedState,
-                getMediaMetadata = getMediaMetadata,
             )
             return this to viewModel
         }

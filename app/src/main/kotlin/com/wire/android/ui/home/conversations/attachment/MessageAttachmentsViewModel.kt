@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.toNormalizedLoudness
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
@@ -34,10 +35,9 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.util.FileManager
-import com.wire.android.util.GetMediaMetadataUseCase
+import com.wire.android.util.MediaMetadata
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.cells.domain.CellUploadEvent
 import com.wire.kalium.cells.domain.CellUploadManager
@@ -76,7 +76,6 @@ class MessageAttachmentsViewModel @Inject constructor(
     private val uploadManager: CellUploadManager,
     private val fileManager: FileManager,
     private val sharedState: MessageSharedState,
-    private val getMediaMetadata: GetMediaMetadataUseCase,
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -192,7 +191,7 @@ class MessageAttachmentsViewModel @Inject constructor(
             assetPath = bundle.dataPath,
             assetSize = bundle.dataSize,
             mimeType = bundle.mimeType,
-            assetMetadata = getMediaMetadata(bundle.dataPath, bundle.mimeType),
+            assetMetadata = MediaMetadata.getMediaMetadata(bundle.dataPath, bundle.mimeType),
         )
             .onFailure {
                 appLogger.e("Failed to add attachment: $it", tag = "MessageAttachmentsViewModel")

@@ -1831,6 +1831,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
     <string name="debug_settings_force_repair_faulty_keys" translatable="false">Reset</string>
     <string name="debug_settings_feature_flags" translatable="false">Feature Flags</string>
+    <string name="debug_settings_conversation_crypto_stats" translatable="false">Conversation Crypto Stats</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

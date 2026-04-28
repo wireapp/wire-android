@@ -52,6 +52,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationCryptoStatsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.DebugFeatureFlagsScreenDestination
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
@@ -83,6 +84,9 @@ fun DebugScreen(
         onDatabaseLoggerEnabledChanged = userDebugViewModel::setDatabaseLoggerEnabledState,
         onShowFeatureFlags = {
             navigator.navigate(NavigationCommand(DebugFeatureFlagsScreenDestination))
+        },
+        onShowCryptoStats = {
+            navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
         }
     )
 }
@@ -96,6 +100,7 @@ internal fun UserDebugContent(
     onDeleteLogs: () -> Unit,
     onFlushLogs: () -> Deferred<Unit>,
     onShowFeatureFlags: () -> Unit,
+    onShowCryptoStats: () -> Unit,
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
 
@@ -130,6 +135,7 @@ internal fun UserDebugContent(
                     buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
                     onCopyText = debugContentState::copyToClipboard,
                     onShowFeatureFlags = onShowFeatureFlags,
+                    onShowCryptoStats = onShowCryptoStats,
                 )
                 if (BuildConfig.PRIVATE_BUILD) {
                     DangerOptions()
@@ -248,5 +254,6 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onFlushLogs = { CompletableDeferred(Unit) },
         onDatabaseLoggerEnabledChanged = {},
         onShowFeatureFlags = {},
+        onShowCryptoStats = {},
     )
 }

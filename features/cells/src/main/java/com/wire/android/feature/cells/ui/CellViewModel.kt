@@ -37,11 +37,11 @@ import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
+import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
+import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.ui.common.ActionsViewModel
-import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
-import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
@@ -196,47 +196,53 @@ class CellViewModel @Inject constructor(
         }
 
         refreshTrigger.flatMapLatest {
-            combine(
-                getCellFilesPaged(
-                    conversationId = navArgs.conversationId,
-                    fileFilters = FileFilters(
-                        onlyDeleted = navArgs.isRecycleBin ?: false,
-                    ),
-                ).cachedIn(viewModelScope),
-                removedItemsFlow,
-                openLoadStateFlow,
-                _cachedLocalPaths,
-            ) { pagingData, removedItems, openLoadStates, cachedPaths ->
-                var emittedRefreshDone = false
+            _defaultSortingCriteria.flatMapLatest { sortingCriteria ->
+                combine(
+                    getCellFilesPaged(
+                        conversationId = navArgs.conversationId,
+                        fileFilters = FileFilters(
+                            onlyDeleted = navArgs.isRecycleBin ?: false,
+                        ),
+                        sortingSpec = SortingSpec(
+                            criteria = sortingCriteria.toKaliumCriteria(),
+                            descending = sortingCriteria.isDescending,
+                        ),
+                    ).cachedIn(viewModelScope),
+                    removedItemsFlow,
+                    openLoadStateFlow,
+                    _cachedLocalPaths,
+                ) { pagingData, removedItems, openLoadStates, cachedPaths ->
+                    var emittedRefreshDone = false
 
-                pagingData
-                    .filter { node: Node -> node.uuid !in removedItems }
-                    .map { node ->
-                        if (!emittedRefreshDone) {
-                            emittedRefreshDone = true
+                    pagingData
+                        .filter { node: Node -> node.uuid !in removedItems }
+                        .map { node ->
+                            if (!emittedRefreshDone) {
+                                emittedRefreshDone = true
 
-                            if (_isPullToRefresh.value) {
-                                _isPullToRefresh.value = false
+                                if (_isPullToRefresh.value) {
+                                    _isPullToRefresh.value = false
+                                }
+
+                                _pagingRefreshDone.tryEmit(Unit)
                             }
 
-                            _pagingRefreshDone.tryEmit(Unit)
-                        }
+                            val openLoadState = openLoadStates[node.uuid]
+                            when (node) {
+                                is Node.Folder -> node.toUiModel()
 
-                        val openLoadState = openLoadStates[node.uuid]
-                        when (node) {
-                            is Node.Folder -> node.toUiModel()
-
-                            is Node.File -> node.toUiModel().copy(
-                                localPath = openLoadState?.let { (it as? OpenLoadState.Ready)?.localPath?.toString() }
-                                    ?: cachedPaths[node.uuid]
-                                    ?: node.localPath,
-                                isOpenLoading = openLoadState is OpenLoadState.Loading,
-                                isOpenReady = openLoadState is OpenLoadState.Ready,
-                                isOpenError = openLoadState is OpenLoadState.Error,
-                                openLoadProgress = (openLoadState as? OpenLoadState.Loading)?.progress,
-                            )
+                                is Node.File -> node.toUiModel().copy(
+                                    localPath = openLoadState?.let { (it as? OpenLoadState.Ready)?.localPath?.toString() }
+                                        ?: cachedPaths[node.uuid]
+                                        ?: node.localPath,
+                                    isOpenLoading = openLoadState is OpenLoadState.Loading,
+                                    isOpenReady = openLoadState is OpenLoadState.Ready,
+                                    isOpenError = openLoadState is OpenLoadState.Error,
+                                    openLoadProgress = (openLoadState as? OpenLoadState.Loading)?.progress,
+                                )
+                            }
                         }
-                    }
+                }
             }
         }
     }.shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)

@@ -391,7 +391,7 @@ class CellFileActionsMenuTest {
                 }
             )
         }
-    
+
     @Test
     fun `GIVEN file menu WHEN edit option selected called THEN correct action emitted`() =
         runTest {

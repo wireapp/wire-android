@@ -20,7 +20,8 @@ package com.wire.android.feature.cells.ui.search.sort
 
 import com.wire.android.feature.cells.R
 
-enum class SortBy(val label: Int) {
+enum class SortBy(val label: Int, val visible: Boolean = true) {
+    Default(R.string.sort_by, false),
     Modified(R.string.sort_by_modified),
     Name(R.string.sort_by_name),
     Size(R.string.sort_by_size),
@@ -42,33 +43,39 @@ sealed interface SortingCriteria {
     val isDescending: Boolean get() = direction.isDescending
     val rotationAngle: Float get() = direction.rotationAngle
 
-    sealed class Modified(
+    data object FoldersFirst : SortingCriteria {
+        override val by: SortBy = SortBy.Default
+        override val label: Int = R.string.sort_by
+        override val direction: SortDirection = SortDirection.Asc
+    }
+
+    sealed class ByDate(
         override val label: Int,
         override val direction: SortDirection,
     ) : SortingCriteria {
         override val by: SortBy = SortBy.Modified
 
-        data object NewestFirst : Modified(R.string.sort_modified_newest_first, SortDirection.Desc)
-        data object OldestFirst : Modified(R.string.sort_modified_oldest_first, SortDirection.Asc)
+        data object NewestFirst : ByDate(R.string.sort_modified_newest_first, SortDirection.Desc)
+        data object OldestFirst : ByDate(R.string.sort_modified_oldest_first, SortDirection.Asc)
     }
 
-    sealed class Name(
+    sealed class ByName(
         override val label: Int,
         override val direction: SortDirection,
     ) : SortingCriteria {
         override val by: SortBy = SortBy.Name
 
-        data object AtoZ : Name(R.string.sort_name_a_to_z, SortDirection.Asc)
-        data object ZtoA : Name(R.string.sort_name_z_to_a, SortDirection.Desc)
+        data object AtoZ : ByName(R.string.sort_name_a_to_z, SortDirection.Asc)
+        data object ZtoA : ByName(R.string.sort_name_z_to_a, SortDirection.Desc)
     }
 
-    sealed class Size(
+    sealed class BySize(
         override val label: Int,
         override val direction: SortDirection,
     ) : SortingCriteria {
         override val by: SortBy = SortBy.Size
 
-        data object SmallestFirst : Size(R.string.sort_size_smallest_first, SortDirection.Asc)
-        data object LargestFirst : Size(R.string.sort_size_largest_first, SortDirection.Desc)
+        data object SmallestFirst : BySize(R.string.sort_size_smallest_first, SortDirection.Asc)
+        data object LargestFirst : BySize(R.string.sort_size_largest_first, SortDirection.Desc)
     }
 }

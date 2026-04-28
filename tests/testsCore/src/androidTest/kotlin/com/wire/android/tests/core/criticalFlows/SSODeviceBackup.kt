@@ -17,33 +17,33 @@
  */
 package com.wire.android.tests.core.criticalFlows
 
+import SSOServiceHelper
 import SSOServiceHelper.thereIsASSOTeamOwnerForOkta
 import SSOServiceHelper.userAddsOktaUser
 import SSOServiceHelper.userXIsMe
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.runner.RunWith
 import android.content.Context
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
+import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 import deleteDownloadedFilesContaining
 import kotlinx.coroutines.runBlocking
 import okta.OktaApiClient
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.koin.test.inject
 import service.TestServiceHelper
-import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
+import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
-import kotlin.getValue
-import com.wire.android.tests.core.BaseUiTest
-import com.wire.android.tests.support.tags.Category
-import com.wire.android.tests.support.tags.TestCaseId
 
 @RunWith(AndroidJUnit4::class)
 class SSODeviceBackup : BaseUiTest() {
@@ -126,7 +126,8 @@ class SSODeviceBackup : BaseUiTest() {
                         enterOktaEmail(member1?.email ?: "")
                         enterOktaPassword(member1?.password ?: "")
                         tapOktaSignIn()
-                        waitFor(5) // Wait for Okta → Wire auth handoff to finish; otherwise, setting up wire page will not succeed.
+                        // Wait for Okta → Wire auth handoff to finish; otherwise, setting up wire page will not succeed.
+                        UiWaitUtils.waitFor(5)
                     }
                 }
 
@@ -233,7 +234,7 @@ class SSODeviceBackup : BaseUiTest() {
                         clickLoginButton()
                     }
 
-                    waitFor(5) // Wait for Okta → Wire auth handoff to finish;
+                    UiWaitUtils.waitFor(5) // Wait for Okta → Wire auth handoff to finish;
                 }
 
                 step("Finish login flow after logout (decline share data)") {

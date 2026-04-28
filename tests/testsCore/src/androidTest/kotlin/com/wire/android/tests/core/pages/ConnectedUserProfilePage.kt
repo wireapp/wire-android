@@ -17,10 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.Until
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.test.DefaultAsserter.assertTrue
@@ -60,13 +57,11 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         expectedMessage: String,
         timeoutMillis: Long = 5_000
     ): ConnectedUserProfilePage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val selector = By.text(expectedMessage)
-        val toast = device.wait(Until.findObject(selector), timeoutMillis)
-
-        if (toast == null || toast.visibleBounds.isEmpty) {
-            throw AssertionError("Toast message '$expectedMessage' was not displayed within ${timeoutMillis}ms.")
-        }
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(text = expectedMessage),
+            timeoutMs = timeoutMillis,
+            errorMessage = "Toast message '$expectedMessage' was not displayed within ${timeoutMillis}ms."
+        )
 
         return this
     }

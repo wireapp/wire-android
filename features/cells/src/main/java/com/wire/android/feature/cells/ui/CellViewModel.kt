@@ -72,7 +72,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import javax.inject.Inject
@@ -396,7 +395,6 @@ class CellViewModel @Inject constructor(
     internal fun cancelDownload(uuid: String) {
         cancelOpenDownload(uuid)
     }
-
 
     private fun openFileContentUrl(file: CellNodeUi.File) {
         file.contentUrl?.let { url ->

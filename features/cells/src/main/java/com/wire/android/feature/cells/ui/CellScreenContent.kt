@@ -178,7 +178,6 @@ internal fun CellScreenContent(
         )
     }
 
-
     deleteConfirmation?.let { (node, isPermanentDelete) ->
         DeleteConfirmationDialog(
             itemName = node.name ?: "",

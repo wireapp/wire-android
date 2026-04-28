@@ -82,6 +82,7 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.common.R as commonR
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun CellListItem(
     cell: CellNodeUi,
@@ -269,7 +270,6 @@ internal fun LoadingIconPreview(progress: Float?) {
         }
     }
 }
-
 
 @Composable
 internal fun ReadyIconPreview() {

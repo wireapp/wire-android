@@ -204,7 +204,6 @@ class CellViewModelTest {
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
-
     @Test
     fun `given view model when delete is confirmed then file is removed from the list`() = runTest {
         val (_, viewModel) = Arrangement()
@@ -354,7 +353,6 @@ class CellViewModelTest {
                 Unit.right()
             }
         }
-
 
         fun withDeleteSuccess() = apply {
             coEvery { deleteCellAssetUseCase(any(), any()) } returns Unit.right()

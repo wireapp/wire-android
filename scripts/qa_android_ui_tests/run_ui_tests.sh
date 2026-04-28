@@ -514,6 +514,19 @@ if (( first_failed_count > final_failed_count )); then
   recovered_count=$((first_failed_count - final_failed_count))
 fi
 
+if [[ -n "${GITHUB_ENV:-}" ]]; then
+  # Export the retry-state contract once so later workflow steps can publish
+  # one standard deflake artifact without rediscovering these files/counts.
+  {
+    echo "RETRY_STATE_DIR=${STATE_DIR}"
+    echo "FIRST_FAILED_TESTS_FILE=${first_failed_file}"
+    echo "FINAL_FAILED_TESTS_FILE=${current_failed_file}"
+    echo "FIRST_FAILED_TESTS_COUNT=${first_failed_count}"
+    echo "FINAL_FAILED_TESTS_COUNT=${final_failed_count}"
+    echo "PASSED_ON_RERUN_COUNT=${recovered_count}"
+  } >> "${GITHUB_ENV}"
+fi
+
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
   {
     echo "### UI Test Retry Summary"

@@ -4,7 +4,7 @@ set -euo pipefail
 # Reporting and publication utilities for qa-android-ui-tests workflow.
 
 usage() {
-  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|merge-allure-results|generate-allure-report|publish-allure-report|cleanup-workspace}" >&2
+  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|prepare-deflake-bundle|merge-allure-results|generate-allure-report|publish-allure-report|cleanup-workspace}" >&2
   exit 2
 }
 
@@ -45,6 +45,17 @@ pull_allure_results() {
     adb -s "${serial}" pull "/sdcard/googletest/test_outputfiles/allure-results" "${out_dir}/${serial}" >/dev/null 2>&1 || true
     idx=$((idx + 1))
   done
+}
+
+prepare_deflake_bundle() {
+  : "${DEFLAKE_BUNDLE_DIR:?DEFLAKE_BUNDLE_DIR not set}"
+
+  if [[ -z "${FINAL_FAILED_TESTS_FILE:-}" || ! -f "${FINAL_FAILED_TESTS_FILE}" ]]; then
+    echo "No retry-state file found; skipping deflake bundle export."
+    return
+  fi
+
+  python3 scripts/qa_android_ui_tests/prepare_deflake_bundle.py
 }
 
 merge_allure_results() {
@@ -212,8 +223,10 @@ cleanup_workspace() {
   rm -rf "${ALLURE_RESULTS_DIR}" || true
   rm -rf "${ALLURE_RESULTS_MERGED_DIR}" || true
   rm -rf "${ALLURE_REPORT_DIR}" || true
+  rm -rf "${RUNNER_TEMP}/deflake-input" || true
 
   rm -rf "${RUNNER_TEMP}/instrumentation-logs" || true
+  rm -rf "${RUNNER_TEMP}/retry-state" || true
   git clean -ffdx -e .gradle -e .kotlin
 }
 
@@ -223,6 +236,9 @@ case "${1:-}" in
     ;;
   pull-allure-results)
     pull_allure_results
+    ;;
+  prepare-deflake-bundle)
+    prepare_deflake_bundle
     ;;
   merge-allure-results)
     merge_allure_results

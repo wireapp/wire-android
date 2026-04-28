@@ -251,6 +251,42 @@ jobs:
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
         run: bash scripts/qa_android_ui_tests/run_ui_tests.sh
 
+      # Export one standard artifact so future manual deflake runs can reuse
+      # this workflow's exact run context and leftover failed test list.
+      - name: Prepare deflake input artifact
+        if: always()
+        env:
+          DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input
+          SOURCE_WORKFLOW_NAME: ${{ github.workflow }}
+          SOURCE_WORKFLOW_FILE: ".github/workflows/qa-android-ui-tests.yml"
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_RUN_ID: ${{ github.run_id }}
+          SOURCE_RUN_NUMBER: ${{ github.run_number }}
+          SOURCE_RUN_ATTEMPT: ${{ github.run_attempt }}
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_REF_NAME: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.sha }}
+          FLAVOR_INPUT: ${{ inputs.flavor }}
+          TAGS_INPUT: ${{ inputs.TAGS }}
+          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
+          RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
+          APP_BUILD_NUMBER_INPUT: ${{ inputs.appBuildNumber }}
+          IS_UPGRADE: ${{ inputs.isUpgrade }}
+          ENFORCE_APP_INSTALL: ${{ inputs.enforceAppInstall }}
+          TESTINY_RUN_NAME: ${{ inputs.testinyRunName }}
+          ANDROID_DEVICE_ID: ${{ inputs.androidDeviceId }}
+          RERUN_FAILED_ENABLED: ${{ inputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ inputs.rerunFailedCount }}
+        run: bash scripts/qa_android_ui_tests/reporting.sh prepare-deflake-bundle
+
+      - name: Upload deflake input artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-ui-test-deflake-input
+          path: ${{ runner.temp }}/deflake-input
+          if-no-files-found: warn
+
       # Remove runtime secrets before report generation and publish steps.
       - name: Remove runtime secrets (before Allure/Pages)
         if: always()

@@ -21,261 +21,120 @@ import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.kalium.logic.data.id.ConversationId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class ConversationFilterSheetStateTest {
 
     private companion object {
-        val conv1Id = ConversationId("conv1", "domain")
-        val conv2Id = ConversationId("conv2", "domain")
-        val conv3Id = ConversationId("conv3", "domain")
-        val conv4Id = ConversationId("conv4", "domain")
-
-        val testConversations = listOf(
-            FilterConversationUi(
-                id = conv1Id,
-                name = "Project Alpha",
-                selected = false,
-                isChannel = false
-            ),
-            FilterConversationUi(
-                id = conv2Id,
-                name = "Team Chat",
-                selected = false,
-                isChannel = false
-            ),
-            FilterConversationUi(
-                id = conv3Id,
-                name = "General Channel",
-                selected = false,
-                isChannel = true
-            ),
-            FilterConversationUi(
-                id = conv4Id,
-                name = "Support Group",
-                selected = false,
-                isChannel = false
-            ),
-        )
+        val conv1 = FilterConversationUi(id = ConversationId("conv1", "domain"), name = "Alpha")
+        val conv2 = FilterConversationUi(id = ConversationId("conv2", "domain"), name = "Beta")
     }
 
     @Test
-    fun `given initial state, then conversations are set correctly`() {
-        val state = ConversationFilterSheetState(testConversations)
+    fun `given no initial selection, then selectedConversation is null`() {
+        val state = ConversationFilterSheetState(initialSelected = null)
 
-        assertEquals(4, state.conversations.size)
-        assertEquals(testConversations, state.conversations)
+        assertNull(state.selectedConversation)
     }
 
     @Test
-    fun `given initial state, then hasChanges is false`() {
-        val state = ConversationFilterSheetState(testConversations)
+    fun `given initial selected conversation, then selectedConversation matches`() {
+        val state = ConversationFilterSheetState(initialSelected = conv1)
+
+        assertEquals(conv1, state.selectedConversation)
+    }
+
+    @Test
+    fun `given no initial selection, then hasChanges is false`() {
+        val state = ConversationFilterSheetState(initialSelected = null)
 
         assertFalse(state.hasChanges)
     }
 
     @Test
-    fun `given conversation selected, then hasChanges is true`() {
-        val state = ConversationFilterSheetState(testConversations)
+    fun `given initial selection, then hasChanges is false`() {
+        val state = ConversationFilterSheetState(initialSelected = conv1)
 
-        state.selectConversation(conv1Id.toString())
+        assertFalse(state.hasChanges)
+    }
+
+    @Test
+    fun `given no initial selection, when conversation selected, then hasChanges is true`() {
+        val state = ConversationFilterSheetState(initialSelected = null)
+
+        state.selectConversation(conv1)
 
         assertTrue(state.hasChanges)
     }
 
     @Test
-    fun `given conversation selected twice, then hasChanges is false`() {
-        val state = ConversationFilterSheetState(testConversations)
+    fun `given initial selection, when different conversation selected, then hasChanges is true`() {
+        val state = ConversationFilterSheetState(initialSelected = conv1)
 
-        state.selectConversation(conv1Id.toString())
-        state.selectConversation(conv1Id.toString())
+        state.selectConversation(conv2)
 
+        assertTrue(state.hasChanges)
+    }
+
+    @Test
+    fun `given initial selection, when same conversation selected again, then it is deselected and hasChanges is true`() {
+        val state = ConversationFilterSheetState(initialSelected = conv1)
+
+        state.selectConversation(conv1)
+
+        assertNull(state.selectedConversation)
+        assertTrue(state.hasChanges)
+    }
+
+    @Test
+    fun `given no initial selection, when conversation selected then deselected, then hasChanges is false`() {
+        val state = ConversationFilterSheetState(initialSelected = null)
+
+        state.selectConversation(conv1)
+        state.selectConversation(conv1) // toggle off
+
+        assertNull(state.selectedConversation)
         assertFalse(state.hasChanges)
     }
 
     @Test
-    fun `given selectConversation called, then conversation is selected`() {
-        val state = ConversationFilterSheetState(testConversations)
+    fun `given conversation A selected, when conversation B selected, then only B is the selection`() {
+        val state = ConversationFilterSheetState(initialSelected = null)
 
-        state.selectConversation(conv1Id.toString())
+        state.selectConversation(conv1)
+        state.selectConversation(conv2)
 
-        assertTrue(state.conversations.first { it.id == conv1Id }.selected)
+        assertEquals(conv2, state.selectedConversation)
     }
 
     @Test
-    fun `given selectConversation called, then other conversations are deselected`() {
-        val initialConversations = listOf(
-            FilterConversationUi(
-                id = conv1Id,
-                name = "Project Alpha",
-                selected = true,
-                isChannel = false
-            ),
-            FilterConversationUi(
-                id = conv2Id,
-                name = "Team Chat",
-                selected = false,
-                isChannel = false
-            ),
-        )
-        val state = ConversationFilterSheetState(initialConversations)
-
-        state.selectConversation(conv2Id.toString())
-
-        assertFalse(state.conversations.first { it.id == conv1Id }.selected)
-        assertTrue(state.conversations.first { it.id == conv2Id }.selected)
-    }
-
-    @Test
-    fun `given selectConversation called on selected conversation, then conversation is deselected`() {
-        val initialConversations = listOf(
-            FilterConversationUi(
-                id = conv1Id,
-                name = "Project Alpha",
-                selected = true,
-                isChannel = false
-            ),
-        )
-        val state = ConversationFilterSheetState(initialConversations)
-
-        state.selectConversation(conv1Id.toString())
-
-        assertFalse(state.conversations.first { it.id == conv1Id }.selected)
-    }
-
-    @Test
-    fun `given conversations selected, when removeAll called, then all conversations are deselected`() {
-        val state = ConversationFilterSheetState(testConversations)
-        state.selectConversation(conv1Id.toString())
+    fun `given conversation selected, when removeAll called, then selectedConversation is null`() {
+        val state = ConversationFilterSheetState(initialSelected = null)
+        state.selectConversation(conv1)
 
         state.removeAll()
 
-        assertFalse(state.conversations.any { it.selected })
+        assertNull(state.selectedConversation)
     }
 
     @Test
-    fun `given conversation selected, then selectedConversation returns only selected conversation`() {
-        val state = ConversationFilterSheetState(testConversations)
-        state.selectConversation(conv1Id.toString())
+    fun `given initial selection, when removeAll called, then hasChanges is true`() {
+        val state = ConversationFilterSheetState(initialSelected = conv1)
 
-        val selected = state.selectedConversation()
+        state.removeAll()
 
-        assertEquals(1, selected.size)
-        assertEquals(conv1Id, selected.first().id)
+        assertNull(state.selectedConversation)
+        assertTrue(state.hasChanges)
     }
 
     @Test
-    fun `given no conversation selected, then selectedConversation returns empty list`() {
-        val state = ConversationFilterSheetState(testConversations)
+    fun `given no initial selection, when removeAll called, then hasChanges is false`() {
+        val state = ConversationFilterSheetState(initialSelected = null)
 
-        val selected = state.selectedConversation()
+        state.removeAll()
 
-        assertTrue(selected.isEmpty())
-    }
-
-    @Test
-    fun `given empty query, then filteredConversations returns all conversations`() {
-        val state = ConversationFilterSheetState(testConversations)
-
-        assertEquals(4, state.filteredConversations("").size)
-    }
-
-    @Test
-    fun `given blank query, then filteredConversations returns all conversations`() {
-        val state = ConversationFilterSheetState(testConversations)
-
-        assertEquals(4, state.filteredConversations("   ").size)
-    }
-
-    @Test
-    fun `given query matching one conversation, then filteredConversations returns matching conversation`() {
-        val state = ConversationFilterSheetState(testConversations)
-
-        val filtered = state.filteredConversations("Alpha")
-
-        assertEquals(1, filtered.size)
-        assertEquals("Project Alpha", filtered.first().name)
-    }
-
-    @Test
-    fun `given query matching multiple conversations, then filteredConversations returns all matching`() {
-        val conversations = listOf(
-            FilterConversationUi(
-                id = ConversationId("conv1", "domain"),
-                name = "Team Alpha",
-                selected = false,
-                isChannel = false
-            ),
-            FilterConversationUi(
-                id = ConversationId("conv2", "domain"),
-                name = "Team Beta",
-                selected = false,
-                isChannel = false
-            ),
-            FilterConversationUi(
-                id = ConversationId("conv3", "domain"),
-                name = "Project Gamma",
-                selected = false,
-                isChannel = false
-            ),
-        )
-        val state = ConversationFilterSheetState(conversations)
-
-        val filtered = state.filteredConversations("Team")
-
-        assertEquals(2, filtered.size)
-        assertTrue(filtered.all { it.name.contains("Team") })
-    }
-
-    @Test
-    fun `given query with different case, then filteredConversations is case insensitive`() {
-        val state = ConversationFilterSheetState(testConversations)
-
-        val filtered = state.filteredConversations("PROJECT ALPHA")
-
-        assertEquals(1, filtered.size)
-        assertEquals("Project Alpha", filtered.first().name)
-    }
-
-    @Test
-    fun `given query matching no conversations, then filteredConversations returns empty list`() {
-        val state = ConversationFilterSheetState(testConversations)
-
-        val filtered = state.filteredConversations("NonExistent")
-
-        assertTrue(filtered.isEmpty())
-    }
-
-    @Test
-    fun `given query matching partial name, then filteredConversations returns matching conversations`() {
-        val state = ConversationFilterSheetState(testConversations)
-
-        val filtered = state.filteredConversations("Chan")
-
-        assertEquals(1, filtered.size)
-        assertEquals("General Channel", filtered.first().name)
-    }
-
-    @Test
-    fun `given empty conversations list, then state handles empty list correctly`() {
-        val state = ConversationFilterSheetState(emptyList())
-
-        assertEquals(0, state.conversations.size)
         assertFalse(state.hasChanges)
-        assertTrue(state.selectedConversation().isEmpty())
-        assertTrue(state.filteredConversations("test").isEmpty())
-    }
-
-    @Test
-    fun `given single selection mode, only one conversation can be selected at a time`() {
-        val state = ConversationFilterSheetState(testConversations)
-
-        state.selectConversation(conv1Id.toString())
-        state.selectConversation(conv2Id.toString())
-
-        val selected = state.selectedConversation()
-        assertEquals(1, selected.size)
-        assertEquals(conv2Id, selected.first().id)
     }
 }

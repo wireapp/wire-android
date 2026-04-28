@@ -40,6 +40,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -296,6 +297,7 @@ class MessageAttachmentsViewModelTest {
         val (_, viewModel) = Arrangement().arrange()
 
         viewModel.onFilesAddedAsBundle(listOf(testBundle(".bad.txt")))
+        runCurrent()
 
         assertTrue(viewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible)
     }

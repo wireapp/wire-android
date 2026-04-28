@@ -45,7 +45,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockkObject
-import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
@@ -339,8 +338,6 @@ class CellViewModelTest {
 
         fun withCachedPath(uuid: String, path: String) = apply {
             sharedPathCache.put(uuid, path)
-            mockkStatic(java.io.File::class)
-            every { java.io.File(path).exists() } returns true
         }
 
         fun withDownloadSuccess() = apply {

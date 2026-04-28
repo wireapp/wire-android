@@ -298,7 +298,14 @@ class CellViewModel @Inject constructor(
             cellNode.isOpenError -> startOpenDownload(cellNode)
             cellNode.localFileAvailable() -> openLocalFile(cellNode)
             cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
-            else -> startOpenDownload(cellNode)
+            else -> {
+                val cachedPath = sharedPathCache.paths.value[cellNode.uuid]
+                if (cachedPath != null) {
+                    openLocalFile(cellNode.copy(localPath = cachedPath))
+                } else {
+                    startOpenDownload(cellNode)
+                }
+            }
         }
     }
 

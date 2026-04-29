@@ -41,6 +41,8 @@ import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
 import com.wire.kalium.logic.feature.debug.RepairResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
+import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
+import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.TargetedRepairParam
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
@@ -62,6 +64,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions")
 @ViewModelScopedPreview
 interface DebugDataOptionsViewModel {
     val infoMessage: SharedFlow<UIText> get() = MutableSharedFlow()
@@ -70,6 +73,9 @@ interface DebugDataOptionsViewModel {
     fun checkCrlRevocationList() {}
     fun restartSlowSyncForRecovery() {}
     fun enrollE2EICertificate() {}
+    fun updateE2EICertificateExpiration(seconds: Long) {}
+    fun increaseE2EICertificateExpiration() {}
+    fun decreaseE2EICertificateExpiration() {}
     fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {}
     fun dismissCertificateDialog() {}
     fun forceUpdateApiVersions() {}
@@ -98,6 +104,8 @@ class DebugDataOptionsViewModelImpl
     private val observeAsyncNotificationsEnabled: ObserveIsConsumableNotificationsEnabledUseCase,
     private val startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase,
     private val repairFaultyRemovalKeys: RepairFaultyRemovalKeysUseCase,
+    private val getDebugE2EICertificateExpiration: GetDebugE2EICertificateExpirationUseCase,
+    private val setDebugE2EICertificateExpiration: SetDebugE2EICertificateExpirationUseCase,
 ) : ViewModel(), DebugDataOptionsViewModel {
 
     override var state by mutableStateOf(
@@ -107,6 +115,11 @@ class DebugDataOptionsViewModelImpl
     private val _infoMessage = MutableSharedFlow<UIText>()
     override val infoMessage = _infoMessage.asSharedFlow()
 
+    private companion object {
+        const val MIN_E2EI_CERTIFICATE_EXPIRATION_SECONDS = 360L
+        const val E2EI_CERTIFICATE_EXPIRATION_STEP_SECONDS = 60L
+    }
+
     init {
         observeAsyncNotificationsEnabledData()
         observeMlsMetadata()
@@ -114,6 +127,7 @@ class DebugDataOptionsViewModelImpl
         setAnalyticsTrackingId()
         setServerConfigData()
         setDefaultProtocol()
+        loadDebugE2EICertificateExpiration()
     }
 
     private fun observeAsyncNotificationsEnabledData() {
@@ -188,6 +202,18 @@ class DebugDataOptionsViewModelImpl
 
     override fun enrollE2EICertificate() {
         state = state.copy(startGettingE2EICertificate = true)
+    }
+
+    override fun updateE2EICertificateExpiration(seconds: Long) {
+        setE2EICertificateExpiration(seconds)
+    }
+
+    override fun increaseE2EICertificateExpiration() {
+        setE2EICertificateExpiration(state.e2eiCertificateExpirationSeconds + E2EI_CERTIFICATE_EXPIRATION_STEP_SECONDS)
+    }
+
+    override fun decreaseE2EICertificateExpiration() {
+        setE2EICertificateExpiration(state.e2eiCertificateExpirationSeconds - E2EI_CERTIFICATE_EXPIRATION_STEP_SECONDS)
     }
 
     override fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {
@@ -330,6 +356,22 @@ class DebugDataOptionsViewModelImpl
                     }
                 }
             }
+        }
+    }
+
+    private fun loadDebugE2EICertificateExpiration() {
+        viewModelScope.launch {
+            state = state.copy(
+                e2eiCertificateExpirationSeconds = getDebugE2EICertificateExpiration()
+            )
+        }
+    }
+
+    private fun setE2EICertificateExpiration(seconds: Long) {
+        val expiration = seconds.coerceAtLeast(MIN_E2EI_CERTIFICATE_EXPIRATION_SECONDS)
+        state = state.copy(e2eiCertificateExpirationSeconds = expiration)
+        viewModelScope.launch {
+            setDebugE2EICertificateExpiration(expiration)
         }
     }
     //endregion

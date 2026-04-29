@@ -40,6 +40,8 @@ import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabl
 import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
+import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
+import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
@@ -242,6 +244,41 @@ class DebugDataOptionsViewModelTest {
         assertEquals(true, viewModel.state.isAsyncNotificationsEnabled)
         coVerify(exactly = 0) { arrangement.startUsingAsyncNotifications() }
     }
+
+    @Test
+    fun `given e2ei expiration is loaded, view state should contain loaded value`() = runTest {
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withDebugE2EICertificateExpiration(999)
+            .arrange()
+
+        assertEquals(999, viewModel.state.e2eiCertificateExpirationSeconds)
+    }
+
+    @Test
+    fun `given expiration below minimum, when updating e2ei expiration, then minimum value is used`() = runTest {
+        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement().arrange()
+
+        viewModel.updateE2EICertificateExpiration(120)
+
+        assertEquals(360, viewModel.state.e2eiCertificateExpirationSeconds)
+        coVerify(exactly = 1) { arrangement.setDebugE2EICertificateExpiration(360) }
+    }
+
+    @Test
+    fun `given expiration value, when increasing and then decreasing, then value is updated and use case is called`() = runTest {
+        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
+            .withDebugE2EICertificateExpiration(360)
+            .arrange()
+
+        viewModel.increaseE2EICertificateExpiration()
+        assertEquals(420, viewModel.state.e2eiCertificateExpirationSeconds)
+
+        viewModel.decreaseE2EICertificateExpiration()
+        assertEquals(360, viewModel.state.e2eiCertificateExpirationSeconds)
+
+        coVerify(exactly = 1) { arrangement.setDebugE2EICertificateExpiration(420) }
+        coVerify(exactly = 1) { arrangement.setDebugE2EICertificateExpiration(360) }
+    }
 }
 
 internal class DebugDataOptionsHiltArrangement {
@@ -284,6 +321,12 @@ internal class DebugDataOptionsHiltArrangement {
     @MockK
     lateinit var repairFaultyRemovalKeysUseCase: RepairFaultyRemovalKeysUseCase
 
+    @MockK
+    lateinit var getDebugE2EICertificateExpiration: GetDebugE2EICertificateExpirationUseCase
+
+    @MockK
+    lateinit var setDebugE2EICertificateExpiration: SetDebugE2EICertificateExpirationUseCase
+
     private val viewModel by lazy {
         DebugDataOptionsViewModelImpl(
             context = context,
@@ -299,7 +342,9 @@ internal class DebugDataOptionsHiltArrangement {
             getDefaultProtocolUseCase = getDefaultProtocolUseCase,
             startUsingAsyncNotifications = startUsingAsyncNotifications,
             observeAsyncNotificationsEnabled = observeIsConsumableNotificationsEnabled,
-            repairFaultyRemovalKeys = repairFaultyRemovalKeysUseCase
+            repairFaultyRemovalKeys = repairFaultyRemovalKeysUseCase,
+            getDebugE2EICertificateExpiration = getDebugE2EICertificateExpiration,
+            setDebugE2EICertificateExpiration = setDebugE2EICertificateExpiration
         )
     }
 
@@ -338,7 +383,13 @@ internal class DebugDataOptionsHiltArrangement {
             } returns SupportedProtocol.PROTEUS
 
             withObserveIsConsumableNotificationsEnabled(false)
+            coEvery { getDebugE2EICertificateExpiration() } returns 360
+            coEvery { setDebugE2EICertificateExpiration(any()) } returns Unit
         }
+    }
+
+    fun withDebugE2EICertificateExpiration(expiration: Long) = apply {
+        coEvery { getDebugE2EICertificateExpiration() } returns expiration
     }
 
     suspend fun withObserveIsConsumableNotificationsEnabled(isEnabled: Boolean = false) = apply {

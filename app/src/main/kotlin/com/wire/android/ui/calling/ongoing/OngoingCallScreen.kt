@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -449,9 +450,12 @@ private fun OngoingCallContent(
                         showInCallReactionsPanel = !showInCallReactionsPanel
                     },
                     onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
-                    modifier = Modifier.onGloballyPositioned {
-                        sheetPeekHeight = it.positionInParent().y + it.size.height.toFloat()
-                    }
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .widthIn(max = dimensions().callingControlPanelMaxWidth)
+                        .onGloballyPositioned {
+                            sheetPeekHeight = it.positionInParent().y + it.size.height.toFloat()
+                        }
                 )
                 BoxWithConstraints {
                     Column(

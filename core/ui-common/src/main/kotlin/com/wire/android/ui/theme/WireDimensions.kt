@@ -198,6 +198,7 @@ data class WireDimensions(
     val defaultSearchLazyColumnHeight: Dp,
     val groupButtonHeight: Dp,
     // Calling
+    val callingControlPanelMaxWidth: Dp,
     val defaultCallingControlsSize: Dp,
     val defaultCallingControlsHeight: Dp,
     val defaultCallingControlsWidth: Dp,
@@ -380,6 +381,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     systemMessageIconSize = 16.dp,
     systemMessageIconLargeSize = 18.dp,
     groupButtonHeight = 82.dp,
+    callingControlPanelMaxWidth = 480.dp,
     defaultCallingControlsSize = 56.dp,
     defaultCallingControlsHeight = 40.dp,
     defaultCallingControlsWidth = 56.dp,

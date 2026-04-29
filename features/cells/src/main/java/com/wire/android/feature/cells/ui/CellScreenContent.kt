@@ -270,8 +270,6 @@ internal fun CellScreenContent(
         }
     }
 
-    // Lifecycle-independent: collects even when this screen is in the back stack, so the snackbar
-    // appears on whichever Cell screen is currently active (global snackbar behaviour).
     LaunchedEffect(Unit) {
         fileReadyFlow?.collect { file ->
             val message = fileReadyMessageFormat.format(file.name ?: file.uuid)

@@ -117,14 +117,7 @@ internal fun CellListItem(
 
         AnimatedContent(
             targetState = iconState,
-            contentKey = { state ->
-                when (state) {
-                    is CellIconState.Loading -> "loading"
-                    is CellIconState.Ready -> "ready"
-                    is CellIconState.FileIcon -> "file"
-                    is CellIconState.FolderIcon -> "folder"
-                }
-            },
+            contentKey = { it::class.simpleName },
             transitionSpec = {
                 (scaleIn(initialScale = 0.72f) + fadeIn()) togetherWith (scaleOut(targetScale = 0.72f) + fadeOut())
             },

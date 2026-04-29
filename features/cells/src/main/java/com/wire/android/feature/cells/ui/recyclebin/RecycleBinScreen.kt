@@ -140,8 +140,7 @@ fun RecycleBinScreen(
                     showRenameScreen = { },
                     showAddRemoveTagsScreen = {},
                     isRefreshing = cellViewModel.isPullToRefresh.collectAsState(),
-                    onRefresh = { cellViewModel.onPullToRefresh() },
-                    fileReadyFlow = cellViewModel.fileReadyFlow,
+                    onRefresh = { cellViewModel.onPullToRefresh() }
                 )
             }
         }

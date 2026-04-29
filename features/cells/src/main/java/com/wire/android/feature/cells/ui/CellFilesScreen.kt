@@ -121,7 +121,6 @@ private fun ContentList(
         ) { index ->
 
             cellNodes[index]?.let { item ->
-                // Apply external open-load state overlay for items whose paging data doesn't carry it (e.g. Search)
                 val overlaidItem = if (item is CellNodeUi.File) {
                     val state = externalOpenLoadStates[item.uuid]
                     val cachedPath = cachedLocalPaths[item.uuid]
@@ -131,7 +130,6 @@ private fun ContentList(
                             isOpenReady = state is OpenLoadState.Ready,
                             isOpenError = state is OpenLoadState.Error,
                             openLoadProgress = (state as? OpenLoadState.Loading)?.progress,
-                            // Prefer cached localPath so re-tapping after "Ready" dismissal opens from cache
                             localPath = (state as? OpenLoadState.Ready)?.localPath?.toString()
                                 ?: cachedPath
                                 ?: item.localPath,

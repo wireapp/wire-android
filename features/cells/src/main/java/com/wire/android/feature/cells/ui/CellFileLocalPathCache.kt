@@ -29,12 +29,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Process-scoped singleton that keeps track of locally-cached file paths (uuid → absolute path string)
- * across all [CellViewModel] instances. This allows a file downloaded in one screen (e.g. Search) to
- * appear as already-available in another screen (e.g. All Files) without re-downloading.
- *
- * Also acts as the global event bus for "file ready to open" snackbar events, so that the snackbar
- * is shown on whichever screen is currently active — even if the download finished on a different screen.
+ * A simple in-memory cache to store local file paths for cell nodes.
+ * It also provides a channel to emit events when a file is ready to be opened.
  */
 @Singleton
 class CellFileLocalPathCache @Inject constructor() {

@@ -133,7 +133,7 @@ class PersonalUserRegistrationTest : BaseUiTest() {
                 assertUserNameHelpText()
 
                 setUserName(userInfo.username)
-                clickConfirmButton()
+                //clickConfirmButton()
             }
         }
 

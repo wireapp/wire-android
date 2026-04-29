@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Run attempt 0 on the normal selector, then rerun only the tests that still
-# fail. Each retry attempt gets an explicit per-device test list so the
-# workflow, not Android sharding, controls which leftover failures execute.
+# Run either the normal selector contract or an explicit failed-test list, then
+# rerun only the tests that still fail. Each rerun attempt gets an explicit
+# per-device test list so the workflow, not Android sharding, controls which
+# leftover failures execute.
 : "${DEVICE_LIST:?DEVICE_LIST missing}"
 : "${DEVICE_COUNT:?DEVICE_COUNT missing}"
 : "${APP_ID:?APP_ID missing}"
@@ -21,6 +22,7 @@ ALLURE_RESULTS_ROOT="${ALLURE_RESULTS_ROOT:-${RUNNER_TEMP}/allure-results}"
 ALLURE_PULL_MAX_ATTEMPTS="${ALLURE_PULL_MAX_ATTEMPTS:-3}"
 ALLURE_PULL_BASE_DELAY_SEC="${ALLURE_PULL_BASE_DELAY_SEC:-5}"
 RERUN_INLINE_PART_MAX_CHARS="${RERUN_INLINE_PART_MAX_CHARS:-7000}"
+INITIAL_FAILED_TESTS_FILE="${INITIAL_FAILED_TESTS_FILE:-}"
 
 if [[ ! "${RERUN_FAILED_ENABLED}" =~ ^(true|false)$ ]]; then
   echo "ERROR: RERUN_FAILED_ENABLED must be true or false."
@@ -67,10 +69,48 @@ if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
   BASE_NUM_SHARDS="1"
 fi
 
-echo "Sharding (attempt 0): numShards=${BASE_NUM_SHARDS}, deviceCount=${DEVICE_COUNT}"
+normalize_test_list() {
+  local src="$1"
+  local dest="$2"
+  local line=""
+
+  : > "${dest}"
+  while IFS= read -r line || [[ -n "${line}" ]]; do
+    line="${line%$'\r'}"
+    [[ -z "${line}" ]] && continue
+    printf '%s\n' "${line}" >> "${dest}"
+  done < "${src}"
+}
+
+attempt_uses_selector_mode() {
+  local attempt="$1"
+  [[ -z "${NORMALIZED_INITIAL_FAILED_TESTS_FILE:-}" ]] && (( attempt == 0 ))
+}
+
+NORMALIZED_INITIAL_FAILED_TESTS_FILE=""
+if [[ -n "${INITIAL_FAILED_TESTS_FILE}" ]]; then
+  if [[ ! -f "${INITIAL_FAILED_TESTS_FILE}" ]]; then
+    echo "ERROR: INITIAL_FAILED_TESTS_FILE does not exist: ${INITIAL_FAILED_TESTS_FILE}"
+    exit 1
+  fi
+
+  # Keep the starting deflake list inside retry-state so later steps use one
+  # stable file location regardless of where the workflow downloaded it.
+  NORMALIZED_INITIAL_FAILED_TESTS_FILE="${STATE_DIR}/initial-failed-tests.txt"
+  normalize_test_list "${INITIAL_FAILED_TESTS_FILE}" "${NORMALIZED_INITIAL_FAILED_TESTS_FILE}"
+  if [[ ! -s "${NORMALIZED_INITIAL_FAILED_TESTS_FILE}" ]]; then
+    echo "ERROR: INITIAL_FAILED_TESTS_FILE did not contain any tests to execute."
+    exit 1
+  fi
+fi
+
+echo "Selector-mode sharding: numShards=${BASE_NUM_SHARDS}, deviceCount=${DEVICE_COUNT}"
 echo "Retry config: enabled=${RERUN_FAILED_ENABLED}, maxReruns=${MAX_RERUNS}, retryDevices=${RETRY_DEVICES[*]}"
 echo "Allure pull retries: maxAttempts=${MAX_PULL_ATTEMPTS}, baseDelaySec=${PULL_BASE_DELAY_SEC}"
 echo "Retry inline transport: partMaxChars=${INLINE_PART_MAX_CHARS}"
+if [[ -n "${NORMALIZED_INITIAL_FAILED_TESTS_FILE}" ]]; then
+  echo "Manual deflake source list: ${NORMALIZED_INITIAL_FAILED_TESTS_FILE}"
+fi
 
 declare -a RERUN_INLINE_PARTS=()
 
@@ -276,8 +316,8 @@ run_attempt_on_devices() {
   local pids=()
   local shard_index=0
 
-  # Attempt 0 uses the normal selector contract. Retry attempts run one shard
-  # per device and receive explicit rerun lists prepared from failed tests.
+  # Selector mode uses Android sharding. Explicit-list mode always runs one
+  # shard per device because the workflow already owns the failed-test split.
 
   for serial in "${devices[@]}"; do
     (
@@ -333,7 +373,7 @@ run_attempt_on_devices() {
       args+=(-e shardIndex "${this_shard_index}")
       args+=(-e filter "com.wire.android.tests.support.suite.TaggedFilter")
 
-      if (( attempt == 0 )); then
+      if attempt_uses_selector_mode "${attempt}"; then
         if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
           args+=(-e testCaseId "${RESOLVED_TESTCASE_ID}")
         fi
@@ -426,16 +466,36 @@ run_attempt_on_devices() {
   return "${failed}"
 }
 
-# Keep the initial failed list in a separate file so attempt 0 bookkeeping
-# does not try to copy a file onto itself before reruns begin.
+# Keep the first executed failed list in a separate file so later bookkeeping
+# can compare the run entry point against the final leftover failures.
 first_failed_file="${STATE_DIR}/first-attempt-failed.txt"
 current_failed_file=""
 attempt=0
 overall_infra_failed=0
 declare -a infra_failed_attempts=()
+MAX_ATTEMPT_NUMBER="${MAX_RERUNS}"
+
+if [[ -n "${NORMALIZED_INITIAL_FAILED_TESTS_FILE}" ]]; then
+  attempt=1
+  MAX_ATTEMPT_NUMBER="$((MAX_RERUNS + 1))"
+
+  initial_failed_count="$(count_tests_in_list_file "${NORMALIZED_INITIAL_FAILED_TESTS_FILE}")"
+  retry_device_count="${#DEVICES[@]}"
+  if (( initial_failed_count < retry_device_count )); then
+    retry_device_count="${initial_failed_count}"
+  fi
+  if (( retry_device_count < 1 )); then
+    retry_device_count=1
+  fi
+  RETRY_DEVICES=("${DEVICES[@]:0:${retry_device_count}}")
+  if ! prepare_retry_assignments "${attempt}" "${NORMALIZED_INITIAL_FAILED_TESTS_FILE}" "${RETRY_DEVICES[@]}"; then
+    exit 1
+  fi
+  echo "Prepared initial deflake attempt ${attempt}: tests=${initial_failed_count}, devices=${RETRY_DEVICES[*]}, shardsPerDevice=1."
+fi
 
 while true; do
-  if (( attempt == 0 )); then
+  if attempt_uses_selector_mode "${attempt}"; then
     attempt_num_shards="${BASE_NUM_SHARDS}"
     attempt_devices=("${DEVICES[@]}")
   else
@@ -462,7 +522,7 @@ while true; do
   failed_count="$(wc -l < "${attempt_failed_file}" | tr -d ' ')"
   echo "Attempt ${attempt} failed tests: ${failed_count}"
 
-  if (( attempt == 0 )); then
+  if [[ ! -f "${first_failed_file}" ]]; then
     cp "${attempt_failed_file}" "${first_failed_file}"
   fi
   current_failed_file="${attempt_failed_file}"
@@ -475,7 +535,7 @@ while true; do
     break
   fi
 
-  if (( attempt >= MAX_RERUNS )); then
+  if (( attempt >= MAX_ATTEMPT_NUMBER )); then
     break
   fi
 

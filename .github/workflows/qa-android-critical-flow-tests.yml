@@ -333,6 +333,7 @@ jobs:
         env:
           REPORT_DIR: ${{ runner.temp }}/allure-report
           PAGES_DIR: gh-pages/docs/qa-ui-tests
+          PAGES_TITLE: QA Android Critical Flow Tests
           KEEP_DAYS: "90"
           INPUT_TAGS: ${{ inputs.TAGS }}
           APK_VERSION: ${{ env.REAL_BUILD_NUMBER }}

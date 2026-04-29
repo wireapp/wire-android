@@ -442,7 +442,6 @@ class CellFileActionsMenuTest {
         val fileNode = CellNodeUi.File(
             name = "file.txt",
             conversationName = "Conversation",
-            downloadProgress = null,
             uuid = "fileUuid",
             mimeType = "video/mp4",
             assetType = AttachmentFileType.VIDEO,

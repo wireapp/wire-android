@@ -38,7 +38,6 @@ import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.functional.right
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -271,8 +270,6 @@ class CellViewModelTest {
         @MockK
         lateinit var fileHelper: FileHelper
 
-        @MockK
-        lateinit var kaliumFileSystem: KaliumFileSystem
 
         @MockK
         lateinit var fileNameResolver: FileNameResolver
@@ -303,9 +300,6 @@ class CellViewModelTest {
             every { savedStateHandle.get<String>(any()) } returns conversationId
             every { savedStateHandle.get<String>("conversationId") } returns conversationId
 
-            every { kaliumFileSystem.providePersistentAssetPath(any()) } returns localFilePath
-
-            every { kaliumFileSystem.exists(any()) } returns false
 
             coEvery { isCellAvailableUseCase.invoke() } returns true.right()
 
@@ -366,20 +360,26 @@ class CellViewModelTest {
 
             coEvery { getWireCellsConfig() } returns null
 
+            val openFileDownloadController = OpenFileDownloadController(
+                download = downloadCellFileUseCase,
+                fileHelper = fileHelper,
+                fileNameResolver = fileNameResolver,
+                sharedPathCache = sharedPathCache,
+            )
+
             return this to CellViewModel(
                 savedStateHandle = savedStateHandle,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
-                download = downloadCellFileUseCase,
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
-                fileNameResolver = fileNameResolver,
                 onlineEditor = onlineEditor,
                 getEditorUrl = getEditorUrlUseCase,
                 cellFileActionsMenu = cellFileActionsMenu,
                 getWireCellsConfig = getWireCellsConfig,
                 sharedPathCache = sharedPathCache,
+                openFileDownloadController = openFileDownloadController,
             )
         }
     }

@@ -156,23 +156,6 @@ fun openBackupAndRestoreConversationsMenu(timeoutMs: Long = 10_000): SettingsPag
     }
 
     return this
-}
-        val deadline = SystemClock.uptimeMillis() + timeoutMs
-
-        while (SystemClock.uptimeMillis() < deadline) {
-            val menu = UiWaitUtils.findElementOrNull(backUpMenuButton)
-            if (menu != null && !menu.visibleBounds.isEmpty && menu.isEnabled) {
-                runCatching { menu.click() }
-
-                if (isBackupPageOpen()) {
-                    return this
-                }
-            }
-
-            SystemClock.sleep(200)
-        }
-
-        throw AssertionError("Could not open 'Back up & Restore Conversations' within ${timeoutMs}ms.")
     }
 
     private fun isBackupPageOpen(): Boolean {

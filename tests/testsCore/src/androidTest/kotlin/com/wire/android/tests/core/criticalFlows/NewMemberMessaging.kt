@@ -39,7 +39,7 @@ import kotlin.getValue
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
-import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
+import uiautomatorutils.UiWaitUtils
 
 @RunWith(AndroidJUnit4::class)
 class NewMemberMessaging : BaseUiTest() {
@@ -161,7 +161,7 @@ class NewMemberMessaging : BaseUiTest() {
             }
 
             pages.conversationListPage.apply {
-                waitFor(1)
+                UiWaitUtils.waitFor(1)
                 clickCloseButtonOnNewConversationScreen()
                 assertConversationListVisible()
             }

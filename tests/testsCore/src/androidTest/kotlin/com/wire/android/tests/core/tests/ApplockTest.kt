@@ -107,7 +107,7 @@ class ApplockTest : BaseUiTest() {
             pages.registrationPage.apply {
                 waitUntilLoginFlowIsCompleted()
                 clickAllowNotificationButton()
-                //clickAgreeShareDataAlert()
+                // clickAgreeShareDataAlert()
                 assertConversationPageVisible()
             }
         }

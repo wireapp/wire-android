@@ -62,8 +62,6 @@ class OpenFileDownloadControllerTest {
         Dispatchers.resetMain()
     }
 
-    // region — error / guard cases
-
     @Test
     fun givenFileWithNoName_whenStartCalled_thenOnErrorCallbackInvoked() = runTest {
         val (_, controller) = Arrangement().arrange()
@@ -256,10 +254,14 @@ class OpenFileDownloadControllerTest {
 
         // The shared path cache is populated by onSuccess regardless of fast/slow path.
         // Exactly one entry means exactly one download completed.
-        assertEquals(1, arrangement.sharedPathCache.paths.value.size,
-            "Only the second download should have stored a path")
-        assertTrue(controller.openLoadStates.value[testFile.uuid] is OpenLoadState.Ready,
-            "State should be Ready after the second download completes")
+        assertEquals(
+            1, arrangement.sharedPathCache.paths.value.size,
+            "Only the second download should have stored a path"
+        )
+        assertTrue(
+            controller.openLoadStates.value[testFile.uuid] is OpenLoadState.Ready,
+            "State should be Ready after the second download completes"
+        )
     }
 
     @Test
@@ -354,7 +356,7 @@ class OpenFileDownloadControllerTest {
 
         fun withDownloadFailure(uuid: String = testFile.uuid) = apply {
             coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any()) } returns
-                StorageFailure.DataNotFound.left()
+                    StorageFailure.DataNotFound.left()
         }
 
         fun withProgressThenSuccess(progress: Long, uuid: String = testFile.uuid) = apply {

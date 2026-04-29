@@ -270,7 +270,6 @@ class CellViewModelTest {
         @MockK
         lateinit var fileHelper: FileHelper
 
-
         @MockK
         lateinit var fileNameResolver: FileNameResolver
 
@@ -299,7 +298,6 @@ class CellViewModelTest {
 
             every { savedStateHandle.get<String>(any()) } returns conversationId
             every { savedStateHandle.get<String>("conversationId") } returns conversationId
-
 
             coEvery { isCellAvailableUseCase.invoke() } returns true.right()
 

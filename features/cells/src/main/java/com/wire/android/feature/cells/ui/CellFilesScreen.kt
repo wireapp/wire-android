@@ -47,6 +47,7 @@ import androidx.paging.compose.itemKey
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
+import com.wire.android.feature.cells.ui.model.withOpenLoadState
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -122,21 +123,10 @@ private fun ContentList(
 
             cellNodes[index]?.let { item ->
                 val overlaidItem = if (item is CellNodeUi.File) {
-                    val state = externalOpenLoadStates[item.uuid]
-                    val cachedPath = cachedLocalPaths[item.uuid]
-                    if (state != null || cachedPath != null) {
-                        item.copy(
-                            isOpenLoading = state is OpenLoadState.Loading,
-                            isOpenReady = state is OpenLoadState.Ready,
-                            isOpenError = state is OpenLoadState.Error,
-                            openLoadProgress = (state as? OpenLoadState.Loading)?.progress,
-                            localPath = (state as? OpenLoadState.Ready)?.localPath?.toString()
-                                ?: cachedPath
-                                ?: item.localPath,
-                        )
-                    } else {
-                        item
-                    }
+                    item.withOpenLoadState(
+                        state = externalOpenLoadStates[item.uuid],
+                        cachedPath = cachedLocalPaths[item.uuid],
+                    )
                 } else {
                     item
                 }

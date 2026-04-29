@@ -40,7 +40,6 @@ import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
 import com.wire.android.feature.cells.util.FileHelper
-import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.SortingSpec
@@ -51,14 +50,11 @@ import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
-import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.toImmutableMap
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -76,7 +72,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import javax.inject.Inject
 
@@ -87,15 +82,14 @@ class CellViewModel @Inject constructor(
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
-    private val download: DownloadCellFileUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
-    private val fileNameResolver: FileNameResolver,
     private val getEditorUrl: GetEditorUrlUseCase,
     private val onlineEditor: OnlineEditor,
     private val cellFileActionsMenu: CellFileActionsMenu,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
+    private val openFileDownloadController: OpenFileDownloadController,
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
@@ -116,14 +110,8 @@ class CellViewModel @Inject constructor(
     private val _isDeleteInProgress = MutableStateFlow(false)
     val isDeleteInProgress = _isDeleteInProgress.asStateFlow()
 
-    private data class DownloadSession(val job: Job, val token: Long)
-    private val openDownloads = mutableMapOf<String, DownloadSession>()
-
-    // Open-loading state: tracks files being silently downloaded for immediate open.
-    private val openLoadStateFlow = MutableStateFlow<Map<String, OpenLoadState>>(emptyMap())
-
-    /** Public map of uuid → (isOpenLoading, isOpenReady) for screens that build their own paging flow (e.g. Search). */
-    internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = openLoadStateFlow.asStateFlow()
+    /** Public map of uuid → open-load state for screens that build their own paging flow (e.g. Search). */
+    internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = openFileDownloadController.openLoadStates
 
     internal val fileReadyFlow: Flow<CellNodeUi.File> = sharedPathCache.fileReadyEvents
 
@@ -193,7 +181,7 @@ class CellViewModel @Inject constructor(
                         ),
                     ).cachedIn(viewModelScope),
                     removedItemsFlow,
-                    openLoadStateFlow,
+                    openFileDownloadController.openLoadStates,
                     sharedPathCache.paths,
                 ) { pagingData, removedItems, openLoadStates, cachedPaths ->
                     var emittedRefreshDone = false
@@ -294,72 +282,16 @@ class CellViewModel @Inject constructor(
     }
 
     private fun startOpenDownload(cellNode: CellNodeUi.File) {
-        val myToken = (openDownloads[cellNode.uuid]?.token ?: 0L) + 1L
-
-        val job = viewModelScope.launch {
-            val nodeName = cellNode.name ?: run {
-                sendAction(ShowError(CellError.OTHER_ERROR))
-                return@launch
-            }
-
-            val cacheDir = fileHelper.getCacheDir()
-            val filePath = fileNameResolver.getUniqueFile(cacheDir, nodeName).toPath().toOkioPath()
-
-            var spinnerShown = false
-
-            val showSpinnerJob = launch {
-                delay(OPEN_SPINNER_DELAY_MS)
-                spinnerShown = true
-                updateOpenLoadState(cellNode.uuid) { OpenLoadState.Loading() }
-            }
-
-            download(
-                assetId = cellNode.uuid,
-                outFilePath = filePath,
-                remoteFilePath = cellNode.remotePath,
-                assetSize = cellNode.size ?: 0,
-            ) { progress ->
-                  viewModelScope.launch {
-                    if (openDownloads[cellNode.uuid]?.token == myToken) {
-                        val assetSize = cellNode.size ?: 0
-                        if (assetSize > 0) {
-                            val progressValue = (progress.toFloat() / assetSize).coerceIn(0f, 1f)
-                            updateOpenLoadState(cellNode.uuid) { OpenLoadState.Loading(progressValue) }
-                        }
-                    }
-                }
-            }
-                .onSuccess {
-                    showSpinnerJob.cancel()
-                    openDownloads.remove(cellNode.uuid)
-                    sharedPathCache.put(cellNode.uuid, filePath.toString())
-                    if (!spinnerShown) {
-                        // Fast path: download completed before 300ms threshold — open instantly
-                        clearOpenLoadState(cellNode.uuid)
-                        openLocalFile(cellNode.copy(localPath = filePath.toString()))
-                    } else {
-                        // Slow path: spinner was already shown — show ready state + snackbar
-                        updateOpenLoadState(cellNode.uuid) { OpenLoadState.Ready(filePath) }
-                        sharedPathCache.emitFileReady(cellNode.copy(localPath = filePath.toString()))
-                        // Auto-dismiss the "Ready" state after 3 seconds
-                        launch {
-                            delay(OPEN_READY_DISMISS_MS)
-                            clearOpenLoadState(cellNode.uuid)
-                        }
-                    }
-                }
-                .onFailure {
-                    showSpinnerJob.cancel()
-                    openDownloads.remove(cellNode.uuid)
-                    updateOpenLoadState(cellNode.uuid) { OpenLoadState.Error }
-                }
-        }
-        openDownloads[cellNode.uuid] = DownloadSession(job, myToken)
+        openFileDownloadController.start(
+            scope = viewModelScope,
+            cellNode = cellNode,
+            onOpenFile = ::openLocalFile,
+            onError = { sendAction(ShowError(it)) },
+        )
     }
 
     internal fun cancelOpenDownload(uuid: String) {
-        openDownloads.remove(uuid)?.job?.cancel()
-        clearOpenLoadState(uuid)
+        openFileDownloadController.cancel(uuid)
     }
 
     private fun onFolderClick(cellNode: CellNodeUi.Folder) {
@@ -545,17 +477,7 @@ class CellViewModel @Inject constructor(
     private fun addToListUi(node: CellNodeUi) = removedItemsFlow.update { it - node.uuid }
     fun clearRemovedItems() = removedItemsFlow.update { emptyList() }
 
-    private fun modifyOpenLoadStates(block: MutableMap<String, OpenLoadState>.() -> Unit) {
-        openLoadStateFlow.update { it.toMutableMap().apply(block).toImmutableMap() }
-    }
-
-    private fun updateOpenLoadState(uuid: String, block: () -> OpenLoadState) =
-        modifyOpenLoadStates { put(uuid, block()) }
-
-    private fun clearOpenLoadState(uuid: String) = modifyOpenLoadStates { remove(uuid) }
-
-    internal fun clearAllErrorStates() =
-        modifyOpenLoadStates { entries.removeAll { it.value is OpenLoadState.Error } }
+    internal fun clearAllErrorStates() = openFileDownloadController.clearAllErrorStates()
 
     private fun loadWireCellConfig() = viewModelScope.launch {
         val config = getWireCellsConfig()
@@ -614,5 +536,3 @@ data class MenuOptions(
 )
 
 private const val RESTORE_DELAY_MS = 300L
-private const val OPEN_SPINNER_DELAY_MS = 300L
-private const val OPEN_READY_DISMISS_MS = 3_000L

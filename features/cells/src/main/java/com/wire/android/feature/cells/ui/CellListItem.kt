@@ -91,7 +91,7 @@ internal fun CellListItem(
     var showReadyState by remember { mutableStateOf(false) }
     val cellState = rememberUpdatedState(cell)
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(cell.uuid) {
         snapshotFlow { cellState.value.isOpenReady }
             .filter { it }
             .collect {
@@ -369,19 +369,21 @@ private fun PublicLinkIcon(
 }
 
 @Composable
-private fun CellNodeUi.subtitle(): String? {
-    val user = userName
-    val conv = conversationName
-    val time = modifiedTime
-    return when {
-        user != null && conv != null -> stringResource(R.string.file_subtitle, user, conv)
-        user != null && time != null -> stringResource(R.string.file_subtitle_modified, time, user)
-        user != null -> user
-        conv != null -> conv
-        time != null -> time
+private fun CellNodeUi.subtitle() =
+    when {
+        userName != null && conversationName != null -> {
+            stringResource(R.string.file_subtitle, userName!!, conversationName!!)
+        }
+
+        userName != null && modifiedTime != null -> {
+            stringResource(R.string.file_subtitle_modified, modifiedTime!!, userName!!)
+        }
+
+        userName != null -> userName
+        conversationName != null -> conversationName
+        modifiedTime != null -> modifiedTime
         else -> null
     }
-}
 
 @PreviewMultipleThemes
 @Composable

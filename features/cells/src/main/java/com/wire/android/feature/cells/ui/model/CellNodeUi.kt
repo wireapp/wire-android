@@ -129,6 +129,23 @@ private fun Node.Folder.formattedModifiedTime() = modifiedTime?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }
 
+internal fun CellNodeUi.File.withOpenLoadState(
+    state: OpenLoadState?,
+    cachedPath: String?,
+): CellNodeUi.File = if (state == null && cachedPath == null) {
+    this
+} else {
+    copy(
+        isOpenLoading = state is OpenLoadState.Loading,
+        isOpenReady = state is OpenLoadState.Ready,
+        isOpenError = state is OpenLoadState.Error,
+        openLoadProgress = (state as? OpenLoadState.Loading)?.progress,
+        localPath = (state as? OpenLoadState.Ready)?.localPath?.toString()
+            ?: cachedPath
+            ?: localPath,
+    )
+}
+
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null
 internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)
 internal fun CellNodeUi.isEditSupported() = (this as? CellNodeUi.File)?.isEditSupported == true

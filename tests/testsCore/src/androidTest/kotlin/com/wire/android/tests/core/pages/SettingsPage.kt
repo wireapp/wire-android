@@ -141,7 +141,22 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
-    fun openBackupAndRestoreConversationsMenu(timeoutMs: Long = 10_000): SettingsPage {
+fun openBackupAndRestoreConversationsMenu(timeoutMs: Long = 10_000): SettingsPage {
+    val opened = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 200) {
+        UiWaitUtils.clickWhenClickable(
+            params = backUpMenuButton,
+            timeoutMs = 200,
+            pollingIntervalMs = 100
+        )
+        isBackupPageOpen()
+    }
+
+    if (!opened) {
+        throw AssertionError("Could not open 'Back up & Restore Conversations' within ${timeoutMs}ms.")
+    }
+
+    return this
+}
         val deadline = SystemClock.uptimeMillis() + timeoutMs
 
         while (SystemClock.uptimeMillis() < deadline) {

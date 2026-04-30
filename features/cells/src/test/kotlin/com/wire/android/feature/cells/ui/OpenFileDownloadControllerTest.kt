@@ -255,7 +255,8 @@ class OpenFileDownloadControllerTest {
         // The shared path cache is populated by onSuccess regardless of fast/slow path.
         // Exactly one entry means exactly one download completed.
         assertEquals(
-            1, arrangement.sharedPathCache.paths.value.size,
+            1,
+            arrangement.sharedPathCache.paths.value.size,
             "Only the second download should have stored a path"
         )
         assertTrue(

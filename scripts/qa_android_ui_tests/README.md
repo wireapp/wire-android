@@ -2,7 +2,7 @@
 
 These scripts back the workflow:
 
-- `.github/workflows/qa-android-ui-tests.yml`
+- `.github/workflows/qa-android-critical-flow-tests.yml`
 
 The workflow now calls a small set of phase-oriented scripts instead of many tiny one-off files.
 

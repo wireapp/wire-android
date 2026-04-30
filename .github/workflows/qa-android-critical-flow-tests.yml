@@ -1,4 +1,4 @@
-name: QA Android UI Tests
+name: QA Android Critical Flow Tests
 
 # Concurrency lock:
 # - If androidDeviceId is set, we lock per-device so only one run can use that specific phone at a time (other devices can run in parallel).
@@ -76,9 +76,9 @@ on:
         type: boolean
 
       rerunFailedCount:
-        description: "How many failed-test rerun attempts (0-3). Default is 2."
+        description: "How many failed-test rerun attempts (0-3). Default is 1."
         required: true
-        default: "2"
+        default: "1"
         type: string
 
 permissions:
@@ -126,9 +126,11 @@ jobs:
       - name: Print resolved values
         shell: bash
         env:
+          WORKFLOW_REF: ${{ github.ref_name }}
           FLAVOR_INPUT: ${{ inputs.flavor }}
           RESOLVED_TESTCASE_ID: ${{ steps.resolve_selector.outputs.testCaseId }}
           RESOLVED_CATEGORY: ${{ steps.resolve_selector.outputs.category }}
+          TESTINY_RUN_NAME: ${{ inputs.testinyRunName }}
         run: bash scripts/qa_android_ui_tests/validation.sh print-resolved-values
 
   run-android-ui-tests:
@@ -146,7 +148,6 @@ jobs:
 
     env:
       AWS_REGION: eu-west-1
-      S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       OP_VAULT: "Test Automation"
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
 
@@ -197,7 +198,7 @@ jobs:
           APP_BUILD_NUMBER: ${{ inputs.appBuildNumber }}
           IS_UPGRADE: ${{ inputs.isUpgrade }}
           OLD_BUILD_NUMBER: ${{ inputs.oldBuildNumber }}
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
+        run: S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
 
       # Select device(s): use input device when provided, otherwise auto-pick.
       - name: Detect target device(s)
@@ -222,9 +223,7 @@ jobs:
 
       # Fetch runtime secrets only for this run.
       - name: Fetch secrets.json (runtime only)
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
+        run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
 
       # Build androidTest APK once and reuse it across selected devices.
       - name: Build test APK (assemble once)
@@ -248,6 +247,42 @@ jobs:
           RERUN_FAILED_COUNT: ${{ inputs.rerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
         run: bash scripts/qa_android_ui_tests/run_ui_tests.sh
+
+      # Export one standard artifact so future manual deflake runs can reuse
+      # this workflow's exact run context and leftover failed test list.
+      - name: Prepare deflake input artifact
+        if: always()
+        env:
+          DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input
+          SOURCE_WORKFLOW_NAME: ${{ github.workflow }}
+          SOURCE_WORKFLOW_FILE: ".github/workflows/qa-android-critical-flow-tests.yml"
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_RUN_ID: ${{ github.run_id }}
+          SOURCE_RUN_NUMBER: ${{ github.run_number }}
+          SOURCE_RUN_ATTEMPT: ${{ github.run_attempt }}
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_REF_NAME: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.sha }}
+          FLAVOR_INPUT: ${{ inputs.flavor }}
+          TAGS_INPUT: ${{ inputs.TAGS }}
+          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
+          RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
+          APP_BUILD_NUMBER_INPUT: ${{ inputs.appBuildNumber }}
+          IS_UPGRADE: ${{ inputs.isUpgrade }}
+          ENFORCE_APP_INSTALL: ${{ inputs.enforceAppInstall }}
+          TESTINY_RUN_NAME: ${{ inputs.testinyRunName }}
+          ANDROID_DEVICE_ID: ${{ inputs.androidDeviceId }}
+          RERUN_FAILED_ENABLED: ${{ inputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ inputs.rerunFailedCount }}
+        run: bash scripts/qa_android_ui_tests/reporting.sh prepare-deflake-bundle
+
+      - name: Upload deflake input artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-ui-test-deflake-input
+          path: ${{ runner.temp }}/deflake-input
+          if-no-files-found: warn
 
       # Remove runtime secrets before report generation and publish steps.
       - name: Remove runtime secrets (before Allure/Pages)
@@ -295,6 +330,7 @@ jobs:
         env:
           REPORT_DIR: ${{ runner.temp }}/allure-report
           PAGES_DIR: gh-pages/docs/qa-ui-tests
+          PAGES_TITLE: QA Android Critical Flow Tests
           KEEP_DAYS: "90"
           INPUT_TAGS: ${{ inputs.TAGS }}
           APK_VERSION: ${{ env.REAL_BUILD_NUMBER }}

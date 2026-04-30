@@ -282,18 +282,13 @@ private fun E2EICertificateEnrollmentSection(
                 .fillMaxWidth()
                 .background(MaterialTheme.wireColorScheme.surface)
         ) {
-            Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = stringResource(R.string.debug_settings_e2ei_expiration_time),
-                modifier = Modifier.padding(start = dimensions().spacing8x, top = dimensions().spacing8x, bottom = dimensions().spacing4x)
-            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
                         start = dimensions().spacing8x,
                         end = dimensions().spacing8x,
+                        top = dimensions().spacing8x,
                         bottom = dimensions().spacing8x
                     ),
                 verticalAlignment = Alignment.CenterVertically
@@ -313,6 +308,7 @@ private fun E2EICertificateEnrollmentSection(
                     isError = isInputBelowMinimum,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    label = { Text(text = stringResource(R.string.debug_settings_e2ei_expiration_time)) },
                     supportingText = {
                         if (isInputBelowMinimum) {
                             Text(

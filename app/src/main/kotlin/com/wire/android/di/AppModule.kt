@@ -33,6 +33,8 @@ import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.ui.home.appLock.CurrentTimestampProvider
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameters
+import com.wire.android.util.GetMediaMetadataUseCase
+import com.wire.android.util.GetMediaMetadataUseCaseImpl
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.AndroidUiTextResolver
@@ -123,4 +125,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMessageSharedState(): MessageSharedState = MessageSharedState()
+
+    @Provides
+    fun provideGetMediaMetadataUseCase(): GetMediaMetadataUseCase = GetMediaMetadataUseCaseImpl()
 }

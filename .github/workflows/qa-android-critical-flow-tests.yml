@@ -148,7 +148,6 @@ jobs:
 
     env:
       AWS_REGION: eu-west-1
-      S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       OP_VAULT: "Test Automation"
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
 
@@ -199,7 +198,7 @@ jobs:
           APP_BUILD_NUMBER: ${{ inputs.appBuildNumber }}
           IS_UPGRADE: ${{ inputs.isUpgrade }}
           OLD_BUILD_NUMBER: ${{ inputs.oldBuildNumber }}
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
+        run: S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
 
       # Select device(s): use input device when provided, otherwise auto-pick.
       - name: Detect target device(s)
@@ -224,9 +223,7 @@ jobs:
 
       # Fetch runtime secrets only for this run.
       - name: Fetch secrets.json (runtime only)
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
+        run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
 
       # Build androidTest APK once and reuse it across selected devices.
       - name: Build test APK (assemble once)

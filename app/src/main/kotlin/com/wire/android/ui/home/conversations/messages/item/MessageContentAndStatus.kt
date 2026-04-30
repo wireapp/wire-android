@@ -24,14 +24,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import com.wire.android.ui.home.conversations.LocalAssetLocalPathKeyInScopeResolver
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.applyIf
@@ -78,6 +77,11 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     conversationDetailsData: ConversationDetailsData,
     accent: Accent = Accent.Unknown,
 ) {
+    val conversationAssetPathsViewModel: ConversationAssetPathsViewModel = when {
+        LocalInspectionMode.current -> ConversationAssetPathsViewModelPreview
+        else -> hiltViewModel<ConversationAssetPathsViewModelImpl>(key = message.conversationId.toString())
+    }
+
     val onAssetClickable = remember(message) {
         Clickable(enabled = isAvailable, onClick = {
             onAssetClicked(header.messageId)
@@ -115,7 +119,8 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onLinkClick = onLinkClicked,
                 onReplyClick = onReplyClickable,
                 messageStyle = messageStyle,
-                accent = accent
+                accent = accent,
+                conversationAssetPathsViewModel = conversationAssetPathsViewModel
             )
             if (!messageStyle.isBubble()) {
                 if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
@@ -161,85 +166,41 @@ private fun MessageContent(
     onOpenProfile: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
-    accent: Accent
+    accent: Accent,
+    conversationAssetPathsViewModel: ConversationAssetPathsViewModel
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
-            val args = AssetLocalPathArgs(message.conversationId, message.header.messageId)
-            val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
-            val viewModel: AssetLocalPathViewModel =
-                if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
-                    hiltViewModelScoped<
-                            AssetLocalPathViewModelImpl,
-                            AssetLocalPathViewModel,
-                            AssetLocalPathArgs,
-                            AssetLocalPathViewModelImpl.Factory,
-                            >(
-                        arguments = args,
-                        keyInScopeResolver = keyInScopeResolver,
-                    )
-                } else {
-                    hiltViewModelScoped<
-                        AssetLocalPathViewModelImpl,
-                        AssetLocalPathViewModel,
-                        AssetLocalPathArgs,
-                        AssetLocalPathViewModelImpl.Factory,
-                        >(
-                        args
-                    )
-                }
-            LaunchedEffect(assetStatus) {
-                viewModel.resolveIfNeeded(
-                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    downloadIfNeeded = true
-                )
-            }
+            val messageId = message.header.messageId
+            val localAssetPath = conversationAssetPathsViewModel.localAssetPath(
+                conversationId = message.conversationId,
+                messageId = messageId,
+                assetStatus = assetStatus,
+                downloadIfNeeded = true
+            )
 
             MessageImage(
                 imgParams = messageContent.params,
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onImageClick = onImageClick,
                 messageStyle = messageStyle,
-                assetPath = viewModel.localAssetPath?.toPath(normalize = true)
+                assetPath = localAssetPath?.toPath(normalize = true)
             )
         }
 
         is UIMessageContent.VideoMessage -> {
-            val args = AssetLocalPathArgs(message.conversationId, message.header.messageId)
-            val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
-            val viewModel: AssetLocalPathViewModel =
-                if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
-                    hiltViewModelScoped<
-                            AssetLocalPathViewModelImpl,
-                            AssetLocalPathViewModel,
-                            AssetLocalPathArgs,
-                            AssetLocalPathViewModelImpl.Factory,
-                            >(
-                        arguments = args,
-                        keyInScopeResolver = keyInScopeResolver,
-                    )
-                } else {
-                    hiltViewModelScoped<
-                        AssetLocalPathViewModelImpl,
-                        AssetLocalPathViewModel,
-                        AssetLocalPathArgs,
-                        AssetLocalPathViewModelImpl.Factory,
-                        >(
-                        args
-                    )
-                }
-            LaunchedEffect(assetStatus) {
-                viewModel.resolveIfNeeded(
-                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    downloadIfNeeded = false
-                )
-            }
+            val messageId = message.header.messageId
+            val localAssetPath = conversationAssetPathsViewModel.localAssetPath(
+                conversationId = message.conversationId,
+                messageId = messageId,
+                assetStatus = assetStatus
+            )
 
             VideoMessage(
                 assetSize = messageContent.assetSizeInBytes,
                 assetName = messageContent.assetName,
                 assetExtension = messageContent.assetExtension,
-                assetDataPath = viewModel.localAssetPath,
+                assetDataPath = localAssetPath,
                 params = messageContent.params,
                 duration = messageContent.duration,
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
@@ -333,41 +294,18 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AssetMessage -> {
-            val args = AssetLocalPathArgs(message.conversationId, message.header.messageId)
-            val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
-            val viewModel: AssetLocalPathViewModel =
-                if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
-                    hiltViewModelScoped<
-                            AssetLocalPathViewModelImpl,
-                            AssetLocalPathViewModel,
-                            AssetLocalPathArgs,
-                            AssetLocalPathViewModelImpl.Factory,
-                            >(
-                        arguments = args,
-                        keyInScopeResolver = keyInScopeResolver,
-                    )
-                } else {
-                    hiltViewModelScoped<
-                        AssetLocalPathViewModelImpl,
-                        AssetLocalPathViewModel,
-                        AssetLocalPathArgs,
-                        AssetLocalPathViewModelImpl.Factory,
-                        >(
-                        args
-                    )
-                }
-            LaunchedEffect(assetStatus) {
-                viewModel.resolveIfNeeded(
-                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    downloadIfNeeded = false
-                )
-            }
+            val messageId = message.header.messageId
+            val localAssetPath = conversationAssetPathsViewModel.localAssetPath(
+                conversationId = message.conversationId,
+                messageId = messageId,
+                assetStatus = assetStatus
+            )
 
             MessageAsset(
                 assetName = messageContent.assetName,
                 assetExtension = messageContent.assetExtension,
                 assetSizeInBytes = messageContent.assetSizeInBytes,
-                assetDataPath = viewModel.localAssetPath,
+                assetDataPath = localAssetPath,
                 assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onAssetClick = onAssetClick,
                 messageStyle = messageStyle

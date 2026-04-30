@@ -147,7 +147,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-@Suppress("ParameterWrapping")
+@Suppress("ParameterWrapping", "CyclomaticComplexMethod")
 @Composable
 fun OngoingCallScreen(
     conversationId: ConversationId,

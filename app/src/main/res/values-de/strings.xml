@@ -145,7 +145,7 @@
     <string name="content_description_record_audio_button_start">Audio aufnehmen</string>
     <string name="content_description_record_audio_button_stop">Aufnahme stoppen</string>
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
-    <string name="content_description_mls_certificate_valid">Alle Geräte aller Teilnehmer haben ein gültiges MLS-Zertifikat</string>
+    <string name="content_description_mls_certificate_valid">Alle Geräte sind überprüft (Ende-zu-Ende-Identität)</string>
     <string name="content_description_jump_to_last_message">Zum Ende der Unterhaltung scrollen</string>
     <string name="content_description_conversation_details_more_btn">Unterhaltungsoptionen öffnen</string>
     <string name="content_description_conversation_details_options_tab_header">Optionen</string>

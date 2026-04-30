@@ -63,6 +63,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 
 @Composable
@@ -203,7 +204,7 @@ fun DebugDataOptionsContent(
             )
 
             if (BuildConfig.PRIVATE_BUILD && BuildConfig.DEBUG_SCREEN_ENABLED) {
-                GetE2EICertificateSwitch(
+                E2EICertificateEnrollmentSection(
                     expirationSeconds = e2eiCertificateExpirationSeconds,
                     onExpirationChange = onE2EICertificateExpirationChange,
                     enrollE2EI = enrollE2EICertificate,
@@ -257,14 +258,15 @@ fun DebugDataOptionsContent(
 }
 
 @Composable
-private fun GetE2EICertificateSwitch(
+private fun E2EICertificateEnrollmentSection(
     expirationSeconds: Long,
     onExpirationChange: (Long) -> Unit,
     enrollE2EI: () -> Unit
 ) {
-    val minExpirationMinutes = 6L
+    val minExpirationMinutes = MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS / 60
     val expirationMinutes = expirationSeconds / 60
     var expirationInput by remember { mutableStateOf(expirationMinutes.toString()) }
+    val isInputBelowMinimum = expirationInput.toLongOrNull()?.let { it < minExpirationMinutes } == true
 
     LaunchedEffect(expirationSeconds) {
         val minutesFromState = (expirationSeconds / 60).toString()
@@ -275,16 +277,6 @@ private fun GetE2EICertificateSwitch(
 
     Column {
         SectionHeader(stringResource(R.string.debug_settings_e2ei_enrollment_title))
-        Text(
-            style = MaterialTheme.wireTypography.label03,
-            color = MaterialTheme.wireColorScheme.secondaryText,
-            text = stringResource(R.string.debug_settings_e2ei_expiration_hint),
-            modifier = Modifier.padding(
-                start = dimensions().spacing8x,
-                end = dimensions().spacing8x,
-                bottom = dimensions().spacing4x
-            )
-        )
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -318,8 +310,19 @@ private fun GetE2EICertificateSwitch(
                             }
                         }
                     },
+                    isError = isInputBelowMinimum,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    supportingText = {
+                        if (isInputBelowMinimum) {
+                            Text(
+                                text = stringResource(
+                                    R.string.debug_settings_e2ei_expiration_min_error,
+                                    minExpirationMinutes
+                                )
+                            )
+                        }
+                    },
                     suffix = { Text(text = stringResource(R.string.debug_settings_e2ei_expiration_minutes_suffix)) }
                 )
                 Spacer(modifier = Modifier.weight(1f))

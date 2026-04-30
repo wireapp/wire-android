@@ -1826,10 +1826,10 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
     <string name="debug_settings_api_versioning_title" translatable="false">API VERSIONING</string>
     <string name="debug_settings_e2ei_enrollment_title" translatable="false">E2EI Enrollment</string>
-    <string name="debug_settings_e2ei_expiration_hint" translatable="false">This TTL is used for certificate enroll/update in private builds.</string>
     <string name="debug_settings_e2ei_expiration_time" translatable="false">Expiration time</string>
     <string name="debug_settings_e2ei_expiration_seconds_suffix" translatable="false">s</string>
     <string name="debug_settings_e2ei_expiration_minutes_suffix" translatable="false">min</string>
+    <string name="debug_settings_e2ei_expiration_min_error" translatable="false">Minimum is %1$d min</string>
     <string name="debug_settings_e2ei_enroll_button" translatable="false">Enroll</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
     <string name="debug_settings_break_session" translatable="false">⚠️ Break Session</string>

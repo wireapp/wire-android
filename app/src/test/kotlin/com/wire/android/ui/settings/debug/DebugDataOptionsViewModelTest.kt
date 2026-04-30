@@ -41,6 +41,7 @@ import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
+import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
 import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
@@ -260,24 +261,20 @@ class DebugDataOptionsViewModelTest {
 
         viewModel.updateE2EICertificateExpiration(120)
 
-        assertEquals(360, viewModel.state.e2eiCertificateExpirationSeconds)
-        coVerify(exactly = 1) { arrangement.setDebugE2EICertificateExpiration(360) }
+        assertEquals(MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS, viewModel.state.e2eiCertificateExpirationSeconds)
+        coVerify(exactly = 1) { arrangement.setDebugE2EICertificateExpiration(MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS) }
     }
 
     @Test
-    fun `given expiration value, when increasing and then decreasing, then value is updated and use case is called`() = runTest {
+    fun `given valid expiration value, when updating e2ei expiration, then value is updated and use case is called`() = runTest {
         val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
             .withDebugE2EICertificateExpiration(360)
             .arrange()
 
-        viewModel.increaseE2EICertificateExpiration()
-        assertEquals(420, viewModel.state.e2eiCertificateExpirationSeconds)
-
-        viewModel.decreaseE2EICertificateExpiration()
-        assertEquals(360, viewModel.state.e2eiCertificateExpirationSeconds)
+        viewModel.updateE2EICertificateExpiration(420)
 
         coVerify(exactly = 1) { arrangement.setDebugE2EICertificateExpiration(420) }
-        coVerify(exactly = 1) { arrangement.setDebugE2EICertificateExpiration(360) }
+        assertEquals(420, viewModel.state.e2eiCertificateExpirationSeconds)
     }
 }
 

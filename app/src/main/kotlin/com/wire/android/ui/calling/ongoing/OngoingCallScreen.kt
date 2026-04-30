@@ -35,7 +35,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
@@ -49,6 +49,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -101,8 +102,8 @@ import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.banner.PreviewSecurityClassificationBannerState
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
+import com.wire.android.ui.common.bottomsheet.SheetScrimState
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
-import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffoldProperties
 import com.wire.android.ui.common.bottomsheet.WireDragHandle
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -133,6 +134,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Suppress("ParameterWrapping")
@@ -149,6 +151,7 @@ fun OngoingCallScreen(
             creationCallback = { factory -> factory.create(conversationId = conversationId) }
         )
 ) {
+    val scope = rememberCoroutineScope()
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val inCallReactionsState = rememberInCallReactionsState()
     val callDetailsBottomSheetState = rememberWireModalSheetState<CallDetailsSheetState>()
@@ -156,6 +159,13 @@ fun OngoingCallScreen(
     val isPiPAvailableOnThisDevice = activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
     val shouldUsePiPMode = BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice
     var inPictureInPictureMode by remember { mutableStateOf(shouldUsePiPMode && activity.isInPictureInPictureMode) }
+    val sheetState = rememberStandardBottomSheetState(
+        initialValue = SheetValue.PartiallyExpanded,
+        confirmValueChange = {
+            false // TODO: to be enabled when the participants list is implemented and added to the bottom sheet
+        }
+    )
+    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
 
     if (shouldUsePiPMode) {
         ObservePictureInPictureMode { inPictureInPictureMode = it }
@@ -212,16 +222,20 @@ fun OngoingCallScreen(
     }
 
     BackHandler {
-        when {
-            ongoingCallViewModel.state.selectedParticipant != null -> ongoingCallViewModel.onSelectedParticipant(null)
-            shouldUsePiPMode -> (activity as OngoingCallActivity).enterPiPMode(conversationId, ongoingCallViewModel.currentUserId)
-            else -> activity.moveTaskToBack(true)
-        }
+            when {
+                scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded -> scope.launch {
+                    scaffoldState.bottomSheetState.partialExpand()
+                }
+                ongoingCallViewModel.state.selectedParticipant != null -> ongoingCallViewModel.onSelectedParticipant(null)
+                shouldUsePiPMode -> (activity as OngoingCallActivity).enterPiPMode(conversationId, ongoingCallViewModel.currentUserId)
+                else -> activity.moveTaskToBack(true)
+            }
     }
 
     OngoingCallContent(
         callState = sharedCallingViewModel.callState,
         inCallReactionsState = inCallReactionsState,
+        scaffoldState = scaffoldState,
         toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
         toggleMute = sharedCallingViewModel::toggleMute,
         hangUpCall = sharedCallingViewModel::hangUpCall,
@@ -358,6 +372,7 @@ private fun HandleSendingVideoFeed(
 private fun OngoingCallContent(
     callState: CallState,
     inCallReactionsState: InCallReactionsState,
+    scaffoldState: BottomSheetScaffoldState,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
@@ -381,19 +396,10 @@ private fun OngoingCallContent(
     onToastClick: (toastKey: InCallToast.Key) -> Unit,
     inCallReactionsEnabled: Boolean = BuildConfig.CALL_REACTIONS_ENABLED,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
-    sheetInitialValue: SheetValue = SheetValue.PartiallyExpanded, // for preview purposes
 ) {
+    val scope = rememberCoroutineScope()
     var sheetPeekHeight by remember { mutableStateOf(0f) }
-    var sheetExpandableHeight by remember { mutableStateOf(0f) }
     var topBarHeight by remember { mutableStateOf(0f) }
-    val sheetState = rememberStandardBottomSheetState(
-        initialValue = sheetInitialValue,
-        confirmValueChange = { targetValue ->
-            // do not allow to expand the sheet if there is nothing more to show in the expanded state (height is 0)
-            !(targetValue == SheetValue.Expanded && sheetExpandableHeight <= 0f)
-        }
-    )
-    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     var showInCallReactionsPanel by remember { mutableStateOf(initialShowInCallReactionsPanel && inCallReactionsEnabled) }
     val emojiPickerState = rememberWireModalSheetState<Unit>(skipPartiallyExpanded = false)
     val isConnecting = participants.isEmpty()
@@ -420,18 +426,17 @@ private fun OngoingCallContent(
             }
         },
         sheetDragHandle = {
-            WireDragHandle(progress = if (sheetExpandableHeight == 0f || sheetState.targetValue == SheetValue.Expanded) 0f else 1f)
+            WireDragHandle(progress = if (scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded) 0f else 1f)
         },
         sheetPeekHeight = with(LocalDensity.current) { sheetPeekHeight.toDp() },
         scaffoldState = scaffoldState,
         sheetShadowElevation = dimensions().spacing0x,
         sheetMaxWidth = LocalConfiguration.current.screenWidthDp.dp,
-        properties = WireBottomSheetScaffoldProperties(
-            shouldDismissOnBackPress = true,
-            shouldDismissOnClickOutside = true,
-            dismissToPartiallyExpanded = true,
-            scrimColor = BottomSheetDefaults.ScrimColor
-        ),
+        sheetScrim = SheetScrimState.Visible {
+            scope.launch {
+                scaffoldState.bottomSheetState.partialExpand()
+            }
+        },
         sheetContent = {
             if (!inPictureInPictureMode) {
                 CallingControls(
@@ -461,9 +466,6 @@ private fun OngoingCallContent(
                     Column(
                         modifier = Modifier
                             .heightIn(max = with(LocalDensity.current) { (constraints.maxHeight - topBarHeight).toDp() })
-                            .onGloballyPositioned {
-                                sheetExpandableHeight = it.size.height.toFloat()
-                            }
                     ) {
                         Box(
                             modifier = Modifier // TODO: replace with proper list of participants
@@ -746,6 +748,7 @@ fun PreviewOngoingCallContent(
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
         ),
         inCallReactionsState = PreviewInCallReactionState,
+        scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = rememberStandardBottomSheetState(initialValue = sheetValue)),
         toggleSpeaker = {},
         toggleMute = {},
         hangUpCall = {},
@@ -769,7 +772,6 @@ fun PreviewOngoingCallContent(
         othersVideosDisabled = true,
         toasts = toasts,
         onToastClick = {},
-        sheetInitialValue = sheetValue,
     )
 }
 

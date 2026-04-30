@@ -19,7 +19,6 @@
 
 package com.wire.android.ui.common.bottomsheet
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -39,16 +38,15 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
@@ -63,7 +61,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.ui.R as ComposeUiR
 
@@ -85,20 +82,11 @@ fun WireBottomSheetScaffold(
     snackbarHost: @Composable (SnackbarHostState) -> Unit = { SnackbarHost(it) },
     containerColor: Color = WireBottomSheetDefaults.WireContainerColor,
     contentColor: Color = WireBottomSheetDefaults.WireContentColor,
-    properties: WireBottomSheetScaffoldProperties = WireBottomSheetScaffoldProperties(),
+    sheetScrim: SheetScrimState = SheetScrimState.Hidden,
     content: @Composable (PaddingValues) -> Unit
 ) {
     var topInset by remember { mutableIntStateOf(0) }
     val scrimAlpha by animateFloatAsState(if (scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded) 1f else 0f)
-    val scope = rememberCoroutineScope()
-    val dismissSheet: () -> Unit = {
-        scope.launch {
-            when (properties.dismissToPartiallyExpanded) {
-                true -> scaffoldState.bottomSheetState.partialExpand()
-                false -> scaffoldState.bottomSheetState.hide()
-            }
-        }
-    }
 
     Box(
         modifier = Modifier
@@ -124,12 +112,9 @@ fun WireBottomSheetScaffold(
                 {
                     Box {
                         topBar()
-                        Scrim(
-                            color = properties.scrimColor,
-                            alpha = scrimAlpha,
-                            onDismissRequest = dismissSheet,
-                            modifier = Modifier.matchParentSize()
-                        )
+                        if (sheetScrim is SheetScrimState.Visible) {
+                            Scrim(alpha = scrimAlpha, onDismissRequest = sheetScrim.onScrimClicked, modifier = Modifier.matchParentSize())
+                        }
                     }
                 }
             },
@@ -138,35 +123,30 @@ fun WireBottomSheetScaffold(
             contentColor = contentColor,
             content = { paddingValues ->
                 content(paddingValues)
-                Scrim(
-                    color = properties.scrimColor,
-                    alpha = scrimAlpha,
-                    onDismissRequest = dismissSheet,
-                    modifier = Modifier.fillMaxSize()
-                )
+                if (sheetScrim is SheetScrimState.Visible) {
+                    Scrim(alpha = scrimAlpha, onDismissRequest = sheetScrim.onScrimClicked, modifier = Modifier.fillMaxSize())
+                }
             }
         )
-        BackHandler(enabled = properties.shouldDismissOnBackPress && scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded) {
-            dismissSheet()
-        }
     }
-    StatusBarScrim(color = properties.scrimColor, alpha = scrimAlpha, topInset = topInset)
+    if (sheetScrim is SheetScrimState.Visible) {
+        StatusBarScrim(alpha = scrimAlpha, topInset = topInset)
+    }
 }
 
-data class WireBottomSheetScaffoldProperties(
-    val shouldDismissOnBackPress: Boolean = false,
-    val shouldDismissOnClickOutside: Boolean = false,
-    val dismissToPartiallyExpanded: Boolean = true, // otherwise it will dismiss to hidden state
-    val scrimColor: Color = Color.Unspecified,
-)
+@Stable
+sealed interface SheetScrimState {
+    data object Hidden : SheetScrimState
+    data class Visible(val onScrimClicked: (() -> Unit)? = null) : SheetScrimState
+}
 
 @Composable
 private fun Scrim(
     modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified,
     alpha: Float = 0f,
     onDismissRequest: (() -> Unit)? = null,
 ) {
+    val color = BottomSheetDefaults.ScrimColor
     val closeSheet = stringResource(ComposeUiR.string.close_sheet)
     Canvas(
         modifier.let {
@@ -188,18 +168,12 @@ private fun Scrim(
             }
         }
     ) {
-        if (color.isSpecified) {
-            drawRect(color = color, alpha = alpha.coerceIn(0f, 1f))
-        }
+        drawRect(color = color, alpha = alpha.coerceIn(0f, 1f))
     }
 }
 
 @Composable
-private fun StatusBarScrim(
-    color: Color = Color.Unspecified,
-    alpha: Float = 0f,
-    topInset: Int = 0,
-) {
+private fun StatusBarScrim(alpha: Float = 0f, topInset: Int = 0) {
     if (!LocalInspectionMode.current) {
         Popup(
             alignment = Alignment.TopCenter,
@@ -207,7 +181,6 @@ private fun StatusBarScrim(
             properties = PopupProperties(focusable = false, clippingEnabled = false)
         ) {
             Scrim(
-                color = color,
                 alpha = alpha,
                 onDismissRequest = null, // status bar scrim should not be clickable
                 modifier = Modifier

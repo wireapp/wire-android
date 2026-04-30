@@ -82,17 +82,20 @@ fun MessageAuthorRow(
 
 @Composable
 private fun Username(username: String, accent: Accent, messageStyle: MessageStyle, modifier: Modifier = Modifier) {
+    val fallbackColor = if (messageStyle.isBubble()) {
+        if (accent == Accent.Unknown) {
+            MaterialTheme.wireColorScheme.wireAccentColors.get(Accent.Unknown)
+        } else {
+            MaterialTheme.wireColorScheme.primary
+        }
+    } else {
+        MaterialTheme.wireColorScheme.onBackground
+    }
+
     Text(
         text = username,
         style = MaterialTheme.wireTypography.body02,
-        color = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-            accent,
-            if (messageStyle.isBubble()) {
-                MaterialTheme.wireColorScheme.primary
-            } else {
-                MaterialTheme.wireColorScheme.onBackground
-            }
-        ),
+        color = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(accent, fallbackColor),
         modifier = modifier,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis

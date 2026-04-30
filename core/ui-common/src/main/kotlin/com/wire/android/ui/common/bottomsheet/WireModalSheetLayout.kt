@@ -49,7 +49,7 @@ fun <T : Any> WireModalSheetLayout(
     onBackPress: (() -> Unit) = { sheetState.hide() },
     onDismissRequest: (() -> Unit) = sheetState::onDismissRequest,
     shouldDismissOnBackPress: Boolean = true,
-    dragHandle: @Composable (() -> Unit)? = { WireBottomSheetDefaults.WireDragHandle() },
+    dragHandle: @Composable (() -> Unit)? = { WireDragHandle() },
     sheetContent: @Composable ColumnScope.(T) -> Unit
 ) {
     (sheetState.currentValue as? WireSheetValue.Expanded<T>)?.let { expandedValue ->

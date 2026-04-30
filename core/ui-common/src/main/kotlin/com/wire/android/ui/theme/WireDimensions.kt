@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import io.github.esentsov.PackagePrivate
-import kotlin.Float
 
 @Immutable
 data class WireDimensions(
@@ -190,7 +189,6 @@ data class WireDimensions(
     val notificationBadgeHeight: Dp,
     val notificationBadgeRadius: Dp,
     // Wire ModalSheetLayout
-    val modalBottomSheetDividerWidth: Dp,
     val modalBottomSheetHeaderHorizontalPadding: Dp,
     val modalBottomSheetHeaderVerticalPadding: Dp,
     val modalBottomSheetNoHeaderVerticalPadding: Dp,
@@ -200,6 +198,7 @@ data class WireDimensions(
     val defaultSearchLazyColumnHeight: Dp,
     val groupButtonHeight: Dp,
     // Calling
+    val callingControlPanelMaxWidth: Dp,
     val defaultCallingControlsSize: Dp,
     val defaultCallingControlsHeight: Dp,
     val defaultCallingControlsWidth: Dp,
@@ -373,7 +372,6 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     corner100x = 100.dp,
     notificationBadgeHeight = 18.dp,
     notificationBadgeRadius = 6.dp,
-    modalBottomSheetDividerWidth = 48.dp,
     modalBottomSheetHeaderHorizontalPadding = 8.dp,
     modalBottomSheetHeaderVerticalPadding = 16.dp,
     modalBottomSheetNoHeaderVerticalPadding = 24.dp,
@@ -383,6 +381,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     systemMessageIconSize = 16.dp,
     systemMessageIconLargeSize = 18.dp,
     groupButtonHeight = 82.dp,
+    callingControlPanelMaxWidth = 480.dp,
     defaultCallingControlsSize = 56.dp,
     defaultCallingControlsHeight = 40.dp,
     defaultCallingControlsWidth = 56.dp,

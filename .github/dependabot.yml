@@ -9,9 +9,9 @@ updates:
     open-pull-requests-limit: 5
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     cooldown:
-      default-days: 7
+      default-days: 14
     commit-message:
       prefix: "chore(deps): [WPB-9777] "
 

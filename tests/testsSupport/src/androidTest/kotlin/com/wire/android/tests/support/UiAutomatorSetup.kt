@@ -17,9 +17,11 @@
  */
 package com.wire.android.tests.support
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -27,6 +29,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
+import uiautomatorutils.PermissionUtils.grantRuntimePermsForApp
 
 const val TIMEOUT_IN_MILLISECONDS = 20_000L
 
@@ -47,6 +50,8 @@ object UiAutomatorSetup {
         if (clearData) {
             device.executeShellCommand("pm clear $appPackage")
         }
+
+        grantNotificationPermissionIfSupported(appPackage)
 
         device.executeShellCommand("settings put secure show_ime_with_hard_keyboard 0")
         device.executeShellCommand("settings put global window_animation_scale 0")
@@ -99,5 +104,16 @@ object UiAutomatorSetup {
     fun stopApp() {
         val device = getDevice()
         device.executeShellCommand("am force-stop $appPackage")
+    }
+
+    // Setup-level wrapper that pre-grants notifications on Android 13+ via PermissionUtils.
+    private fun grantNotificationPermissionIfSupported(appPackage: String) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return
+        }
+
+        runCatching {
+            grantRuntimePermsForApp(appPackage, Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 }

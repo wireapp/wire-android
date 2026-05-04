@@ -159,6 +159,11 @@
     <string name="content_description_calling_turn_camera_off">Turn camera off</string>
     <string name="content_description_calling_turn_speaker_on">Turn speaker on</string>
     <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
+    <string name="content_description_calling_screen_share_on">Screen share on</string>
+    <string name="content_description_calling_camera_on">Camera on</string>
+    <string name="content_description_calling_microphone_on">Microphone on</string>
+    <string name="content_description_calling_microphone_off">Microphone off</string>
+    <string name="content_description_calling_active_speaker">Active speaker</string>
     <string name="content_description_calling_in_call_reactions_show">Show in call reactions panel</string>
     <string name="content_description_calling_in_call_reactions_hide">Hide in call reactions panel</string>
     <string name="content_description_call_open_calling_details">Open calling details</string>
@@ -183,7 +188,7 @@
     <string name="content_description_record_audio_button_start">Record Audio</string>
     <string name="content_description_record_audio_button_stop">Stop Recording Audio</string>
     <string name="content_description_record_audio_button_send">Send Audio Message</string>
-    <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
+    <string name="content_description_mls_certificate_valid">All devices are verified (end-to-end identity)</string>
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
     <string name="content_description_jump_to_last_message">Scroll to end of conversation</string>
     <string name="content_description_location_icon">Location item</string>
@@ -1158,6 +1163,7 @@
     <string name="calling_details_network_quality_jitter">Jitter</string>
     <string name="calling_details_network_quality_value_milliseconds">%1$d ms</string>
     <string name="calling_details_network_quality_learn_more">Learn more about the quality details</string>
+    <string name="calling_details_participants_header">PARTICIPANTS (%d)</string>
 
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>

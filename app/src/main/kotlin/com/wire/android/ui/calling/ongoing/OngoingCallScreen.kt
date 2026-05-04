@@ -23,22 +23,27 @@ package com.wire.android.ui.calling.ongoing
 import android.content.pm.PackageManager
 import android.view.View
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
@@ -63,6 +68,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -94,6 +101,7 @@ import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactionsState
 import com.wire.android.ui.calling.ongoing.incallreactions.PreviewInCallReactionState
 import com.wire.android.ui.calling.ongoing.incallreactions.drawInCallReactions
 import com.wire.android.ui.calling.ongoing.incallreactions.rememberInCallReactionsState
+import com.wire.android.ui.calling.ongoing.participantslist.ParticipantList
 import com.wire.android.ui.calling.ongoing.participantsview.FloatingSelfUserTile
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.calling.ongoing.toast.InCallToast
@@ -111,6 +119,8 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.rememberTopBarElevationState
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -137,7 +147,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-@Suppress("ParameterWrapping")
+@Suppress("ParameterWrapping", "CyclomaticComplexMethod")
 @Composable
 fun OngoingCallScreen(
     conversationId: ConversationId,
@@ -161,8 +171,9 @@ fun OngoingCallScreen(
     var inPictureInPictureMode by remember { mutableStateOf(shouldUsePiPMode && activity.isInPictureInPictureMode) }
     val sheetState = rememberStandardBottomSheetState(
         initialValue = SheetValue.PartiallyExpanded,
-        confirmValueChange = {
-            false // TODO: to be enabled when the participants list is implemented and added to the bottom sheet
+        confirmValueChange = { targetValue ->
+            // do not allow to expand the sheet if there is nothing more to show in the expanded state
+            !(targetValue == SheetValue.Expanded && ongoingCallViewModel.state.participants.isEmpty())
         }
     )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
@@ -463,14 +474,26 @@ private fun OngoingCallContent(
                         }
                 )
                 BoxWithConstraints {
+                    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
                     Column(
                         modifier = Modifier
                             .heightIn(max = with(LocalDensity.current) { (constraints.maxHeight - topBarHeight).toDp() })
+                            .padding(top = max(dimensions().spacing8x, navBarHeight))
+                            .background(colorsScheme().background)
                     ) {
-                        Box(
-                            modifier = Modifier // TODO: replace with proper list of participants
+                        val lazyListState = rememberLazyListState()
+                        Surface(
+                            shadowElevation = lazyListState.rememberTopBarElevationState().value,
+                            color = MaterialTheme.wireColorScheme.background,
+                            modifier = Modifier
                                 .fillMaxWidth()
-                                .height(0.dp)
+                                .zIndex(1f) // ensure the section header is above the participant items when scrolled
+                        ) {
+                            SectionHeader(name = stringResource(R.string.calling_details_participants_header, participants.size))
+                        }
+                        ParticipantList(
+                            lazyListState = lazyListState,
+                            participants = participants,
                         )
                     }
                 }

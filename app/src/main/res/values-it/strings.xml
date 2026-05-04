@@ -151,7 +151,6 @@
     <string name="content_description_record_audio_button_start">Registra un Audio</string>
     <string name="content_description_record_audio_button_stop">Arresta la registrazione dell\'audio</string>
     <string name="content_description_record_audio_button_send">Invia messaggio audio</string>
-    <string name="content_description_mls_certificate_valid">Tutti i dispositivi di tutti i partecipanti hanno un certificato MLS valido</string>
     <string name="content_description_proteus_certificate_valid">Tutti i partecipanti sono verificati (Proteus)</string>
     <string name="content_description_location_icon">Elemento di posizione</string>
     <string name="content_description_empty"></string>

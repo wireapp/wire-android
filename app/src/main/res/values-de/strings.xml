@@ -135,6 +135,11 @@
     <string name="content_description_calling_turn_camera_off">Kamera ausschalten</string>
     <string name="content_description_calling_turn_speaker_on">Lautsprecher einschalten</string>
     <string name="content_description_calling_turn_speaker_off">Lautsprecher ausschalten</string>
+    <string name="content_description_calling_screen_share_on">Bildschirm teilen</string>
+    <string name="content_description_calling_camera_on">Kamera an</string>
+    <string name="content_description_calling_microphone_on">Mikrofon an</string>
+    <string name="content_description_calling_microphone_off">Mikrofon aus</string>
+    <string name="content_description_calling_active_speaker">Aktiver Sprecher</string>
     <string name="content_description_call_open_calling_details">Anrufdetails öffnen</string>
     <string name="content_description_call_low_network_quality">Geringe Netzwerkqualität</string>
     <string name="content_description_reply_to_messge">Auf die Nachricht antworten</string>
@@ -145,7 +150,6 @@
     <string name="content_description_record_audio_button_start">Audio aufnehmen</string>
     <string name="content_description_record_audio_button_stop">Aufnahme stoppen</string>
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
-    <string name="content_description_mls_certificate_valid">Alle Geräte sind überprüft (Ende-zu-Ende-Identität)</string>
     <string name="content_description_jump_to_last_message">Zum Ende der Unterhaltung scrollen</string>
     <string name="content_description_conversation_details_more_btn">Unterhaltungsoptionen öffnen</string>
     <string name="content_description_conversation_details_options_tab_header">Optionen</string>
@@ -1059,6 +1063,7 @@
     <string name="calling_details_network_quality_jitter">Jitter</string>
     <string name="calling_details_network_quality_value_milliseconds">%1$d ms</string>
     <string name="calling_details_network_quality_learn_more">Erfahren Sie mehr über die Details</string>
+    <string name="calling_details_participants_header">TEILNEHMER (%d)</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Zurück zum Anruf</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s ruft an…</string>

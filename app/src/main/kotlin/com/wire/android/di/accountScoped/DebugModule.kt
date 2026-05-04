@@ -24,6 +24,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
 import com.wire.kalium.logic.feature.debug.DebugScope
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
+import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
 import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
 import dagger.Module
@@ -94,4 +95,9 @@ class DebugModule {
     @Provides
     fun provideRepairFaultyRemovalKeysUseCase(debugScope: DebugScope): RepairFaultyRemovalKeysUseCase =
         debugScope.repairFaultyRemovalKeysUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetConversationCryptoStatsUseCase(debugScope: DebugScope): GetConversationCryptoStatsUseCase =
+        debugScope.getConversationCryptoStats
 }

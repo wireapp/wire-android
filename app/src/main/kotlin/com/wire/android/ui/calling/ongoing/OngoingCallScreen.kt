@@ -16,6 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 @file:Suppress("TooManyFunctions")
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.wire.android.ui.calling.ongoing
 
@@ -27,15 +28,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -43,11 +49,16 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -89,14 +100,17 @@ import com.wire.android.ui.calling.ongoing.toast.InCallToast
 import com.wire.android.ui.calling.ongoing.toast.InCallToastPanel
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.banner.PreviewSecurityClassificationBannerState
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
+import com.wire.android.ui.common.bottomsheet.SheetScrimState
+import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
+import com.wire.android.ui.common.bottomsheet.WireDragHandle
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -115,10 +129,12 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Suppress("ParameterWrapping")
@@ -135,6 +151,7 @@ fun OngoingCallScreen(
             creationCallback = { factory -> factory.create(conversationId = conversationId) }
         )
 ) {
+    val scope = rememberCoroutineScope()
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val inCallReactionsState = rememberInCallReactionsState()
     val callDetailsBottomSheetState = rememberWireModalSheetState<CallDetailsSheetState>()
@@ -142,6 +159,13 @@ fun OngoingCallScreen(
     val isPiPAvailableOnThisDevice = activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
     val shouldUsePiPMode = BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice
     var inPictureInPictureMode by remember { mutableStateOf(shouldUsePiPMode && activity.isInPictureInPictureMode) }
+    val sheetState = rememberStandardBottomSheetState(
+        initialValue = SheetValue.PartiallyExpanded,
+        confirmValueChange = {
+            false // TODO: to be enabled when the participants list is implemented and added to the bottom sheet
+        }
+    )
+    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
 
     if (shouldUsePiPMode) {
         ObservePictureInPictureMode { inPictureInPictureMode = it }
@@ -197,9 +221,21 @@ fun OngoingCallScreen(
         }
     }
 
+    BackHandler {
+            when {
+                scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded -> scope.launch {
+                    scaffoldState.bottomSheetState.partialExpand()
+                }
+                ongoingCallViewModel.state.selectedParticipant != null -> ongoingCallViewModel.onSelectedParticipant(null)
+                shouldUsePiPMode -> (activity as OngoingCallActivity).enterPiPMode(conversationId, ongoingCallViewModel.currentUserId)
+                else -> activity.moveTaskToBack(true)
+            }
+    }
+
     OngoingCallContent(
         callState = sharedCallingViewModel.callState,
         inCallReactionsState = inCallReactionsState,
+        scaffoldState = scaffoldState,
         toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
         toggleMute = sharedCallingViewModel::toggleMute,
         hangUpCall = sharedCallingViewModel::hangUpCall,
@@ -225,17 +261,6 @@ fun OngoingCallScreen(
         onToastClick = ongoingCallViewModel::dismissToast,
     )
     ObserveRotation(sharedCallingViewModel::setUIRotation)
-
-    BackHandler {
-        if (shouldUsePiPMode) {
-            (activity as OngoingCallActivity).enterPiPMode(
-                conversationId,
-                ongoingCallViewModel.currentUserId
-            )
-        } else {
-            activity.moveTaskToBack(true)
-        }
-    }
 
     /**
      * Enter PiP mode when the user leaves the app by pressing the home button.
@@ -343,11 +368,11 @@ private fun HandleSendingVideoFeed(
 }
 
 @Suppress("CyclomaticComplexMethod")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OngoingCallContent(
     callState: CallState,
     inCallReactionsState: InCallReactionsState,
+    scaffoldState: BottomSheetScaffoldState,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
@@ -372,11 +397,13 @@ private fun OngoingCallContent(
     inCallReactionsEnabled: Boolean = BuildConfig.CALL_REACTIONS_ENABLED,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {
+    val scope = rememberCoroutineScope()
+    var sheetPeekHeight by remember { mutableStateOf(0f) }
+    var topBarHeight by remember { mutableStateOf(0f) }
     var showInCallReactionsPanel by remember { mutableStateOf(initialShowInCallReactionsPanel && inCallReactionsEnabled) }
     val emojiPickerState = rememberWireModalSheetState<Unit>(skipPartiallyExpanded = false)
     val isConnecting = participants.isEmpty()
-
-    WireScaffold(
+    WireBottomSheetScaffold(
         topBar = {
             if (!inPictureInPictureMode) {
                 OngoingCallTopBar(
@@ -391,18 +418,73 @@ private fun OngoingCallContent(
                     mlsVerificationStatus = callState.mlsVerificationStatus,
                     proteusVerificationStatus = callState.proteusVerificationStatus,
                     callQuality = callQuality,
-                    onOpenCallDetails = onOpenCallDetails
+                    onOpenCallDetails = onOpenCallDetails,
+                    modifier = Modifier.onGloballyPositioned {
+                        topBarHeight = it.size.height.toFloat()
+                    }
                 )
             }
-        }
-    ) {
+        },
+        sheetDragHandle = {
+            WireDragHandle(progress = if (scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded) 0f else 1f)
+        },
+        sheetPeekHeight = with(LocalDensity.current) { sheetPeekHeight.toDp() },
+        scaffoldState = scaffoldState,
+        sheetShadowElevation = dimensions().spacing0x,
+        sheetMaxWidth = LocalConfiguration.current.screenWidthDp.dp,
+        sheetScrim = SheetScrimState.Visible {
+            scope.launch {
+                scaffoldState.bottomSheetState.partialExpand()
+            }
+        },
+        sheetContent = {
+            if (!inPictureInPictureMode) {
+                CallingControls(
+                    conversationId = callState.conversationId,
+                    isMuted = callState.isMuted ?: true,
+                    isCameraOn = callState.isCameraOn,
+                    isSpeakerOn = callState.isSpeakerOn,
+                    isShowingCallReactions = showInCallReactionsPanel,
+                    isConnecting = isConnecting,
+                    inCallReactionsEnabled = inCallReactionsEnabled,
+                    toggleSpeaker = toggleSpeaker,
+                    toggleMute = toggleMute,
+                    onHangUpCall = hangUpCall,
+                    onToggleVideo = toggleVideo,
+                    onCallReactionsClick = {
+                        showInCallReactionsPanel = !showInCallReactionsPanel
+                    },
+                    onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .widthIn(max = dimensions().callingControlPanelMaxWidth)
+                        .onGloballyPositioned {
+                            sheetPeekHeight = it.positionInParent().y + it.size.height.toFloat()
+                        }
+                )
+                BoxWithConstraints {
+                    Column(
+                        modifier = Modifier
+                            .heightIn(max = with(LocalDensity.current) { (constraints.maxHeight - topBarHeight).toDp() })
+                    ) {
+                        Box(
+                            modifier = Modifier // TODO: replace with proper list of participants
+                                .fillMaxWidth()
+                                .height(0.dp)
+                        )
+                    }
+                }
+            }
+        },
+    ) { internalPadding ->
         Column(
-            modifier = Modifier.padding(it)
+            modifier = Modifier
+                .padding(internalPadding)
+                .fillMaxSize()
         ) {
-
             BoxWithConstraints(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .weight(1f)
             ) {
                 LaunchedEffect(this.maxHeight.value) {
@@ -457,10 +539,7 @@ private fun OngoingCallContent(
                                 callState = callState,
                                 selectedParticipant = uiCallParticipantToShowOnFullScreen,
                                 height = this@BoxWithConstraints.maxHeight,
-                                closeFullScreen = {
-                                    onSelectedParticipant(null)
-                                },
-                                onBackButtonClicked = {
+                                onDoubleTap = {
                                     onSelectedParticipant(null)
                                 },
                                 requestVideoStreams = requestVideoStreams,
@@ -514,34 +593,13 @@ private fun OngoingCallContent(
                     }
                 }
             }
-
-            if (!inPictureInPictureMode) {
-                if (showInCallReactionsPanel && inCallReactionsEnabled) {
-                    InCallReactionsPanel(
-                        onReactionClick = onReactionClick,
-                        onMoreClick = { emojiPickerState.show(Unit) },
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                    )
-                }
-                CallingControls(
-                    conversationId = callState.conversationId,
-                    isMuted = callState.isMuted ?: true,
-                    isCameraOn = callState.isCameraOn,
-                    isSpeakerOn = callState.isSpeakerOn,
-                    isShowingCallReactions = showInCallReactionsPanel,
-                    isConnecting = isConnecting,
-                    inCallReactionsEnabled = inCallReactionsEnabled,
-                    toggleSpeaker = toggleSpeaker,
-                    toggleMute = toggleMute,
-                    onHangUpCall = hangUpCall,
-                    onToggleVideo = toggleVideo,
-                    onCallReactionsClick = {
-                        showInCallReactionsPanel = !showInCallReactionsPanel
-                    },
-                    onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied
+            if (!inPictureInPictureMode && showInCallReactionsPanel && inCallReactionsEnabled) {
+                InCallReactionsPanel(
+                    onReactionClick = onReactionClick,
+                    onMoreClick = { emojiPickerState.show(Unit) },
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
             }
-
             EmojiPickerBottomSheet(
                 sheetState = emojiPickerState,
                 onEmojiSelected = { emoji, _ ->
@@ -562,9 +620,10 @@ private fun OngoingCallTopBar(
     proteusVerificationStatus: Conversation.VerificationStatus?,
     callQuality: CallQualityState.Quality,
     onCollapse: () -> Unit,
-    onOpenCallDetails: () -> Unit
+    onOpenCallDetails: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column {
+    Column(modifier = modifier) {
         WireCenterAlignedTopAppBar(
             onNavigationPressed = onCollapse,
             titleContent = {
@@ -625,18 +684,16 @@ private fun CallingControls(
     onHangUpCall: () -> Unit,
     onToggleVideo: () -> Unit,
     onCallReactionsClick: () -> Unit,
-    onCameraPermissionPermanentlyDenied: () -> Unit
+    onCameraPermissionPermanentlyDenied: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier.height(dimensions().defaultSheetPeekHeight)
-    ) {
-        Spacer(modifier = Modifier.weight(1F))
+    Column(modifier = modifier) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dimensions().spacing56x)
+                .padding(top = dimensions().spacing4x, bottom = dimensions().spacing8x)
         ) {
             MicrophoneButton(
                 isMuted = isMuted,
@@ -665,7 +722,6 @@ private fun CallingControls(
                 onHangUpButtonClicked = onHangUpCall
             )
         }
-        Spacer(modifier = Modifier.weight(1F))
         SecurityClassificationBannerForConversation(conversationId)
     }
 }
@@ -675,7 +731,8 @@ private fun CallingControls(
 fun PreviewOngoingCallContent(
     participants: PersistentList<UICallParticipant>,
     inCallReactionsPanelVisible: Boolean = false,
-    toasts: Set<InCallToast> = emptySet()
+    toasts: Set<InCallToast> = emptySet(),
+    sheetValue: SheetValue = SheetValue.PartiallyExpanded,
 ) {
     OngoingCallContent(
         callState = CallState(
@@ -691,6 +748,7 @@ fun PreviewOngoingCallContent(
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
         ),
         inCallReactionsState = PreviewInCallReactionState,
+        scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = rememberStandardBottomSheetState(initialValue = sheetValue)),
         toggleSpeaker = {},
         toggleMute = {},
         hangUpCall = {},
@@ -750,6 +808,20 @@ fun PreviewOngoingCallScreen_WithInCallReactionsPanel() = WireTheme {
 @Composable
 fun PreviewOngoingCallScreenConnecting() = WireTheme {
     PreviewOngoingCallContent(participants = persistentListOf())
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewOngoingCallScreen_WithSecurityBanner() = WireTheme {
+    PreviewSecurityClassificationBannerState(SecurityClassificationType.NOT_CLASSIFIED) {
+        PreviewOngoingCallContent(participants = buildPreviewParticipantsList(2))
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewOngoingCallScreen_WithParticipantsListExpanded() = WireTheme {
+    PreviewOngoingCallContent(participants = buildPreviewParticipantsList(3), sheetValue = SheetValue.Expanded)
 }
 
 @PreviewMultipleThemes

@@ -26,22 +26,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.background
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
@@ -52,6 +47,9 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.textfield.maxLengthDigits
+import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -65,6 +63,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun DebugDataOptions(
@@ -85,8 +84,8 @@ fun DebugDataOptions(
         onForceUpdateApiVersions = viewModel::forceUpdateApiVersions,
         onDisableEventProcessingChange = viewModel::disableEventProcessing,
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
-        e2eiCertificateExpirationSeconds = viewModel.state.e2eiCertificateExpirationSeconds,
-        onE2EICertificateExpirationChange = viewModel::updateE2EICertificateExpiration,
+        e2eiCertificateExpirationInputState = viewModel.e2eiCertificateExpirationInputState,
+        onE2EICertificateExpirationInputChange = viewModel::updateE2EICertificateExpirationInput,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         dismissCertificateDialog = viewModel::dismissCertificateDialog,
         checkCrlRevocationList = viewModel::checkCrlRevocationList,
@@ -109,8 +108,8 @@ fun DebugDataOptionsContent(
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
     enrollE2EICertificate: () -> Unit,
-    e2eiCertificateExpirationSeconds: Long,
-    onE2EICertificateExpirationChange: (Long) -> Unit,
+    e2eiCertificateExpirationInputState: TextFieldState,
+    onE2EICertificateExpirationInputChange: (String) -> Unit,
     handleE2EIEnrollmentResult: (FinalizeEnrollmentResult) -> Unit,
     dismissCertificateDialog: () -> Unit,
     checkCrlRevocationList: () -> Unit,
@@ -205,8 +204,8 @@ fun DebugDataOptionsContent(
 
             if (BuildConfig.PRIVATE_BUILD && BuildConfig.DEBUG_SCREEN_ENABLED) {
                 E2EICertificateEnrollmentSection(
-                    expirationSeconds = e2eiCertificateExpirationSeconds,
-                    onExpirationChange = onE2EICertificateExpirationChange,
+                    expirationInputState = e2eiCertificateExpirationInputState,
+                    onExpirationInputChange = onE2EICertificateExpirationInputChange,
                     enrollE2EI = enrollE2EICertificate,
                 )
 
@@ -259,20 +258,17 @@ fun DebugDataOptionsContent(
 
 @Composable
 private fun E2EICertificateEnrollmentSection(
-    expirationSeconds: Long,
-    onExpirationChange: (Long) -> Unit,
+    expirationInputState: TextFieldState,
+    onExpirationInputChange: (String) -> Unit,
     enrollE2EI: () -> Unit
 ) {
     val minExpirationMinutes = MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS / 60
-    val expirationMinutes = expirationSeconds / 60
-    var expirationInput by remember { mutableStateOf(expirationMinutes.toString()) }
-    val isInputBelowMinimum = expirationInput.toLongOrNull()?.let { it < minExpirationMinutes } == true
+    val enteredMinutes = expirationInputState.text.toString().toLongOrNull()
+    val isInputBelowMinimum = enteredMinutes?.let { it < minExpirationMinutes } == true
 
-    LaunchedEffect(expirationSeconds) {
-        val minutesFromState = (expirationSeconds / 60).toString()
-        if (expirationInput != minutesFromState) {
-            expirationInput = minutesFromState
-        }
+    LaunchedEffect(expirationInputState) {
+        snapshotFlow { expirationInputState.text.toString() }
+            .collectLatest(onExpirationInputChange)
     }
 
     Column {
@@ -285,57 +281,45 @@ private fun E2EICertificateEnrollmentSection(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(
-                        start = dimensions().spacing8x,
-                        end = dimensions().spacing8x,
-                        top = dimensions().spacing8x,
-                        bottom = dimensions().spacing8x
-                    ),
+                    .padding(dimensions().spacing8x),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedTextField(
-                    modifier = Modifier.width(128.dp),
-                    value = expirationInput,
-                    onValueChange = { input ->
-                        val digitsOnly = input.filter { it.isDigit() }
-                        expirationInput = digitsOnly
-                        digitsOnly.toLongOrNull()?.let { minutes ->
-                            if (minutes >= minExpirationMinutes) {
-                                onExpirationChange(minutes * 60)
-                            }
-                        }
-                    },
-                    isError = isInputBelowMinimum,
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    label = { Text(text = stringResource(R.string.debug_settings_e2ei_expiration_time)) },
-                    supportingText = {
-                        if (isInputBelowMinimum) {
-                            Text(
-                                text = stringResource(
-                                    R.string.debug_settings_e2ei_expiration_min_error,
-                                    minExpirationMinutes
-                                )
-                            )
-                        }
-                    },
-                    suffix = { Text(text = stringResource(R.string.debug_settings_e2ei_expiration_minutes_suffix)) }
+                WireTextField(
+                    modifier = Modifier
+                        .width(dimensions().spacing156x),
+                    textState = expirationInputState,
+                    labelText = stringResource(R.string.debug_settings_e2ei_expiration_time),
+                    inputTransformation = InputTransformation.maxLengthDigits(maxLength = 6),
+                    state = if (isInputBelowMinimum) WireTextFieldState.Error() else WireTextFieldState.Default,
+                    trailingIcon = {
+                        Text(
+                            text = stringResource(R.string.debug_settings_e2ei_expiration_minutes_suffix),
+                            modifier = Modifier.padding(horizontal = dimensions().spacing8x)
+                        )
+                    }
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 WirePrimaryButton(
-                    onClick = {
-                        val normalizedMinutes = expirationInput.toLongOrNull()?.coerceAtLeast(minExpirationMinutes) ?: minExpirationMinutes
-                        expirationInput = normalizedMinutes.toString()
-                        onExpirationChange(normalizedMinutes * 60)
-                        enrollE2EI()
-                    },
+                    onClick = enrollE2EI,
                     text = stringResource(R.string.debug_settings_e2ei_enroll_button),
                     fillMaxWidth = false,
                     minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
                     minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize
                 )
             }
-            HorizontalDivider(modifier = Modifier.height(1.dp))
+            if (isInputBelowMinimum) {
+                Text(
+                    text = stringResource(R.string.debug_settings_e2ei_expiration_min_error, minExpirationMinutes),
+                    style = MaterialTheme.wireTypography.label04,
+                    color = MaterialTheme.wireColorScheme.error,
+                    modifier = Modifier.padding(
+                        start = dimensions().spacing8x,
+                        end = dimensions().spacing8x,
+                        bottom = dimensions().spacing8x
+                    )
+                )
+            }
+            HorizontalDivider(modifier = Modifier.height(dimensions().spacing1x))
         }
     }
 }
@@ -420,8 +404,8 @@ fun PreviewOtherDebugOptions() = WireTheme {
         onDisableEventProcessingChange = {},
         onRestartSlowSyncForRecovery = {},
         enrollE2EICertificate = {},
-        e2eiCertificateExpirationSeconds = 360L,
-        onE2EICertificateExpirationChange = {},
+        e2eiCertificateExpirationInputState = TextFieldState("6"),
+        onE2EICertificateExpirationInputChange = {},
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
         checkCrlRevocationList = {},

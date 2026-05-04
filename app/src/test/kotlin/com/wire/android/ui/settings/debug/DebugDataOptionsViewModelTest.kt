@@ -70,6 +70,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.time.Duration.Companion.days
 
 @ExtendWith(ScopedArgsTestExtension::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -253,6 +254,16 @@ class DebugDataOptionsViewModelTest {
             .arrange()
 
         assertEquals(999, viewModel.state.e2eiCertificateExpirationSeconds)
+    }
+
+    @Test
+    fun `given default e2ei expiration is loaded, then minimum debug value is applied`() = runTest {
+        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
+            .withDebugE2EICertificateExpiration(90.days.inWholeSeconds)
+            .arrange()
+
+        assertEquals(MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS, viewModel.state.e2eiCertificateExpirationSeconds)
+        coVerify(exactly = 1) { arrangement.setDebugE2EICertificateExpiration(MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS) }
     }
 
     @Test

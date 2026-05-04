@@ -86,7 +86,7 @@ fun ParticipantItem(
                 if (participant.isCameraOn) {
                     ActionIcon(
                         icon = R.drawable.ic_camera_on,
-                        contentDescription = R.string.content_description_calling_screen_share_on,
+                        contentDescription = R.string.content_description_calling_camera_on,
                     )
                 }
                 if (participant.isMuted) {

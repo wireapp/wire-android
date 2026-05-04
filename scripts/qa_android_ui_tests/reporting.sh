@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Reporting and publication utilities for qa-android-ui-tests workflow.
+# Reporting and publication utilities for QA Android UI test workflows.
 
 usage() {
-  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|merge-allure-results|generate-allure-report|publish-allure-report|cleanup-workspace}" >&2
+  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|prepare-deflake-bundle|merge-allure-results|generate-allure-report|publish-allure-report|cleanup-workspace}" >&2
   exit 2
 }
 
@@ -45,6 +45,17 @@ pull_allure_results() {
     adb -s "${serial}" pull "/sdcard/googletest/test_outputfiles/allure-results" "${out_dir}/${serial}" >/dev/null 2>&1 || true
     idx=$((idx + 1))
   done
+}
+
+prepare_deflake_bundle() {
+  : "${DEFLAKE_BUNDLE_DIR:?DEFLAKE_BUNDLE_DIR not set}"
+
+  if [[ -z "${FINAL_FAILED_TESTS_FILE:-}" || ! -f "${FINAL_FAILED_TESTS_FILE}" ]]; then
+    echo "No retry-state file found; skipping deflake bundle export."
+    return
+  fi
+
+  python3 scripts/qa_android_ui_tests/prepare_deflake_bundle.py
 }
 
 merge_allure_results() {
@@ -120,6 +131,7 @@ publish_allure_report() {
   : "${KEEP_DAYS:?KEEP_DAYS not set}"
   : "${APK_VERSION:=}"
   : "${APK_NAME:=}"
+  : "${PAGES_TITLE:=QA Android UI Tests}"
   : "${GITHUB_RUN_NUMBER:?GITHUB_RUN_NUMBER not set}"
   : "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY not set}"
   : "${GITHUB_STEP_SUMMARY:?GITHUB_STEP_SUMMARY not set}"
@@ -138,6 +150,8 @@ publish_allure_report() {
   if [[ -n "${safe_apk}" ]]; then
     run_folder="${run_folder}_apk-${safe_apk}"
   fi
+  local pages_git_path="${PAGES_DIR#gh-pages/}"
+  local pages_site_subdir="${pages_git_path#docs/}"
 
   # Publish each run to its own dated folder so report URLs stay stable and the
   # index page can keep a simple chronological history.
@@ -165,8 +179,8 @@ publish_allure_report() {
 
   local index_file="${PAGES_DIR}/index.html"
   {
-    echo '<!doctype html><html><head><meta charset="utf-8"><title>QA Android UI Tests</title></head><body>'
-    echo '<h1>QA Android UI Tests</h1>'
+    echo "<!doctype html><html><head><meta charset=\"utf-8\"><title>${PAGES_TITLE}</title></head><body>"
+    echo "<h1>${PAGES_TITLE}</h1>"
     echo '<ul>'
     shopt -s nullglob
     runs=( "${PAGES_DIR}"/20??-??-??_run-* )
@@ -186,7 +200,7 @@ publish_allure_report() {
   if [[ -n "$(git status --porcelain)" ]]; then
     git config user.name "github-actions[bot]"
     git config user.email "github-actions[bot]@users.noreply.github.com"
-    git add docs/qa-ui-tests
+    git add "${pages_git_path}"
     git commit -m "Update Allure report (run ${GITHUB_RUN_NUMBER})"
     git push origin gh-pages
   else
@@ -196,7 +210,7 @@ publish_allure_report() {
   local org="${GITHUB_REPOSITORY%%/*}"
   local repo="${GITHUB_REPOSITORY##*/}"
   local base_url="https://${org}.github.io/${repo}"
-  echo "Allure report (run ${GITHUB_RUN_NUMBER}): ${base_url}/qa-ui-tests/${run_folder}/" >> "$GITHUB_STEP_SUMMARY"
+  echo "Allure report (run ${GITHUB_RUN_NUMBER}): ${base_url}/${pages_site_subdir}/${run_folder}/" >> "$GITHUB_STEP_SUMMARY"
 }
 
 cleanup_workspace() {
@@ -212,8 +226,11 @@ cleanup_workspace() {
   rm -rf "${ALLURE_RESULTS_DIR}" || true
   rm -rf "${ALLURE_RESULTS_MERGED_DIR}" || true
   rm -rf "${ALLURE_REPORT_DIR}" || true
+  rm -rf "${RUNNER_TEMP}/deflake-input" || true
+  rm -rf "${RUNNER_TEMP}/deflake-input-next" || true
 
   rm -rf "${RUNNER_TEMP}/instrumentation-logs" || true
+  rm -rf "${RUNNER_TEMP}/retry-state" || true
   git clean -ffdx -e .gradle -e .kotlin
 }
 
@@ -223,6 +240,9 @@ case "${1:-}" in
     ;;
   pull-allure-results)
     pull_allure_results
+    ;;
+  prepare-deflake-bundle)
+    prepare_deflake_bundle
     ;;
   merge-allure-results)
     merge_allure_results

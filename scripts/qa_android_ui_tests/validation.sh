@@ -24,7 +24,7 @@ validate_upgrade_inputs() {
 
 validate_rerun_inputs() {
   local enabled="${RERUN_FAILED_ENABLED:-true}"
-  local count="${RERUN_FAILED_COUNT:-2}"
+  local count="${RERUN_FAILED_COUNT:-1}"
   local count_num=0
 
   if [[ ! "${enabled}" =~ ^(true|false)$ ]]; then
@@ -88,9 +88,11 @@ resolve_selector_from_tags() {
 }
 
 print_resolved_values() {
+  echo "workflowRef=${WORKFLOW_REF:-}"
   echo "flavor=${FLAVOR_INPUT:-}"
   echo "resolvedTestCaseId=${RESOLVED_TESTCASE_ID:-}"
   echo "resolvedCategory=${RESOLVED_CATEGORY:-}"
+  echo "testinyRunName=${TESTINY_RUN_NAME:-}"
 }
 
 case "${1:-}" in

@@ -18,7 +18,6 @@
 package com.wire.android.ui.calling.ongoing.fullscreen
 
 import android.view.View
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,8 +45,7 @@ fun FullScreenTile(
     callState: CallState,
     selectedParticipant: UICallParticipant,
     height: Dp,
-    closeFullScreen: (offset: Offset) -> Unit,
-    onBackButtonClicked: () -> Unit,
+    onDoubleTap: (offset: Offset) -> Unit,
     setVideoPreview: (View) -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
     clearVideoPreview: () -> Unit,
@@ -57,20 +55,14 @@ fun FullScreenTile(
     modifier: Modifier = Modifier,
     contentPadding: Dp = dimensions().spacing4x,
 ) {
-    BackHandler {
-        onBackButtonClicked()
-    }
-
     selectedParticipant.let {
         Box(modifier = modifier) {
             ParticipantTile(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clipToBounds()
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onDoubleTap = closeFullScreen
-                        )
+                    .pointerInput(onDoubleTap) {
+                        detectTapGestures(onDoubleTap = onDoubleTap)
                     }
                     .height(height)
                     .padding(contentPadding),
@@ -110,8 +102,7 @@ fun PreviewFullScreenTile() = WireTheme {
         ),
         selectedParticipant = buildPreviewParticipantsList(1).first(),
         height = 800.dp,
-        closeFullScreen = {},
-        onBackButtonClicked = {},
+        onDoubleTap = {},
         setVideoPreview = {},
         requestVideoStreams = {},
         clearVideoPreview = {},

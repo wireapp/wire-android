@@ -88,6 +88,7 @@ import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
@@ -1047,6 +1048,7 @@ class WireActivityViewModelTest {
             every { authenticationScope.isNomadProfilesEnabled } returns isNomadProfilesEnabledUseCase
             coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(true)
             coEvery { loginTypeSelector.canUseNewLogin(any()) } returns true
+            coEvery { doesValidNomadAccountExist() } returns false
         }
 
         @MockK
@@ -1136,6 +1138,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var loginTypeSelector: LoginTypeSelector
 
+        @MockK
+        lateinit var doesValidNomadAccountExist: DoesValidNomadAccountExistUseCase
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = { coreLogic },
@@ -1164,6 +1169,7 @@ class WireActivityViewModelTest {
                 automatedLoginManager = automatedLoginManager,
                 nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
                 loginTypeSelector = loginTypeSelector,
+                doesValidNomadAccountExist = { doesValidNomadAccountExist },
             )
         }
 

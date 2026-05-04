@@ -225,38 +225,24 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickAllowNotificationButton(timeoutMs: Long = 15_000): RegistrationPage {
-        UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 200) {
-            val button = UiWaitUtils.waitAnyVisible(
-                selectors = allowNotificationButtons,
-                timeoutMs = 200,
-                pollingIntervalMs = 100
-            )
-            if (button != null && button.isEnabled) {
-                button.click()
-                true
-            } else {
-                false
-            }
-        }
-
-        // On some devices/runs the permission is already granted and this dialog never appears.
+    // Fallback for runs where the PermissionUtils pre-grant does not suppress the Android notification permission dialog.
+    fun clickAllowNotificationButton(): RegistrationPage {
+        allowNotificationButtons
+            .asSequence()
+            .mapNotNull(UiWaitUtils::findElementOrNull)
+            .firstOrNull { !it.visibleBounds.isEmpty && it.isEnabled }
+            ?.let { runCatching { it.click() } }
         return this
     }
 
     @Suppress("MagicNumber")
     fun clickDeclineShareDataAlert(timeoutMs: Long = 10_000): RegistrationPage {
         val dismissed = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 150) {
-            val decline = UiWaitUtils.findElementOrNull(declineButton)
-            if (decline != null && !decline.visibleBounds.isEmpty && decline.isEnabled) {
-                val bounds = decline.visibleBounds
-                runCatching { decline.click() }
-                val stillVisibleAfterClick = UiWaitUtils.findElementOrNull(declineButton)?.let { !it.visibleBounds.isEmpty } == true
-                if (stillVisibleAfterClick && !bounds.isEmpty) {
-                    device.click(bounds.centerX(), bounds.centerY())
-                }
-                device.waitForIdle(300)
-            }
+            UiWaitUtils.clickWhenClickable(
+                params = declineButton,
+                timeoutMs = 200,
+                pollingIntervalMs = 100
+            )
 
             val dialogVisible = UiWaitUtils.findElementOrNull(consentDialogTitle)?.let { !it.visibleBounds.isEmpty } == true
             val declineVisible = UiWaitUtils.findElementOrNull(declineButton)?.let { !it.visibleBounds.isEmpty } == true

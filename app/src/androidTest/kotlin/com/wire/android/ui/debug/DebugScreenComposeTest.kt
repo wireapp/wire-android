@@ -41,8 +41,8 @@ class DebugScreenComposeTest {
                         onDeleteLogs = {},
                         onDatabaseLoggerEnabledChanged = {},
                         onShowFeatureFlags = {},
+                        onShowCryptoStats = {},
                         onFlushLogs = { CompletableDeferred(Unit) },
-                        onShowCryptoStats = {}
                     )
             }
         }

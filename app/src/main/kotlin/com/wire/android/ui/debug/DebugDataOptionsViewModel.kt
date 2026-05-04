@@ -63,6 +63,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -130,6 +133,7 @@ class DebugDataOptionsViewModelImpl
     init {
         observeAsyncNotificationsEnabledData()
         observeMlsMetadata()
+        observeE2EICertificateExpirationInput()
         setGitHashAndDeviceId()
         setAnalyticsTrackingId()
         setServerConfigData()
@@ -223,11 +227,6 @@ class DebugDataOptionsViewModelImpl
     override fun updateE2EICertificateExpirationInput(minutes: String) {
         if (e2eiCertificateExpirationInputState.text.toString() != minutes) {
             e2eiCertificateExpirationInputState.setTextAndPlaceCursorAtEnd(minutes)
-        }
-        minutes.toLongOrNull()?.let { value ->
-            if (value >= MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_MINUTES) {
-                setE2EICertificateExpiration(value * SECONDS_PER_MINUTE)
-            }
         }
     }
 
@@ -390,10 +389,29 @@ class DebugDataOptionsViewModelImpl
         }
     }
 
+    private fun observeE2EICertificateExpirationInput() {
+        viewModelScope.launch {
+            androidx.compose.runtime.snapshotFlow { e2eiCertificateExpirationInputState.text.toString() }
+                .drop(1)
+                .distinctUntilChanged()
+                .collectLatest { minutesText ->
+                    val minutes = minutesText.toLongOrNull() ?: return@collectLatest
+                    if (minutes >= MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_MINUTES) {
+                        applyE2EICertificateExpiration(minutes * SECONDS_PER_MINUTE)
+                    }
+                }
+        }
+    }
+
     private fun setE2EICertificateExpiration(seconds: Long) {
         val expiration = seconds.coerceAtLeast(MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS)
         val minutes = (expiration + MINUTES_ROUNDING_OFFSET_SECONDS) / SECONDS_PER_MINUTE
         e2eiCertificateExpirationInputState.setTextAndPlaceCursorAtEnd(minutes.toString())
+        applyE2EICertificateExpiration(expiration)
+    }
+
+    private fun applyE2EICertificateExpiration(seconds: Long) {
+        val expiration = seconds.coerceAtLeast(MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS)
         state = state.copy(
             e2eiCertificateExpirationSeconds = expiration
         )

@@ -32,8 +32,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -63,7 +61,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun DebugDataOptions(
@@ -85,7 +82,6 @@ fun DebugDataOptions(
         onDisableEventProcessingChange = viewModel::disableEventProcessing,
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
         e2eiCertificateExpirationInputState = viewModel.e2eiCertificateExpirationInputState,
-        onE2EICertificateExpirationInputChange = viewModel::updateE2EICertificateExpirationInput,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         dismissCertificateDialog = viewModel::dismissCertificateDialog,
         checkCrlRevocationList = viewModel::checkCrlRevocationList,
@@ -109,7 +105,6 @@ fun DebugDataOptionsContent(
     onForceUpdateApiVersions: () -> Unit,
     enrollE2EICertificate: () -> Unit,
     e2eiCertificateExpirationInputState: TextFieldState,
-    onE2EICertificateExpirationInputChange: (String) -> Unit,
     handleE2EIEnrollmentResult: (FinalizeEnrollmentResult) -> Unit,
     dismissCertificateDialog: () -> Unit,
     checkCrlRevocationList: () -> Unit,
@@ -205,7 +200,6 @@ fun DebugDataOptionsContent(
             if (BuildConfig.PRIVATE_BUILD && BuildConfig.DEBUG_SCREEN_ENABLED) {
                 E2EICertificateEnrollmentSection(
                     expirationInputState = e2eiCertificateExpirationInputState,
-                    onExpirationInputChange = onE2EICertificateExpirationInputChange,
                     enrollE2EI = enrollE2EICertificate,
                 )
 
@@ -259,17 +253,11 @@ fun DebugDataOptionsContent(
 @Composable
 private fun E2EICertificateEnrollmentSection(
     expirationInputState: TextFieldState,
-    onExpirationInputChange: (String) -> Unit,
     enrollE2EI: () -> Unit
 ) {
     val minExpirationMinutes = MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS / 60
     val enteredMinutes = expirationInputState.text.toString().toLongOrNull()
     val isInputBelowMinimum = enteredMinutes?.let { it < minExpirationMinutes } == true
-
-    LaunchedEffect(expirationInputState) {
-        snapshotFlow { expirationInputState.text.toString() }
-            .collectLatest(onExpirationInputChange)
-    }
 
     Column {
         SectionHeader(stringResource(R.string.debug_settings_e2ei_enrollment_title))
@@ -405,7 +393,6 @@ fun PreviewOtherDebugOptions() = WireTheme {
         onRestartSlowSyncForRecovery = {},
         enrollE2EICertificate = {},
         e2eiCertificateExpirationInputState = TextFieldState("6"),
-        onE2EICertificateExpirationInputChange = {},
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
         checkCrlRevocationList = {},

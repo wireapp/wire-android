@@ -18,10 +18,12 @@
 
 package com.wire.android.ui.calling.model
 
+import androidx.compose.runtime.Stable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.id.QualifiedID
 
+@Stable
 data class UICallParticipant(
     val id: QualifiedID,
     val clientId: String,

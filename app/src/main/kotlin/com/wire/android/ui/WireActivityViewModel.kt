@@ -83,6 +83,7 @@ import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
@@ -147,6 +148,7 @@ class WireActivityViewModel @Inject constructor(
     private val automatedLoginManager: AutomatedLoginManager,
     private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
     private val loginTypeSelector: LoginTypeSelector,
+    private val doesValidNomadAccountExist: Lazy<DoesValidNomadAccountExistUseCase>,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -415,9 +417,11 @@ class WireActivityViewModel @Inject constructor(
 
                 initValidSessionsFlowIfNeeded()
                 if (validSessions.value.filterIsInstance<AccountInfo.Valid>().isNotEmpty()) {
-                    appLogger.w("Nomad login blocked: another session already exists")
-                    sendAction(ShowToast(R.string.nomad_login_blocked_message))
-                    return@launch
+					appLogger.w("Nomad login blocked: a non-nomad session already exists")
+                    if (!doesValidNomadAccountExist.get().invoke()) {
+                        sendAction(ShowToast(R.string.nomad_login_blocked_message))
+                    }
+					return@launch
                 }
 
                 onAutomaticLoginParameters(

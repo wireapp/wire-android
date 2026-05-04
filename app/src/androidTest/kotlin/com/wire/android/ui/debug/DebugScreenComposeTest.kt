@@ -43,7 +43,6 @@ class DebugScreenComposeTest {
                         onShowFeatureFlags = {},
                         onShowCryptoStats = {},
                         onFlushLogs = { CompletableDeferred(Unit) },
-                        onShowCryptoStats = {}
                     )
             }
         }

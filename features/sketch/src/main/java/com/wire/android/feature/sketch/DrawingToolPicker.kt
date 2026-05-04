@@ -21,7 +21,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,7 +36,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButtonColors
 import androidx.compose.material3.OutlinedIconToggleButton
@@ -49,6 +47,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
+import com.wire.android.ui.common.bottomsheet.WireDragHandle
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
@@ -80,14 +79,7 @@ fun DrawingToolPicker(
                 .background(colorsScheme().surface)
                 .wrapContentSize()
         ) {
-            Box(
-                Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(vertical = dimensions().spacing12x)
-                    .size(width = dimensions().modalBottomSheetDividerWidth, height = dimensions().spacing4x)
-                    .background(color = colorsScheme().background, shape = RoundedCornerShape(size = dimensions().spacing2x))
-
-            )
+            WireDragHandle(modifier = Modifier.align(Alignment.CenterHorizontally))
             WireMenuModalSheetContent(
                 header = MenuModalSheetHeader.Visible(title = stringResource(id = R.string.title_color_picker)),
                 menuItems = listOf {

@@ -311,10 +311,7 @@ private fun DefaultInitialsAvatar(
                         colorsScheme().outline
                     )
                 } else {
-                    colorsScheme().wireAccentColors.getOrDefault(
-                        Accent.fromAccentId(nameBasedAvatar.accentColor),
-                        colorsScheme().secondaryText
-                    )
+                    colorsScheme().wireAccentColors.get(Accent.fromAccentId(nameBasedAvatar.accentColor))
                 }
             )
             .then(semantics)

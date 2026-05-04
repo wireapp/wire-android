@@ -68,6 +68,7 @@ fun DebugDataOptions(
     buildVariant: String,
     onCopyText: (String) -> Unit,
     onShowFeatureFlags: () -> Unit,
+    onShowCryptoStats: () -> Unit,
     viewModel: DebugDataOptionsViewModel =
         hiltViewModelScoped<DebugDataOptionsViewModelImpl, DebugDataOptionsViewModel>()
 ) {
@@ -88,6 +89,7 @@ fun DebugDataOptions(
         onResendFCMToken = viewModel::forceSendFCMToken,
         onEnableAsyncNotificationsChange = viewModel::enableAsyncNotifications,
         onShowFeatureFlags = onShowFeatureFlags,
+        onShowCryptoStats = onShowCryptoStats,
         onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys
     )
 }
@@ -110,6 +112,7 @@ fun DebugDataOptionsContent(
     checkCrlRevocationList: () -> Unit,
     onResendFCMToken: () -> Unit,
     onShowFeatureFlags: () -> Unit,
+    onShowCryptoStats: () -> Unit,
     onRepairFaultyRemovalKeys: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -193,6 +196,15 @@ fun DebugDataOptionsContent(
                 onRowPressed = Clickable(
                     enabled = true,
                     onClick = onShowFeatureFlags
+                ),
+                trailingIcon = R.drawable.ic_arrow_right,
+            )
+
+            SettingsItem(
+                text = stringResource(R.string.debug_settings_conversation_crypto_stats),
+                onRowPressed = Clickable(
+                    enabled = true,
+                    onClick = onShowCryptoStats
                 ),
                 trailingIcon = R.drawable.ic_arrow_right,
             )
@@ -399,6 +411,7 @@ fun PreviewOtherDebugOptions() = WireTheme {
         onResendFCMToken = {},
         onEnableAsyncNotificationsChange = {},
         onShowFeatureFlags = {},
+        onShowCryptoStats = {},
         onRepairFaultyRemovalKeys = {}
     )
 }

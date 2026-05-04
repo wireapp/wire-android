@@ -18,6 +18,8 @@
 package com.wire.android.ui.debug
 
 import android.content.Context
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -41,6 +43,9 @@ import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
 import com.wire.kalium.logic.feature.debug.RepairResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
+import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
+import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
+import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.TargetedRepairParam
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
@@ -58,18 +63,26 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
 
+@Suppress("TooManyFunctions")
 @ViewModelScopedPreview
 interface DebugDataOptionsViewModel {
     val infoMessage: SharedFlow<UIText> get() = MutableSharedFlow()
     val state: DebugDataOptionsState get() = DebugDataOptionsState()
+    val e2eiCertificateExpirationInputState: TextFieldState get() = TextFieldState("6")
     fun currentAccount(): UserId = UserId("value", "domain")
     fun checkCrlRevocationList() {}
     fun restartSlowSyncForRecovery() {}
     fun enrollE2EICertificate() {}
+    fun updateE2EICertificateExpiration(seconds: Long) {}
+    fun updateE2EICertificateExpirationInput(minutes: String) {}
     fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {}
     fun dismissCertificateDialog() {}
     fun forceUpdateApiVersions() {}
@@ -98,11 +111,21 @@ class DebugDataOptionsViewModelImpl
     private val observeAsyncNotificationsEnabled: ObserveIsConsumableNotificationsEnabledUseCase,
     private val startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase,
     private val repairFaultyRemovalKeys: RepairFaultyRemovalKeysUseCase,
+    private val getDebugE2EICertificateExpiration: GetDebugE2EICertificateExpirationUseCase,
+    private val setDebugE2EICertificateExpiration: SetDebugE2EICertificateExpirationUseCase,
 ) : ViewModel(), DebugDataOptionsViewModel {
+    private companion object {
+        val DEFAULT_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS = 90.days.inWholeSeconds
+        const val SECONDS_PER_MINUTE = 60L
+        const val MINUTES_ROUNDING_OFFSET_SECONDS = SECONDS_PER_MINUTE - 1
+        val MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_MINUTES =
+            MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS / SECONDS_PER_MINUTE
+    }
 
     override var state by mutableStateOf(
         DebugDataOptionsState()
     )
+    override val e2eiCertificateExpirationInputState = TextFieldState("6")
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     override val infoMessage = _infoMessage.asSharedFlow()
@@ -110,10 +133,12 @@ class DebugDataOptionsViewModelImpl
     init {
         observeAsyncNotificationsEnabledData()
         observeMlsMetadata()
+        observeE2EICertificateExpirationInput()
         setGitHashAndDeviceId()
         setAnalyticsTrackingId()
         setServerConfigData()
         setDefaultProtocol()
+        loadDebugE2EICertificateExpiration()
     }
 
     private fun observeAsyncNotificationsEnabledData() {
@@ -187,7 +212,22 @@ class DebugDataOptionsViewModelImpl
     }
 
     override fun enrollE2EICertificate() {
+        val normalizedMinutes = e2eiCertificateExpirationInputState.text.toString()
+            .toLongOrNull()
+            ?.coerceAtLeast(MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_MINUTES)
+            ?: MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_MINUTES
+        setE2EICertificateExpiration(normalizedMinutes * SECONDS_PER_MINUTE)
         state = state.copy(startGettingE2EICertificate = true)
+    }
+
+    override fun updateE2EICertificateExpiration(seconds: Long) {
+        setE2EICertificateExpiration(seconds)
+    }
+
+    override fun updateE2EICertificateExpirationInput(minutes: String) {
+        if (e2eiCertificateExpirationInputState.text.toString() != minutes) {
+            e2eiCertificateExpirationInputState.setTextAndPlaceCursorAtEnd(minutes)
+        }
     }
 
     override fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {
@@ -330,6 +370,53 @@ class DebugDataOptionsViewModelImpl
                     }
                 }
             }
+        }
+    }
+
+    private fun loadDebugE2EICertificateExpiration() {
+        viewModelScope.launch {
+            val currentExpiration = getDebugE2EICertificateExpiration()
+            if (currentExpiration == DEFAULT_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS) {
+                // For debug UX we default to the minimum test-friendly value instead of 90 days.
+                setE2EICertificateExpiration(MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS)
+            } else {
+                val minutes = (currentExpiration + MINUTES_ROUNDING_OFFSET_SECONDS) / SECONDS_PER_MINUTE
+                e2eiCertificateExpirationInputState.setTextAndPlaceCursorAtEnd(minutes.toString())
+                state = state.copy(
+                    e2eiCertificateExpirationSeconds = currentExpiration
+                )
+            }
+        }
+    }
+
+    private fun observeE2EICertificateExpirationInput() {
+        viewModelScope.launch {
+            androidx.compose.runtime.snapshotFlow { e2eiCertificateExpirationInputState.text.toString() }
+                .drop(1)
+                .distinctUntilChanged()
+                .collectLatest { minutesText ->
+                    val minutes = minutesText.toLongOrNull() ?: return@collectLatest
+                    if (minutes >= MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_MINUTES) {
+                        applyE2EICertificateExpiration(minutes * SECONDS_PER_MINUTE)
+                    }
+                }
+        }
+    }
+
+    private fun setE2EICertificateExpiration(seconds: Long) {
+        val expiration = seconds.coerceAtLeast(MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS)
+        val minutes = (expiration + MINUTES_ROUNDING_OFFSET_SECONDS) / SECONDS_PER_MINUTE
+        e2eiCertificateExpirationInputState.setTextAndPlaceCursorAtEnd(minutes.toString())
+        applyE2EICertificateExpiration(expiration)
+    }
+
+    private fun applyE2EICertificateExpiration(seconds: Long) {
+        val expiration = seconds.coerceAtLeast(MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS)
+        state = state.copy(
+            e2eiCertificateExpirationSeconds = expiration
+        )
+        viewModelScope.launch {
+            setDebugE2EICertificateExpiration(expiration)
         }
     }
     //endregion

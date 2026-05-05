@@ -9,7 +9,8 @@ concurrency:
 
 on:
   # Uncomment pull_request when the team is ready to enable automatic PR runs.
-  # pull_request:
+  merge_group:
+    types: [checks_requested]
   # GitHub schedules use UTC. 04:00 UTC is 06:00 in Berlin during daylight saving time.
   schedule:
     - cron: "0 4 * * *"

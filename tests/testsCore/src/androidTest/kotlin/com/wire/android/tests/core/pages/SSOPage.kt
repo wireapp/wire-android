@@ -20,6 +20,8 @@ package com.wire.android.tests.core.pages
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 data class SSOPage(private val device: UiDevice) {
 
@@ -44,10 +46,10 @@ data class SSOPage(private val device: UiDevice) {
         return this
     }
 
-    fun waitUntilOktaPageLoaded(timeoutMs: Long = 20_000): SSOPage {
+    fun waitUntilOktaPageLoaded(timeout: Duration = 20.seconds): SSOPage {
         UiWaitUtils.waitUntilVisibleOrThrow(
             params = oktaSignInButton,
-            timeoutMs = timeoutMs,
+            timeout = timeout,
             errorMessage = "Okta page did not load: Email and password input field is not visible"
         )
         return this

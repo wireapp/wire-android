@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.isEditSupported
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
@@ -46,34 +47,40 @@ class CellFileActionsMenu @Inject constructor(
 
             isAllFiles || isSearching -> {
                 buildList {
-                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
-                        add(NodeBottomSheetAction.SHARE)
+                    if (cellNode is CellNodeUi.File && cellNode.openLoadState is OpenLoadState.Loading) {
+                        add(NodeBottomSheetAction.CANCEL_LOADING)
+                    } else {
+                        if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
+                            add(NodeBottomSheetAction.SHARE)
+                        }
+                        add(NodeBottomSheetAction.PUBLIC_LINK)
                     }
-                    add(NodeBottomSheetAction.PUBLIC_LINK)
-                    add(NodeBottomSheetAction.DOWNLOAD)
                 }
             }
 
             isConversationFiles -> {
                 buildList {
-                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
-                        add(NodeBottomSheetAction.SHARE)
-                    }
-                    add(NodeBottomSheetAction.PUBLIC_LINK)
-                    add(NodeBottomSheetAction.DOWNLOAD)
+                    if (cellNode is CellNodeUi.File && cellNode.openLoadState is OpenLoadState.Loading) {
+                        add(NodeBottomSheetAction.CANCEL_LOADING)
+                    } else {
+                        if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
+                            add(NodeBottomSheetAction.SHARE)
+                        }
+                        add(NodeBottomSheetAction.PUBLIC_LINK)
 
-                    if (isCollaboraEnabled && featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
-                        add(NodeBottomSheetAction.EDIT)
-                    }
+                        if (isCollaboraEnabled && featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
+                            add(NodeBottomSheetAction.EDIT)
+                        }
 
-                    if (featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
-                        add(NodeBottomSheetAction.VERSION_HISTORY)
-                    }
+                        if (featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
+                            add(NodeBottomSheetAction.VERSION_HISTORY)
+                        }
 
-                    add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
-                    add(NodeBottomSheetAction.MOVE)
-                    add(NodeBottomSheetAction.RENAME)
-                    add(NodeBottomSheetAction.DELETE)
+                        add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
+                        add(NodeBottomSheetAction.MOVE)
+                        add(NodeBottomSheetAction.RENAME)
+                        add(NodeBottomSheetAction.DELETE)
+                    }
                 }
             }
 
@@ -85,8 +92,8 @@ class CellFileActionsMenu @Inject constructor(
     internal sealed interface MenuActionResult
     internal data class Action(val action: CellViewAction) : MenuActionResult
     internal data class Share(val node: CellNodeUi.File) : MenuActionResult
-    internal data class Download(val node: CellNodeUi) : MenuActionResult
     internal data class Edit(val node: CellNodeUi) : MenuActionResult
+    internal data class CancelLoading(val node: CellNodeUi) : MenuActionResult
 
     internal fun onMenuItemAction(
         conversationId: String?,
@@ -127,9 +134,9 @@ class CellFileActionsMenu @Inject constructor(
             NodeBottomSheetAction.PUBLIC_LINK -> Action(ShowPublicLinkScreen(node))
             NodeBottomSheetAction.RENAME -> Action(ShowRenameScreen(node))
             NodeBottomSheetAction.DELETE -> Action(ShowDeleteConfirmation(node = node, isPermanentDelete = false))
-            NodeBottomSheetAction.DOWNLOAD -> Download(node)
             NodeBottomSheetAction.EDIT -> Edit(node)
             NodeBottomSheetAction.VERSION_HISTORY -> Action(ShowVersionHistoryScreen(node.uuid, node.name ?: ""))
+            NodeBottomSheetAction.CANCEL_LOADING -> CancelLoading(node)
         }
 
         onResult(result)

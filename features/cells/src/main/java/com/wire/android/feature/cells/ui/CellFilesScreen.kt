@@ -78,7 +78,7 @@ internal fun CellFilesScreen(
                 cellNodes = cellNodes,
                 lazyListState = lazyListState,
                 onItemClick = onItemClick,
-                onItemMenuClick = onItemMenuClick
+                onItemMenuClick = onItemMenuClick,
             )
         }
     } else {
@@ -87,7 +87,7 @@ internal fun CellFilesScreen(
             cellNodes = cellNodes,
             lazyListState = lazyListState,
             onItemClick = onItemClick,
-            onItemMenuClick = onItemMenuClick
+            onItemMenuClick = onItemMenuClick,
         )
     }
 }
@@ -98,7 +98,7 @@ private fun ContentList(
     lazyListState: LazyListState,
     onItemClick: (CellNodeUi) -> Unit,
     onItemMenuClick: (CellNodeUi) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LazyColumn(
         modifier = modifier.fillMaxWidth(),

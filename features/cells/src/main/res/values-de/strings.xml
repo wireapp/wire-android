@@ -33,7 +33,6 @@
     <string name="restore_label">Wiederherstellen</string>
     <string name="add_remove_tags_label">Tags hinzufügen oder entfernen</string>
     <string name="move_label">In Ordner verschieben</string>
-    <string name="download_label">Herunterladen</string>
     <string name="edit_label">Datei bearbeiten</string>
     <string name="copy_link">Link kopieren</string>
     <string name="share_link">Link teilen</string>

@@ -53,8 +53,7 @@ class CellFileLocalPathCache @Inject constructor() {
     private val completedPaths = mutableMapOf<String, String>()
     internal fun recordCompletedPath(uuid: String, path: String) { completedPaths[uuid] = path }
     internal fun getCompletedPath(uuid: String): String? = completedPaths[uuid]
-
-
+    
     fun emitFileReady(file: CellNodeUi.File) {
         _fileReadyChannel.trySend(file)
     }

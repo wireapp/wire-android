@@ -164,7 +164,6 @@
     <string name="content_description_record_audio_button_start">Hang felvétele</string>
     <string name="content_description_record_audio_button_stop">Hangfelvétel leállítása</string>
     <string name="content_description_record_audio_button_send">Hangüzenet küldése</string>
-    <string name="content_description_mls_certificate_valid">Minden résztvevő összes készülékének van érvényes MLS tanúsítványa</string>
     <string name="content_description_proteus_certificate_valid">Minden résztvevő ellenőrzött (Proteus)</string>
     <string name="content_description_jump_to_last_message">Ugrás a beszélgetés végére</string>
     <string name="content_description_location_icon">Hely elem</string>

@@ -196,13 +196,16 @@ data class ConversationListPage(private val device: UiDevice) {
             className = "android.view.View",
             description = "Close new conversation view"
         )
-        UiWaitUtils.waitUntilVisibleOrThrow(
-            params = closeButton,
-            timeoutMs = timeoutMs,
-            errorMessage = "Close button not found within ${timeoutMs}ms"
-        )
-        val close = UiWaitUtils.waitElement(closeButton)
-        close.click()
+
+        val closed = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 150) {
+            runCatching {
+                UiWaitUtils.waitElement(closeButton, timeoutMillis = 200).click()
+            }
+            UiWaitUtils.findElementOrNull(conversationListHeading)?.let { !it.visibleBounds.isEmpty } == true
+        }
+        if (!closed) {
+            throw AssertionError("Conversation list was not visible again within ${timeoutMs}ms")
+        }
 
         return this
     }

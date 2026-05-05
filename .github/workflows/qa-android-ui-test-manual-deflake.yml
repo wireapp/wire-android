@@ -1,0 +1,264 @@
+name: QA Android UI Test Manual Deflake
+
+# Keep manual deflake on the shared auto-run lock so it does not compete with
+# other QA office workflows for the same device pool at the same time.
+concurrency:
+  group: qa-android-ui-tests-office-auto
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+    inputs:
+      sourceRunId:
+        description: "Run id from qa-android-critical-flow-tests.yml or a previous manual deflake run."
+        required: true
+        type: string
+
+      testinyRunName:
+        description: "TESTINY_RUN_NAME override. Leave empty to reuse the selected run value."
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run-manual-deflake:
+    name: Run manual deflake
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - office
+      - android-qa
+
+    permissions:
+      contents: write
+      actions: read
+
+    env:
+      AWS_REGION: eu-west-1
+      OP_VAULT: "Test Automation"
+      FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Mirror qa-android-critical-flow-tests.yml runner setup so manual
+      # deflake executes in the same QA office runner environment.
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v6
+        with:
+          clean: true
+          submodules: recursive
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK (ANDROID_HOME + adb)
+        uses: android-actions/setup-android@v4
+
+      - name: Ensure required tools exist
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh ensure-required-tools
+
+      # Download the standard deflake artifact exported by
+      # qa-android-critical-flow-tests.yml or a previous manual deflake run.
+      - name: Download deflake input artifact
+        uses: dawidd6/action-download-artifact@v21
+        with:
+          run_id: ${{ inputs.sourceRunId }}
+          name: android-ui-test-deflake-input
+          path: ${{ runner.temp }}/deflake-input
+          github_token: ${{ github.token }}
+
+      # Validate the downloaded deflake artifact and print the resolved run context.
+      - name: Validate deflake input artifact
+        id: validate_deflake_input
+        env:
+          DEFLAKE_BUNDLE_ROOT: ${{ runner.temp }}/deflake-input
+          TESTINY_RUN_NAME_OVERRIDE: ${{ inputs.testinyRunName }}
+        run: python3 scripts/qa_android_ui_tests/inspect_deflake_bundle.py
+
+      # Reuse the same input validators here so malformed selected-run metadata fails
+      # before the runner spends time on APK, device, or report setup.
+      - name: Validate upgrade inputs
+        env:
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.oldBuildNumber }}
+        run: bash scripts/qa_android_ui_tests/validation.sh validate-upgrade-inputs
+
+      - name: Validate rerun inputs
+        env:
+          RERUN_FAILED_ENABLED: ${{ steps.validate_deflake_input.outputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
+        run: bash scripts/qa_android_ui_tests/validation.sh validate-rerun-inputs
+
+      # Reuse the same flavor resolver and APK download path so the deflake run
+      # stays aligned with qa-android-critical-flow-tests.yml app setup.
+      - name: Resolve flavor (runner config)
+        env:
+          FLAVOR_INPUT: ${{ steps.validate_deflake_input.outputs.flavor }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-flavor
+
+      - name: Configure AWS credentials (for S3)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Download APK(s) from S3
+        id: download_apks
+        env:
+          APP_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.resolvedBuildNumber || steps.validate_deflake_input.outputs.appBuildNumberInput }}
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.oldBuildNumber }}
+        run: S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
+
+      # Keep device selection and app installation identical to the selected run
+      # contract so deflake executes against the same kind of target setup.
+      - name: Detect target device(s)
+        env:
+          TARGET_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
+          RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh detect-target-devices
+
+      - name: Clear stale Allure results on device(s)
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh clear-allure-results-on-devices
+
+      - name: Install APK(s) on device(s)
+        env:
+          ENFORCE_APP_INSTALL: ${{ steps.validate_deflake_input.outputs.enforceAppInstall }}
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh install-apks-on-devices
+
+      - name: Install 1Password CLI
+        uses: 1password/install-cli-action@v3
+
+      - name: Fetch secrets.json (runtime only)
+        run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
+
+      - name: Build test APK (assemble once)
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
+
+      - name: Resolve test APK path
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-test-apk-path
+
+      - name: Resolve AndroidX Test Services APKs (for Allure TestStorage)
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-test-services-apks
+
+      # Start execution from the downloaded failed-tests.txt list, then let the
+      # existing rerun logic handle any failures that remain in this run.
+      - name: Run failed tests from deflake artifact
+        env:
+          INITIAL_FAILED_TESTS_FILE: ${{ steps.validate_deflake_input.outputs.failedTestsFile }}
+          RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+          RESOLVED_CATEGORY: ${{ steps.validate_deflake_input.outputs.selectorType == 'category' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+          RERUN_FAILED_ENABLED: ${{ steps.validate_deflake_input.outputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
+          ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
+        run: bash scripts/qa_android_ui_tests/run_ui_tests.sh
+
+      # Publish a fresh deflake bundle so a later run can deflake this manual
+      # deflake execution without going back to qa-android-critical-flow-tests.yml.
+      - name: Prepare deflake input artifact
+        if: always()
+        env:
+          DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input-next
+          SOURCE_WORKFLOW_NAME: ${{ github.workflow }}
+          SOURCE_WORKFLOW_FILE: ".github/workflows/qa-android-ui-test-manual-deflake.yml"
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_RUN_ID: ${{ github.run_id }}
+          SOURCE_RUN_NUMBER: ${{ github.run_number }}
+          SOURCE_RUN_ATTEMPT: ${{ github.run_attempt }}
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_REF_NAME: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.sha }}
+          FLAVOR_INPUT: ${{ steps.validate_deflake_input.outputs.flavor }}
+          TAGS_INPUT: ${{ steps.validate_deflake_input.outputs.tags }}
+          RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+          RESOLVED_CATEGORY: ${{ steps.validate_deflake_input.outputs.selectorType == 'category' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+          APP_BUILD_NUMBER_INPUT: ${{ steps.validate_deflake_input.outputs.resolvedBuildNumber || steps.validate_deflake_input.outputs.appBuildNumberInput }}
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.oldBuildNumber }}
+          ENFORCE_APP_INSTALL: ${{ steps.validate_deflake_input.outputs.enforceAppInstall }}
+          TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
+          ANDROID_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
+          RERUN_FAILED_ENABLED: ${{ steps.validate_deflake_input.outputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
+        run: bash scripts/qa_android_ui_tests/reporting.sh prepare-deflake-bundle
+
+      - name: Upload deflake input artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-ui-test-deflake-input
+          path: ${{ runner.temp }}/deflake-input-next
+          if-no-files-found: warn
+
+      - name: Remove runtime secrets (before Allure/Pages)
+        if: always()
+        run: bash scripts/qa_android_ui_tests/reporting.sh remove-runtime-secrets
+
+      - name: Pull Allure results from device(s) (fallback)
+        if: always()
+        env:
+          OUT_DIR: ${{ runner.temp }}/allure-results
+        run: bash scripts/qa_android_ui_tests/reporting.sh pull-allure-results
+
+      # Publish a fresh Allure report for this manual deflake run only. The
+      # report does not merge results back into the selected previous run.
+      - name: Merge Allure results
+        if: always()
+        env:
+          OUT_DIR: ${{ runner.temp }}/allure-results
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          REAL_BUILD_NUMBER: ${{ env.REAL_BUILD_NUMBER }}
+          NEW_APK_NAME: ${{ env.NEW_APK_NAME }}
+          INPUT_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
+        run: bash scripts/qa_android_ui_tests/reporting.sh merge-allure-results
+
+      - name: Generate Allure HTML report
+        if: always()
+        env:
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          REPORT_DIR: ${{ runner.temp }}/allure-report
+        run: bash scripts/qa_android_ui_tests/reporting.sh generate-allure-report
+
+      - name: Checkout GitHub Pages branch
+        if: always()
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+          path: gh-pages
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Publish Allure report to Pages branch
+        if: always()
+        env:
+          REPORT_DIR: ${{ runner.temp }}/allure-report
+          PAGES_DIR: gh-pages/docs/qa-ui-test-manual-deflake
+          PAGES_TITLE: QA Android UI Test Manual Deflake
+          KEEP_DAYS: "90"
+          INPUT_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
+          APK_VERSION: ${{ env.REAL_BUILD_NUMBER }}
+          APK_NAME: ${{ env.NEW_APK_NAME }}
+        run: bash scripts/qa_android_ui_tests/reporting.sh publish-allure-report
+
+      - name: Cleanup (remove secrets + build outputs)
+        if: always()
+        env:
+          ALLURE_RESULTS_DIR: ${{ runner.temp }}/allure-results
+          ALLURE_RESULTS_MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          ALLURE_REPORT_DIR: ${{ runner.temp }}/allure-report
+        run: bash scripts/qa_android_ui_tests/reporting.sh cleanup-workspace

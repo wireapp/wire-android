@@ -192,19 +192,20 @@ data class ConversationListPage(private val device: UiDevice) {
     }
 
     fun clickCloseButtonOnNewConversationScreen(timeoutMs: Long = 5_000): ConversationListPage {
-        val closeButton = UiSelector()
-            .className("android.view.View")
-            .description("Close new conversation view")
+        val closeButton = UiSelectorParams(
+            className = "android.view.View",
+            description = "Close new conversation view"
+        )
 
-        val found = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs) {
-            device.findObject(closeButton).exists()
+        val closed = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 150) {
+            runCatching {
+                UiWaitUtils.waitElement(closeButton, timeoutMillis = 200).click()
+            }
+            UiWaitUtils.findElementOrNull(conversationListHeading)?.let { !it.visibleBounds.isEmpty } == true
         }
-
-        if (!found) {
-            throw AssertionError("Close button not found within ${timeoutMs}ms")
+        if (!closed) {
+            throw AssertionError("Conversation list was not visible again within ${timeoutMs}ms")
         }
-
-        device.findObject(closeButton).click()
 
         return this
     }

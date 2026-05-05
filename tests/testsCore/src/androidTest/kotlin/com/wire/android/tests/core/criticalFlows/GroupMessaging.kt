@@ -38,6 +38,7 @@ import user.utils.ClientUser
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class GroupMessaging : BaseUiTest() {
@@ -196,7 +197,7 @@ class GroupMessaging : BaseUiTest() {
 
         step("Verify self-deleting message expires and expiration note is shown") {
             pages.conversationViewPage.apply {
-                UiWaitUtils.waitFor(14) // Simple wait
+                UiWaitUtils.waitFor(14.seconds) // Simple wait
                 assertMessageNotVisible("This is a Self deleting Message")
                 assertSentMessageIsVisibleInCurrentConversation(
                     "After one participant has seen your message and the timer has expired on their side, this note disappears."

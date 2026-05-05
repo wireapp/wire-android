@@ -33,6 +33,7 @@ import call.pinger.UiAutomatorPinger
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
+import kotlin.time.Duration.Companion.seconds
 
 class CallHelper {
     lateinit var usersManager: ClientUserManager
@@ -74,7 +75,7 @@ class CallHelper {
         callingManager.verifyAcceptingCallStatus(
             usersManager.splitAliases(callees),
             expectedStatuses,
-            timeoutSeconds
+            timeoutSeconds.seconds
         )
         UiAutomatorPinger.stopPinging()
     }

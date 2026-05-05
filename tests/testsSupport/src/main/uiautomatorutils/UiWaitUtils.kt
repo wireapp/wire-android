@@ -31,11 +31,13 @@ import androidx.test.uiautomator.Until
 import junit.framework.TestCase.assertTrue
 import java.io.IOException
 import java.util.regex.Pattern
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
-private const val TIMEOUT_IN_MILLISECONDS = 10000L
-private const val DEFAULT_POLLING_INTERVAL_MS = 200L
-private const val STABILIZE_TIMEOUT_MS = 3_000L
-private const val STABILIZE_POLLING_INTERVAL_MS = 100L
+private val TIMEOUT_DURATION = 10.seconds
+private val STABILIZE_TIMEOUT = 3.seconds
+private val STABILIZE_POLLING_INTERVAL = 100.milliseconds
 
 data class UiSelectorParams(
     val text: String? = null,
@@ -46,7 +48,7 @@ data class UiSelectorParams(
     val description: String? = null,
     val instance: Int? = null,
     val fromParentText: String? = null,
-    val timeout: Long = TIMEOUT_IN_MILLISECONDS
+    val timeout: Duration = TIMEOUT_DURATION
 )
 
 /**
@@ -58,6 +60,14 @@ data class UiSelectorParams(
 
 @Suppress("TooManyFunctions")
 object UiWaitUtils {
+    val POLLING_FAST: Duration = 100.milliseconds
+    val POLLING_DEFAULT: Duration = 200.milliseconds
+    val POLLING_SLOW: Duration = 250.milliseconds
+    val DEFAULT_TIMEOUT: Duration = TIMEOUT_DURATION
+    val SHORT_TIMEOUT: Duration = 5.seconds
+    val MEDIUM_TIMEOUT: Duration = 10.seconds
+    val LONG_TIMEOUT: Duration = 15.seconds
+    val VERY_LONG_TIMEOUT: Duration = 30.seconds
 
     private fun buildSelector(params: UiSelectorParams): BySelector {
         var selector: BySelector? = when {
@@ -106,16 +116,16 @@ object UiWaitUtils {
      * @return `true` if [condition] succeeded before timeout, otherwise `false`.
      */
     fun retryUntilTimeout(
-        timeoutMs: Long,
-        pollingIntervalMs: Long = DEFAULT_POLLING_INTERVAL_MS,
+        timeout: Duration,
+        pollingInterval: Duration = POLLING_DEFAULT,
         condition: () -> Boolean
     ): Boolean {
-        val deadline = SystemClock.uptimeMillis() + timeoutMs
+        val deadline = SystemClock.uptimeMillis() + timeout.inWholeMilliseconds
         while (SystemClock.uptimeMillis() < deadline) {
             if (condition()) {
                 return true
             }
-            SystemClock.sleep(pollingIntervalMs)
+            SystemClock.sleep(pollingInterval.inWholeMilliseconds)
         }
         return condition()
     }
@@ -127,16 +137,16 @@ object UiWaitUtils {
      */
     fun waitUntilVisibleOrThrow(
         params: UiSelectorParams,
-        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
+        timeout: Duration = DEFAULT_TIMEOUT,
         errorMessage: String
     ) {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val isVisible = retryUntilTimeout(
-            timeoutMs = timeoutMs,
-            pollingIntervalMs = DEFAULT_POLLING_INTERVAL_MS
+            timeout = timeout,
+            pollingInterval = POLLING_DEFAULT
         ) {
             runCatching {
-                device.wait(Until.hasObject(params.toBySelector()), DEFAULT_POLLING_INTERVAL_MS)
+                device.wait(Until.hasObject(params.toBySelector()), POLLING_DEFAULT.inWholeMilliseconds)
             }.getOrDefault(false)
         }
 
@@ -152,14 +162,14 @@ object UiWaitUtils {
      */
     fun waitAnyVisible(
         selectors: List<UiSelectorParams>,
-        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
-        pollingIntervalMs: Long = DEFAULT_POLLING_INTERVAL_MS
+        timeout: Duration = DEFAULT_TIMEOUT,
+        pollingInterval: Duration = POLLING_DEFAULT
     ): UiObject2? {
         var found: UiObject2? = null
 
         val isFound = retryUntilTimeout(
-            timeoutMs = timeoutMs,
-            pollingIntervalMs = pollingIntervalMs
+            timeout = timeout,
+            pollingInterval = pollingInterval
         ) {
             found = selectors
                 .asSequence()
@@ -180,12 +190,12 @@ object UiWaitUtils {
      */
     fun clickWhenClickable(
         params: UiSelectorParams,
-        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
-        pollingIntervalMs: Long = DEFAULT_POLLING_INTERVAL_MS
+        timeout: Duration = DEFAULT_TIMEOUT,
+        pollingInterval: Duration = POLLING_DEFAULT
     ): Boolean {
         return retryUntilTimeout(
-            timeoutMs = timeoutMs,
-            pollingIntervalMs = pollingIntervalMs
+            timeout = timeout,
+            pollingInterval = pollingInterval
         ) {
             val element = findElementOrNull(params) ?: return@retryUntilTimeout false
             try {
@@ -208,11 +218,11 @@ object UiWaitUtils {
      */
     fun waitUntilGoneOrThrow(
         selector: BySelector,
-        timeoutMs: Long = 30_000,
+        timeout: Duration = VERY_LONG_TIMEOUT,
         errorMessage: String
     ) {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val isGone = device.wait(Until.gone(selector), timeoutMs)
+        val isGone = device.wait(Until.gone(selector), timeout.inWholeMilliseconds)
         if (!isGone) {
             throw AssertionError(errorMessage)
         }
@@ -226,13 +236,13 @@ object UiWaitUtils {
     fun waitUntilGoneOrThrow(
         device: UiDevice,
         selector: UiSelector,
-        timeoutMillis: Long = 30_000,
-        pollingInterval: Long = 500,
+        timeout: Duration = VERY_LONG_TIMEOUT,
+        pollingInterval: Duration = 500.milliseconds,
         errorMessage: String = "Element matching selector [$selector] did not disappear within timeout."
     ) {
         val isGone = retryUntilTimeout(
-            timeoutMs = timeoutMillis,
-            pollingIntervalMs = pollingInterval
+            timeout = timeout,
+            pollingInterval = pollingInterval
         ) {
             !device.findObject(selector).exists()
         }
@@ -250,13 +260,13 @@ object UiWaitUtils {
     @Suppress("MagicNumber", "NestedBlockDepth", "CyclomaticComplexMethod", "ComplexCondition")
     fun waitElement(
         params: UiSelectorParams,
-        timeoutMillis: Long = 10_000
+        timeout: Duration = DEFAULT_TIMEOUT
     ): UiObject2 {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val sel = buildSelector(params)
 
         // 1) Block until node exists
-        if (!device.wait(Until.hasObject(sel), timeoutMillis)) {
+        if (!device.wait(Until.hasObject(sel), timeout.inWholeMilliseconds)) {
             throw AssertionError("Element not found with selector: ${describe(params)}")
         }
 
@@ -267,8 +277,8 @@ object UiWaitUtils {
         var stableElement: UiObject2? = null
 
         retryUntilTimeout(
-            timeoutMs = STABILIZE_TIMEOUT_MS,
-            pollingIntervalMs = STABILIZE_POLLING_INTERVAL_MS
+            timeout = STABILIZE_TIMEOUT,
+            pollingInterval = STABILIZE_POLLING_INTERVAL
         ) {
             val obj = try {
                 device.findObject(sel)
@@ -320,13 +330,13 @@ object UiWaitUtils {
     fun waitUntilElementGone(
         device: UiDevice,
         selector: UiSelector,
-        timeoutMillis: Long = 30_000,
-        pollingInterval: Long = 500
+        timeout: Duration = VERY_LONG_TIMEOUT,
+        pollingInterval: Duration = 500.milliseconds
     ) {
         waitUntilGoneOrThrow(
             device = device,
             selector = selector,
-            timeoutMillis = timeoutMillis,
+            timeout = timeout,
             pollingInterval = pollingInterval
         )
     }
@@ -338,13 +348,13 @@ object UiWaitUtils {
          *
          * Kept for compatibility in PR-1; call sites migrate in later cleanups.
          */
-        fun waitFor(seconds: Int, startPinging: () -> Unit = {}, stopPinging: () -> Unit = {}) {
-            if (seconds > 20) {
+        fun waitFor(wait: Duration, startPinging: () -> Unit = {}, stopPinging: () -> Unit = {}) {
+            if (wait > 20.seconds) {
                 startPinging()
             }
-            Thread.sleep(seconds * 1000L)
+            Thread.sleep(wait.inWholeMilliseconds)
 
-            if (seconds > 20) {
+            if (wait > 20.seconds) {
                 stopPinging()
             }
         }
@@ -355,15 +365,15 @@ object UiWaitUtils {
      *
      * Internally delegates to [WaitUtils.waitFor] to keep backward compatibility with existing logic.
      */
-    fun waitFor(seconds: Int, startPinging: () -> Unit = {}, stopPinging: () -> Unit = {}) {
-        WaitUtils.waitFor(seconds, startPinging, stopPinging)
+    fun waitFor(wait: Duration, startPinging: () -> Unit = {}, stopPinging: () -> Unit = {}) {
+        WaitUtils.waitFor(wait, startPinging, stopPinging)
     }
 
     /**
      * Fixed millisecond sleep used by callers that already compute millisecond values.
      */
-    fun waitForMillis(milliseconds: Long) {
-        Thread.sleep(milliseconds)
+    fun waitFor(wait: Duration) {
+        Thread.sleep(wait.inWholeMilliseconds)
     }
 
     /**
@@ -371,12 +381,12 @@ object UiWaitUtils {
      */
     fun waitUntilVisible(
         params: UiSelectorParams,
-        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
+        timeout: Duration = DEFAULT_TIMEOUT,
         errorMessage: String
     ) {
         waitUntilVisibleOrThrow(
             params = params,
-            timeoutMs = timeoutMs,
+            timeout = timeout,
             errorMessage = errorMessage
         )
     }
@@ -386,12 +396,12 @@ object UiWaitUtils {
      */
     fun waitUntilToastIsDisplayed(
         message: String,
-        timeoutMs: Long = 5_000
+        timeout: Duration = SHORT_TIMEOUT
     ) {
         waitUntilVisible(
             params = UiSelectorParams(textContains = message),
-            timeoutMs = timeoutMs,
-            errorMessage = "Toast message containing '$message' was not displayed within ${timeoutMs}ms."
+            timeout = timeout,
+            errorMessage = "Toast message containing '$message' was not displayed within ${timeout.inWholeMilliseconds}ms."
         )
     }
 
@@ -400,12 +410,12 @@ object UiWaitUtils {
      */
     fun iSeeSystemMessage(
         message: String,
-        timeoutMs: Long = 5_000
+        timeout: Duration = SHORT_TIMEOUT
     ) {
         waitUntilVisible(
             params = UiSelectorParams(textContains = message),
-            timeoutMs = timeoutMs,
-            errorMessage = "System message containing '$message' was not displayed within ${timeoutMs}ms."
+            timeout = timeout,
+            errorMessage = "System message containing '$message' was not displayed within ${timeout.inWholeMilliseconds}ms."
         )
     }
 
@@ -415,7 +425,7 @@ object UiWaitUtils {
      * This uses accessibility events and is useful when UI tree based lookup is not reliable.
      */
     @Suppress("MagicNumber")
-    fun assertToastDisplayed(text: String, trigger: () -> Unit, timeoutMs: Long = 5_000L) {
+    fun assertToastDisplayed(text: String, trigger: () -> Unit, timeout: Duration = SHORT_TIMEOUT) {
         var toastDisplayed = false
         val startTimeMs = System.currentTimeMillis()
 
@@ -436,11 +446,11 @@ object UiWaitUtils {
             // IMPORTANT: trigger AFTER listener is set
             trigger()
 
-            while (!toastDisplayed && System.currentTimeMillis() - startTimeMs < timeoutMs) {
+            while (!toastDisplayed && System.currentTimeMillis() - startTimeMs < timeout.inWholeMilliseconds) {
                 Thread.sleep(50)
             }
 
-            assertTrue("Toast with text '$text' not found within ${timeoutMs}ms", toastDisplayed)
+            assertTrue("Toast with text '$text' not found within ${timeout.inWholeMilliseconds}ms", toastDisplayed)
         } finally {
             uiAutomation.setOnAccessibilityEventListener(null)
         }

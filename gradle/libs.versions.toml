@@ -75,7 +75,7 @@ coil = "3.4.0"
 commonmark = "0.28.0"
 
 # Countly
-countly = "24.7.7"
+countly = "26.1.2"
 
 # RSS
 rss-parser = "6.0.7"

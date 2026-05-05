@@ -23,10 +23,12 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
 import com.wire.kalium.logic.feature.debug.DebugScope
+import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
 import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
+import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,6 +37,7 @@ import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
 @InstallIn(ViewModelComponent::class)
+@Suppress("TooManyFunctions")
 class DebugModule {
 
     @ViewModelScoped
@@ -80,6 +83,16 @@ class DebugModule {
     @ViewModelScoped
     @Provides
     fun provideFeatureConfigUseCase(debugScope: DebugScope): GetFeatureConfigUseCase = debugScope.getFeatureConfig
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetDebugE2EICertificateExpirationUseCase(debugScope: DebugScope): GetDebugE2EICertificateExpirationUseCase =
+        debugScope.getDebugE2EICertificateExpiration
+
+    @ViewModelScoped
+    @Provides
+    fun provideSetDebugE2EICertificateExpirationUseCase(debugScope: DebugScope): SetDebugE2EICertificateExpirationUseCase =
+        debugScope.setDebugE2EICertificateExpiration
 
     @ViewModelScoped
     @Provides

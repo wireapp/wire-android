@@ -18,11 +18,21 @@
 package com.wire.android.ui.debug
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.background
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.BuildConfig
@@ -35,6 +45,9 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.textfield.maxLengthDigits
+import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -46,6 +59,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 
 @Composable
@@ -68,6 +82,7 @@ fun DebugDataOptions(
         onForceUpdateApiVersions = viewModel::forceUpdateApiVersions,
         onDisableEventProcessingChange = viewModel::disableEventProcessing,
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
+        e2eiCertificateExpirationInputState = viewModel.e2eiCertificateExpirationInputState,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         dismissCertificateDialog = viewModel::dismissCertificateDialog,
         checkCrlRevocationList = viewModel::checkCrlRevocationList,
@@ -91,6 +106,7 @@ fun DebugDataOptionsContent(
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
     enrollE2EICertificate: () -> Unit,
+    e2eiCertificateExpirationInputState: TextFieldState,
     handleE2EIEnrollmentResult: (FinalizeEnrollmentResult) -> Unit,
     dismissCertificateDialog: () -> Unit,
     checkCrlRevocationList: () -> Unit,
@@ -193,9 +209,10 @@ fun DebugDataOptionsContent(
                 trailingIcon = R.drawable.ic_arrow_right,
             )
 
-            if (BuildConfig.DEBUG) {
-                GetE2EICertificateSwitch(
-                    enrollE2EI = enrollE2EICertificate
+            if (BuildConfig.PRIVATE_BUILD && BuildConfig.DEBUG_SCREEN_ENABLED) {
+                E2EICertificateEnrollmentSection(
+                    expirationInputState = e2eiCertificateExpirationInputState,
+                    enrollE2EI = enrollE2EICertificate,
                 )
 
                 if (state.showCertificate) {
@@ -246,31 +263,64 @@ fun DebugDataOptionsContent(
 }
 
 @Composable
-private fun GetE2EICertificateSwitch(
+private fun E2EICertificateEnrollmentSection(
+    expirationInputState: TextFieldState,
     enrollE2EI: () -> Unit
 ) {
+    val minExpirationMinutes = MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS / 60
+    val enteredMinutes = expirationInputState.text.toString().toLongOrNull()
+    val isInputBelowMinimum = enteredMinutes?.let { it < minExpirationMinutes } == true
+
     Column {
         SectionHeader(stringResource(R.string.debug_settings_e2ei_enrollment_title))
-        RowItemTemplate(
-            modifier = Modifier.wrapContentWidth(),
-            title = {
-                Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    text = stringResource(R.string.label_get_e2ei_cetificate),
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.wireColorScheme.surface)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(dimensions().spacing8x),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                WireTextField(
+                    modifier = Modifier
+                        .width(dimensions().spacing156x),
+                    textState = expirationInputState,
+                    labelText = stringResource(R.string.debug_settings_e2ei_expiration_time),
+                    inputTransformation = InputTransformation.maxLengthDigits(maxLength = 6),
+                    state = if (isInputBelowMinimum) WireTextFieldState.Error() else WireTextFieldState.Default,
+                    trailingIcon = {
+                        Text(
+                            text = stringResource(R.string.debug_settings_e2ei_expiration_minutes_suffix),
+                            modifier = Modifier.padding(horizontal = dimensions().spacing8x)
+                        )
+                    }
                 )
-            },
-            actions = {
+                Spacer(modifier = Modifier.weight(1f))
                 WirePrimaryButton(
-                    onClick = {
-                        enrollE2EI()
-                    },
-                    text = stringResource(R.string.label_get_e2ei_cetificate),
-                    fillMaxWidth = false
+                    onClick = enrollE2EI,
+                    text = stringResource(R.string.debug_settings_e2ei_enroll_button),
+                    fillMaxWidth = false,
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize
                 )
             }
-        )
+            if (isInputBelowMinimum) {
+                Text(
+                    text = stringResource(R.string.debug_settings_e2ei_expiration_min_error, minExpirationMinutes),
+                    style = MaterialTheme.wireTypography.label04,
+                    color = MaterialTheme.wireColorScheme.error,
+                    modifier = Modifier.padding(
+                        start = dimensions().spacing8x,
+                        end = dimensions().spacing8x,
+                        bottom = dimensions().spacing8x
+                    )
+                )
+            }
+            HorizontalDivider(modifier = Modifier.height(dimensions().spacing1x))
+        }
     }
 }
 
@@ -354,6 +404,7 @@ fun PreviewOtherDebugOptions() = WireTheme {
         onDisableEventProcessingChange = {},
         onRestartSlowSyncForRecovery = {},
         enrollE2EICertificate = {},
+        e2eiCertificateExpirationInputState = TextFieldState("6"),
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
         checkCrlRevocationList = {},

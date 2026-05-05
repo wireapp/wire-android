@@ -55,6 +55,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.DebugScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.LogManagementScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
@@ -385,7 +386,7 @@ class WireActivity : BaseActivity() {
                 shakeDetector.observeShakes()
                     .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
                     .collectLatest {
-                        handleLogManagementShake(currentNavigator)
+                        handleShakeShortcut(currentNavigator)
                     }
             }
         }
@@ -695,12 +696,22 @@ class WireActivity : BaseActivity() {
         }
     }
 
-    private fun handleLogManagementShake(navigator: Navigator) {
+    private fun handleShakeShortcut(navigator: Navigator) {
         runOnUiThread {
             val currentRoute = navigator.navController.currentDestination?.route?.getBaseRoute()
-            val targetRoute = LogManagementScreenDestination.baseRoute
+            val shouldOpenDebugTools = BuildConfig.PRIVATE_BUILD && BuildConfig.DEBUG_SCREEN_ENABLED
+            val targetRoute = if (shouldOpenDebugTools) {
+                DebugScreenDestination.baseRoute
+            } else {
+                LogManagementScreenDestination.baseRoute
+            }
             if (currentRoute == targetRoute) return@runOnUiThread
-            navigator.navigate(NavigationCommand(LogManagementScreenDestination, BackStackMode.UPDATE_EXISTED))
+            val target = if (shouldOpenDebugTools) {
+                DebugScreenDestination
+            } else {
+                LogManagementScreenDestination
+            }
+            navigator.navigate(NavigationCommand(target, BackStackMode.UPDATE_EXISTED))
         }
     }
 

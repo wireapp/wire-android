@@ -80,7 +80,8 @@ object SSOServiceHelper {
             // set backend for added okta users
             user.backendName = ownerBackendName
 
-            oktaApiClient.createUser(user.name.orEmpty(), user.email.orEmpty(), user.password.orEmpty())
+            val userId = oktaApiClient.createUser(user.name.orEmpty(), user.email.orEmpty(), user.password.orEmpty())
+            oktaApiClient.assignUserToApplication(userId)
         }
     }
 

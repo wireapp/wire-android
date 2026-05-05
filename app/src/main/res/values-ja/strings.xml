@@ -151,7 +151,6 @@
     <string name="content_description_record_audio_button_start">録音</string>
     <string name="content_description_record_audio_button_stop">録音を停止</string>
     <string name="content_description_record_audio_button_send">音声メッセージを送信</string>
-    <string name="content_description_mls_certificate_valid">すべての参加者のすべてのデバイスには有効なMLS証明書があります</string>
     <string name="content_description_proteus_certificate_valid">すべての参加者が検証されます(Proteus)</string>
     <string name="content_description_location_icon">位置情報の項目</string>
     <string name="content_description_empty"></string>

@@ -35,6 +35,7 @@ import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.model.withOpenLoadState
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
@@ -197,15 +198,7 @@ class CellViewModel @Inject constructor(
                                 val openLoadState = openLoadStates[node.uuid]
                                 when (node) {
                                     is Node.Folder -> node.toUiModel()
-
-                                    is Node.File -> node.toUiModel().copy(
-                                        localPath = (openLoadState as? OpenLoadState.Ready)?.localPath?.toString()
-                                            ?: node.localPath,
-                                        isOpenLoading = openLoadState is OpenLoadState.Loading,
-                                        isOpenReady = openLoadState is OpenLoadState.Ready,
-                                        isOpenError = openLoadState is OpenLoadState.Error,
-                                        openLoadProgress = (openLoadState as? OpenLoadState.Loading)?.progress,
-                                    )
+                                    is Node.File -> node.toUiModel().withOpenLoadState(openLoadState)
                                 }
                             }
                     }
@@ -258,10 +251,10 @@ class CellViewModel @Inject constructor(
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {
-            cellNode.isOpenReady -> openLocalFile(cellNode)
-            cellNode.isOpenLoading -> cancelOpenDownload(cellNode.uuid)
+            cellNode.openLoadState is OpenLoadState.Ready -> openLocalFile(cellNode)
+            cellNode.openLoadState is OpenLoadState.Loading -> cancelOpenDownload(cellNode.uuid)
             cellNode.localFileAvailable() -> openLocalFile(cellNode)
-            cellNode.isOpenError -> startOpenDownload(cellNode)
+            cellNode.openLoadState is OpenLoadState.Error -> startOpenDownload(cellNode)
             cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
             else -> startOpenDownload(cellNode)
         }

@@ -26,6 +26,8 @@ import app.cash.turbine.test
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
+import com.wire.android.feature.cells.ui.model.OpenLoadState
+import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
@@ -171,7 +173,7 @@ class CellViewModelTest {
 
         // File has localPath from DB but also carries an error state (stale UI state)
         val testFile = testFiles[0].copy(localPath = "localPath", contentUrl = null).toUiModel()
-            .copy(isOpenError = true)
+            .copy(openLoadState = OpenLoadState.Error)
 
         viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
         advanceUntilIdle()

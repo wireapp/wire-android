@@ -71,6 +71,7 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.feature.cells.domain.model.previewSupported
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.chip.WireDisplayChipWithOverFlow
 import com.wire.android.ui.common.colorsScheme
@@ -81,7 +82,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import com.wire.android.ui.common.R as commonR
 
-@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun CellListItem(
     cell: CellNodeUi,
@@ -93,7 +93,7 @@ internal fun CellListItem(
     val cellState = rememberUpdatedState(cell)
 
     LaunchedEffect(cell.uuid) {
-        snapshotFlow { cellState.value.isOpenReady }
+        snapshotFlow { cellState.value.openLoadState is OpenLoadState.Ready }
             .filter { it }
             .collect {
                 showReadyState = true
@@ -108,29 +108,7 @@ internal fun CellListItem(
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-
-        val iconState = when {
-            cell.isOpenLoading -> CellIconState.Loading(cell.openLoadProgress)
-            showReadyState -> CellIconState.Ready
-            cell is CellNodeUi.File -> CellIconState.FileIcon(cell)
-            else -> CellIconState.FolderIcon(cell as CellNodeUi.Folder)
-        }
-
-        AnimatedContent(
-            targetState = iconState,
-            contentKey = { it::class.simpleName },
-            transitionSpec = {
-                (scaleIn(initialScale = 0.72f) + fadeIn()) togetherWith (scaleOut(targetScale = 0.72f) + fadeOut())
-            },
-            label = "cell_icon_transition",
-        ) { state ->
-            when (state) {
-                is CellIconState.Loading -> LoadingIconPreview(progress = state.progress)
-                is CellIconState.Ready -> ReadyIconPreview()
-                is CellIconState.FileIcon -> FileIconPreview(state.cell)
-                is CellIconState.FolderIcon -> FolderIconPreview(state.cell)
-            }
-        }
+        CellItemIcon(cell = cell, showReadyState = showReadyState)
 
         Column(
             modifier = Modifier
@@ -138,7 +116,6 @@ internal fun CellListItem(
                 .weight(1f),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing2x)
         ) {
-
             Text(
                 text = cell.name ?: "",
                 style = typography().title02,
@@ -146,58 +123,11 @@ internal fun CellListItem(
                 overflow = TextOverflow.Ellipsis
             )
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (cell.isOpenLoading) {
-                    Text(
-                        text = stringResource(R.string.tap_to_cancel_loading),
-                        textAlign = TextAlign.Left,
-                        overflow = TextOverflow.Ellipsis,
-                        style = typography().label04,
-                        color = colorsScheme().secondaryText,
-                        maxLines = 1,
-                    )
-                } else if (cell.isOpenError) {
-                    Text(
-                        text = stringResource(R.string.unable_to_load_retry),
-                        textAlign = TextAlign.Left,
-                        overflow = TextOverflow.Ellipsis,
-                        style = typography().label04,
-                        color = colorsScheme().error,
-                        maxLines = 1,
-                    )
-                } else if (showReadyState) {
-                    Text(
-                        text = stringResource(R.string.ready_to_open),
-                        textAlign = TextAlign.Left,
-                        overflow = TextOverflow.Ellipsis,
-                        style = typography().label04,
-                        color = colorsScheme().primary,
-                        maxLines = 1,
-                    )
-                } else {
-                    if (cell.tags.isNotEmpty()) {
-                        WireDisplayChipWithOverFlow(
-                            label = cell.tags.first(),
-                            chipsCount = cell.tags.size - 1,
-                            modifier = Modifier.padding(end = dimensions().spacing4x)
-                        )
-                    }
-
-                    cell.subtitle()?.let {
-                        Text(
-                            text = it,
-                            textAlign = TextAlign.Left,
-                            overflow = TextOverflow.Ellipsis,
-                            style = typography().label04,
-                            color = colorsScheme().secondaryText,
-                            maxLines = 1,
-                        )
-                    }
-                }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                CellItemSubtitle(cell = cell, showReadyState = showReadyState)
             }
         }
+
         Icon(
             painter = painterResource(commonR.drawable.ic_more_vert),
             contentDescription = null,
@@ -214,6 +144,81 @@ internal fun CellListItem(
                 )
                 .then(Modifier.size(dimensions().spacing24x))
         )
+    }
+}
+
+@Composable
+private fun CellItemIcon(cell: CellNodeUi, showReadyState: Boolean) {
+    val iconState = when {
+        cell.openLoadState is OpenLoadState.Loading -> CellIconState.Loading((cell.openLoadState as OpenLoadState.Loading).progress)
+        showReadyState -> CellIconState.Ready
+        cell is CellNodeUi.File -> CellIconState.FileIcon(cell)
+        else -> CellIconState.FolderIcon(cell as CellNodeUi.Folder)
+    }
+
+    AnimatedContent(
+        targetState = iconState,
+        contentKey = { it::class.simpleName },
+        transitionSpec = {
+            (scaleIn(initialScale = 0.72f) + fadeIn()) togetherWith (scaleOut(targetScale = 0.72f) + fadeOut())
+        },
+        label = "cell_icon_transition",
+    ) { state ->
+        when (state) {
+            is CellIconState.Loading -> LoadingIconPreview(progress = state.progress)
+            is CellIconState.Ready -> ReadyIconPreview()
+            is CellIconState.FileIcon -> FileIconPreview(state.cell)
+            is CellIconState.FolderIcon -> FolderIconPreview(state.cell)
+        }
+    }
+}
+
+@Composable
+private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean) {
+    when {
+        cell.openLoadState is OpenLoadState.Loading -> Text(
+            text = stringResource(R.string.tap_to_cancel_loading),
+            textAlign = TextAlign.Left,
+            overflow = TextOverflow.Ellipsis,
+            style = typography().label04,
+            color = colorsScheme().secondaryText,
+            maxLines = 1,
+        )
+        cell.openLoadState is OpenLoadState.Error -> Text(
+            text = stringResource(R.string.unable_to_load_retry),
+            textAlign = TextAlign.Left,
+            overflow = TextOverflow.Ellipsis,
+            style = typography().label04,
+            color = colorsScheme().error,
+            maxLines = 1,
+        )
+        showReadyState -> Text(
+            text = stringResource(R.string.ready_to_open),
+            textAlign = TextAlign.Left,
+            overflow = TextOverflow.Ellipsis,
+            style = typography().label04,
+            color = colorsScheme().primary,
+            maxLines = 1,
+        )
+        else -> {
+            if (cell.tags.isNotEmpty()) {
+                WireDisplayChipWithOverFlow(
+                    label = cell.tags.first(),
+                    chipsCount = cell.tags.size - 1,
+                    modifier = Modifier.padding(end = dimensions().spacing4x)
+                )
+            }
+            cell.subtitle()?.let {
+                Text(
+                    text = it,
+                    textAlign = TextAlign.Left,
+                    overflow = TextOverflow.Ellipsis,
+                    style = typography().label04,
+                    color = colorsScheme().secondaryText,
+                    maxLines = 1,
+                )
+            }
+        }
     }
 }
 

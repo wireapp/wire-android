@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.isEditSupported
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
@@ -46,7 +47,7 @@ class CellFileActionsMenu @Inject constructor(
 
             isAllFiles || isSearching -> {
                 buildList {
-                    if (cellNode is CellNodeUi.File && cellNode.isOpenLoading) {
+                    if (cellNode is CellNodeUi.File && cellNode.openLoadState is OpenLoadState.Loading) {
                         add(NodeBottomSheetAction.CANCEL_LOADING)
                     } else {
                         if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
@@ -59,7 +60,7 @@ class CellFileActionsMenu @Inject constructor(
 
             isConversationFiles -> {
                 buildList {
-                    if (cellNode is CellNodeUi.File && cellNode.isOpenLoading) {
+                    if (cellNode is CellNodeUi.File && cellNode.openLoadState is OpenLoadState.Loading) {
                         add(NodeBottomSheetAction.CANCEL_LOADING)
                     } else {
                         if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {

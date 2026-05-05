@@ -56,15 +56,18 @@ import org.json.JSONObject
 import service.getConversationByName
 import user.utils.ClientUser
 import java.util.concurrent.TimeoutException
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class CallingManager(private val usersManager: ClientUserManager) {
     companion object {
-        private const val POLL_INTERVAL_MS = 2000L
-        private const val TIMEOUT_INSTANCE_START = 190_000L
-        private const val TIMEOUT_POSITIVE_FLOWCHECK = 30_000L
-        private const val TIMEOUT_NEGATIVE_FLOWCHECK = 20_000L
-        private const val TIMEOUT_PEER_CONNECTIONS = 20_000L
-        private const val FLOWCHECK_POLLING_MS = 2000L
+        private val POLL_INTERVAL = 2.seconds
+        private val TIMEOUT_INSTANCE_START = 190.seconds
+        private val TIMEOUT_POSITIVE_FLOWCHECK = 30.seconds
+        private val TIMEOUT_NEGATIVE_FLOWCHECK = 20.seconds
+        private val TIMEOUT_PEER_CONNECTIONS = 20.seconds
+        private val FLOWCHECK_POLLING = 2.seconds
 
         private const val CHROME_SUPPORT_VERSION = "102.0.5005.115"
         private const val CHROME_CURRENT_VERSION = "128.0.6613.137"
@@ -178,16 +181,16 @@ class CallingManager(private val usersManager: ClientUserManager) {
     suspend fun verifyInstanceStatus(
         userNames: List<String>,
         expected: InstanceStatus,
-        timeoutMs: Long = TIMEOUT_INSTANCE_START
+        timeout: Duration = TIMEOUT_INSTANCE_START
     ) = withContext(Dispatchers.IO) {
         userNames.forEach { name ->
             val user = usersManager.findUserByNameOrNameAlias(name)
             val instance = getInstance(user)
-            withTimeout(timeoutMs) {
+            withTimeout(timeout) {
                 while (true) {
                     val status = client.getInstanceStatus(instance)
                     if (status == expected) return@withTimeout
-                    delay(POLL_INTERVAL_MS)
+                    delay(POLL_INTERVAL)
                 }
             }
         }
@@ -197,18 +200,18 @@ class CallingManager(private val usersManager: ClientUserManager) {
         callerName: String,
         conversationName: String,
         expected: List<CallStatus>,
-        timeoutMs: Long = TIMEOUT_PEER_CONNECTIONS
+        timeout: Duration = TIMEOUT_PEER_CONNECTIONS
     ) = withContext(Dispatchers.IO) {
         val user = usersManager.findUserByNameOrNameAlias(callerName)
         val convId = getConversationId(user, conversationName)
         val instance = getInstance(user)
         val call = getOutgoingCall(user, convId)
 
-        withTimeout(timeoutMs) {
+        withTimeout(timeout) {
             while (true) {
                 val status = client.getCall(instance, call).status
                 if (status in expected) return@withTimeout
-                delay(POLL_INTERVAL_MS)
+                delay(POLL_INTERVAL)
             }
         }
     }
@@ -216,7 +219,7 @@ class CallingManager(private val usersManager: ClientUserManager) {
     suspend fun verifyAcceptingCallStatus(
         calleeNames: List<String>,
         expectedStatuses: String,
-        secondsTimeout: Int
+        timeout: Duration
     ) {
         for (calleeName in calleeNames) {
             val userAs = usersManager.findUserByNameOrNameAlias(calleeName)
@@ -224,7 +227,7 @@ class CallingManager(private val usersManager: ClientUserManager) {
                 getInstance(userAs),
                 getIncomingCall(userAs),
                 callStatusesListToObject(expectedStatuses),
-                secondsTimeout
+                timeout
             )
         }
     }
@@ -253,27 +256,27 @@ class CallingManager(private val usersManager: ClientUserManager) {
         instance: Instance,
         call: Call,
         expectedStatuses: List<CallStatus>,
-        secondsTimeout: Int
+        timeout: Duration
     ) {
-        val millisecondsStarted = System.currentTimeMillis()
+        val startedAt = System.currentTimeMillis()
         var currentStatus: CallStatus? = null
 
-        while (System.currentTimeMillis() - millisecondsStarted <= secondsTimeout * 1000L) {
+        while (System.currentTimeMillis() - startedAt <= timeout.inWholeMilliseconds) {
             currentStatus = client.getCall(instance, call).status
             if (expectedStatuses.contains(currentStatus)) {
                 return
             }
-            delay(2000)
+            delay(2.seconds)
         }
 
         throw TimeoutException(
             "Call status '$currentStatus' for instance '${instance.id}' " +
-                    "has not been changed to '$expectedStatuses' after $secondsTimeout second(s) timeout"
+                    "has not been changed to '$expectedStatuses' after ${timeout.inWholeSeconds} second(s) timeout"
         )
     }
 
     suspend fun <T> withTimeout(
-        timeoutMs: Long,
+        timeout: Duration,
         block: suspend CoroutineScope.() -> T
     ): T = coroutineScope {
         val result = CompletableDeferred<T>()
@@ -294,9 +297,9 @@ class CallingManager(private val usersManager: ClientUserManager) {
                 value // ✅ return the value here
             }
 
-            onTimeout(timeoutMs) {
+            onTimeout(timeout.inWholeMilliseconds) {
                 job.cancel()
-                throw Exception("Timed out after $timeoutMs ms") // ✅ return a T by throwing
+                throw Exception("Timed out after ${timeout.inWholeMilliseconds} ms") // ✅ return a T by throwing
             }
         }
     }
@@ -346,14 +349,14 @@ class CallingManager(private val usersManager: ClientUserManager) {
             val user = usersManager.findUserByNameOrNameAlias(name)
 
             waitUntil(
-                timeoutMs = TIMEOUT_PEER_CONNECTIONS,
-                intervalMs = FLOWCHECK_POLLING_MS
+                timeout = TIMEOUT_PEER_CONNECTIONS,
+                interval = FLOWCHECK_POLLING
             ) {
                 val flows = safeGetFlows(user).filter { !it.isEmptyFlow() }
                 flows.size == expectedFlowCount
             }
 
-            delay(3000)
+            delay(3.seconds)
             val finalFlows = safeGetFlows(user).filter { !it.isEmptyFlow() }
             check(finalFlows.size == expectedFlowCount) {
                 "Unexpected number of flows for $name: got ${finalFlows.size}, expected $expectedFlowCount"
@@ -491,7 +494,7 @@ class CallingManager(private val usersManager: ClientUserManager) {
     ) {
         val flows = mutableListOf<CallFlow>()
 
-        val success = waitUntil(TIMEOUT_POSITIVE_FLOWCHECK, FLOWCHECK_POLLING_MS) {
+        val success = waitUntil(TIMEOUT_POSITIVE_FLOWCHECK, FLOWCHECK_POLLING) {
             val flowSnapshot = getFlowForRemoteUser(user, flowBefore.remoteUserId)
             flows += flowSnapshot
 
@@ -520,7 +523,7 @@ class CallingManager(private val usersManager: ClientUserManager) {
     ) {
         val flows = mutableListOf<CallFlow>()
 
-        val success = waitUntil(TIMEOUT_NEGATIVE_FLOWCHECK, FLOWCHECK_POLLING_MS) {
+        val success = waitUntil(TIMEOUT_NEGATIVE_FLOWCHECK, FLOWCHECK_POLLING) {
             val flowSnapshot = getFlowForRemoteUser(user, flowBefore.remoteUserId)
             flows += flowSnapshot
 
@@ -549,7 +552,7 @@ class CallingManager(private val usersManager: ClientUserManager) {
         withContext(Dispatchers.IO) {
             val flows = client.getFlows(getInstance(user)).filter { !it.isEmptyFlow() }
             flows.ifEmpty {
-                delay(2000)
+                delay(2.seconds)
                 client.getFlows(getInstance(user))
             }
         }
@@ -559,7 +562,7 @@ class CallingManager(private val usersManager: ClientUserManager) {
             val userAs = usersManager.findUserByNameOrNameAlias(user)
             val flows = client.getFlows(getInstance(userAs)).filter { !it.isEmptyFlow() }
             flows.ifEmpty {
-                delay(2000)
+                delay(2.seconds)
                 client.getFlows(getInstance(userAs))
             }
         }
@@ -567,14 +570,14 @@ class CallingManager(private val usersManager: ClientUserManager) {
     private fun CallFlow.isEmptyFlow() = audioPacketsSent == -1L && audioPacketsReceived == -1L
 
     private suspend fun waitUntil(
-        timeoutMs: Long,
-        intervalMs: Long,
+        timeout: Duration,
+        interval: Duration,
         condition: suspend () -> Boolean
     ): Boolean {
         val start = System.currentTimeMillis()
-        while (System.currentTimeMillis() - start < timeoutMs) {
+        while (System.currentTimeMillis() - start < timeout.inWholeMilliseconds) {
             if (condition()) return true
-            delay(intervalMs)
+            delay(interval)
         }
         return false
     }
@@ -618,7 +621,7 @@ class CallingManager(private val usersManager: ClientUserManager) {
             val user = usersManager.findUserByNameOrNameAlias(name)
             val instance = getInstance(user)
             client.getCurrentCall(instance)?.let { client.switchVideoOn(instance, it) }
-            delay(500)
+            delay(500.milliseconds)
         }
     }
 

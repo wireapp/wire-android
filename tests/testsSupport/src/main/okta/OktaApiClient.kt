@@ -30,11 +30,14 @@ import java.net.HttpURLConnection
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 import kotlin.math.max
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.minutes
 
 class OktaApiClient {
 
-    private val CONNECT_TIMEOUT_MS = 3_000
-    private val READ_TIMEOUT_MS = 240_000
+    private val CONNECT_TIMEOUT = 3.seconds
+    private val READ_TIMEOUT = 4.minutes
     private val BASE_URI = "https://dev-500508-admin.oktapreview.com"
     private val apiKey: String by lazy { BuildConfig.OKTA_API_KEY_PASSWORD }
 
@@ -73,9 +76,9 @@ class OktaApiClient {
                 }
 
                 if (code == 429 && attempt < retries - 1) {
-                    val waitMs = retryAfterMs ?: (2_000L * (attempt + 1))
+                    val wait = retryAfterMs?.milliseconds ?: (2.seconds * (attempt + 1))
                     try {
-                        Thread.sleep(waitMs)
+                        Thread.sleep(wait.inWholeMilliseconds)
                     } catch (_: InterruptedException) {
                     }
                     return@repeat
@@ -115,8 +118,8 @@ class OktaApiClient {
                 setRequestProperty("Authorization", "SSWS $apiKey")
                 setRequestProperty("Content-Type", "application/json")
                 setRequestProperty("Accept", accept)
-                connectTimeout = CONNECT_TIMEOUT_MS
-                readTimeout = READ_TIMEOUT_MS
+                connectTimeout = CONNECT_TIMEOUT.inWholeMilliseconds.toInt()
+                readTimeout = READ_TIMEOUT.inWholeMilliseconds.toInt()
                 if (method == "POST" || method == "PUT") {
                     doOutput = true
                     body?.let { outputStream.bufferedWriter().use { w -> w.write(it) } }

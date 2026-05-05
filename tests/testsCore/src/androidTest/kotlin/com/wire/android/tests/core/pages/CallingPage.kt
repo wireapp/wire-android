@@ -20,6 +20,7 @@ package com.wire.android.tests.core.pages
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import kotlin.time.Duration.Companion.milliseconds
 
 data class CallingPage(private val device: UiDevice) {
     private val hangUpCallButton = UiSelectorParams(description = "Hang up call")
@@ -61,7 +62,7 @@ data class CallingPage(private val device: UiDevice) {
 
     fun iDoNotSeeOngoingGroupCall(): CallingPage {
         try {
-            UiWaitUtils.waitElement(hangUpCallButton, timeoutMillis = 15_000)
+            UiWaitUtils.waitElement(hangUpCallButton, timeout = 15_000.milliseconds)
         } catch (e: AssertionError) {
             return this
         }

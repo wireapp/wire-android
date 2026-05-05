@@ -27,6 +27,9 @@ import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
 import kotlin.test.DefaultAsserter.assertTrue
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 data class ConversationListPage(private val device: UiDevice) {
 
@@ -69,11 +72,20 @@ data class ConversationListPage(private val device: UiDevice) {
      * The navigation drawer can appear before the Settings entry is fully attached and clickable.
      * Retry for a short window, reopening the drawer at a throttled pace until the Settings row is stable.
      */
-    fun clickSettingsButtonOnMenuEntry(timeoutMs: Long = 10_000): ConversationListPage {
+    fun clickSettingsButtonOnMenuEntry(timeout: Duration = 10.seconds): ConversationListPage {
         var lastMenuClickAt = 0L
 
-        val success = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 120) {
-            if (UiWaitUtils.clickWhenClickable(settingsButton, timeoutMs = 200, pollingIntervalMs = 100)) {
+        val success = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            if (
+                UiWaitUtils.clickWhenClickable(
+                    settingsButton,
+                    timeout = UiWaitUtils.POLLING_DEFAULT,
+                    pollingInterval = UiWaitUtils.POLLING_FAST
+                )
+            ) {
                 true
             } else {
                 lastMenuClickAt = reopenMenuIfNeeded(lastMenuClickAt)
@@ -82,7 +94,7 @@ data class ConversationListPage(private val device: UiDevice) {
         }
 
         if (!success) {
-            throw AssertionError("Settings menu entry was not found within ${timeoutMs}ms.")
+            throw AssertionError("Settings menu entry was not found within ${timeout.inWholeMilliseconds}ms.")
         }
         return this
     }
@@ -91,7 +103,11 @@ data class ConversationListPage(private val device: UiDevice) {
         val now = SystemClock.uptimeMillis()
         if (
             now - lastMenuClickAt < minIntervalMs ||
-            !UiWaitUtils.clickWhenClickable(mainMenuButton, timeoutMs = 200, pollingIntervalMs = 100)
+            !UiWaitUtils.clickWhenClickable(
+                mainMenuButton,
+                timeout = UiWaitUtils.POLLING_DEFAULT,
+                pollingInterval = UiWaitUtils.POLLING_FAST
+            )
         ) {
             return lastMenuClickAt
         }
@@ -158,7 +174,7 @@ data class ConversationListPage(private val device: UiDevice) {
     fun clickGroupConversation(conversationName: String): ConversationListPage {
         UiWaitUtils.waitUntilVisibleOrThrow(
             params = UiSelectorParams(text = conversationName),
-            timeoutMs = 10_000,
+            timeout = 10.seconds,
             errorMessage = "Group conversation '$conversationName' was not found."
         )
 
@@ -191,20 +207,23 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickCloseButtonOnNewConversationScreen(timeoutMs: Long = 5_000): ConversationListPage {
+    fun clickCloseButtonOnNewConversationScreen(timeout: Duration = 5.seconds): ConversationListPage {
         val closeButton = UiSelectorParams(
             className = "android.view.View",
             description = "Close new conversation view"
         )
 
-        val closed = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 150) {
+        val closed = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
             runCatching {
-                UiWaitUtils.waitElement(closeButton, timeoutMillis = 200).click()
+                UiWaitUtils.waitElement(closeButton, timeout = UiWaitUtils.POLLING_DEFAULT).click()
             }
             UiWaitUtils.findElementOrNull(conversationListHeading)?.let { !it.visibleBounds.isEmpty } == true
         }
         if (!closed) {
-            throw AssertionError("Conversation list was not visible again within ${timeoutMs}ms")
+            throw AssertionError("Conversation list was not visible again within ${timeout.inWholeMilliseconds}ms")
         }
 
         return this
@@ -221,7 +240,7 @@ data class ConversationListPage(private val device: UiDevice) {
         try {
             UiWaitUtils.waitUntilVisibleOrThrow(
                 params = UiSelectorParams(text = userName),
-                timeoutMs = 10_000,
+                timeout = 10.seconds,
                 errorMessage = "User '$userName' is not visible in the conversation list"
             )
         } catch (e: Throwable) {
@@ -231,7 +250,7 @@ data class ConversationListPage(private val device: UiDevice) {
         try {
             UiWaitUtils.waitUntilVisibleOrThrow(
                 params = pendingApprovalLabel,
-                timeoutMs = 10_000,
+                timeout = 10.seconds,
                 errorMessage = "Pending status is not visible for user '$userName'"
             )
         } catch (e: Throwable) {
@@ -247,8 +266,8 @@ data class ConversationListPage(private val device: UiDevice) {
         UiWaitUtils.waitUntilElementGone(
             device = device,
             selector = userConversationNamePendingLabelSelector,
-            timeoutMillis = 10_000,
-            pollingInterval = 250
+            timeout = 10.seconds,
+            pollingInterval = 250.milliseconds
         )
 
         return this

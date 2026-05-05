@@ -47,6 +47,13 @@ class CellFileLocalPathCache @Inject constructor() {
     private val _openLoadStates = MutableStateFlow<Map<String, OpenLoadState>>(emptyMap())
     internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = _openLoadStates.asStateFlow()
 
+    // Session-level guard: records the local path once a download completes so that a
+    // subsequent tap opens the file immediately, even if the paging source hasn't refreshed
+    // yet with the new localPath from the DB.
+    private val completedPaths = mutableMapOf<String, String>()
+    internal fun recordCompletedPath(uuid: String, path: String) { completedPaths[uuid] = path }
+    internal fun getCompletedPath(uuid: String): String? = completedPaths[uuid]
+
 
     fun emitFileReady(file: CellNodeUi.File) {
         _fileReadyChannel.trySend(file)

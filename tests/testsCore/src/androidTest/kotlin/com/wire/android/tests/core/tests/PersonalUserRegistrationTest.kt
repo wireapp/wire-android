@@ -53,7 +53,7 @@ class PersonalUserRegistrationTest : BaseUiTest() {
 
     @After
     fun tearDown() {
-        //  UiAutomatorSetup.stopApp()
+        // UiAutomatorSetup.stopApp()
     }
 
     @Suppress("LongMethod")
@@ -62,7 +62,7 @@ class PersonalUserRegistrationTest : BaseUiTest() {
     @Test
     fun givenUserWantsToRegister_whenTheyProvideValidDetails_thenAccountIsCreatedSuccessfully() {
 
-        //  create userInfo once, outside UI steps.
+        // create userInfo once, outside UI steps.
         val userInfo = UserClient.generateUniqueUserInfo()
         lateinit var otp: String
 
@@ -134,7 +134,7 @@ class PersonalUserRegistrationTest : BaseUiTest() {
                 assertUserNameHelpText()
 
                 setUserName(userInfo.username)
-                // clickConfirmButton()
+                clickConfirmButton()
             }
         }
 

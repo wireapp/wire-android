@@ -28,6 +28,9 @@ import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.waitUntilElementGone
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class RegistrationPage(private val device: UiDevice) {
 
@@ -71,10 +74,13 @@ class RegistrationPage(private val device: UiDevice) {
     }
 
     fun enterPersonalUserRegistrationEmail(email: String): RegistrationPage {
-        val success = UiWaitUtils.retryUntilTimeout(timeoutMs = 6_000, pollingIntervalMs = 150) {
+        val success = UiWaitUtils.retryUntilTimeout(
+            timeout = 6.seconds,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
             runCatching {
-                UiWaitUtils.waitElement(emailInputField, timeoutMillis = 2_000).click()
-                UiWaitUtils.waitElement(emailInputField, timeoutMillis = 2_000).text = email
+                UiWaitUtils.waitElement(emailInputField, timeout = 2.seconds).click()
+                UiWaitUtils.waitElement(emailInputField, timeout = 2.seconds).text = email
             }.isSuccess
         }
 
@@ -85,12 +91,15 @@ class RegistrationPage(private val device: UiDevice) {
     }
 
     @Suppress("NestedBlockDepth")
-    fun clickLoginButton(timeoutMs: Long = 10_000): RegistrationPage {
+    fun clickLoginButton(timeout: Duration = 10.seconds): RegistrationPage {
         var lastError: AssertionError? = null
 
-        val success = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 200) {
+        val success = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
             try {
-                UiWaitUtils.waitElement(loginButton, timeoutMillis = 1_500).click()
+                UiWaitUtils.waitElement(loginButton, timeout = 1500.milliseconds).click()
                 true
             } catch (e: AssertionError) {
                 lastError = e
@@ -112,7 +121,7 @@ class RegistrationPage(private val device: UiDevice) {
 
         if (!success) {
             throw AssertionError(
-                "Login button was not clickable within ${timeoutMs}ms.",
+                "Login button was not clickable within ${timeout.inWholeMilliseconds}ms.",
                 lastError
             )
         }
@@ -197,12 +206,12 @@ class RegistrationPage(private val device: UiDevice) {
         val codeInputField = UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText"))
         codeInputField.click()
         codeInputField.text = code
-        UiWaitUtils.waitElement(userNameInfoText, timeoutMillis = 15_000)
+        UiWaitUtils.waitElement(userNameInfoText, timeout = 15.seconds)
         return this
     }
 
     fun assertEnterYourUserNameInfoText(): RegistrationPage {
-        val info = UiWaitUtils.waitElement(userNameInfoText, timeoutMillis = 15_000)
+        val info = UiWaitUtils.waitElement(userNameInfoText, timeout = 15.seconds)
         assertTrue("Username info not visible", !info.visibleBounds.isEmpty)
         return this
     }
@@ -236,12 +245,15 @@ class RegistrationPage(private val device: UiDevice) {
     }
 
     @Suppress("MagicNumber")
-    fun clickDeclineShareDataAlert(timeoutMs: Long = 10_000): RegistrationPage {
-        val dismissed = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 150) {
+    fun clickDeclineShareDataAlert(timeout: Duration = 10.seconds): RegistrationPage {
+        val dismissed = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
             UiWaitUtils.clickWhenClickable(
                 params = declineButton,
-                timeoutMs = 200,
-                pollingIntervalMs = 100
+                timeout = UiWaitUtils.POLLING_DEFAULT,
+                pollingInterval = UiWaitUtils.POLLING_FAST
             )
 
             val dialogVisible = UiWaitUtils.findElementOrNull(consentDialogTitle)?.let { !it.visibleBounds.isEmpty } == true
@@ -249,7 +261,7 @@ class RegistrationPage(private val device: UiDevice) {
             !dialogVisible && !declineVisible
         }
         if (!dismissed) {
-            throw AssertionError("Share data consent alert was not dismissed within ${timeoutMs}ms.")
+            throw AssertionError("Share data consent alert was not dismissed within ${timeout.inWholeMilliseconds}ms.")
         }
         return this
     }
@@ -268,8 +280,8 @@ class RegistrationPage(private val device: UiDevice) {
     fun waitUntilLoginFlowIsCompleted(): RegistrationPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         try {
-            waitUntilElementGone(device, loginButtonGoneSelector, timeoutMillis = 15_000)
-            waitUntilElementGone(device, settingUpWireGoneSelector, timeoutMillis = 35_000)
+            waitUntilElementGone(device, loginButtonGoneSelector, timeout = 15.seconds)
+            waitUntilElementGone(device, settingUpWireGoneSelector, timeout = 35.seconds)
         } catch (e: AssertionError) {
             throw AssertionError(
                 "Login flow did not complete: login button or 'Setting up Wire' is still visible",
@@ -281,7 +293,7 @@ class RegistrationPage(private val device: UiDevice) {
 
     fun waitUntilRegistrationFlowIsCompleted(): RegistrationPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        waitUntilElementGone(device, UiSelector().text("Confirm"), timeoutMillis = 16_000)
+        waitUntilElementGone(device, UiSelector().text("Confirm"), timeout = 16.seconds)
         return this
     }
 

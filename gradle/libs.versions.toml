@@ -72,10 +72,10 @@ accompanist = "0.32.0"
 material = "1.12.0"
 material3 = "1.4.0"
 coil = "3.4.0"
-commonmark = "0.25.1"
+commonmark = "0.28.0"
 
 # Countly
-countly = "24.7.7"
+countly = "26.1.2"
 
 # RSS
 rss-parser = "6.0.7"

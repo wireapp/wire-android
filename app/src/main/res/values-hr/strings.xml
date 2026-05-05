@@ -146,7 +146,6 @@
     <string name="content_description_record_audio_button_start">Snimanje zvuka</string>
     <string name="content_description_record_audio_button_stop">Zaustavi snimanje zvuka</string>
     <string name="content_description_record_audio_button_send">Pošalji glasovnu poruku</string>
-    <string name="content_description_mls_certificate_valid">Svi uređaji svih sudionika posjeduju valjani MLS certifikat</string>
     <string name="content_description_proteus_certificate_valid">Svi sudionici su verificirani (Proteus)</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->

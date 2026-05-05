@@ -72,7 +72,7 @@ jobs:
       # Download the standard deflake artifact exported by
       # qa-android-critical-flow-tests.yml or a previous manual deflake run.
       - name: Download deflake input artifact
-        uses: dawidd6/action-download-artifact@v20
+        uses: dawidd6/action-download-artifact@v21
         with:
           run_id: ${{ inputs.sourceRunId }}
           name: android-ui-test-deflake-input

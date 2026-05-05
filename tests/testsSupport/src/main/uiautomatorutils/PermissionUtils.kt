@@ -22,13 +22,18 @@ import androidx.test.uiautomator.UiDevice
 
 object PermissionUtils {
 
-    fun grantRuntimePermsForForegroundApp(device: UiDevice, vararg permissions: String) {
-        val inst = InstrumentationRegistry.getInstrumentation()
-        val pkg = device.currentPackageName
-        val ui = inst.uiAutomation
+    // Grants runtime permissions directly to a known app package.
+    fun grantRuntimePermsForApp(pkg: String, vararg permissions: String) {
+        val ui = InstrumentationRegistry.getInstrumentation().uiAutomation
 
         permissions.forEach { perm ->
             ui.executeShellCommand("pm grant $pkg $perm").close()
         }
+    }
+
+    // Grants runtime permissions to whichever app is currently in the foreground.
+    fun grantRuntimePermsForForegroundApp(device: UiDevice, vararg permissions: String) {
+        val pkg = device.currentPackageName
+        grantRuntimePermsForApp(pkg, *permissions)
     }
 }

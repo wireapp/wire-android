@@ -18,6 +18,7 @@
 package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,8 +30,13 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * A simple in-memory cache to store local file paths for cell nodes.
- * It also provides a channel to emit events when a file is ready to be opened.
+ * Singleton shared state for the Cells file-open feature.
+ *
+ * Centralised here so that `CellViewModel` and `SearchScreenViewModel` share the same
+ * reactive state without any UI-layer wiring.
+ *
+ * - [fileReadyEvents]: emitted when a slow download finishes so the UI can show a snackbar.
+ * - [openLoadStates]: per-uuid Loading / Ready / Error state consumed by paging combines.
  */
 @Singleton
 class CellFileLocalPathCache @Inject constructor() {
@@ -38,14 +44,16 @@ class CellFileLocalPathCache @Inject constructor() {
     private val _fileReadyChannel = Channel<CellNodeUi.File>(Channel.BUFFERED)
     val fileReadyEvents: Flow<CellNodeUi.File> = _fileReadyChannel.receiveAsFlow()
 
-    private val _paths = MutableStateFlow<Map<String, String>>(emptyMap())
-    val paths: StateFlow<Map<String, String>> = _paths.asStateFlow()
+    private val _openLoadStates = MutableStateFlow<Map<String, OpenLoadState>>(emptyMap())
+    internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = _openLoadStates.asStateFlow()
 
-    fun put(uuid: String, localPath: String) {
-        _paths.update { it + (uuid to localPath) }
-    }
 
     fun emitFileReady(file: CellNodeUi.File) {
         _fileReadyChannel.trySend(file)
     }
+
+    internal fun setOpenLoadState(uuid: String, state: OpenLoadState) =
+        _openLoadStates.update { it + (uuid to state) }
+
+    internal fun clearOpenLoadState(uuid: String) = _openLoadStates.update { it - uuid }
 }

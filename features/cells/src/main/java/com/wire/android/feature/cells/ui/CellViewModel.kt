@@ -111,12 +111,8 @@ class CellViewModel @Inject constructor(
     val isDeleteInProgress = _isDeleteInProgress.asStateFlow()
 
     /** Public map of uuid → open-load state for screens that build their own paging flow (e.g. Search). */
-    internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = openFileDownloadController.openLoadStates
 
     internal val fileReadyFlow: Flow<CellNodeUi.File> = sharedPathCache.fileReadyEvents
-
-    /** Cached local file paths from completed open-downloads, keyed by uuid. Used by Search screen overlay. */
-    internal val cachedLocalPaths: StateFlow<Map<String, String>> = sharedPathCache.paths
 
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
@@ -170,51 +166,49 @@ class CellViewModel @Inject constructor(
         refreshTrigger.flatMapLatest {
             _defaultSortingCriteria.flatMapLatest { sortingCriteria ->
                 combine(
-                    getCellFilesPaged(
-                        conversationId = navArgs.conversationId,
-                        fileFilters = FileFilters(
-                            onlyDeleted = navArgs.isRecycleBin ?: false,
-                        ),
-                        sortingSpec = SortingSpec(
-                            criteria = sortingCriteria.toKaliumCriteria(),
-                            descending = sortingCriteria.isDescending,
-                        ),
-                    ).cachedIn(viewModelScope),
-                    removedItemsFlow,
-                    openFileDownloadController.openLoadStates,
-                    sharedPathCache.paths,
-                ) { pagingData, removedItems, openLoadStates, cachedPaths ->
-                    var emittedRefreshDone = false
+                        getCellFilesPaged(
+                            conversationId = navArgs.conversationId,
+                            fileFilters = FileFilters(
+                                onlyDeleted = navArgs.isRecycleBin ?: false,
+                            ),
+                            sortingSpec = SortingSpec(
+                                criteria = sortingCriteria.toKaliumCriteria(),
+                                descending = sortingCriteria.isDescending,
+                            ),
+                        ).cachedIn(viewModelScope),
+                        removedItemsFlow,
+                        openFileDownloadController.openLoadStates,
+                    ) { pagingData, removedItems, openLoadStates ->
+                        var emittedRefreshDone = false
 
-                    pagingData
-                        .filter { node: Node -> node.uuid !in removedItems }
-                        .map { node ->
-                            if (!emittedRefreshDone) {
-                                emittedRefreshDone = true
+                        pagingData
+                            .filter { node: Node -> node.uuid !in removedItems }
+                            .map { node ->
+                                if (!emittedRefreshDone) {
+                                    emittedRefreshDone = true
 
-                                if (_isPullToRefresh.value) {
-                                    _isPullToRefresh.value = false
+                                    if (_isPullToRefresh.value) {
+                                        _isPullToRefresh.value = false
+                                    }
+
+                                    _pagingRefreshDone.tryEmit(Unit)
                                 }
 
-                                _pagingRefreshDone.tryEmit(Unit)
-                            }
+                                val openLoadState = openLoadStates[node.uuid]
+                                when (node) {
+                                    is Node.Folder -> node.toUiModel()
 
-                            val openLoadState = openLoadStates[node.uuid]
-                            when (node) {
-                                is Node.Folder -> node.toUiModel()
-
-                                is Node.File -> node.toUiModel().copy(
-                                    localPath = openLoadState?.let { (it as? OpenLoadState.Ready)?.localPath?.toString() }
-                                        ?: cachedPaths[node.uuid]
-                                        ?: node.localPath,
-                                    isOpenLoading = openLoadState is OpenLoadState.Loading,
-                                    isOpenReady = openLoadState is OpenLoadState.Ready,
-                                    isOpenError = openLoadState is OpenLoadState.Error,
-                                    openLoadProgress = (openLoadState as? OpenLoadState.Loading)?.progress,
-                                )
+                                    is Node.File -> node.toUiModel().copy(
+                                        localPath = (openLoadState as? OpenLoadState.Ready)?.localPath?.toString()
+                                            ?: node.localPath,
+                                        isOpenLoading = openLoadState is OpenLoadState.Loading,
+                                        isOpenReady = openLoadState is OpenLoadState.Ready,
+                                        isOpenError = openLoadState is OpenLoadState.Error,
+                                        openLoadProgress = (openLoadState as? OpenLoadState.Loading)?.progress,
+                                    )
+                                }
                             }
-                        }
-                }
+                    }
             }
         }
     }.shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)
@@ -251,7 +245,6 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnNodeRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnParentFolderRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnCancelDownload -> cancelDownload(intent.uuid)
-            is CellViewIntent.OnScreenLeave -> clearAllErrorStates()
         }
     }
 
@@ -267,17 +260,10 @@ class CellViewModel @Inject constructor(
         when {
             cellNode.isOpenReady -> openLocalFile(cellNode)
             cellNode.isOpenLoading -> cancelOpenDownload(cellNode.uuid)
-            cellNode.isOpenError -> startOpenDownload(cellNode)
             cellNode.localFileAvailable() -> openLocalFile(cellNode)
+            cellNode.isOpenError -> startOpenDownload(cellNode)
             cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
-            else -> {
-                val cachedPath = sharedPathCache.paths.value[cellNode.uuid]
-                if (cachedPath != null) {
-                    openLocalFile(cellNode.copy(localPath = cachedPath))
-                } else {
-                    startOpenDownload(cellNode)
-                }
-            }
+            else -> startOpenDownload(cellNode)
         }
     }
 
@@ -477,8 +463,6 @@ class CellViewModel @Inject constructor(
     private fun addToListUi(node: CellNodeUi) = removedItemsFlow.update { it - node.uuid }
     fun clearRemovedItems() = removedItemsFlow.update { emptyList() }
 
-    internal fun clearAllErrorStates() = openFileDownloadController.clearAllErrorStates()
-
     private fun loadWireCellConfig() = viewModelScope.launch {
         val config = getWireCellsConfig()
         isCollaboraEnabled = config?.collabora != CollaboraEdition.NO
@@ -503,7 +487,6 @@ sealed interface CellViewIntent {
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnParentFolderRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnCancelDownload(val uuid: String) : CellViewIntent
-    data object OnScreenLeave : CellViewIntent
 }
 
 sealed interface CellViewAction

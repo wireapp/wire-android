@@ -24,20 +24,26 @@ import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toOkioPath
 import javax.inject.Inject
 
 /**
- * Controller for managing the state of file downloads triggered by "Open" actions in the UI.
+ * Controller for downloading a Cell file when the user clicks "Open". Manages the download lifecycle
+ * and exposes loading state to the UI.
+ *
+ * Responsibilities:
+ * - Start a download when the user clicks "Open" on a file with an unknown local path.
+ * - Expose per-file loading state (Loading / Ready / Error) via [CellFileLocalPathCache.openLoadStates].
+ * - Cancel in-progress downloads if the user clicks "Open" again on the same file or navigates away.
+ *
+ * The UI combines [openLoadStates] with the existing CellNodeUi to show a spinner, progress, and error state.
+ * When a download finishes, the controller updates the state to show a "Ready" badge and emits a one-time
+ * event so the UI can show a snackbar with an "Open" action.
  */
 class OpenFileDownloadController @Inject constructor(
     private val download: DownloadCellFileUseCase,
@@ -45,12 +51,10 @@ class OpenFileDownloadController @Inject constructor(
     private val fileNameResolver: FileNameResolver,
     private val sharedPathCache: CellFileLocalPathCache,
 ) {
+    // Active download jobs keyed by asset uuid
+    private val activeDownloads = mutableMapOf<String, Job>()
 
-    private val _openDownloads = MutableStateFlow<Map<String, Job>>(emptyMap())
-
-    private val _openLoadStates = MutableStateFlow<Map<String, OpenLoadState>>(emptyMap())
-
-    internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = _openLoadStates.asStateFlow()
+    internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = sharedPathCache.openLoadStates
 
     internal fun start(
         scope: CoroutineScope,
@@ -58,24 +62,30 @@ class OpenFileDownloadController @Inject constructor(
         onOpenFile: (CellNodeUi.File) -> Unit,
         onError: (CellError) -> Unit,
     ) {
-        // Cancel any previous download for this file (e.g. rapid retries after error).
-        _openDownloads.value[cellNode.uuid]?.cancel()
+        // Open immediately if the path is already known
+        if (cellNode.localPath != null) {
+            onOpenFile(cellNode)
+            return
+        }
 
-        val job = scope.launch {
+        // Cancel any in-progress download for this file
+        activeDownloads.remove(cellNode.uuid)?.cancel()
+
+        activeDownloads[cellNode.uuid] = scope.launch {
             val nodeName = cellNode.name ?: run {
                 onError(CellError.OTHER_ERROR)
                 return@launch
             }
 
-            val cacheDir = fileHelper.getCacheDir()
-            val filePath = fileNameResolver.getUniqueFile(cacheDir, nodeName).toPath().toOkioPath()
+            val filePath = fileNameResolver
+                .getUniqueFile(fileHelper.getCacheDir(), nodeName)
+                .toPath()
+                .toOkioPath()
 
-            var spinnerShown = false
-
+            // After 300 ms show the spinner. Cancelled immediately if the download finishes first.
             val showSpinnerJob = launch {
-                delay(OPEN_SPINNER_DELAY_MS)
-                spinnerShown = true
-                setLoadState(cellNode.uuid, OpenLoadState.Loading())
+                delay(SPINNER_THRESHOLD_MS)
+                sharedPathCache.setOpenLoadState(cellNode.uuid, OpenLoadState.Loading())
             }
 
             download(
@@ -83,68 +93,50 @@ class OpenFileDownloadController @Inject constructor(
                 outFilePath = filePath,
                 remoteFilePath = cellNode.remotePath,
                 assetSize = cellNode.size ?: 0,
-            ) { progress ->
-                // Child coroutine — cancelled automatically when the parent job is cancelled,
-                launch {
-                    val assetSize = cellNode.size ?: 0
-                    if (assetSize > 0) {
-                        val progressValue = (progress.toFloat() / assetSize).coerceIn(0f, 1f)
-                        setLoadState(cellNode.uuid, OpenLoadState.Loading(progressValue))
-                    }
-                }
-            }
-                .onSuccess {
-                    showSpinnerJob.cancel()
-                    _openDownloads.update { it - cellNode.uuid }
-                    sharedPathCache.put(cellNode.uuid, filePath.toString())
-
-                    if (!spinnerShown) {
-                        // Fast path: completed before threshold — open immediately.
-                        clearLoadState(cellNode.uuid)
-                        onOpenFile(cellNode.copy(localPath = filePath.toString()))
-                    } else {
-                        // Slow path: spinner was visible — show "Ready" badge + snackbar.
-                        setLoadState(cellNode.uuid, OpenLoadState.Ready(filePath))
-                        sharedPathCache.emitFileReady(cellNode.copy(localPath = filePath.toString()))
-                        launch {
-                            delay(OPEN_READY_DISMISS_MS)
-                            clearLoadState(cellNode.uuid)
+            ) { bytesDownloaded ->
+                // Only emit progress updates after the spinner threshold has been crossed.
+                if (sharedPathCache.openLoadStates.value.containsKey(cellNode.uuid)) {
+                    launch {
+                        val total = cellNode.size ?: 0
+                        if (total > 0) {
+                            val progress = (bytesDownloaded.toFloat() / total).coerceIn(0f, 1f)
+                            sharedPathCache.setOpenLoadState(cellNode.uuid, OpenLoadState.Loading(progress))
                         }
                     }
                 }
-                .onFailure {
-                    showSpinnerJob.cancel()
-                    _openDownloads.update { it - cellNode.uuid }
-                    setLoadState(cellNode.uuid, OpenLoadState.Error)
-                }
-        }
+            }.onSuccess {
+                val pathStr = filePath.toString()
+                val spinnerWasShown = sharedPathCache.openLoadStates.value.containsKey(cellNode.uuid)
+                showSpinnerJob.cancel()
+                activeDownloads -= cellNode.uuid
 
-        _openDownloads.update { it + (cellNode.uuid to job) }
+                if (!spinnerWasShown) {
+                    // Fast path (<300 ms): open immediately with no state change
+                    onOpenFile(cellNode.copy(localPath = pathStr))
+                } else {
+                    // Slow path: user saw the spinner — show "Ready" badge + snackbar.
+                    sharedPathCache.setOpenLoadState(cellNode.uuid, OpenLoadState.Ready(filePath))
+                    sharedPathCache.emitFileReady(cellNode.copy(localPath = pathStr))
+                    launch {
+                        delay(READY_BADGE_DISMISS_MS)
+                        sharedPathCache.clearOpenLoadState(cellNode.uuid)
+                    }
+                }
+            }.onFailure {
+                showSpinnerJob.cancel()
+                activeDownloads -= cellNode.uuid
+                sharedPathCache.setOpenLoadState(cellNode.uuid, OpenLoadState.Error)
+            }
+        }
     }
 
     internal fun cancel(uuid: String) {
-        var job: Job? = null
-        _openDownloads.update { map ->
-            job = map[uuid]
-            map - uuid
-        }
-        job?.cancel()
-        clearLoadState(uuid)
+        activeDownloads.remove(uuid)?.cancel()
+        sharedPathCache.clearOpenLoadState(uuid)
     }
 
-    internal fun clearAllErrorStates() =
-        _openLoadStates.update { states ->
-            states.filterValues { it !is OpenLoadState.Error }.toImmutableMap()
-        }
-
-    private fun setLoadState(uuid: String, state: OpenLoadState) =
-        _openLoadStates.update { it.toMutableMap().apply { put(uuid, state) }.toImmutableMap() }
-
-    private fun clearLoadState(uuid: String) =
-        _openLoadStates.update { it.toMutableMap().apply { remove(uuid) }.toImmutableMap() }
-
     companion object {
-        private const val OPEN_SPINNER_DELAY_MS = 300L
-        private const val OPEN_READY_DISMISS_MS = 3_000L
+        private const val SPINNER_THRESHOLD_MS = 400L
+        private const val READY_BADGE_DISMISS_MS = 3_000L
     }
 }

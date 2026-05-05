@@ -34,10 +34,8 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,7 +59,6 @@ import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
-import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
 import com.wire.android.feature.cells.ui.recyclebin.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.recyclebin.RestoreParentFolderConfirmationDialog
@@ -75,8 +72,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.cells.domain.paging.FileListLoadError
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 
 @Suppress("CyclomaticComplexMethod")
@@ -103,8 +98,6 @@ internal fun CellScreenContent(
     lazyListState: LazyListState = rememberLazyListState(),
     retryEditNodeError: (String) -> Unit = {},
     showVersionHistoryScreen: (String, String) -> Unit = { _, _ -> },
-    externalOpenLoadStates: StateFlow<Map<String, OpenLoadState>> = MutableStateFlow(emptyMap()),
-    cachedLocalPaths: StateFlow<Map<String, String>> = MutableStateFlow(emptyMap()),
     fileReadyFlow: Flow<CellNodeUi.File>? = emptyFlow(),
 ) {
 
@@ -120,19 +113,6 @@ internal fun CellScreenContent(
     var restoreParentFolderConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
     var editNodeError by remember { mutableStateOf<String?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
-
-    val externalLoadStates by externalOpenLoadStates.collectAsState()
-    val cachedPaths by cachedLocalPaths.collectAsState()
-
-    DisposableEffect(lifecycle) {
-        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_STOP) {
-                sendIntent(CellViewIntent.OnScreenLeave)
-            }
-        }
-        lifecycle.lifecycle.addObserver(observer)
-        onDispose { lifecycle.lifecycle.removeObserver(observer) }
-    }
 
     when {
         pagingListItems.isLoading() -> LoadingScreen(modifier = modifier)
@@ -162,8 +142,6 @@ internal fun CellScreenContent(
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,
-                externalOpenLoadStates = externalLoadStates,
-                cachedLocalPaths = cachedPaths,
             )
     }
 

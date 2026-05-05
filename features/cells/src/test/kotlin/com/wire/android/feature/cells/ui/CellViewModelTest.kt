@@ -164,6 +164,23 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given file has local path in DB when clicked with error state then file opened without re-downloading`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        // File has localPath from DB but also carries an error state (stale UI state)
+        val testFile = testFiles[0].copy(localPath = "localPath", contentUrl = null).toUiModel()
+            .copy(isOpenError = true)
+
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+    }
+
+    @Test
     fun `given view model when file tap triggers slow download then file ready event is emitted to shared cache`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
@@ -182,24 +199,6 @@ class CellViewModelTest {
             val file = awaitItem()
             assertEquals(testFile.uuid, file.uuid)
         }
-    }
-
-    @Test
-    fun `given cached local path in shared cache when file clicked then file is opened without re-downloading`() = runTest {
-        val cachedPath = "/cache/fileName"
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .withCachedPath(testFiles[0].uuid, cachedPath)
-            .arrange()
-
-        val testFile = testFiles[0].copy(localPath = null, contentUrl = null).toUiModel()
-
-        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
-        advanceUntilIdle()
-
-        // Should open the cached file, not trigger a new download
-        coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
-        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
     @Test
@@ -328,9 +327,6 @@ class CellViewModelTest {
             )
         }
 
-        fun withCachedPath(uuid: String, path: String) = apply {
-            sharedPathCache.put(uuid, path)
-        }
 
         fun withDownloadSuccess() = apply {
             coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any()) } returns Unit.right()

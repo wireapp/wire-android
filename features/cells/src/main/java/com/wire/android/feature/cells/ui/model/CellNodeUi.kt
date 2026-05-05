@@ -131,8 +131,7 @@ private fun Node.Folder.formattedModifiedTime() = modifiedTime?.let {
 
 internal fun CellNodeUi.File.withOpenLoadState(
     state: OpenLoadState?,
-    cachedPath: String?,
-): CellNodeUi.File = if (state == null && cachedPath == null) {
+): CellNodeUi.File = if (state == null) {
     this
 } else {
     copy(
@@ -141,7 +140,6 @@ internal fun CellNodeUi.File.withOpenLoadState(
         isOpenError = state is OpenLoadState.Error,
         openLoadProgress = (state as? OpenLoadState.Loading)?.progress,
         localPath = (state as? OpenLoadState.Ready)?.localPath?.toString()
-            ?: cachedPath
             ?: localPath,
     )
 }

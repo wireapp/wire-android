@@ -46,8 +46,6 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.model.CellNodeUi
-import com.wire.android.feature.cells.ui.model.OpenLoadState
-import com.wire.android.feature.cells.ui.model.withOpenLoadState
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -68,8 +66,6 @@ internal fun CellFilesScreen(
     modifier: Modifier = Modifier,
     isPullToRefreshEnabled: Boolean = true,
     lazyListState: LazyListState = rememberLazyListState(),
-    externalOpenLoadStates: Map<String, OpenLoadState> = emptyMap(),
-    cachedLocalPaths: Map<String, String> = emptyMap(),
     onItemMenuClick: (CellNodeUi) -> Unit
 ) {
     if (isPullToRefreshEnabled) {
@@ -83,8 +79,6 @@ internal fun CellFilesScreen(
                 lazyListState = lazyListState,
                 onItemClick = onItemClick,
                 onItemMenuClick = onItemMenuClick,
-                externalOpenLoadStates = externalOpenLoadStates,
-                cachedLocalPaths = cachedLocalPaths,
             )
         }
     } else {
@@ -94,8 +88,6 @@ internal fun CellFilesScreen(
             lazyListState = lazyListState,
             onItemClick = onItemClick,
             onItemMenuClick = onItemMenuClick,
-            externalOpenLoadStates = externalOpenLoadStates,
-            cachedLocalPaths = cachedLocalPaths,
         )
     }
 }
@@ -107,8 +99,6 @@ private fun ContentList(
     onItemClick: (CellNodeUi) -> Unit,
     onItemMenuClick: (CellNodeUi) -> Unit,
     modifier: Modifier = Modifier,
-    externalOpenLoadStates: Map<String, OpenLoadState> = emptyMap(),
-    cachedLocalPaths: Map<String, String> = emptyMap(),
 ) {
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -122,21 +112,13 @@ private fun ContentList(
         ) { index ->
 
             cellNodes[index]?.let { item ->
-                val overlaidItem = if (item is CellNodeUi.File) {
-                    item.withOpenLoadState(
-                        state = externalOpenLoadStates[item.uuid],
-                        cachedPath = cachedLocalPaths[item.uuid],
-                    )
-                } else {
-                    item
-                }
                 CellListItem(
                     modifier = Modifier
                         .animateItem()
                         .background(color = colorsScheme().surface)
-                        .clickable { onItemClick(overlaidItem) },
-                    cell = overlaidItem,
-                    onMenuClick = { onItemMenuClick(overlaidItem) }
+                        .clickable { onItemClick(item) },
+                    cell = item,
+                    onMenuClick = { onItemMenuClick(item) }
                 )
                 WireDivider(modifier = Modifier.fillMaxWidth())
             }

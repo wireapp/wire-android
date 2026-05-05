@@ -75,6 +75,5 @@ fun ConversationFilesWithSlideInTransitionScreen(
         onRefresh = viewModel::onPullToRefresh,
         retryEditNodeError = viewModel::editNode,
         fileReadyFlow = viewModel.fileReadyFlow,
-        externalOpenLoadStates = viewModel.openLoadStates,
     )
 }

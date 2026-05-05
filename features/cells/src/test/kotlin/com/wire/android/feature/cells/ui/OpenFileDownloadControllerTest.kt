@@ -29,6 +29,7 @@ import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +42,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -79,7 +79,26 @@ class OpenFileDownloadControllerTest {
     }
 
     @Test
-    fun givenFastDownloadSuccess_whenStartCalled_thenFileOpenedImmediatelyWithNoLoadingState() = runTest {
+    fun givenFileWithLocalPath_whenStartCalled_thenFileOpenedImmediatelyWithoutDownload() = runTest {
+        val (arrangement, controller) = Arrangement().arrange()
+        val fileWithLocalPath = testFile.copy(localPath = "/local/path/report.pdf")
+        var openedFile: CellNodeUi.File? = null
+
+        controller.start(
+            scope = this,
+            cellNode = fileWithLocalPath,
+            onOpenFile = { openedFile = it },
+            onError = {},
+        )
+        advanceUntilIdle()
+
+        assertEquals(fileWithLocalPath.uuid, openedFile?.uuid)
+        assertTrue(controller.openLoadStates.value.isEmpty(), "No load state should be set")
+        coVerify(exactly = 0) { arrangement.downloadUseCase(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun givenFastDownloadSuccess_whenStartCalled_thenFileOpenedImmediatelyAndNoLoadStateSet() = runTest {
         val (_, controller) = Arrangement()
             .withDownloadSuccess()
             .arrange()
@@ -94,25 +113,28 @@ class OpenFileDownloadControllerTest {
         advanceUntilIdle()
 
         assertEquals(testFile.uuid, openedFile?.uuid)
-        assertTrue(controller.openLoadStates.value.isEmpty(), "No load state should be set on fast path")
+        assertTrue(controller.openLoadStates.value.isEmpty(),)
     }
 
     @Test
-    fun givenFastDownloadSuccess_whenStartCalled_thenLocalPathStoredInSharedCache() = runTest {
+    fun givenFastDownloadSuccess_whenStartCalled_thenNoSnackbarEventEmitted() = runTest {
         val (arrangement, controller) = Arrangement()
             .withDownloadSuccess()
             .arrange()
 
-        controller.start(
-            scope = this,
-            cellNode = testFile,
-            onOpenFile = {},
-            onError = {},
-        )
-        advanceUntilIdle()
+        arrangement.sharedPathCache.fileReadyEvents.test {
+            controller.start(
+                scope = this@runTest,
+                cellNode = testFile,
+                onOpenFile = {},
+                onError = {},
+            )
+            advanceUntilIdle()
 
-        assertNotNull(arrangement.sharedPathCache.paths.value[testFile.uuid])
+            expectNoEvents() // fast path must NOT show snackbar
+        }
     }
+
 
     @Test
     fun givenSlowDownloadSuccess_whenSpinnerThresholdPassed_thenLoadingStateAppears() = runTest {
@@ -143,8 +165,8 @@ class OpenFileDownloadControllerTest {
             onOpenFile = {},
             onError = {},
         )
-        // Advance past the spinner (300 ms) and the download (500 ms) but NOT past the
-        // auto-dismiss delay (3 000 ms) — otherwise advanceUntilIdle would clear the state too.
+        // Advance past the spinner (400 ms) and the download (500 ms) but NOT past the
+        // auto-dismiss delay (3 000 ms) — otherwise the state would already be cleared.
         advanceTimeBy(501)
 
         assertTrue(
@@ -240,7 +262,7 @@ class OpenFileDownloadControllerTest {
 
     @Test
     fun givenRapidRetryForSameFile_whenStartCalledTwice_thenOnlySecondDownloadCompletes() = runTest {
-        val (arrangement, controller) = Arrangement()
+        val (_, controller) = Arrangement()
             .withSlowDownloadSuccess()
             .arrange()
 
@@ -249,16 +271,10 @@ class OpenFileDownloadControllerTest {
         controller.start(scope = this, cellNode = testFile, onOpenFile = {}, onError = {})
         controller.start(scope = this, cellNode = testFile, onOpenFile = {}, onError = {})
 
-        // Advance past spinner (300 ms) + download (500 ms), but NOT past auto-dismiss (3 000 ms).
+        // Advance past spinner (400 ms) + download (500 ms), but NOT past auto-dismiss (3 000 ms).
         advanceTimeBy(501)
 
-        // The shared path cache is populated by onSuccess regardless of fast/slow path.
-        // Exactly one entry means exactly one download completed.
-        assertEquals(
-            1,
-            arrangement.sharedPathCache.paths.value.size,
-            "Only the second download should have stored a path"
-        )
+        // Exactly one download completed, leaving a Ready state.
         assertTrue(
             controller.openLoadStates.value[testFile.uuid] is OpenLoadState.Ready,
             "State should be Ready after the second download completes"
@@ -272,39 +288,18 @@ class OpenFileDownloadControllerTest {
             .arrange()
 
         controller.start(scope = this, cellNode = testFile.copy(size = 1024L), onOpenFile = {}, onError = {})
-        // Advance to 401 ms:
-        //   300 ms → spinner fires → Loading() shown
-        //   400 ms → onProgressUpdate fires → child launch sets Loading(0.5f)
+        // Advance to 451 ms:
+        //   400 ms → spinner fires → Loading(0f) shown, containsKey becomes true
+        //   450 ms → onProgressUpdate fires → Loading(0.5f) set directly (no launch wrapper)
         //   500 ms → download completes (NOT yet reached)
-        advanceTimeBy(401)
+        advanceTimeBy(451)
 
         val state = controller.openLoadStates.value[testFile.uuid]
         assertEquals(0.5f, (state as? OpenLoadState.Loading)?.progress)
     }
 
-    @Test
-    fun givenErrorAndLoadingStates_whenClearAllErrorStatesCalled_thenOnlyErrorsRemoved() = runTest {
-        val (_, controller) = Arrangement()
-            .withSlowDownloadSuccess(uuid = testFile.uuid)
-            .withDownloadFailure(uuid = anotherFile.uuid)
-            .arrange()
-
-        // testFile → Loading (slow, timer fires), anotherFile → Error (immediate failure)
-        controller.start(scope = this, cellNode = testFile, onOpenFile = {}, onError = {})
-        controller.start(scope = this, cellNode = anotherFile, onOpenFile = {}, onError = {})
-        advanceTimeBy(SPINNER_THRESHOLD_MS + 1) // spinner for testFile shows Loading
-        // Advance only enough for anotherFile's (instant) download to fail — but NOT past the
-        // 500 ms slow download so testFile stays in Loading.
-        advanceTimeBy(1) // anotherFile failure is already settled; testFile still downloading
-
-        controller.clearAllErrorStates()
-
-        assertNull(controller.openLoadStates.value[anotherFile.uuid], "Error state should be removed")
-        assertNotNull(controller.openLoadStates.value[testFile.uuid], "Loading state should be preserved")
-    }
-
     private companion object {
-        const val SPINNER_THRESHOLD_MS = 300L
+        const val SPINNER_THRESHOLD_MS = 400L  // must match OpenFileDownloadController.SPINNER_THRESHOLD_MS
         const val AUTO_DISMISS_MS = 3_000L
 
         val testFile = CellNodeUi.File(
@@ -321,8 +316,6 @@ class OpenFileDownloadControllerTest {
             conversationName = null,
             modifiedTime = null,
         )
-
-        val anotherFile = testFile.copy(uuid = "another-uuid", name = "photo.jpg")
     }
 
     private inner class Arrangement {
@@ -350,7 +343,7 @@ class OpenFileDownloadControllerTest {
 
         fun withSlowDownloadSuccess(uuid: String = testFile.uuid) = apply {
             coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any()) } coAnswers {
-                delay(500) // Exceeds 300 ms spinner threshold
+                delay(500) // Exceeds 400 ms spinner threshold
                 Unit.right()
             }
         }
@@ -363,9 +356,9 @@ class OpenFileDownloadControllerTest {
         fun withProgressThenSuccess(progress: Long, uuid: String = testFile.uuid) = apply {
             coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any()) } coAnswers {
                 val onProgressUpdate = arg<(Long) -> Unit>(4)
-                delay(400) // after spinner threshold (300 ms) — progress replaces Loading()
+                delay(450) // Clearly after spinner threshold (400 ms) — progress updates Loading()
                 onProgressUpdate(progress)
-                delay(100) // download finishes at 500 ms total
+                delay(50) // download finishes at 500 ms total
                 Unit.right()
             }
         }

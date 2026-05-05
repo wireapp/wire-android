@@ -236,8 +236,6 @@ fun SearchScreen(
                 retryEditNodeError = { cellViewModel.editNode(it) },
                 isRefreshing = remember { mutableStateOf(false) },
                 onRefresh = { },
-                externalOpenLoadStates = cellViewModel.openLoadStates,
-                cachedLocalPaths = cellViewModel.cachedLocalPaths,
                 fileReadyFlow = cellViewModel.fileReadyFlow,
             )
         }

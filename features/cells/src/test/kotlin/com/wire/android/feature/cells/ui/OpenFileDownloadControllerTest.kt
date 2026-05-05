@@ -113,7 +113,7 @@ class OpenFileDownloadControllerTest {
         advanceUntilIdle()
 
         assertEquals(testFile.uuid, openedFile?.uuid)
-        assertTrue(controller.openLoadStates.value.isEmpty(),)
+        assertTrue(controller.openLoadStates.value.isEmpty())
     }
 
     @Test
@@ -134,7 +134,6 @@ class OpenFileDownloadControllerTest {
             expectNoEvents() // fast path must NOT show snackbar
         }
     }
-
 
     @Test
     fun givenSlowDownloadSuccess_whenSpinnerThresholdPassed_thenLoadingStateAppears() = runTest {
@@ -299,7 +298,7 @@ class OpenFileDownloadControllerTest {
     }
 
     private companion object {
-        const val SPINNER_THRESHOLD_MS = 400L  // must match OpenFileDownloadController.SPINNER_THRESHOLD_MS
+        const val SPINNER_THRESHOLD_MS = 400L
         const val AUTO_DISMISS_MS = 3_000L
 
         val testFile = CellNodeUi.File(

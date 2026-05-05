@@ -28,7 +28,6 @@ import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
-import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
@@ -328,7 +327,6 @@ class CellViewModelTest {
                 )
             )
         }
-
 
         fun withDownloadSuccess() = apply {
             coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any()) } returns Unit.right()

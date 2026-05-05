@@ -110,7 +110,6 @@ class SearchScreenViewModel @Inject constructor(
     )
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
-
     private val queryFlow = MutableStateFlow("")
 
     private val debouncedQueryFlow: Flow<String> = queryFlow
@@ -137,52 +136,55 @@ class SearchScreenViewModel @Inject constructor(
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         combine(
             searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
-                    val hasFilters = params.sortingCriteria != defaultSortingCriteria ||
-                            params.query.isNotEmpty() ||
-                            params.tagIds.isNotEmpty() ||
-                            params.ownerIds.isNotEmpty() ||
-                            params.mimeTypes.isNotEmpty() ||
-                            params.filesWithPublicLink == true
+                val hasFilters = params.sortingCriteria != defaultSortingCriteria ||
+                        params.query.isNotEmpty() ||
+                        params.tagIds.isNotEmpty() ||
+                        params.ownerIds.isNotEmpty() ||
+                        params.mimeTypes.isNotEmpty() ||
+                        params.filesWithPublicLink == true
 
-                    if (!hasFilters) {
-                        return@flatMapLatest kotlinx.coroutines.flow.flowOf(
-                            PagingData.empty(
-                                LoadStates(
-                                    refresh = LoadState.Loading,
-                                    prepend = LoadState.NotLoading(true),
-                                    append = LoadState.NotLoading(true),
-                                )
+                if (!hasFilters) {
+                    return@flatMapLatest kotlinx.coroutines.flow.flowOf(
+                        PagingData.empty(
+                            LoadStates(
+                                refresh = LoadState.Loading,
+                                prepend = LoadState.NotLoading(true),
+                                append = LoadState.NotLoading(true),
                             )
                         )
-                    }
+                    )
+                }
 
-                    getCellFilesPaged(
-                        conversationId = params.conversationId,
-                        query = params.query,
-                        fileFilters = FileFilters(
-                            tags = params.tagIds,
-                            owners = params.ownerIds,
-                            mimeTypes = params.mimeTypes,
-                            hasPublicLink = params.filesWithPublicLink,
-                        ),
-                        sortingSpec = SortingSpec(
-                            criteria = params.sortingCriteria.toKaliumCriteria(),
-                            descending = params.sortingCriteria.isDescending
-                        )
-                    ).map { pagingData: PagingData<Node> ->
-                        pagingData.map { node: Node ->
-                            when (node) {
-                                is Node.Folder -> node.toUiModel()
-                                is Node.File -> node.toUiModel()
-                            }
+                getCellFilesPaged(
+                    conversationId = params.conversationId,
+                    query = params.query,
+                    fileFilters = FileFilters(
+                        tags = params.tagIds,
+                        owners = params.ownerIds,
+                        mimeTypes = params.mimeTypes,
+                        hasPublicLink = params.filesWithPublicLink,
+                    ),
+                    sortingSpec = SortingSpec(
+                        criteria = params.sortingCriteria.toKaliumCriteria(),
+                        descending = params.sortingCriteria.isDescending
+                    )
+                ).map { pagingData: PagingData<Node> ->
+                    pagingData.map { node: Node ->
+                        when (node) {
+                            is Node.Folder -> node.toUiModel()
+                            is Node.File -> node.toUiModel()
                         }
                     }
-                }.cachedIn(viewModelScope),
+                }
+            }.cachedIn(viewModelScope),
             sharedPathCache.openLoadStates,
         ) { pagingData, states ->
             pagingData.map { node ->
-                if (node is CellNodeUi.File) node.withOpenLoadState(states[node.uuid])
-                else node
+                if (node is CellNodeUi.File) {
+                    node.withOpenLoadState(states[node.uuid])
+                } else {
+                    node
+                }
             }
         }
 

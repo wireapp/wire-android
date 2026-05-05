@@ -162,7 +162,6 @@
     <string name="content_description_record_audio_button_start">Gravar Áudio</string>
     <string name="content_description_record_audio_button_stop">Parar Gravação de Áudio</string>
     <string name="content_description_record_audio_button_send">Enviar Mensagem de Áudio</string>
-    <string name="content_description_mls_certificate_valid">Todos os dispositivos de todos os participantes têm um certificado MLS válido</string>
     <string name="content_description_proteus_certificate_valid">Todos os participantes são verificados (Proteus)</string>
     <string name="content_description_jump_to_last_message">Rolar até ao fim da conversa</string>
     <string name="content_description_location_icon">Item de localização</string>

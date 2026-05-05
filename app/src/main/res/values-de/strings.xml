@@ -147,9 +147,14 @@
     <string name="content_description_edit">Bearbeiten</string>
     <string name="content_description_calling_call_muted">Anruf stummgeschaltet</string>
     <string name="content_description_more_emojis">Weitere Emojis</string>
+    <string name="content_description_message_sending_status">Nachricht wird gesendet</string>
+    <string name="content_description_message_sent_status">Nachricht wurde gesendet</string>
+    <string name="content_description_message_delivered_status">Nachricht wurde zugestellt</string>
+    <string name="content_description_message_read_status">Nachricht wurde gelesen</string>
     <string name="content_description_record_audio_button_start">Audio aufnehmen</string>
     <string name="content_description_record_audio_button_stop">Aufnahme stoppen</string>
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
+    <string name="content_description_mls_certificate_valid">Alle Geräte sind überprüft (Ende-zu-Ende-Identität)</string>
     <string name="content_description_jump_to_last_message">Zum Ende der Unterhaltung scrollen</string>
     <string name="content_description_conversation_details_more_btn">Unterhaltungsoptionen öffnen</string>
     <string name="content_description_conversation_details_options_tab_header">Optionen</string>

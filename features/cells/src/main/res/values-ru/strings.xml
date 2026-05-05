@@ -35,7 +35,6 @@
     <string name="restore_label">Восстановить</string>
     <string name="add_remove_tags_label">Добавить или удалить теги</string>
     <string name="move_label">Переместить в папку</string>
-    <string name="download_label">Скачать</string>
     <string name="edit_label">Изменить файл</string>
     <string name="copy_link">Скопировать ссылку</string>
     <string name="share_link">Поделиться ссылкой</string>

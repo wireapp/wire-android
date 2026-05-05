@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui
 
-import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
@@ -32,16 +31,17 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.model.withOpenLoadState
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
-import com.wire.android.feature.cells.util.FileHelper
-import com.wire.android.feature.cells.util.FileNameResolver
-import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
+import com.wire.android.feature.cells.util.FileHelper
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
@@ -51,14 +51,13 @@ import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
-import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -74,8 +73,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okio.Path
-import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import javax.inject.Inject
 
@@ -86,14 +83,14 @@ class CellViewModel @Inject constructor(
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
-    private val download: DownloadCellFileUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
-    private val fileNameResolver: FileNameResolver,
     private val getEditorUrl: GetEditorUrlUseCase,
     private val onlineEditor: OnlineEditor,
     private val cellFileActionsMenu: CellFileActionsMenu,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
+    private val sharedPathCache: CellFileLocalPathCache,
+    private val openFileDownloadController: OpenFileDownloadController,
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
@@ -108,18 +105,15 @@ class CellViewModel @Inject constructor(
     private val _menu: MutableSharedFlow<MenuOptions> = MutableSharedFlow()
     internal val menu = _menu.asSharedFlow()
 
-    // Show bottom sheet with download progress.
-    private val _downloadFileSheet: MutableStateFlow<CellNodeUi.File?> = MutableStateFlow(null)
-    internal val downloadFileSheet = _downloadFileSheet.asStateFlow()
-
     private val _isRestoreInProgress = MutableStateFlow(false)
     val isRestoreInProgress = _isRestoreInProgress.asStateFlow()
 
     private val _isDeleteInProgress = MutableStateFlow(false)
     val isDeleteInProgress = _isDeleteInProgress.asStateFlow()
 
-    // Download progress value for each file being downloaded.
-    private val downloadDataFlow = MutableStateFlow<Map<String, DownloadData>>(emptyMap())
+    /** Public map of uuid → open-load state for screens that build their own paging flow (e.g. Search). */
+
+    internal val fileReadyFlow: Flow<CellNodeUi.File> = sharedPathCache.fileReadyEvents
 
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
@@ -173,46 +167,41 @@ class CellViewModel @Inject constructor(
         refreshTrigger.flatMapLatest {
             _defaultSortingCriteria.flatMapLatest { sortingCriteria ->
                 combine(
-                    getCellFilesPaged(
-                        conversationId = navArgs.conversationId,
-                        fileFilters = FileFilters(
-                            onlyDeleted = navArgs.isRecycleBin ?: false,
-                        ),
-                        sortingSpec = SortingSpec(
-                            criteria = sortingCriteria.toKaliumCriteria(),
-                            descending = sortingCriteria.isDescending,
-                        ),
-                    ).cachedIn(viewModelScope),
-                    removedItemsFlow,
-                    downloadDataFlow
-                ) { pagingData, removedItems, downloadData ->
-                    var emittedRefreshDone = false
+                        getCellFilesPaged(
+                            conversationId = navArgs.conversationId,
+                            fileFilters = FileFilters(
+                                onlyDeleted = navArgs.isRecycleBin ?: false,
+                            ),
+                            sortingSpec = SortingSpec(
+                                criteria = sortingCriteria.toKaliumCriteria(),
+                                descending = sortingCriteria.isDescending,
+                            ),
+                        ).cachedIn(viewModelScope),
+                        removedItemsFlow,
+                        openFileDownloadController.openLoadStates,
+                    ) { pagingData, removedItems, openLoadStates ->
+                        var emittedRefreshDone = false
 
-                    pagingData
-                        .filter { node: Node -> node.uuid !in removedItems }
-                        .map { node ->
-                            if (!emittedRefreshDone) {
-                                emittedRefreshDone = true
+                        pagingData
+                            .filter { node: Node -> node.uuid !in removedItems }
+                            .map { node ->
+                                if (!emittedRefreshDone) {
+                                    emittedRefreshDone = true
 
-                                if (_isPullToRefresh.value) {
-                                    _isPullToRefresh.value = false
+                                    if (_isPullToRefresh.value) {
+                                        _isPullToRefresh.value = false
+                                    }
+
+                                    _pagingRefreshDone.tryEmit(Unit)
                                 }
 
-                                _pagingRefreshDone.tryEmit(Unit)
+                                val openLoadState = openLoadStates[node.uuid]
+                                when (node) {
+                                    is Node.Folder -> node.toUiModel()
+                                    is Node.File -> node.toUiModel().withOpenLoadState(openLoadState)
+                                }
                             }
-
-                            when (node) {
-                                is Node.Folder -> node.toUiModel().copy(
-                                    downloadProgress = downloadData[node.uuid]?.progress
-                                )
-
-                                is Node.File -> node.toUiModel().copy(
-                                    downloadProgress = downloadData[node.uuid]?.progress,
-                                    localPath = downloadData[node.uuid]?.localPath?.toString()
-                                )
-                            }
-                        }
-                }
+                    }
             }
         }
     }.shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)
@@ -245,11 +234,10 @@ class CellViewModel @Inject constructor(
 
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
             is CellViewIntent.OnMenuItemActionSelected -> onMenuItemAction(intent.node, intent.action)
-            is CellViewIntent.OnFileDownloadConfirmed -> downloadNode(intent.file)
             is CellViewIntent.OnNodeDeleteConfirmed -> deleteFile(intent.node)
             is CellViewIntent.OnNodeRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
-            is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
             is CellViewIntent.OnParentFolderRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
+            is CellViewIntent.OnCancelDownload -> cancelDownload(intent.uuid)
         }
     }
 
@@ -263,10 +251,26 @@ class CellViewModel @Inject constructor(
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {
+            cellNode.openLoadState is OpenLoadState.Ready -> openLocalFile(cellNode)
+            cellNode.openLoadState is OpenLoadState.Loading -> cancelOpenDownload(cellNode.uuid)
             cellNode.localFileAvailable() -> openLocalFile(cellNode)
+            cellNode.openLoadState is OpenLoadState.Error -> startOpenDownload(cellNode)
             cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
-            else -> viewModelScope.launch { _downloadFileSheet.emit(cellNode) }
+            else -> startOpenDownload(cellNode)
         }
+    }
+
+    private fun startOpenDownload(cellNode: CellNodeUi.File) {
+        openFileDownloadController.start(
+            scope = viewModelScope,
+            cellNode = cellNode,
+            onOpenFile = ::openLocalFile,
+            onError = { sendAction(ShowError(it)) },
+        )
+    }
+
+    internal fun cancelOpenDownload(uuid: String) {
+        openFileDownloadController.cancel(uuid)
     }
 
     private fun onFolderClick(cellNode: CellNodeUi.Folder) {
@@ -300,66 +304,8 @@ class CellViewModel @Inject constructor(
         )
     }
 
-    private fun downloadNode(node: CellNodeUi) = viewModelScope.launch {
-
-        val (nodeName, nodeRemotePath) = when (node) {
-            is CellNodeUi.File -> Pair(node.name, node.remotePath)
-            is CellNodeUi.Folder -> Pair(node.name + ZIP_EXTENSION, node.remotePath + ZIP_EXTENSION)
-        }
-
-        if (nodeName.isNullOrBlank()) {
-            sendAction(ShowError(CellError.OTHER_ERROR))
-            return@launch
-        }
-
-        val publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        val filePath = fileNameResolver.getUniqueFile(publicDir, nodeName).toPath().toOkioPath()
-
-        download(
-            assetId = node.uuid,
-            outFilePath = filePath,
-            remoteFilePath = nodeRemotePath,
-            assetSize = node.size ?: 0,
-        ) { progress ->
-            node.size?.let {
-                updateDownloadProgress(progress, it, node, filePath)
-            }
-        }.onSuccess {
-            updateDownloadData(node.uuid) {
-                DownloadData(
-                    localPath = filePath
-                )
-            }
-        }.onFailure {
-            _downloadFileSheet.update { null }
-            sendAction(ShowError(CellError.DOWNLOAD_FAILED))
-        }
-    }
-
-    private fun updateDownloadProgress(progress: Long, it: Long, node: CellNodeUi, path: Path) = viewModelScope.launch {
-
-        val value = progress.toFloat() / it
-
-        if (value < 1) {
-            updateDownloadData(node.uuid) {
-                DownloadData(
-                    progress = value
-                )
-            }
-        } else {
-            updateDownloadData(node.uuid) {
-                DownloadData(
-                    localPath = path
-                )
-            }
-
-            if (_downloadFileSheet.value?.uuid == node.uuid) {
-                _downloadFileSheet.update { null }
-                if (node is CellNodeUi.File) {
-                    openLocalFile(node.copy(localPath = path.toString()))
-                }
-            }
-        }
+    internal fun cancelDownload(uuid: String) {
+        cancelOpenDownload(uuid)
     }
 
     private fun openFileContentUrl(file: CellNodeUi.File) {
@@ -411,9 +357,9 @@ class CellViewModel @Inject constructor(
         ) { result ->
             when (result) {
                 is CellFileActionsMenu.Action -> sendAction(result.action)
-                is CellFileActionsMenu.Download -> downloadNode(result.node)
                 is CellFileActionsMenu.Edit -> editNode(result.node.uuid)
                 is CellFileActionsMenu.Share -> shareFile(result.node)
+                is CellFileActionsMenu.CancelLoading -> cancelDownload(result.node.uuid)
             }
         }
     }
@@ -509,17 +455,6 @@ class CellViewModel @Inject constructor(
     private fun removeFromListUi(node: CellNodeUi) = removedItemsFlow.update { it + node.uuid }
     private fun addToListUi(node: CellNodeUi) = removedItemsFlow.update { it - node.uuid }
     fun clearRemovedItems() = removedItemsFlow.update { emptyList() }
-    private fun onDownloadMenuClosed() {
-        _downloadFileSheet.update { null }
-    }
-
-    private fun updateDownloadData(uuid: String, block: () -> DownloadData) {
-        downloadDataFlow.update { map ->
-            val progressMap = map.toMutableMap()
-            progressMap[uuid] = block()
-            progressMap.toImmutableMap()
-        }
-    }
 
     private fun loadWireCellConfig() = viewModelScope.launch {
         val config = getWireCellsConfig()
@@ -527,8 +462,6 @@ class CellViewModel @Inject constructor(
     }
 
     companion object {
-        const val ZIP_EXTENSION = ".zip"
-
         private val emptyData: PagingData<CellNodeUi> = PagingData.empty(
             LoadStates(
                 refresh = LoadState.NotLoading(true),
@@ -543,11 +476,10 @@ sealed interface CellViewIntent {
     data class OnItemClick(val file: CellNodeUi) : CellViewIntent
     data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
     data class OnMenuItemActionSelected(val node: CellNodeUi, val action: NodeBottomSheetAction) : CellViewIntent
-    data class OnFileDownloadConfirmed(val file: CellNodeUi.File) : CellViewIntent
     data class OnNodeDeleteConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnParentFolderRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
-    data object OnDownloadMenuClosed : CellViewIntent
+    data class OnCancelDownload(val uuid: String) : CellViewIntent
 }
 
 sealed interface CellViewAction
@@ -570,7 +502,6 @@ internal data class OpenFolder(val path: String, val title: String, val parentFo
 internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
 
 internal enum class CellError(val message: Int) {
-    DOWNLOAD_FAILED(R.string.cell_files_download_failure_message),
     NO_APP_FOUND(R.string.no_app_found),
     OTHER_ERROR(R.string.action_failed)
 }
@@ -578,11 +509,6 @@ internal enum class CellError(val message: Int) {
 data class MenuOptions(
     val node: CellNodeUi,
     val actions: List<NodeBottomSheetAction>
-)
-
-private data class DownloadData(
-    val progress: Float? = null,
-    val localPath: Path? = null,
 )
 
 private const val RESTORE_DELAY_MS = 300L

@@ -20,16 +20,17 @@ package uiautomatorutils
 import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import kotlin.time.Duration.Companion.milliseconds
 
 object KeyboardUtils {
-    private const val keyboardSettleDelayMs = 300L
+    private val keyboardSettleDelay = 300.milliseconds
 
     fun closeKeyboardIfOpened() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         if (isKeyboardVisible(device)) {
             device.pressBack()
             device.waitForIdle()
-            SystemClock.sleep(keyboardSettleDelayMs)
+            SystemClock.sleep(keyboardSettleDelay.inWholeMilliseconds)
         }
     }
 

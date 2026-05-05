@@ -42,6 +42,7 @@ import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class FileSharingBetweenTeams : BaseUiTest() {
@@ -200,7 +201,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
         step("Play audio message and verify playback time progresses") {
             pages.conversationViewPage.apply {
                 clickPlayButtonOnAudioMessage()
-                UiWaitUtils.waitFor(10)
+                UiWaitUtils.waitFor(10.seconds)
                 clickPauseButtonOnAudioMessage()
                 assertAudioTimeIsNotZeroAnymore()
             }

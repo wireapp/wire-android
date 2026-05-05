@@ -41,6 +41,8 @@ import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class PersonalAccountLifeCycle : BaseUiTest() {
@@ -174,7 +176,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 val user = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
                 backendClient.acceptAllIncomingConnectionRequests(user)
             }
-            UiWaitUtils.waitFor(1)
+            UiWaitUtils.waitFor(1.seconds)
             pages.conversationListPage.apply {
                 assertPendingStatusIsNoLongerVisible()
                 tapConversationNameInConversationList(teamOwner?.name ?: "")
@@ -184,8 +186,8 @@ class PersonalAccountLifeCycle : BaseUiTest() {
         // The 5s settle window specifically reduces intermittent test-service send flakes right after MLS transition.
         step("Wait until personal 1:1 conversation is upgraded to MLS") {
             pages.conversationViewPage.waitUntilConversationTurnsMls(
-                timeoutMs = 20_000,
-                settleAfterDetectedMs = 5_000
+                timeout = 20_000.milliseconds,
+                settleAfterDetected = 5_000.milliseconds
             )
         }
         step("Send message to team owner in 1:1 conversation") {
@@ -234,7 +236,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
             }
         }
 
-        UiWaitUtils.waitFor(1)
+        UiWaitUtils.waitFor(1.seconds)
         step("Verify personal account details in settings") {
             pages.settingsPage.apply {
                 tapAccountDetailsButton()

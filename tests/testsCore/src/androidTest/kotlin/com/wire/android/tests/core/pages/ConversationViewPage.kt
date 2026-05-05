@@ -29,6 +29,9 @@ import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.assertEquals
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 data class ConversationViewPage(private val device: UiDevice) {
     private val fileSavedToastPrefix = "The file "
@@ -123,7 +126,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     fun assertAudioTimeIsNotZeroAnymore(): ConversationViewPage {
         UiWaitUtils.waitUntilGoneOrThrow(
             selector = By.text("00:00"),
-            timeoutMs = 5_000,
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
             errorMessage = "Audio time is still at 00:00, expected it to have changed"
         )
         return this
@@ -184,15 +187,15 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertFileActionModalIsVisible(timeoutMs: Long = 8_000): ConversationViewPage {
+    fun assertFileActionModalIsVisible(timeout: Duration = 8.seconds): ConversationViewPage {
         val modalAnchors = listOf(modalTextLocator, saveButton, openButton, cancelButton)
         val visibleAnchor = UiWaitUtils.waitAnyVisible(
             selectors = modalAnchors,
-            timeoutMs = timeoutMs,
-            pollingIntervalMs = 150
+            timeout = timeout,
+            pollingInterval = 150.milliseconds
         )
         if (visibleAnchor == null) {
-            throw AssertionError("The file action modal was not visible within ${timeoutMs}ms.")
+            throw AssertionError("The file action modal was not visible within ${timeout.inWholeMilliseconds}ms.")
         }
         return this
     }
@@ -237,8 +240,8 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickSaveButtonOnDownloadModal(timeoutMs: Long = 8_000): ConversationViewPage {
-        val save = UiWaitUtils.waitElement(saveButton, timeoutMillis = timeoutMs)
+    fun clickSaveButtonOnDownloadModal(timeout: Duration = 8.seconds): ConversationViewPage {
+        val save = UiWaitUtils.waitElement(saveButton, timeout = timeout)
         val bounds = runCatching { save.visibleBounds }.getOrNull()
 
         runCatching { save.click() }
@@ -259,18 +262,18 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun waitForPreviousFileSavedToastToDisappear(timeoutMillis: Long = 7_000): ConversationViewPage {
+    fun waitForPreviousFileSavedToastToDisappear(timeout: Duration = 7.seconds): ConversationViewPage {
         UiWaitUtils.waitUntilGoneOrThrow(
             selector = By.textContains(fileSavedToastMessage),
-            timeoutMs = timeoutMillis,
-            errorMessage = "File saved toast did not disappear within ${timeoutMillis}ms."
+            timeout = timeout,
+            errorMessage = "File saved toast did not disappear within ${timeout.inWholeMilliseconds}ms."
         )
         return this
     }
 
     fun assertFileSavedToast(
         expectedMessage: String,
-        timeoutMs: Long = 7_000
+        timeout: Duration = 7.seconds
     ): ConversationViewPage {
         val toastPattern = buildSavedFileToastPattern(expectedMessage)
 
@@ -278,8 +281,8 @@ data class ConversationViewPage(private val device: UiDevice) {
             params = UiSelectorParams(
                 textMatches = toastPattern
             ),
-            timeoutMs = timeoutMs,
-            errorMessage = "Toast '$expectedMessage' was not displayed within ${timeoutMs}ms."
+            timeout = timeout,
+            errorMessage = "Toast '$expectedMessage' was not displayed within ${timeout.inWholeMilliseconds}ms."
         )
         return this
     }
@@ -373,8 +376,8 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     fun assertMessageNotVisible(text: String, timeoutSeconds: Int = 5) {
         val notVisible = UiWaitUtils.retryUntilTimeout(
-            timeoutMs = timeoutSeconds * 1_000L,
-            pollingIntervalMs = 250
+            timeout = timeoutSeconds.seconds,
+            pollingInterval = UiWaitUtils.POLLING_SLOW
         ) {
             findElementOrNull(UiSelectorParams(text = text)) == null
         }
@@ -478,7 +481,7 @@ data class ConversationViewPage(private val device: UiDevice) {
 
         UiWaitUtils.waitUntilVisible(
             params = params,
-            timeoutMs = 5_000,
+            timeout = 5.seconds,
             errorMessage = "Group conversation details for user '$userName' not visible"
         )
 
@@ -537,22 +540,22 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun waitUntilConversationTurnsMls(
-        timeoutMs: Long = 20_000,
-        settleAfterDetectedMs: Long = 0
+        timeout: Duration = 20.seconds,
+        settleAfterDetected: Duration = Duration.ZERO
     ): ConversationViewPage {
         val mlsMarker = UiWaitUtils.waitAnyVisible(
             selectors = mlsUpgradeMessageSelectors,
-            timeoutMs = timeoutMs,
-            pollingIntervalMs = 200
+            timeout = timeout,
+            pollingInterval = 200.milliseconds
         )
-            if (mlsMarker != null) {
-                // MLS banner can appear slightly before the conversation is fully ready for a first outbound message.
-                if (settleAfterDetectedMs > 0) {
-                    UiWaitUtils.waitForMillis(settleAfterDetectedMs)
-                }
-                return this
+        if (mlsMarker != null) {
+            // MLS banner can appear slightly before the conversation is fully ready for a first outbound message.
+            if (settleAfterDetected > Duration.ZERO) {
+                UiWaitUtils.waitFor(settleAfterDetected)
             }
-        throw AssertionError("MLS upgrade system message was not visible within ${timeoutMs}ms.")
+            return this
+        }
+        throw AssertionError("MLS upgrade system message was not visible within ${timeout.inWholeMilliseconds}ms.")
     }
 
     fun tapPingButton(): ConversationViewPage {

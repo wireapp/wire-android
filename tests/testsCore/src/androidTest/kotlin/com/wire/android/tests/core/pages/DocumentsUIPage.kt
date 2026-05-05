@@ -21,6 +21,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.StaleObjectException
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import kotlin.time.Duration.Companion.milliseconds
 
 data class DocumentsUIPage(private val device: UiDevice) {
     private val sendButton = UiSelectorParams(text = "Send")
@@ -49,7 +50,7 @@ data class DocumentsUIPage(private val device: UiDevice) {
     private fun clickWithRetry(selector: UiSelectorParams, attempts: Int = 3): Boolean {
         repeat(attempts) {
             try {
-                UiWaitUtils.waitElement(selector, timeoutMillis = 1500).click()
+                UiWaitUtils.waitElement(selector, timeout = 1500.milliseconds).click()
                 return true
             } catch (_: StaleObjectException) {
                 // Retry with a fresh node.

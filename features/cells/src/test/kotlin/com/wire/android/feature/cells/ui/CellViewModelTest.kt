@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui
 
-import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -27,6 +26,7 @@ import app.cash.turbine.test
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
@@ -38,20 +38,18 @@ import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
-import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockkObject
-import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -59,7 +57,6 @@ import okio.Path.Companion.toPath
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -148,9 +145,10 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when file clicked and local file is not present and url is not openable then download dialog shown`() = runTest {
-        val (_, viewModel) = Arrangement()
+    fun `given view model when file clicked and local file is not present and url is not openable then download starts immediately`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
+            .withDownloadSuccess()
             .arrange()
 
         val testFile = testFiles[0].copy(
@@ -158,44 +156,50 @@ class CellViewModelTest {
             contentUrl = null
         ).toUiModel()
 
-        viewModel.downloadFileSheet.test {
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
+        // Advance time so download coroutine can complete
+        advanceUntilIdle()
+
+        // Download use case was called
+        coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given file has local path in DB when clicked with error state then file opened without re-downloading`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        // File has localPath from DB but also carries an error state (stale UI state)
+        val testFile = testFiles[0].copy(localPath = "localPath", contentUrl = null).toUiModel()
+            .copy(openLoadState = OpenLoadState.Error)
+
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given view model when file tap triggers slow download then file ready event is emitted to shared cache`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withSlowDownloadSuccess()
+            .arrange()
+
+        val testFile = testFiles[0].copy(
+            localPath = null,
+            contentUrl = null
+        ).toUiModel()
+
+        arrangement.sharedPathCache.fileReadyEvents.test {
             viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
+            advanceUntilIdle()
 
-            with(expectMostRecentItem()) {
-                assertEquals(testFile, this)
-            }
+            val file = awaitItem()
+            assertEquals(testFile.uuid, file.uuid)
         }
-    }
-
-    @Test
-    fun `given view model when download confirmed then file is downloaded`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .withDownloadSuccess()
-            .arrange()
-
-        viewModel.sendIntent(CellViewIntent.OnFileDownloadConfirmed(testFiles[0].toUiModel()))
-
-        coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
-    }
-
-    @Test
-    fun `given view model when download confirmed and download fails then error is emitted`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .withDownloadFailure()
-            .arrange()
-
-        viewModel.actions.test {
-
-            viewModel.sendIntent(CellViewIntent.OnFileDownloadConfirmed(testFiles[0].toUiModel()))
-
-            with(expectMostRecentItem()) {
-                assertTrue(this is ShowError)
-            }
-        }
-
-        coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -267,10 +271,9 @@ class CellViewModelTest {
         lateinit var fileHelper: FileHelper
 
         @MockK
-        lateinit var kaliumFileSystem: KaliumFileSystem
-
-        @MockK
         lateinit var fileNameResolver: FileNameResolver
+
+        val sharedPathCache = CellFileLocalPathCache()
 
         @MockK
         lateinit var getEditorUrlUseCase: GetEditorUrlUseCase
@@ -295,10 +298,6 @@ class CellViewModelTest {
 
             every { savedStateHandle.get<String>(any()) } returns conversationId
             every { savedStateHandle.get<String>("conversationId") } returns conversationId
-
-            every { kaliumFileSystem.providePersistentAssetPath(any()) } returns localFilePath
-
-            every { kaliumFileSystem.exists(any()) } returns false
 
             coEvery { isCellAvailableUseCase.invoke() } returns true.right()
 
@@ -333,9 +332,11 @@ class CellViewModelTest {
             coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any()) } returns Unit.right()
         }
 
-        fun withDownloadFailure() = apply {
-            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any()) } returns
-                    CoreFailure.Unknown(IllegalStateException("Test")).left()
+        fun withSlowDownloadSuccess() = apply {
+            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any()) } coAnswers {
+                delay(500) // Simulate download taking 500ms (longer than the 300ms threshold)
+                Unit.right()
+            }
         }
 
         fun withDeleteSuccess() = apply {
@@ -348,26 +349,31 @@ class CellViewModelTest {
 
         fun arrange(): Pair<Arrangement, CellViewModel> {
 
-            mockkStatic(Environment::class)
-
+            every { fileHelper.getCacheDir() } returns File("")
             every { fileNameResolver.getUniqueFile(any(), any()) } returns File("")
-            coEvery { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) } returns File("")
 
             coEvery { getWireCellsConfig() } returns null
+
+            val openFileDownloadController = OpenFileDownloadController(
+                download = downloadCellFileUseCase,
+                fileHelper = fileHelper,
+                fileNameResolver = fileNameResolver,
+                sharedPathCache = sharedPathCache,
+            )
 
             return this to CellViewModel(
                 savedStateHandle = savedStateHandle,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
-                download = downloadCellFileUseCase,
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
-                fileNameResolver = fileNameResolver,
                 onlineEditor = onlineEditor,
                 getEditorUrl = getEditorUrlUseCase,
                 cellFileActionsMenu = cellFileActionsMenu,
                 getWireCellsConfig = getWireCellsConfig,
+                sharedPathCache = sharedPathCache,
+                openFileDownloadController = openFileDownloadController,
             )
         }
     }

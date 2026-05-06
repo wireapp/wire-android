@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui.search
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
+import com.wire.android.feature.cells.ui.CellFileLocalPathCache
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.sort.SortBy
@@ -75,6 +76,8 @@ class SearchScreenViewModelTest {
 
     @MockK
     private lateinit var getPaginatedConversations: GetPaginatedCellConversationsFlowUseCase
+
+    private val sharedPathCache = CellFileLocalPathCache()
 
     private lateinit var savedStateHandle: SavedStateHandle
 
@@ -162,6 +165,7 @@ class SearchScreenViewModelTest {
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,
             getPaginatedConversations = getPaginatedConversations,
+            sharedPathCache = sharedPathCache,
         )
         advanceUntilIdle()
 
@@ -360,6 +364,7 @@ class SearchScreenViewModelTest {
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,
             getPaginatedConversations = getPaginatedConversations,
+            sharedPathCache = sharedPathCache,
         )
     }
 
@@ -376,6 +381,7 @@ class SearchScreenViewModelTest {
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,
             getPaginatedConversations = getPaginatedConversations,
+            sharedPathCache = sharedPathCache,
         )
     }
 }

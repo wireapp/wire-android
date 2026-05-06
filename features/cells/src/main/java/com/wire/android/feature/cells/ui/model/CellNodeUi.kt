@@ -36,8 +36,8 @@ sealed class CellNodeUi {
     abstract val publicLinkId: String?
     abstract val remotePath: String?
     abstract val size: Long?
-    abstract val downloadProgress: Float?
     abstract val tags: List<String>
+    abstract val openLoadState: OpenLoadState?
 
     data class Folder(
         override val name: String?,
@@ -50,8 +50,8 @@ sealed class CellNodeUi {
         override val publicLinkId: String? = null,
         override val remotePath: String? = null,
         override val size: Long?,
-        override val downloadProgress: Float? = null,
         override val tags: List<String> = emptyList(),
+        override val openLoadState: OpenLoadState? = null,
     ) : CellNodeUi()
 
     data class File(
@@ -65,7 +65,6 @@ sealed class CellNodeUi {
         override val publicLinkId: String? = null,
         override val remotePath: String? = null,
         override val size: Long?,
-        override val downloadProgress: Float? = null,
         val mimeType: String,
         val assetType: AttachmentFileType,
         val localPath: String?,
@@ -74,6 +73,7 @@ sealed class CellNodeUi {
         val previewUrl: String? = null,
         override val tags: List<String> = emptyList(),
         val isEditSupported: Boolean = false,
+        override val openLoadState: OpenLoadState? = null,
     ) : CellNodeUi()
 }
 
@@ -119,6 +119,13 @@ private fun Node.File.formattedModifiedTime() = modifiedTime?.let {
 private fun Node.Folder.formattedModifiedTime() = modifiedTime?.let {
     Instant.fromEpochMilliseconds(it).cellFileDateTime()
 }
+
+internal fun CellNodeUi.File.withOpenLoadState(
+    state: OpenLoadState?,
+): CellNodeUi.File = copy(
+    openLoadState = state,
+    localPath = (state as? OpenLoadState.Ready)?.localPath?.toString() ?: localPath,
+)
 
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null
 internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)

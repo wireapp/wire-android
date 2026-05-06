@@ -148,11 +148,22 @@ fun UserProfileAvatar(
         legalHoldIndicatorVisible = false
     ),
 ) {
+    val accessibilityModifier = if (contentDescription != null) {
+        Modifier.clearAndSetSemantics {
+            this.contentDescription = contentDescription
+            if (clickable?.enabled == true) {
+                role = Role.Button
+            }
+        }
+    } else {
+        Modifier
+    }
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .wrapContentSize()
             .clip(CircleShape)
+            .then(accessibilityModifier)
             .clickable(clickable)
     ) {
         var userStatusIndicatorParams by remember { mutableStateOf(Size.Zero to Offset.Zero) }

@@ -21,7 +21,6 @@ package scripts
 import findVersion
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
-import java.util.regex.Pattern
 
 plugins {
     id("com.android.application") apply false
@@ -33,14 +32,13 @@ dependencies {
     detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-libraries:$detektVersion")
-    detektPlugins("com.wire:detekt-rules:20260128-162246") {
+    detektPlugins("com.wire:detekt-rules:20260505-151545") {
         isChanging = true
     }
 }
 
 // Detekt Configuration
 val detektAll by tasks.registering(Detekt::class) {
-    dependsOn("enforceUiWaitUtilsUsage") // todo. move later to wire-detekt-rules to enforce it from there.
     group = "Quality"
     description = "Runs a detekt code analysis ruleset on the Wire Android codebase"
     parallel = true
@@ -84,50 +82,6 @@ tasks.withType(DetektCreateBaselineTask::class) {
 tasks.register("staticCodeAnalysis") {
     description = "Analyses code within the Wire Android codebase"
     dependsOn(detektAll)
-}
-
-val enforceUiWaitUtilsUsage by tasks.registering {
-    group = "Quality"
-    description = "Fails if testsCore uses direct sleep/wait APIs instead of UiWaitUtils."
-
-    doLast {
-        val root = rootProject.projectDir
-        val targets = fileTree(root.resolve("tests/testsCore/src/androidTest/kotlin")) {
-            include("**/*.kt")
-        }
-
-        val forbiddenPatterns = listOf(
-            Pattern.compile("""\bThread\.sleep\s*\(""") to "Use UiWaitUtils.waitFor(...) or UiWaitUtils.waitForMillis(...)",
-            Pattern.compile("""\bSystemClock\.sleep\s*\(""") to "Use UiWaitUtils retry/wait helpers instead of direct sleeps",
-            Pattern.compile("""\bwaitForExists\s*\(""") to "Use UiWaitUtils.waitUntilVisibleOrThrow(...) or waitUntilGoneOrThrow(...)",
-            Pattern.compile("""\bUiWaitUtils\.WaitUtils\.waitFor\s*\(""") to "Use UiWaitUtils.waitFor(...)",
-            Pattern.compile("""import\s+uiautomatorutils\.UiWaitUtils\.WaitUtils\.waitFor""") to "Import UiWaitUtils and call UiWaitUtils.waitFor(...)"
-        )
-
-        val violations = mutableListOf<String>()
-
-        targets.files.sortedBy { it.path }.forEach { file ->
-            val lines = file.readLines()
-            lines.forEachIndexed { index, line ->
-                forbiddenPatterns.forEach { (pattern, guidance) ->
-                    if (pattern.matcher(line).find()) {
-                        val relativePath = file.relativeTo(root).path
-                        violations += "$relativePath:${index + 1}: $guidance\n    $line"
-                    }
-                }
-            }
-        }
-
-        if (violations.isNotEmpty()) {
-            throw GradleException(
-                buildString {
-                    appendLine("UiWaitUtils policy violations found in testsCore:")
-                    appendLine()
-                    appendLine(violations.joinToString("\n"))
-                }
-            )
-        }
-    }
 }
 
 tasks.register("testCoverage") {

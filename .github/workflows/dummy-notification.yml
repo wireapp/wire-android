@@ -1,6 +1,8 @@
 name: Debug Wire Notification
 
 on:
+  push:
+    branches: [ 'ci/report-critical-to-wire' ]
   workflow_dispatch:
 
 jobs:

@@ -35,6 +35,7 @@ import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
+import kotlin.time.Duration.Companion.seconds
 
 /*
 This test works on the following conditions:
@@ -52,7 +53,7 @@ class PersonalUserRegistrationTest : BaseUiTest() {
 
     @After
     fun tearDown() {
-        //  UiAutomatorSetup.stopApp()
+        // UiAutomatorSetup.stopApp()
     }
 
     @Suppress("LongMethod")
@@ -61,7 +62,7 @@ class PersonalUserRegistrationTest : BaseUiTest() {
     @Test
     fun givenUserWantsToRegister_whenTheyProvideValidDetails_thenAccountIsCreatedSuccessfully() {
 
-        //  create userInfo once, outside UI steps.
+        // create userInfo once, outside UI steps.
         val userInfo = UserClient.generateUniqueUserInfo()
         lateinit var otp: String
 
@@ -127,13 +128,13 @@ class PersonalUserRegistrationTest : BaseUiTest() {
         step("Enter OTP and complete account creation") {
             pages.registrationPage.apply {
                 enter2FAOnCreatePersonalAccountPage(otp)
-                UiWaitUtils.waitFor(5)
+                UiWaitUtils.waitFor(5.seconds)
 
                 assertEnterYourUserNameInfoText()
                 assertUserNameHelpText()
 
                 setUserName(userInfo.username)
-                // clickConfirmButton()
+                clickConfirmButton()
             }
         }
 

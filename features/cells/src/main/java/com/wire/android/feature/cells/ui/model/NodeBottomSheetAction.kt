@@ -29,10 +29,10 @@ enum class NodeBottomSheetAction(
     ADD_REMOVE_TAGS(R.string.add_remove_tags_label, R.drawable.ic_tags),
     MOVE(R.string.move_label, R.drawable.ic_folder),
     RENAME(R.string.rename_label, R.drawable.ic_rename),
-    DOWNLOAD(R.string.download_label, R.drawable.ic_save),
     EDIT(R.string.edit_label, com.wire.android.ui.common.R.drawable.ic_edit),
     RESTORE(R.string.restore_label, R.drawable.ic_restore),
     DELETE(R.string.delete_label, com.wire.android.ui.common.R.drawable.ic_delete, true),
     DELETE_PERMANENTLY(R.string.delete_permanently, com.wire.android.ui.common.R.drawable.ic_delete, true),
-    VERSION_HISTORY(R.string.see_version_history_bottom_sheet, R.drawable.ic_version_history)
+    VERSION_HISTORY(R.string.see_version_history_bottom_sheet, R.drawable.ic_version_history),
+    CANCEL_LOADING(R.string.cancel_loading_label, com.wire.android.ui.common.R.drawable.ic_close, true)
 }

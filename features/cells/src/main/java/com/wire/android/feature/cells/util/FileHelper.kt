@@ -144,6 +144,8 @@ class FileHelper @Inject constructor(
         }
     }
 
+    fun getCacheDir(): File = context.cacheDir
+
     private fun Context.getProviderAuthority() = "$packageName.provider"
 
     private fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =

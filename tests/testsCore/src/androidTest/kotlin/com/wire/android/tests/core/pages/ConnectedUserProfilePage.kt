@@ -21,6 +21,8 @@ import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.test.DefaultAsserter.assertTrue
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val startConversationButton = UiSelectorParams(text = "Start Conversation")
@@ -55,12 +57,12 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     fun assertToastMessageIsDisplayed(
         expectedMessage: String,
-        timeoutMillis: Long = 5_000
+        timeout: Duration = 5.seconds
     ): ConnectedUserProfilePage {
         UiWaitUtils.waitUntilVisibleOrThrow(
             params = UiSelectorParams(text = expectedMessage),
-            timeoutMs = timeoutMillis,
-            errorMessage = "Toast message '$expectedMessage' was not displayed within ${timeoutMillis}ms."
+            timeout = timeout,
+            errorMessage = "Toast message '$expectedMessage' was not displayed within ${timeout.inWholeMilliseconds}ms."
         )
 
         return this

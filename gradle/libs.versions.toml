@@ -17,13 +17,13 @@ libsodiumBindings = "0.9.5"
 
 # Android Core / Architecture
 detekt = "1.23.8"
-google-gms = "4.4.2"
+google-gms = "4.4.4"
 gms-location = "21.3.0"
 android-gradlePlugin = "9.0.1"
 desugaring = "2.1.5"
 firebaseBOM = "34.7.0"
 fragment = "1.5.6"
-resaca = "5.0.0"
+resaca = "5.0.1"
 bundlizer = "0.8.0"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
@@ -57,7 +57,7 @@ compose-destinations = "2.3.0"
 screenshot = "0.0.1-alpha13"
 jetbrains-compose = "1.10.3"
 # TODO(KMP): switch Compose MPP material3 to stable when available for this stack.
-jetbrains-compose-material3 = "1.11.0-alpha05"
+jetbrains-compose-material3 = "1.11.0-alpha07"
 
 # Compose Preview
 compose-edgetoedge-preview = "0.9.0"
@@ -75,7 +75,7 @@ coil = "3.4.0"
 commonmark = "0.28.0"
 
 # Countly
-countly = "24.7.7"
+countly = "26.1.2"
 
 # RSS
 rss-parser = "6.0.7"
@@ -105,7 +105,7 @@ androidx-test-core = "1.6.1"
 androidx-test-extensions = "1.2.1"
 androidx-test-orchestrator = "1.5.1"
 androidx-test-rules = "1.6.1"
-androidx-test-runner = "1.6.2"
+androidx-test-runner = "1.7.0"
 androidx-test-uiAutomator = "2.4.0-beta02"
 androidx-text-archCore = "2.2.0"
 junit4 = "4.13.2"

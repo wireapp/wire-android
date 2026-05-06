@@ -30,11 +30,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,7 +57,6 @@ import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
-import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
@@ -66,12 +66,13 @@ import com.wire.android.feature.cells.ui.recyclebin.UnableToRestoreDialog
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.cells.domain.paging.FileListLoadError
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 
 @Suppress("CyclomaticComplexMethod")
 @Composable
@@ -80,7 +81,6 @@ internal fun CellScreenContent(
     pagingListItems: LazyPagingItems<CellNodeUi>,
     sendIntent: (CellViewIntent) -> Unit,
     openFolder: (String, String, String?) -> Unit,
-    downloadFileState: StateFlow<CellNodeUi.File?>,
     menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
     showRenameScreen: (CellNodeUi) -> Unit,
@@ -98,10 +98,14 @@ internal fun CellScreenContent(
     lazyListState: LazyListState = rememberLazyListState(),
     retryEditNodeError: (String) -> Unit = {},
     showVersionHistoryScreen: (String, String) -> Unit = { _, _ -> },
+    fileReadyFlow: Flow<CellNodeUi.File>? = emptyFlow(),
 ) {
 
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
+    val snackbarHostState = LocalSnackbarHostState.current
+    val fileReadyActionLabel = stringResource(R.string.file_open_snackbar_action)
+    val fileReadyMessageFormat = stringResource(R.string.file_open_snackbar_message)
 
     var deleteConfirmation by remember { mutableStateOf<Pair<CellNodeUi, Boolean>?>((null)) }
     var restoreConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
@@ -109,8 +113,6 @@ internal fun CellScreenContent(
     var restoreParentFolderConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
     var editNodeError by remember { mutableStateOf<String?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
-
-    val downloadFile by downloadFileState.collectAsState()
 
     when {
         pagingListItems.isLoading() -> LoadingScreen(modifier = modifier)
@@ -139,7 +141,7 @@ internal fun CellScreenContent(
                 onItemClick = { sendIntent(CellViewIntent.OnItemClick(it)) },
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
                 isRefreshing = isRefreshing,
-                onRefresh = onRefresh
+                onRefresh = onRefresh,
             )
     }
 
@@ -151,14 +153,6 @@ internal fun CellScreenContent(
                 menu = null
                 sendIntent(CellViewIntent.OnMenuItemActionSelected(menuOptions.node, action))
             }
-        )
-    }
-
-    downloadFile?.let { file ->
-        DownloadFileBottomSheet(
-            file = file,
-            onDismiss = { sendIntent(CellViewIntent.OnDownloadMenuClosed) },
-            onDownload = { sendIntent(CellViewIntent.OnFileDownloadConfirmed(file)) },
         )
     }
 
@@ -251,6 +245,20 @@ internal fun CellScreenContent(
             is ShowFileDeletedMessage -> showDeleteConfirmation(context, action.isFile, action.permanently)
             is OpenFolder -> openFolder(action.path, action.title, action.parentFolderUuid)
             is ShowEditErrorDialog -> editNodeError = action.nodeUuid
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        fileReadyFlow?.collect { file ->
+            val message = fileReadyMessageFormat.format(file.name ?: file.uuid)
+            val result = snackbarHostState.showSnackbar(
+                message = message,
+                actionLabel = fileReadyActionLabel,
+                duration = SnackbarDuration.Short,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                sendIntent(CellViewIntent.OnItemClick(file))
+            }
         }
     }
 

@@ -85,7 +85,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 
 /**
@@ -110,7 +110,6 @@ fun ConversationFilesScreen(
         isRecycleBin = viewModel.isRecycleBin(),
         actions = viewModel.actions,
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
-        downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
         isSearchResult = false,
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
@@ -119,7 +118,8 @@ fun ConversationFilesScreen(
         breadcrumbs = viewModel.breadcrumbs(),
         sendIntent = viewModel::sendIntent,
         onRefresh = viewModel::onPullToRefresh,
-        retryEditNodeError = viewModel::editNode
+        retryEditNodeError = viewModel::editNode,
+        fileReadyFlow = viewModel.fileReadyFlow,
     )
 
     LaunchedEffect(Unit) {
@@ -129,14 +129,13 @@ fun ConversationFilesScreen(
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ConversationFilesScreenContent(
+internal fun ConversationFilesScreenContent(
     animatedVisibilityScope: AnimatedVisibilityScope,
     navigator: WireNavigator,
     currentNodeUuid: String?,
     isSearchResult: Boolean,
     actions: Flow<CellViewAction>,
     pagingListItems: LazyPagingItems<CellNodeUi>,
-    downloadFileSheet: StateFlow<CellNodeUi.File?>,
     menu: SharedFlow<MenuOptions>,
     sendIntent: (CellViewIntent) -> Unit,
     isRefreshing: State<Boolean>,
@@ -148,6 +147,7 @@ fun ConversationFilesScreenContent(
     isRecycleBin: Boolean = false,
     isRestoreInProgress: Boolean = false,
     breadcrumbs: Array<String>? = emptyArray(),
+    fileReadyFlow: Flow<CellNodeUi.File> = emptyFlow(),
 ) {
     val sharedScope = LocalSharedTransitionScope.current
 
@@ -285,7 +285,6 @@ fun ConversationFilesScreenContent(
                 actionsFlow = actions,
                 pagingListItems = pagingListItems,
                 sendIntent = sendIntent,
-                downloadFileState = downloadFileSheet,
                 menuState = menu,
                 isSearchResult = isSearchResult,
                 isRestoreInProgress = isRestoreInProgress,
@@ -353,7 +352,8 @@ fun ConversationFilesScreenContent(
                 },
                 retryEditNodeError = { retryEditNodeError(it) },
                 isRefreshing = isRefreshing,
-                onRefresh = onRefresh
+                onRefresh = onRefresh,
+                fileReadyFlow = fileReadyFlow,
             )
         }
     }
@@ -378,7 +378,6 @@ fun PreviewConversationFilesScreen() {
                                 CellNodeUi.File(
                                     uuid = "file1",
                                     name = "File 1",
-                                    downloadProgress = 0.5f,
                                     assetType = AttachmentFileType.IMAGE,
                                     size = 123456,
                                     localPath = null,
@@ -408,7 +407,6 @@ fun PreviewConversationFilesScreen() {
                             )
                         )
                     ).collectAsLazyPagingItems(),
-                    downloadFileSheet = MutableStateFlow(null),
                     menu = MutableSharedFlow(replay = 0),
                     sendIntent = {},
                     screenTitle = "Android",

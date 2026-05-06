@@ -1,0 +1,18 @@
+name: Debug Wire Notification
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/report-to-wire
+        with:
+          webhook-url: ${{ secrets.WIRE_ANDROID_CHARON_WEBHOOK }}
+          body: |
+            ✅ dummy notification
+            triggered by: dispatch
+            Tests passed: 1, Failed: 0, Skipped: 0, Total: 1 (100%)

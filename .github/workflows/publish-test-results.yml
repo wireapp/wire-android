@@ -11,7 +11,7 @@ name: Publish Test Results
 
 on:
     workflow_run:
-        workflows: [Run Unit Tests]
+        workflows: ["Develop", "Main"]
         types:
             - completed
 permissions: {}
@@ -21,7 +21,6 @@ jobs:
         name: Publish Test Results
         runs-on: ubuntu-latest
         if: github.event.workflow_run.conclusion != 'skipped'
-
         # Limit permissions to only what's needed
         permissions:
             checks: write

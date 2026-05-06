@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+from urllib.parse import quote, urlsplit, urlunsplit
 
 
 def env(name: str) -> str:
@@ -49,6 +50,16 @@ def resolve_pr_number() -> str:
     return ""
 
 
+def escape_url_for_markdown(raw_url: str) -> str:
+    parts = urlsplit(raw_url)
+    escaped_path = quote(parts.path, safe="/-._~")
+    escaped_query = quote(parts.query, safe="=&-._~")
+    escaped_fragment = quote(parts.fragment, safe="-._~")
+    return urlunsplit(
+        (parts.scheme, parts.netloc, escaped_path, escaped_query, escaped_fragment)
+    )
+
+
 def build_body() -> str:
     status = env("JOB_STATUS")
     icon = "❌" if status == "failure" else ("⚪" if status == "cancelled" else "✅")
@@ -77,7 +88,12 @@ def build_body() -> str:
 
     allure_report_url = env("ALLURE_REPORT_URL")
     if allure_report_url:
-        lines.append(f"See [Allure Reports]({allure_report_url})")
+        safe_allure_report_url = escape_url_for_markdown(allure_report_url).replace(
+            "_", "%5F"
+        )
+        lines.append(
+            f"See Allure Reports: [open report]({safe_allure_report_url})"
+        )
 
     lines.append(
         "Tests passed: "

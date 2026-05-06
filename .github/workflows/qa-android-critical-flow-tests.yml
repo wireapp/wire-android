@@ -4,10 +4,16 @@ name: QA Android Critical Flow Tests
 # - If androidDeviceId is set, we lock per-device so only one run can use that specific phone at a time (other devices can run in parallel).
 # - If androidDeviceId is empty ("auto"), we lock the shared device pool so only one auto-run uses the farm at a time (other auto-runs queue).
 concurrency:
-  group: qa-android-ui-tests-office-${{ inputs.androidDeviceId || 'auto' }}
+  group: qa-android-ui-tests-office-${{ github.event_name == 'workflow_dispatch' && inputs.androidDeviceId || 'auto' }}
   cancel-in-progress: false
 
 on:
+  # Uncomment merge_group when the team is ready to enable automatic merge queue runs.
+  # merge_group:
+  #   types: [checks_requested]
+  # GitHub schedules use UTC. 04:00 UTC is 06:00 in Berlin during daylight saving time.
+  schedule:
+    - cron: "0 4 * * *"
   workflow_dispatch:
     inputs:
       appBuildNumber:
@@ -91,6 +97,16 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
+      resolvedAppBuildNumber: ${{ steps.resolve_run_inputs.outputs.appBuildNumber }}
+      resolvedIsUpgrade: ${{ steps.resolve_run_inputs.outputs.isUpgrade }}
+      resolvedOldBuildNumber: ${{ steps.resolve_run_inputs.outputs.oldBuildNumber }}
+      resolvedEnforceAppInstall: ${{ steps.resolve_run_inputs.outputs.enforceAppInstall }}
+      resolvedFlavor: ${{ steps.resolve_run_inputs.outputs.flavor }}
+      resolvedTags: ${{ steps.resolve_run_inputs.outputs.TAGS }}
+      resolvedTestinyRunName: ${{ steps.resolve_run_inputs.outputs.testinyRunName }}
+      resolvedAndroidDeviceId: ${{ steps.resolve_run_inputs.outputs.androidDeviceId }}
+      resolvedRerunFailedEnabled: ${{ steps.resolve_run_inputs.outputs.rerunFailedEnabled }}
+      resolvedRerunFailedCount: ${{ steps.resolve_run_inputs.outputs.rerunFailedCount }}
       resolvedTestCaseId: ${{ steps.resolve_selector.outputs.testCaseId }}
       resolvedCategory: ${{ steps.resolve_selector.outputs.category }}
 
@@ -98,20 +114,55 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      # Scheduled and PR runs do not have UI inputs, so resolve one shared set
+      # of values here and let later jobs consume the same outputs.
+      - name: Resolve run inputs
+        id: resolve_run_inputs
+        shell: bash
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            {
+              echo "appBuildNumber=${{ inputs.appBuildNumber }}"
+              echo "isUpgrade=${{ inputs.isUpgrade }}"
+              echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"
+              echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
+              echo "flavor=${{ inputs.flavor }}"
+              echo "TAGS=${{ inputs.TAGS }}"
+              echo "testinyRunName=${{ inputs.testinyRunName }}"
+              echo "androidDeviceId=${{ inputs.androidDeviceId }}"
+              echo "rerunFailedEnabled=${{ inputs.rerunFailedEnabled }}"
+              echo "rerunFailedCount=${{ inputs.rerunFailedCount }}"
+            } >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          {
+            echo "appBuildNumber=latest"
+            echo "isUpgrade=false"
+            echo "oldBuildNumber="
+            echo "enforceAppInstall=false"
+            echo "flavor=internal release candidate"
+            echo "TAGS=@criticalFlow"
+            echo "testinyRunName="
+            echo "androidDeviceId="
+            echo "rerunFailedEnabled=true"
+            echo "rerunFailedCount=1"
+          } >> "${GITHUB_OUTPUT}"
+
       # Validate upgrade inputs before runner work starts.
       - name: Validate upgrade inputs
         shell: bash
         env:
-          IS_UPGRADE: ${{ inputs.isUpgrade }}
-          OLD_BUILD_NUMBER: ${{ inputs.oldBuildNumber }}
+          IS_UPGRADE: ${{ steps.resolve_run_inputs.outputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ steps.resolve_run_inputs.outputs.oldBuildNumber }}
         run: bash scripts/qa_android_ui_tests/validation.sh validate-upgrade-inputs
 
       # Validate retry toggle/count before any runner work starts.
       - name: Validate rerun inputs
         shell: bash
         env:
-          RERUN_FAILED_ENABLED: ${{ inputs.rerunFailedEnabled }}
-          RERUN_FAILED_COUNT: ${{ inputs.rerunFailedCount }}
+          RERUN_FAILED_ENABLED: ${{ steps.resolve_run_inputs.outputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ steps.resolve_run_inputs.outputs.rerunFailedCount }}
         run: bash scripts/qa_android_ui_tests/validation.sh validate-rerun-inputs
 
       # Resolve TAGS into CI selectors and expose them as job outputs.
@@ -119,7 +170,7 @@ jobs:
         id: resolve_selector
         shell: bash
         env:
-          TAGS_RAW: ${{ inputs.TAGS }}
+          TAGS_RAW: ${{ steps.resolve_run_inputs.outputs.TAGS }}
         run: bash scripts/qa_android_ui_tests/validation.sh resolve-selector-from-tags
 
       # Print resolved values for traceability in workflow logs.
@@ -127,10 +178,10 @@ jobs:
         shell: bash
         env:
           WORKFLOW_REF: ${{ github.ref_name }}
-          FLAVOR_INPUT: ${{ inputs.flavor }}
+          FLAVOR_INPUT: ${{ steps.resolve_run_inputs.outputs.flavor }}
           RESOLVED_TESTCASE_ID: ${{ steps.resolve_selector.outputs.testCaseId }}
           RESOLVED_CATEGORY: ${{ steps.resolve_selector.outputs.category }}
-          TESTINY_RUN_NAME: ${{ inputs.testinyRunName }}
+          TESTINY_RUN_NAME: ${{ steps.resolve_run_inputs.outputs.testinyRunName }}
         run: bash scripts/qa_android_ui_tests/validation.sh print-resolved-values
 
   run-android-ui-tests:
@@ -181,7 +232,7 @@ jobs:
       - name: Resolve flavor (runner config)
         id: resolve_flavor
         env:
-          FLAVOR_INPUT: ${{ inputs.flavor }}
+          FLAVOR_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedFlavor }}
         run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-flavor
 
       - name: Configure AWS credentials (for S3)
@@ -195,15 +246,15 @@ jobs:
       - name: Download APK(s) from S3
         id: download_apks
         env:
-          APP_BUILD_NUMBER: ${{ inputs.appBuildNumber }}
-          IS_UPGRADE: ${{ inputs.isUpgrade }}
-          OLD_BUILD_NUMBER: ${{ inputs.oldBuildNumber }}
+          APP_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAppBuildNumber }}
+          IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
+          OLD_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedOldBuildNumber }}
         run: S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
 
       # Select device(s): use input device when provided, otherwise auto-pick.
       - name: Detect target device(s)
         env:
-          TARGET_DEVICE_ID: ${{ inputs.androidDeviceId }}
+          TARGET_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
         run: bash scripts/qa_android_ui_tests/execution_setup.sh detect-target-devices
 
@@ -214,8 +265,8 @@ jobs:
       # Install app/test prerequisites on each selected device.
       - name: Install APK(s) on device(s)
         env:
-          ENFORCE_APP_INSTALL: ${{ inputs.enforceAppInstall }}
-          IS_UPGRADE: ${{ inputs.isUpgrade }}
+          ENFORCE_APP_INSTALL: ${{ needs.validate-and-resolve-inputs.outputs.resolvedEnforceAppInstall }}
+          IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
         run: bash scripts/qa_android_ui_tests/execution_setup.sh install-apks-on-devices
 
       - name: Install 1Password CLI
@@ -242,9 +293,9 @@ jobs:
         env:
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
           RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
-          IS_UPGRADE: ${{ inputs.isUpgrade }}
-          RERUN_FAILED_ENABLED: ${{ inputs.rerunFailedEnabled }}
-          RERUN_FAILED_COUNT: ${{ inputs.rerunFailedCount }}
+          IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
+          RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
         run: bash scripts/qa_android_ui_tests/run_ui_tests.sh
 
@@ -263,17 +314,18 @@ jobs:
           SOURCE_REF: ${{ github.ref }}
           SOURCE_REF_NAME: ${{ github.ref_name }}
           SOURCE_SHA: ${{ github.sha }}
-          FLAVOR_INPUT: ${{ inputs.flavor }}
-          TAGS_INPUT: ${{ inputs.TAGS }}
+          FLAVOR_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedFlavor }}
+          TAGS_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
           RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
-          APP_BUILD_NUMBER_INPUT: ${{ inputs.appBuildNumber }}
-          IS_UPGRADE: ${{ inputs.isUpgrade }}
-          ENFORCE_APP_INSTALL: ${{ inputs.enforceAppInstall }}
-          TESTINY_RUN_NAME: ${{ inputs.testinyRunName }}
-          ANDROID_DEVICE_ID: ${{ inputs.androidDeviceId }}
-          RERUN_FAILED_ENABLED: ${{ inputs.rerunFailedEnabled }}
-          RERUN_FAILED_COUNT: ${{ inputs.rerunFailedCount }}
+          APP_BUILD_NUMBER_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAppBuildNumber }}
+          IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
+          OLD_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedOldBuildNumber }}
+          ENFORCE_APP_INSTALL: ${{ needs.validate-and-resolve-inputs.outputs.resolvedEnforceAppInstall }}
+          TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
+          ANDROID_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
+          RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
         run: bash scripts/qa_android_ui_tests/reporting.sh prepare-deflake-bundle
 
       - name: Upload deflake input artifact
@@ -304,7 +356,7 @@ jobs:
           MERGED_DIR: ${{ runner.temp }}/allure-results-merged
           REAL_BUILD_NUMBER: ${{ env.REAL_BUILD_NUMBER }}
           NEW_APK_NAME: ${{ env.NEW_APK_NAME }}
-          INPUT_TAGS: ${{ inputs.TAGS }}
+          INPUT_TAGS: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
         run: bash scripts/qa_android_ui_tests/reporting.sh merge-allure-results
 
       # Generate static Allure HTML from merged results.
@@ -332,7 +384,7 @@ jobs:
           PAGES_DIR: gh-pages/docs/qa-ui-tests
           PAGES_TITLE: QA Android Critical Flow Tests
           KEEP_DAYS: "90"
-          INPUT_TAGS: ${{ inputs.TAGS }}
+          INPUT_TAGS: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
           APK_VERSION: ${{ env.REAL_BUILD_NUMBER }}
           APK_NAME: ${{ env.NEW_APK_NAME }}
         run: bash scripts/qa_android_ui_tests/reporting.sh publish-allure-report

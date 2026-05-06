@@ -44,6 +44,7 @@ import service.TestServiceHelper
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class SSODeviceBackup : BaseUiTest() {
@@ -72,7 +73,7 @@ class SSODeviceBackup : BaseUiTest() {
     fun tearDown() {
         cleanupCreatedUsers(backendClient, teamHelper.usersManager)
         deleteDownloadedFilesContaining("Wire")
-        oktaApiClient.cleanUp()
+        runCatching { oktaApiClient.cleanUp() }
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -103,9 +104,8 @@ class SSODeviceBackup : BaseUiTest() {
                 )
             }
 
-            step("Get SSO code and wait for Okta app assignment sync") {
+            step("Get SSO code and start the SSO login flow") {
                 val ssoCode = SSOServiceHelper.getSSOCode()
-                UiWaitUtils.waitFor(20) // Delay added to allow Okta app assignment to fully sync and avoid 403 error
 
                 step("Start SSO login flow using SSO code") {
                     pages.registrationPage.apply {
@@ -128,7 +128,7 @@ class SSODeviceBackup : BaseUiTest() {
                         enterOktaPassword(member1?.password ?: "")
                         tapOktaSignIn()
                         // Wait for Okta → Wire auth handoff to finish; otherwise, setting up wire page will not succeed.
-                        UiWaitUtils.waitFor(5)
+                        UiWaitUtils.waitFor(5.seconds)
                     }
                 }
 
@@ -235,7 +235,7 @@ class SSODeviceBackup : BaseUiTest() {
                         clickLoginButton()
                     }
 
-                    UiWaitUtils.waitFor(5) // Wait for Okta → Wire auth handoff to finish;
+                    UiWaitUtils.waitFor(5.seconds) // Wait for Okta → Wire auth handoff to finish;
                 }
 
                 step("Finish login flow after logout (decline share data)") {

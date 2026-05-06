@@ -47,6 +47,7 @@ import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.getValue
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class GroupVideoCall : BaseUiTest() {
@@ -431,14 +432,14 @@ class GroupVideoCall : BaseUiTest() {
 
         step("And I play audio message") {
             pages.conversationViewPage.apply {
-                UiWaitUtils.waitFor(1)
+                UiWaitUtils.waitFor(1.seconds)
                 clickPlayButtonOnAudioMessage()
             }
         }
 
         step("And I pause audio message after 5 seconds") {
             pages.conversationViewPage.apply {
-                UiWaitUtils.waitFor(5)
+                UiWaitUtils.waitFor(5.seconds)
                 clickPauseButtonOnAudioMessage()
             }
         }

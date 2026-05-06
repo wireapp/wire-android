@@ -33,6 +33,8 @@ import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import kotlin.test.DefaultAsserter.assertTrue
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 data class SettingsPage(private val device: UiDevice) {
     private fun backupFileLocator(uniqueUserName: String) = UiSelectorParams(textContains = "Wire-$uniqueUserName")
@@ -141,9 +143,29 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
-    fun openBackupAndRestoreConversationsMenu(): SettingsPage {
-        UiWaitUtils.waitElement(backUpMenuButton).click()
+    fun openBackupAndRestoreConversationsMenu(timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT): SettingsPage {
+        val opened = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            UiWaitUtils.clickWhenClickable(
+                params = backUpMenuButton,
+                timeout = UiWaitUtils.POLLING_DEFAULT,
+                pollingInterval = UiWaitUtils.POLLING_FAST
+            )
+            isBackupPageOpen()
+        }
+
+        if (!opened) {
+            throw AssertionError("Could not open 'Back up & Restore Conversations' within ${timeout.inWholeMilliseconds}ms.")
+        }
+
         return this
+    }
+
+    private fun isBackupPageOpen(): Boolean {
+        return UiWaitUtils.findElementOrNull(restoreBackupButton)?.let { !it.visibleBounds.isEmpty } == true ||
+            UiWaitUtils.findElementOrNull(createBackupButton)?.let { !it.visibleBounds.isEmpty } == true
     }
 
     fun clickRestoreBackupButton(): SettingsPage {
@@ -174,7 +196,7 @@ data class SettingsPage(private val device: UiDevice) {
     fun iSeeBackupConfirmation(text: String): SettingsPage {
         UiWaitUtils.waitUntilVisibleOrThrow(
             params = UiSelectorParams(textContains = text),
-            timeoutMs = 5_000,
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
             errorMessage = "Expected message '$text' was not displayed"
         )
         return this
@@ -389,10 +411,10 @@ data class SettingsPage(private val device: UiDevice) {
         context.startActivity(intent)
     }
 
-    fun assertEmailVerifiedMessageVisibleOnChrome(timeoutMillis: Long = 15_000): SettingsPage {
+    fun assertEmailVerifiedMessageVisibleOnChrome(timeout: Duration = 15.seconds): SettingsPage {
         UiWaitUtils.waitUntilVisibleOrThrow(
             params = UiSelectorParams(textContains = "Email verified"),
-            timeoutMs = timeoutMillis,
+            timeout = timeout,
             errorMessage = "Email Verified text not found in Chrome after 15 seconds."
         )
         return this
@@ -413,14 +435,17 @@ data class SettingsPage(private val device: UiDevice) {
     fun assertChromeUrlIsDisplayed(expectedUrl: String): SettingsPage {
         UiWaitUtils.waitUntilVisibleOrThrow(
             params = UiSelectorParams(textContains = expectedUrl),
-            timeoutMs = 5_000,
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
             errorMessage = "Expected URL '$expectedUrl' was not found in Chrome"
         )
         return this
     }
 
-    fun assertDeleteAccountConfirmationModalIsNoLongerVisible(timeoutMs: Long = 10_000): SettingsPage {
-        val isGone = UiWaitUtils.retryUntilTimeout(timeoutMs = timeoutMs, pollingIntervalMs = 150) {
+    fun assertDeleteAccountConfirmationModalIsNoLongerVisible(timeout: Duration = 10.seconds): SettingsPage {
+        val isGone = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
             val modal = UiWaitUtils.findElementOrNull(deleteAccountConfirmationModal)
             modal == null || modal.visibleBounds.isEmpty
         }
@@ -450,7 +475,7 @@ data class SettingsPage(private val device: UiDevice) {
     fun waitUntilThisTextIsDisplayedOnBackupAlert(text: String): SettingsPage {
         UiWaitUtils.waitUntilVisibleOrThrow(
             params = UiSelectorParams(text = text),
-            timeoutMs = 5_000,
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
             errorMessage = "Text '$text' was not displayed on the backup alert within timeout"
         )
         return this

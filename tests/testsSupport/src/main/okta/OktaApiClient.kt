@@ -30,11 +30,14 @@ import java.net.HttpURLConnection
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 import kotlin.math.max
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.minutes
 
 class OktaApiClient {
 
-    private val CONNECT_TIMEOUT_MS = 3_000
-    private val READ_TIMEOUT_MS = 240_000
+    private val CONNECT_TIMEOUT = 3.seconds
+    private val READ_TIMEOUT = 4.minutes
     private val BASE_URI = "https://dev-500508-admin.oktapreview.com"
     private val apiKey: String by lazy { BuildConfig.OKTA_API_KEY_PASSWORD }
 
@@ -55,18 +58,34 @@ class OktaApiClient {
         private val retries: Int = 3
     ) {
         fun run(
-            block: () -> Pair<Int, String>,
+            block: () -> Triple<Int, String, Long?>,
             acceptable: IntArray
         ): String {
             var err: Throwable? = null
-            repeat(max(1, retries)) {
-                try {
-                    val (code, body) = block()
-                    verify(code, acceptable, body)
-                    return body
+            // Okta assignment/setup can hit transient 429s, so retry only retryable failures.
+            repeat(max(1, retries)) { attempt ->
+                val (code, body, retryAfterMs) = try {
+                    block()
                 } catch (t: Throwable) {
                     err = t
+                    return@repeat
                 }
+
+                if (acceptable.any { it == code }) {
+                    return body
+                }
+
+                if (code == 429 && attempt < retries - 1) {
+                    val wait = retryAfterMs?.milliseconds ?: (2.seconds * (attempt + 1))
+                    try {
+                        Thread.sleep(wait.inWholeMilliseconds)
+                    } catch (_: InterruptedException) {
+                    }
+                    return@repeat
+                }
+
+                verify(code, acceptable, body)
+                return body
             }
             throw err ?: IllegalStateException("Request failed after $retries attempts")
         }
@@ -99,8 +118,8 @@ class OktaApiClient {
                 setRequestProperty("Authorization", "SSWS $apiKey")
                 setRequestProperty("Content-Type", "application/json")
                 setRequestProperty("Accept", accept)
-                connectTimeout = CONNECT_TIMEOUT_MS
-                readTimeout = READ_TIMEOUT_MS
+                connectTimeout = CONNECT_TIMEOUT.inWholeMilliseconds.toInt()
+                readTimeout = READ_TIMEOUT.inWholeMilliseconds.toInt()
                 if (method == "POST" || method == "PUT") {
                     doOutput = true
                     body?.let { outputStream.bufferedWriter().use { w -> w.write(it) } }
@@ -109,21 +128,15 @@ class OktaApiClient {
             val code = conn.responseCode
             val text = (if (code in acceptableCodes) conn.inputStream else conn.errorStream)
                 ?.bufferedReader()?.use(BufferedReader::readText).orEmpty()
+            val retryAfterMs = conn.getHeaderField("Retry-After")?.toLongOrNull()?.times(1000L)
             conn.disconnect()
-            code to text
+            Triple(code, text, retryAfterMs)
         },
         acceptable = acceptableCodes
     )
 
     private fun readRawResource(context: Context, resId: Int): String =
         context.resources.openRawResource(resId).bufferedReader().use { it.readText() }
-
-    private fun hardSleep(ms: Long) {
-        try {
-            Thread.sleep(ms)
-        } catch (_: InterruptedException) {
-        }
-    }
 
     fun createApplication(label: String, finalizeUrl: String, context: Context): String {
         val template = readRawResource(context, R.raw.app_creation)
@@ -151,13 +164,6 @@ class OktaApiClient {
         applicationId = response.getString("id")
         val groupId = fetchGroupId("Everyone")
         assignApplicationToGroup(requireNotNull(applicationId), groupId)
-
-        // NEW: wait until the assignment is visible to GETs (propagation)
-        waitForAppGroupLink(requireNotNull(applicationId), groupId)
-
-        // Tiny grace period (Okta can still be warming up)
-        hardSleep(1200)
-
         return requireNotNull(applicationId)
     }
 
@@ -186,26 +192,6 @@ class OktaApiClient {
         )
     }
 
-    // poll for the app-group link to be visible
-    private fun waitForAppGroupLink(appId: String, groupId: String, timeoutMs: Long = 30_000) {
-        val deadline = System.currentTimeMillis() + timeoutMs
-        var lastErr: Throwable? = null
-        while (System.currentTimeMillis() < deadline) {
-            try {
-                httpRequest(
-                    path = "api/v1/apps/$appId/groups/$groupId",
-                    method = "GET",
-                    acceptableCodes = intArrayOf(HttpURLConnection.HTTP_OK)
-                )
-                return // success
-            } catch (t: Throwable) {
-                lastErr = t
-                hardSleep(700)
-            }
-        }
-        throw lastErr ?: IllegalStateException("Timed out waiting for app $appId to link group $groupId")
-    }
-
     fun getApplicationMetadata(): String {
         val appId = applicationId ?: error("Application ID is not set. Create an application first.")
         return httpRequest(
@@ -216,7 +202,8 @@ class OktaApiClient {
         )
     }
 
-    fun createUser(name: String, email: String, password: String) {
+    @Suppress("LongMethod")
+    fun createUser(name: String, email: String, password: String): String {
         val requestBody = JSONObject().apply {
             put(
                 "profile",
@@ -265,16 +252,30 @@ class OktaApiClient {
                 }
             )
         }
-
         val output = httpRequest(
             path = "api/v1/users?activate=true",
             method = "POST",
             body = requestBody.toString(),
             acceptableCodes = intArrayOf(HttpURLConnection.HTTP_OK)
         )
-        val response = JSONObject(output)
-        userIds.add(response.getString("id"))
-        network.WireTestLogger.getLog("LogginUserId").info("User id is ${response.getString("id")}")
+        return JSONObject(output).getString("id").also { userId ->
+            userIds.add(userId)
+            network.WireTestLogger.getLog("LogginUserId").info("User id is $userId")
+        }
+    }
+
+    // Assigns the created Okta user directly to the current Okta application used for SSO login.
+    fun assignUserToApplication(userId: String) {
+        val appId = applicationId ?: error("Application ID is not set. Create an application first.")
+        val requestBody = JSONObject().apply {
+            put("id", userId)
+        }
+        httpRequest(
+            path = "api/v1/apps/$appId/users",
+            method = "POST",
+            body = requestBody.toString(),
+            acceptableCodes = intArrayOf(HttpURLConnection.HTTP_OK)
+        )
     }
 
     fun deleteUser(userId: String) {

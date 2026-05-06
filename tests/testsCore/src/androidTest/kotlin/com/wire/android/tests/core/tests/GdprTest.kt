@@ -113,7 +113,7 @@ class GdprTest : BaseUiTest() {
 
         step("Open debug settings and verify analytics identifier is visible") {
             pages.settingsPage.apply {
-                // clickDebugSettingsButton()
+                clickDebugSettingsButton()
                 assertAnalyticsInitializedIsSetToTrue()
                 assertAnalyticsTrackingIdentifierIsDispayed()
             }

@@ -26,6 +26,15 @@ def env_int(name: str) -> int:
         return 0
 
 
+def append_summary(lines: list[str]) -> None:
+    # Write helper output into the GitHub Actions step summary when available.
+    summary_path = env("GITHUB_STEP_SUMMARY")
+    if not summary_path:
+        return
+    with open(summary_path, "a", encoding="utf-8") as summary_file:
+        summary_file.write("\n".join(lines) + "\n")
+
+
 def copy_test_list(src_value: str, dest: Path) -> None:
     src = Path(src_value) if src_value else None
     if src and src.is_file():
@@ -58,6 +67,7 @@ elif resolved_test_case_id:
 
 metadata = {
     "schema_version": 1,
+    "manual_deflake_id": env("SOURCE_RUN_ID"),
     "source_workflow_name": env("SOURCE_WORKFLOW_NAME"),
     "source_workflow_file": env("SOURCE_WORKFLOW_FILE"),
     "source_repository": env("SOURCE_REPOSITORY"),
@@ -97,3 +107,12 @@ metadata = {
 
 copy_test_list(env("FINAL_FAILED_TESTS_FILE"), bundle_dir / "failed-tests.txt")
 copy_test_list(env("FIRST_FAILED_TESTS_FILE"), bundle_dir / "failed-tests-first-attempt.txt")
+
+# Show the GitHub Actions run id in the summary so it can be copied directly
+# into a later manual deflake run.
+append_summary(
+    [
+        "### Manual Deflake",
+        f"- manual deflake id: {metadata['manual_deflake_id']}",
+    ]
+)

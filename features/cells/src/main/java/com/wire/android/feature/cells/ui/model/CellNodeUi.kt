@@ -37,14 +37,12 @@ sealed class CellNodeUi {
     abstract val remotePath: String?
     abstract val size: Long?
     abstract val tags: List<String>
-    abstract val isOpenLoading: Boolean
-    abstract val isOpenReady: Boolean
-    abstract val isOpenError: Boolean
-    abstract val openLoadProgress: Float?
-    /** Non-null while a background download (e.g. "Make Available Offline") is in progress. */
+    abstract val openLoadState: OpenLoadState?,
     abstract val downloadProgress: Float?
+
     /** True when this file has been saved for offline use (persisted in the offline files DB). */
     abstract val isAvailableOffline: Boolean
+
 
     data class Folder(
         override val name: String?,
@@ -58,10 +56,7 @@ sealed class CellNodeUi {
         override val remotePath: String? = null,
         override val size: Long?,
         override val tags: List<String> = emptyList(),
-        override val isOpenLoading: Boolean = false,
-        override val isOpenReady: Boolean = false,
-        override val isOpenError: Boolean = false,
-        override val openLoadProgress: Float? = null,
+        override val openLoadState: OpenLoadState? = null,
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
     ) : CellNodeUi()
@@ -85,10 +80,7 @@ sealed class CellNodeUi {
         val previewUrl: String? = null,
         override val tags: List<String> = emptyList(),
         val isEditSupported: Boolean = false,
-        override val isOpenLoading: Boolean = false,
-        override val isOpenReady: Boolean = false,
-        override val isOpenError: Boolean = false,
-        override val openLoadProgress: Float? = null,
+        override val openLoadState: OpenLoadState? = null,
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
     ) : CellNodeUi()
@@ -139,20 +131,11 @@ private fun Node.Folder.formattedModifiedTime() = modifiedTime?.let {
 
 internal fun CellNodeUi.File.withOpenLoadState(
     state: OpenLoadState?,
-    cachedPath: String?,
-): CellNodeUi.File = if (state == null && cachedPath == null) {
-    this
-} else {
-    copy(
-        isOpenLoading = state is OpenLoadState.Loading,
-        isOpenReady = state is OpenLoadState.Ready,
-        isOpenError = state is OpenLoadState.Error,
-        openLoadProgress = (state as? OpenLoadState.Loading)?.progress,
-        localPath = (state as? OpenLoadState.Ready)?.localPath?.toString()
-            ?: cachedPath
-            ?: localPath,
-    )
-}
+): CellNodeUi.File = copy(
+    openLoadState = state,
+    localPath = (state as? OpenLoadState.Ready)?.localPath?.toString() ?: localPath,
+)
+
 
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null
 internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)

@@ -26,8 +26,10 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
+import com.wire.android.feature.cells.ui.CellFileLocalPathCache
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.model.withOpenLoadState
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
@@ -75,6 +77,7 @@ class SearchScreenViewModel @Inject constructor(
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val getOwners: GetOwnersUseCase,
     private val getPaginatedConversations: GetPaginatedCellConversationsFlowUseCase,
+    private val sharedPathCache: CellFileLocalPathCache,
 ) : ViewModel() {
 
     private data class SearchParams(
@@ -131,7 +134,8 @@ class SearchScreenViewModel @Inject constructor(
         }.distinctUntilChanged()
 
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
-        searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
+        combine(
+            searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
                 val hasFilters = params.sortingCriteria != defaultSortingCriteria ||
                         params.query.isNotEmpty() ||
                         params.tagIds.isNotEmpty() ||
@@ -172,7 +176,17 @@ class SearchScreenViewModel @Inject constructor(
                         }
                     }
                 }
-            }.cachedIn(viewModelScope)
+            }.cachedIn(viewModelScope),
+            sharedPathCache.openLoadStates,
+        ) { pagingData, states ->
+            pagingData.map { node ->
+                if (node is CellNodeUi.File) {
+                    node.withOpenLoadState(states[node.uuid])
+                } else {
+                    node
+                }
+            }
+        }
 
     private val _conversationSearchQuery = MutableStateFlow("")
 

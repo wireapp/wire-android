@@ -26,6 +26,7 @@ import app.cash.turbine.test
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
@@ -37,9 +38,6 @@ import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
-import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
-import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.common.functional.right
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -167,6 +165,23 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given file has local path in DB when clicked with error state then file opened without re-downloading`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        // File has localPath from DB but also carries an error state (stale UI state)
+        val testFile = testFiles[0].copy(localPath = "localPath", contentUrl = null).toUiModel()
+            .copy(openLoadState = OpenLoadState.Error)
+
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+    }
+
+    @Test
     fun `given view model when file tap triggers slow download then file ready event is emitted to shared cache`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
@@ -185,24 +200,6 @@ class CellViewModelTest {
             val file = awaitItem()
             assertEquals(testFile.uuid, file.uuid)
         }
-    }
-
-    @Test
-    fun `given cached local path in shared cache when file clicked then file is opened without re-downloading`() = runTest {
-        val cachedPath = "/cache/fileName"
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .withCachedPath(testFiles[0].uuid, cachedPath)
-            .arrange()
-
-        val testFile = testFiles[0].copy(localPath = null, contentUrl = null).toUiModel()
-
-        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
-        advanceUntilIdle()
-
-        // Should open the cached file, not trigger a new download
-        coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
-        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
     @Test
@@ -290,15 +287,6 @@ class CellViewModelTest {
         @MockK
         lateinit var getWireCellsConfig: GetWireCellConfigurationUseCase
 
-        @MockK
-        lateinit var observeOfflineFilesUseCase: ObserveOfflineFilesUseCase
-
-        @MockK
-        lateinit var saveOfflineFileUseCase: SaveOfflineFileUseCase
-
-        @MockK
-        lateinit var deleteOfflineFileUseCase: DeleteOfflineFileUseCase
-
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -312,8 +300,6 @@ class CellViewModelTest {
             every { savedStateHandle.get<String>("conversationId") } returns conversationId
 
             coEvery { isCellAvailableUseCase.invoke() } returns true.right()
-
-            every { observeOfflineFilesUseCase.invoke() } returns flowOf(emptyList())
 
             coEvery { getCellFilesPagedUseCase.invoke(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(
@@ -340,10 +326,6 @@ class CellViewModelTest {
                     ),
                 )
             )
-        }
-
-        fun withCachedPath(uuid: String, path: String) = apply {
-            sharedPathCache.put(uuid, path)
         }
 
         fun withDownloadSuccess() = apply {
@@ -379,13 +361,6 @@ class CellViewModelTest {
                 sharedPathCache = sharedPathCache,
             )
 
-            val offlineFileDownloadController = OfflineFileDownloadController(
-                download = downloadCellFileUseCase,
-                fileHelper = fileHelper,
-                fileNameResolver = fileNameResolver,
-                saveOfflineFile = saveOfflineFileUseCase,
-            )
-
             return this to CellViewModel(
                 savedStateHandle = savedStateHandle,
                 getCellFilesPaged = getCellFilesPagedUseCase,
@@ -399,9 +374,6 @@ class CellViewModelTest {
                 getWireCellsConfig = getWireCellsConfig,
                 sharedPathCache = sharedPathCache,
                 openFileDownloadController = openFileDownloadController,
-                offlineFileDownloadController = offlineFileDownloadController,
-                observeOfflineFiles = observeOfflineFilesUseCase,
-                deleteOfflineFile = deleteOfflineFileUseCase,
             )
         }
     }

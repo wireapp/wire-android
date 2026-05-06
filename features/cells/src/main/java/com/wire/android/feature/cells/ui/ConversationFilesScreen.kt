@@ -122,7 +122,6 @@ fun ConversationFilesScreen(
         onRefresh = viewModel::onPullToRefresh,
         retryEditNodeError = viewModel::editNode,
         fileReadyFlow = viewModel.fileReadyFlow,
-        externalOpenLoadStates = viewModel.openLoadStates,
     )
 
     LaunchedEffect(Unit) {
@@ -151,7 +150,6 @@ internal fun ConversationFilesScreenContent(
     isRestoreInProgress: Boolean = false,
     breadcrumbs: Array<String>? = emptyArray(),
     fileReadyFlow: Flow<CellNodeUi.File> = emptyFlow(),
-    externalOpenLoadStates: StateFlow<Map<String, OpenLoadState>> = MutableStateFlow(emptyMap()),
 ) {
     val sharedScope = LocalSharedTransitionScope.current
 
@@ -358,7 +356,6 @@ internal fun ConversationFilesScreenContent(
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,
                 fileReadyFlow = fileReadyFlow,
-                externalOpenLoadStates = externalOpenLoadStates,
             )
         }
     }

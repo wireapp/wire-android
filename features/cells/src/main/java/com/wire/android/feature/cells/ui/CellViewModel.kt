@@ -35,6 +35,8 @@ import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.model.withOpenLoadState
+import com.wire.android.feature.cells.ui.model.withOpenLoadState
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
@@ -208,38 +210,23 @@ class CellViewModel @Inject constructor(
                     val offlinePathsMap = offlineFiles.associate { it.id to it.localPath }
                     var emittedRefreshDone = false
 
-                    pagingData
-                        .filter { node: Node -> node.uuid !in removedItems }
-                        .map { node ->
-                            if (!emittedRefreshDone) {
-                                emittedRefreshDone = true
+                        pagingData
+                            .filter { node: Node -> node.uuid !in removedItems }
+                            .map { node ->
+                                if (!emittedRefreshDone) {
+                                    emittedRefreshDone = true
 
-                                if (_isPullToRefresh.value) {
-                                    _isPullToRefresh.value = false
+                                    if (_isPullToRefresh.value) {
+                                        _isPullToRefresh.value = false
+                                    }
+
+                                    _pagingRefreshDone.tryEmit(Unit)
                                 }
-
-                                _pagingRefreshDone.tryEmit(Unit)
-                            }
 
                             val openLoadState = openLoadStates[node.uuid]
                             when (node) {
-                                is Node.Folder -> node.toUiModel().copy(
-                                    downloadProgress = downloadProgresses[node.uuid],
-                                    isAvailableOffline = offlinePathsMap.containsKey(node.uuid),
-                                )
-
-                                is Node.File -> node.toUiModel().copy(
-                                    localPath = openLoadState?.let { (it as? OpenLoadState.Ready)?.localPath?.toString() }
-                                        ?: cachedPaths[node.uuid]
-                                        ?: offlinePathsMap[node.uuid]
-                                        ?: node.localPath,
-                                    isOpenLoading = openLoadState is OpenLoadState.Loading,
-                                    isOpenReady = openLoadState is OpenLoadState.Ready,
-                                    isOpenError = openLoadState is OpenLoadState.Error,
-                                    openLoadProgress = (openLoadState as? OpenLoadState.Loading)?.progress,
-                                    downloadProgress = downloadProgresses[node.uuid],
-                                    isAvailableOffline = offlinePathsMap.containsKey(node.uuid),
-                                )
+                                is Node.Folder -> node.toUiModel()
+                                is Node.File -> node.toUiModel().withOpenLoadState(openLoadState)
                             }
                         }
                 }
@@ -279,7 +266,6 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnNodeRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnParentFolderRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnCancelDownload -> cancelDownload(intent.uuid)
-            is CellViewIntent.OnScreenLeave -> clearAllErrorStates()
         }
     }
 
@@ -293,19 +279,12 @@ class CellViewModel @Inject constructor(
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {
-            cellNode.isOpenReady -> openLocalFile(cellNode)
-            cellNode.isOpenLoading -> cancelOpenDownload(cellNode.uuid)
-            cellNode.isOpenError -> startOpenDownload(cellNode)
+            cellNode.openLoadState is OpenLoadState.Ready -> openLocalFile(cellNode)
+            cellNode.openLoadState is OpenLoadState.Loading -> cancelOpenDownload(cellNode.uuid)
             cellNode.localFileAvailable() -> openLocalFile(cellNode)
+            cellNode.openLoadState is OpenLoadState.Error -> startOpenDownload(cellNode)
             cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
-            else -> {
-                val cachedPath = sharedPathCache.paths.value[cellNode.uuid]
-                if (cachedPath != null) {
-                    openLocalFile(cellNode.copy(localPath = cachedPath))
-                } else {
-                    startOpenDownload(cellNode)
-                }
-            }
+            else -> startOpenDownload(cellNode)
         }
     }
 
@@ -522,8 +501,6 @@ class CellViewModel @Inject constructor(
     private fun addToListUi(node: CellNodeUi) = removedItemsFlow.update { it - node.uuid }
     fun clearRemovedItems() = removedItemsFlow.update { emptyList() }
 
-    internal fun clearAllErrorStates() = openFileDownloadController.clearAllErrorStates()
-
     private fun loadWireCellConfig() = viewModelScope.launch {
         val config = getWireCellsConfig()
         isCollaboraEnabled = config?.collabora != CollaboraEdition.NO
@@ -548,7 +525,6 @@ sealed interface CellViewIntent {
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnParentFolderRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnCancelDownload(val uuid: String) : CellViewIntent
-    data object OnScreenLeave : CellViewIntent
 }
 
 sealed interface CellViewAction
@@ -572,7 +548,6 @@ internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
 internal data object ShowOfflineFileSaved : CellViewAction
 
 internal enum class CellError(val message: Int) {
-    DOWNLOAD_FAILED(R.string.cell_files_download_failure_message),
     NO_APP_FOUND(R.string.no_app_found),
     OTHER_ERROR(R.string.action_failed)
 }

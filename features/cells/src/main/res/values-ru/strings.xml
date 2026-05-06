@@ -73,6 +73,12 @@
     <string name="cells_create_folder">Создать папку</string>
     <string name="cells_folder_name">Название папки</string>
     <string name="loading_files">Загрузка файлов…</string>
+    <string name="tap_to_cancel_loading">Нажмите, чтобы отменить загрузку</string>
+    <string name="unable_to_load_retry">Не удалось загрузить, повторите попытку</string>
+    <string name="ready_to_open">Готов к открытию</string>
+    <string name="cancel_loading_label">Отменить загрузку…</string>
+    <string name="file_open_snackbar_message">\"%1$s\" готов к открытию</string>
+    <string name="file_open_snackbar_action">Открыть</string>
     <string name="create_folder_error">Не удается создать папку. Пожалуйста, попробуйте снова</string>
     <string name="move_to_folder">Переместить в папку</string>
     <string name="move_here">Переместить сюда</string>

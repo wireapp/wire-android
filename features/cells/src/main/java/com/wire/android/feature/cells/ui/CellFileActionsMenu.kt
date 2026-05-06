@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.isEditSupported
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.kalium.logic.featureFlags.KaliumConfigs

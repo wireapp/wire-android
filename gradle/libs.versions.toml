@@ -17,7 +17,7 @@ libsodiumBindings = "0.9.5"
 
 # Android Core / Architecture
 detekt = "1.23.8"
-google-gms = "4.4.2"
+google-gms = "4.4.4"
 gms-location = "21.3.0"
 android-gradlePlugin = "9.0.1"
 desugaring = "2.1.5"

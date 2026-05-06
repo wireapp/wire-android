@@ -1,0 +1,24 @@
+name: "Report to Wire"
+description: "Sends a Wire message about a workflow result."
+
+inputs:
+  webhook-url:
+    description: "The Wire webhook URL to send the notification to"
+    required: true
+  body:
+    description: "Additional message body to include in the notification (supports markdown)"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Notify
+      if: ${{ inputs.body != '' }}
+      continue-on-error: true
+      uses: slackapi/slack-github-action@v3
+      with:
+        webhook: ${{ inputs.webhook-url }}
+        webhook-type: incoming-webhook
+        payload: |
+          text: ${{ toJSON(inputs.body) }}

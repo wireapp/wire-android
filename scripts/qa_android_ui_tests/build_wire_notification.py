@@ -52,6 +52,7 @@ def resolve_pr_number() -> str:
 def build_body() -> str:
     status = env("JOB_STATUS")
     icon = "❌" if status == "failure" else ("⚪" if status == "cancelled" else "✅")
+    event_name = env("EVENT_NAME")
 
     header = f"{icon} android critical flows #{env('RUN_NUMBER')}"
     pr_number = resolve_pr_number()
@@ -68,11 +69,15 @@ def build_body() -> str:
     if apk_name:
         lines.append(apk_name)
 
-    lines.append(f"triggered by: {resolve_trigger_label(env('EVENT_NAME'))}")
+    lines.append(f"triggered by: {resolve_trigger_label(event_name)}")
+
+    branch_name = env("BRANCH_NAME")
+    if branch_name and event_name in {"schedule", "workflow_dispatch"}:
+        lines.append(f"branch: {branch_name}")
 
     allure_report_url = env("ALLURE_REPORT_URL")
     if allure_report_url:
-        lines.append(f"See Allure Reports: <{allure_report_url}|open report>")
+        lines.append(f"See [Allure Reports]({allure_report_url})")
 
     lines.append(
         "Tests passed: "

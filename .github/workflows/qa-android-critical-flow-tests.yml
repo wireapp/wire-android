@@ -402,6 +402,7 @@ jobs:
         if: always()
         env:
           EVENT_NAME: ${{ github.event_name }}
+          BRANCH_NAME: ${{ github.ref_name }}
           RUN_NUMBER: ${{ github.run_number }}
           RESOLVED_TAGS: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
           APK_NAME: ${{ env.NEW_APK_NAME }}

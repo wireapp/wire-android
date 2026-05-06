@@ -96,43 +96,53 @@ internal fun MessageAsset(
             }
             .clickable(if (isNotClickable(assetTransferStatus)) null else onAssetClick)
     ) {
-        if (assetTransferStatus == AssetTransferStatus.UPLOAD_IN_PROGRESS) {
-            UploadInProgressAssetMessage(messageStyle)
-        } else {
-            val assetModifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth()
-            Column(
-                modifier = assetModifier.padding(
-                    horizontal = if (messageStyle.isBubble()) {
-                        dimensions().spacing0x
-                    } else {
-                        dimensions().spacing8x
-                    },
-                    vertical = dimensions().spacing8x
-                ),
-                verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
-            ) {
-                FileHeaderView(
-                    extension = assetExtension,
-                    size = assetSizeInBytes,
-                    label = getDownloadStatusText(assetTransferStatus),
-                    labelColor = if (assetTransferStatus.isFailed()) colorsScheme().error else null,
-                    messageStyle = messageStyle
+        when (assetTransferStatus) {
+            AssetTransferStatus.UPLOAD_IN_PROGRESS ->
+                AssetProgressMessage(
+                    messageResId = R.string.asset_message_upload_in_progress_text,
+                    messageStyle = messageStyle,
                 )
-                Text(
-                    text = assetName,
-                    style = MaterialTheme.wireTypography.body02,
-                    fontSize = 15.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    color = messageStyle.onBackground()
+            AssetTransferStatus.DOWNLOAD_IN_PROGRESS ->
+                AssetProgressMessage(
+                    messageResId = R.string.asset_message_download_in_progress_text,
+                    messageStyle = messageStyle,
                 )
+            else -> {
+                val assetModifier = Modifier
+                    .align(Alignment.Center)
+                    .fillMaxWidth()
+                Column(
+                    modifier = assetModifier.padding(
+                        horizontal = if (messageStyle.isBubble()) {
+                            dimensions().spacing0x
+                        } else {
+                            dimensions().spacing8x
+                        },
+                        vertical = dimensions().spacing8x
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+                ) {
+                    FileHeaderView(
+                        extension = assetExtension,
+                        size = assetSizeInBytes,
+                        label = getDownloadStatusText(assetTransferStatus),
+                        labelColor = if (assetTransferStatus.isFailed()) colorsScheme().error else null,
+                        messageStyle = messageStyle
+                    )
+                    Text(
+                        text = assetName,
+                        style = MaterialTheme.wireTypography.body02,
+                        fontSize = 15.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        color = messageStyle.onBackground()
+                    )
 
-                assetDataPath?.let { localPath ->
-                    if (AttachmentFileType.fromExtension(assetExtension) == AttachmentFileType.PDF) {
-                        Spacer(modifier = Modifier.height(dimensions().spacing12x))
-                        PdfAssetPreview(localPath)
+                    assetDataPath?.let { localPath ->
+                        if (AttachmentFileType.fromExtension(assetExtension) == AttachmentFileType.PDF) {
+                            Spacer(modifier = Modifier.height(dimensions().spacing12x))
+                            PdfAssetPreview(localPath)
+                        }
                     }
                 }
             }
@@ -141,7 +151,7 @@ internal fun MessageAsset(
 }
 
 @Composable
-fun UploadInProgressAssetMessage(messageStyle: MessageStyle, modifier: Modifier = Modifier) {
+fun AssetProgressMessage(messageResId: Int, messageStyle: MessageStyle, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -156,7 +166,7 @@ fun UploadInProgressAssetMessage(messageStyle: MessageStyle, modifier: Modifier 
         Spacer(modifier = Modifier.size(MaterialTheme.wireDimensions.spacing8x))
         Text(
             modifier = Modifier.padding(end = dimensions().spacing4x),
-            text = stringResource(R.string.asset_message_upload_in_progress_text),
+            text = stringResource(messageResId),
             color = messageStyle.textColor(),
             style = MaterialTheme.wireTypography.subline01
         )

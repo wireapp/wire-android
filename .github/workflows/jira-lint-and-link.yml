@@ -10,8 +10,8 @@ permissions:
 jobs:
   get-version:
     runs-on: ubuntu-latest
-    # Run only if the PR is not from a Fork / external contributor
-    if: ${{ github.event_name == 'pull_request' && github.repository_owner == 'wireapp' }}
+    # Skip for fork PRs — head.repo.full_name differs from the base repo for forks
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     outputs:
       version_name: ${{ steps.version.outputs.version_name }}
     steps:
@@ -22,7 +22,7 @@ jobs:
           echo "version_name=$VERSION" >> $GITHUB_OUTPUT
 
   add-jira-description:
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     needs: get-version
     uses: wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@b00595235816b9a935c7463b990fae39864903a5
     with:

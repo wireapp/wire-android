@@ -148,10 +148,12 @@ fun UserProfileAvatar(
         legalHoldIndicatorVisible = false
     ),
 ) {
-    val accessibilityModifier = if (contentDescription != null && clickable?.enabled == true) {
+    val accessibilityModifier = if (contentDescription != null) {
         Modifier.clearAndSetSemantics {
             this.contentDescription = contentDescription
-            role = Role.Button
+            if (clickable?.enabled == true) {
+                role = Role.Button
+            }
         }
     } else {
         Modifier

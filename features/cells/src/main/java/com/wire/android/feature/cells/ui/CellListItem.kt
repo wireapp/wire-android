@@ -111,6 +111,7 @@ internal fun CellListItem(
 
         val iconState = when {
             cell.isOpenLoading -> CellIconState.Loading(cell.openLoadProgress)
+            cell.downloadProgress != null -> CellIconState.Downloading(cell.downloadProgress)
             showReadyState -> CellIconState.Ready
             cell is CellNodeUi.File -> CellIconState.FileIcon(cell)
             else -> CellIconState.FolderIcon(cell as CellNodeUi.Folder)
@@ -126,6 +127,7 @@ internal fun CellListItem(
         ) { state ->
             when (state) {
                 is CellIconState.Loading -> LoadingIconPreview(progress = state.progress)
+                is CellIconState.Downloading -> LoadingIconPreview(progress = state.progress)
                 is CellIconState.Ready -> ReadyIconPreview()
                 is CellIconState.FileIcon -> FileIconPreview(state.cell)
                 is CellIconState.FolderIcon -> FolderIconPreview(state.cell)
@@ -138,20 +140,28 @@ internal fun CellListItem(
                 .weight(1f),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing2x)
         ) {
-
             Text(
                 text = cell.name ?: "",
                 style = typography().title02,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
             )
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (cell.isOpenLoading) {
                     Text(
                         text = stringResource(R.string.tap_to_cancel_loading),
+                        textAlign = TextAlign.Left,
+                        overflow = TextOverflow.Ellipsis,
+                        style = typography().label04,
+                        color = colorsScheme().secondaryText,
+                        maxLines = 1,
+                    )
+                } else if (cell.downloadProgress != null) {
+                    Text(
+                        text = stringResource(R.string.downloading_file_message),
                         textAlign = TextAlign.Left,
                         overflow = TextOverflow.Ellipsis,
                         style = typography().label04,
@@ -177,6 +187,16 @@ internal fun CellListItem(
                         maxLines = 1,
                     )
                 } else {
+                    if (cell.isAvailableOffline) {
+                        Icon(
+                            modifier = Modifier
+                                .padding(end = dimensions().spacing6x),
+                            painter = painterResource(R.drawable.ic_downloaded),
+                            contentDescription = null,
+                            tint = colorsScheme().secondaryText,
+                        )
+                    }
+
                     if (cell.tags.isNotEmpty()) {
                         WireDisplayChipWithOverFlow(
                             label = cell.tags.first(),
@@ -219,6 +239,7 @@ internal fun CellListItem(
 
 private sealed class CellIconState {
     data class Loading(val progress: Float?) : CellIconState()
+    data class Downloading(val progress: Float?) : CellIconState()
     data object Ready : CellIconState()
     data class FileIcon(val cell: CellNodeUi.File) : CellIconState()
     data class FolderIcon(val cell: CellNodeUi.Folder) : CellIconState()

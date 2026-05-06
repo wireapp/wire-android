@@ -41,6 +41,10 @@ sealed class CellNodeUi {
     abstract val isOpenReady: Boolean
     abstract val isOpenError: Boolean
     abstract val openLoadProgress: Float?
+    /** Non-null while a background download (e.g. "Make Available Offline") is in progress. */
+    abstract val downloadProgress: Float?
+    /** True when this file has been saved for offline use (persisted in the offline files DB). */
+    abstract val isAvailableOffline: Boolean
 
     data class Folder(
         override val name: String?,
@@ -58,6 +62,8 @@ sealed class CellNodeUi {
         override val isOpenReady: Boolean = false,
         override val isOpenError: Boolean = false,
         override val openLoadProgress: Float? = null,
+        override val downloadProgress: Float? = null,
+        override val isAvailableOffline: Boolean = false,
     ) : CellNodeUi()
 
     data class File(
@@ -83,6 +89,8 @@ sealed class CellNodeUi {
         override val isOpenReady: Boolean = false,
         override val isOpenError: Boolean = false,
         override val openLoadProgress: Float? = null,
+        override val downloadProgress: Float? = null,
+        override val isAvailableOffline: Boolean = false,
     ) : CellNodeUi()
 }
 

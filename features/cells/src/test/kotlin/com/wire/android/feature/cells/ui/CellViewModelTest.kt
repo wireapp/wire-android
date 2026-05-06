@@ -37,6 +37,9 @@ import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.common.functional.right
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -287,6 +290,15 @@ class CellViewModelTest {
         @MockK
         lateinit var getWireCellsConfig: GetWireCellConfigurationUseCase
 
+        @MockK
+        lateinit var observeOfflineFilesUseCase: ObserveOfflineFilesUseCase
+
+        @MockK
+        lateinit var saveOfflineFileUseCase: SaveOfflineFileUseCase
+
+        @MockK
+        lateinit var deleteOfflineFileUseCase: DeleteOfflineFileUseCase
+
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -300,6 +312,8 @@ class CellViewModelTest {
             every { savedStateHandle.get<String>("conversationId") } returns conversationId
 
             coEvery { isCellAvailableUseCase.invoke() } returns true.right()
+
+            every { observeOfflineFilesUseCase.invoke() } returns flowOf(emptyList())
 
             coEvery { getCellFilesPagedUseCase.invoke(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(
@@ -365,6 +379,13 @@ class CellViewModelTest {
                 sharedPathCache = sharedPathCache,
             )
 
+            val offlineFileDownloadController = OfflineFileDownloadController(
+                download = downloadCellFileUseCase,
+                fileHelper = fileHelper,
+                fileNameResolver = fileNameResolver,
+                saveOfflineFile = saveOfflineFileUseCase,
+            )
+
             return this to CellViewModel(
                 savedStateHandle = savedStateHandle,
                 getCellFilesPaged = getCellFilesPagedUseCase,
@@ -378,6 +399,9 @@ class CellViewModelTest {
                 getWireCellsConfig = getWireCellsConfig,
                 sharedPathCache = sharedPathCache,
                 openFileDownloadController = openFileDownloadController,
+                offlineFileDownloadController = offlineFileDownloadController,
+                observeOfflineFiles = observeOfflineFilesUseCase,
+                deleteOfflineFile = deleteOfflineFileUseCase,
             )
         }
     }

@@ -83,6 +83,8 @@ class OpenFileDownloadController @Inject constructor(
                 outFilePath = filePath,
                 remoteFilePath = cellNode.remotePath,
                 assetSize = cellNode.size ?: 0,
+                name = cellNode.name,
+                ownerId = cellNode.ownerUserId,
             ) { progress ->
                 // Child coroutine — cancelled automatically when the parent job is cancelled,
                 launch {

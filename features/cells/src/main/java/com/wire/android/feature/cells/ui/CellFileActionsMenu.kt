@@ -48,11 +48,20 @@ class CellFileActionsMenu @Inject constructor(
                 buildList {
                     if (cellNode is CellNodeUi.File && cellNode.isOpenLoading) {
                         add(NodeBottomSheetAction.CANCEL_LOADING)
+                    } else if (cellNode is CellNodeUi.File && cellNode.downloadProgress != null) {
+                        add(NodeBottomSheetAction.CANCEL_DOWNLOAD)
                     } else {
                         if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
                             add(NodeBottomSheetAction.SHARE)
                         }
                         add(NodeBottomSheetAction.PUBLIC_LINK)
+                        if (cellNode is CellNodeUi.File) {
+                            if (cellNode.isAvailableOffline) {
+                                add(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS)
+                            } else {
+                                add(NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE)
+                            }
+                        }
                     }
                 }
             }
@@ -61,11 +70,21 @@ class CellFileActionsMenu @Inject constructor(
                 buildList {
                     if (cellNode is CellNodeUi.File && cellNode.isOpenLoading) {
                         add(NodeBottomSheetAction.CANCEL_LOADING)
+                    } else if (cellNode is CellNodeUi.File && cellNode.downloadProgress != null) {
+                        add(NodeBottomSheetAction.CANCEL_DOWNLOAD)
                     } else {
                         if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
                             add(NodeBottomSheetAction.SHARE)
                         }
                         add(NodeBottomSheetAction.PUBLIC_LINK)
+
+                        if (cellNode is CellNodeUi.File) {
+                            if (cellNode.isAvailableOffline) {
+                                add(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS)
+                            } else {
+                                add(NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE)
+                            }
+                        }
 
                         if (isCollaboraEnabled && featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
                             add(NodeBottomSheetAction.EDIT)
@@ -93,6 +112,10 @@ class CellFileActionsMenu @Inject constructor(
     internal data class Share(val node: CellNodeUi.File) : MenuActionResult
     internal data class Edit(val node: CellNodeUi) : MenuActionResult
     internal data class CancelLoading(val node: CellNodeUi) : MenuActionResult
+    internal data class CancelDownload(val node: CellNodeUi) : MenuActionResult
+    internal data class Download(val node: CellNodeUi) : MenuActionResult
+    internal data class MakeAvailableOffline(val node: CellNodeUi.File) : MenuActionResult
+    internal data class RemoveOfflineAccess(val node: CellNodeUi.File) : MenuActionResult
 
     internal fun onMenuItemAction(
         conversationId: String?,
@@ -136,6 +159,16 @@ class CellFileActionsMenu @Inject constructor(
             NodeBottomSheetAction.EDIT -> Edit(node)
             NodeBottomSheetAction.VERSION_HISTORY -> Action(ShowVersionHistoryScreen(node.uuid, node.name ?: ""))
             NodeBottomSheetAction.CANCEL_LOADING -> CancelLoading(node)
+            NodeBottomSheetAction.CANCEL_DOWNLOAD -> CancelDownload(node)
+            NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE -> {
+                if (node is CellNodeUi.File) MakeAvailableOffline(node)
+                else Action(ShowPublicLinkScreen(node))
+            }
+
+            NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS -> {
+                if (node is CellNodeUi.File) RemoveOfflineAccess(node)
+                else Action(ShowPublicLinkScreen(node))
+            }
         }
 
         onResult(result)

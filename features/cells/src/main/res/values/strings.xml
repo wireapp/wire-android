@@ -79,6 +79,10 @@
     <string name="unable_to_load_retry">Unable to load, retry</string>
     <string name="ready_to_open">Ready to open</string>
     <string name="cancel_loading_label">Cancel loading…</string>
+    <string name="cancel_download_label">Cancel download</string>
+    <string name="make_available_offline_label">Make available offline</string>
+    <string name="remove_offline_access_label">Remove offline access</string>
+    <string name="offline_file_saved_message">File saved for offline use</string>
     <string name="file_open_snackbar_message">\"%1$s\" ready to open</string>
     <string name="file_open_snackbar_action">Open</string>
     <string name="create_folder_error">Unable to create folder. Please try again</string>

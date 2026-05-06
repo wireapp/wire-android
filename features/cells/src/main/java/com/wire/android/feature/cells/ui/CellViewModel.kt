@@ -50,6 +50,8 @@ import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -90,6 +92,9 @@ class CellViewModel @Inject constructor(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
     private val openFileDownloadController: OpenFileDownloadController,
+    private val offlineFileDownloadController: OfflineFileDownloadController,
+    private val observeOfflineFiles: ObserveOfflineFilesUseCase,
+    private val deleteOfflineFile: DeleteOfflineFileUseCase,
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
@@ -151,6 +156,21 @@ class CellViewModel @Inject constructor(
         checkCellAvailabilityAndRefresh()
     }
 
+    /** Offline paths from db: uuid → localPath. Shared across all CellViewModel instances via the Flow. */
+    private val offlinePathsFlow = observeOfflineFiles()
+        .shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)
+
+    /**
+     * Combined offline data: pair of (uuid → localPath from DB) and (uuid → download progress).
+     * Merges two related sources into one so we don't exceed the 5-flow combine limit.
+     */
+    private val offlineDataFlow = combine(
+        offlinePathsFlow,
+        offlineFileDownloadController.downloadProgresses,
+    ) { offlineFiles, downloadProgresses ->
+        Pair(offlineFiles, downloadProgresses)
+    }
+
     private fun checkCellAvailabilityAndRefresh() = viewModelScope.launch {
         val cellAvailable = isCellAvailable().fold({ false }, { it })
         cellAvailableFlow.value = cellAvailable
@@ -183,7 +203,9 @@ class CellViewModel @Inject constructor(
                     removedItemsFlow,
                     openFileDownloadController.openLoadStates,
                     sharedPathCache.paths,
-                ) { pagingData, removedItems, openLoadStates, cachedPaths ->
+                    offlineDataFlow,
+                ) { pagingData, removedItems, openLoadStates, cachedPaths, (offlineFiles, downloadProgresses) ->
+                    val offlinePathsMap = offlineFiles.associate { it.id to it.localPath }
                     var emittedRefreshDone = false
 
                     pagingData
@@ -201,16 +223,22 @@ class CellViewModel @Inject constructor(
 
                             val openLoadState = openLoadStates[node.uuid]
                             when (node) {
-                                is Node.Folder -> node.toUiModel()
+                                is Node.Folder -> node.toUiModel().copy(
+                                    downloadProgress = downloadProgresses[node.uuid],
+                                    isAvailableOffline = offlinePathsMap.containsKey(node.uuid),
+                                )
 
                                 is Node.File -> node.toUiModel().copy(
                                     localPath = openLoadState?.let { (it as? OpenLoadState.Ready)?.localPath?.toString() }
                                         ?: cachedPaths[node.uuid]
+                                        ?: offlinePathsMap[node.uuid]
                                         ?: node.localPath,
                                     isOpenLoading = openLoadState is OpenLoadState.Loading,
                                     isOpenReady = openLoadState is OpenLoadState.Ready,
                                     isOpenError = openLoadState is OpenLoadState.Error,
                                     openLoadProgress = (openLoadState as? OpenLoadState.Loading)?.progress,
+                                    downloadProgress = downloadProgresses[node.uuid],
+                                    isAvailableOffline = offlinePathsMap.containsKey(node.uuid),
                                 )
                             }
                         }
@@ -381,8 +409,25 @@ class CellViewModel @Inject constructor(
                 is CellFileActionsMenu.Edit -> editNode(result.node.uuid)
                 is CellFileActionsMenu.Share -> shareFile(result.node)
                 is CellFileActionsMenu.CancelLoading -> cancelDownload(result.node.uuid)
+                is CellFileActionsMenu.CancelDownload -> offlineFileDownloadController.cancel(result.node.uuid)
+                is CellFileActionsMenu.MakeAvailableOffline -> makeAvailableOffline(result.node)
+                is CellFileActionsMenu.RemoveOfflineAccess -> removeOfflineAccess(result.node)
+                is CellFileActionsMenu.Download -> Unit // unused in this context
             }
         }
+    }
+
+    private fun makeAvailableOffline(node: CellNodeUi.File) {
+        offlineFileDownloadController.start(
+            scope = viewModelScope,
+            cellNode = node,
+            onSuccess = { _ -> sendAction(ShowOfflineFileSaved) },
+            onError = { sendAction(ShowError(it)) },
+        )
+    }
+
+    private fun removeOfflineAccess(node: CellNodeUi.File) = viewModelScope.launch {
+        deleteOfflineFile(node.uuid)
     }
 
     internal fun editNode(nodeUuid: String) = viewModelScope.launch {
@@ -524,8 +569,10 @@ internal data class ShowFileDeletedMessage(val isFile: Boolean, val permanently:
 internal data object RefreshData : CellViewAction
 internal data class OpenFolder(val path: String, val title: String, val parentFolderUuid: String?) : CellViewAction
 internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
+internal data object ShowOfflineFileSaved : CellViewAction
 
 internal enum class CellError(val message: Int) {
+    DOWNLOAD_FAILED(R.string.cell_files_download_failure_message),
     NO_APP_FOUND(R.string.no_app_found),
     OTHER_ERROR(R.string.action_failed)
 }

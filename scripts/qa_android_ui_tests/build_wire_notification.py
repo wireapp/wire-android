@@ -72,7 +72,7 @@ def build_body() -> str:
 
     allure_report_url = env("ALLURE_REPORT_URL")
     if allure_report_url:
-        lines.append(f"See Allure Reports ({allure_report_url})")
+        lines.append(f"See Allure Reports: <{allure_report_url}|open report>")
 
     lines.append(
         "Tests passed: "

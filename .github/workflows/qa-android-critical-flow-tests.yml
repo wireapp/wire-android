@@ -378,6 +378,7 @@ jobs:
 
       # Publish report snapshots and apply retention cleanup.
       - name: Publish Allure report to Pages branch
+        id: publish_allure_report
         if: always()
         env:
           REPORT_DIR: ${{ runner.temp }}/allure-report
@@ -388,6 +389,39 @@ jobs:
           APK_VERSION: ${{ env.REAL_BUILD_NUMBER }}
           APK_NAME: ${{ env.NEW_APK_NAME }}
         run: bash scripts/qa_android_ui_tests/reporting.sh publish-allure-report
+
+      - name: Summarize merged Allure results
+        id: summarize_allure_results
+        if: always()
+        env:
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+        run: bash scripts/qa_android_ui_tests/reporting.sh summarize-allure-results
+
+      - name: Build Wire notification body
+        id: build_wire_notification
+        if: always()
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RESOLVED_TAGS: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
+          APK_NAME: ${{ env.NEW_APK_NAME }}
+          ALLURE_REPORT_URL: ${{ steps.publish_allure_report.outputs.allure_report_url }}
+          TESTS_PASSED: ${{ steps.summarize_allure_results.outputs.passed }}
+          TESTS_FAILED: ${{ steps.summarize_allure_results.outputs.failed }}
+          TESTS_SKIPPED: ${{ steps.summarize_allure_results.outputs.skipped }}
+          TESTS_TOTAL: ${{ steps.summarize_allure_results.outputs.total }}
+          TESTS_SUCCESS_PERCENT: ${{ steps.summarize_allure_results.outputs.success_percent }}
+          PASSED_ON_RERUN_COUNT: ${{ env.PASSED_ON_RERUN_COUNT }}
+          JOB_STATUS: ${{ job.status }}
+        run: python3 scripts/qa_android_ui_tests/build_wire_notification.py
+
+      - name: Notify Wire
+        if: ${{ success() || failure() }}
+        uses: ./.github/actions/report-to-wire
+        with:
+          webhook-url: ${{ secrets.WIRE_ANDROID_CHARON_WEBHOOK }}
+          body: ${{ steps.build_wire_notification.outputs.body }}
 
       # Clean temporary artifacts on the runner, even after failures.
       - name: Cleanup (remove secrets + build outputs)

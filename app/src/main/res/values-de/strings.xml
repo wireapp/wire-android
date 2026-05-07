@@ -97,6 +97,14 @@
     <string name="content_description_delete_the_conversation">Unterhaltung löschen</string>
     <string name="content_description_conversation_phone_icon">Audioanruf starten</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
+    <string name="content_description_conversation_enable_rich_text_mode">Formatierungsoptionen öffnen</string>
+    <string name="content_description_conversation_enable_drawing_mode">Skizze zum Zeichnen oder Schreiben öffnen</string>
+    <string name="content_description_conversation_rich_text_header">Überschrift benutzen</string>
+    <string name="content_description_conversation_rich_text_bold">Fettdruck benutzen</string>
+    <string name="content_description_conversation_rich_text_italic">Kursivdruck benutzen</string>
+    <string name="content_description_conversation_rich_text_close">Formatierungsoptionen schließen</string>
+    <string name="content_description_conversation_send_emoticon">Emoji senden</string>
+    <string name="content_description_conversation_send_gif">GIF senden</string>
     <string name="content_description_conversation_mention_someone">Jemanden erwähnen</string>
     <string name="content_description_conversation_back_btn">Zurück zur Unterhaltungsliste</string>
     <string name="content_description_conversation_open_details_label">Unterhaltungsdetails öffnen</string>
@@ -112,6 +120,7 @@
     <string name="content_description_choose_from_gallery">Aus Galerie wählen</string>
     <string name="content_description_take_a_picture">Ein Bild machen</string>
     <string name="content_description_left_arrow">Zurück</string>
+    <string name="content_description_attachment_item">Anhang hinzufügen</string>
     <string name="content_description_open_message_details">Nachrichtendetails öffnen</string>
     <string name="content_description_copy_the_message">Nachricht kopieren</string>
     <string name="content_description_delete_the_message">Nachricht löschen</string>

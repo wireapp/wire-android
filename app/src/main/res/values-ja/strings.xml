@@ -90,13 +90,6 @@
     <string name="content_description_unblock_the_user">ブロック解除</string>
     <string name="content_description_conversation_phone_icon">音声通話を開始</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_enable_rich_text_mode">リッチテキストモードボタンを有効にする</string>
-    <string name="content_description_conversation_enable_drawing_mode">お絵描きモードボタンを有効にする</string>
-    <string name="content_description_conversation_rich_text_header">リッチテキスト書式のヘッダー</string>
-    <string name="content_description_conversation_rich_text_bold">リッチテキスト書式の太字</string>
-    <string name="content_description_conversation_rich_text_italic">リッチテキスト書式の斜体</string>
-    <string name="content_description_conversation_send_emoticon">絵文字送信ボタン</string>
-    <string name="content_description_conversation_send_gif">GIF送信ボタン</string>
     <string name="content_description_conversation_mention_someone">他のユーザーをメンション</string>
     <string name="content_description_send_button">送信</string>
     <string name="content_description_timed_message_button">自動削除メッセージボタン</string>
@@ -110,7 +103,6 @@
     <string name="content_description_right_arrow">右矢印</string>
     <string name="content_description_left_arrow">戻る</string>
     <string name="content_description_mention_icon">メンションアイコン</string>
-    <string name="content_description_attachment_item">新しいアイテムをチャットに添付</string>
     <string name="content_description_open_message_details">メッセージの詳細を開く</string>
     <string name="content_description_copy_the_message">メッセージをコピー</string>
     <string name="content_description_share_the_file">選択したファイルを他のアプリと共有する</string>

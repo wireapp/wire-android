@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -68,6 +69,8 @@ fun ParticipantItem(
                     text = participant.name.orEmpty(),
                     style = typography().title02,
                     color = colorsScheme().onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 MembershipQualifierLabel(membership = participant.membership)
             }

@@ -23,17 +23,22 @@ import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
-import com.wire.kalium.common.functional.onFailure
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onSuccess
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okio.Path
 import okio.Path.Companion.toOkioPath
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -45,12 +50,13 @@ class OfflineFileDownloadController @Inject constructor(
     private val fileHelper: FileHelper,
     private val fileNameResolver: FileNameResolver,
     private val saveOfflineFile: SaveOfflineFileUseCase,
+    private val sharedPathCache: CellFileLocalPathCache,
 ) {
     private val _downloadProgresses = MutableStateFlow<Map<String, Float?>>(emptyMap())
-    private val _activeJobs = MutableStateFlow<Map<String, Job>>(emptyMap())
-
-    /** Maps uuid → download progress (0f–1f) for all active offline downloads. */
     internal val downloadProgresses: StateFlow<Map<String, Float?>> = _downloadProgresses.asStateFlow()
+
+    private data class ActiveDownload(val job: Job, val filePath: Path)
+    private val activeJobs = mutableMapOf<String, ActiveDownload>()
 
     internal fun start(
         scope: CoroutineScope,
@@ -58,21 +64,41 @@ class OfflineFileDownloadController @Inject constructor(
         onSuccess: (localPath: String) -> Unit,
         onError: (CellError) -> Unit,
     ) {
-        // Cancel any previous download for this node
-        _activeJobs.value[cellNode.uuid]?.cancel()
+        // If the file already exists locally (loaded this session or stored in DB),
+        // skip the download and just persist the offline metadata.
+        val existingPath = cellNode.localPath ?: sharedPathCache.getCompletedPath(cellNode.uuid)
+        if (existingPath != null) {
+            val nodeName = cellNode.name ?: run { onError(CellError.OTHER_ERROR); return }
+            scope.launch {
+                saveOfflineFile(
+                    OfflineFileInfo(
+                        id = cellNode.uuid,
+                        name = nodeName,
+                        owner = cellNode.ownerUserId ?: "",
+                        localPath = existingPath,
+                        size = cellNode.size,
+                        downloadedAt = System.currentTimeMillis(),
+                    )
+                )
+                onSuccess(existingPath)
+            }
+            return
+        }
+
+        // Cancel any previous download for this node.
+        activeJobs.remove(cellNode.uuid)?.job?.cancel()
+
+        val nodeName = cellNode.name ?: run { onError(CellError.OTHER_ERROR); return }
+        val filePath = fileNameResolver
+            .getUniqueFile(fileHelper.getExternalFilesDir(), nodeName)
+            .toPath()
+            .toOkioPath()
 
         val job = scope.launch {
-            val nodeName = cellNode.name ?: run {
-                onError(CellError.OTHER_ERROR)
-                return@launch
-            }
+            val thisJob = coroutineContext.job
+            setProgress(cellNode.uuid, null)
 
-            val externalDir = fileHelper.getExternalFilesDir()
-            val filePath = fileNameResolver.getUniqueFile(externalDir, nodeName).toPath().toOkioPath()
-
-            _downloadProgresses.update { it.toMutableMap().apply { put(cellNode.uuid, null) }.toImmutableMap() }
-
-            download(
+            val result = download(
                 assetId = cellNode.uuid,
                 outFilePath = filePath,
                 remoteFilePath = cellNode.remotePath,
@@ -80,49 +106,58 @@ class OfflineFileDownloadController @Inject constructor(
                 name = cellNode.name,
                 ownerId = cellNode.ownerUserId,
             ) { progress ->
-                launch {
+                if (thisJob.isActive) {
                     val assetSize = cellNode.size ?: 0
                     if (assetSize > 0) {
                         val progressValue = (progress.toFloat() / assetSize).coerceIn(0f, 1f)
-                        _downloadProgresses.update {
-                            it.toMutableMap().apply { put(cellNode.uuid, progressValue) }.toImmutableMap()
-                        }
+                        setProgress(cellNode.uuid, progressValue)
                     }
                 }
             }
-                .onSuccess {
-                    _downloadProgresses.update { it.toMutableMap().apply { remove(cellNode.uuid) }.toImmutableMap() }
-                    saveOfflineFile(
-                        OfflineFileInfo(
-                            id = cellNode.uuid,
-                            name = nodeName,
-                            owner = cellNode.ownerUserId ?: "",
-                            localPath = filePath.toString(),
-                            size = cellNode.size,
-                            downloadedAt = System.currentTimeMillis(),
-                        )
+
+            result.onSuccess {
+                clearProgress(cellNode.uuid)
+                sharedPathCache.recordCompletedPath(cellNode.uuid, filePath.toString())
+                saveOfflineFile(
+                    OfflineFileInfo(
+                        id = cellNode.uuid,
+                        name = nodeName,
+                        owner = cellNode.ownerUserId ?: "",
+                        localPath = filePath.toString(),
+                        size = cellNode.size,
+                        downloadedAt = System.currentTimeMillis(),
                     )
-                    onSuccess(filePath.toString())
-                }
-                .onFailure {
-                    _downloadProgresses.update { it.toMutableMap().apply { remove(cellNode.uuid) }.toImmutableMap() }
-                    onError(CellError.DOWNLOAD_FAILED)
-                }
+                )
+                onSuccess(filePath.toString())
+            }
+
+            if (result is Either.Left) {
+                clearProgress(cellNode.uuid)
+                // Delete the partial file so no disk space is wasted
+                withContext(Dispatchers.IO) { File(filePath.toString()).delete() }
+                onError(if (result.value.isNoSpaceLeft()) CellError.NO_SPACE_LEFT else CellError.DOWNLOAD_FAILED)
+            }
         }
 
-        _activeJobs.update { it.toMutableMap().apply { put(cellNode.uuid, job) }.toImmutableMap() }
-        job.invokeOnCompletion {
-            _activeJobs.update { it.toMutableMap().apply { remove(cellNode.uuid) }.toImmutableMap() }
-        }
+        activeJobs[cellNode.uuid] = ActiveDownload(job, filePath)
+        job.invokeOnCompletion { activeJobs.remove(cellNode.uuid) }
     }
 
-    internal fun cancel(uuid: String) {
-        var job: Job? = null
-        _activeJobs.update { current ->
-            job = current[uuid]
-            current.toMutableMap().apply { remove(uuid) }.toImmutableMap()
-        }
-        job?.cancel()
+    internal fun cancel(uuid: String, scope: CoroutineScope) {
+        val active = activeJobs.remove(uuid) ?: return
+        active.job.cancel()
+        clearProgress(uuid)
+        // Delete the partial file left by the cancelled download.
+        scope.launch(Dispatchers.IO) { File(active.filePath.toString()).delete() }
+    }
+
+    private fun setProgress(uuid: String, progress: Float?) {
+        _downloadProgresses.update { it.toMutableMap().apply { put(uuid, progress) }.toImmutableMap() }
+        sharedPathCache.setDownloadProgress(uuid, progress)
+    }
+
+    private fun clearProgress(uuid: String) {
         _downloadProgresses.update { it.toMutableMap().apply { remove(uuid) }.toImmutableMap() }
+        sharedPathCache.clearDownloadProgress(uuid)
     }
 }

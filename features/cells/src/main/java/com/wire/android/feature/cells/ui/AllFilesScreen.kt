@@ -83,8 +83,6 @@ fun AllFilesScreen(
             isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
             isRecycleBin = viewModel.isRecycleBin(),
             isSearchResult = false,
-            externalOpenLoadStates = viewModel.openLoadStates,
-            cachedLocalPaths = viewModel.cachedLocalPaths,
             showPublicLinkScreen = { publicLinkScreenData ->
                 navigator.navigate(
                     NavigationCommand(

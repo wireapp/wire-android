@@ -198,7 +198,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean) {
 
         cell.downloadProgress != null ->
             Text(
-                text = stringResource(R.string.downloading_file_message),
+                text = stringResource(R.string.tap_to_cancel_download),
                 textAlign = TextAlign.Left,
                 overflow = TextOverflow.Ellipsis,
                 style = typography().label04,

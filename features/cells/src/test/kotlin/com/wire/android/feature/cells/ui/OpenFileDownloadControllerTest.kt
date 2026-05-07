@@ -95,7 +95,7 @@ class OpenFileDownloadControllerTest {
 
         assertEquals(fileWithLocalPath.uuid, openedFile?.uuid)
         assertTrue(controller.openLoadStates.value.isEmpty(), "No load state should be set")
-        coVerify(exactly = 0) { arrangement.downloadUseCase(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.downloadUseCase(any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -126,12 +126,11 @@ class OpenFileDownloadControllerTest {
         arrangement.sharedPathCache.fileReadyEvents.test {
             controller.start(
                 scope = this@runTest,
-                scope = this,
-            cellNode = testFile,
-            onOpenFile = {},
-            onError = {},
-        )
-        advanceUntilIdle()
+                cellNode = testFile,
+                onOpenFile = {},
+                onError = {},
+            )
+            advanceUntilIdle()
 
             expectNoEvents() // fast path must NOT show snackbar
         }
@@ -167,7 +166,7 @@ class OpenFileDownloadControllerTest {
             onError = {},
         )
         // Advance past the spinner (400 ms) and the download (500 ms) but NOT past the
-        // auto-dismiss delay (3 000 ms) — otherwise the state would already be cleared.
+        // auto-dismiss delay (3 000 ms) —otherwise the state would already be cleared.
         advanceTimeBy(501)
 
         assertTrue(
@@ -283,6 +282,56 @@ class OpenFileDownloadControllerTest {
     }
 
     @Test
+    fun givenDownloadCancelledThenRestarted_whenStaleProgressCallbackFires_thenProgressResetsToZero() = runTest {
+        // Capture the progress callback from the FIRST (cancelled) download so we can invoke
+        // it manually after the second download has already started — simulating a slow network
+        // layer that keeps delivering bytes after the coroutine job was cancelled.
+        var capturedOldProgressCallback: ((Long) -> Unit)? = null
+        val (arrangement, controller) = Arrangement()
+            .also { arr ->
+                coEvery { arr.downloadUseCase(eq(testFile.uuid), any(), any(), any(), any(), any(), any()) } coAnswers {
+                    val onProgressUpdate = arg<(Long) -> Unit>(6)
+                    capturedOldProgressCallback = onProgressUpdate
+                    delay(10_000L) // very long — cancelled before completing
+                    Unit.right()
+                }
+            }
+            .arrange()
+
+        // Start first download and advance past the spinner so Loading state is shown.
+        controller.start(scope = this, cellNode = testFile.copy(size = 1024L), onOpenFile = {}, onError = {})
+        advanceTimeBy(SPINNER_THRESHOLD_MS + 1)
+        assertEquals(OpenLoadState.Loading(), controller.openLoadStates.value[testFile.uuid])
+
+        // Cancel the first download.
+        controller.cancel(testFile.uuid)
+        assertNull(controller.openLoadStates.value[testFile.uuid], "State must be cleared on cancel")
+
+        // Re-configure the mock so the second download is also slow (but we control it).
+        coEvery { arrangement.downloadUseCase(eq(testFile.uuid), any(), any(), any(), any(), any(), any()) } coAnswers {
+            delay(10_000L) // stays in-flight during the test
+            Unit.right()
+        }
+
+        // Start the second download.
+        controller.start(scope = this, cellNode = testFile.copy(size = 1024L), onOpenFile = {}, onError = {})
+        advanceTimeBy(SPINNER_THRESHOLD_MS + 1)
+        // The new download shows the spinner at 0 progress.
+        assertEquals(OpenLoadState.Loading(), controller.openLoadStates.value[testFile.uuid])
+
+        // NOW simulate the stale callback from the first (cancelled) download firing at 75%.
+        capturedOldProgressCallback?.invoke(768L) // 768/1024 = 0.75f
+
+        // The stale callback must be silently dropped — progress stays at 0, not 0.75.
+        val stateAfterStaleCallback = controller.openLoadStates.value[testFile.uuid]
+        assertEquals(
+            OpenLoadState.Loading(),
+            stateAfterStaleCallback,
+            "Stale progress from cancelled download must not update the new download's progress"
+        )
+    }
+
+    @Test
     fun givenProgressUpdate_whenDownloadProgresses_thenLoadingProgressReflected() = runTest {
         val (_, controller) = Arrangement()
             .withProgressThenSuccess(progress = 512L)
@@ -313,8 +362,6 @@ class OpenFileDownloadControllerTest {
         // Advance only enough for anotherFile's (instant) download to fail — but NOT past the
         // 500 ms slow download so testFile stays in Loading.
         advanceTimeBy(1) // anotherFile failure is already settled; testFile still downloading
-
-        controller.clearAllErrorStates()
 
         assertNull(controller.openLoadStates.value[anotherFile.uuid], "Error state should be removed")
         assertNotNull(controller.openLoadStates.value[testFile.uuid], "Loading state should be preserved")
@@ -357,29 +404,29 @@ class OpenFileDownloadControllerTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { fileHelper.getCacheDir() } returns File("")
+            every { fileHelper.getExternalFilesDir() } returns File("")
             every { fileNameResolver.getUniqueFile(any(), any()) } returns File("report.pdf")
         }
 
         fun withDownloadSuccess(uuid: String = testFile.uuid) = apply {
-            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any()) } returns Unit.right()
+            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any()) } returns Unit.right()
         }
 
         fun withSlowDownloadSuccess(uuid: String = testFile.uuid) = apply {
-            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any()) } coAnswers {
+            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any()) } coAnswers {
                 delay(500) // Exceeds 400 ms spinner threshold
                 Unit.right()
             }
         }
 
         fun withDownloadFailure(uuid: String = testFile.uuid) = apply {
-            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any()) } returns
+            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any()) } returns
                     StorageFailure.DataNotFound.left()
         }
 
         fun withProgressThenSuccess(progress: Long, uuid: String = testFile.uuid) = apply {
-            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any()) } coAnswers {
-                val onProgressUpdate = arg<(Long) -> Unit>(4)
+            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any()) } coAnswers {
+                val onProgressUpdate = arg<(Long) -> Unit>(6)
                 delay(450) // Clearly after spinner threshold (400 ms) — progress updates Loading()
                 onProgressUpdate(progress)
                 delay(50) // download finishes at 500 ms total

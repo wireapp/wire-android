@@ -35,8 +35,6 @@ import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
-import com.wire.android.feature.cells.ui.model.withOpenLoadState
-import com.wire.android.feature.cells.ui.model.withOpenLoadState
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
@@ -52,8 +50,9 @@ import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
-import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -76,7 +75,9 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
+import java.io.File
 import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -97,6 +98,7 @@ class CellViewModel @Inject constructor(
     private val offlineFileDownloadController: OfflineFileDownloadController,
     private val observeOfflineFiles: ObserveOfflineFilesUseCase,
     private val deleteOfflineFile: DeleteOfflineFileUseCase,
+    private val getOfflineFile: GetOfflineFileUseCase,
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
@@ -117,13 +119,7 @@ class CellViewModel @Inject constructor(
     private val _isDeleteInProgress = MutableStateFlow(false)
     val isDeleteInProgress = _isDeleteInProgress.asStateFlow()
 
-    /** Public map of uuid → open-load state for screens that build their own paging flow (e.g. Search). */
-    internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = openFileDownloadController.openLoadStates
-
     internal val fileReadyFlow: Flow<CellNodeUi.File> = sharedPathCache.fileReadyEvents
-
-    /** Cached local file paths from completed open-downloads, keyed by uuid. Used by Search screen overlay. */
-    internal val cachedLocalPaths: StateFlow<Map<String, String>> = sharedPathCache.paths
 
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
@@ -203,30 +199,33 @@ class CellViewModel @Inject constructor(
                         ),
                     ).cachedIn(viewModelScope),
                     removedItemsFlow,
-                    openFileDownloadController.openLoadStates,
-                    sharedPathCache.paths,
+                    sharedPathCache.openLoadStates,
                     offlineDataFlow,
-                ) { pagingData, removedItems, openLoadStates, cachedPaths, (offlineFiles, downloadProgresses) ->
-                    val offlinePathsMap = offlineFiles.associate { it.id to it.localPath }
+                ) { pagingData, removedItems, openLoadStates, (offlineFiles, downloadProgresses) ->
+                    val offlineUuids = offlineFiles.map { it.id }.toSet()
                     var emittedRefreshDone = false
 
-                        pagingData
-                            .filter { node: Node -> node.uuid !in removedItems }
-                            .map { node ->
-                                if (!emittedRefreshDone) {
-                                    emittedRefreshDone = true
+                    pagingData
+                        .filter { node: Node -> node.uuid !in removedItems }
+                        .map { node ->
+                            if (!emittedRefreshDone) {
+                                emittedRefreshDone = true
 
-                                    if (_isPullToRefresh.value) {
-                                        _isPullToRefresh.value = false
-                                    }
-
-                                    _pagingRefreshDone.tryEmit(Unit)
+                                if (_isPullToRefresh.value) {
+                                    _isPullToRefresh.value = false
                                 }
+
+                                _pagingRefreshDone.tryEmit(Unit)
+                            }
 
                             val openLoadState = openLoadStates[node.uuid]
                             when (node) {
                                 is Node.Folder -> node.toUiModel()
-                                is Node.File -> node.toUiModel().withOpenLoadState(openLoadState)
+                                is Node.File -> node.toUiModel(
+                                    openLoadState = openLoadState,
+                                    downloadProgress = downloadProgresses[node.uuid],
+                                    isAvailableOffline = node.uuid in offlineUuids,
+                                )
                             }
                         }
                 }
@@ -281,6 +280,7 @@ class CellViewModel @Inject constructor(
         when {
             cellNode.openLoadState is OpenLoadState.Ready -> openLocalFile(cellNode)
             cellNode.openLoadState is OpenLoadState.Loading -> cancelOpenDownload(cellNode.uuid)
+            cellNode.downloadProgress != null -> offlineFileDownloadController.cancel(cellNode.uuid, viewModelScope)
             cellNode.localFileAvailable() -> openLocalFile(cellNode)
             cellNode.openLoadState is OpenLoadState.Error -> startOpenDownload(cellNode)
             cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
@@ -298,7 +298,7 @@ class CellViewModel @Inject constructor(
     }
 
     internal fun cancelOpenDownload(uuid: String) {
-        openFileDownloadController.cancel(uuid)
+        openFileDownloadController.cancel(uuid, viewModelScope)
     }
 
     private fun onFolderClick(cellNode: CellNodeUi.Folder) {
@@ -388,7 +388,7 @@ class CellViewModel @Inject constructor(
                 is CellFileActionsMenu.Edit -> editNode(result.node.uuid)
                 is CellFileActionsMenu.Share -> shareFile(result.node)
                 is CellFileActionsMenu.CancelLoading -> cancelDownload(result.node.uuid)
-                is CellFileActionsMenu.CancelDownload -> offlineFileDownloadController.cancel(result.node.uuid)
+                is CellFileActionsMenu.CancelDownload -> offlineFileDownloadController.cancel(result.node.uuid, viewModelScope)
                 is CellFileActionsMenu.MakeAvailableOffline -> makeAvailableOffline(result.node)
                 is CellFileActionsMenu.RemoveOfflineAccess -> removeOfflineAccess(result.node)
                 is CellFileActionsMenu.Download -> Unit // unused in this context
@@ -406,7 +406,22 @@ class CellViewModel @Inject constructor(
     }
 
     private fun removeOfflineAccess(node: CellNodeUi.File) = viewModelScope.launch {
+        val localPath = getOfflineFile(node.uuid)?.localPath
+            ?: node.localPath
+            ?: sharedPathCache.getCompletedPath(node.uuid)
+
+        // Remove the DB record so the UI stops showing the offline indicator.
         deleteOfflineFile(node.uuid)
+
+        // Delete the physical file from device storage
+        localPath?.takeIf { it.isNotBlank() }?.let { path ->
+            withContext(kotlinx.coroutines.Dispatchers.IO) {
+                File(path).delete()
+            }
+        }
+
+        sharedPathCache.clearCompletedPath(node.uuid)
+        sharedPathCache.clearOpenLoadState(node.uuid)
     }
 
     internal fun editNode(nodeUuid: String) = viewModelScope.launch {
@@ -549,7 +564,9 @@ internal data object ShowOfflineFileSaved : CellViewAction
 
 internal enum class CellError(val message: Int) {
     NO_APP_FOUND(R.string.no_app_found),
-    OTHER_ERROR(R.string.action_failed)
+    OTHER_ERROR(R.string.action_failed),
+    DOWNLOAD_FAILED(R.string.action_failed),
+    NO_SPACE_LEFT(R.string.no_space_left_error),
 }
 
 data class MenuOptions(

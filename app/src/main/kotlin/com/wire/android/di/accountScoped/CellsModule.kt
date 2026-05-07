@@ -63,6 +63,7 @@ import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordU
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
 import com.wire.kalium.cells.paginatedConversationsFlowUseCase
@@ -274,4 +275,8 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideObserveOfflineFilesUseCase(cellsScope: CellsScope): ObserveOfflineFilesUseCase = cellsScope.observeOfflineFiles
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetOfflineFileUseCase(cellsScope: CellsScope): GetOfflineFileUseCase = cellsScope.getOfflineFile
 }

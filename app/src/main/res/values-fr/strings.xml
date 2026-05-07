@@ -88,13 +88,6 @@
     <string name="content_description_unblock_the_user">Débloquer</string>
     <string name="content_description_conversation_phone_icon">Passer un appel audio</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_enable_rich_text_mode">Bouton d\'activation du mode texte enrichi</string>
-    <string name="content_description_conversation_enable_drawing_mode">Activer le bouton du mode dessin</string>
-    <string name="content_description_conversation_rich_text_header">En-tête de mise en forme du texte enrichi</string>
-    <string name="content_description_conversation_rich_text_bold">Formatage de texte enrichi en gras</string>
-    <string name="content_description_conversation_rich_text_italic">Formatage du texte enrichi en italique</string>
-    <string name="content_description_conversation_send_emoticon">Bouton d\'envoi d\'une émoticône</string>
-    <string name="content_description_conversation_send_gif">Bouton d\'envoi d\'un GIF</string>
     <string name="content_description_conversation_mention_someone">Mentionner quelqu\'un</string>
     <string name="content_description_send_button">Envoyer</string>
     <string name="content_description_timed_message_button">Bouton messages auto-supprimés</string>
@@ -108,7 +101,6 @@
     <string name="content_description_right_arrow">Flèche droite</string>
     <string name="content_description_left_arrow">Revenir en arrière</string>
     <string name="content_description_mention_icon">Icône mentionner</string>
-    <string name="content_description_attachment_item">Joindre un nouvel élément à la conversation</string>
     <string name="content_description_open_message_details">Ouvrir les détails du message</string>
     <string name="content_description_copy_the_message">Copier le message</string>
     <string name="content_description_share_the_file">Partager le fichier sélectionné avec une autre application</string>

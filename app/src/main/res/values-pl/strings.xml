@@ -73,9 +73,6 @@
     <string name="content_description_block_the_user">Zablokuj u&#380;ytkownika</string>
     <string name="content_description_unblock_the_user">Odblokuj u&#380;ytkownika</string>
     <string name="content_description_conversation_phone_icon">Rozmowa g&#322;osowa</string>
-    <string name="content_description_conversation_enable_rich_text_mode">W&#322;&#261;cz tryb bogatego tekstu</string>
-    <string name="content_description_conversation_send_emoticon">Wy&#347;lij emotikon&#281;</string>
-    <string name="content_description_conversation_send_gif">Wy&#347;lij GIF</string>
     <string name="content_description_conversation_mention_someone">Wspomnij kogo&#347;</string>
     <string name="content_description_send_button">Wy&#347;lij</string>
     <string name="content_description_timed_message_button">Samodeletuj&#261;ce wiadomo&#347;ci, przycisk</string>
@@ -89,7 +86,6 @@
     <string name="content_description_right_arrow">Strza&#322;ka w prawo</string>
     <string name="content_description_left_arrow">Cofnij</string>
     <string name="content_description_mention_icon">Ikona wzmianki</string>
-    <string name="content_description_attachment_item">Do&#322;&#261;cz nowy element do rozmowy</string>
     <string name="content_description_open_message_details">Otw&#243;rz szczeg&#243;&#322;y wiadomo&#347;ci</string>
     <string name="content_description_copy_the_message">Skopiuj wiadomo&#347;&#263;</string>
     <string name="content_description_share_the_file">Udost&#281;pnij wybrany plik z inn&#261; aplikacj&#261;</string>

@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import java.io.File
@@ -133,8 +132,8 @@ class OfflineFileDownloadController @Inject constructor(
 
             if (result is Either.Left) {
                 clearProgress(cellNode.uuid)
-                // Delete the partial file so no disk space is wasted
-                withContext(Dispatchers.IO) { File(filePath.toString()).delete() }
+                // Fire-and-forget delete so the error callback is not blocked by IO.
+                launch(Dispatchers.IO) { File(filePath.toString()).delete() }
                 onError(if (result.value.isNoSpaceLeft()) CellError.NO_SPACE_LEFT else CellError.DOWNLOAD_FAILED)
             }
         }

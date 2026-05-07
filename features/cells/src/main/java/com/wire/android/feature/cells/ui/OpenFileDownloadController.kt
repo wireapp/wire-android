@@ -31,7 +31,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import java.io.File
@@ -133,8 +132,8 @@ class OpenFileDownloadController @Inject constructor(
             if (result is Either.Left) {
                 showSpinnerJob.cancel()
                 activeDownloads.remove(cellNode.uuid)
-                // Delete the partial file so no disk space is wasted
-                withContext(Dispatchers.IO) { File(filePath.toString()).delete() }
+                // Fire-and-forget delete so the state update below is not blocked by IO.
+                launch(Dispatchers.IO) { File(filePath.toString()).delete() }
                 if (result.value.isNoSpaceLeft()) {
                     sharedPathCache.clearOpenLoadState(cellNode.uuid)
                     onError(CellError.NO_SPACE_LEFT)

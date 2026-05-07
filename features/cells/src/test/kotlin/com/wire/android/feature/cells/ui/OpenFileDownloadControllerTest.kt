@@ -239,7 +239,7 @@ class OpenFileDownloadControllerTest {
         controller.start(scope = this, cellNode = testFile, onOpenFile = {}, onError = {})
         advanceTimeBy(SPINNER_THRESHOLD_MS + 1) // spinner shown → Loading state
 
-        controller.cancel(testFile.uuid)
+        controller.cancel(testFile.uuid, this)
 
         assertNull(controller.openLoadStates.value[testFile.uuid], "Cancel should clear load state")
     }
@@ -254,7 +254,7 @@ class OpenFileDownloadControllerTest {
         controller.start(scope = this, cellNode = testFile, onOpenFile = { openedFiles += it }, onError = {})
         advanceTimeBy(100)
 
-        controller.cancel(testFile.uuid)
+        controller.cancel(testFile.uuid, this)
         advanceUntilIdle()
 
         assertTrue(openedFiles.isEmpty(), "File must not be opened after cancel")
@@ -304,7 +304,7 @@ class OpenFileDownloadControllerTest {
         assertEquals(OpenLoadState.Loading(), controller.openLoadStates.value[testFile.uuid])
 
         // Cancel the first download.
-        controller.cancel(testFile.uuid)
+        controller.cancel(testFile.uuid, this)
         assertNull(controller.openLoadStates.value[testFile.uuid], "State must be cleared on cancel")
 
         // Re-configure the mock so the second download is also slow (but we control it).
@@ -349,22 +349,29 @@ class OpenFileDownloadControllerTest {
     }
 
     @Test
-    fun givenErrorAndLoadingStates_whenClearAllErrorStatesCalled_thenOnlyErrorsRemoved() = runTest {
+    fun givenSimultaneousDownloads_whenOneFails_thenErrorStateSetAndInProgressLoadingPreserved() = runTest {
         val (_, controller) = Arrangement()
             .withSlowDownloadSuccess(uuid = testFile.uuid)
             .withDownloadFailure(uuid = anotherFile.uuid)
             .arrange()
 
-        // testFile → Loading (slow, timer fires), anotherFile → Error (immediate failure)
+        // testFile → slow download (Loading after spinner), anotherFile → immediate failure (Error)
         controller.start(scope = this, cellNode = testFile, onOpenFile = {}, onError = {})
         controller.start(scope = this, cellNode = anotherFile, onOpenFile = {}, onError = {})
-        advanceTimeBy(SPINNER_THRESHOLD_MS + 1) // spinner for testFile shows Loading
-        // Advance only enough for anotherFile's (instant) download to fail — but NOT past the
-        // 500 ms slow download so testFile stays in Loading.
-        advanceTimeBy(1) // anotherFile failure is already settled; testFile still downloading
+        // Advance past spinner (400 ms) but NOT past testFile's download (500 ms) or its
+        // auto-dismiss delay (3 000 ms) — otherwise testFile's state would be cleared before asserts.
+        // anotherFile's failure is settled synchronously via UnconfinedTestDispatcher (no delay).
+        advanceTimeBy(SPINNER_THRESHOLD_MS + 1)
 
-        assertNull(controller.openLoadStates.value[anotherFile.uuid], "Error state should be removed")
-        assertNotNull(controller.openLoadStates.value[testFile.uuid], "Loading state should be preserved")
+        assertEquals(
+            OpenLoadState.Error,
+            controller.openLoadStates.value[anotherFile.uuid],
+            "Failed download should set Error state so the user can retry"
+        )
+        assertNotNull(
+            controller.openLoadStates.value[testFile.uuid],
+            "In-progress download's Loading state should be preserved"
+        )
     }
 
     private companion object {
@@ -427,7 +434,7 @@ class OpenFileDownloadControllerTest {
         fun withProgressThenSuccess(progress: Long, uuid: String = testFile.uuid) = apply {
             coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any()) } coAnswers {
                 val onProgressUpdate = arg<(Long) -> Unit>(6)
-                delay(450) // Clearly after spinner threshold (400 ms) — progress updates Loading()
+                delay(450)
                 onProgressUpdate(progress)
                 delay(50) // download finishes at 500 ms total
                 Unit.right()

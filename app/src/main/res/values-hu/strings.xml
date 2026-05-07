@@ -97,13 +97,6 @@
     <string name="content_description_delete_the_conversation">Beszélgetés törlése</string>
     <string name="content_description_conversation_phone_icon">Hívás indítása</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_enable_rich_text_mode">Formázott szöveg engedélyezése gomb</string>
-    <string name="content_description_conversation_enable_drawing_mode">Rajzmód gomb engedélyezése</string>
-    <string name="content_description_conversation_rich_text_header">Szövegformázás Címsor</string>
-    <string name="content_description_conversation_rich_text_bold">Szövegformázás Félkövér</string>
-    <string name="content_description_conversation_rich_text_italic">Szövegformázás Dőlt</string>
-    <string name="content_description_conversation_send_emoticon">Hangulatjel küldése gomb</string>
-    <string name="content_description_conversation_send_gif">GIF küldése gomb</string>
     <string name="content_description_conversation_mention_someone">Valaki megemlítése</string>
     <string name="content_description_conversation_back_btn">Vissza a beszélgetések listájához</string>
     <string name="content_description_conversation_open_details_label">beszélgetés részleteinek megnyitása</string>
@@ -119,7 +112,6 @@
     <string name="content_description_right_arrow">Jobbra nyíl</string>
     <string name="content_description_left_arrow">Visszalépés</string>
     <string name="content_description_mention_icon">Említés ikon</string>
-    <string name="content_description_attachment_item">Új elem csatolása a beszélgetéshez</string>
     <string name="content_description_open_message_details">Üzenet részleteinek megnyitása</string>
     <string name="content_description_copy_the_message">Üzenet másolása</string>
     <string name="content_description_share_the_file">A kijelölt fájl megosztása másik alkalmazással</string>

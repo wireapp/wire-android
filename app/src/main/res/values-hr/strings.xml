@@ -86,12 +86,6 @@
     <string name="content_description_unblock_the_user">Odblokiraj</string>
     <string name="content_description_conversation_phone_icon">Pokreni audio poziv</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_enable_rich_text_mode">Gumb za prikaz obogaćenog teksta</string>
-    <string name="content_description_conversation_rich_text_header">Zaglavlje teksta</string>
-    <string name="content_description_conversation_rich_text_bold">Podebljanje teksta</string>
-    <string name="content_description_conversation_rich_text_italic">Kurziv teksta</string>
-    <string name="content_description_conversation_send_emoticon">Pošalji emoji</string>
-    <string name="content_description_conversation_send_gif">Gumb za slanje GIF-a</string>
     <string name="content_description_conversation_mention_someone">Obavijesti nekoga</string>
     <string name="content_description_send_button">Pošalji</string>
     <string name="content_description_timed_message_button">Samobrisanje poruka, gumb</string>
@@ -105,7 +99,6 @@
     <string name="content_description_right_arrow">Desna strelica</string>
     <string name="content_description_left_arrow">Povratak</string>
     <string name="content_description_mention_icon">Ikona obavijesti</string>
-    <string name="content_description_attachment_item">Priloži novu stavku razgovoru</string>
     <string name="content_description_open_message_details">Otvori detalje o poruci</string>
     <string name="content_description_copy_the_message">Kopiraj poruku</string>
     <string name="content_description_share_the_file">Podijelite odabranu datoteku s drugom aplikacijom</string>

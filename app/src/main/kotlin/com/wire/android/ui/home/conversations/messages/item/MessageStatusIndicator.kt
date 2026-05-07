@@ -102,7 +102,7 @@ fun MessageStatusIndicator(
             modifier = modifier,
             painter = painterResource(id = R.drawable.ic_warning_circle),
             tint = errorTint,
-            contentDescription = stringResource(R.string.content_description_message_error_status),
+            contentDescription = null,
         )
     }
 }

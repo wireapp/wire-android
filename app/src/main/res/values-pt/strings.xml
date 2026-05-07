@@ -95,13 +95,6 @@
     <string name="content_description_unblock_the_user">Desbloquear</string>
     <string name="content_description_conversation_phone_icon">Iniciar chamada de áudio</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_enable_rich_text_mode">Habilitar modo de texto avançado</string>
-    <string name="content_description_conversation_enable_drawing_mode">Ativar botão de modo de desenho</string>
-    <string name="content_description_conversation_rich_text_header">Cabeçalho de formatação de Rich Text</string>
-    <string name="content_description_conversation_rich_text_bold">Formato de negrito</string>
-    <string name="content_description_conversation_rich_text_italic">Formato de itálico</string>
-    <string name="content_description_conversation_send_emoticon">Enviar Emoticon</string>
-    <string name="content_description_conversation_send_gif">Enviar GIF</string>
     <string name="content_description_conversation_mention_someone">Mencionar alguém</string>
     <string name="content_description_conversation_back_btn">Voltar para a lista de conversas</string>
     <string name="content_description_conversation_open_details_label">abrir detalhes da conversa</string>
@@ -117,7 +110,6 @@
     <string name="content_description_right_arrow">Seta para a direita</string>
     <string name="content_description_left_arrow">Voltar</string>
     <string name="content_description_mention_icon">Ícone de menção</string>
-    <string name="content_description_attachment_item">Anexar novo item à conversa</string>
     <string name="content_description_open_message_details">Abrir detalhes da mensagem</string>
     <string name="content_description_copy_the_message">Copiar a mensagem</string>
     <string name="content_description_share_the_file">Compartilhar o arquivo selecionado com outro aplicativo</string>

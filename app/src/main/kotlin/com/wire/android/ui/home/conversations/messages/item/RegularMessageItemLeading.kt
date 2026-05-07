@@ -19,11 +19,14 @@ package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarType.WithIndicators
 import com.wire.android.ui.home.conversations.model.MessageHeader
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun RegularMessageItemLeading(
@@ -35,15 +38,31 @@ fun RegularMessageItemLeading(
     val isProfileRedirectEnabled =
         header.userId != null && !(header.isSenderDeleted || header.isSenderUnavailable)
     if (showAuthor) {
-        val avatarClickable = remember {
-            Clickable(enabled = isProfileRedirectEnabled) {
+        val openProfileDescription = stringResource(
+            id = R.string.content_description_open_user_profile_label
+        )
+        val avatarClickable = remember(isProfileRedirectEnabled, header.userId, openProfileDescription, onOpenProfile) {
+            Clickable(
+                enabled = isProfileRedirectEnabled,
+                onClickDescription = openProfileDescription
+            ) {
                 onOpenProfile(header.userId!!.toString())
             }
         }
+        val avatarStatusDescription = userAvatarData.getAvailabilityStatusDescriptionId()
+            ?.let { stringResource(id = it) }
+            ?: stringResource(id = commonR.string.user_profile_status_none)
+        val avatarContentDescription = listOfNotNull(
+            stringResource(id = commonR.string.content_description_user_avatar),
+            header.username.asString(),
+            avatarStatusDescription,
+            openProfileDescription.takeIf { isProfileRedirectEnabled }
+        ).joinToString(", ")
         // because avatar takes start padding we don't need to add padding to message item
         UserProfileAvatar(
             avatarData = userAvatarData,
             clickable = avatarClickable,
+            contentDescription = avatarContentDescription,
             type = header.guestExpiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithIndicators.RegularUser(false)
         )
     }

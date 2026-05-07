@@ -636,3 +636,5 @@ libraries:
         active: false
 
 WireRuleSet:
+  EnforceTestCoreUIWaitRule:
+    active: true

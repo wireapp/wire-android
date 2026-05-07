@@ -463,7 +463,11 @@ private fun OngoingCallContent(
                     onHangUpCall = hangUpCall,
                     onToggleVideo = toggleVideo,
                     onCallReactionsClick = {
-                        showInCallReactionsPanel = !showInCallReactionsPanel
+                        scope.launch {
+                            scaffoldState.bottomSheetState.partialExpand()
+                        }.invokeOnCompletion {
+                            showInCallReactionsPanel = !showInCallReactionsPanel
+                        }
                     },
                     onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
                     modifier = Modifier

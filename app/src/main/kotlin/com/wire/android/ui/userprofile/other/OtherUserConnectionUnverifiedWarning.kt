@@ -58,6 +58,13 @@ fun OtherUserConnectionUnverifiedWarning(
                     color = MaterialTheme.wireColorScheme.error,
                     style = MaterialTheme.wireTypography.body01
                 )
+                VerticalSpace.x8()
+                Text(
+                    text = stringResource(R.string.connection_label_unverified_support_disclaimer),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.wireColorScheme.error,
+                    style = MaterialTheme.wireTypography.body01
+                )
                 VerticalSpace.x24()
             }
         }

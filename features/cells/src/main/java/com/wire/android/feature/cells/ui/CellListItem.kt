@@ -82,7 +82,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import com.wire.android.ui.common.R as commonR
 
-@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun CellListItem(
     cell: CellNodeUi,

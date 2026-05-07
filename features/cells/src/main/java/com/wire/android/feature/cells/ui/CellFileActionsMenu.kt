@@ -114,7 +114,6 @@ class CellFileActionsMenu @Inject constructor(
     internal data class Edit(val node: CellNodeUi) : MenuActionResult
     internal data class CancelLoading(val node: CellNodeUi) : MenuActionResult
     internal data class CancelDownload(val node: CellNodeUi) : MenuActionResult
-    internal data class Download(val node: CellNodeUi) : MenuActionResult
     internal data class MakeAvailableOffline(val node: CellNodeUi.File) : MenuActionResult
     internal data class RemoveOfflineAccess(val node: CellNodeUi.File) : MenuActionResult
 

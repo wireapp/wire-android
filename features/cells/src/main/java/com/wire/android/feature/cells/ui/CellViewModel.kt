@@ -154,21 +154,6 @@ class CellViewModel @Inject constructor(
         checkCellAvailabilityAndRefresh()
     }
 
-    /** Offline paths from db: uuid → localPath. Shared across all CellViewModel instances via the Flow. */
-    private val offlinePathsFlow = observeOfflineFiles()
-        .shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)
-
-    /**
-     * Combined offline data: pair of (uuid → localPath from DB) and (uuid → download progress).
-     * Merges two related sources into one so we don't exceed the 5-flow combine limit.
-     */
-    private val offlineDataFlow = combine(
-        offlinePathsFlow,
-        offlineFileDownloadController.downloadProgresses,
-    ) { offlineFiles, downloadProgresses ->
-        Pair(offlineFiles, downloadProgresses)
-    }
-
     private fun checkCellAvailabilityAndRefresh() = viewModelScope.launch {
         val cellAvailable = isCellAvailable().fold({ false }, { it })
         cellAvailableFlow.value = cellAvailable
@@ -200,8 +185,9 @@ class CellViewModel @Inject constructor(
                     ).cachedIn(viewModelScope),
                     removedItemsFlow,
                     sharedPathCache.openLoadStates,
-                    offlineDataFlow,
-                ) { pagingData, removedItems, openLoadStates, (offlineFiles, downloadProgresses) ->
+                    observeOfflineFiles(),
+                    offlineFileDownloadController.downloadProgresses,
+                ) { pagingData, removedItems, openLoadStates, offlineFiles, downloadProgresses ->
                     val offlineUuids = offlineFiles.map { it.id }.toSet()
                     var emittedRefreshDone = false
 
@@ -391,7 +377,6 @@ class CellViewModel @Inject constructor(
                 is CellFileActionsMenu.CancelDownload -> offlineFileDownloadController.cancel(result.node.uuid, viewModelScope)
                 is CellFileActionsMenu.MakeAvailableOffline -> makeAvailableOffline(result.node)
                 is CellFileActionsMenu.RemoveOfflineAccess -> removeOfflineAccess(result.node)
-                is CellFileActionsMenu.Download -> Unit // unused in this context
             }
         }
     }

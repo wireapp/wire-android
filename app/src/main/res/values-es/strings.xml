@@ -97,13 +97,6 @@
     <string name="content_description_delete_the_conversation">Eliminar la conversación</string>
     <string name="content_description_conversation_phone_icon">Iniciar una llamada</string>
     <string name="content_description_welcome_wire_logo">Logo de Wire</string>
-    <string name="content_description_conversation_enable_rich_text_mode">Botón de modo de texto enriquecido</string>
-    <string name="content_description_conversation_enable_drawing_mode">Botón activar modo de dibujo</string>
-    <string name="content_description_conversation_rich_text_header">Encabezado de formato de texto enriquecido</string>
-    <string name="content_description_conversation_rich_text_bold">Formato de texto enriquecido en negritas</string>
-    <string name="content_description_conversation_rich_text_italic">Formato de texto enriquecido cursivo</string>
-    <string name="content_description_conversation_send_emoticon">Botón Enviar Emoticono</string>
-    <string name="content_description_conversation_send_gif">Botón de enviar GIF</string>
     <string name="content_description_conversation_mention_someone">Mencionar a alguien</string>
     <string name="content_description_conversation_back_btn">Volver a la lista de conversaciones</string>
     <string name="content_description_conversation_open_details_label">abrir detalles de conversación</string>
@@ -119,7 +112,6 @@
     <string name="content_description_right_arrow">Flecha derecha</string>
     <string name="content_description_left_arrow">Regresar</string>
     <string name="content_description_mention_icon">Icono de mención</string>
-    <string name="content_description_attachment_item">Adjuntar nuevo elemento a la conversación</string>
     <string name="content_description_open_message_details">Abrir detalles del mensaje</string>
     <string name="content_description_copy_the_message">Copiar el mensaje</string>
     <string name="content_description_share_the_file">Compartir el archivo seleccionado con otra aplicaci&#243;n</string>

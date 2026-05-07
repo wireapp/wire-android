@@ -107,7 +107,7 @@
     <string name="content_description_conversation_phone_icon">Start audio call</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_enable_rich_text_mode">Open formatting options</string>
-    <string name="content_description_conversation_enable_drawing_mode">Enable drawing mode</string>
+    <string name="content_description_conversation_enable_drawing_mode">Open sketch to draw or write</string>
     <string name="content_description_conversation_rich_text_header">Use a heading</string>
     <string name="content_description_conversation_rich_text_bold">Use bolded text</string>
     <string name="content_description_conversation_rich_text_italic">Use italic text</string>

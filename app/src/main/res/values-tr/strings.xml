@@ -97,13 +97,6 @@
     <string name="content_description_delete_the_conversation">Konuşmayı sil</string>
     <string name="content_description_conversation_phone_icon">Sesli aramayı başlat</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_enable_rich_text_mode">Zengin metin modunu etkinleştir düğmesi</string>
-    <string name="content_description_conversation_enable_drawing_mode">Çizim modunu etkinleştir düğmesi</string>
-    <string name="content_description_conversation_rich_text_header">Zengin metin biçimlendirme Başlığı</string>
-    <string name="content_description_conversation_rich_text_bold">Zengin metin biçimlendirmesi Kalın</string>
-    <string name="content_description_conversation_rich_text_italic">Zengin metin biçimlendirmesi İtalik</string>
-    <string name="content_description_conversation_send_emoticon">İfade gönder düğmesi</string>
-    <string name="content_description_conversation_send_gif">GIF gönder düğmesi</string>
     <string name="content_description_conversation_mention_someone">Birinden bahset</string>
     <string name="content_description_conversation_back_btn"> Sohbet listesine geri dön</string>
     <string name="content_description_conversation_open_details_label">konuşma detaylarını aç</string>
@@ -119,7 +112,6 @@
     <string name="content_description_right_arrow">Sağ ok</string>
     <string name="content_description_left_arrow">Geri dön</string>
     <string name="content_description_mention_icon">Bahsetme simgesi</string>
-    <string name="content_description_attachment_item">Konuşmaya yeni öğe ekleme</string>
     <string name="content_description_open_message_details">Mesaj Ayrıntılarını Aç</string>
     <string name="content_description_copy_the_message">Mesajı kopyala</string>
     <string name="content_description_share_the_file">Seçilen dosyayı diğer uygulamalarla paylaş</string>

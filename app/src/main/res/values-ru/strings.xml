@@ -100,7 +100,6 @@
     <string name="content_description_conversation_phone_icon">Начать звонок</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_enable_rich_text_mode">Открыть параметры форматирования</string>
-    <string name="content_description_conversation_enable_drawing_mode">Включить режим рисования</string>
     <string name="content_description_conversation_rich_text_header">Использовать заголовок</string>
     <string name="content_description_conversation_rich_text_bold">Использовать полужирный текст</string>
     <string name="content_description_conversation_rich_text_italic">Использовать курсив</string>

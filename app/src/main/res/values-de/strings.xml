@@ -98,6 +98,7 @@
     <string name="content_description_conversation_phone_icon">Audioanruf starten</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_enable_rich_text_mode">Formatierungsoptionen öffnen</string>
+    <string name="content_description_conversation_enable_drawing_mode">Skizze zum Zeichnen oder Schreiben öffnen</string>
     <string name="content_description_conversation_rich_text_header">Überschrift benutzen</string>
     <string name="content_description_conversation_rich_text_bold">Fettdruck benutzen</string>
     <string name="content_description_conversation_rich_text_italic">Kursivdruck benutzen</string>

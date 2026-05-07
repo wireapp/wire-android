@@ -88,15 +88,15 @@ import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.home.conversations.LocalAudioMessageKeyInScopeResolver
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.home.conversations.LocalAudioMessageKeyInScopeResolver
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.messages.item.playedColor
 import com.wire.android.ui.home.conversations.messages.item.remainingColor
 import com.wire.android.ui.home.conversations.messages.item.surface
 import com.wire.android.ui.home.conversations.messages.item.textColor
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.UploadInProgressAssetMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.AssetProgressMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -168,7 +168,7 @@ private fun UploadingAudioMessage(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier
 ) = AudioMessageLayout(extension, size, messageStyle, modifier) {
-    UploadInProgressAssetMessage(messageStyle)
+    AssetProgressMessage(R.string.asset_message_upload_in_progress_text, messageStyle)
 }
 
 @Composable

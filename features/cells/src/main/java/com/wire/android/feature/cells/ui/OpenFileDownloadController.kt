@@ -53,6 +53,7 @@ class OpenFileDownloadController @Inject constructor(
     private val sharedPathCache: CellFileLocalPathCache,
 ) {
     private data class ActiveDownload(val job: Job, val filePath: Path)
+
     private val activeDownloads = mutableMapOf<String, ActiveDownload>()
 
     internal val openLoadStates = sharedPathCache.openLoadStates
@@ -75,7 +76,11 @@ class OpenFileDownloadController @Inject constructor(
         // Cancel any in-progress download for this file (e.g. rapid retries after an error).
         activeDownloads.remove(cellNode.uuid)?.job?.cancel()
 
-        val nodeName = cellNode.name ?: run { onError(CellError.OTHER_ERROR); return }
+        val nodeName = cellNode.name ?: run {
+            onError(CellError.OTHER_ERROR)
+            return
+        }
+
         val filePath = fileNameResolver
             .getUniqueFile(fileHelper.getExternalFilesDir(), nodeName)
             .toPath()

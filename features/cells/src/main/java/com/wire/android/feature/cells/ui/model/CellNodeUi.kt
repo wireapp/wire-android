@@ -149,7 +149,6 @@ internal fun CellNodeUi.File.withSessionState(
     isAvailableOffline = isAvailableOffline,
 )
 
-
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null
 internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)
 internal fun CellNodeUi.isEditSupported() = (this as? CellNodeUi.File)?.isEditSupported == true

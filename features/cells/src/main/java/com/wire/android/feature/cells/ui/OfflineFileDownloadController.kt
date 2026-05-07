@@ -57,6 +57,7 @@ class OfflineFileDownloadController @Inject constructor(
     private data class ActiveDownload(val job: Job, val filePath: Path)
     private val activeJobs = mutableMapOf<String, ActiveDownload>()
 
+    @Suppress("LongMethod")
     internal fun start(
         scope: CoroutineScope,
         cellNode: CellNodeUi.File,
@@ -67,7 +68,10 @@ class OfflineFileDownloadController @Inject constructor(
         // skip the download and just persist the offline metadata.
         val existingPath = cellNode.localPath ?: sharedPathCache.getCompletedPath(cellNode.uuid)
         if (existingPath != null) {
-            val nodeName = cellNode.name ?: run { onError(CellError.OTHER_ERROR); return }
+            val nodeName = cellNode.name ?: run {
+                onError(CellError.OTHER_ERROR)
+                return
+            }
             scope.launch {
                 saveOfflineFile(
                     OfflineFileInfo(
@@ -87,7 +91,10 @@ class OfflineFileDownloadController @Inject constructor(
         // Cancel any previous download for this node.
         activeJobs.remove(cellNode.uuid)?.job?.cancel()
 
-        val nodeName = cellNode.name ?: run { onError(CellError.OTHER_ERROR); return }
+        val nodeName = cellNode.name ?: run {
+            onError(CellError.OTHER_ERROR)
+            return
+        }
         val filePath = fileNameResolver
             .getUniqueFile(fileHelper.getExternalFilesDir(), nodeName)
             .toPath()

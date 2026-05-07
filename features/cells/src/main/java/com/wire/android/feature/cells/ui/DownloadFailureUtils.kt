@@ -60,4 +60,3 @@ private fun String?.isNoSpaceMessage(): Boolean {
         contains("device is full", ignoreCase = true) ||
         contains("disk full", ignoreCase = true)
 }
-

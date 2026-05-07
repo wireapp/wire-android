@@ -19,7 +19,6 @@ package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
-import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.isEditSupported
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
@@ -161,13 +160,19 @@ class CellFileActionsMenu @Inject constructor(
             NodeBottomSheetAction.CANCEL_LOADING -> CancelLoading(node)
             NodeBottomSheetAction.CANCEL_DOWNLOAD -> CancelDownload(node)
             NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE -> {
-                if (node is CellNodeUi.File) MakeAvailableOffline(node)
-                else Action(ShowPublicLinkScreen(node))
+                if (node is CellNodeUi.File) {
+                    MakeAvailableOffline(node)
+                } else {
+                    Action(ShowPublicLinkScreen(node))
+                }
             }
 
             NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS -> {
-                if (node is CellNodeUi.File) RemoveOfflineAccess(node)
-                else Action(ShowPublicLinkScreen(node))
+                if (node is CellNodeUi.File) {
+                    RemoveOfflineAccess(node)
+                } else {
+                    Action(ShowPublicLinkScreen(node))
+                }
             }
         }
 

@@ -106,6 +106,22 @@ object UiAutomatorSetup {
         device.executeShellCommand("am force-stop $appPackage")
     }
 
+    // Uses -d because shared CI runs may already have the newer APK installed before this test switches back to old Wire.
+    fun installOldWireVersion(apkPath: String) {
+        val device = getDevice()
+        val output = device.executeShellCommand("pm install -r -d -g $apkPath").trim()
+
+        if (!output.contains("Success")) {
+            val installOutput = output.ifBlank { "<empty>" }
+            throw IllegalStateException(
+                "Failed to install old Wire APK from '$apkPath'. Output: $installOutput"
+            )
+        }
+
+        startApp()
+        waitAppStart(device)
+    }
+
     fun upgradeWireToRecentVersion(apkPath: String) {
         val device = getDevice()
         val output = device.executeShellCommand("pm install -r -d -g $apkPath").trim()

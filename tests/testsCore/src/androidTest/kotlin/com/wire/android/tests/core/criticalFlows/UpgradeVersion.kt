@@ -35,10 +35,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.test.inject
 import service.TestServiceHelper
-import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
-import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class UpgradeVersion : BaseUiTest() {
@@ -62,14 +60,35 @@ class UpgradeVersion : BaseUiTest() {
 
     @After
     fun tearDown() {
+        // CI provides the new APK path so the shared device is restored even if this test fails before the upgrade step.
+        val recentWireApkPath = InstrumentationRegistry.getArguments().getString("newApkPath")
+        if (recentWireApkPath != null) {
+            UiAutomatorSetup.upgradeWireToRecentVersion(recentWireApkPath)
+        }
         cleanupCreatedUsers(backendClient, teamHelper.usersManager)
     }
 
+    /**
+     * Local runs should preinstall the old Wire APK, then push the new APK to /data/local/tmp/Wire.new.apk.
+     * Push: adb push /path/to/new.apk /data/local/tmp/Wire.new.apk
+     * Run: ./gradlew :tests:testsCore:connectedDebugAndroidTest \
+     *   -Pandroid.testInstrumentationRunnerArguments.testCaseId=TC-8607 \
+     *   -Pandroid.testInstrumentationRunnerArguments.newApkPath=/data/local/tmp/Wire.new.apk
+     * CI also passes oldApkPath so the test can install old Wire itself.
+     */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-8607")
     @Category("criticalFlow", "upgrade")
     @Test
     fun givenTeamUserWithConversationHistory_whenUpdatingFromPreviousWireVersion_thenHistoryIsPreserved() {
+        step("Given I reinstall the old Wire Version") {
+            // CI passes oldApkPath when this test runs with other critical flows; local runs should preinstall the old APK.
+            val oldWireApkPath = InstrumentationRegistry.getArguments().getString("oldApkPath")
+            if (oldWireApkPath != null) {
+                UiAutomatorSetup.installOldWireVersion(oldWireApkPath)
+            }
+        }
+
         step("There is a team owner with a team named UpgradeTeam") {
             teamHelper.usersManager.createTeamOwnerByAlias(
                 "user1Name",
@@ -242,7 +261,6 @@ class UpgradeVersion : BaseUiTest() {
         step("Then I see conversation with Member 2 is having 1 unread messages in conversation list") {
             pages.conversationListPage.apply {
                 assertConversationHasUnreadMessagesCount(member2?.name ?: "", "1")
-
             }
         }
 

@@ -42,7 +42,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val sentQRImage = UiSelectorParams(description = "Image message")
 
     private val sharedLocationContainer = UiSelectorParams(description = "Location item")
-    private val attachNewFileButton = UiSelectorParams(description = "Attach new item to conversation")
+    private val attachNewFileButton = UiSelectorParams(description = "Add attachment")
     private val audioSeekBar = UiSelectorParams(className = "android.widget.SeekBar")
     private val audioInitialTime = UiSelectorParams(text = "00:00")
     private val playAudioButton = UiSelectorParams(description = "Play audio")

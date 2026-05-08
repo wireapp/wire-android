@@ -141,19 +141,19 @@ class ConversationAssetPathsViewModelTest {
             .withGetMessageAssetSuccess(expectedPath)
             .arrange()
 
-        viewModel.resolveIfNeeded(
+        viewModel.localAssetPath(
             conversationId = arrangement.conversationId,
             messageId = arrangement.messageId,
-            transferStatus = AssetTransferStatus.UPLOADED,
+            assetStatus = AssetTransferStatus.UPLOADED,
             downloadIfNeeded = true
         )
         assertEquals(expectedPath, viewModel.localAssetPath(arrangement.messageId))
 
         // when
-        viewModel.resolveIfNeeded(
+        viewModel.localAssetPath(
             conversationId = arrangement.conversationId,
             messageId = arrangement.messageId,
-            transferStatus = AssetTransferStatus.UPLOADED,
+            assetStatus = AssetTransferStatus.UPLOADED,
             downloadIfNeeded = true
         )
 

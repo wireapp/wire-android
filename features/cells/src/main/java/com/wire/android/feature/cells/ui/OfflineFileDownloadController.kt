@@ -57,7 +57,6 @@ class OfflineFileDownloadController @Inject constructor(
     private data class ActiveDownload(val job: Job, val filePath: Path)
     private val activeJobs = mutableMapOf<String, ActiveDownload>()
 
-    @Suppress("LongMethod")
     internal fun start(
         scope: CoroutineScope,
         cellNode: CellNodeUi.File,
@@ -68,23 +67,7 @@ class OfflineFileDownloadController @Inject constructor(
         // skip the download and just persist the offline metadata.
         val existingPath = cellNode.localPath ?: sharedPathCache.getCompletedPath(cellNode.uuid)
         if (existingPath != null) {
-            val nodeName = cellNode.name ?: run {
-                onError(CellError.OTHER_ERROR)
-                return
-            }
-            scope.launch {
-                saveOfflineFile(
-                    OfflineFileInfo(
-                        id = cellNode.uuid,
-                        name = nodeName,
-                        owner = cellNode.ownerUserId ?: "",
-                        localPath = existingPath,
-                        size = cellNode.size,
-                        downloadedAt = System.currentTimeMillis(),
-                    )
-                )
-                onSuccess(existingPath)
-            }
+            saveExistingOfflineFile(scope, cellNode, existingPath, onSuccess, onError)
             return
         }
 
@@ -101,52 +84,88 @@ class OfflineFileDownloadController @Inject constructor(
             .toOkioPath()
 
         val job = scope.launch {
-            val thisJob = coroutineContext.job
-            setProgress(cellNode.uuid, null)
-
-            val result = download(
-                assetId = cellNode.uuid,
-                outFilePath = filePath,
-                remoteFilePath = cellNode.remotePath,
-                assetSize = cellNode.size ?: 0,
-                name = cellNode.name,
-                ownerId = cellNode.ownerUserId,
-            ) { progress ->
-                if (thisJob.isActive) {
-                    val assetSize = cellNode.size ?: 0
-                    if (assetSize > 0) {
-                        val progressValue = (progress.toFloat() / assetSize).coerceIn(0f, 1f)
-                        setProgress(cellNode.uuid, progressValue)
-                    }
-                }
-            }
-
-            result.onSuccess {
-                clearProgress(cellNode.uuid)
-                sharedPathCache.recordCompletedPath(cellNode.uuid, filePath.toString())
-                saveOfflineFile(
-                    OfflineFileInfo(
-                        id = cellNode.uuid,
-                        name = nodeName,
-                        owner = cellNode.ownerUserId ?: "",
-                        localPath = filePath.toString(),
-                        size = cellNode.size,
-                        downloadedAt = System.currentTimeMillis(),
-                    )
-                )
-                onSuccess(filePath.toString())
-            }
-
-            if (result is Either.Left) {
-                clearProgress(cellNode.uuid)
-                // Fire-and-forget delete so the error callback is not blocked by IO.
-                launch(Dispatchers.IO) { File(filePath.toString()).delete() }
-                onError(if (result.value.isNoSpaceLeft()) CellError.NO_SPACE_LEFT else CellError.DOWNLOAD_FAILED)
-            }
+            performDownload(cellNode, nodeName, filePath, onSuccess, onError)
         }
 
         activeJobs[cellNode.uuid] = ActiveDownload(job, filePath)
         job.invokeOnCompletion { activeJobs.remove(cellNode.uuid) }
+    }
+
+    private fun saveExistingOfflineFile(
+        scope: CoroutineScope,
+        cellNode: CellNodeUi.File,
+        existingPath: String,
+        onSuccess: (localPath: String) -> Unit,
+        onError: (CellError) -> Unit,
+    ) {
+        val nodeName = cellNode.name ?: run {
+            onError(CellError.OTHER_ERROR)
+            return
+        }
+        scope.launch {
+            saveOfflineFile(
+                OfflineFileInfo(
+                    id = cellNode.uuid,
+                    name = nodeName,
+                    owner = cellNode.ownerUserId ?: "",
+                    localPath = existingPath,
+                    size = cellNode.size,
+                    downloadedAt = System.currentTimeMillis(),
+                )
+            )
+            onSuccess(existingPath)
+        }
+    }
+
+    private suspend fun CoroutineScope.performDownload(
+        cellNode: CellNodeUi.File,
+        nodeName: String,
+        filePath: Path,
+        onSuccess: (localPath: String) -> Unit,
+        onError: (CellError) -> Unit,
+    ) {
+        val thisJob = coroutineContext.job
+        setProgress(cellNode.uuid, null)
+
+        val result = download(
+            assetId = cellNode.uuid,
+            outFilePath = filePath,
+            remoteFilePath = cellNode.remotePath,
+            assetSize = cellNode.size ?: 0,
+            name = cellNode.name,
+            ownerId = cellNode.ownerUserId,
+        ) { progress ->
+            if (thisJob.isActive) {
+                val assetSize = cellNode.size ?: 0
+                if (assetSize > 0) {
+                    val progressValue = (progress.toFloat() / assetSize).coerceIn(0f, 1f)
+                    setProgress(cellNode.uuid, progressValue)
+                }
+            }
+        }
+
+        result.onSuccess {
+            clearProgress(cellNode.uuid)
+            sharedPathCache.recordCompletedPath(cellNode.uuid, filePath.toString())
+            saveOfflineFile(
+                OfflineFileInfo(
+                    id = cellNode.uuid,
+                    name = nodeName,
+                    owner = cellNode.ownerUserId ?: "",
+                    localPath = filePath.toString(),
+                    size = cellNode.size,
+                    downloadedAt = System.currentTimeMillis(),
+                )
+            )
+            onSuccess(filePath.toString())
+        }
+
+        if (result is Either.Left) {
+            clearProgress(cellNode.uuid)
+            // Fire-and-forget delete so the error callback is not blocked by IO.
+            launch(Dispatchers.IO) { File(filePath.toString()).delete() }
+            onError(if (result.value.isNoSpaceLeft()) CellError.NO_SPACE_LEFT else CellError.DOWNLOAD_FAILED)
+        }
     }
 
     internal fun cancel(uuid: String, scope: CoroutineScope) {

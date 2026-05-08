@@ -155,7 +155,7 @@ fun UserProfileAvatar(
             .wrapContentSize()
             .clip(CircleShape)
             .clickable(clickable)
-            .semantics(mergeDescendants = true) {
+            .semantics {
                 if (clickable?.enabled == true) {
                     role = Role.Button
                 }

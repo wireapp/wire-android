@@ -38,9 +38,7 @@ fun RegularMessageItemLeading(
     val isProfileRedirectEnabled =
         header.userId != null && !(header.isSenderDeleted || header.isSenderUnavailable)
     if (showAuthor) {
-        val openProfileDescription = stringResource(
-            id = R.string.content_description_open_user_profile_label
-        )
+        val openProfileDescription = stringResource(id = R.string.content_description_open_user_profile_label)
         val avatarClickable = remember(isProfileRedirectEnabled, header.userId, openProfileDescription, onOpenProfile) {
             Clickable(
                 enabled = isProfileRedirectEnabled,
@@ -49,14 +47,9 @@ fun RegularMessageItemLeading(
                 onOpenProfile(header.userId!!.toString())
             }
         }
-        val avatarStatusDescription = userAvatarData.getAvailabilityStatusDescriptionId()
-            ?.let { stringResource(id = it) }
-            ?: stringResource(id = commonR.string.user_profile_status_none)
         val avatarContentDescription = listOfNotNull(
             stringResource(id = commonR.string.content_description_user_avatar),
             header.username.asString(),
-            avatarStatusDescription,
-            openProfileDescription.takeIf { isProfileRedirectEnabled }
         ).joinToString(", ")
         // because avatar takes start padding we don't need to add padding to message item
         UserProfileAvatar(

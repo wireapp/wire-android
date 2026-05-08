@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Fri May 08 17:16:32 CEST 2026","Fri May 08 17:17:29 CEST 2026","56846","","com.wire.android.tests.core.criticalFlows.UpgradeVersion","","com.wire.android.tests.core.criticalFlows.UpgradeVersion","givenTeamUserWithConversationHistory_whenUpdatingFromPreviousWireVersion_thenHistoryIsPreserved","givenTeamUserWithConversationHistory_whenUpdatingFromPreviousWireVersion_thenHistoryIsPreserved",""

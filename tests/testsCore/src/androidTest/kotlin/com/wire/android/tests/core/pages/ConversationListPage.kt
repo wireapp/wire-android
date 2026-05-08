@@ -135,10 +135,14 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertGroupConversationVisible(conversationName: String): ConversationListPage {
-        val conversation = UiWaitUtils.waitElement(UiSelectorParams(text = conversationName))
+    fun assertConversationVisible(conversationName: String): ConversationListPage {
+        val conversation = UiWaitUtils.waitElement(conversationNameSelector(conversationName))
         assertTrue("Conversation '$conversationName' is not visible", !conversation.visibleBounds.isEmpty)
         return this
+    }
+
+    fun assertGroupConversationVisible(conversationName: String): ConversationListPage {
+        return assertConversationVisible(conversationName)
     }
 
     fun clickConnectionRequestOfUser(userName: String): ConversationListPage {
@@ -190,6 +194,15 @@ data class ConversationListPage(private val device: UiDevice) {
     fun assertUnreadMessagesCount(expectedCount: String): ConversationListPage {
         val unreadCount = UiWaitUtils.waitElement(unreadCountSelector(expectedCount))
         Assert.assertTrue("Unread message count '$expectedCount' not visible", !unreadCount.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertConversationHasUnreadMessagesCount(
+        conversationName: String,
+        expectedCount: String
+    ): ConversationListPage {
+        assertConversationVisible(conversationName)
+        assertUnreadMessagesCount(expectedCount)
         return this
     }
 

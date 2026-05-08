@@ -106,6 +106,21 @@ object UiAutomatorSetup {
         device.executeShellCommand("am force-stop $appPackage")
     }
 
+    fun upgradeWireToRecentVersion(apkPath: String) {
+        val device = getDevice()
+        val output = device.executeShellCommand("pm install -r -d -g $apkPath").trim()
+
+        if (!output.contains("Success")) {
+            val installOutput = output.ifBlank { "<empty>" }
+            throw IllegalStateException(
+                "Failed to upgrade Wire using APK from '$apkPath'. Output: $installOutput"
+            )
+        }
+
+        startApp()
+        waitAppStart(device)
+    }
+
     // Setup-level wrapper that pre-grants notifications on Android 13+ via PermissionUtils.
     private fun grantNotificationPermissionIfSupported(appPackage: String) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {

@@ -35,77 +35,99 @@ class CellFileActionsMenu @Inject constructor(
         isAllFiles: Boolean,
         isSearching: Boolean,
         isCollaboraEnabled: Boolean,
-    ): List<NodeBottomSheetAction> =
-        when {
-            isRecycleBin -> {
-                buildList {
-                    add(NodeBottomSheetAction.RESTORE)
-                    add(NodeBottomSheetAction.DELETE_PERMANENTLY)
-                }
-            }
+    ): List<NodeBottomSheetAction> {
+        return when {
+            isRecycleBin -> recycleBinActions()
 
             isAllFiles || isSearching -> {
-                buildList {
-                    if (cellNode is CellNodeUi.File && cellNode.isOpenLoading) {
-                        add(NodeBottomSheetAction.CANCEL_LOADING)
-                    } else if (cellNode is CellNodeUi.File && cellNode.downloadProgress != null) {
-                        add(NodeBottomSheetAction.CANCEL_DOWNLOAD)
-                    } else {
-                        if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
-                            add(NodeBottomSheetAction.SHARE)
-                        }
-                        add(NodeBottomSheetAction.PUBLIC_LINK)
-                        if (cellNode is CellNodeUi.File) {
-                            if (cellNode.isAvailableOffline) {
-                                add(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS)
-                            } else {
-                                add(NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE)
-                            }
-                        }
-                    }
-                }
+                commonActions(cellNode)
             }
 
             isConversationFiles -> {
-                buildList {
-                    if (cellNode is CellNodeUi.File && cellNode.isOpenLoading) {
-                        add(NodeBottomSheetAction.CANCEL_LOADING)
-                    } else if (cellNode is CellNodeUi.File && cellNode.downloadProgress != null) {
-                        add(NodeBottomSheetAction.CANCEL_DOWNLOAD)
-                    } else {
-                        if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
-                            add(NodeBottomSheetAction.SHARE)
-                        }
-                        add(NodeBottomSheetAction.PUBLIC_LINK)
+                commonActions(cellNode) +
+                        conversationActions(
+                            cellNode = cellNode,
+                            isCollaboraEnabled = isCollaboraEnabled,
+                        )
+            }
 
-                        if (cellNode is CellNodeUi.File) {
-                            if (cellNode.isAvailableOffline) {
-                                add(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS)
-                            } else {
-                                add(NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE)
-                            }
-                        }
+            else -> emptyList()
+        }
+    }
 
-                        if (isCollaboraEnabled && featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
-                            add(NodeBottomSheetAction.EDIT)
-                        }
+    private fun recycleBinActions(): List<NodeBottomSheetAction> = listOf(
+        NodeBottomSheetAction.RESTORE,
+        NodeBottomSheetAction.DELETE_PERMANENTLY,
+    )
 
-                        if (featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
-                            add(NodeBottomSheetAction.VERSION_HISTORY)
-                        }
+    private fun commonActions(
+        cellNode: CellNodeUi,
+    ): List<NodeBottomSheetAction> = buildList {
 
-                        add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
-                        add(NodeBottomSheetAction.MOVE)
-                        add(NodeBottomSheetAction.RENAME)
-                        add(NodeBottomSheetAction.DELETE)
+        if (cellNode is CellNodeUi.File) {
+
+            when {
+                cellNode.isOpenLoading -> {
+                    add(NodeBottomSheetAction.CANCEL_LOADING)
+                    return@buildList
+                }
+
+                cellNode.downloadProgress != null -> {
+                    add(NodeBottomSheetAction.CANCEL_DOWNLOAD)
+                    return@buildList
+                }
+
+                else -> {
+
+                    if (cellNode.localFileAvailable()) {
+                        add(NodeBottomSheetAction.SHARE)
                     }
+
+                    add(
+                        if (cellNode.isAvailableOffline) {
+                            NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS
+                        } else {
+                            NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE
+                        },
+                    )
                 }
             }
-
-            else -> {
-                emptyList()
-            }
         }
+
+        add(NodeBottomSheetAction.PUBLIC_LINK)
+    }
+
+    private fun conversationActions(
+        cellNode: CellNodeUi,
+        isCollaboraEnabled: Boolean,
+    ): List<NodeBottomSheetAction> = buildList {
+
+        val canEdit = cellNode is CellNodeUi.File &&
+                isCollaboraEnabled &&
+                featureFlags.collaboraIntegration &&
+                cellNode.isEditSupported()
+
+        if (canEdit) {
+            add(NodeBottomSheetAction.EDIT)
+        }
+
+        if (
+            cellNode is CellNodeUi.File &&
+            featureFlags.collaboraIntegration &&
+            cellNode.isEditSupported()
+        ) {
+            add(NodeBottomSheetAction.VERSION_HISTORY)
+        }
+
+        addAll(
+            listOf(
+                NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                NodeBottomSheetAction.MOVE,
+                NodeBottomSheetAction.RENAME,
+                NodeBottomSheetAction.DELETE,
+            ),
+        )
+    }
 
     internal sealed interface MenuActionResult
     internal data class Action(val action: CellViewAction) : MenuActionResult

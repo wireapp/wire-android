@@ -144,6 +144,17 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
+    fun givenTeamAppLockObserverEmitsNull_whenObservingFeatureFlags_thenTeamAppLockDialogIsNotShown() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
+            .withIsAppLockSetup(false)
+            .arrange()
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.featureFlagState.shouldShowTeamAppLockDialog)
+    }
+
+    @Test
     fun givenE2EIRequired_thenShowDialog() = runTest {
         val (_, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Create)

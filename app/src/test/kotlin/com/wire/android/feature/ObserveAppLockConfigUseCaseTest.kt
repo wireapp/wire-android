@@ -110,6 +110,42 @@ class ObserveAppLockConfigUseCaseTest {
         }
 
     @Test
+    fun givenValidSessionAndTeamConfigIsNull_whenObservingAppLock_thenSendDisabledStatus() = runTest {
+        val (_, useCase) = Arrangement()
+            .withValidSession()
+            .withTeamAppLockNull()
+            .withAppNonLockedByCurrentUser()
+            .arrange()
+
+        val result = useCase.invoke()
+
+        result.test {
+            val appLockStatus = awaitItem()
+
+            assertEquals(AppLockConfig.Disabled(ObserveAppLockConfigUseCase.DEFAULT_APP_LOCK_TIMEOUT), appLockStatus)
+            awaitComplete()
+        }
+    }
+
+    @Test
+    fun givenValidSessionAndTeamConfigIsNullAndLocalPasscodeSet_whenObservingAppLock_thenSendEnabledStatus() = runTest {
+        val (_, useCase) = Arrangement()
+            .withValidSession()
+            .withTeamAppLockNull()
+            .withAppLockedByCurrentUser(true)
+            .arrange()
+
+        val result = useCase.invoke()
+
+        result.test {
+            val appLockStatus = awaitItem()
+
+            assertEquals(AppLockConfig.Enabled(ObserveAppLockConfigUseCase.DEFAULT_APP_LOCK_TIMEOUT), appLockStatus)
+            awaitComplete()
+        }
+    }
+
+    @Test
     fun givenValidSessionAndAppNotLockedByUserNorTeam_whenObservingAppLock_thenSendDisabledStatus() =
         runTest {
             val (_, useCase) = Arrangement()
@@ -187,6 +223,16 @@ class ObserveAppLockConfigUseCaseTest {
             every {
                 appLockTeamFeatureConfigObserver.invoke()
             } returns flowOf(AppLockTeamConfig(false, timeout, false))
+        }
+
+        fun withTeamAppLockNull() = apply {
+            every { coreLogic.getSessionScope(any()) } returns userSessionScope
+            every {
+                userSessionScope.appLockTeamFeatureConfigObserver
+            } returns appLockTeamFeatureConfigObserver
+            every {
+                appLockTeamFeatureConfigObserver.invoke()
+            } returns flowOf(null)
         }
 
         fun withAppLockedByCurrentUser(state: Boolean) = apply {

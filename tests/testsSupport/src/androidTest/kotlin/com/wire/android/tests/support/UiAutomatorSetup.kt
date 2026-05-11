@@ -108,6 +108,11 @@ object UiAutomatorSetup {
 
     fun upgradeWireToRecentVersion(apkPath: String) {
         val device = getDevice()
+        // Log and verify the installed version so CI proves that the APK upgrade really happened.
+        val versionBeforeUpgrade = getInstalledWireVersion()
+        println("Installed Wire before upgrade: $versionBeforeUpgrade")
+        println("Upgrading Wire using APK: $apkPath")
+
         val output = device.executeShellCommand("pm install -r -d -g $apkPath").trim()
 
         if (!output.contains("Success")) {
@@ -117,8 +122,31 @@ object UiAutomatorSetup {
             )
         }
 
+        val versionAfterUpgrade = getInstalledWireVersion()
+        println("Installed Wire after upgrade: $versionAfterUpgrade")
+        if (versionAfterUpgrade.versionCode <= versionBeforeUpgrade.versionCode) {
+            throw IllegalStateException(
+                "Wire was not upgraded. Before: $versionBeforeUpgrade. After: $versionAfterUpgrade"
+            )
+        }
+
         startApp()
         waitAppStart(device)
+    }
+
+    // Reads the installed Wire version so upgrade tests can compare the app before and after installation.
+    private fun getInstalledWireVersion(): InstalledWireVersion {
+        val context: Context = getApplicationContext()
+        val packageInfo = context.packageManager.getPackageInfo(appPackage, 0)
+        val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            packageInfo.longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            packageInfo.versionCode.toLong()
+        }
+        val versionName = packageInfo.versionName ?: "<unknown>"
+
+        return InstalledWireVersion(versionName, versionCode)
     }
 
     // Setup-level wrapper that pre-grants notifications on Android 13+ via PermissionUtils.
@@ -130,5 +158,12 @@ object UiAutomatorSetup {
         runCatching {
             grantRuntimePermsForApp(appPackage, Manifest.permission.POST_NOTIFICATIONS)
         }
+    }
+
+    private data class InstalledWireVersion(
+        val versionName: String,
+        val versionCode: Long
+    ) {
+        override fun toString(): String = "versionName=$versionName versionCode=$versionCode"
     }
 }

@@ -299,6 +299,8 @@ jobs:
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
         run: |
           if [[ "${IS_UPGRADE}" == "true" && "${RESOLVED_CATEGORY}" == "criticalFlow" && -z "${RESOLVED_TESTCASE_ID}" ]]; then
+            # For full critical-flow upgrade runs, run normal critical-flow tests on the new APK first.
+            # Then run only upgrade tests afterward, starting them from the old APK.
             upgrade_device="${DEVICE_LIST%% *}"
             normal_status=0
             upgrade_status=0
@@ -330,6 +332,8 @@ jobs:
               exit "${upgrade_status}"
             fi
           elif [[ "${IS_UPGRADE}" == "true" ]]; then
+            # Single upgrade-tagged runs do not need the normal phase. They only
+            # pin execution to one device and install the old APK before launch.
             if [[ "${RESOLVED_CATEGORY}" == "upgrade" || "${RESOLVED_TESTCASE_ID}" == "TC-8607" ]]; then
               upgrade_device="${DEVICE_LIST%% *}"
               DEVICE_LIST="${upgrade_device}" \

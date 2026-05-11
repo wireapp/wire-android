@@ -49,6 +49,8 @@ combine_retry_state() {
   : "${RETRY_STATE_DIRS:?RETRY_STATE_DIRS not set}"
   : "${COMBINED_RETRY_STATE_DIR:?COMBINED_RETRY_STATE_DIR not set}"
 
+  # Upgrade critical-flow runs produce separate retry states for the normal and
+  # upgrade phases. Merge them back into one contract for the deflake artifact.
   mkdir -p "${COMBINED_RETRY_STATE_DIR}"
   local first_failed_file="${COMBINED_RETRY_STATE_DIR}/first-attempt-failed.txt"
   local final_failed_file="${COMBINED_RETRY_STATE_DIR}/final-failed.txt"
@@ -286,6 +288,7 @@ cleanup_workspace() {
   rm -f "${RUNNER_TEMP}/Wire.apk" "${RUNNER_TEMP}/Wire.old.apk" || true
 
   if [[ -n "${DEVICE_LIST:-}" ]]; then
+    # Remove APK copies pushed for upgrade runs; each new job pushes fresh files.
     read -ra DEVICES <<< "${DEVICE_LIST}"
     for serial in "${DEVICES[@]}"; do
       adb -s "${serial}" shell rm -f /data/local/tmp/Wire.old.apk /data/local/tmp/Wire.new.apk || true

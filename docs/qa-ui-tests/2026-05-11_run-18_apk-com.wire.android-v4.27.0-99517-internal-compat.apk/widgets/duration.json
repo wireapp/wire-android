@@ -1,0 +1,1 @@
+[{"uid":"304c1b72b7b79b53","name":"givenTeamUserWithConversationHistory_whenUpdatingFromPreviousWireVersion_thenHistoryIsPreserved","time":{"start":1778495662968,"stop":1778495723129,"duration":60161},"status":"passed","severity":"normal"}]

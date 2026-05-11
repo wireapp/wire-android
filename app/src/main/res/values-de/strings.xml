@@ -97,6 +97,14 @@
     <string name="content_description_delete_the_conversation">Unterhaltung löschen</string>
     <string name="content_description_conversation_phone_icon">Audioanruf starten</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
+    <string name="content_description_conversation_enable_rich_text_mode">Formatierungsoptionen öffnen</string>
+    <string name="content_description_conversation_enable_drawing_mode">Skizze zum Zeichnen oder Schreiben öffnen</string>
+    <string name="content_description_conversation_rich_text_header">Überschrift benutzen</string>
+    <string name="content_description_conversation_rich_text_bold">Fettdruck benutzen</string>
+    <string name="content_description_conversation_rich_text_italic">Kursivdruck benutzen</string>
+    <string name="content_description_conversation_rich_text_close">Formatierungsoptionen schließen</string>
+    <string name="content_description_conversation_send_emoticon">Emoji senden</string>
+    <string name="content_description_conversation_send_gif">GIF senden</string>
     <string name="content_description_conversation_mention_someone">Jemanden erwähnen</string>
     <string name="content_description_conversation_back_btn">Zurück zur Unterhaltungsliste</string>
     <string name="content_description_conversation_open_details_label">Unterhaltungsdetails öffnen</string>
@@ -112,6 +120,7 @@
     <string name="content_description_choose_from_gallery">Aus Galerie wählen</string>
     <string name="content_description_take_a_picture">Ein Bild machen</string>
     <string name="content_description_left_arrow">Zurück</string>
+    <string name="content_description_attachment_item">Anhang hinzufügen</string>
     <string name="content_description_open_message_details">Nachrichtendetails öffnen</string>
     <string name="content_description_copy_the_message">Nachricht kopieren</string>
     <string name="content_description_delete_the_message">Nachricht löschen</string>
@@ -1097,6 +1106,7 @@
     <string name="connection_label_ignore">Ignorieren</string>
     <string name="connection_label_send_unverified_warning">Verschaffen Sie sich Gewissheit über die Identität von %s, bevor Sie den Kontakt hinzufügen.</string>
     <string name="connection_label_received_unverified_warning">Bitte überprüfen Sie die Identität der Person, bevor Sie die Kontaktanfrage annehmen.</string>
+    <string name="connection_label_unverified_support_disclaimer">Das Support-Team von Wire wird Sie niemals über die App kontaktieren.</string>
     <string name="connection_label_user_not_found_warning_title">Wire kann diese Person nicht finden</string>
     <string name="connection_label_user_not_found_warning_description">Entweder fehlt die Berechtigung für dieses Benutzerkonto oder die Person nutzt Wire nicht.</string>
     <!-- Missing keyPackages dialog -->

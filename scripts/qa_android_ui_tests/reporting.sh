@@ -4,7 +4,7 @@ set -euo pipefail
 # Reporting and publication utilities for QA Android UI test workflows.
 
 usage() {
-  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|prepare-deflake-bundle|merge-allure-results|generate-allure-report|publish-allure-report|cleanup-workspace}" >&2
+  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|prepare-deflake-bundle|merge-allure-results|summarize-allure-results|generate-allure-report|publish-allure-report|cleanup-workspace}" >&2
   exit 2
 }
 
@@ -62,6 +62,13 @@ merge_allure_results() {
   # One merged dataset lets the final report reflect the latest outcome per
   # logical test instead of showing each rerun attempt as a separate result.
   python3 scripts/qa_android_ui_tests/merge_allure_results.py
+}
+
+summarize_allure_results() {
+  : "${MERGED_DIR:?MERGED_DIR not set}"
+  : "${GITHUB_OUTPUT:?GITHUB_OUTPUT not set}"
+
+  python3 scripts/qa_android_ui_tests/summarize_allure_results.py
 }
 
 generate_allure_report() {
@@ -138,6 +145,9 @@ publish_allure_report() {
 
   if [[ ! -d "${REPORT_DIR}" ]]; then
     echo "Allure report not found, skipping publish."
+    if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+      echo "allure_report_url=" >> "$GITHUB_OUTPUT"
+    fi
     return
   fi
 
@@ -210,7 +220,11 @@ publish_allure_report() {
   local org="${GITHUB_REPOSITORY%%/*}"
   local repo="${GITHUB_REPOSITORY##*/}"
   local base_url="https://${org}.github.io/${repo}"
-  echo "Allure report (run ${GITHUB_RUN_NUMBER}): ${base_url}/${pages_site_subdir}/${run_folder}/" >> "$GITHUB_STEP_SUMMARY"
+  local report_url="${base_url}/${pages_site_subdir}/${run_folder}/"
+  echo "Allure report (run ${GITHUB_RUN_NUMBER}): ${report_url}" >> "$GITHUB_STEP_SUMMARY"
+  if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+    echo "allure_report_url=${report_url}" >> "$GITHUB_OUTPUT"
+  fi
 }
 
 cleanup_workspace() {
@@ -253,6 +267,9 @@ case "${1:-}" in
     ;;
   merge-allure-results)
     merge_allure_results
+    ;;
+  summarize-allure-results)
+    summarize_allure_results
     ;;
   generate-allure-report)
     generate_allure_report

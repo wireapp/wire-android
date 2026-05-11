@@ -62,6 +62,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -91,7 +92,7 @@ import kotlin.time.Duration.Companion.hours
 
 const val MINUTES_IN_DAY = 60 * 24
 const val STATUS_INDICATOR_TEST_TAG = "status_indicator"
-const val UNREAD_INFO_TEST_TAG = "status_indicator"
+const val UNREAD_INFO_TEST_TAG = "unread_info"
 const val LEGAL_HOLD_INDICATOR_TEST_TAG = "legal_hold_indicator"
 const val TEMP_USER_INDICATOR_TEST_TAG = "temp_user_indicator"
 const val USER_AVATAR_TEST_TAG = "User avatar"
@@ -154,6 +155,11 @@ fun UserProfileAvatar(
             .wrapContentSize()
             .clip(CircleShape)
             .clickable(clickable)
+            .semantics {
+                if (clickable?.enabled == true) {
+                    role = Role.Button
+                }
+            }
     ) {
         var userStatusIndicatorParams by remember { mutableStateOf(Size.Zero to Offset.Zero) }
         Box(
@@ -236,6 +242,7 @@ fun UserProfileAvatar(
                 )
             }
 
+            val statusContentDescription = avatarData.getAvailabilityStatusDescriptionId()?.let { stringResource(it) }
             UserStatusIndicator(
                 status = avatarData.availabilityStatus,
                 size = statusSize,
@@ -247,7 +254,12 @@ fun UserProfileAvatar(
                     .onGloballyPositioned {
                         userStatusIndicatorParams = it.size.toSize() to it.positionInParent()
                     }
-                    .testTag(STATUS_INDICATOR_TEST_TAG)
+                    .semantics {
+                        this.testTag = STATUS_INDICATOR_TEST_TAG
+                        if (statusContentDescription != null) {
+                            this.contentDescription = statusContentDescription
+                        }
+                    }
             )
         }
     }

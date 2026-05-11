@@ -47,10 +47,14 @@ jobs:
           validateSingleCommit: true
       - name: Add Failure Label
         if: failure()
+        env:
+          REPO: ${{ github.repository }}
         run: |
           gh api repos/{owner}/{repo}/labels -f name="${CUSTOM_PR_LABEL}" -f color="FF0000" || true
-          gh pr edit "${HEAD}" --add-label "${CUSTOM_PR_LABEL}"
+          gh pr edit "${HEAD}" --repo "${REPO}" --add-label "${CUSTOM_PR_LABEL}"
       - name: Remove Failure Label
         if: success()
+        env:
+          REPO: ${{ github.repository }}
         run: |
-          gh pr edit "${HEAD}" --remove-label "${CUSTOM_PR_LABEL}"
+          gh pr edit "${HEAD}" --repo "${REPO}" --remove-label "${CUSTOM_PR_LABEL}"

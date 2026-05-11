@@ -91,12 +91,6 @@
     <string name="content_description_unblock_the_user">Sblocca</string>
     <string name="content_description_conversation_phone_icon">Avvia chiamata audio</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_enable_rich_text_mode">Abilita la modalit&#224; di testo avanzata</string>
-    <string name="content_description_conversation_rich_text_header">Intestazione formattata in testo ricco</string>
-    <string name="content_description_conversation_rich_text_bold">Grassetto formattazione in testo ricco</string>
-    <string name="content_description_conversation_rich_text_italic">Corsivo formattazione in testo ricco</string>
-    <string name="content_description_conversation_send_emoticon">Invia emoticon</string>
-    <string name="content_description_conversation_send_gif">Invia GIF</string>
     <string name="content_description_conversation_mention_someone">Menziona qualcuno</string>
     <string name="content_description_send_button">Invia</string>
     <string name="content_description_timed_message_button">Messaggi auto-cancellanti, pulsante</string>
@@ -110,7 +104,6 @@
     <string name="content_description_right_arrow">Freccia destra</string>
     <string name="content_description_left_arrow">Torna indietro</string>
     <string name="content_description_mention_icon">Icona di menzione</string>
-    <string name="content_description_attachment_item">Allega nuovo elemento alla conversazione</string>
     <string name="content_description_open_message_details">Apri dettagli messaggio</string>
     <string name="content_description_copy_the_message">Copia il messaggio</string>
     <string name="content_description_share_the_file">Condividi il file selezionato con un\'altra applicazione</string>

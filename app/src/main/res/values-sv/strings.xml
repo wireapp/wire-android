@@ -91,7 +91,6 @@
     <string name="content_description_take_a_picture">Ta en bild</string>
     <string name="content_description_right_arrow">Höger-pil</string>
     <string name="content_description_left_arrow">Gå tillbaka</string>
-    <string name="content_description_attachment_item">Bifoga nytt objekt till konversation</string>
     <string name="content_description_open_message_details">Öppna detaljer för meddelandet</string>
     <string name="content_description_copy_the_message">Kopiera meddelandet</string>
     <string name="content_description_share_the_file">Dela den valda filen med en annan app</string>

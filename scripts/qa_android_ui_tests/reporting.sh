@@ -4,11 +4,7 @@ set -euo pipefail
 # Reporting and publication utilities for QA Android UI test workflows.
 
 usage() {
-<<<<<<< HEAD
-  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|prepare-deflake-bundle|merge-allure-results|summarize-allure-results|generate-allure-report|publish-allure-report|cleanup-workspace}" >&2
-=======
-  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|combine-retry-state|prepare-deflake-bundle|merge-allure-results|generate-allure-report|publish-allure-report|cleanup-workspace}" >&2
->>>>>>> e77225a22 (fix upgrade)
+  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|combine-retry-state|prepare-deflake-bundle|merge-allure-results|summarize-allure-results|generate-allure-report|publish-allure-report|cleanup-workspace}" >&2
   exit 2
 }
 

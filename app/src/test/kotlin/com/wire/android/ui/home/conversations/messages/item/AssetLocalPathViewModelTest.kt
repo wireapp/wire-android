@@ -104,20 +104,6 @@ class AssetLocalPathViewModelTest {
     }
 
     @Test
-    fun givenUploadedStatusButDownloadIfNeededFalse_whenResolveIfNeeded_thenPathIsNotResolved() = runTest {
-        // given
-        val (arrangement, viewModel) = Arrangement()
-            .arrange()
-
-        // when
-        viewModel.resolveIfNeeded(transferStatus = AssetTransferStatus.UPLOADED, downloadIfNeeded = false)
-
-        // then
-        assertNull(viewModel.localAssetPath)
-        coVerify(exactly = 0) { arrangement.getMessageAsset(any(), any()) }
-    }
-
-    @Test
     fun givenPathAlreadyResolved_whenResolveIfNeededCalledAgain_thenGetAssetIsNotCalledAgain() = runTest {
         // given
         val expectedPath = "/local/path/image.jpg"

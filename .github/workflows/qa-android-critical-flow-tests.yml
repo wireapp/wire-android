@@ -298,18 +298,28 @@ jobs:
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
         run: |
-          if [[ "${IS_UPGRADE}" == "true" && "${RESOLVED_CATEGORY}" == "criticalFlow" && -z "${RESOLVED_TESTCASE_ID}" ]]; then
-            # For full critical-flow upgrade runs, run normal critical-flow tests on the new APK first.
+          if [[ "${IS_UPGRADE}" == "true" && ( "${RESOLVED_CATEGORY}" == "upgrade" || "${RESOLVED_TESTCASE_ID}" == "TC-8607" ) ]]; then
+            # Single upgrade-tagged runs do not need the normal phase. They only
+            # pin execution to one device and install the old APK before launch.
+            upgrade_device="${DEVICE_LIST%% *}"
+            DEVICE_LIST="${upgrade_device}" \
+              DEVICE_COUNT="1" \
+              APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH}" \
+              RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
+              bash scripts/qa_android_ui_tests/run_ui_tests.sh
+          elif [[ "${IS_UPGRADE}" == "true" && -z "${RESOLVED_TESTCASE_ID}" ]]; then
+            # For broad upgrade runs, run the selected normal tests on the new APK first.
             # Then run only upgrade tests afterward, starting them from the old APK.
             upgrade_device="${DEVICE_LIST%% *}"
+            normal_category="${RESOLVED_CATEGORY}"
             normal_status=0
             upgrade_status=0
 
-            echo "Running normal critical-flow tests first on the new APK."
-            RESOLVED_CATEGORY="criticalFlow" \
+            echo "Running normal tests first on the new APK, excluding upgrade tests."
+            RESOLVED_CATEGORY="${normal_category}" \
               EXCLUDE_CATEGORY="upgrade" \
-              RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-critical-flow" \
-              ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/critical-flow" \
+              RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-normal" \
+              ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/normal" \
               bash scripts/qa_android_ui_tests/run_ui_tests.sh || normal_status=$?
 
             echo "Running upgrade tests last with old APK installed before each attempt."
@@ -321,7 +331,7 @@ jobs:
               ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/upgrade" \
               bash scripts/qa_android_ui_tests/run_ui_tests.sh || upgrade_status=$?
 
-            RETRY_STATE_DIRS="${RUNNER_TEMP}/retry-state-critical-flow ${RUNNER_TEMP}/retry-state-upgrade" \
+            RETRY_STATE_DIRS="${RUNNER_TEMP}/retry-state-normal ${RUNNER_TEMP}/retry-state-upgrade" \
               COMBINED_RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-combined" \
               bash scripts/qa_android_ui_tests/reporting.sh combine-retry-state
 
@@ -330,19 +340,6 @@ jobs:
             fi
             if (( upgrade_status != 0 )); then
               exit "${upgrade_status}"
-            fi
-          elif [[ "${IS_UPGRADE}" == "true" ]]; then
-            # Single upgrade-tagged runs do not need the normal phase. They only
-            # pin execution to one device and install the old APK before launch.
-            if [[ "${RESOLVED_CATEGORY}" == "upgrade" || "${RESOLVED_TESTCASE_ID}" == "TC-8607" ]]; then
-              upgrade_device="${DEVICE_LIST%% *}"
-              DEVICE_LIST="${upgrade_device}" \
-                DEVICE_COUNT="1" \
-                APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH}" \
-                RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
-                bash scripts/qa_android_ui_tests/run_ui_tests.sh
-            else
-              bash scripts/qa_android_ui_tests/run_ui_tests.sh
             fi
           else
             bash scripts/qa_android_ui_tests/run_ui_tests.sh

@@ -373,9 +373,16 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                     )
                 }
 
-                is WithUser.MissedCall -> UILastMessageContent.TextMessage(
-                    MessageBody(UIText.PluralResource(R.plurals.unread_event_call, 1, 1))
-                )
+                is WithUser.MissedCall -> if (isSelfMessage) {
+                    UILastMessageContent.SenderWithMessage(
+                        userUIText,
+                        UIText.StringResource(R.string.last_message_call)
+                    )
+                } else {
+                    UILastMessageContent.TextMessage(
+                        MessageBody(UIText.PluralResource(R.plurals.unread_event_call, 1, 1))
+                    )
+                }
 
                 is WithUser.MembersCreationAdded -> UILastMessageContent.None
                 is WithUser.MembersFailedToAdd -> UILastMessageContent.None

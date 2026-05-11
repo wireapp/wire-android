@@ -23,13 +23,13 @@ on:
         type: string
 
       isUpgrade:
-        description: "Upgrade test? If true, oldBuildNumber is REQUIRED."
+        description: "Upgrade test? If true, oldBuildNumber is optional and defaults to the previous APK."
         required: true
         default: false
         type: boolean
 
       oldBuildNumber:
-        description: "For upgrade runs: type the old build number here"
+        description: "For upgrade runs: optional old build number. Leave empty to auto-pick the previous APK."
         required: false
         default: ""
         type: string
@@ -138,7 +138,7 @@ jobs:
 
           {
             echo "appBuildNumber=latest"
-            echo "isUpgrade=false"
+            echo "isUpgrade=true"
             echo "oldBuildNumber="
             echo "enforceAppInstall=false"
             echo "flavor=internal release candidate"
@@ -320,7 +320,7 @@ jobs:
           RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
           APP_BUILD_NUMBER_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAppBuildNumber }}
           IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
-          OLD_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedOldBuildNumber }}
+          OLD_BUILD_NUMBER: ${{ steps.download_apks.outputs.OLD_BUILD_NUMBER }}
           ENFORCE_APP_INSTALL: ${{ needs.validate-and-resolve-inputs.outputs.resolvedEnforceAppInstall }}
           TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
           ANDROID_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}

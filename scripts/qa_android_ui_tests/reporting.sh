@@ -223,6 +223,13 @@ cleanup_workspace() {
   rm -f "secrets.json" "${RUNNER_TEMP}/secrets.json" || true
   rm -f "${RUNNER_TEMP}/Wire.apk" "${RUNNER_TEMP}/Wire.old.apk" || true
 
+  if [[ -n "${DEVICE_LIST:-}" ]]; then
+    read -ra DEVICES <<< "${DEVICE_LIST}"
+    for serial in "${DEVICES[@]}"; do
+      adb -s "${serial}" shell rm -f /data/local/tmp/Wire.old.apk /data/local/tmp/Wire.new.apk || true
+    done
+  fi
+
   rm -rf "${ALLURE_RESULTS_DIR}" || true
   rm -rf "${ALLURE_RESULTS_MERGED_DIR}" || true
   rm -rf "${ALLURE_REPORT_DIR}" || true

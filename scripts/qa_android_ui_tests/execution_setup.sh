@@ -92,6 +92,8 @@ download_apks() {
 
   local new_s3_key=""
   local old_s3_key=""
+  local new_apk_name=""
+  local old_apk_name=""
   while IFS= read -r line || [[ -n "${line}" ]]; do
     [[ -z "${line}" ]] && continue
     if [[ "${line}" != *=* ]]; then
@@ -119,6 +121,12 @@ download_apks() {
       OLD_S3_KEY)
         old_s3_key="${value}"
         ;;
+      NEW_APK_NAME)
+        new_apk_name="${value}"
+        ;;
+      OLD_APK_NAME)
+        old_apk_name="${value}"
+        ;;
     esac
   done < "${apk_env_file}"
 
@@ -133,6 +141,9 @@ download_apks() {
   test -s "${new_apk_path}"
 
   if [[ "${IS_UPGRADE:-}" == "true" ]]; then
+    echo "OLD_APK_NAME=${old_apk_name}"
+    echo "NEW_APK_NAME=${new_apk_name}"
+
     if [[ -z "${old_s3_key}" ]]; then
       echo "ERROR: Missing OLD_S3_KEY for upgrade flow"
       exit 1
@@ -198,6 +209,8 @@ install_apks_on_devices() {
   : "${NEW_APK_PATH:?NEW_APK_PATH missing}"
   : "${GITHUB_ENV:?GITHUB_ENV not set}"
 
+  # Export stable device paths so instrumentation can install the old APK at
+  # the start of an upgrade test and the new APK during the upgrade step.
   local new_apk_device_path="/data/local/tmp/Wire.new.apk"
   local old_apk_device_path="/data/local/tmp/Wire.old.apk"
   echo "NEW_APK_DEVICE_PATH=${new_apk_device_path}" >> "$GITHUB_ENV"
@@ -228,15 +241,16 @@ install_apks_on_devices() {
 
     if [[ "${IS_UPGRADE:-}" == "true" ]]; then
       : "${OLD_APK_PATH:?OLD_APK_PATH missing for upgrade}"
-      # Upgrade tests need both APKs on the device because instrumentation
-      # receives those paths and performs the in-test upgrade flow itself.
+      # Keep both APK files available on the device for the in-test upgrade
+      # flow. Remove stale copies first so retries do not reuse an older file.
       ${adb_cmd} shell rm -f "${new_apk_device_path}" "${old_apk_device_path}" || true
       ${adb_cmd} push "${OLD_APK_PATH}" "${old_apk_device_path}" >/dev/null
       ${adb_cmd} push "${NEW_APK_PATH}" "${new_apk_device_path}" >/dev/null
-      ${adb_cmd} install ${install_flags} "${OLD_APK_PATH}"
-    else
-      ${adb_cmd} install ${install_flags} "${NEW_APK_PATH}"
     fi
+    # Always install the selected new APK before the suite starts. Normal
+    # critical-flow tests run on this APK, while upgrade tests temporarily
+    # reinstall the old APK from /data/local/tmp/Wire.old.apk themselves.
+    ${adb_cmd} install ${install_flags} "${NEW_APK_PATH}"
 
     if ! ${adb_cmd} shell pm list packages | grep -qx "package:${APP_ID}"; then
       echo "ERROR: '${APP_ID}' not installed on ${serial}."

@@ -189,7 +189,7 @@ jobs:
           RESOLVED_CATEGORY: ${{ steps.validate_deflake_input.outputs.selectorType == 'category' && steps.validate_deflake_input.outputs.selectorValue || '' }}
           APP_BUILD_NUMBER_INPUT: ${{ steps.validate_deflake_input.outputs.resolvedBuildNumber || steps.validate_deflake_input.outputs.appBuildNumberInput }}
           IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
-          OLD_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.oldBuildNumber }}
+          OLD_BUILD_NUMBER: ${{ steps.download_apks.outputs.OLD_BUILD_NUMBER }}
           ENFORCE_APP_INSTALL: ${{ steps.validate_deflake_input.outputs.enforceAppInstall }}
           TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
           ANDROID_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}

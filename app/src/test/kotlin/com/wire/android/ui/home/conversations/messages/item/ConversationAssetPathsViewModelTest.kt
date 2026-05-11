@@ -50,10 +50,10 @@ class ConversationAssetPathsViewModelTest {
             .arrange()
 
         // when
-        viewModel.resolveIfNeeded(
+        viewModel.localAssetPath(
             conversationId = arrangement.conversationId,
             messageId = arrangement.messageId,
-            transferStatus = AssetTransferStatus.UPLOADED,
+            assetStatus = AssetTransferStatus.UPLOADED,
             downloadIfNeeded = true
         )
 
@@ -92,10 +92,10 @@ class ConversationAssetPathsViewModelTest {
             .withGetMessageAssetSuccess(expectedPath)
             .arrange()
 
-        viewModel.resolveIfNeeded(
+        viewModel.localAssetPath(
             conversationId = arrangement.conversationId,
             messageId = arrangement.messageId,
-            transferStatus = AssetTransferStatus.UPLOADED,
+            assetStatus = AssetTransferStatus.UPLOADED,
             downloadIfNeeded = true
         )
 
@@ -121,10 +121,10 @@ class ConversationAssetPathsViewModelTest {
             .arrange()
 
         // when
-        viewModel.resolveIfNeeded(
+        viewModel.localAssetPath(
             conversationId = arrangement.conversationId,
             messageId = arrangement.messageId,
-            transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
+            assetStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
             downloadIfNeeded = true
         )
 
@@ -141,19 +141,19 @@ class ConversationAssetPathsViewModelTest {
             .withGetMessageAssetSuccess(expectedPath)
             .arrange()
 
-        viewModel.resolveIfNeeded(
+        viewModel.localAssetPath(
             conversationId = arrangement.conversationId,
             messageId = arrangement.messageId,
-            transferStatus = AssetTransferStatus.UPLOADED,
+            assetStatus = AssetTransferStatus.UPLOADED,
             downloadIfNeeded = true
         )
         assertEquals(expectedPath, viewModel.localAssetPath(arrangement.messageId))
 
         // when
-        viewModel.resolveIfNeeded(
+        viewModel.localAssetPath(
             conversationId = arrangement.conversationId,
             messageId = arrangement.messageId,
-            transferStatus = AssetTransferStatus.UPLOADED,
+            assetStatus = AssetTransferStatus.UPLOADED,
             downloadIfNeeded = true
         )
 
@@ -174,16 +174,16 @@ class ConversationAssetPathsViewModelTest {
             .arrange()
 
         // when
-        viewModel.resolveIfNeeded(
+        viewModel.localAssetPath(
             conversationId = arrangement.conversationId,
             messageId = firstMessageId,
-            transferStatus = AssetTransferStatus.UPLOADED,
+            assetStatus = AssetTransferStatus.UPLOADED,
             downloadIfNeeded = true
         )
-        viewModel.resolveIfNeeded(
+        viewModel.localAssetPath(
             conversationId = arrangement.conversationId,
             messageId = secondMessageId,
-            transferStatus = AssetTransferStatus.UPLOADED,
+            assetStatus = AssetTransferStatus.UPLOADED,
             downloadIfNeeded = true
         )
 
@@ -200,10 +200,10 @@ class ConversationAssetPathsViewModelTest {
             .arrange()
 
         // when
-        viewModel.resolveIfNeeded(
+        viewModel.localAssetPath(
             conversationId = arrangement.conversationId,
             messageId = arrangement.messageId,
-            transferStatus = AssetTransferStatus.UPLOADED,
+            assetStatus = AssetTransferStatus.UPLOADED,
             downloadIfNeeded = true
         )
 
@@ -218,10 +218,10 @@ class ConversationAssetPathsViewModelTest {
             .arrange()
 
         // when
-        viewModel.resolveIfNeeded(
+        viewModel.localAssetPath(
             conversationId = arrangement.conversationId,
             messageId = arrangement.messageId,
-            transferStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS,
+            assetStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS,
             downloadIfNeeded = true
         )
 

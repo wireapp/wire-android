@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.core.criticalFlows
+package com.wire.android.tests.core.tests
 
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -73,7 +73,7 @@ class UpgradeVersion : BaseUiTest() {
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-8607")
-    @Category("criticalFlow", "upgrade")
+    @Category("regression", "upgrade")
     @Test
     fun givenTeamUserWithConversationHistory_whenUpdatingFromPreviousWireVersion_thenHistoryIsPreserved() {
         step("There is a team owner with a team named UpgradeTeam") {

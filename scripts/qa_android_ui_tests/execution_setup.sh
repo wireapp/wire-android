@@ -209,8 +209,8 @@ install_apks_on_devices() {
   : "${NEW_APK_PATH:?NEW_APK_PATH missing}"
   : "${GITHUB_ENV:?GITHUB_ENV not set}"
 
-  # Export stable device paths so instrumentation can install the old APK at
-  # the start of an upgrade test and the new APK during the upgrade step.
+  # Export stable device paths so upgrade tests can install the new APK during
+  # the in-test upgrade step. CI also keeps the old APK available for setup.
   local new_apk_device_path="/data/local/tmp/Wire.new.apk"
   local old_apk_device_path="/data/local/tmp/Wire.old.apk"
   echo "NEW_APK_DEVICE_PATH=${new_apk_device_path}" >> "$GITHUB_ENV"
@@ -247,9 +247,8 @@ install_apks_on_devices() {
       ${adb_cmd} push "${OLD_APK_PATH}" "${old_apk_device_path}" >/dev/null
       ${adb_cmd} push "${NEW_APK_PATH}" "${new_apk_device_path}" >/dev/null
     fi
-    # Always install the selected new APK before the suite starts. Normal
-    # critical-flow tests run on this APK, while upgrade tests temporarily
-    # reinstall the old APK from /data/local/tmp/Wire.old.apk themselves.
+    # Always install the selected new APK during general setup. The upgrade
+    # phase explicitly reinstalls the old device-side APK before instrumentation.
     ${adb_cmd} install ${install_flags} "${NEW_APK_PATH}"
 
     if ! ${adb_cmd} shell pm list packages | grep -qx "package:${APP_ID}"; then

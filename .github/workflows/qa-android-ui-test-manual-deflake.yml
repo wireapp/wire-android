@@ -166,7 +166,51 @@ jobs:
           RERUN_FAILED_ENABLED: ${{ steps.validate_deflake_input.outputs.rerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
-        run: bash scripts/qa_android_ui_tests/run_ui_tests.sh
+        run: |
+          if [[ "${IS_UPGRADE}" == "true" ]]; then
+            upgrade_failed_file="${RUNNER_TEMP}/deflake-upgrade-failed-tests.txt"
+            normal_failed_file="${RUNNER_TEMP}/deflake-normal-failed-tests.txt"
+            normal_status=0
+            upgrade_status=0
+            retry_state_dirs=""
+            grep 'criticalFlows\.UpgradeVersion#' "${INITIAL_FAILED_TESTS_FILE}" > "${upgrade_failed_file}" || true
+            grep -v 'criticalFlows\.UpgradeVersion#' "${INITIAL_FAILED_TESTS_FILE}" > "${normal_failed_file}" || true
+
+            if [[ -s "${normal_failed_file}" ]]; then
+              INITIAL_FAILED_TESTS_FILE="${normal_failed_file}" \
+                RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-normal-deflake" \
+                ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/normal" \
+                bash scripts/qa_android_ui_tests/run_ui_tests.sh || normal_status=$?
+              retry_state_dirs="${retry_state_dirs} ${RUNNER_TEMP}/retry-state-normal-deflake"
+            fi
+
+            if [[ -s "${upgrade_failed_file}" ]]; then
+              upgrade_device="${DEVICE_LIST%% *}"
+              DEVICE_LIST="${upgrade_device}" \
+                DEVICE_COUNT="1" \
+                INITIAL_FAILED_TESTS_FILE="${upgrade_failed_file}" \
+                APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH}" \
+                RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade-deflake" \
+                ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/upgrade" \
+                bash scripts/qa_android_ui_tests/run_ui_tests.sh || upgrade_status=$?
+              retry_state_dirs="${retry_state_dirs} ${RUNNER_TEMP}/retry-state-upgrade-deflake"
+            fi
+
+            if [[ -n "${retry_state_dirs// /}" ]]; then
+              RETRY_STATE_DIRS="${retry_state_dirs}" \
+                COMBINED_RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-deflake-combined" \
+                bash scripts/qa_android_ui_tests/reporting.sh combine-retry-state
+            fi
+
+            if (( normal_status != 0 )); then
+              exit "${normal_status}"
+            fi
+            if (( upgrade_status != 0 )); then
+              exit "${upgrade_status}"
+            fi
+          else
+            bash scripts/qa_android_ui_tests/run_ui_tests.sh
+          fi
 
       # Publish a fresh deflake bundle so a later run can deflake this manual
       # deflake execution without going back to qa-android-critical-flow-tests.yml.

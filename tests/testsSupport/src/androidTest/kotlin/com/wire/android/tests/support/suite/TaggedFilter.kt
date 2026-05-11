@@ -33,7 +33,7 @@ import java.io.File
 /**
  * JUnit filter used by AndroidJUnitRunner / AllureAndroidJUnitRunner.
  *
- * Supports normal selector args (@TestCaseId, @Category, @Tag),
+ * Supports normal selector args (@TestCaseId, @Category, @Tag, excludeCategory),
  * and rerun selector args (Class#method).
  */
 class TaggedFilter : Filter() {
@@ -41,6 +41,7 @@ class TaggedFilter : Filter() {
 
     private val filterTestCaseId: String? = args.getString("testCaseId")
     private val filterCategory: String? = args.getString("category")
+    private val excludeCategory: String? = args.getString("excludeCategory")
     private val filterTagKey: String? = args.getString("tagKey")
     private val filterTagValue: String? = args.getString("tagValue")
 
@@ -64,6 +65,7 @@ class TaggedFilter : Filter() {
         // No filters -> include everything
         if (filterTestCaseId == null &&
             filterCategory == null &&
+            excludeCategory == null &&
             filterTagKey == null &&
             filterTagValue == null
         ) {
@@ -156,6 +158,14 @@ class TaggedFilter : Filter() {
 
     private fun matchesFilters(description: Description): Boolean {
         val annos = description.annotations
+        val cats = annos.filterIsInstance<Category>()
+
+        excludeCategory?.let { excludedCat ->
+            val matchesExcludedCat = cats.any { catAnno ->
+                catAnno.value.contains(excludedCat)
+            }
+            if (matchesExcludedCat) return false
+        }
 
         // 1) TestCaseId
         filterTestCaseId?.let { wantedId ->
@@ -167,7 +177,6 @@ class TaggedFilter : Filter() {
 
         // 2) Category (Category(vararg val value: String))
         filterCategory?.let { wantedCat ->
-            val cats = annos.filterIsInstance<Category>()
             if (cats.isEmpty()) return false
 
             val matchesCat = cats.any { catAnno ->
@@ -194,7 +203,8 @@ class TaggedFilter : Filter() {
 
     override fun describe(): String {
         return "TaggedFilter(testCaseId=$filterTestCaseId, " +
-                "category=$filterCategory, tagKey=$filterTagKey, tagValue=$filterTagValue, " +
+                "category=$filterCategory, excludeCategory=$excludeCategory, " +
+                "tagKey=$filterTagKey, tagValue=$filterTagValue, " +
                 "rerunModeEnabled=$rerunModeEnabled, rerunAttempt=$rerunAttempt)"
     }
 }

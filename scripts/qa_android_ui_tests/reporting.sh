@@ -4,7 +4,11 @@ set -euo pipefail
 # Reporting and publication utilities for QA Android UI test workflows.
 
 usage() {
+<<<<<<< HEAD
   echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|prepare-deflake-bundle|merge-allure-results|summarize-allure-results|generate-allure-report|publish-allure-report|cleanup-workspace}" >&2
+=======
+  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|combine-retry-state|prepare-deflake-bundle|merge-allure-results|generate-allure-report|publish-allure-report|cleanup-workspace}" >&2
+>>>>>>> e77225a22 (fix upgrade)
   exit 2
 }
 
@@ -22,12 +26,10 @@ pull_allure_results() {
   mkdir -p "${out_dir}"
 
   # Retry-aware runs already persist per-attempt results during execution.
-  if compgen -G "${out_dir}/attempt-*" >/dev/null; then
-    if find "${out_dir}"/attempt-* -type f -name '*-result.json' -print -quit | grep -q .; then
-      echo "Per-attempt Allure results already present under ${out_dir}; skipping fallback pull."
-      return
-    fi
-    echo "Attempt folders exist but no result files found yet; running fallback pull."
+  # Upgrade runs may store phase results one level deeper under this root.
+  if find "${out_dir}" -type f -name '*-result.json' -print -quit | grep -q .; then
+    echo "Per-attempt Allure results already present under ${out_dir}; skipping fallback pull."
+    return
   fi
 
   if [[ -z "${DEVICE_LIST:-}" ]]; then
@@ -45,6 +47,56 @@ pull_allure_results() {
     adb -s "${serial}" pull "/sdcard/googletest/test_outputfiles/allure-results" "${out_dir}/${serial}" >/dev/null 2>&1 || true
     idx=$((idx + 1))
   done
+}
+
+combine_retry_state() {
+  : "${RETRY_STATE_DIRS:?RETRY_STATE_DIRS not set}"
+  : "${COMBINED_RETRY_STATE_DIR:?COMBINED_RETRY_STATE_DIR not set}"
+
+  mkdir -p "${COMBINED_RETRY_STATE_DIR}"
+  local first_failed_file="${COMBINED_RETRY_STATE_DIR}/first-attempt-failed.txt"
+  local final_failed_file="${COMBINED_RETRY_STATE_DIR}/final-failed.txt"
+  : > "${first_failed_file}"
+  : > "${final_failed_file}"
+
+  read -ra STATE_DIRS <<< "${RETRY_STATE_DIRS}"
+  for state_dir in "${STATE_DIRS[@]}"; do
+    [[ -d "${state_dir}" ]] || continue
+
+    if [[ -s "${state_dir}/first-attempt-failed.txt" ]]; then
+      cat "${state_dir}/first-attempt-failed.txt" >> "${first_failed_file}"
+    fi
+
+    local latest_failed_file=""
+    while IFS= read -r candidate; do
+      latest_failed_file="${candidate}"
+    done < <(find "${state_dir}" -maxdepth 1 -type f -name 'attempt-*-failed.txt' | sort -V)
+
+    if [[ -n "${latest_failed_file}" && -s "${latest_failed_file}" ]]; then
+      cat "${latest_failed_file}" >> "${final_failed_file}"
+    fi
+  done
+
+  sort -u "${first_failed_file}" -o "${first_failed_file}"
+  sort -u "${final_failed_file}" -o "${final_failed_file}"
+
+  local first_failed_count
+  local final_failed_count
+  local passed_on_rerun_count=0
+  first_failed_count="$(grep -cve '^[[:space:]]*$' "${first_failed_file}" || true)"
+  final_failed_count="$(grep -cve '^[[:space:]]*$' "${final_failed_file}" || true)"
+  if (( first_failed_count > final_failed_count )); then
+    passed_on_rerun_count=$((first_failed_count - final_failed_count))
+  fi
+
+  {
+    echo "RETRY_STATE_DIR=${COMBINED_RETRY_STATE_DIR}"
+    echo "FIRST_FAILED_TESTS_FILE=${first_failed_file}"
+    echo "FINAL_FAILED_TESTS_FILE=${final_failed_file}"
+    echo "FIRST_FAILED_TESTS_COUNT=${first_failed_count}"
+    echo "FINAL_FAILED_TESTS_COUNT=${final_failed_count}"
+    echo "PASSED_ON_RERUN_COUNT=${passed_on_rerun_count}"
+  } >> "${GITHUB_ENV}"
 }
 
 prepare_deflake_bundle() {
@@ -261,6 +313,9 @@ case "${1:-}" in
     ;;
   pull-allure-results)
     pull_allure_results
+    ;;
+  combine-retry-state)
+    combine_retry_state
     ;;
   prepare-deflake-bundle)
     prepare_deflake_bundle

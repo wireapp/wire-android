@@ -60,11 +60,6 @@ class UpgradeVersion : BaseUiTest() {
 
     @After
     fun tearDown() {
-        // CI provides the new APK path so the shared device is restored even if this test fails before the upgrade step.
-        val recentWireApkPath = InstrumentationRegistry.getArguments().getString("newApkPath")
-        if (recentWireApkPath != null) {
-            UiAutomatorSetup.upgradeWireToRecentVersion(recentWireApkPath)
-        }
         cleanupCreatedUsers(backendClient, teamHelper.usersManager)
     }
 
@@ -74,21 +69,13 @@ class UpgradeVersion : BaseUiTest() {
      * Run: ./gradlew :tests:testsCore:connectedDebugAndroidTest \
      *   -Pandroid.testInstrumentationRunnerArguments.testCaseId=TC-8607 \
      *   -Pandroid.testInstrumentationRunnerArguments.newApkPath=/data/local/tmp/Wire.new.apk
-     * CI also passes oldApkPath so the test can install old Wire itself.
+     * CI installs the old APK before instrumentation starts because Android blocks in-test downgrades.
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-8607")
     @Category("criticalFlow", "upgrade")
     @Test
     fun givenTeamUserWithConversationHistory_whenUpdatingFromPreviousWireVersion_thenHistoryIsPreserved() {
-        step("Given I reinstall the old Wire Version") {
-            // CI passes oldApkPath when this test runs with other critical flows; local runs should preinstall the old APK.
-            val oldWireApkPath = InstrumentationRegistry.getArguments().getString("oldApkPath")
-            if (oldWireApkPath != null) {
-                UiAutomatorSetup.installOldWireVersion(oldWireApkPath)
-            }
-        }
-
         step("There is a team owner with a team named UpgradeTeam") {
             teamHelper.usersManager.createTeamOwnerByAlias(
                 "user1Name",

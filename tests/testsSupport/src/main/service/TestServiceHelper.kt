@@ -390,6 +390,23 @@ class TestServiceHelper(
         }
     }
 
+    fun userHas1on1ConversationInTeam(
+        chatOwnerNameAlias: String,
+        otherParticipantsNameAlises: String,
+        teamName: String
+    ) {
+        val chatOwner = toClientUser(chatOwnerNameAlias)
+        val participants = usersManager
+            .splitAliases(otherParticipantsNameAlises)
+            .map(this::toClientUser)
+        val backend = backendFor(chatOwner)
+
+        runBlocking {
+            val dstTeam = backend.getTeamByName(chatOwner, teamName)
+            backend.createTeamConversation(chatOwner, participants, null, dstTeam)
+        }
+    }
+
     fun isSendReadReceiptEnabled(userNameAlias: String): Boolean {
         val user = toClientUser(userNameAlias)
         val backend = backendFor(user)

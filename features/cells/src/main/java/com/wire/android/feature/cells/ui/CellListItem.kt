@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.animation.AnimatedContent
@@ -23,8 +25,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
-import com.wire.android.util.cellFileDateTime
-import kotlinx.datetime.Instant
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -82,8 +82,10 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.cellFileDateTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
+import kotlinx.datetime.Instant
 import okio.Path.Companion.toOkioPath
 import kotlin.io.path.Path
 import com.wire.android.ui.common.R as commonR
@@ -192,6 +194,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean) {
             color = colorsScheme().secondaryText,
             maxLines = 1,
         )
+
         cell.openLoadState is OpenLoadState.Error -> Text(
             text = stringResource(R.string.unable_to_load_retry),
             textAlign = TextAlign.Left,
@@ -210,6 +213,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean) {
                 color = colorsScheme().secondaryText,
                 maxLines = 1,
             )
+
         showReadyState -> Text(
             text = stringResource(R.string.ready_to_open),
             textAlign = TextAlign.Left,
@@ -218,6 +222,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean) {
             color = colorsScheme().primary,
             maxLines = 1,
         )
+
         else -> {
             if (cell.isAvailableOffline) {
                 Icon(
@@ -309,7 +314,7 @@ internal fun DownloadingIconPreview(progress: Float?) {
                 strokeCap = StrokeCap.Round,
             )
             Icon(
-                imageVector =  ImageVector.vectorResource(id =R.drawable.ic_arrow),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_arrow),
                 contentDescription = null,
                 tint = color,
                 modifier = Modifier.size(dimensions().spacing16x)
@@ -448,8 +453,10 @@ private fun CellNodeUi.subtitle(): String? {
     return when {
         userName != null && conversationName != null ->
             stringResource(R.string.file_subtitle, userName!!, conversationName!!)
+
         userName != null && formattedTime != null ->
             stringResource(R.string.file_subtitle_modified, formattedTime, userName!!)
+
         userName != null -> userName
         conversationName != null -> conversationName
         formattedTime != null -> formattedTime

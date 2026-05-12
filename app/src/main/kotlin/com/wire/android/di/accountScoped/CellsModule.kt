@@ -62,6 +62,8 @@ import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUs
 import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
+import com.wire.kalium.cells.domain.usecase.GetConversationNamesUseCase
+import com.wire.kalium.cells.domain.usecase.GetUserNamesUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
@@ -279,4 +281,12 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideGetOfflineFileUseCase(cellsScope: CellsScope): GetOfflineFileUseCase = cellsScope.getOfflineFile
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetConversationNamesUseCase(cellsScope: CellsScope): GetConversationNamesUseCase = cellsScope.getConversationNames
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetUserNamesUseCase(cellsScope: CellsScope): GetUserNamesUseCase = cellsScope.getUserNames
 }

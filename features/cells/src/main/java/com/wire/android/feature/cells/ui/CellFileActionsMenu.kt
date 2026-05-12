@@ -35,7 +35,20 @@ class CellFileActionsMenu @Inject constructor(
         isAllFiles: Boolean,
         isSearching: Boolean,
         isCollaboraEnabled: Boolean,
+        isOnline: Boolean = true,
     ): List<NodeBottomSheetAction> {
+        if (!isOnline) {
+            return buildList {
+                val canOpenOffline = cellNode is CellNodeUi.Folder ||
+                        (cellNode is CellNodeUi.File && cellNode.localFileAvailable())
+                if (canOpenOffline) {
+                    add(NodeBottomSheetAction.OPEN)
+                }
+                if (cellNode is CellNodeUi.File && cellNode.isAvailableOffline) {
+                    add(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS)
+                }
+            }
+        }
         return when {
             isRecycleBin -> recycleBinActions()
 
@@ -79,6 +92,8 @@ class CellFileActionsMenu @Inject constructor(
 
                 else -> {
 
+                    add(NodeBottomSheetAction.OPEN)
+
                     if (cellNode.localFileAvailable()) {
                         add(NodeBottomSheetAction.SHARE)
                     }
@@ -92,6 +107,8 @@ class CellFileActionsMenu @Inject constructor(
                     )
                 }
             }
+        } else {
+            add(NodeBottomSheetAction.OPEN)
         }
 
         add(NodeBottomSheetAction.PUBLIC_LINK)
@@ -131,6 +148,7 @@ class CellFileActionsMenu @Inject constructor(
 
     internal sealed interface MenuActionResult
     internal data class Action(val action: CellViewAction) : MenuActionResult
+    internal data class Open(val node: CellNodeUi) : MenuActionResult
     internal data class Share(val node: CellNodeUi.File) : MenuActionResult
     internal data class Edit(val node: CellNodeUi) : MenuActionResult
     internal data class CancelLoading(val node: CellNodeUi) : MenuActionResult
@@ -146,6 +164,7 @@ class CellFileActionsMenu @Inject constructor(
         onResult: (MenuActionResult) -> Unit,
     ) {
         val result = when (action) {
+            NodeBottomSheetAction.OPEN -> Open(node)
             NodeBottomSheetAction.SHARE -> {
                 if (node is CellNodeUi.File) {
                     Share(node)

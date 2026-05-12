@@ -17,11 +17,13 @@
  */
 package com.wire.android.feature.cells.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,6 +32,7 @@ import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTa
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
@@ -48,26 +51,52 @@ fun AllFilesScreen(
 ) {
 
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
+    val isOnline by viewModel.isOnline.collectAsState()
 
     WireScaffold(
         modifier = modifier,
         topBar = {
             Column {
-                SearchTopBar(
-                    modifier = Modifier,
-                    isSearchActive = false,
-                    searchBarHint = stringResource(R.string.search_label),
-                    searchQueryTextState = rememberTextFieldState(),
-                    onTap = {
-                        navigator.navigate(
-                            NavigationCommand(
-                                SearchScreenDestination(
-                                    screenType = DriveSearchScreenType.DRIVE,
+                AnimatedContent(isOnline) {
+                    if (it) {
+                        SearchTopBar(
+                            modifier = Modifier,
+                            isSearchActive = false,
+                            searchBarHint = stringResource(R.string.search_label),
+                            searchQueryTextState = rememberTextFieldState(),
+                            onTap = {
+                                navigator.navigate(
+                                    NavigationCommand(
+                                        SearchScreenDestination(
+                                            screenType = DriveSearchScreenType.DRIVE,
+                                        )
+                                    )
                                 )
-                            )
+                            },
                         )
-                    },
-                )
+                    } else {
+                        OfflineBanner()
+                    }
+                }
+//                if (isOnline) {
+//                    SearchTopBar(
+//                        modifier = Modifier,
+//                        isSearchActive = false,
+//                        searchBarHint = stringResource(R.string.search_label),
+//                        searchQueryTextState = rememberTextFieldState(),
+//                        onTap = {
+//                            navigator.navigate(
+//                                NavigationCommand(
+//                                    SearchScreenDestination(
+//                                        screenType = DriveSearchScreenType.DRIVE,
+//                                    )
+//                                )
+//                            )
+//                        },
+//                    )
+//                } else {
+//                    OfflineBanner()
+//                }
             }
         },
     ) { innerPadding ->

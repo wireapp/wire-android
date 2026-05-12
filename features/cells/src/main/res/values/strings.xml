@@ -85,8 +85,10 @@
     <string name="make_available_offline_label">Make available offline</string>
     <string name="remove_offline_access_label">Remove offline access</string>
     <string name="offline_file_saved_message">File saved for offline use</string>
+    <string name="offline_banner_message">You\'re offline and can see only saved files</string>
     <string name="file_open_snackbar_message">\"%1$s\" ready to open</string>
     <string name="file_open_snackbar_action">Open</string>
+    <string name="open_label">Open</string>
     <string name="create_folder_error">Unable to create folder. Please try again</string>
     <string name="move_to_folder">Move to folder</string>
     <string name="move_here">Move Here</string>

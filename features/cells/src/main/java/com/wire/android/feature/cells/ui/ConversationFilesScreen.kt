@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -56,6 +57,7 @@ import com.ramcosta.composedestinations.generated.cells.destinations.SearchScree
 import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
 import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
@@ -103,6 +105,8 @@ fun ConversationFilesScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
+    val isOnline by viewModel.isOnline.collectAsState()
+
     ConversationFilesScreenContent(
         animatedVisibilityScope = animatedVisibilityScope,
         navigator = navigator,
@@ -112,6 +116,7 @@ fun ConversationFilesScreen(
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         menu = viewModel.menu,
         isSearchResult = false,
+        isOnline = isOnline,
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
         isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
         isRefreshing = viewModel.isPullToRefresh.collectAsState(),
@@ -146,6 +151,7 @@ internal fun ConversationFilesScreenContent(
     screenTitle: String? = null,
     isRecycleBin: Boolean = false,
     isRestoreInProgress: Boolean = false,
+    isOnline: Boolean = true,
     breadcrumbs: Array<String>? = emptyArray(),
     fileReadyFlow: Flow<CellNodeUi.File> = emptyFlow(),
 ) {
@@ -232,23 +238,27 @@ internal fun ConversationFilesScreenContent(
                         }
                     )
 
-                    SearchTopBar(
-                        modifier = Modifier
-                            .sharedElement(
-                                sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
-                                animatedVisibilityScope = animatedVisibilityScope
-                            ),
-                        isSearchActive = false,
-                        searchBarHint = stringResource(R.string.search_label),
-                        searchQueryTextState = TextFieldState(),
-                        onTap = {
-                            currentNodeUuid?.let {
-                                navigator.navigate(
-                                    NavigationCommand(SearchScreenDestination(conversationId = it))
-                                )
-                            }
-                        },
-                    )
+                    if (isOnline) {
+                        SearchTopBar(
+                            modifier = Modifier
+                                .sharedElement(
+                                    sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
+                                    animatedVisibilityScope = animatedVisibilityScope
+                                ),
+                            isSearchActive = false,
+                            searchBarHint = stringResource(R.string.search_label),
+                            searchQueryTextState = TextFieldState(),
+                            onTap = {
+                                currentNodeUuid?.let {
+                                    navigator.navigate(
+                                        NavigationCommand(SearchScreenDestination(conversationId = it))
+                                    )
+                                }
+                            },
+                        )
+                    } else {
+                        OfflineBanner()
+                    }
                 }
             },
             floatingActionButton = {

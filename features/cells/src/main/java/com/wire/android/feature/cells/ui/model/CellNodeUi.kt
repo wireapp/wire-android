@@ -85,6 +85,7 @@ sealed class CellNodeUi {
         internal override val openLoadState: OpenLoadState? = null,
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
+        val conversationId: String? = null,
     ) : CellNodeUi()
 }
 
@@ -107,6 +108,7 @@ internal fun Node.File.toUiModel(
     userHandle = userHandle,
     ownerUserId = ownerUserId,
     conversationName = conversationName,
+    conversationId = conversationId,
     publicLinkId = publicLinkId,
     modifiedTime = formattedModifiedTime(),
     tags = tags,

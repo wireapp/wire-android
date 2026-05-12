@@ -147,7 +147,7 @@ class OpenFileDownloadController @Inject constructor(
         if (result is Either.Left) {
             showSpinnerJob.cancel()
             activeDownloads.remove(cellNode.uuid)
-            // Fire-and-forget delete so the state update below is not blocked by IO.
+
             launch(Dispatchers.IO) { File(filePath.toString()).delete() }
             if (result.value.isNoSpaceLeft()) {
                 sharedPathCache.clearOpenLoadState(cellNode.uuid)

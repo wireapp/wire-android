@@ -105,6 +105,8 @@ fun VideoMessage(
             size = assetSize,
             messageStyle = messageStyle,
             modifier = Modifier
+                .padding(top = dimensions().spacing4x)
+                .padding(horizontal = dimensions().spacing4x)
                 .fillMaxWidth()
         )
 
@@ -115,7 +117,9 @@ fun VideoMessage(
         }
 
         Text(
-            modifier = Modifier.align(Alignment.Start),
+            modifier = Modifier
+                .padding(horizontal = dimensions().spacing6x)
+                .align(Alignment.Start),
             text = assetName,
             style = typography().body02,
             color = textColor,

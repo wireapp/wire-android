@@ -23,6 +23,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.DOWNLOAD_IN_PROGRESS
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_DOWNLOADED
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.SAVED_INTERNALLY
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOADED
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -40,13 +44,6 @@ interface ConversationAssetPathsViewModel {
         assetStatus: AssetTransferStatus?,
         downloadIfNeeded: Boolean = false,
     ): String? = null
-
-    fun resolveIfNeeded(
-        conversationId: ConversationId,
-        messageId: String,
-        transferStatus: AssetTransferStatus,
-        downloadIfNeeded: Boolean = false,
-    ) {}
 }
 
 object ConversationAssetPathsViewModelPreview : ConversationAssetPathsViewModel
@@ -72,51 +69,46 @@ class ConversationAssetPathsViewModelImpl @Inject constructor(
             resolveIfNeeded(
                 conversationId = conversationId,
                 messageId = messageId,
-                transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                transferStatus = assetStatus ?: NOT_DOWNLOADED,
                 downloadIfNeeded = downloadIfNeeded,
             )
         }
     }
 
-    override fun resolveIfNeeded(
+    private fun resolveIfNeeded(
         conversationId: ConversationId,
         messageId: String,
         transferStatus: AssetTransferStatus,
         downloadIfNeeded: Boolean
     ) {
-        val shouldResolve = when {
-            downloadIfNeeded ->
-                transferStatus == AssetTransferStatus.NOT_DOWNLOADED ||
-                    transferStatus == AssetTransferStatus.DOWNLOAD_IN_PROGRESS ||
-                    transferStatus == AssetTransferStatus.SAVED_INTERNALLY ||
-                    transferStatus == AssetTransferStatus.UPLOADED
-
-            else -> transferStatus == AssetTransferStatus.SAVED_INTERNALLY
-        }
-
-        if (!shouldResolve || localAssetPaths[messageId] != null || resolvingJobs[messageId]?.isActive == true) {
-            return
-        }
-
-        resolvingJobs[messageId] = viewModelScope.launch(dispatchers.io()) {
-            try {
-                when (val result = getMessageAsset(conversationId, messageId).await()) {
-                    is MessageAssetResult.Success -> {
-                        val resolvedPath = result.decodedAssetPath.toString()
-                        withContext(dispatchers.main()) {
-                            localAssetPaths[messageId] = resolvedPath
+        if (transferStatus.shouldResolveAsset(downloadIfNeeded)) {
+            resolvingJobs[messageId] = viewModelScope.launch(dispatchers.io()) {
+                try {
+                    when (val result = getMessageAsset(conversationId, messageId).await()) {
+                        is MessageAssetResult.Success -> {
+                            val resolvedPath = result.decodedAssetPath.toString()
+                            withContext(dispatchers.main()) {
+                                localAssetPaths[messageId] = resolvedPath
+                            }
                         }
-                    }
 
-                    is MessageAssetResult.Failure -> Unit
-                }
-            } finally {
-                withContext(dispatchers.main()) {
-                    if (resolvingJobs[messageId] === this@launch) {
-                        resolvingJobs.remove(messageId)
+                        is MessageAssetResult.Failure -> Unit
+                    }
+                } finally {
+                    withContext(dispatchers.main()) {
+                        if (resolvingJobs[messageId] === this@launch) {
+                            resolvingJobs.remove(messageId)
+                        }
                     }
                 }
             }
         }
     }
 }
+
+internal fun AssetTransferStatus.shouldResolveAsset(downloadIfNeeded: Boolean) =
+    if (downloadIfNeeded) {
+        this in setOf(NOT_DOWNLOADED, DOWNLOAD_IN_PROGRESS, SAVED_INTERNALLY, UPLOADED)
+    } else {
+        this in setOf(SAVED_INTERNALLY, UPLOADED)
+    }

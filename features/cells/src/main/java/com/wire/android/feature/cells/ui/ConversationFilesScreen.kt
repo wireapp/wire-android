@@ -387,7 +387,7 @@ fun PreviewConversationFilesScreen() {
                                     userHandle = "userHandle",
                                     ownerUserId = "userA",
                                     conversationName = "Conversation A",
-                                    modifiedTime = "2023-10-01T12:00:00Z",
+                                    modifiedTime = 1696154400000L,
                                     remotePath = "/path/to/file1.png",
                                     contentHash = null,
                                     contentUrl = null,
@@ -401,7 +401,7 @@ fun PreviewConversationFilesScreen() {
                                     userHandle = "userHandle",
                                     ownerUserId = "userB",
                                     conversationName = "Conversation B",
-                                    modifiedTime = "2023-10-01T12:00:00Z",
+                                    modifiedTime = 1696154400000L,
                                     size = 123456,
                                 )
                             )

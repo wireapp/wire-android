@@ -23,6 +23,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import com.wire.android.util.cellFileDateTime
+import kotlinx.datetime.Instant
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -398,21 +400,21 @@ private fun PublicLinkIcon(
 }
 
 @Composable
-private fun CellNodeUi.subtitle() =
-    when {
-        userName != null && conversationName != null -> {
+private fun CellNodeUi.subtitle(): String? {
+    val formattedTime = modifiedTime?.let {
+        remember(it) { Instant.fromEpochMilliseconds(it).cellFileDateTime() }
+    }
+    return when {
+        userName != null && conversationName != null ->
             stringResource(R.string.file_subtitle, userName!!, conversationName!!)
-        }
-
-        userName != null && modifiedTime != null -> {
-            stringResource(R.string.file_subtitle_modified, modifiedTime!!, userName!!)
-        }
-
+        userName != null && formattedTime != null ->
+            stringResource(R.string.file_subtitle_modified, formattedTime, userName!!)
         userName != null -> userName
         conversationName != null -> conversationName
-        modifiedTime != null -> modifiedTime
+        formattedTime != null -> formattedTime
         else -> null
     }
+}
 
 @PreviewMultipleThemes
 @Composable
@@ -433,7 +435,6 @@ private fun PreviewCellListItem() {
                 conversationName = "Test Conversation",
                 modifiedTime = null,
                 remotePath = null,
-                contentHash = null,
                 contentUrl = null,
                 previewUrl = null
             ),

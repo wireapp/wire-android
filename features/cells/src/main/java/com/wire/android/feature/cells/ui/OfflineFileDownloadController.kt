@@ -111,6 +111,7 @@ class OfflineFileDownloadController @Inject constructor(
                     localPath = existingPath,
                     size = cellNode.size,
                     downloadedAt = System.currentTimeMillis(),
+                    modifiedAt = cellNode.modifiedTime,
                 )
             )
             onSuccess(existingPath)
@@ -155,6 +156,7 @@ class OfflineFileDownloadController @Inject constructor(
                     localPath = filePath.toString(),
                     size = cellNode.size,
                     downloadedAt = System.currentTimeMillis(),
+                    modifiedAt = cellNode.modifiedTime,
                 )
             )
             onSuccess(filePath.toString())

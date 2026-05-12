@@ -103,10 +103,16 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                         featureFlagState = FeatureFlagState() // new session, clear feature flag state to default and wait until synced
                         currentSessionResult.accountInfo.userId.let { userId ->
                             currentUserId = userId
-                            coreLogic.get().getSessionScope(userId).observeSyncState()
-                                .firstOrNull { it == SyncState.Live }?.let {
-                                    observeStatesAfterInitialSync(userId)
+
+                            coroutineScope {
+                                launch { setFileSharingState(userId) }
+                                launch {
+                                    coreLogic.get().getSessionScope(userId).observeSyncState()
+                                        .firstOrNull { it == SyncState.Live }?.let {
+                                            observeStatesAfterInitialSync(userId)
+                                        }
                                 }
+                            }
                         }
                     }
                 }
@@ -115,7 +121,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private suspend fun observeStatesAfterInitialSync(userId: UserId) {
         coroutineScope {
-            launch { setFileSharingState(userId) }
             launch { observeTeamSettingsSelfDeletionStatus(userId) }
             launch { setGuestRoomLinkFeatureFlag(userId) }
             launch { setE2EIRequiredState(userId) }

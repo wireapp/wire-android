@@ -26,17 +26,12 @@ import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Until
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * This benchmark will measure the app startup when we have a valid session.
- * please replace the email and password with a valid one.
- * NEVER EVER PUSH your credentials into git.
  */
 @RunWith(AndroidJUnit4::class)
 class StartupBenchmarkWithLogin {
@@ -55,7 +50,7 @@ class StartupBenchmarkWithLogin {
             CompilationMode.None()
         ) {
             startActivityAndWait()
-            login()
+            if (email.isNotEmpty() && password.isNotEmpty()) login(email, password)
         }
     }
 
@@ -65,28 +60,8 @@ class StartupBenchmarkWithLogin {
             CompilationMode.Partial(BaselineProfileMode.Require)
         ) {
             startActivityAndWait()
-            login()
+            if (email.isNotEmpty() && password.isNotEmpty()) login(email, password)
         }
-    }
-
-    private fun MacrobenchmarkScope.login() {
-        device.findObject(By.res("userIdentifierInput"))?.let {
-            it.text = email
-        }
-        device.findObject(By.res("loginButton"))?.let {
-            it.click()
-        }
-        device.findObject(By.res("PasswordInput"))?.let {
-            it.text = password
-        }
-        device.findObject(By.res("LoginNextButton"))?.let {
-            it.click()
-        }
-        device.wait(Until.hasObject(By.text("Agree")), 10.seconds.inWholeMilliseconds)
-        device.findObject(By.text("Agree"))?.let {
-            it.click()
-        }
-        device.wait(Until.hasObject(By.text("Conversations")), 30.seconds.inWholeMilliseconds)
     }
 
     private fun startup(

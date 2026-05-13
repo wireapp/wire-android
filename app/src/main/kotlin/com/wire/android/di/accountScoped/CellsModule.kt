@@ -62,8 +62,8 @@ import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUs
 import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
-import com.wire.kalium.cells.domain.usecase.GetConversationNamesUseCase
-import com.wire.kalium.cells.domain.usecase.GetUserNamesUseCase
+import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
+import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
@@ -284,9 +284,9 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetConversationNamesUseCase(cellsScope: CellsScope): GetConversationNamesUseCase = cellsScope.getConversationNames
+    fun provideGetConversationNamesUseCase(cellsScope: CellsScope): GetConversationNameUseCase = cellsScope.getConversationNames
 
     @ViewModelScoped
     @Provides
-    fun provideGetUserNamesUseCase(cellsScope: CellsScope): GetUserNamesUseCase = cellsScope.getUserNames
+    fun provideGetUserNamesUseCase(cellsScope: CellsScope): GetUserNameUseCase = cellsScope.getUserNames
 }

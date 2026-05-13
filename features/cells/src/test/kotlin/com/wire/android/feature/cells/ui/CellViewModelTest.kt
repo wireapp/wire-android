@@ -35,6 +35,8 @@ import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
+import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
+import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
@@ -42,6 +44,9 @@ import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.right
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
+import kotlinx.coroutines.flow.MutableStateFlow
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -306,6 +311,15 @@ class CellViewModelTest {
         @MockK
         lateinit var getOfflineFile: GetOfflineFileUseCase
 
+        @MockK
+        lateinit var networkStateObserver: NetworkStateObserver
+
+        @MockK
+        lateinit var getConversationNames: GetConversationNameUseCase
+
+        @MockK
+        lateinit var getUserNames: GetUserNameUseCase
+
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -322,6 +336,9 @@ class CellViewModelTest {
 
             every { observeOfflineFiles() } returns emptyFlow()
             coEvery { getOfflineFile(any()) } returns null
+            every { networkStateObserver.observeNetworkState() } returns MutableStateFlow(NetworkState.ConnectedWithInternet)
+            coEvery { getConversationNames(any()) } returns null
+            coEvery { getUserNames(any()) } returns null
 
             coEvery { getCellFilesPagedUseCase.invoke(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(
@@ -408,6 +425,9 @@ class CellViewModelTest {
                 observeOfflineFiles = observeOfflineFiles,
                 deleteOfflineFile = deleteOfflineFile,
                 getOfflineFile = getOfflineFile,
+                networkStateObserver = networkStateObserver,
+                getConversationName = getConversationNames,
+                getUserName = getUserNames,
             )
         }
     }

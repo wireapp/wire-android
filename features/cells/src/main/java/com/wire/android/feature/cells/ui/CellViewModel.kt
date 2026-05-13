@@ -46,10 +46,10 @@ import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
-import com.wire.kalium.cells.domain.usecase.GetConversationNamesUseCase
+import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
-import com.wire.kalium.cells.domain.usecase.GetUserNamesUseCase
+import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
@@ -109,8 +109,8 @@ class CellViewModel @Inject constructor(
     private val deleteOfflineFile: DeleteOfflineFileUseCase,
     private val getOfflineFile: GetOfflineFileUseCase,
     private val networkStateObserver: NetworkStateObserver,
-    private val getConversationNames: GetConversationNamesUseCase,
-    private val getUserNames: GetUserNamesUseCase,
+    private val getConversationName: GetConversationNameUseCase,
+    private val getUserName: GetUserNameUseCase,
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
@@ -249,8 +249,6 @@ class CellViewModel @Inject constructor(
             sharedPathCache.openLoadStates,
             offlineFileDownloadController.downloadProgresses,
         ) { offlineFiles, openLoadStates, downloadProgresses ->
-            val conversationNames = getConversationNames()
-            val userNames = getUserNames()
             val rootConversationId = navArgs.conversationId?.substringBefore("/")
             val filtered = if (rootConversationId != null) {
                 offlineFiles.filter { it.conversationId == rootConversationId }
@@ -260,8 +258,8 @@ class CellViewModel @Inject constructor(
             PagingData.from(
                 data = filtered.map { info ->
                     info.toCellNodeUi(
-                        conversationName = info.conversationId?.let { conversationNames[it] },
-                        userName = info.owner.ifEmpty { null }?.let { userNames[it] },
+                        conversationName = info.conversationId?.let { getConversationName(it) },
+                        userName = info.owner.ifEmpty { null }?.let { getUserName(it) },
                         openLoadState = openLoadStates[info.id],
                         downloadProgress = downloadProgresses[info.id],
                     )

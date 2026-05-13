@@ -41,7 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.di.wireViewModelScoped
@@ -73,7 +73,9 @@ import java.io.File
 @Composable
 fun DebugScreen(
     navigator: Navigator,
-    userDebugViewModel: UserDebugViewModel = hiltViewModel(),
+    userDebugViewModel: UserDebugViewModel = metroViewModel {
+        userDebugViewModelFactory.create()
+    },
 ) {
     UserDebugContent(
         onNavigationPressed = navigator::navigateBack,

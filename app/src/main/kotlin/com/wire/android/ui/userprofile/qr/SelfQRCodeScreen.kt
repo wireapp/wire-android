@@ -53,7 +53,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.metro.metroViewModel
 import com.lightspark.composeqr.DotShape
 import com.lightspark.composeqr.QrCodeView
 import com.wire.android.R
@@ -82,9 +82,7 @@ import kotlinx.coroutines.launch
 fun SelfQRCodeScreen(
     navigator: Navigator,
     args: SelfQrCodeNavArgs,
-    viewModel: SelfQRCodeViewModel = hiltViewModel<SelfQRCodeViewModel, SelfQRCodeViewModel.Factory>(
-        creationCallback = { factory -> factory.create(args) }
-    )
+    viewModel: SelfQRCodeViewModel = metroViewModel { selfQRCodeViewModelFactory.create(args) }
 ) {
     if (viewModel.selfQRCodeState.hasError) {
         navigator.navigateBack()

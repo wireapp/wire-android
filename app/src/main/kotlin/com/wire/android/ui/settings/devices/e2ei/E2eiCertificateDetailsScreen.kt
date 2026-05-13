@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.settings.devices.e2ei
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -34,7 +33,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.metro.metroViewModel
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -62,10 +62,9 @@ import kotlinx.coroutines.withContext
 fun E2eiCertificateDetailsScreen(
     navigator: Navigator,
     args: E2eiCertificateDetailsScreenNavArgs,
-    e2eiCertificateDetailsViewModel: E2eiCertificateDetailsViewModel =
-        hiltViewModel<E2eiCertificateDetailsViewModel, E2eiCertificateDetailsViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        )
+    e2eiCertificateDetailsViewModel: E2eiCertificateDetailsViewModel = metroViewModel {
+        e2eiCertificateDetailsViewModelFactory.create(args)
+    }
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()

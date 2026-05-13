@@ -23,6 +23,7 @@ import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,6 +33,9 @@ class StartupBenchmark {
 
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
+
+    private val args get() = InstrumentationRegistry.getArguments()
+    private val targetPackage get() = args.getString("TARGET_PACKAGE", "com.wire")
 
     @Test
     fun startUpWithBaselineProfiler() {
@@ -44,7 +48,7 @@ class StartupBenchmark {
     }
 
     private fun startup(compilationMode: CompilationMode) = benchmarkRule.measureRepeated(
-        packageName = PACKAGE_NAME,
+        packageName = targetPackage,
         metrics = listOf(StartupTimingMetric()),
         iterations = ITERATIONS,
         startupMode = StartupMode.COLD,
@@ -55,7 +59,6 @@ class StartupBenchmark {
     }
 
     companion object {
-        private const val PACKAGE_NAME = "com.wire.android.internal"
         private const val ITERATIONS = 10
     }
 }

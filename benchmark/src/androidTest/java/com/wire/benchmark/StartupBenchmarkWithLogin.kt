@@ -25,11 +25,13 @@ import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * This benchmark will measure the app startup when we have a valid session.
@@ -41,6 +43,11 @@ class StartupBenchmarkWithLogin {
 
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
+
+    private val args get() = InstrumentationRegistry.getArguments()
+    private val targetPackage get() = args.getString("TARGET_PACKAGE", "com.wire")
+    private val email get() = args.getString("EMAIL").orEmpty()
+    private val password get() = args.getString("PASSWORD").orEmpty()
 
     @Test
     fun startUpWithoutBaselineProfiler() {
@@ -64,25 +71,29 @@ class StartupBenchmarkWithLogin {
 
     private fun MacrobenchmarkScope.login() {
         device.findObject(By.res("userIdentifierInput"))?.let {
-            it.text = EMAIL
+            it.text = email
         }
         device.findObject(By.res("loginButton"))?.let {
             it.click()
         }
         device.findObject(By.res("PasswordInput"))?.let {
-            it.text = PASSWORD
+            it.text = password
         }
         device.findObject(By.res("LoginNextButton"))?.let {
             it.click()
         }
-        device.wait(Until.hasObject(By.text("Conversations")), 30_000)
+        device.wait(Until.hasObject(By.text("Agree")), 10.seconds.inWholeMilliseconds)
+        device.findObject(By.text("Agree"))?.let {
+            it.click()
+        }
+        device.wait(Until.hasObject(By.text("Conversations")), 30.seconds.inWholeMilliseconds)
     }
 
     private fun startup(
         compilationMode: CompilationMode,
         setupBlock: MacrobenchmarkScope.() -> Unit = {},
     ) = benchmarkRule.measureRepeated(
-        packageName = PACKAGE_NAME,
+        packageName = targetPackage,
         metrics = listOf(StartupTimingMetric(), FrameTimingMetric()),
         iterations = ITERATIONS,
         startupMode = StartupMode.COLD,
@@ -94,9 +105,6 @@ class StartupBenchmarkWithLogin {
     }
 
     companion object {
-        private const val PACKAGE_NAME = "com.wire.android.internal"
         private const val ITERATIONS = 5
-        private const val EMAIL = ""
-        private const val PASSWORD = ""
     }
 }

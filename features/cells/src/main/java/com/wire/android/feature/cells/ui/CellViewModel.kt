@@ -81,7 +81,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -161,14 +160,6 @@ class CellViewModel @Inject constructor(
 
     val isOnline: StateFlow<Boolean> = networkStateObserver.observeNetworkState()
         .map { it is NetworkState.ConnectedWithInternet }
-        .transformLatest { online ->
-            if (online) {
-                emit(true)
-            } else {
-                delay(OFFLINE_TRANSITION_DELAY_MS)
-                emit(false)
-            }
-        }
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     private var isCollaboraEnabled: Boolean = false
@@ -645,4 +636,3 @@ data class MenuOptions(
 )
 
 private const val RESTORE_DELAY_MS = 300L
-private const val OFFLINE_TRANSITION_DELAY_MS = 2_000L

@@ -229,7 +229,7 @@ internal fun ConversationFilesScreenContent(
                         navigationIconType = NavigationIconType.Back(),
                         elevation = dimensions().spacing0x,
                         actions = {
-                            if (!isRecycleBin) {
+                            if (!isRecycleBin && isOnline) {
                                 MoreOptionIcon(
                                     contentDescription = R.string.content_description_conversation_files_more_button,
                                     onButtonClicked = { optionsBottomSheetState.show() }

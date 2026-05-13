@@ -997,6 +997,35 @@ class WireNotificationManagerTest {
         }
 
     @Test
+    fun givenAppInForeground_withValidCurrentAccountAndOngoingCall_whenStaleOpenCallsCleanupRunning_thenOnlyStartCallServiceAfterwards() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val staleOpenCallsCleanupFlow = MutableStateFlow(false)
+            val userId = provideUserId()
+            val call = provideCall().copy(status = CallStatus.ESTABLISHED)
+            val (arrangement, manager) = Arrangement()
+                .withIncomingCalls(listOf())
+                .withOutgoingCalls(listOf(call))
+                .withMessageNotifications(listOf())
+                .withCurrentScreen(CurrentScreen.Home)
+                .withEstablishedCall(listOf())
+                .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
+                .withObserveStaleOpenCallsCleanup(staleOpenCallsCleanupFlow)
+                .arrange()
+
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
+            runCurrent()
+
+            // should not start call service until stale open calls cleanup finishes
+            verify(exactly = 0) { arrangement.servicesManager.startCallService() }
+
+            staleOpenCallsCleanupFlow.value = true
+            runCurrent()
+
+            // should start call service after cleanup finishes
+            verify(exactly = 1) { arrangement.servicesManager.startCallService() }
+        }
+
+    @Test
     fun givenSomeNotificationsAndUserBlockedByE2EIRequired_whenObserveCalled_thenNotificationIsNotShowed() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val conversationId = ConversationId("conversation_value", "conversation_domain")
@@ -1195,6 +1224,7 @@ class WireNotificationManagerTest {
             every { servicesManager.stopCallService() } returns Unit
             every { pingRinger.ping(any(), any()) } returns Unit
             coEvery { globalKaliumScope.doesValidSessionExist.invoke(any()) } returns DoesValidSessionExistResult.Success(true)
+            every { callsScope.observeStaleOpenCallsCleanup() } returns flowOf(true) // by default, assume that cleanup is finished
         }
 
         @Suppress("LongParameterList")
@@ -1202,6 +1232,7 @@ class WireNotificationManagerTest {
             incomingCalls: List<Call> = emptyList(),
             establishedCalls: List<Call> = emptyList(),
             outgoingCalls: List<Call> = emptyList(),
+            staleOpenCallsCleanupFinished: Boolean = true,
             notifications: List<LocalNotification> = emptyList(),
             selfUser: SelfUser = TestUser.SELF_USER,
             userId: MockKMatcherScope.() -> UserId
@@ -1215,6 +1246,7 @@ class WireNotificationManagerTest {
                     coEvery { establishedCall() } returns flowOf(establishedCalls)
                     coEvery { getIncomingCalls() } returns flowOf(incomingCalls)
                     coEvery { observeOutgoingCall() } returns flowOf(outgoingCalls)
+                    every { observeStaleOpenCallsCleanup() } returns flowOf(staleOpenCallsCleanupFinished)
                 }
                 coEvery { messages } returns mockk {
                     coEvery { getNotifications() } returns flowOf(notifications)
@@ -1267,10 +1299,19 @@ class WireNotificationManagerTest {
             incomingCalls: List<Call> = emptyList(),
             establishedCalls: List<Call> = emptyList(),
             outgoingCalls: List<Call> = emptyList(),
+            staleOpenCallsCleanupFinished: Boolean = true,
             notifications: List<LocalNotification> = emptyList(),
             selfUser: SelfUser = TestUser.SELF_USER,
         ): Arrangement = apply {
-            mockSpecificUserSession(incomingCalls, establishedCalls, outgoingCalls, notifications, selfUser) { eq(userId) }
+            mockSpecificUserSession(
+                incomingCalls = incomingCalls,
+                establishedCalls = establishedCalls,
+                outgoingCalls = outgoingCalls,
+                staleOpenCallsCleanupFinished = staleOpenCallsCleanupFinished,
+                notifications = notifications,
+                selfUser = selfUser,
+                userId = { eq(userId) }
+            )
         }
 
         fun withCurrentScreen(screen: CurrentScreen): Arrangement {
@@ -1292,6 +1333,10 @@ class WireNotificationManagerTest {
 
         fun withDoesValidSessionExistResult(userId: UserId, result: DoesValidSessionExistResult) = apply {
             coEvery { globalKaliumScope.doesValidSessionExist.invoke(userId) } returns result
+        }
+
+        fun withObserveStaleOpenCallsCleanup(flow: Flow<Boolean>) = apply {
+            every { callsScope.observeStaleOpenCallsCleanup() } returns flow
         }
 
         fun clearRecordedCallsForServicesManager() = clearMocks(

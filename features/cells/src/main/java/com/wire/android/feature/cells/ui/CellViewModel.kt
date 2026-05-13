@@ -570,6 +570,7 @@ class CellViewModel @Inject constructor(
         val extension = name.substringAfterLast('.', "")
         return CellNodeUi.File(
             uuid = id,
+            conversationId = conversationId,
             name = name,
             mimeType = "",
             assetType = AttachmentFileType.fromExtension(extension),

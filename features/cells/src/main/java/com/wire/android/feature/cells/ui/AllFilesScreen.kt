@@ -27,9 +27,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
@@ -106,6 +108,21 @@ fun AllFilesScreen(
             },
             isRefreshing = viewModel.isPullToRefresh.collectAsState(),
             onRefresh = { viewModel.onPullToRefresh() },
+            showImageViewer = { file ->
+                navigator.navigate(
+                    NavigationCommand(
+                        CellImageViewerScreenDestination(
+                            CellImageViewerNavArgs(
+                                localPath = file.localPath,
+                                contentUrl = file.contentUrl,
+                                previewUrl = file.previewUrl,
+                                contentHash = file.contentHash,
+                                fileName = file.name,
+                            )
+                        )
+                    )
+                )
+            },
             fileReadyFlow = viewModel.fileReadyFlow,
         )
     }

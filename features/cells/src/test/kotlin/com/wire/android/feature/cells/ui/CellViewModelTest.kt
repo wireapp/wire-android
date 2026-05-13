@@ -25,6 +25,7 @@ import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
@@ -118,23 +119,61 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when file clicked and local file is present file is opened`() = runTest {
+    fun `given view model when image file clicked and local file is present then in-app viewer is opened`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
 
-        viewModel.sendIntent(CellViewIntent.OnItemClick(testFiles[0].toUiModel()))
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFiles[0].toUiModel()))
+
+            val action = awaitItem()
+            assert(action is OpenImageViewer)
+            coVerify(exactly = 0) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+        }
+    }
+
+    @Test
+    fun `given view model when non-image file clicked and local file is present then external app is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        val nonImageFile = testFiles[0].copy(mimeType = "application/pdf").toUiModel()
+
+        viewModel.sendIntent(CellViewIntent.OnItemClick(nonImageFile))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
     @Test
-    fun `given view model when file clicked and local file is not present and url is openable then url is opened`() = runTest {
+    fun `given view model when image file clicked and local file is not present and url is openable then in-app viewer is opened`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
 
         val testFile = testFiles[0].copy(
+            localPath = null,
+            contentUrl = "https://example.com/file"
+        )
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+
+            val action = awaitItem()
+            assert(action is OpenImageViewer)
+            coVerify(exactly = 0) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+        }
+    }
+
+    @Test
+    fun `given view model when non-image file clicked and local file is not present and url is openable then url is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        val testFile = testFiles[0].copy(
+            mimeType = "application/pdf",
             localPath = null,
             contentUrl = "https://example.com/file"
         )
@@ -171,7 +210,8 @@ class CellViewModelTest {
             .arrange()
 
         // File has localPath from DB but also carries an error state (stale UI state)
-        val testFile = testFiles[0].copy(localPath = "localPath", contentUrl = null).toUiModel()
+        // Use a non-image file so we can verify the external app opener is called
+        val testFile = testFiles[0].copy(localPath = "localPath", contentUrl = null, mimeType = "application/pdf").toUiModel()
             .copy(openLoadState = OpenLoadState.Error)
 
         viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))

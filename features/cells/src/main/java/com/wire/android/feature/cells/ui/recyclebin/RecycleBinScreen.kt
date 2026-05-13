@@ -34,9 +34,11 @@ import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
+import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
+import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
@@ -139,6 +141,21 @@ fun RecycleBinScreen(
                     },
                     showRenameScreen = { },
                     showAddRemoveTagsScreen = {},
+                    showImageViewer = { file ->
+                        navigator.navigate(
+                            NavigationCommand(
+                                CellImageViewerScreenDestination(
+                                    CellImageViewerNavArgs(
+                                        localPath = file.localPath,
+                                        contentUrl = file.contentUrl,
+                                        previewUrl = file.previewUrl,
+                                        contentHash = file.contentHash,
+                                        fileName = file.name,
+                                    )
+                                )
+                            )
+                        )
+                    },
                     isRefreshing = cellViewModel.isPullToRefresh.collectAsState(),
                     onRefresh = { cellViewModel.onPullToRefresh() }
                 )

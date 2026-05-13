@@ -258,7 +258,7 @@ class MultipartAttachmentsViewModelTest {
             coEvery { refreshHelper.refresh(any()) } returns Unit
             coEvery { fileManager.openWithExternalApp(any(), any(), any(), any()) } returns Unit
             coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
-            coEvery { download(any(), any(), any(), any(), any()) } returns Unit.right()
+            coEvery { download(any(), any(), any(), any(), any(),any(),any(),any()) } returns Unit.right()
             coEvery { getWireCellsConfig() } returns null
 
             return this to MultipartAttachmentsViewModelImpl(

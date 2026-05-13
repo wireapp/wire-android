@@ -44,6 +44,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -95,6 +96,28 @@ class GlobalObserversManagerTest {
                 listOf(TestUser.SELF_USER.id),
                 any()
             )
+        }
+    }
+
+    @Test
+    fun `given no valid accounts, when starting observing accounts, then clear notifications`() {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+            PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), true)
+        )
+        val (arrangement, manager) = Arrangement()
+            .withValidAccounts(emptyList())
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .arrange()
+
+        manager.observe()
+
+        verify(exactly = 1) {
+            arrangement.notificationManager.clearWhenNoUsers()
+        }
+        coVerify(exactly = 0) {
+            arrangement.notificationManager.observeNotificationsAndCallsWhileRunning(any(), any())
+            arrangement.notificationManager.observeNotificationsAndCallsPersistently(any(), any())
         }
     }
 

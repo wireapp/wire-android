@@ -1098,7 +1098,7 @@
     <string name="notification_ongoing_call_content">Исходящий вызов…</string>
     <string name="notification_group_channel_call_content">%s вызывает...</string>
     <string name="notification_call_default_caller_name">Кто-то</string>
-    <string name="notification_call_default_group_name">Входящий групповой вызов</string>
+    <string name="notification_incoming_call_default_group_name">Входящий групповой вызов</string>
     <string name="notification_outgoing_call_tap_to_return">Нажмите, чтобы вернуться к вызову - Вызов...</string>
     <string name="notification_audio_message_body">Аудиосообщение</string>
     <string name="notification_deleting_conversation">Удаление беседы…</string>

@@ -870,7 +870,7 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="notification_incoming_call_content">Chamando…</string>
     <string name="notification_ongoing_call_content">Chamada em andamento…</string>
     <string name="notification_call_default_caller_name">Alguém</string>
-    <string name="notification_call_default_group_name">Chamada em Grupo Recebida</string>
+    <string name="notification_incoming_call_default_group_name">Chamada em Grupo Recebida</string>
     <string name="notification_outgoing_call_tap_to_return">Toque para retornar à chamada - Chamando...</string>
     <string name="notification_audio_message_body">Mensagens de áudio</string>
     <string name="notification_deleting_conversation">Excluindo conversa…</string>

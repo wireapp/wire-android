@@ -133,7 +133,7 @@ class WireNotificationManagerTest {
         }
 
     @Test
-    fun givenNotAuthenticatedUser_whenObserveCalled_thenNothingHappenAndCallNotificationHides() =
+    fun givenNotAuthenticatedUser_whenObserveCalled_thenNothingHappens() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val (arrangement, manager) = Arrangement()
                 .withCurrentScreen(CurrentScreen.SomeOther())
@@ -142,8 +142,14 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(), this)
             advanceUntilIdle()
 
-            verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-            verify(exactly = 1) { arrangement.callNotificationManager.hideAllIncomingCallNotifications() }
+            verify(exactly = 0) {
+                arrangement.coreLogic.getSessionScope(any())
+                arrangement.callNotificationManager.handleIncomingCalls(any(), any(), any())
+                arrangement.servicesManager.startCallService()
+            }
+            coVerify(exactly = 0) {
+                arrangement.messageNotificationManager.handleNotification(any(), any(), any())
+            }
         }
 
     @Test
@@ -212,7 +218,6 @@ class WireNotificationManagerTest {
                     userName = TestUser.SELF_USER.handle!!
                 )
             }
-            verify(exactly = 1) { arrangement.callNotificationManager.hideAllIncomingCallNotifications() }
         }
 
     @Test
@@ -241,7 +246,6 @@ class WireNotificationManagerTest {
                     TestUser.SELF_USER.handle!!
                 )
             }
-            verify(exactly = 1) { arrangement.callNotificationManager.hideAllIncomingCallNotifications() }
         }
 
     @Test
@@ -452,7 +456,8 @@ class WireNotificationManagerTest {
     }
 
     @Test
-    fun givenAppInBackground_withNoUsers_whenObserving_thenStopCallService() = runTestWithCancellation(dispatcherProvider.main()) {
+    fun givenSomeUsers_whenAllUsersBecomeInvalid_thenClearEverything() = runTestWithCancellation(dispatcherProvider.main()) {
+        val userId = provideUserId()
         val (arrangement, manager) = Arrangement()
             .withIncomingCalls(listOf())
             .withOutgoingCalls(listOf())
@@ -462,27 +467,17 @@ class WireNotificationManagerTest {
             .withCurrentUserSession(CurrentSessionResult.Failure.SessionNotFound)
             .arrange()
 
-        manager.observeNotificationsAndCallsWhileRunning(listOf(), this)
+        // first there is a valid user so that the job is started for that user
+        manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
         advanceUntilIdle()
 
-        verify(exactly = 0) { arrangement.servicesManager.startCallService() }
-        verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
-    }
-
-    @Test
-    fun givenAppInForeground_withNoUsers_whenObserving_thenStopCallService() = runTestWithCancellation(dispatcherProvider.main()) {
-        val (arrangement, manager) = Arrangement()
-            .withIncomingCalls(listOf())
-            .withOutgoingCalls(listOf())
-            .withMessageNotifications(listOf())
-            .withCurrentScreen(CurrentScreen.Home)
-            .withEstablishedCall(listOf())
-            .withCurrentUserSession(CurrentSessionResult.Failure.SessionNotFound)
-            .arrange()
-
-        manager.observeNotificationsAndCallsWhileRunning(listOf(), this)
+        // then it logs out, which should trigger stopping job for that user, clearing notifications and stopping call service
+        manager.clearWhenNoUsers()
         advanceUntilIdle()
 
+        verify(exactly = 1) { arrangement.messageNotificationManager.hideAllNotificationsForUser(userId) }
+        verify(exactly = 1) { arrangement.callNotificationManager.hideAllIncomingCallNotifications() }
+        verify(exactly = 1) { arrangement.messageNotificationManager.hideAllNotifications() }
         verify(exactly = 0) { arrangement.servicesManager.startCallService() }
         verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
     }

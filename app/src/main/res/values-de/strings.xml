@@ -1016,7 +1016,7 @@
     <string name="notification_ongoing_call_content">Aktiver Anruf…</string>
     <string name="notification_group_channel_call_content">%s ruft an...</string>
     <string name="notification_call_default_caller_name">Jemand</string>
-    <string name="notification_call_default_group_name">Eingehender Gruppenanruf</string>
+    <string name="notification_incoming_call_default_group_name">Eingehender Gruppenanruf</string>
     <string name="notification_audio_message_body">Audionachricht</string>
     <string name="notification_deleting_conversation">Unterhaltung wird gelöscht…</string>
     <string name="notification_uploading_files">Dateien werden hochgeladen…</string>

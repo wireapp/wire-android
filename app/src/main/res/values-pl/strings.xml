@@ -577,7 +577,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="notification_incoming_call_content">Dzwoni...</string>
     <string name="notification_ongoing_call_content">Trwa po&#322;&#261;czenie...</string>
     <string name="notification_call_default_caller_name">Kto&#347;</string>
-    <string name="notification_call_default_group_name">Po&#322;&#261;czenie grupowe przychodz&#261;ce</string>
+    <string name="notification_incoming_call_default_group_name">Po&#322;&#261;czenie grupowe przychodz&#261;ce</string>
     <!-- Calling-->
     <string name="calling_button_label_microphone">Mikrofon</string>
     <string name="calling_button_label_camera">Kamera</string>

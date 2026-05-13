@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -94,7 +95,9 @@ fun ImagesPreviewScreen(
         hiltViewModel<ImagesPreviewViewModel, ImagesPreviewViewModel.Factory>(
             creationCallback = { factory -> factory.create(args) }
         ),
-    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel()
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = metroViewModel {
+        checkAssetRestrictionsViewModelFactory.create()
+    }
 ) {
     LaunchedEffect(checkAssetRestrictionsViewModel.state) {
         with(checkAssetRestrictionsViewModel.state) {

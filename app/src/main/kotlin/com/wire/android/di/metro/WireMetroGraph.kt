@@ -17,12 +17,33 @@
  */
 package com.wire.android.di.metro
 
+import android.content.Context
+import com.wire.android.ui.settings.about.AboutThisAppInfoProvider
+import com.wire.android.ui.settings.about.AboutThisAppViewModelFactory
+import com.wire.android.ui.settings.about.AndroidAboutThisAppInfoProvider
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModelFactory
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.createGraphFactory
 
 abstract class WireMetroScope private constructor()
 
 @DependencyGraph(WireMetroScope::class)
 interface WireMetroGraph {
+    @DependencyGraph.Factory
+    fun interface Factory {
+        fun create(@Provides @ApplicationContext context: Context): WireMetroGraph
+    }
+
     val checkAssetRestrictionsViewModelFactory: CheckAssetRestrictionsViewModelFactory
+    val aboutThisAppViewModelFactory: AboutThisAppViewModelFactory
+
+    @Provides
+    fun provideAboutThisAppInfoProvider(
+        @ApplicationContext context: Context,
+    ): AboutThisAppInfoProvider = AndroidAboutThisAppInfoProvider(context)
 }
+
+fun createWireMetroGraph(context: Context): WireMetroGraph =
+    createGraphFactory<WireMetroGraph.Factory>().create(context.applicationContext)

@@ -61,6 +61,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.ConversationS
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
@@ -192,7 +193,9 @@ private fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
 private fun ImportMediaAuthenticatedContent(
     navigator: Navigator,
     isRestrictedInTeam: Boolean,
-    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel(),
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = metroViewModel {
+        checkAssetRestrictionsViewModelFactory.create()
+    },
     importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel(),
 ) {
     if (isRestrictedInTeam) {

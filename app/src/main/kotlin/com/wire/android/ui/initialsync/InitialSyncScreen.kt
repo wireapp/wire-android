@@ -20,9 +20,9 @@ package com.wire.android.ui.initialsync
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -38,7 +38,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun InitialSyncScreen(
     navigator: Navigator,
-    viewModel: InitialSyncViewModel = hiltViewModel()
+    viewModel: InitialSyncViewModel = metroViewModel {
+        initialSyncViewModelFactory.create()
+    }
 ) {
     val activity = LocalActivity.current
     val syncCompletionState = viewModel.syncCompletionState

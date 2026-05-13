@@ -40,8 +40,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -63,7 +63,9 @@ import com.wire.android.util.ui.UIText
 @Composable
 fun CustomizationScreen(
     navigator: Navigator,
-    viewModel: CustomizationViewModel = hiltViewModel()
+    viewModel: CustomizationViewModel = metroViewModel {
+        customizationViewModelFactory.create()
+    }
 ) {
     val lazyListState: LazyListState = rememberLazyListState()
     CustomizationScreenContent(

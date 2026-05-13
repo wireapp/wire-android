@@ -32,10 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.annotation.ExperimentalCoilApi
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -79,9 +79,9 @@ fun MediaGalleryScreen(
     resultNavigator: ResultBackNavigator<MediaGalleryNavBackArgs>,
     args: MediaGalleryNavArgs,
     modifier: Modifier = Modifier,
-    mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel<MediaGalleryViewModel, MediaGalleryViewModel.Factory>(
-        creationCallback = { factory -> factory.create(args) }
-    )
+    mediaGalleryViewModel: MediaGalleryViewModel = metroViewModel {
+        mediaGalleryViewModelFactory.create(args)
+    }
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()

@@ -35,8 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled
@@ -58,9 +58,7 @@ import com.wire.android.util.ui.stringWithStyledArgs
 fun VerifyEmailScreen(
     navigator: Navigator,
     args: VerifyEmailNavArgs,
-    viewModel: VerifyEmailViewModel = hiltViewModel<VerifyEmailViewModel, VerifyEmailViewModel.Factory>(
-        creationCallback = { factory -> factory.create(args) }
-    )
+    viewModel: VerifyEmailViewModel = metroViewModel { verifyEmailViewModelFactory.create(args) }
 ) {
     LaunchedEffect(viewModel.state.noChange) {
         if (viewModel.state.noChange) navigator.navigateBack()

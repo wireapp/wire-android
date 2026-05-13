@@ -49,7 +49,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.di.metro.metroViewModel
@@ -91,10 +90,9 @@ fun ImagesPreviewScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<ImagesPreviewNavBackArgs>,
     args: ImagesPreviewNavArgs,
-    imagesPreviewViewModel: ImagesPreviewViewModel =
-        hiltViewModel<ImagesPreviewViewModel, ImagesPreviewViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+    imagesPreviewViewModel: ImagesPreviewViewModel = metroViewModel {
+        imagesPreviewViewModelFactory.create(args)
+    },
     checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = metroViewModel {
         checkAssetRestrictionsViewModelFactory.create()
     }

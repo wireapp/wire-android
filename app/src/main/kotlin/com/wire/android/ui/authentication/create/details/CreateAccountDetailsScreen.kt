@@ -44,7 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -76,7 +76,7 @@ fun CreateAccountDetailsScreen(
     navigator: Navigator,
     args: CreateAccountNavArgs,
     createAccountDetailsViewModel: CreateAccountDetailsViewModel =
-        hiltViewModel<CreateAccountDetailsViewModel, CreateAccountDetailsViewModel.Factory>(
+        wireViewModel<CreateAccountDetailsViewModel, CreateAccountDetailsViewModel.Factory>(
             creationCallback = { factory -> factory.create(args) }
         )
 ) {

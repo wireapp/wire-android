@@ -41,7 +41,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
@@ -66,7 +66,7 @@ fun LoginSSOScreen(
     loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?,
-    loginSSOViewModel: LoginSSOViewModel = hiltViewModel<LoginSSOViewModel, LoginSSOViewModel.Factory>(
+    loginSSOViewModel: LoginSSOViewModel = wireViewModel<LoginSSOViewModel, LoginSSOViewModel.Factory>(
         creationCallback = { factory -> factory.create(loginNavArgs) }
     ),
     scrollState: ScrollState = rememberScrollState()

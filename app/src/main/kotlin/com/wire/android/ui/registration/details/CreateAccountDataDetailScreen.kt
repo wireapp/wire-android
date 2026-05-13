@@ -53,7 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -97,7 +97,7 @@ fun CreateAccountDataDetailScreen(
     navigator: Navigator,
     args: CreateAccountDataNavArgs,
     createAccountDataDetailViewModel: CreateAccountDataDetailViewModel =
-        hiltViewModel<CreateAccountDataDetailViewModel, CreateAccountDataDetailViewModel.Factory>(
+        wireViewModel<CreateAccountDataDetailViewModel, CreateAccountDataDetailViewModel.Factory>(
             creationCallback = { factory -> factory.create(args) }
         )
 ) {

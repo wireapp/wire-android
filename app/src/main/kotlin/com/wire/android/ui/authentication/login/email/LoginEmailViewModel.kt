@@ -25,13 +25,13 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
@@ -78,7 +78,7 @@ class LoginEmailViewModel @AssistedInject constructor(
     @Assisted val loginNavArgs: LoginNavArgs,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val savedStateHandle: SavedStateHandle,
+    private val savedInputStore: LoginSavedInputStore,
     userDataStoreProvider: UserDataStoreProvider,
     @KaliumCoreLogic coreLogic: CoreLogic,
     private val resendCodeTimer: CountdownTimer,
@@ -118,13 +118,13 @@ class LoginEmailViewModel @AssistedInject constructor(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
                 preFilledUserIdentifier.userIdentifier
             } else {
-                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+                savedInputStore.userIdentifier ?: String.EMPTY
             }
         )
         viewModelScope.launch {
             combine(
                 userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
-                    savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
+                    savedInputStore.userIdentifier = it.toString()
                 },
                 passwordTextState.textAsFlow(),
                 proxyIdentifierTextState.textAsFlow(),
@@ -412,7 +412,6 @@ class LoginEmailViewModel @AssistedInject constructor(
     }
 
     companion object {
-        const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
         const val RESEND_TIMER_DELAY = 300L
     }
 }

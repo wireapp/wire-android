@@ -22,7 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
@@ -42,7 +42,7 @@ fun AddContactButton(
     userName: String,
     modifier: Modifier = Modifier,
     viewModel: ConnectionActionButtonViewModel =
-        hiltViewModelScoped<
+        wireViewModelScoped<
                 ConnectionActionButtonViewModelImpl,
                 ConnectionActionButtonViewModel,
                 ConnectionActionButtonArgs,

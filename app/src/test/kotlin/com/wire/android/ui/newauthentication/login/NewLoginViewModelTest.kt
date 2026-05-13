@@ -2,7 +2,6 @@ package com.wire.android.ui.newauthentication.login
 
 import android.database.sqlite.SQLiteException
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
@@ -13,6 +12,7 @@ import com.wire.android.framework.TestClient
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
+import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
@@ -655,7 +655,7 @@ class NewLoginViewModelTest {
         lateinit var loginSSOViewModelExtension: LoginSSOViewModelExtension
 
         @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
+        private lateinit var savedInputStore: LoginSavedInputStore
 
         @MockK
         private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
@@ -685,12 +685,8 @@ class NewLoginViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every {
-                savedStateHandle.get<String>(any())
-            } returns null
-            every {
-                savedStateHandle[any()] = any<String>()
-            } returns Unit
+            every { savedInputStore.userIdentifier } returns null
+            every { savedInputStore.userIdentifier = any<String>() } returns Unit
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
         }
@@ -830,16 +826,12 @@ class NewLoginViewModelTest {
         }
 
         fun withEmptyUserIdentifierAndNoPreFilledIdentifier() = apply {
-            every {
-                savedStateHandle.get<String>(any())
-            } returns null
+            every { savedInputStore.userIdentifier } returns null
             loginNavArgs = LoginNavArgs()
         }
 
         fun withUserIdentifierAlreadySet(userIdentifier: String) = apply {
-            every {
-                savedStateHandle.get<String>(any())
-            } returns userIdentifier
+            every { savedInputStore.userIdentifier } returns userIdentifier
         }
 
         fun withPreFilledUserIdentifier(userIdentifier: String) = apply {
@@ -900,7 +892,7 @@ class NewLoginViewModelTest {
             loginNavArgs,
             validateEmailOrSSOCodeUseCase,
             coreLogic,
-            savedStateHandle,
+            savedInputStore,
             clientScopeProviderFactory,
             userDataStoreProvider,
             loginViewModelExtension,

@@ -41,7 +41,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -66,7 +66,7 @@ fun CreatePersonalAccountOverviewScreen(
     navigator: Navigator,
     args: CreateAccountOverviewNavArgs,
     viewModel: CreateAccountOverviewViewModel =
-        hiltViewModel<CreateAccountOverviewViewModel, CreateAccountOverviewViewModel.Factory>(
+        wireViewModel<CreateAccountOverviewViewModel, CreateAccountOverviewViewModel.Factory>(
             creationCallback = { factory -> factory.create(args) }
         )
 ) {
@@ -79,7 +79,7 @@ fun CreateTeamAccountOverviewScreen(
     navigator: Navigator,
     args: CreateAccountOverviewNavArgs,
     viewModel: CreateAccountOverviewViewModel =
-        hiltViewModel<CreateAccountOverviewViewModel, CreateAccountOverviewViewModel.Factory>(
+        wireViewModel<CreateAccountOverviewViewModel, CreateAccountOverviewViewModel.Factory>(
             creationCallback = { factory -> factory.create(args) }
         )
 ) {

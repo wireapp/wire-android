@@ -46,7 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -84,7 +84,7 @@ fun CreateAccountSelectorScreen(
     navigator: Navigator,
     args: CreateAccountSelectorNavArgs,
     viewModel: CreateAccountSelectorViewModel =
-        hiltViewModel<CreateAccountSelectorViewModel, CreateAccountSelectorViewModel.Factory>(
+        wireViewModel<CreateAccountSelectorViewModel, CreateAccountSelectorViewModel.Factory>(
             creationCallback = { factory -> factory.create(args) }
         )
 ) {

@@ -28,7 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.feature.cells.ui.wireCellsViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.FileNameError
@@ -65,7 +65,7 @@ fun CreateFileScreen(
     resultNavigator: ResultBackNavigator<Boolean>,
     args: CreateFileScreenNavArgs,
     modifier: Modifier = Modifier,
-    createFileViewModel: CreateFileViewModel = hiltViewModel<CreateFileViewModel, CreateFileViewModel.Factory>(
+    createFileViewModel: CreateFileViewModel = wireCellsViewModel<CreateFileViewModel, CreateFileViewModel.Factory>(
         creationCallback = { factory -> factory.create(args) }
     )
 ) {

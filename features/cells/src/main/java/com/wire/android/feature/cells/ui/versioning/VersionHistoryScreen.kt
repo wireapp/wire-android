@@ -38,7 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.feature.cells.ui.wireCellsViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.ErrorScreen
 import com.wire.android.feature.cells.ui.common.LoadingScreen
@@ -74,7 +74,7 @@ fun VersionHistoryScreen(
     args: VersionHistoryNavArgs,
     modifier: Modifier = Modifier,
     versionHistoryViewModel: VersionHistoryViewModel =
-        hiltViewModel<VersionHistoryViewModel, VersionHistoryViewModel.Factory>(
+        wireCellsViewModel<VersionHistoryViewModel, VersionHistoryViewModel.Factory>(
             creationCallback = { factory -> factory.create(args) }
         )
 ) {

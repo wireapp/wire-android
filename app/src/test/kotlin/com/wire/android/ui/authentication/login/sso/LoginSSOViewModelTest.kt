@@ -19,7 +19,6 @@
 package com.wire.android.ui.authentication.login.sso
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.assertions.shouldBeInstanceOf
@@ -34,6 +33,7 @@ import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
+import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
@@ -1059,7 +1059,7 @@ class LoginSSOViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
+        lateinit var savedInputStore: LoginSavedInputStore
 
         @MockK
         lateinit var ssoInitiateLoginUseCase: SSOInitiateLoginUseCase
@@ -1117,8 +1117,8 @@ class LoginSSOViewModelTest {
 
         init {
             MockKAnnotations.init(this)
-            every { savedStateHandle.get<String>(any()) } returns null
-            every { savedStateHandle.set(any(), any<String>()) } returns Unit
+            every { savedInputStore.ssoCode } returns null
+            every { savedInputStore.ssoCode = any<String>() } returns Unit
             every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
             every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
             coEvery {
@@ -1229,7 +1229,7 @@ class LoginSSOViewModelTest {
         fun arrange(): Pair<Arrangement, LoginSSOViewModel> {
             val viewModel = LoginSSOViewModel(
                 loginNavArgs = LoginNavArgs(loginPasswordPath = LoginPasswordPath(SERVER_CONFIG.links)),
-                savedStateHandle = savedStateHandle,
+                savedInputStore = savedInputStore,
                 addAuthenticatedUser = addAuthenticatedUserUseCase,
                 validateEmailUseCase = validateEmailUseCase,
                 coreLogic = coreLogic,

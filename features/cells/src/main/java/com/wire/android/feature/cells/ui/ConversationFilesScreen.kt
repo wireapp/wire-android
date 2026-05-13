@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -102,7 +101,7 @@ fun ConversationFilesScreen(
     navigator: WireNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
     args: CellFilesNavArgs,
-    viewModel: CellViewModel = hiltViewModel<CellViewModel, CellViewModel.Factory>(
+    viewModel: CellViewModel = wireCellsViewModel<CellViewModel, CellViewModel.Factory>(
         creationCallback = { factory -> factory.create(args, null) }
     ),
 ) {

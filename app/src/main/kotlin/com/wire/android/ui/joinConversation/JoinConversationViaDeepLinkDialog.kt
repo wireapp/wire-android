@@ -36,8 +36,8 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.R
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -79,7 +79,7 @@ fun JoinConversationViaDeepLinkDialog(
     onFlowCompleted: (conversationId: ConversationId?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel = hiltViewModelScoped<JoinConversationViaCodeViewModel>()
+    val viewModel = wireViewModelScoped<JoinConversationViaCodeViewModel, JoinConversationViaCodeViewModel>()
 
     val isLoading: Boolean by remember {
         derivedStateOf { viewModel.state is JoinViaDeepLinkDialogState.Loading }

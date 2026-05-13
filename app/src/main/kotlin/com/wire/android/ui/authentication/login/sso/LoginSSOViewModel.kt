@@ -24,7 +24,6 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.config.DefaultServerConfig
@@ -33,6 +32,7 @@ import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
@@ -71,7 +71,7 @@ import kotlinx.coroutines.withContext
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel(assistedFactory = LoginSSOViewModel.Factory::class)
 class LoginSSOViewModel : LoginViewModel {
-    private val savedStateHandle: SavedStateHandle
+    private val savedInputStore: LoginSavedInputStore
     val addAuthenticatedUser: AddAuthenticatedUserUseCase
     private val validateEmailUseCase: ValidateEmailUseCase
     private val ssoExtension: LoginSSOViewModelExtension
@@ -83,7 +83,7 @@ class LoginSSOViewModel : LoginViewModel {
 
     constructor(
         loginNavArgs: LoginNavArgs,
-        savedStateHandle: SavedStateHandle,
+        savedInputStore: LoginSavedInputStore,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         validateEmailUseCase: ValidateEmailUseCase,
         coreLogic: CoreLogic,
@@ -95,7 +95,7 @@ class LoginSSOViewModel : LoginViewModel {
         dispatchers: DispatcherProvider,
     ) : this(
         loginNavArgs,
-        savedStateHandle,
+        savedInputStore,
         addAuthenticatedUser,
         validateEmailUseCase,
         coreLogic,
@@ -110,7 +110,7 @@ class LoginSSOViewModel : LoginViewModel {
     @AssistedInject
     constructor(
         @Assisted loginNavArgs: LoginNavArgs,
-        savedStateHandle: SavedStateHandle,
+        savedInputStore: LoginSavedInputStore,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         validateEmailUseCase: ValidateEmailUseCase,
         @KaliumCoreLogic coreLogic: CoreLogic,
@@ -122,7 +122,7 @@ class LoginSSOViewModel : LoginViewModel {
         dispatchers: DispatcherProvider,
     ) : this(
         loginNavArgs,
-        savedStateHandle,
+        savedInputStore,
         addAuthenticatedUser,
         validateEmailUseCase,
         coreLogic,
@@ -136,7 +136,7 @@ class LoginSSOViewModel : LoginViewModel {
 
     private constructor(
         loginNavArgs: LoginNavArgs,
-        savedStateHandle: SavedStateHandle,
+        savedInputStore: LoginSavedInputStore,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         validateEmailUseCase: ValidateEmailUseCase,
         coreLogic: CoreLogic,
@@ -154,7 +154,7 @@ class LoginSSOViewModel : LoginViewModel {
         LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
         serverConfig
     ) {
-        this.savedStateHandle = savedStateHandle
+        this.savedInputStore = savedInputStore
         this.addAuthenticatedUser = addAuthenticatedUser
         this.validateEmailUseCase = validateEmailUseCase
         this.ssoExtension = ssoExtension
@@ -174,13 +174,13 @@ class LoginSSOViewModel : LoginViewModel {
     }
 
     private fun observeSSOCodeInput() {
-        ssoTextState.setTextAndPlaceCursorAtEnd(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY)
+        ssoTextState.setTextAndPlaceCursorAtEnd(savedInputStore.ssoCode ?: String.EMPTY)
         viewModelScope.launch {
             ssoTextState.textAsFlow().distinctUntilChanged().collectLatest {
                 if (loginState.flowState != LoginState.Loading) {
                     updateSSOFlowState(LoginState.Default)
                 }
-                savedStateHandle[SSO_CODE_SAVED_STATE_KEY] = it.toString()
+                savedInputStore.ssoCode = it.toString()
             }
         }
     }
@@ -440,7 +440,6 @@ class LoginSSOViewModel : LoginViewModel {
     }
 
     companion object {
-        const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
         private const val TAG = "[LoginSSOViewModel]"
     }
 

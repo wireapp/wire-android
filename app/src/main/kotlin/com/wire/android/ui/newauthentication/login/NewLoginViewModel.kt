@@ -24,7 +24,6 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
@@ -34,9 +33,9 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
+import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
-import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.USER_IDENTIFIER_SAVED_STATE_KEY
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.authentication.login.sso.ssoCodeWithPrefix
@@ -67,11 +66,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import javax.inject.Named
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -80,7 +77,7 @@ class NewLoginViewModel(
     private val loginNavArgs: LoginNavArgs,
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     val coreLogic: CoreLogic,
-    savedStateHandle: SavedStateHandle,
+    private val savedInputStore: LoginSavedInputStore,
     val clientScopeProviderFactory: ClientScopeProvider.Factory,
     val userDataStoreProvider: UserDataStoreProvider,
     private val loginExtension: LoginViewModelExtension,
@@ -96,7 +93,7 @@ class NewLoginViewModel(
         @Assisted loginNavArgs: LoginNavArgs,
         validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
         @KaliumCoreLogic coreLogic: CoreLogic,
-        savedStateHandle: SavedStateHandle,
+        savedInputStore: LoginSavedInputStore,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         clientScopeProviderFactory: ClientScopeProvider.Factory,
         userDataStoreProvider: UserDataStoreProvider,
@@ -109,7 +106,7 @@ class NewLoginViewModel(
         loginNavArgs,
         validateEmailOrSSOCode,
         coreLogic,
-        savedStateHandle,
+        savedInputStore,
         clientScopeProviderFactory,
         userDataStoreProvider,
         LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
@@ -143,12 +140,12 @@ class NewLoginViewModel(
             } else if (defaultSSOCodeConfig.isNotEmpty() && !isCustomServerDeepLink) {
                 defaultSSOCodeConfig.ssoCodeWithPrefix()
             } else {
-                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+                savedInputStore.userIdentifier ?: String.EMPTY
             }
         )
         viewModelScope.launch {
             userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
-                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
+                savedInputStore.userIdentifier = it.toString()
             }.collectLatest {
                 getAndUpdateLoginFlowState { currentState: NewLoginFlowState ->
                     if (currentState is NewLoginFlowState.Error.TextFieldError) NewLoginFlowState.Default else currentState
@@ -173,7 +170,7 @@ class NewLoginViewModel(
                             appLogger.d("$TAG Successfully fetched default SSO code")
                             withContext(dispatchers.main()) {
                                 userIdentifierTextState.setTextAndPlaceCursorAtEnd(defaultSSOCode)
-                                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = defaultSSOCode
+                                savedInputStore.userIdentifier = defaultSSOCode
                             }
                         } else {
                             appLogger.d("$TAG No default SSO code configured for this server")
@@ -316,18 +313,6 @@ class NewLoginViewModel(
                 }
             )
         }
-
-    fun observeSSOResult(backStackSavedState: SavedStateHandle) {
-        viewModelScope.launch {
-            backStackSavedState
-                .getStateFlow<String?>(SSO_LOGIN_RESULT_KEY, null)
-                .filterNotNull()
-                .collect { json ->
-                    handleSSOResult(Json.decodeFromString(json))
-                    backStackSavedState.remove<String>(SSO_LOGIN_RESULT_KEY)
-                }
-        }
-    }
 
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin) {
         updateLoginFlowState(NewLoginFlowState.Loading)

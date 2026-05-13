@@ -44,7 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
@@ -86,7 +86,7 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navigator: Navigator,
     loginNavArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel = hiltViewModel<LoginEmailViewModel, LoginEmailViewModel.Factory>(
+    loginEmailViewModel: LoginEmailViewModel = wireViewModel<LoginEmailViewModel, LoginEmailViewModel.Factory>(
         creationCallback = { factory -> factory.create(loginNavArgs) }
     )
 ) {
@@ -272,7 +272,7 @@ private fun PreviewLoginScreen() = WireTheme {
             onSuccess = { _, _ -> },
             onRemoveDeviceNeeded = {},
             loginNavArgs = LoginNavArgs(),
-            loginEmailViewModel = hiltViewModel(),
+            loginEmailViewModel = wireViewModel(),
             ssoLoginResult = null,
             ssoCodeAutoLogin = null
         )

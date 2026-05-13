@@ -32,7 +32,7 @@ interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
 }
 
 /**
- * Custom implementation of [hiltViewModelScoped] that uses our generated previews for scoped ViewModels
+ * Repo-local scoped ViewModel accessor that uses our generated previews for scoped ViewModels
  * and creates assisted injected scoped [ViewModel] instances using [ScopedArgs].
  *
  * [ViewModel] needs to implement an interface annotated with [ViewModelScopedPreview] and with default
@@ -45,7 +45,7 @@ interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        hiltViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S = when {
+        wireViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> hiltViewModelScoped<T, F>(key = arguments.key?.toString(), clearDelay = clearDelay) { factory ->
@@ -56,7 +56,7 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        hiltViewModelScoped(
+        wireViewModelScoped(
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
     clearDelay: Duration? = null,
@@ -78,7 +78,7 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
 }
 
 /**
- * Custom implementation of [hiltViewModelScoped] that uses our generated previews for scoped ViewModels.
+ * Repo-local scoped ViewModel accessor that uses our generated previews for scoped ViewModels.
  * This is version that does not take and pass any arguments, it does not use any key to generate a new
  * version when it changes, so it basically keeps the same instance.
  *
@@ -87,11 +87,48 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
  */
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
-inline fun <reified T, reified S> hiltViewModelScoped(): S where T : ViewModel, T : S = when {
+inline fun <reified T, reified S> wireViewModelScoped(): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> hiltViewModelScoped<T>()
 }
+
+@Deprecated(
+    message = "Use wireViewModelScoped to avoid exposing the DI implementation in local APIs.",
+    replaceWith = ReplaceWith("wireViewModelScoped(arguments, clearDelay)")
+)
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
+@Composable
+inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
+        hiltViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S =
+    wireViewModelScoped<T, S, R, F>(arguments = arguments, clearDelay = clearDelay)
+
+@Deprecated(
+    message = "Use wireViewModelScoped to avoid exposing the DI implementation in local APIs.",
+    replaceWith = ReplaceWith("wireViewModelScoped(arguments, keyInScopeResolver, clearDelay)")
+)
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
+@Composable
+inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
+        hiltViewModelScoped(
+    arguments: R,
+    noinline keyInScopeResolver: KeyInScopeResolver<String>,
+    clearDelay: Duration? = null,
+): S where T : ViewModel, T : S =
+    wireViewModelScoped<T, S, R, F>(
+        arguments = arguments,
+        keyInScopeResolver = keyInScopeResolver,
+        clearDelay = clearDelay
+    )
+
+@Deprecated(
+    message = "Use wireViewModelScoped to avoid exposing the DI implementation in local APIs.",
+    replaceWith = ReplaceWith("wireViewModelScoped()")
+)
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
+@Composable
+inline fun <reified T, reified S> hiltViewModelScoped(): S where T : ViewModel, T : S =
+    wireViewModelScoped<T, S>()
 
 val espresso
     get() = try {

@@ -44,7 +44,7 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.feature.cells.ui.wireCellsViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
@@ -71,7 +71,7 @@ internal fun PublicLinkPasswordScreen(
     args: PublicLinkPasswordNavArgs,
     modifier: Modifier = Modifier,
     viewModel: PublicLinkPasswordScreenViewModel =
-        hiltViewModel<PublicLinkPasswordScreenViewModel, PublicLinkPasswordScreenViewModel.Factory>(
+        wireCellsViewModel<PublicLinkPasswordScreenViewModel, PublicLinkPasswordScreenViewModel.Factory>(
             creationCallback = { factory -> factory.create(args) }
         ),
 ) {

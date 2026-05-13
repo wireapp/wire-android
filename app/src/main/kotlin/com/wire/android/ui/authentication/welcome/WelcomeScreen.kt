@@ -66,7 +66,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
@@ -114,7 +114,7 @@ import kotlinx.coroutines.flow.scan
 fun WelcomeScreen(
     navigator: Navigator,
     args: WelcomeNavArgs,
-    viewModel: WelcomeViewModel = hiltViewModel<WelcomeViewModel, WelcomeViewModel.Factory>(
+    viewModel: WelcomeViewModel = wireViewModel<WelcomeViewModel, WelcomeViewModel.Factory>(
         creationCallback = { factory -> factory.create(args) }
     )
 ) {

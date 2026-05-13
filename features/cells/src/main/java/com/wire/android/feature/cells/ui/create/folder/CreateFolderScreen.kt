@@ -33,7 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.feature.cells.ui.wireCellsViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.FileNameError
@@ -70,9 +70,10 @@ fun CreateFolderScreen(
     resultNavigator: ResultBackNavigator<Boolean>,
     args: CreateFolderScreenNavArgs,
     modifier: Modifier = Modifier,
-    createFolderViewModel: CreateFolderViewModel = hiltViewModel<CreateFolderViewModel, CreateFolderViewModel.Factory>(
-        creationCallback = { factory -> factory.create(args) }
-    )
+    createFolderViewModel: CreateFolderViewModel =
+        wireCellsViewModel<CreateFolderViewModel, CreateFolderViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
 

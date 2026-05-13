@@ -377,6 +377,7 @@ fun PreviewConversationFilesScreen() {
                             listOf(
                                 CellNodeUi.File(
                                     uuid = "file1",
+                                    conversationId = "conversationId",
                                     name = "File 1",
                                     assetType = AttachmentFileType.IMAGE,
                                     size = 123456,

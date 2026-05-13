@@ -104,8 +104,6 @@ class CellFileActionsMenu @Inject constructor(
                         add(NodeBottomSheetAction.SHARE)
                     }
 
-                    add(NodeBottomSheetAction.PUBLIC_LINK)
-
                     add(
                         if (cellNode.isAvailableOffline) {
                             NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS
@@ -118,8 +116,6 @@ class CellFileActionsMenu @Inject constructor(
         } else {
             add(NodeBottomSheetAction.OPEN)
         }
-
-        add(NodeBottomSheetAction.PUBLIC_LINK)
     }
 
     private fun conversationActions(
@@ -147,6 +143,7 @@ class CellFileActionsMenu @Inject constructor(
         addAll(
             listOf(
                 NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                NodeBottomSheetAction.PUBLIC_LINK,
                 NodeBottomSheetAction.MOVE,
                 NodeBottomSheetAction.RENAME,
                 NodeBottomSheetAction.DELETE,

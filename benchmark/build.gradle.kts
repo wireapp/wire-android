@@ -56,6 +56,15 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release", "compatrelease")
         }
+        // For baseline profile generation targeting prodCompatrelease.
+        // The benchmark module itself doesn't need minification (it's not shipped).
+        // What matters is that the app it targets is minified correctly.
+        create("compatrelease") {
+            isDebuggable = true
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+        }
     }
 }
 

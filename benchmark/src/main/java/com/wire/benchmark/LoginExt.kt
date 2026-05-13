@@ -19,6 +19,7 @@ package com.wire.benchmark
 
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import kotlin.time.Duration.Companion.seconds
 
@@ -41,4 +42,33 @@ fun MacrobenchmarkScope.login(email: String, password: String) {
 fun MacrobenchmarkScope.waitForAnalyticsIfPresentAndAgree() {
     device.wait(Until.hasObject(By.text("Agree")), 10.seconds.inWholeMilliseconds)
     device.findObject(By.text("Agree"))?.click()
+}
+
+fun MacrobenchmarkScope.openContactsAndReturn() {
+    device.findObject(By.desc("New. Start a new conversation"))?.click()
+    device.wait(Until.hasObject(By.text("Contacts")), 10.seconds.inWholeMilliseconds)
+    device.pressBack()
+    device.wait(Until.hasObject(By.text("Conversations")), 10.seconds.inWholeMilliseconds)
+}
+
+fun MacrobenchmarkScope.openConversation(conversationName: String) {
+    val conversationTarget = if (conversationName.isNotEmpty()) {
+        device.findObject(By.text(conversationName))
+    } else {
+        firstVisibleConversationCandidate()
+    }
+
+    conversationTarget?.click()
+    device.wait(Until.hasObject(By.desc(" Type a message")), 10.seconds.inWholeMilliseconds)
+    device.pressBack()
+    device.wait(Until.hasObject(By.text("Conversations")), 10.seconds.inWholeMilliseconds)
+}
+
+private fun MacrobenchmarkScope.firstVisibleConversationCandidate(): UiObject2? {
+    val ignoredLabels = setOf("Conversations", "Contacts")
+    return device.findObjects(By.clazz("android.widget.TextView"))
+        .firstOrNull { candidate ->
+            val text = candidate.text?.trim().orEmpty()
+            text.isNotEmpty() && text !in ignoredLabels && candidate.visibleBounds.height() > 0
+        }
 }

@@ -18,6 +18,16 @@
 package com.wire.android.di.metro
 
 import android.content.Context
+import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModelFactory
+import com.wire.android.ui.home.settings.about.dependencies.AndroidDependenciesInfoProvider
+import com.wire.android.ui.home.settings.about.dependencies.DependenciesInfoProvider
+import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewModelFactory
+import com.wire.android.ui.home.settings.about.licenses.AndroidLicensesProvider
+import com.wire.android.ui.home.settings.about.licenses.LicensesProvider
+import com.wire.android.ui.home.settings.about.licenses.LicensesViewModelFactory
+import com.wire.android.ui.home.whatsnew.AndroidReleaseNotesFeedUrlProvider
+import com.wire.android.ui.home.whatsnew.ReleaseNotesFeedUrlProvider
+import com.wire.android.ui.home.whatsnew.WhatsNewViewModelFactory
 import com.wire.android.ui.settings.about.AboutThisAppInfoProvider
 import com.wire.android.ui.settings.about.AboutThisAppViewModelFactory
 import com.wire.android.ui.settings.about.AndroidAboutThisAppInfoProvider
@@ -38,11 +48,30 @@ interface WireMetroGraph {
 
     val checkAssetRestrictionsViewModelFactory: CheckAssetRestrictionsViewModelFactory
     val aboutThisAppViewModelFactory: AboutThisAppViewModelFactory
+    val createAccountSummaryViewModelFactory: CreateAccountSummaryViewModelFactory
+    val whatsNewViewModelFactory: WhatsNewViewModelFactory
+    val dependenciesViewModelFactory: DependenciesViewModelFactory
+    val licensesViewModelFactory: LicensesViewModelFactory
 
     @Provides
     fun provideAboutThisAppInfoProvider(
         @ApplicationContext context: Context,
     ): AboutThisAppInfoProvider = AndroidAboutThisAppInfoProvider(context)
+
+    @Provides
+    fun provideReleaseNotesFeedUrlProvider(
+        @ApplicationContext context: Context,
+    ): ReleaseNotesFeedUrlProvider = AndroidReleaseNotesFeedUrlProvider(context)
+
+    @Provides
+    fun provideDependenciesInfoProvider(
+        @ApplicationContext context: Context,
+    ): DependenciesInfoProvider = AndroidDependenciesInfoProvider(context)
+
+    @Provides
+    fun provideLicensesProvider(
+        @ApplicationContext context: Context,
+    ): LicensesProvider = AndroidLicensesProvider(context)
 }
 
 fun createWireMetroGraph(context: Context): WireMetroGraph =

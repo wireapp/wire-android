@@ -35,7 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.di.wireViewModel
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -53,10 +53,9 @@ import com.wire.android.ui.theme.wireTypography
 fun CreateAccountSummaryScreen(
     navigator: Navigator,
     args: CreateAccountSummaryNavArgs,
-    viewModel: CreateAccountSummaryViewModel =
-        wireViewModel<CreateAccountSummaryViewModel, CreateAccountSummaryViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        )
+    viewModel: CreateAccountSummaryViewModel = metroViewModel {
+        createAccountSummaryViewModelFactory.create(args)
+    }
 ) {
     SummaryContent(
         state = viewModel.summaryState,

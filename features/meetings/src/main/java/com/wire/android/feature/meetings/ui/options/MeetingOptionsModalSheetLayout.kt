@@ -20,13 +20,19 @@ package com.wire.android.feature.meetings.ui.options
 import android.annotation.SuppressLint
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon
@@ -53,7 +59,7 @@ fun MeetingOptionsModalSheetLayout(
     sheetState: WireModalSheetState<String>,
     viewModel: MeetingOptionsMenuViewModel = when {
         LocalInspectionMode.current -> MeetingOptionsMenuViewModelPreview(CurrentTimeProvider.Preview)
-        else -> hiltViewModel<MeetingOptionsMenuViewModelImpl>()
+        else -> metroViewModel { meetingOptionsMenuViewModelFactory.create() }
     }
 ) {
     val deletedMeetingOptionsClosedMessage = stringResource(R.string.deleted_meeting_options_closed)
@@ -176,6 +182,32 @@ private fun MeetingOptionsModalContent(
 
 private fun <E> MutableList<E>.addIf(condition: Boolean, element: E) {
     if (condition) add(element)
+}
+
+private class MeetingOptionsMetroFactories {
+    val meetingOptionsMenuViewModelFactory = MeetingOptionsMenuViewModelFactory()
+}
+
+@Composable
+private inline fun <reified VM : ViewModel> metroViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
+    crossinline create: MeetingOptionsMetroFactories.() -> VM,
+): VM {
+    val factories = remember { MeetingOptionsMetroFactories() }
+    val factory = remember(factories) {
+        viewModelFactory {
+            initializer {
+                factories.create()
+            }
+        }
+    }
+    return viewModel(
+        modelClass = VM::class,
+        viewModelStoreOwner = viewModelStoreOwner,
+        factory = factory,
+    )
 }
 
 @PreviewMultipleThemes

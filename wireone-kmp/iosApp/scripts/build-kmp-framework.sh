@@ -24,7 +24,7 @@ if [[ -z "${JAVA_HOME:-}" ]]; then
 fi
 
 if [[ "${SDK_NAME}" == *"iphoneos"* ]]; then
-  ./gradlew ":wireone-kmp:link${CONFIGURATION}FrameworkIosArm64"
+  ./gradlew -Dkalium.apple.linkSqlite=false ":wireone-kmp:link${CONFIGURATION}FrameworkIosArm64"
 else
-  ./gradlew ":wireone-kmp:link${CONFIGURATION}FrameworkIosSimulatorArm64"
+  ./gradlew -Dkalium.apple.linkSqlite=false ":wireone-kmp:link${CONFIGURATION}FrameworkIosSimulatorArm64"
 fi

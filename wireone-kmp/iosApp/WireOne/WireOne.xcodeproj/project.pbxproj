@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0B9770742F5F7DD600D79C25 /* WireOneKmp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B9770732F5F7DD600D79C25 /* WireOneKmp.framework */; };
 		0B9770752F5F7DD600D79C25 /* WireOneKmp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0B9770732F5F7DD600D79C25 /* WireOneKmp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0B9770772F60F00100D79C25 /* _internal_linkage_SwiftPMImport in Frameworks */ = {isa = PBXBuildFile; productRef = 0B9770792F60F00100D79C25 /* _internal_linkage_SwiftPMImport */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -57,6 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0B9770742F5F7DD600D79C25 /* WireOneKmp.framework in Frameworks */,
+				0B9770772F60F00100D79C25 /* _internal_linkage_SwiftPMImport in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -110,6 +112,7 @@
 			);
 			name = WireOne;
 			packageProductDependencies = (
+				0B9770792F60F00100D79C25 /* _internal_linkage_SwiftPMImport */,
 			);
 			productName = WireOne;
 			productReference = 0B9770582F5F7BDD00D79C25 /* WireOne.app */;
@@ -139,6 +142,9 @@
 			);
 			mainGroup = 0B97704F2F5F7BDD00D79C25;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0B9770782F60F00100D79C25 /* XCLocalSwiftPackageReference "_internal_linkage_SwiftPMImport" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0B9770592F5F7BDD00D79C25 /* Products */;
 			projectDirPath = "";
@@ -193,6 +199,7 @@
 		0B97706C2F5F7BDE00D79C25 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -230,6 +237,7 @@
 		0B97706D2F5F7BDE00D79C25 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -405,6 +413,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		0B9770782F60F00100D79C25 /* XCLocalSwiftPackageReference "_internal_linkage_SwiftPMImport" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = _internal_linkage_SwiftPMImport;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0B9770792F60F00100D79C25 /* _internal_linkage_SwiftPMImport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = _internal_linkage_SwiftPMImport;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0B9770502F5F7BDD00D79C25 /* Project object */;
 }

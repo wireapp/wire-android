@@ -34,7 +34,7 @@ private object IosKaliumProvider : KaliumProvider {
 
     override fun statusLine(): String {
         coreLogic
-        return "Kalium: initialized on iOS"
+        return "Kalium: initialized on iOS with SQLCipher storage"
     }
 }
 

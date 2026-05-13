@@ -48,8 +48,13 @@ Deployment target: **iOS 15+**
   - `bash "${PROJECT_DIR}/../scripts/build-kmp-framework.sh"`
 - The app links and embeds:
   - `wireone-kmp/build/bin/iosSimulatorArm64/debugFramework/WireOneKmp.framework`
+- The app links SQLCipher through a local SwiftPM linkage package:
+  - `wireone-kmp/iosApp/WireOne/_internal_linkage_SwiftPMImport/Package.swift`
+  - The package depends on `https://github.com/skiptools/swift-sqlcipher.git` from `1.4.0`.
+- The KMP framework build passes `-Dkalium.apple.linkSqlite=false` so Kalium/SQLDelight does not also link Apple's system `sqlite3`.
 
 ### Notes
 - For device builds, the script switches to `:wireone-kmp:linkDebugFrameworkIosArm64`.
+- WireOne initializes Kalium with persistent iOS storage and `KaliumConfigs()` encryption enabled, so the sample exercises the SQLCipher-backed database path.
 
 ---

@@ -584,7 +584,7 @@ class CellViewModel @Inject constructor(
             userName = userName,
             userHandle = null,
             conversationName = conversationName,
-            modifiedTime = modifiedTime,
+            modifiedTime = modifiedAt,
             isAvailableOffline = true,
             openLoadState = openLoadState,
             downloadProgress = downloadProgress,

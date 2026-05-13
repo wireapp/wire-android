@@ -217,6 +217,7 @@ internal fun CellScreenContent(
             }
         )
     }
+    val offlineFileSavedToastDescription = stringResource(R.string.offline_file_saved_message)
 
     HandleActions(actionsFlow) { action ->
         when (action) {
@@ -245,11 +246,10 @@ internal fun CellScreenContent(
             is ShowFileDeletedMessage -> showDeleteConfirmation(context, action.isFile, action.permanently)
             is OpenFolder -> openFolder(action.path, action.title, action.parentFolderUuid)
             is ShowEditErrorDialog -> editNodeError = action.nodeUuid
-                is ShowOfflineFileSaved -> {
-                val description = stringResource(R.string.offline_file_saved_message)
+            is ShowOfflineFileSaved -> {
                 Toast.makeText(
                     context,
-                    description,
+                    offlineFileSavedToastDescription,
                     Toast.LENGTH_SHORT
                 ).show()
             }

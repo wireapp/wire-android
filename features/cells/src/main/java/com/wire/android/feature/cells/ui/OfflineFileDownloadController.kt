@@ -108,7 +108,7 @@ class OfflineFileDownloadController @Inject constructor(
                     size = cellNode.size,
                     downloadedAt = System.currentTimeMillis(),
                     conversationId = cellNode.conversationId,
-                    modifiedTime = cellNode.modifiedTime,
+                    modifiedAt = cellNode.modifiedTime,
                 )
             )
             onSuccess(existingPath)
@@ -127,6 +127,7 @@ class OfflineFileDownloadController @Inject constructor(
 
         val result = download(
             assetId = cellNode.uuid,
+            conversationId = cellNode.conversationId,
             outFilePath = filePath,
             remoteFilePath = cellNode.remotePath,
             assetSize = cellNode.size ?: 0,
@@ -154,7 +155,7 @@ class OfflineFileDownloadController @Inject constructor(
                     size = cellNode.size,
                     downloadedAt = System.currentTimeMillis(),
                     conversationId = cellNode.conversationId,
-                    modifiedTime = cellNode.modifiedTime,
+                    modifiedAt = cellNode.modifiedTime,
                 )
             )
             onSuccess(filePath.toString())

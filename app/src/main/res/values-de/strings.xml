@@ -1106,6 +1106,7 @@
     <string name="connection_label_ignore">Ignorieren</string>
     <string name="connection_label_send_unverified_warning">Verschaffen Sie sich Gewissheit über die Identität von %s, bevor Sie den Kontakt hinzufügen.</string>
     <string name="connection_label_received_unverified_warning">Bitte überprüfen Sie die Identität der Person, bevor Sie die Kontaktanfrage annehmen.</string>
+    <string name="connection_label_unverified_support_disclaimer">Das Support-Team von Wire wird Sie niemals über die App kontaktieren.</string>
     <string name="connection_label_user_not_found_warning_title">Wire kann diese Person nicht finden</string>
     <string name="connection_label_user_not_found_warning_description">Entweder fehlt die Berechtigung für dieses Benutzerkonto oder die Person nutzt Wire nicht.</string>
     <!-- Missing keyPackages dialog -->

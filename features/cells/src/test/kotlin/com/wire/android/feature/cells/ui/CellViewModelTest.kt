@@ -56,7 +56,6 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -334,7 +333,7 @@ class CellViewModelTest {
 
             coEvery { isCellAvailableUseCase.invoke() } returns true.right()
 
-            every { observeOfflineFiles() } returns emptyFlow()
+            every { observeOfflineFiles() } returns flowOf(emptyList())
             coEvery { getOfflineFile(any()) } returns null
             every { networkStateObserver.observeNetworkState() } returns MutableStateFlow(NetworkState.ConnectedWithInternet)
             coEvery { getConversationNames(any()) } returns null

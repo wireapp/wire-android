@@ -57,11 +57,17 @@ class CellFileActionsMenu @Inject constructor(
             }
 
             isConversationFiles -> {
-                commonActions(cellNode) +
-                        conversationActions(
-                            cellNode = cellNode,
-                            isCollaboraEnabled = isCollaboraEnabled,
-                        )
+                val common = commonActions(cellNode)
+                val isTerminal = cellNode is CellNodeUi.File &&
+                        (cellNode.isOpenLoading || cellNode.downloadProgress != null)
+                if (isTerminal) {
+                    common
+                } else {
+                    common + conversationActions(
+                        cellNode = cellNode,
+                        isCollaboraEnabled = isCollaboraEnabled,
+                    )
+                }
             }
 
             else -> emptyList()
@@ -97,6 +103,8 @@ class CellFileActionsMenu @Inject constructor(
                     if (cellNode.localFileAvailable()) {
                         add(NodeBottomSheetAction.SHARE)
                     }
+
+                    add(NodeBottomSheetAction.PUBLIC_LINK)
 
                     add(
                         if (cellNode.isAvailableOffline) {

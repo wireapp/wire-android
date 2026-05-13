@@ -21,9 +21,7 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
-import com.wire.android.util.cellFileDateTime
 import com.wire.kalium.cells.domain.model.Node
-import kotlinx.datetime.Instant
 
 sealed class CellNodeUi {
     abstract val name: String?
@@ -32,7 +30,7 @@ sealed class CellNodeUi {
     abstract val userHandle: String?
     abstract val ownerUserId: String?
     abstract val conversationName: String?
-    abstract val modifiedTime: String?
+    abstract val modifiedTime: Long?
     abstract val publicLinkId: String?
     abstract val remotePath: String?
     abstract val size: Long?
@@ -53,7 +51,7 @@ sealed class CellNodeUi {
         override val userHandle: String?,
         override val ownerUserId: String?,
         override val conversationName: String?,
-        override val modifiedTime: String?,
+        override val modifiedTime: Long?,
         override val publicLinkId: String? = null,
         override val remotePath: String? = null,
         override val size: Long?,
@@ -70,7 +68,7 @@ sealed class CellNodeUi {
         override val userHandle: String?,
         override val ownerUserId: String?,
         override val conversationName: String?,
-        override val modifiedTime: String?,
+        override val modifiedTime: Long?,
         override val publicLinkId: String? = null,
         override val remotePath: String? = null,
         override val size: Long?,
@@ -110,7 +108,7 @@ internal fun Node.File.toUiModel(
     conversationName = conversationName,
     conversationId = conversationId,
     publicLinkId = publicLinkId,
-    modifiedTime = formattedModifiedTime(),
+    modifiedTime = modifiedTime,
     tags = tags,
     isEditSupported = isEditSupported,
     openLoadState = openLoadState,
@@ -125,20 +123,12 @@ internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
     userHandle = userHandle,
     ownerUserId = ownerUserId,
     conversationName = conversationName,
-    modifiedTime = formattedModifiedTime(),
+    modifiedTime = modifiedTime,
     remotePath = remotePath,
     size = size,
     tags = tags,
     publicLinkId = publicLinkId,
 )
-
-private fun Node.File.formattedModifiedTime() = modifiedTime?.let {
-    Instant.fromEpochMilliseconds(it).cellFileDateTime()
-}
-
-private fun Node.Folder.formattedModifiedTime() = modifiedTime?.let {
-    Instant.fromEpochMilliseconds(it).cellFileDateTime()
-}
 
 internal fun CellNodeUi.File.withSessionState(
     openLoadState: OpenLoadState?,

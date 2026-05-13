@@ -581,7 +581,7 @@ class CellFileActionsMenuTest {
             uuid = "uuid",
             userName = "user",
             conversationName = "conversation",
-            modifiedTime = "time",
+            modifiedTime = 1696154400000L,
             size = 1,
             userHandle = null,
             ownerUserId = null,

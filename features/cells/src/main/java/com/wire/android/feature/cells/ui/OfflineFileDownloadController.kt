@@ -25,14 +25,10 @@ import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onSuccess
-import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import okio.Path
@@ -51,8 +47,8 @@ class OfflineFileDownloadController @Inject constructor(
     private val saveOfflineFile: SaveOfflineFileUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
 ) {
-    private val _downloadProgresses = MutableStateFlow<Map<String, Float?>>(emptyMap())
-    internal val downloadProgresses: StateFlow<Map<String, Float?>> = _downloadProgresses.asStateFlow()
+
+    internal val downloadProgresses: StateFlow<Map<String, Float?>> = sharedPathCache.downloadProgresses
 
     private data class ActiveDownload(val job: Job, val filePath: Path)
     private val activeJobs = mutableMapOf<String, ActiveDownload>()
@@ -181,12 +177,10 @@ class OfflineFileDownloadController @Inject constructor(
     }
 
     private fun setProgress(uuid: String, progress: Float?) {
-        _downloadProgresses.update { it.toMutableMap().apply { put(uuid, progress) }.toImmutableMap() }
         sharedPathCache.setDownloadProgress(uuid, progress)
     }
 
     private fun clearProgress(uuid: String) {
-        _downloadProgresses.update { it.toMutableMap().apply { remove(uuid) }.toImmutableMap() }
         sharedPathCache.clearDownloadProgress(uuid)
     }
 }

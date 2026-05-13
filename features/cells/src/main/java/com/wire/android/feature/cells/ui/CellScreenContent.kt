@@ -245,11 +245,14 @@ internal fun CellScreenContent(
             is ShowFileDeletedMessage -> showDeleteConfirmation(context, action.isFile, action.permanently)
             is OpenFolder -> openFolder(action.path, action.title, action.parentFolderUuid)
             is ShowEditErrorDialog -> editNodeError = action.nodeUuid
-            is ShowOfflineFileSaved -> Toast.makeText(
-                context,
-                context.getString(com.wire.android.feature.cells.R.string.offline_file_saved_message),
-                Toast.LENGTH_SHORT
-            ).show()
+                is ShowOfflineFileSaved -> {
+                val description = stringResource(R.string.offline_file_saved_message)
+                Toast.makeText(
+                    context,
+                    description,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 

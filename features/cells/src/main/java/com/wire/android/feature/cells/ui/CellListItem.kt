@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.animation.AnimatedContent
@@ -56,10 +58,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -78,8 +82,12 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.cellFileDateTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
+import kotlinx.datetime.Instant
+import okio.Path.Companion.toOkioPath
+import kotlin.io.path.Path
 import com.wire.android.ui.common.R as commonR
 
 @Composable
@@ -167,7 +175,7 @@ private fun CellItemIcon(cell: CellNodeUi, showReadyState: Boolean) {
     ) { state ->
         when (state) {
             is CellIconState.Loading -> LoadingIconPreview(progress = state.progress)
-            is CellIconState.Downloading -> LoadingIconPreview(progress = state.progress)
+            is CellIconState.Downloading -> DownloadingIconPreview(progress = state.progress)
             is CellIconState.Ready -> ReadyIconPreview()
             is CellIconState.FileIcon -> FileIconPreview(state.cell)
             is CellIconState.FolderIcon -> FolderIconPreview(state.cell)
@@ -186,6 +194,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean) {
             color = colorsScheme().secondaryText,
             maxLines = 1,
         )
+
         cell.openLoadState is OpenLoadState.Error -> Text(
             text = stringResource(R.string.unable_to_load_retry),
             textAlign = TextAlign.Left,
@@ -204,6 +213,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean) {
                 color = colorsScheme().secondaryText,
                 maxLines = 1,
             )
+
         showReadyState -> Text(
             text = stringResource(R.string.ready_to_open),
             textAlign = TextAlign.Left,
@@ -212,6 +222,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean) {
             color = colorsScheme().primary,
             maxLines = 1,
         )
+
         else -> {
             if (cell.isAvailableOffline) {
                 Icon(
@@ -270,6 +281,43 @@ internal fun LoadingIconPreview(progress: Float?) {
                 trackColor = trackColor,
                 strokeWidth = strokeWidth,
                 strokeCap = StrokeCap.Round,
+            )
+        } else {
+            CircularProgressIndicator(
+                modifier = modifier,
+                color = color,
+                trackColor = trackColor,
+                strokeWidth = strokeWidth,
+                strokeCap = StrokeCap.Round,
+            )
+        }
+    }
+}
+
+@Composable
+internal fun DownloadingIconPreview(progress: Float?) {
+    val modifier = Modifier.size(dimensions().spacing32x)
+    val color = colorsScheme().primary
+    val trackColor = colorsScheme().primaryVariant
+    val strokeWidth = dimensions().spacing2x
+    Box(
+        modifier = Modifier.size(dimensions().spacing56x),
+        contentAlignment = Alignment.Center
+    ) {
+        if (progress != null) {
+            CircularProgressIndicator(
+                progress = { progress },
+                modifier = modifier,
+                color = color,
+                trackColor = trackColor,
+                strokeWidth = strokeWidth,
+                strokeCap = StrokeCap.Round,
+            )
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_arrow),
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(dimensions().spacing16x)
             )
         } else {
             CircularProgressIndicator(
@@ -398,21 +446,23 @@ private fun PublicLinkIcon(
 }
 
 @Composable
-private fun CellNodeUi.subtitle() =
-    when {
-        userName != null && conversationName != null -> {
+private fun CellNodeUi.subtitle(): String? {
+    val formattedTime = modifiedTime?.let {
+        remember(it) { Instant.fromEpochMilliseconds(it).cellFileDateTime() }
+    }
+    return when {
+        userName != null && conversationName != null ->
             stringResource(R.string.file_subtitle, userName!!, conversationName!!)
-        }
 
-        userName != null && modifiedTime != null -> {
-            stringResource(R.string.file_subtitle_modified, modifiedTime!!, userName!!)
-        }
+        userName != null && formattedTime != null ->
+            stringResource(R.string.file_subtitle_modified, formattedTime, userName!!)
 
         userName != null -> userName
         conversationName != null -> conversationName
-        modifiedTime != null -> modifiedTime
+        formattedTime != null -> formattedTime
         else -> null
     }
+}
 
 @PreviewMultipleThemes
 @Composable
@@ -433,9 +483,115 @@ private fun PreviewCellListItem() {
                 conversationName = "Test Conversation",
                 modifiedTime = null,
                 remotePath = null,
-                contentHash = null,
                 contentUrl = null,
                 previewUrl = null
+            ),
+            onMenuClick = {},
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewCellListItemLoading() {
+    WireTheme {
+        CellListItem(
+            cell = CellNodeUi.File(
+                uuid = "",
+                name = "file name",
+                assetType = AttachmentFileType.IMAGE,
+                size = 123214,
+                localPath = null,
+                mimeType = "image/jpg",
+                publicLinkId = "",
+                userName = "Test User",
+                userHandle = "userId",
+                ownerUserId = "userId",
+                conversationName = "Test Conversation",
+                modifiedTime = null,
+                remotePath = null,
+                contentUrl = null,
+                previewUrl = null,
+                openLoadState = OpenLoadState.Loading(0.5f)
+            ),
+            onMenuClick = {},
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewCellListItemReady() {
+    WireTheme {
+        CellListItem(
+            cell = CellNodeUi.File(
+                uuid = "",
+                name = "file name",
+                assetType = AttachmentFileType.IMAGE,
+                size = 123214,
+                localPath = null,
+                mimeType = "image/jpg",
+                publicLinkId = "",
+                userName = "Test User",
+                userHandle = "userId",
+                ownerUserId = "userId",
+                conversationName = "Test Conversation",
+                modifiedTime = null,
+                remotePath = null,
+                contentUrl = null,
+                previewUrl = null,
+                openLoadState = OpenLoadState.Ready(Path("localPath").toOkioPath())
+            ),
+            onMenuClick = {},
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewCellListItemDownloading() {
+    WireTheme {
+        CellListItem(
+            cell = CellNodeUi.File(
+                uuid = "",
+                name = "file name",
+                assetType = AttachmentFileType.IMAGE,
+                size = 123214,
+                localPath = null,
+                mimeType = "image/jpg",
+                publicLinkId = "",
+                userName = "Test User",
+                userHandle = "userId",
+                ownerUserId = "userId",
+                conversationName = "Test Conversation",
+                modifiedTime = null,
+                remotePath = null,
+                contentUrl = null,
+                previewUrl = null,
+                downloadProgress = 0.75f
+            ),
+            onMenuClick = {},
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewCellListItemFolder() {
+    WireTheme {
+        CellListItem(
+            cell = CellNodeUi.Folder(
+                uuid = "",
+                name = "folder name",
+                userName = "Test User",
+                userHandle = "userId",
+                ownerUserId = "userId",
+                conversationName = "Test Conversation",
+                modifiedTime = null,
+                remotePath = null,
+                size = null,
+                tags = emptyList(),
+                publicLinkId = null,
             ),
             onMenuClick = {},
         )

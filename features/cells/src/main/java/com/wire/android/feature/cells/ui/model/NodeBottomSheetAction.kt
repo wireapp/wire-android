@@ -37,6 +37,6 @@ enum class NodeBottomSheetAction(
     VERSION_HISTORY(R.string.see_version_history_bottom_sheet, R.drawable.ic_version_history),
     CANCEL_LOADING(R.string.cancel_loading_label, com.wire.android.ui.common.R.drawable.ic_close, true),
     CANCEL_DOWNLOAD(R.string.cancel_download_label, com.wire.android.ui.common.R.drawable.ic_close, true),
-    MAKE_AVAILABLE_OFFLINE(R.string.make_available_offline_label, R.drawable.ic_save),
+    MAKE_AVAILABLE_OFFLINE(R.string.make_available_offline_label, R.drawable.ic_arrow_down_circle),
     REMOVE_OFFLINE_ACCESS(R.string.remove_offline_access_label, R.drawable.ic_cross_in_circle, true),
 }

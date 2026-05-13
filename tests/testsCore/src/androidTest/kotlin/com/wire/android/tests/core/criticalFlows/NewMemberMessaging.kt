@@ -201,7 +201,8 @@ class NewMemberMessaging : BaseUiTest() {
 
         step("Open group conversation and verify mention is visible when sent via backend") {
             pages.conversationListPage.apply {
-                clickGroupConversation("MyTeam")
+                assertConversationListVisible()
+                clickGroupConversation("MyTeam", timeout = 20.seconds)
             }
 
             testServiceHelper.apply {

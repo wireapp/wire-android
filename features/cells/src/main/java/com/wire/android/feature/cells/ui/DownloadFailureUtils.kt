@@ -39,10 +39,6 @@ internal fun CoreFailure.isNoSpaceLeft(): Boolean = when (this) {
     else -> false
 }
 
-/**
- * Walks the full [Throwable] cause chain searching for an [IOException] whose message
- * indicates a full-disk condition.
- */
 private fun Throwable.causedByNoSpace(): Boolean {
     var current: Throwable? = this
     while (current != null) {

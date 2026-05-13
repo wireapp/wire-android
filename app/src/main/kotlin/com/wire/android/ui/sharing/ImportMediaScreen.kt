@@ -196,7 +196,9 @@ private fun ImportMediaAuthenticatedContent(
     checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = metroViewModel {
         checkAssetRestrictionsViewModelFactory.create()
     },
-    importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel(),
+    importMediaViewModel: ImportMediaAuthenticatedViewModel = metroViewModel {
+        importMediaAuthenticatedViewModelFactory.create()
+    },
 ) {
     if (isRestrictedInTeam) {
         ImportMediaRestrictedContent(

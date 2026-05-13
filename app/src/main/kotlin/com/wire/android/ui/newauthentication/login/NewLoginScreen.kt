@@ -57,7 +57,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceS
 import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
-import com.wire.android.di.wireViewModel
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -99,9 +99,9 @@ import kotlinx.serialization.json.Json
 fun NewLoginScreen(
     navigator: Navigator,
     navArgs: LoginNavArgs,
-    viewModel: NewLoginViewModel = wireViewModel<NewLoginViewModel, NewLoginViewModel.Factory>(
-        creationCallback = { factory -> factory.create(navArgs) }
-    )
+    viewModel: NewLoginViewModel = metroViewModel {
+        newLoginViewModelFactory.create(navArgs, provideLoginSavedInputStore())
+    }
 ) {
     val context = LocalContext.current
     val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)

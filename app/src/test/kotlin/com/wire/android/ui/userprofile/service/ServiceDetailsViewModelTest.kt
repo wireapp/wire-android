@@ -53,7 +53,6 @@ import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -619,10 +618,11 @@ class ServiceDetailsViewModelTest {
         @MockK
         lateinit var addMemberToConversation: AddMemberToConversationUseCase
 
-        @MockK
-        lateinit var serviceDetailsNavArgsProvider: ServiceDetailsNavArgsProvider
-
         private val selfUser = TestUser.SELF_USER
+        private var serviceDetailsNavArgs = ServiceDetailsNavArgs(
+            CONVERSATION_ID,
+            ServiceDetailsNavArgs.Id.BotServiceId(BOT_SERVICE)
+        )
 
         private val viewModel by lazy {
             ServiceDetailsViewModel(
@@ -638,7 +638,7 @@ class ServiceDetailsViewModelTest {
                 removeMemberFromConversation,
                 addServiceToConversation,
                 addMemberToConversation,
-                serviceDetailsNavArgsProvider
+                serviceDetailsNavArgs
             )
         }
 
@@ -657,14 +657,14 @@ class ServiceDetailsViewModelTest {
         }
 
         fun withServiceBot(service: BotService, conversationId: ConversationId? = CONVERSATION_ID) = apply {
-            every { serviceDetailsNavArgsProvider.serviceDetailsNavArgs() } returns ServiceDetailsNavArgs(
+            serviceDetailsNavArgs = ServiceDetailsNavArgs(
                 conversationId,
                 ServiceDetailsNavArgs.Id.BotServiceId(service)
             )
         }
 
         fun withServiceApp(service: UserId, conversationId: ConversationId? = CONVERSATION_ID) = apply {
-            every { serviceDetailsNavArgsProvider.serviceDetailsNavArgs() } returns ServiceDetailsNavArgs(
+            serviceDetailsNavArgs = ServiceDetailsNavArgs(
                 conversationId,
                 ServiceDetailsNavArgs.Id.AppId(service)
             )

@@ -39,8 +39,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -69,7 +69,10 @@ import com.wire.kalium.logic.data.service.ServiceDetails
 @Composable
 fun ServiceDetailsScreen(
     navigator: Navigator,
-    viewModel: ServiceDetailsViewModel = hiltViewModel()
+    args: ServiceDetailsNavArgs,
+    viewModel: ServiceDetailsViewModel = metroViewModel {
+        serviceDetailsViewModelFactory.create(args)
+    }
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current

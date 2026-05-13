@@ -44,12 +44,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -86,9 +86,9 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navigator: Navigator,
     loginNavArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel = wireViewModel<LoginEmailViewModel, LoginEmailViewModel.Factory>(
-        creationCallback = { factory -> factory.create(loginNavArgs) }
-    )
+    loginEmailViewModel: LoginEmailViewModel = metroViewModel {
+        loginEmailViewModelFactory.create(loginNavArgs)
+    }
 ) {
 
     LoginContent(
@@ -272,7 +272,9 @@ private fun PreviewLoginScreen() = WireTheme {
             onSuccess = { _, _ -> },
             onRemoveDeviceNeeded = {},
             loginNavArgs = LoginNavArgs(),
-            loginEmailViewModel = wireViewModel(),
+            loginEmailViewModel = metroViewModel {
+                loginEmailViewModelFactory.create(LoginNavArgs())
+            },
             ssoLoginResult = null,
             ssoCodeAutoLogin = null
         )

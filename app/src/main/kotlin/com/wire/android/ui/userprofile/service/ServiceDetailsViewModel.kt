@@ -44,7 +44,6 @@ import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageU
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberResult
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -56,11 +55,9 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@HiltViewModel
-class ServiceDetailsViewModel @Inject constructor(
+class ServiceDetailsViewModel(
     private val dispatchers: DispatcherProvider,
     @CurrentAccount private val selfUserId: UserId,
     private val getServiceById: GetServiceByIdUseCase,
@@ -73,11 +70,8 @@ class ServiceDetailsViewModel @Inject constructor(
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val addServiceToConversation: AddServiceToConversationUseCase,
     private val addMemberToConversation: AddMemberToConversationUseCase,
-    serviceDetailsNavArgsProvider: ServiceDetailsNavArgsProvider
+    private val serviceDetailsNavArgs: ServiceDetailsNavArgs
 ) : ViewModel() {
-
-    private val serviceDetailsNavArgs: ServiceDetailsNavArgs =
-        serviceDetailsNavArgsProvider.serviceDetailsNavArgs()
 
     private val serviceId: ServiceId = serviceDetailsNavArgs.id.serviceId
     private val conversationId: QualifiedID? = serviceDetailsNavArgs.conversationId

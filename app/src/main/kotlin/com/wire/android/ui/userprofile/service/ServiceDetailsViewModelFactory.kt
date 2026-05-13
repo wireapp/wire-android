@@ -47,9 +47,8 @@ class ServiceDetailsViewModelFactory(
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val addServiceToConversation: AddServiceToConversationUseCase,
     private val addMemberToConversation: AddMemberToConversationUseCase,
-    private val serviceDetailsNavArgsProvider: ServiceDetailsNavArgsProvider,
 ) {
-    fun create(): ServiceDetailsViewModel = ServiceDetailsViewModel(
+    fun create(args: ServiceDetailsNavArgs): ServiceDetailsViewModel = ServiceDetailsViewModel(
         dispatchers = dispatchers,
         selfUserId = selfUserId,
         getServiceById = getServiceById,
@@ -62,6 +61,6 @@ class ServiceDetailsViewModelFactory(
         removeMemberFromConversation = removeMemberFromConversation,
         addServiceToConversation = addServiceToConversation,
         addMemberToConversation = addMemberToConversation,
-        serviceDetailsNavArgsProvider = serviceDetailsNavArgsProvider,
+        serviceDetailsNavArgs = args,
     )
 }

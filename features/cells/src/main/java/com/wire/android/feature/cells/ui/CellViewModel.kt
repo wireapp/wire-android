@@ -160,7 +160,11 @@ class CellViewModel @Inject constructor(
 
     val isOnline: StateFlow<Boolean> = networkStateObserver.observeNetworkState()
         .map { it is NetworkState.ConnectedWithInternet }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = networkStateObserver.observeNetworkState().value is NetworkState.ConnectedWithInternet,
+        )
 
     private var isCollaboraEnabled: Boolean = false
 

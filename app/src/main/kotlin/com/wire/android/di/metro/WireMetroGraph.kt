@@ -18,11 +18,17 @@
 package com.wire.android.di.metro
 
 import android.content.Context
+import androidx.lifecycle.SavedStateHandle
 import com.wire.android.BuildConfig
+import com.wire.android.analytics.FinalizeRegistrationAnalyticsMetadataUseCase
+import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
+import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.CurrentAccount
+import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
@@ -32,8 +38,17 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModelFactory
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModelFactory
+import com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModelFactory
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModelFactory
+import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModelFactory
+import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModelFactory
+import com.wire.android.ui.authentication.login.LoginSavedInputStore
+import com.wire.android.ui.authentication.login.SavedStateLoginSavedInputStore
+import com.wire.android.ui.authentication.login.sso.LoginSSOSessionExceptionClassifier
+import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelFactory
+import com.wire.android.ui.authentication.welcome.WelcomeViewModelFactory
 import com.wire.android.ui.debug.LogManagementViewModelFactory
 import com.wire.android.ui.debug.UserDebugViewModelFactory
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModelFactory
@@ -95,12 +110,14 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileViewModelFactory
 import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.isWebsocketEnabledByDefault
 import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.android.util.logging.LogFileWriter
 import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.conversation.FetchConversationUseCase
 import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -109,9 +126,12 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
+import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.call.CallsScope
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -121,6 +141,7 @@ import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
+import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
@@ -150,6 +171,7 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserU
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
+import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.team.TeamScope
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
@@ -198,7 +220,7 @@ import kotlinx.coroutines.runBlocking
 abstract class WireMetroScope private constructor()
 
 @DependencyGraph(WireMetroScope::class)
-@Suppress("TooManyFunctions")
+@Suppress("LargeClass", "TooManyFunctions")
 interface WireMetroGraph {
     @DependencyGraph.Factory
     fun interface Factory {
@@ -207,7 +229,10 @@ interface WireMetroGraph {
 
     val checkAssetRestrictionsViewModelFactory: CheckAssetRestrictionsViewModelFactory
     val aboutThisAppViewModelFactory: AboutThisAppViewModelFactory
+    val createAccountEmailViewModelFactory: CreateAccountEmailViewModelFactory
     val createAccountSummaryViewModelFactory: CreateAccountSummaryViewModelFactory
+    val createAccountUsernameViewModelFactory: CreateAccountUsernameViewModelFactory
+    val loginSSOViewModelFactory: LoginSSOViewModelFactory
     val whatsNewViewModelFactory: WhatsNewViewModelFactory
     val dependenciesViewModelFactory: DependenciesViewModelFactory
     val licensesViewModelFactory: LicensesViewModelFactory
@@ -222,6 +247,8 @@ interface WireMetroGraph {
     val e2EIEnrollmentViewModelFactory: E2EIEnrollmentViewModelFactory
     val getE2EICertificateViewModelFactory: GetE2EICertificateViewModelFactory
     val clearSessionViewModelFactory: ClearSessionViewModelFactory
+    val removeDeviceViewModelFactory: RemoveDeviceViewModelFactory
+    val registerDeviceViewModelFactory: RegisterDeviceViewModelFactory
     val settingsViewModelFactory: SettingsViewModelFactory
     val selfDevicesViewModelFactory: SelfDevicesViewModelFactory
     val deviceDetailsViewModelFactory: DeviceDetailsViewModelFactory
@@ -245,6 +272,7 @@ interface WireMetroGraph {
     val imagesPreviewViewModelFactory: ImagesPreviewViewModelFactory
     val otherUserProfileScreenViewModelFactory: OtherUserProfileScreenViewModelFactory
     val selfUserProfileViewModelFactory: SelfUserProfileViewModelFactory
+    val welcomeViewModelFactory: WelcomeViewModelFactory
 
     val dispatcherProvider: DispatcherProvider
 
@@ -287,6 +315,50 @@ interface WireMetroGraph {
     @Provides
     fun provideManagedConfigurationsManager(entryPoint: WireMetroHiltEntryPoint): ManagedConfigurationsManager =
         entryPoint.managedConfigurationsManager()
+
+    @Provides
+    fun provideCurrentServerConfig(
+        managedConfigurationsManager: ManagedConfigurationsManager,
+    ): ServerConfig.Links =
+        if (BuildConfig.EMM_SUPPORT_ENABLED) {
+            managedConfigurationsManager.currentServerConfig
+        } else {
+            ServerConfigProvider().getDefaultServerConfig(null)
+        }
+
+    @Provides
+    fun provideLoginSavedInputStore(): LoginSavedInputStore =
+        SavedStateLoginSavedInputStore(SavedStateHandle())
+
+    @Provides
+    fun provideClientScopeProviderFactory(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): ClientScopeProvider.Factory =
+        object : ClientScopeProvider.Factory {
+            override fun create(userId: UserId): ClientScopeProvider =
+                ClientScopeProvider(coreLogic, userId)
+        }
+
+    @Provides
+    fun provideAddAuthenticatedUserUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): AddAuthenticatedUserUseCase =
+        coreLogic.getGlobalScope().addAuthenticatedAccount
+
+    @DefaultWebSocketEnabledByDefault
+    @Provides
+    fun provideDefaultWebSocketEnabledByDefault(
+        @ApplicationContext context: Context,
+        managedConfigurationsManager: ManagedConfigurationsManager,
+    ): Boolean =
+        isWebsocketEnabledByDefault(
+            context,
+            managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value
+        )
+
+    @Provides
+    fun provideLoginSSOSessionExceptionClassifier(): LoginSSOSessionExceptionClassifier =
+        LoginSSOSessionExceptionClassifier()
 
     @Provides
     fun provideLockCodeTimeManager(entryPoint: WireMetroHiltEntryPoint): LockCodeTimeManager =
@@ -516,6 +588,28 @@ interface WireMetroGraph {
         if (BuildConfig.ANALYTICS_ENABLED) AnalyticsConfiguration.Enabled else AnalyticsConfiguration.Disabled
 
     @Provides
+    fun provideRegistrationAnalyticsManagerUseCase(
+        globalDataStore: GlobalDataStore,
+        anonymousAnalyticsManager: AnonymousAnalyticsManager,
+    ): RegistrationAnalyticsManagerUseCase =
+        RegistrationAnalyticsManagerUseCase(
+            globalDataStore = globalDataStore,
+            anonymousAnalyticsManager = anonymousAnalyticsManager,
+        )
+
+    @Provides
+    fun provideFinalizeRegistrationAnalyticsMetadataUseCase(
+        globalDataStore: GlobalDataStore,
+        @CurrentAccount currentAccount: UserId,
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): FinalizeRegistrationAnalyticsMetadataUseCase =
+        FinalizeRegistrationAnalyticsMetadataUseCase(
+            globalDataStore = globalDataStore,
+            currentAccount = currentAccount,
+            coreLogic = coreLogic,
+        )
+
+    @Provides
     fun provideObserveReadReceiptsEnabledUseCase(userScope: UserScope): ObserveReadReceiptsEnabledUseCase =
         userScope.observeReadReceiptsEnabled
 
@@ -574,6 +668,12 @@ interface WireMetroGraph {
         coreLogic.getGlobalScope().validatePasswordUseCase
 
     @Provides
+    fun provideValidateEmailUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): ValidateEmailUseCase =
+        coreLogic.getGlobalScope().validateEmailUseCase
+
+    @Provides
     fun provideObserveAppLockConfigUseCase(
         globalDataStore: GlobalDataStore,
         @KaliumCoreLogic coreLogic: CoreLogic,
@@ -620,6 +720,10 @@ interface WireMetroGraph {
     @Provides
     fun provideDeleteClientUseCase(clientScope: ClientScope): DeleteClientUseCase =
         clientScope.deleteClient
+
+    @Provides
+    fun provideGetOrRegisterClientUseCase(clientScope: ClientScope): GetOrRegisterClientUseCase =
+        clientScope.getOrRegister
 
     @Provides
     fun provideFetchSelfClientsFromRemoteUseCase(
@@ -815,6 +919,10 @@ interface WireMetroGraph {
         coreLogic.getGlobalScope().session.allSessions
 
     @Provides
+    fun provideDoesValidNomadAccountExistUseCase(@KaliumCoreLogic coreLogic: CoreLogic): DoesValidNomadAccountExistUseCase =
+        coreLogic.getGlobalScope().doesValidNomadAccountExist
+
+    @Provides
     fun provideCallsScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId,
@@ -837,6 +945,13 @@ interface WireMetroGraph {
     @Provides
     fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): CurrentSessionUseCase =
         coreLogic.getGlobalScope().session.currentSession
+
+    @Provides
+    fun provideRequestSecondFactorVerificationCodeUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): RequestSecondFactorVerificationCodeUseCase =
+        coreLogic.getSessionScope(currentAccount).authenticationScope.requestSecondFactorVerificationCode
 
     @Provides
     fun provideObservePersistentWebSocketConnectionStatusUseCase(

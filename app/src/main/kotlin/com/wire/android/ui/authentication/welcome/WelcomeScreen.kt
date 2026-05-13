@@ -66,10 +66,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.di.wireViewModel
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -114,9 +114,9 @@ import kotlinx.coroutines.flow.scan
 fun WelcomeScreen(
     navigator: Navigator,
     args: WelcomeNavArgs,
-    viewModel: WelcomeViewModel = wireViewModel<WelcomeViewModel, WelcomeViewModel.Factory>(
-        creationCallback = { factory -> factory.create(args) }
-    )
+    viewModel: WelcomeViewModel = metroViewModel {
+        welcomeViewModelFactory.create(args)
+    }
 ) {
     WelcomeContent(
         viewModel.state.isThereActiveSession,

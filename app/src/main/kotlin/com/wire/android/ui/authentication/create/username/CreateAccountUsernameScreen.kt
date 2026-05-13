@@ -32,8 +32,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -58,7 +58,9 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun CreateAccountUsernameScreen(
     navigator: Navigator,
-    viewModel: CreateAccountUsernameViewModel = wireViewModel()
+    viewModel: CreateAccountUsernameViewModel = metroViewModel {
+        createAccountUsernameViewModelFactory.create()
+    }
 ) {
     UsernameContent(
         textState = viewModel.textState,

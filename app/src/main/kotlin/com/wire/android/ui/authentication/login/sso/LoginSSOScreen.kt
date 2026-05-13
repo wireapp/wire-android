@@ -41,8 +41,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
@@ -66,9 +66,9 @@ fun LoginSSOScreen(
     loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?,
-    loginSSOViewModel: LoginSSOViewModel = wireViewModel<LoginSSOViewModel, LoginSSOViewModel.Factory>(
-        creationCallback = { factory -> factory.create(loginNavArgs) }
-    ),
+    loginSSOViewModel: LoginSSOViewModel = metroViewModel {
+        loginSSOViewModelFactory.create(loginNavArgs)
+    },
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()

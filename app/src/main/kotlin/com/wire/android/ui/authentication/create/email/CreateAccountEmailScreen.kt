@@ -50,8 +50,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -86,10 +86,9 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun CreateAccountEmailScreen(
     navigator: Navigator,
     args: CreateAccountNavArgs,
-    createAccountEmailViewModel: CreateAccountEmailViewModel =
-        wireViewModel<CreateAccountEmailViewModel, CreateAccountEmailViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        )
+    createAccountEmailViewModel: CreateAccountEmailViewModel = metroViewModel {
+        createAccountEmailViewModelFactory.create(args)
+    }
 ) {
     with(createAccountEmailViewModel) {
         fun navigateToDetailsScreen() = navigator.navigate(

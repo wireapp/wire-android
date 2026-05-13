@@ -19,6 +19,7 @@ package com.wire.android.di.metro
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
+import androidx.work.WorkManager
 import com.wire.android.BuildConfig
 import com.wire.android.analytics.FinalizeRegistrationAnalyticsMetadataUseCase
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
@@ -38,6 +39,8 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.ui.common.banner.SecurityClassificationViewModelFactory
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModelFactory
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModelFactory
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModelFactory
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModelFactory
@@ -53,6 +56,12 @@ import com.wire.android.ui.authentication.login.email.LoginEmailViewModelFactory
 import com.wire.android.ui.authentication.login.sso.LoginSSOSessionExceptionClassifier
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelFactory
 import com.wire.android.ui.authentication.welcome.WelcomeViewModelFactory
+import com.wire.android.ui.debug.AndroidExportObfuscatedCopyFileGateway
+import com.wire.android.ui.debug.AndroidDebugDataInfoProvider
+import com.wire.android.ui.debug.DebugDataInfoProvider
+import com.wire.android.ui.debug.DebugDataOptionsViewModelFactory
+import com.wire.android.ui.debug.ExportObfuscatedCopyFileGateway
+import com.wire.android.ui.debug.ExportObfuscatedCopyViewModelFactory
 import com.wire.android.ui.debug.LogManagementViewModelFactory
 import com.wire.android.ui.debug.UserDebugViewModelFactory
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModelFactory
@@ -111,6 +120,8 @@ import com.wire.android.ui.settings.devices.DeviceDetailsViewModelFactory
 import com.wire.android.ui.settings.devices.SelfDevicesViewModelFactory
 import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsViewModelFactory
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModelFactory
+import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModelFactory
+import com.wire.android.ui.connection.ConnectionActionButtonViewModelFactory
 import com.wire.android.ui.newauthentication.login.NewLoginRecoverableLogoutExceptionDetector
 import com.wire.android.ui.newauthentication.login.NewLoginViewModelFactory
 import com.wire.android.ui.newauthentication.login.ValidateEmailOrSSOCodeUseCase
@@ -162,6 +173,7 @@ import com.wire.kalium.logic.feature.app.ObserveIsAppMemberUseCase
 import com.wire.kalium.logic.feature.backup.BackupScope
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.CreateMPBackupUseCase
+import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
@@ -182,26 +194,51 @@ import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
+import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.BlockUserUseCase
+import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.ConnectionScope
+import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
+import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationScope
+import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
+import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
+import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
+import com.wire.kalium.logic.feature.conversation.folder.AddConversationToFavoritesUseCase
 import com.wire.kalium.logic.feature.conversation.folder.CreateConversationFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
+import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFavoritesUseCase
+import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFolderUseCase
 import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
 import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
 import com.wire.kalium.logic.feature.debug.DebugScope
 import com.wire.kalium.logic.feature.debug.DebugFeedConversationUseCase
+import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
+import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
 import com.wire.kalium.logic.feature.debug.ObserveDatabaseLoggerStateUseCase
+import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
+import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
+import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
+import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserMlsClientIdentitiesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
@@ -225,7 +262,11 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.team.SyncSelfTeamInfoUseCase
+import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
+import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
+import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
+import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
@@ -252,6 +293,9 @@ import com.wire.kalium.logic.feature.user.typingIndicator.PersistTypingIndicator
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.PersistPersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
+import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
+import com.wire.kalium.util.DelicateKaliumApi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -294,6 +338,8 @@ interface WireMetroGraph {
     val debugConversationViewModelFactory: DebugConversationViewModelFactory
     val logManagementViewModelFactory: LogManagementViewModelFactory
     val debugFeatureFlagsViewModelFactory: DebugFeatureFlagsViewModelFactory
+    val debugDataOptionsViewModelFactory: DebugDataOptionsViewModelFactory
+    val exportObfuscatedCopyViewModelFactory: ExportObfuscatedCopyViewModelFactory
     val customizationViewModelFactory: CustomizationViewModelFactory
     val initialSyncViewModelFactory: InitialSyncViewModelFactory
     val networkSettingsViewModelFactory: NetworkSettingsViewModelFactory
@@ -330,6 +376,10 @@ interface WireMetroGraph {
     val welcomeViewModelFactory: WelcomeViewModelFactory
     val newLoginViewModelFactory: NewLoginViewModelFactory
     val importMediaAuthenticatedViewModelFactory: ImportMediaAuthenticatedViewModelFactory
+    val joinConversationViaCodeViewModelFactory: JoinConversationViaCodeViewModelFactory
+    val securityClassificationViewModelFactory: SecurityClassificationViewModelFactory
+    val connectionActionButtonViewModelFactory: ConnectionActionButtonViewModelFactory
+    val conversationOptionsMenuViewModelFactory: ConversationOptionsMenuViewModelFactory
 
     val dispatcherProvider: DispatcherProvider
 
@@ -495,6 +545,13 @@ interface WireMetroGraph {
         coreLogic.getSessionScope(currentAccount).debug
 
     @Provides
+    fun provideConnectionScope(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): ConnectionScope =
+        coreLogic.getSessionScope(currentAccount).connection
+
+    @Provides
     fun provideGetAvatarAssetUseCase(userScope: UserScope): GetAvatarAssetUseCase =
         userScope.getPublicAsset
 
@@ -571,6 +628,60 @@ interface WireMetroGraph {
     @Provides
     fun provideBreakSessionUseCase(debugScope: DebugScope): BreakSessionUseCase =
         debugScope.breakSession
+
+    @Provides
+    fun provideDebugDataInfoProvider(@ApplicationContext context: Context): DebugDataInfoProvider =
+        AndroidDebugDataInfoProvider(context)
+
+    @Provides
+    fun provideUpdateApiVersionsScheduler(@KaliumCoreLogic coreLogic: CoreLogic): UpdateApiVersionsScheduler =
+        coreLogic.getGlobalScope().updateApiVersionsScheduler
+
+    @Provides
+    fun provideMlsKeyPackageCountUseCase(clientScope: ClientScope): MLSKeyPackageCountUseCase =
+        clientScope.mlsKeyPackageCountUseCase
+
+    @Provides
+    fun provideRestartSlowSyncProcessForRecoveryUseCase(clientScope: ClientScope): RestartSlowSyncProcessForRecoveryUseCase =
+        clientScope.restartSlowSyncProcessForRecoveryUseCase
+
+    @Provides
+    fun provideCheckCrlRevocationListUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): CheckCrlRevocationListUseCase =
+        coreLogic.getSessionScope(currentAccount).checkCrlRevocationList
+
+    @Provides
+    fun provideGetCurrentAnalyticsTrackingIdentifierUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): GetCurrentAnalyticsTrackingIdentifierUseCase =
+        coreLogic.getSessionScope(currentAccount).getCurrentAnalyticsTrackingIdentifier
+
+    @Provides
+    fun provideSendFCMTokenUseCase(debugScope: DebugScope): SendFCMTokenUseCase =
+        debugScope.sendFCMTokenToServer
+
+    @Provides
+    fun provideObserveIsConsumableNotificationsEnabledUseCase(debugScope: DebugScope): ObserveIsConsumableNotificationsEnabledUseCase =
+        debugScope.observeIsConsumableNotificationsEnabled
+
+    @Provides
+    fun provideStartUsingAsyncNotificationsUseCase(debugScope: DebugScope): StartUsingAsyncNotificationsUseCase =
+        debugScope.startUsingAsyncNotifications
+
+    @Provides
+    fun provideRepairFaultyRemovalKeysUseCase(debugScope: DebugScope): RepairFaultyRemovalKeysUseCase =
+        debugScope.repairFaultyRemovalKeysUseCase
+
+    @Provides
+    fun provideGetDebugE2EICertificateExpirationUseCase(debugScope: DebugScope): GetDebugE2EICertificateExpirationUseCase =
+        debugScope.getDebugE2EICertificateExpiration
+
+    @Provides
+    fun provideSetDebugE2EICertificateExpirationUseCase(debugScope: DebugScope): SetDebugE2EICertificateExpirationUseCase =
+        debugScope.setDebugE2EICertificateExpiration
 
     @Provides
     fun provideChangeProfilingUseCase(
@@ -654,6 +765,13 @@ interface WireMetroGraph {
     @Provides
     fun provideSelfServerConfigUseCase(userScope: UserScope): SelfServerConfigUseCase =
         userScope.serverLinks
+
+    @Provides
+    fun provideGetDefaultProtocolUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): GetDefaultProtocolUseCase =
+        coreLogic.getSessionScope(currentAccount).getDefaultProtocol
 
     @Provides
     fun provideAnalyticsConfiguration(): AnalyticsConfiguration =
@@ -950,6 +1068,66 @@ interface WireMetroGraph {
         conversationScope.addMemberToConversationUseCase
 
     @Provides
+    fun provideJoinConversationViaCodeUseCase(conversationScope: ConversationScope): JoinConversationViaCodeUseCase =
+        conversationScope.joinConversationViaCode
+
+    @Provides
+    fun provideGetOrCreateOneToOneConversationUseCase(conversationScope: ConversationScope): GetOrCreateOneToOneConversationUseCase =
+        conversationScope.getOrCreateOneToOneConversationUseCase
+
+    @Provides
+    fun provideUpdateConversationArchivedStatusUseCase(conversationScope: ConversationScope): UpdateConversationArchivedStatusUseCase =
+        conversationScope.updateConversationArchivedStatus
+
+    @Provides
+    fun provideUpdateConversationMutedStatusUseCase(conversationScope: ConversationScope): UpdateConversationMutedStatusUseCase =
+        conversationScope.updateConversationMutedStatus
+
+    @Provides
+    fun provideDeleteTeamConversationUseCase(conversationScope: ConversationScope): DeleteTeamConversationUseCase =
+        conversationScope.deleteTeamConversation
+
+    @Provides
+    fun provideMarkConversationAsDeletedLocallyUseCase(conversationScope: ConversationScope): MarkConversationAsDeletedLocallyUseCase =
+        conversationScope.markConversationAsDeletedLocallyUseCase
+
+    @Provides
+    fun provideLeaveConversationUseCase(conversationScope: ConversationScope): LeaveConversationUseCase =
+        conversationScope.leaveConversation
+
+    @Provides
+    fun provideCheckConversationLeaveConditionsUseCase(conversationScope: ConversationScope): CheckConversationLeaveConditionsUseCase =
+        conversationScope.checkConversationLeaveConditions
+
+    @Provides
+    fun provideClearConversationContentUseCase(conversationScope: ConversationScope): ClearConversationContentUseCase =
+        conversationScope.clearConversationContent
+
+    @Provides
+    fun provideSendConnectionRequestUseCase(connectionScope: ConnectionScope): SendConnectionRequestUseCase =
+        connectionScope.sendConnectionRequest
+
+    @Provides
+    fun provideCancelConnectionRequestUseCase(connectionScope: ConnectionScope): CancelConnectionRequestUseCase =
+        connectionScope.cancelConnectionRequest
+
+    @Provides
+    fun provideIgnoreConnectionRequestUseCase(connectionScope: ConnectionScope): IgnoreConnectionRequestUseCase =
+        connectionScope.ignoreConnectionRequest
+
+    @Provides
+    fun provideAcceptConnectionRequestUseCase(connectionScope: ConnectionScope): AcceptConnectionRequestUseCase =
+        connectionScope.acceptConnectionRequest
+
+    @Provides
+    fun provideBlockUserUseCase(connectionScope: ConnectionScope): BlockUserUseCase =
+        connectionScope.blockUser
+
+    @Provides
+    fun provideUnblockUserUseCase(connectionScope: ConnectionScope): UnblockUserUseCase =
+        connectionScope.unblockUser
+
+    @Provides
     fun provideAppScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId,
@@ -1074,6 +1252,18 @@ interface WireMetroGraph {
         conversationScope.getFavoriteFolder
 
     @Provides
+    fun provideAddConversationToFavoritesUseCase(conversationScope: ConversationScope): AddConversationToFavoritesUseCase =
+        conversationScope.addConversationToFavorites
+
+    @Provides
+    fun provideRemoveConversationFromFavoritesUseCase(conversationScope: ConversationScope): RemoveConversationFromFavoritesUseCase =
+        conversationScope.removeConversationFromFavorites
+
+    @Provides
+    fun provideRemoveConversationFromFolderUseCase(conversationScope: ConversationScope): RemoveConversationFromFolderUseCase =
+        conversationScope.removeConversationFromFolder
+
+    @Provides
     @Suppress("LongParameterList")
     fun provideGetConversationsFromSearchUseCase(
         useCase: GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase,
@@ -1119,6 +1309,11 @@ interface WireMetroGraph {
     fun provideCreateBackupUseCase(backupScope: BackupScope): CreateBackupUseCase =
         backupScope.create
 
+    @OptIn(DelicateKaliumApi::class)
+    @Provides
+    fun provideCreateObfuscatedCopyUseCase(backupScope: BackupScope): CreateObfuscatedCopyUseCase =
+        backupScope.createUnEncryptedCopy
+
     @Provides
     fun provideVerifyBackupUseCase(backupScope: BackupScope): VerifyBackupUseCase =
         backupScope.verify
@@ -1160,6 +1355,20 @@ interface WireMetroGraph {
             kaliumFileSystem = kaliumFileSystem,
             dispatcher = dispatchers,
         )
+
+    @Provides
+    fun provideExportObfuscatedCopyFileGateway(
+        fileManager: FileManager,
+        dispatchers: DispatcherProvider,
+    ): ExportObfuscatedCopyFileGateway =
+        AndroidExportObfuscatedCopyFileGateway(
+            fileManager = fileManager,
+            dispatcher = dispatchers,
+        )
+
+    @Provides
+    fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
+        WorkManager.getInstance(context)
 
     @Provides
     fun provideGetSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): GetSessionsUseCase =

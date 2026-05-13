@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.R
-import com.wire.android.di.wireViewModelScoped
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
@@ -58,7 +58,9 @@ fun ConversationOptionsModalSheetLayout(
     onPromoteAdmin: (ConversationId) -> Unit = {},
     openConversationDebugMenu: (ConversationId) -> Unit = {},
     viewModel: ConversationOptionsMenuViewModel =
-        wireViewModelScoped<ConversationOptionsMenuViewModelImpl, ConversationOptionsMenuViewModel>()
+        metroViewModel<ConversationOptionsMenuViewModelImpl> {
+            conversationOptionsMenuViewModelFactory.create()
+        }
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -189,6 +191,7 @@ private fun PreviewConversationOptionsModalSheetLayout(initialPage: Conversation
         onLeftConversation = {},
         onDeletedConversation = {},
         onDeletedConversationLocally = {},
+        viewModel = object : ConversationOptionsMenuViewModel {},
     )
 }
 

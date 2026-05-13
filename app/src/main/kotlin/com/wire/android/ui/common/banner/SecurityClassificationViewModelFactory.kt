@@ -25,8 +25,9 @@ import dev.zacsweers.metro.Inject
 class SecurityClassificationViewModelFactory(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) {
-    fun create(args: SecurityClassificationArgs): SecurityClassificationViewModel = SecurityClassificationViewModelImpl(
-        coreLogic = coreLogic,
-        args = args,
-    )
+    fun create(args: SecurityClassificationArgs): SecurityClassificationViewModelImpl =
+        SecurityClassificationViewModelImpl(
+            coreLogic = coreLogic,
+            args = args,
+        )
 }

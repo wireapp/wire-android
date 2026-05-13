@@ -58,7 +58,7 @@ class ConversationOptionsMenuViewModelFactory(
     private val workManager: WorkManager,
     private val dispatchers: DispatcherProvider,
 ) {
-    fun create(): ConversationOptionsMenuViewModel = ConversationOptionsMenuViewModelImpl(
+    fun create(): ConversationOptionsMenuViewModelImpl = ConversationOptionsMenuViewModelImpl(
         currentAccount = currentAccount,
         observeConversationDetails = observeConversationDetails,
         observeSelfUser = observeSelfUser,

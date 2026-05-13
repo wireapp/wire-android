@@ -36,9 +36,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.util.DelicateKaliumApi
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface ExportObfuscatedCopyViewModel {
@@ -54,8 +52,7 @@ interface ExportObfuscatedCopyViewModel {
     fun cancelBackupCreation() {}
 }
 
-@HiltViewModel
-class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) @Inject constructor(
+class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) constructor(
     private val createUnencryptedCopy: CreateObfuscatedCopyUseCase,
     private val dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     private val fileGateway: ExportObfuscatedCopyFileGateway,

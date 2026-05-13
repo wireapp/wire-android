@@ -37,14 +37,17 @@ class ConnectionActionButtonViewModelFactory(
     private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
 ) {
-    fun create(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModel = ConnectionActionButtonViewModelImpl(
-        dispatchers = dispatchers,
-        sendConnectionRequest = sendConnectionRequest,
-        cancelConnectionRequest = cancelConnectionRequest,
-        acceptConnectionRequest = acceptConnectionRequest,
-        ignoreConnectionRequest = ignoreConnectionRequest,
-        unblockUser = unblockUser,
-        getOrCreateOneToOneConversation = getOrCreateOneToOneConversation,
-        args = args,
-    )
+    fun create(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModel = createImpl(args)
+
+    internal fun createImpl(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModelImpl =
+        ConnectionActionButtonViewModelImpl(
+            dispatchers = dispatchers,
+            sendConnectionRequest = sendConnectionRequest,
+            cancelConnectionRequest = cancelConnectionRequest,
+            acceptConnectionRequest = acceptConnectionRequest,
+            ignoreConnectionRequest = ignoreConnectionRequest,
+            unblockUser = unblockUser,
+            getOrCreateOneToOneConversation = getOrCreateOneToOneConversation,
+            args = args,
+        )
 }

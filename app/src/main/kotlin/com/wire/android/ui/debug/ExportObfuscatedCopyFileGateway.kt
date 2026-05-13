@@ -25,6 +25,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
+import dev.zacsweers.metro.Inject as MetroInject
 import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
@@ -34,7 +35,7 @@ interface ExportObfuscatedCopyFileGateway {
     suspend fun saveCopy(path: Path, destinationUri: String)
 }
 
-class AndroidExportObfuscatedCopyFileGateway @Inject constructor(
+class AndroidExportObfuscatedCopyFileGateway @Inject @MetroInject constructor(
     private val fileManager: FileManager,
     private val dispatcher: DispatcherProvider,
 ) : ExportObfuscatedCopyFileGateway {

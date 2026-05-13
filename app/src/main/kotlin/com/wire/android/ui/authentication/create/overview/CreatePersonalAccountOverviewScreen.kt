@@ -41,8 +41,8 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
@@ -65,10 +65,9 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun CreatePersonalAccountOverviewScreen(
     navigator: Navigator,
     args: CreateAccountOverviewNavArgs,
-    viewModel: CreateAccountOverviewViewModel =
-        wireViewModel<CreateAccountOverviewViewModel, CreateAccountOverviewViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        )
+    viewModel: CreateAccountOverviewViewModel = metroViewModel {
+        createAccountOverviewViewModelFactory.create(args)
+    }
 ) {
     CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreatePersonalAccount, viewModel)
 }
@@ -78,10 +77,9 @@ fun CreatePersonalAccountOverviewScreen(
 fun CreateTeamAccountOverviewScreen(
     navigator: Navigator,
     args: CreateAccountOverviewNavArgs,
-    viewModel: CreateAccountOverviewViewModel =
-        wireViewModel<CreateAccountOverviewViewModel, CreateAccountOverviewViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        )
+    viewModel: CreateAccountOverviewViewModel = metroViewModel {
+        createAccountOverviewViewModelFactory.create(args)
+    }
 ) {
     CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreateTeam, viewModel)
 }

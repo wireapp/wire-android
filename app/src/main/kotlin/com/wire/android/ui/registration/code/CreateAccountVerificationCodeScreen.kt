@@ -41,8 +41,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -81,10 +81,9 @@ import kotlinx.coroutines.job
 fun CreateAccountVerificationCodeScreen(
     navigator: Navigator,
     args: CreateAccountDataNavArgs,
-    createAccountCodeVerificationViewModel: CreateAccountVerificationCodeViewModel =
-        wireViewModel<CreateAccountVerificationCodeViewModel, CreateAccountVerificationCodeViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        )
+    createAccountCodeVerificationViewModel: CreateAccountVerificationCodeViewModel = metroViewModel {
+        createAccountVerificationCodeViewModelFactory.create(args)
+    }
 ) {
     with(createAccountCodeVerificationViewModel) {
         fun navigateToUsernameScreen() = navigator.navigate(

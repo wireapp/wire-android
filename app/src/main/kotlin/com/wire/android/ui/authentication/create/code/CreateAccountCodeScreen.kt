@@ -41,8 +41,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -76,10 +76,9 @@ import kotlinx.coroutines.job
 fun CreateAccountCodeScreen(
     navigator: Navigator,
     args: CreateAccountNavArgs,
-    createAccountCodeViewModel: CreateAccountCodeViewModel =
-        wireViewModel<CreateAccountCodeViewModel, CreateAccountCodeViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        )
+    createAccountCodeViewModel: CreateAccountCodeViewModel = metroViewModel {
+        createAccountCodeViewModelFactory.create(args)
+    }
 ) {
     with(createAccountCodeViewModel) {
         fun navigateToSummaryScreen() = navigator.navigate(

@@ -38,7 +38,10 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModelFactory
+import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModelFactory
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModelFactory
+import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModelFactory
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModelFactory
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModelFactory
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModelFactory
@@ -92,6 +95,9 @@ import com.wire.android.ui.home.whatsnew.ReleaseNotesFeedUrlProvider
 import com.wire.android.ui.home.whatsnew.WhatsNewViewModelFactory
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.ui.initialsync.InitialSyncViewModelFactory
+import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewModelFactory
+import com.wire.android.ui.registration.details.CreateAccountDataDetailViewModelFactory
+import com.wire.android.ui.registration.selector.CreateAccountSelectorViewModelFactory
 import com.wire.android.ui.settings.about.AboutThisAppInfoProvider
 import com.wire.android.ui.settings.about.AboutThisAppViewModelFactory
 import com.wire.android.ui.settings.about.AndroidAboutThisAppInfoProvider
@@ -229,9 +235,15 @@ interface WireMetroGraph {
 
     val checkAssetRestrictionsViewModelFactory: CheckAssetRestrictionsViewModelFactory
     val aboutThisAppViewModelFactory: AboutThisAppViewModelFactory
+    val createAccountCodeViewModelFactory: CreateAccountCodeViewModelFactory
+    val createAccountDetailsViewModelFactory: CreateAccountDetailsViewModelFactory
+    val createAccountDataDetailViewModelFactory: CreateAccountDataDetailViewModelFactory
     val createAccountEmailViewModelFactory: CreateAccountEmailViewModelFactory
+    val createAccountOverviewViewModelFactory: CreateAccountOverviewViewModelFactory
     val createAccountSummaryViewModelFactory: CreateAccountSummaryViewModelFactory
     val createAccountUsernameViewModelFactory: CreateAccountUsernameViewModelFactory
+    val createAccountVerificationCodeViewModelFactory: CreateAccountVerificationCodeViewModelFactory
+    val createAccountSelectorViewModelFactory: CreateAccountSelectorViewModelFactory
     val loginSSOViewModelFactory: LoginSSOViewModelFactory
     val whatsNewViewModelFactory: WhatsNewViewModelFactory
     val dependenciesViewModelFactory: DependenciesViewModelFactory

@@ -626,7 +626,6 @@
     <string name="leave_conversation_dialog_delete_fully_check">Удалить беседу и ее контент у меня на всех моих устройствах</string>
     <string name="delete_conversation_conversation_menu_item">Удалить беседу…</string>
     <string name="delete_conversation_conversation_dialog_title">Удалить “%s”?</string>
-    <string name="delete_conversation_conversation_dialog_description">Беседа будет удалена из списка бесед на всех устройствах. Вы больше не сможете получить доступ к беседе и ее контенту.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Удалить беседу «%s» у меня?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">Вы не сможете получить доступ к беседе и ее содержимому. Восстановить ее невозможно.</string>
     <string name="delete_conversation_locally_delete_for_me_label">Удалить у меня</string>

@@ -601,7 +601,6 @@
     <string name="leave_conversation_dialog_delete_fully_check">Die Unterhaltung und ihren Inhalt für mich auf allen meinen Geräten löschen</string>
     <string name="delete_conversation_conversation_menu_item">Unterhaltung löschen…</string>
     <string name="delete_conversation_conversation_dialog_title">\"%s\" entfernen?</string>
-    <string name="delete_conversation_conversation_dialog_description">Die Unterhaltung wird auf allen Geräten aus der Liste Ihrer Unterhaltungen entfernt. Sie können dann nicht mehr auf die Unterhaltung und ihren Inhalt zugreifen.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Unterhaltung \"%s\" für mich löschen?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">Sie können dann nicht mehr auf die Unterhaltung und ihren Inhalt zugreifen. Es gibt keine Möglichkeit, sie wiederherzustellen.</string>
     <string name="delete_conversation_locally_delete_for_me_label">Für mich löschen</string>

@@ -177,7 +177,6 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
             conversationId = null, // TODO to replace with real conversation id in next PR
             outFilePath = path,
             assetSize = attachment.assetSize ?: 0,
-            conversationId = null, // TODO to replace with real conversation id in next PR
         ) { progress ->
             attachment.assetSize?.let {
                 val value = progress.toFloat() / it

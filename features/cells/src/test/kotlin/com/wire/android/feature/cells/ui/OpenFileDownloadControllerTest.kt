@@ -417,23 +417,23 @@ class OpenFileDownloadControllerTest {
         }
 
         fun withDownloadSuccess(uuid: String = testFile.uuid) = apply {
-            coEvery { downloadUseCase(eq(uuid), any(), any(),any(), any(), any(), any(), any()) } returns Unit.right()
+            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()
         }
 
         fun withSlowDownloadSuccess(uuid: String = testFile.uuid) = apply {
-            coEvery { downloadUseCase(eq(uuid), any(), any(),any(), any(), any(), any(), any()) } coAnswers {
+            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
                 delay(500) // Exceeds 400 ms spinner threshold
                 Unit.right()
             }
         }
 
         fun withDownloadFailure(uuid: String = testFile.uuid) = apply {
-            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(),any(), any()) } returns
+            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any(), any()) } returns
                     StorageFailure.DataNotFound.left()
         }
 
         fun withProgressThenSuccess(progress: Long, uuid: String = testFile.uuid) = apply {
-            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(),any(), any()) } coAnswers {
+            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
                 val onProgressUpdate = arg<(Long) -> Unit>(6)
                 delay(450)
                 onProgressUpdate(progress)

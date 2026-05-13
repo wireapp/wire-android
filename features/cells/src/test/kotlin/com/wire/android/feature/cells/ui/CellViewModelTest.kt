@@ -26,6 +26,8 @@ import app.cash.turbine.test
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
+import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
@@ -53,7 +55,6 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import okio.Path.Companion.toPath
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -90,7 +91,6 @@ class CellViewModelTest {
                 modifiedTime = 1234567890L,
             )
         )
-        val localFilePath = "localPath".toPath()
     }
 
     private val dispatcher = UnconfinedTestDispatcher()
@@ -125,7 +125,7 @@ class CellViewModelTest {
 
         viewModel.sendIntent(CellViewIntent.OnItemClick(testFiles[0].toUiModel()))
 
-        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.fileExternalActions.openLocalFile(any(), any(), any(), any()) }
     }
 
     @Test
@@ -141,7 +141,7 @@ class CellViewModelTest {
 
         viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
 
-        coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.fileExternalActions.openUrl(any(), any(), any()) }
     }
 
     @Test
@@ -165,6 +165,26 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given share action selected for local file then file is shared`() = runTest {
+        val testFile = testFiles[0].toUiModel()
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withShareActionResult(testFile)
+            .arrange()
+
+        viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile, NodeBottomSheetAction.SHARE))
+
+        coVerify(exactly = 1) {
+            arrangement.fileExternalActions.shareLocalFile(
+                localPath = testFile.localPath!!,
+                assetName = testFile.name,
+                mimeType = testFile.mimeType,
+                onError = any(),
+            )
+        }
+    }
+
+    @Test
     fun `given file has local path in DB when clicked with error state then file opened without re-downloading`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
@@ -178,7 +198,7 @@ class CellViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
-        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.fileExternalActions.openLocalFile(any(), any(), any(), any()) }
     }
 
     @Test
@@ -268,6 +288,9 @@ class CellViewModelTest {
         lateinit var isCellAvailableUseCase: IsAtLeastOneCellAvailableUseCase
 
         @MockK
+        lateinit var fileExternalActions: CellFileExternalActions
+
+        @MockK
         lateinit var fileHelper: FileHelper
 
         @MockK
@@ -347,6 +370,22 @@ class CellViewModelTest {
             coEvery { isCellAvailableUseCase.invoke() } returns false.right()
         }
 
+        fun withShareActionResult(file: CellNodeUi.File) = apply {
+            every {
+                cellFileActionsMenu.onMenuItemAction(
+                    conversationId = any(),
+                    parentFolderUuid = any(),
+                    node = file,
+                    action = NodeBottomSheetAction.SHARE,
+                    onResult = any(),
+                )
+            } answers {
+                @Suppress("UNCHECKED_CAST")
+                val onResult = invocation.args[4] as (CellFileActionsMenu.MenuActionResult) -> Unit
+                onResult(CellFileActionsMenu.Share(file))
+            }
+        }
+
         fun arrange(): Pair<Arrangement, CellViewModel> {
 
             every { fileHelper.getCacheDir() } returns File("")
@@ -367,7 +406,7 @@ class CellViewModelTest {
                 deleteCellAsset = deleteCellAssetUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
                 isCellAvailable = isCellAvailableUseCase,
-                fileHelper = fileHelper,
+                fileExternalActions = fileExternalActions,
                 onlineEditor = onlineEditor,
                 getEditorUrl = getEditorUrlUseCase,
                 cellFileActionsMenu = cellFileActionsMenu,

@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.messages
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,9 +39,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
-import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -97,7 +94,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageTransferStatusUseCase,
     private val observeAssetStatusesUseCase: ObserveAssetStatusesUseCase,
-    private val fileManager: FileManager,
+    private val assetFileGateway: ConversationAssetFileGateway,
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val fetchOlderNomadMessages: FetchOlderNomadMessagesByConversationUseCase,
@@ -340,7 +337,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private fun onOpenFileWithExternalApp(assetDataPath: Path, assetName: String?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.openWithExternalApp(assetDataPath, assetName) { onOpenFileError() }
+                assetFileGateway.openWithExternalApp(assetDataPath, assetName) { onOpenFileError() }
                 hideOnAssetDownloadedDialog()
             }
         }
@@ -349,11 +346,10 @@ class ConversationMessagesViewModel @Inject constructor(
     private fun onSaveFile(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize) { savedFileName: String? ->
-                    updateAssetMessageDownloadStatus(AssetTransferStatus.SAVED_EXTERNALLY, conversationId, messageId)
-                    onFileSavedToExternalStorage(savedFileName)
-                    hideOnAssetDownloadedDialog()
-                }
+                val savedFileName = assetFileGateway.saveToExternalStorage(assetName, assetDataPath, assetSize)
+                updateAssetMessageDownloadStatus(AssetTransferStatus.SAVED_EXTERNALLY, conversationId, messageId)
+                onFileSavedToExternalStorage(savedFileName)
+                hideOnAssetDownloadedDialog()
             }
         }
     }
@@ -394,10 +390,10 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
-    fun shareAsset(context: Context, messageId: String) {
+    fun shareAsset(messageId: String) {
         viewModelScope.launch {
             assetDataPath(conversationId, messageId)?.run {
-                context.startFileShareIntent(first, second)
+                assetFileGateway.shareWithExternalApp(first, second)
             }
         }
     }

@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.newauthentication.login
 
-import android.database.sqlite.SQLiteException
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -27,7 +26,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
@@ -71,7 +69,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -81,6 +78,7 @@ class NewLoginViewModel(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     val coreLogic: CoreLogic,
     savedStateHandle: SavedStateHandle,
+    private val loginNavArgs: LoginNavArgs,
     val clientScopeProviderFactory: ClientScopeProvider.Factory,
     val userDataStoreProvider: UserDataStoreProvider,
     private val loginExtension: LoginViewModelExtension,
@@ -88,6 +86,7 @@ class NewLoginViewModel(
     private val dispatchers: DispatcherProvider,
     defaultServerConfig: ServerConfig.Links,
     defaultSSOCodeConfig: String,
+    private val recoverableLogoutExceptionDetector: NewLoginRecoverableLogoutExceptionDetector,
 ) : ActionsViewModel<NewLoginAction>() {
 
     @Inject
@@ -95,6 +94,7 @@ class NewLoginViewModel(
         validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
         @KaliumCoreLogic coreLogic: CoreLogic,
         savedStateHandle: SavedStateHandle,
+        loginNavArgsProvider: NewLoginNavArgsProvider,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         clientScopeProviderFactory: ClientScopeProvider.Factory,
         userDataStoreProvider: UserDataStoreProvider,
@@ -102,20 +102,22 @@ class NewLoginViewModel(
         defaultServerConfig: ServerConfig.Links,
         @Named("ssoCodeConfig") defaultSSOCodeConfig: String,
         @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
+        recoverableLogoutExceptionDetector: NewLoginRecoverableLogoutExceptionDetector,
     ) : this(
         validateEmailOrSSOCode,
         coreLogic,
         savedStateHandle,
+        loginNavArgsProvider.loginNavArgs(),
         clientScopeProviderFactory,
         userDataStoreProvider,
         LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
         LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, defaultWebSocketEnabledByDefault),
         dispatchers,
         defaultServerConfig,
-        defaultSSOCodeConfig
+        defaultSSOCodeConfig,
+        recoverableLogoutExceptionDetector
     )
 
-    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
     private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
     private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
@@ -404,15 +406,12 @@ class NewLoginViewModel(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            when (e) {
-                is IllegalStateException, is IOException, is SQLiteException -> {
-                    if (isSessionStillValid(storedUserId)) throw e
-                    appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${e.message}")
-                    return
-                }
-
-                else -> throw e
+            if (recoverableLogoutExceptionDetector.isRecoverableLogoutInterruption(e)) {
+                if (isSessionStillValid(storedUserId)) throw e
+                appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${e.message}")
+                return
             }
+            throw e
         }
 
         when (restoreResult) {
@@ -452,14 +451,12 @@ class NewLoginViewModel(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            when (e) {
-                is IllegalStateException, is IOException, is SQLiteException -> {
-                    if (isSessionStillValid(userId)) throw e
-                    appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${e.message}")
-                }
-
-                else -> throw e
+            if (recoverableLogoutExceptionDetector.isRecoverableLogoutInterruption(e)) {
+                if (isSessionStillValid(userId)) throw e
+                appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${e.message}")
+                return
             }
+            throw e
         }
     }
 

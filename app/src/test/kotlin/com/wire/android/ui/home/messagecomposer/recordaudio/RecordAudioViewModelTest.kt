@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
-import android.content.Context
+import android.net.Uri
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -47,9 +47,11 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import okio.Path
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.File
 
 @ExtendWith(CoroutineTestExtension::class)
 class RecordAudioViewModelTest {
@@ -112,13 +114,7 @@ class RecordAudioViewModelTest {
             viewModel.stopRecording()
 
             // then
-            coVerify(exactly = 0) {
-                arrangement.generateAudioFileWithEffects(
-                    context = any(),
-                    originalFilePath = any(),
-                    effectsFilePath = any()
-                )
-            }
+            assertEquals(0, arrangement.recordAudioFileGateway.generateAudioFileWithEffectsCalls)
             assertEquals(
                 RecordAudioButtonState.READY_TO_SEND,
                 viewModel.state.buttonState
@@ -139,13 +135,7 @@ class RecordAudioViewModelTest {
             viewModel.stopRecording()
 
             // then
-            coVerify(exactly = 1) {
-                arrangement.generateAudioFileWithEffects(
-                    context = any(),
-                    originalFilePath = any(),
-                    effectsFilePath = any(),
-                )
-            }
+            assertEquals(1, arrangement.recordAudioFileGateway.generateAudioFileWithEffectsCalls)
             assertEquals(
                 RecordAudioButtonState.READY_TO_SEND,
                 viewModel.state.buttonState
@@ -163,25 +153,13 @@ class RecordAudioViewModelTest {
             viewModel.startRecording()
             viewModel.stopRecording()
             assertEquals(null, viewModel.state.effectsOutputFile)
-            coVerify(exactly = 0) {
-                arrangement.generateAudioFileWithEffects(
-                    context = any(),
-                    originalFilePath = any(),
-                    effectsFilePath = any()
-                )
-            }
+            assertEquals(0, arrangement.recordAudioFileGateway.generateAudioFileWithEffectsCalls)
 
             // when
             viewModel.setShouldApplyEffects(true)
 
             // then
-            coVerify(exactly = 1) {
-                arrangement.generateAudioFileWithEffects(
-                    context = any(),
-                    originalFilePath = any(),
-                    effectsFilePath = any()
-                )
-            }
+            assertEquals(1, arrangement.recordAudioFileGateway.generateAudioFileWithEffectsCalls)
             assert(viewModel.state.effectsOutputFile != null)
             assertEquals(
                 RecordAudioButtonState.READY_TO_SEND,
@@ -371,8 +349,7 @@ class RecordAudioViewModelTest {
         val currentScreenManager = mockk<CurrentScreenManager>()
         val getAssetSizeLimit = mockk<GetAssetSizeLimitUseCase>()
         val globalDataStore = mockk<GlobalDataStore>()
-        val generateAudioFileWithEffects = mockk<GenerateAudioFileWithEffectsUseCase>()
-        val context = mockk<Context>()
+        val recordAudioFileGateway = FakeRecordAudioFileGateway()
         val dispatchers = TestDispatcherProvider()
         val fakeKaliumFileSystem = FakeKaliumFileSystem()
         val audioNormalizedLoudnessBuilder = mockk<AudioNormalizedLoudnessBuilder>()
@@ -380,13 +357,12 @@ class RecordAudioViewModelTest {
 
         val viewModel by lazy {
             RecordAudioViewModel(
-                context = context,
                 recordAudioMessagePlayer = recordAudioMessagePlayer,
                 observeEstablishedCalls = observeEstablishedCalls,
                 currentScreenManager = currentScreenManager,
                 audioMediaRecorder = audioMediaRecorder,
                 getAssetSizeLimit = getAssetSizeLimit,
-                generateAudioFileWithEffects = generateAudioFileWithEffects,
+                recordAudioFileGateway = recordAudioFileGateway,
                 globalDataStore = globalDataStore,
                 dispatchers = dispatchers,
                 audioNormalizedLoudnessBuilder = audioNormalizedLoudnessBuilder,
@@ -411,7 +387,6 @@ class RecordAudioViewModelTest {
                     maxSize = ASSET_SIZE_DEFAULT_LIMIT_BYTES
                 )
             )
-            coEvery { generateAudioFileWithEffects(any(), any(), any()) } returns Unit
 
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(
                 CurrentScreen.Conversation(id = DUMMY_CALL.conversationId)
@@ -447,6 +422,22 @@ class RecordAudioViewModelTest {
         }
 
         fun arrange() = this to viewModel
+
+        private class FakeRecordAudioFileGateway : RecordAudioFileGateway {
+            var generateAudioFileWithEffectsCalls = 0
+                private set
+
+            override suspend fun generateAudioFileWithEffects(
+                originalFilePath: String,
+                effectsFilePath: String
+            ) {
+                generateAudioFileWithEffectsCalls++
+            }
+
+            override fun audioLengthInMs(audioPath: Path): Long = 1L
+
+            override fun contentUri(audioFile: File): Uri = mockk()
+        }
 
         companion object {
             const val ASSET_SIZE_LIMIT = 5L

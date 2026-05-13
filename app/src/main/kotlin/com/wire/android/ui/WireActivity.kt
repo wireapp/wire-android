@@ -681,16 +681,16 @@ class WireActivity : BaseActivity() {
             || originalIntent == intent // This is the case when the activity is recreated and already handled
             || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
-            val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent)
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent?.toWireActivityIntentContent())
             if (!handled && navigator.isEmptyWelcomeStartDestination()) {
                 // nothing to handle so if "welcome empty start" screen then switch "start" screen to login by navigating to it
                 navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
             }
             return
         } else {
-            val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent)
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent.toWireActivityIntentContent())
             if (!handled) {
-                viewModel.handleDeepLink(intent)
+                viewModel.handleDeepLink(intent.toWireActivityIntentContent())
                 intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
             }
         }

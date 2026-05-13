@@ -26,14 +26,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.config.DefaultServerConfig
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
@@ -64,8 +62,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import android.database.sqlite.SQLiteException
-import java.io.IOException
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -79,6 +75,7 @@ class LoginSSOViewModel(
     userDataStoreProvider: UserDataStoreProvider,
     private val ssoExtension: LoginSSOViewModelExtension,
     serverConfig: ServerConfig.Links,
+    private val sessionExceptionClassifier: LoginSSOSessionExceptionClassifier,
     private val dispatchers: DispatcherProvider,
 ) : LoginViewModel(
     savedStateHandle,
@@ -87,9 +84,8 @@ class LoginSSOViewModel(
     coreLogic,
     serverConfig
 ) {
-    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
-    private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
-    private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
+    private var pendingNomadServiceUrl: String? = null
+    private var pendingCookieLabel: String? = null
 
     @Inject
     constructor(
@@ -101,6 +97,7 @@ class LoginSSOViewModel(
         userDataStoreProvider: UserDataStoreProvider,
         serverConfig: ServerConfig.Links,
         @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
+        sessionExceptionClassifier: LoginSSOSessionExceptionClassifier,
         dispatchers: DispatcherProvider,
     ) : this(
         savedStateHandle,
@@ -111,6 +108,7 @@ class LoginSSOViewModel(
         userDataStoreProvider,
         LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, defaultWebSocketEnabledByDefault),
         serverConfig,
+        sessionExceptionClassifier,
         dispatchers,
     )
 
@@ -181,6 +179,21 @@ class LoginSSOViewModel(
                     }
                 )
             }
+        }
+    }
+
+    fun handleSSOCodeAutoLogin(
+        ssoCode: String,
+        autoInitiateLogin: Boolean,
+        nomadServiceUrl: String?,
+        cookieLabel: String?,
+    ) {
+        pendingNomadServiceUrl = nomadServiceUrl
+        pendingCookieLabel = cookieLabel
+        ssoTextState.setTextAndPlaceCursorAtEnd(ssoCode)
+
+        if (autoInitiateLogin) {
+            login()
         }
     }
 
@@ -319,14 +332,12 @@ class LoginSSOViewModel(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            when (e) {
-                is IllegalStateException, is IOException, is SQLiteException -> {
-                    if (isSessionStillValid(storedUserId)) throw e
-                    appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${e.message}")
-                    return
-                }
-                else -> throw e
+            if (sessionExceptionClassifier.isRecoverableSessionException(e)) {
+                if (isSessionStillValid(storedUserId)) throw e
+                appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${e.message}")
+                return
             }
+            throw e
         }
 
         when (restoreResult) {
@@ -356,12 +367,11 @@ class LoginSSOViewModel(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            when (e) {
-                is IllegalStateException, is IOException, is SQLiteException -> {
-                    if (isSessionStillValid(userId)) throw e
-                    appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${e.message}")
-                }
-                else -> throw e
+            if (sessionExceptionClassifier.isRecoverableSessionException(e)) {
+                if (isSessionStillValid(userId)) throw e
+                appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${e.message}")
+            } else {
+                throw e
             }
         }
     }

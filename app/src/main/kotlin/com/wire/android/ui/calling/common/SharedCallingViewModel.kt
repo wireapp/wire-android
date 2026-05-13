@@ -18,8 +18,6 @@
 
 package com.wire.android.ui.calling.common
 
-import android.view.View
-import androidx.camera.core.impl.ImageOutputConfig.RotationValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -238,18 +236,18 @@ class SharedCallingViewModel @AssistedInject constructor(
         }
     }
 
-    fun setVideoPreview(view: View?) {
+    fun setVideoPreview(view: PlatformView) {
         viewModelScope.launch(dispatchers.default()) {
             appLogger.i("SharedCallingViewModel: setting video preview..")
             setVideoPreview(conversationId, PlatformView(null))
-            setVideoPreview(conversationId, PlatformView(view))
+            setVideoPreview(conversationId, view)
         }
     }
 
-    fun setUIRotation(@RotationValue rotation: Int) {
+    fun setUIRotation(rotation: PlatformRotation) {
         appLogger.i("SharedCallingViewModel: setting UI rotation to $rotation..")
         viewModelScope.launch {
-            setUIRotationUseCase(PlatformRotation(rotation))
+            setUIRotationUseCase(rotation)
         }
     }
 

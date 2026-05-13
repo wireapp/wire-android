@@ -20,15 +20,13 @@ package com.wire.android.ui.userprofile.service
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.AppsUtil
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -75,10 +73,11 @@ class ServiceDetailsViewModel @Inject constructor(
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val addServiceToConversation: AddServiceToConversationUseCase,
     private val addMemberToConversation: AddMemberToConversationUseCase,
-    savedStateHandle: SavedStateHandle
+    serviceDetailsNavArgsProvider: ServiceDetailsNavArgsProvider
 ) : ViewModel() {
 
-    private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
+    private val serviceDetailsNavArgs: ServiceDetailsNavArgs =
+        serviceDetailsNavArgsProvider.serviceDetailsNavArgs()
 
     private val serviceId: ServiceId = serviceDetailsNavArgs.id.serviceId
     private val conversationId: QualifiedID? = serviceDetailsNavArgs.conversationId

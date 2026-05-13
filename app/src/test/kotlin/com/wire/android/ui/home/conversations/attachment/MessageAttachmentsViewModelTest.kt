@@ -20,11 +20,11 @@ package com.wire.android.ui.home.conversations.attachment
 import androidx.lifecycle.SavedStateHandle
 import com.ramcosta.composedestinations.generated.app.navargs.toSavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.wire.android.util.FileManager
+import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
@@ -34,11 +34,13 @@ import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.AssetContent
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.verify
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runCurrent
@@ -60,7 +62,7 @@ class MessageAttachmentsViewModelTest {
             .withAddAttachmentSuccess()
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
 
         assertTrue(viewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Hidden)
         coVerify(exactly = 1) { arrangement.addAttachment(any(), any(), any(), any(), any(), any()) }
@@ -72,7 +74,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess(".hidden.txt")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
 
         assertTrue(viewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible)
     }
@@ -83,7 +85,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess("bad/name.txt")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
 
         assertTrue(viewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible)
     }
@@ -94,7 +96,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess("bad\\name.txt")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
 
         assertTrue(viewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible)
     }
@@ -105,7 +107,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess("bad\"name.txt")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
 
         assertTrue(viewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible)
     }
@@ -116,7 +118,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess(".hidden.txt")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
 
         coVerify(exactly = 0) { arrangement.addAttachment(any(), any(), any(), any(), any(), any()) }
     }
@@ -127,7 +129,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess(".hidden.txt")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
 
         val state = viewModel.incompatibleFileNameDialogState as IncompatibleFileNameDialogState.Visible
         assertEquals("hidden.txt", state.sanitizedFileName)
@@ -139,7 +141,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess("bad/slash\\name.txt")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
 
         val state = viewModel.incompatibleFileNameDialogState as IncompatibleFileNameDialogState.Visible
         assertEquals("bad_slash_name.txt", state.sanitizedFileName)
@@ -151,7 +153,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess("...")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
 
         val state = viewModel.incompatibleFileNameDialogState as IncompatibleFileNameDialogState.Visible
         assertEquals("file", state.sanitizedFileName)
@@ -163,7 +165,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess(".")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
 
         assertTrue(viewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible)
     }
@@ -174,7 +176,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess(".")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
 
         val state = viewModel.incompatibleFileNameDialogState as IncompatibleFileNameDialogState.Visible
         assertEquals("file", state.sanitizedFileName)
@@ -187,7 +189,7 @@ class MessageAttachmentsViewModelTest {
             .withAddAttachmentSuccess()
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
         viewModel.onReplaceFileNameAutomatically()
 
         coVerify(exactly = 1) {
@@ -209,7 +211,7 @@ class MessageAttachmentsViewModelTest {
             .withAddAttachmentSuccess()
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
         viewModel.onReplaceFileNameAutomatically()
 
         assertTrue(viewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Hidden)
@@ -221,7 +223,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess(".hidden.txt")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk()))
+        viewModel.onFilesSelected(listOf("uri"))
         viewModel.onDismissIncompatibleFileNameDialog()
 
         assertTrue(viewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Hidden)
@@ -234,7 +236,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess(".first.txt", ".second.txt")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk(), mockk()))
+        viewModel.onFilesSelected(listOf("uri-1", "uri-2"))
 
         val state = viewModel.incompatibleFileNameDialogState as IncompatibleFileNameDialogState.Visible
         assertEquals("first.txt", state.sanitizedFileName)
@@ -247,7 +249,7 @@ class MessageAttachmentsViewModelTest {
             .withAddAttachmentSuccess()
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk(), mockk()))
+        viewModel.onFilesSelected(listOf("uri-1", "uri-2"))
         viewModel.onReplaceFileNameAutomatically()
 
         val state = viewModel.incompatibleFileNameDialogState as IncompatibleFileNameDialogState.Visible
@@ -261,7 +263,7 @@ class MessageAttachmentsViewModelTest {
             .withAddAttachmentSuccess()
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk(), mockk()))
+        viewModel.onFilesSelected(listOf("uri-1", "uri-2"))
         viewModel.onReplaceFileNameAutomatically()
         viewModel.onReplaceFileNameAutomatically()
 
@@ -274,7 +276,7 @@ class MessageAttachmentsViewModelTest {
             .withHandleUriAssetSuccess(".first.txt", ".second.txt")
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk(), mockk()))
+        viewModel.onFilesSelected(listOf("uri-1", "uri-2"))
         viewModel.onDismissIncompatibleFileNameDialog()
 
         val state = viewModel.incompatibleFileNameDialogState as IncompatibleFileNameDialogState.Visible
@@ -288,7 +290,7 @@ class MessageAttachmentsViewModelTest {
             .withAddAttachmentSuccess()
             .arrange()
 
-        viewModel.onFilesSelected(listOf(mockk(), mockk()))
+        viewModel.onFilesSelected(listOf("uri-1", "uri-2"))
 
         assertTrue(viewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible)
     }
@@ -315,6 +317,35 @@ class MessageAttachmentsViewModelTest {
         coVerify(exactly = 1) { arrangement.addAttachment(any(), eq("clean.pdf"), any(), any(), any(), any()) }
     }
 
+    @Test
+    fun givenUploadedAttachment_whenAttachmentClicked_thenFileGatewayOpensIt() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        val attachment = testAttachment(uploadError = false)
+
+        viewModel.onAttachmentClicked(attachment)
+
+        verify(exactly = 1) {
+            arrangement.fileGateway.open(
+                localFilePath = attachment.localFilePath,
+                fileName = attachment.fileName,
+                onError = any()
+            )
+        }
+    }
+
+    @Test
+    fun givenFailedAttachmentFileExists_whenAttachmentClicked_thenRetryOptionIsShown() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withAttachmentFileExists(true)
+            .arrange()
+        val attachment = testAttachment(uploadError = true)
+
+        viewModel.onAttachmentClicked(attachment)
+
+        val state = viewModel.failedAttachmentDialogState as FailedAttachmentDialogState.Visible
+        assertTrue(state.showRetryOption)
+    }
+
     private fun testBundle(fileName: String) = AssetBundle(
         key = "key",
         mimeType = "text/plain",
@@ -322,6 +353,13 @@ class MessageAttachmentsViewModelTest {
         dataSize = 100L,
         fileName = fileName,
         assetType = AttachmentType.GENERIC_FILE,
+    )
+
+    private fun testAttachment(uploadError: Boolean) = AttachmentDraftUi(
+        uuid = "uuid",
+        fileName = "file.txt",
+        localFilePath = "/tmp/file.txt",
+        uploadError = uploadError,
     )
 
     private class Arrangement {
@@ -333,7 +371,7 @@ class MessageAttachmentsViewModelTest {
         ).toSavedStateHandle()
 
         @MockK
-        lateinit var handleUriAsset: HandleUriAssetUseCase
+        lateinit var assetImporter: MessageAttachmentAssetImporter
 
         @MockK
         lateinit var observeAttachments: ObserveAttachmentDraftsUseCase
@@ -351,7 +389,7 @@ class MessageAttachmentsViewModelTest {
         lateinit var uploadManager: CellUploadManager
 
         @MockK
-        lateinit var fileManager: FileManager
+        lateinit var fileGateway: MessageAttachmentFileGateway
 
         @MockK
         lateinit var getMediaMetadata: GetMediaMetadataUseCase
@@ -368,6 +406,11 @@ class MessageAttachmentsViewModelTest {
                 coEvery { observeAttachments(any()) } returns MutableSharedFlow()
                 coEvery { uploadManager.getUploadInfo(any()) } returns null
                 coEvery { getMediaMetadata(any(), any()) } returns null
+                every { fileGateway.exists(any()) } returns false
+                every { fileGateway.audioMetadata(any(), any(), any()) } returns AssetContent.AssetMetadata.Audio(
+                    durationMs = 0L,
+                    normalizedLoudness = null,
+                )
                 isInitialized = true
             }
         }
@@ -375,9 +418,9 @@ class MessageAttachmentsViewModelTest {
         fun withHandleUriAssetSuccess(vararg fileNames: String) = apply {
             initializeMocks()
             uriAssetQueue.addAll(fileNames)
-            coEvery { handleUriAsset.invoke(any(), any()) } answers {
+            coEvery { assetImporter.importAsset(any()) } answers {
                 val name = uriAssetQueue.removeFirstOrNull() ?: "file.txt"
-                HandleUriAssetUseCase.Result.Success(
+                ImportedMediaAsset(
                     assetBundle = AssetBundle(
                         key = "key",
                         mimeType = "text/plain",
@@ -385,7 +428,8 @@ class MessageAttachmentsViewModelTest {
                         dataSize = 100L,
                         fileName = name,
                         assetType = AttachmentType.GENERIC_FILE,
-                    )
+                    ),
+                    assetSizeExceeded = null,
                 )
             }
         }
@@ -395,17 +439,22 @@ class MessageAttachmentsViewModelTest {
             coEvery { addAttachment(any(), any(), any(), any(), any(), any()) } returns Unit.right()
         }
 
+        fun withAttachmentFileExists(exists: Boolean) = apply {
+            initializeMocks()
+            every { fileGateway.exists(any()) } returns exists
+        }
+
         fun arrange(): Pair<Arrangement, MessageAttachmentsViewModel> {
             initializeMocks()
             val viewModel = MessageAttachmentsViewModel(
                 savedStateHandle = savedStateHandle,
-                handleUriAsset = handleUriAsset,
+                assetImporter = assetImporter,
                 observeAttachments = observeAttachments,
                 addAttachment = addAttachment,
                 removeAttachment = removeAttachment,
                 retryUpload = retryUpload,
                 uploadManager = uploadManager,
-                fileManager = fileManager,
+                fileGateway = fileGateway,
                 sharedState = sharedState,
                 getMediaMetadata = getMediaMetadata,
             )

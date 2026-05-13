@@ -137,7 +137,7 @@ class ConversationMessagesViewModelTest {
         viewModel.downloadAndOpenAsset(messageId)
 
         // Then
-        verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
+        verify(exactly = 1) { arrangement.assetFileGateway.openWithExternalApp(any(), any(), any()) }
         assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
     }
 
@@ -166,9 +166,26 @@ class ConversationMessagesViewModelTest {
             viewModel.downloadAssetExternally(messageId)
 
             // Then
-            coVerify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }
+            coVerify(exactly = 1) { arrangement.assetFileGateway.saveToExternalStorage(any(), any(), any()) }
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
         }
+
+    @Test
+    fun `given an asset message, when sharing it, then asset file gateway shares the downloaded asset`() = runTest {
+        val messageId = "mocked-msg-id"
+        val assetName = "mocked-asset-name.zip"
+        val assetDataPath = "asset-data-path".toPath()
+        val assetSize = 8192L
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withSuccessfulShareAsset(assetDataPath, assetSize, assetName)
+            .arrange()
+
+        viewModel.shareAsset(messageId)
+        advanceUntilIdle()
+
+        verify(exactly = 1) { arrangement.assetFileGateway.shareWithExternalApp(assetDataPath, assetName) }
+    }
 
     @Test
     fun `given a deleted asset message, when downloading to open or save, then show already deleted dialog`() =

@@ -168,7 +168,7 @@ fun DangerOptions(
                     backUpAndRestoreState = exportObfuscatedCopyViewModel.state,
                     backupPasswordTextState = exportObfuscatedCopyViewModel.createBackupPasswordState,
                     onCreateBackup = exportObfuscatedCopyViewModel::createObfuscatedCopy,
-                    onSaveBackup = exportObfuscatedCopyViewModel::saveCopy,
+                    onSaveBackup = { uri -> exportObfuscatedCopyViewModel.saveCopy(uri.toString()) },
                     onShareBackup = exportObfuscatedCopyViewModel::shareCopy,
                     onCancelCreateBackup = {
                         backupAndRestoreStateHolder.dismissDialog()

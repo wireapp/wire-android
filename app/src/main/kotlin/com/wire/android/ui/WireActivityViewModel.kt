@@ -18,7 +18,6 @@
 
 package com.wire.android.ui
 
-import android.content.Intent
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,12 +53,10 @@ import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
-import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.AutomatedLoginManager
-import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.ui.UIText
 import com.wire.android.workmanager.worker.cancelPeriodicPersistentWebsocketCheckWorker
 import com.wire.android.workmanager.worker.enqueuePeriodicPersistentWebsocketCheckWorker
@@ -125,8 +122,7 @@ class WireActivityViewModel @Inject constructor(
     currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
     private val doesValidSessionExist: Lazy<DoesValidSessionExistUseCase>,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>,
-    private val deepLinkProcessor: Lazy<DeepLinkProcessor>,
-    private val intentsProcessor: Lazy<IntentsProcessor>,
+    private val intentGateway: Lazy<WireActivityIntentGateway>,
     private val observeSessions: Lazy<ObserveSessionsUseCase>,
     private val accountSwitch: Lazy<AccountSwitchUseCase>,
     private val servicesManager: Lazy<ServicesManager>,
@@ -360,9 +356,9 @@ class WireActivityViewModel @Inject constructor(
     }
 
     @Suppress("ComplexMethod")
-    fun handleDeepLink(intent: Intent?) {
+    fun handleDeepLink(intentContent: WireActivityIntentContent?) {
         viewModelScope.launch(dispatchers.io()) {
-            when (val result = deepLinkProcessor.get().invoke(intent?.data, intent?.action)) {
+            when (val result = intentGateway.get().parseDeepLink(intentContent)) {
                 DeepLinkResult.AuthorizationNeeded -> sendAction(OnAuthorizationNeeded)
                 is DeepLinkResult.SSOLogin -> sendAction(OnSSOLogin(result))
                 is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result.url, result.loginType)
@@ -391,8 +387,8 @@ class WireActivityViewModel @Inject constructor(
 
     // Returns whether an intent was handled, or if there was nothing to do
     @Suppress("ReturnCount")
-    suspend fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
-        val result = intentsProcessor.get().invoke(intent)
+    suspend fun handleIntentsThatAreNotDeepLinks(intentContent: WireActivityIntentContent?): Boolean {
+        val result = intentGateway.get().parseAutomatedLogin(intentContent)
         if (result != null) {
             if (!nomadProfilesFeatureConfig.isEnabled()) {
                 appLogger.w("Nomad login ignored: local Nomad profiles flag is disabled")

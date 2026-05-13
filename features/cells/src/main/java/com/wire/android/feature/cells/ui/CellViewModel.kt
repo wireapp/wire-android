@@ -40,7 +40,6 @@ import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
-import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.SortingSpec
@@ -73,7 +72,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okio.Path.Companion.toPath
 import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -84,7 +82,7 @@ class CellViewModel @Inject constructor(
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
-    private val fileHelper: FileHelper,
+    private val fileExternalActions: CellFileExternalActions,
     private val getEditorUrl: GetEditorUrlUseCase,
     private val onlineEditor: OnlineEditor,
     private val cellFileActionsMenu: CellFileActionsMenu,
@@ -310,7 +308,7 @@ class CellViewModel @Inject constructor(
 
     private fun openFileContentUrl(file: CellNodeUi.File) {
         file.contentUrl?.let { url ->
-            fileHelper.openAssetUrlWithExternalApp(
+            fileExternalActions.openUrl(
                 url = url,
                 mimeType = file.mimeType,
                 onError = {
@@ -322,8 +320,8 @@ class CellViewModel @Inject constructor(
 
     private fun openLocalFile(file: CellNodeUi.File) {
         file.localPath?.let { path ->
-            fileHelper.openAssetFileWithExternalApp(
-                localPath = path.toPath(),
+            fileExternalActions.openLocalFile(
+                localPath = path,
                 assetName = file.name,
                 mimeType = file.mimeType,
                 onError = {
@@ -380,8 +378,8 @@ class CellViewModel @Inject constructor(
 
     private fun shareFile(cell: CellNodeUi.File) {
         cell.localPath?.let { localPath ->
-            fileHelper.shareFileChooser(
-                assetDataPath = localPath.toPath(),
+            fileExternalActions.shareLocalFile(
+                localPath = localPath,
                 assetName = cell.name,
                 mimeType = cell.mimeType,
                 onError = { sendAction(ShowError(CellError.OTHER_ERROR)) }

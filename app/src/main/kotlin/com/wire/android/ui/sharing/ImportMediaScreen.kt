@@ -247,7 +247,9 @@ private fun ImportMediaAuthenticatedContent(
             LaunchedEffect(isImportingData()) {
                 if (importedAssets.isEmpty() || importedText.isNullOrEmpty()) {
                     context.getActivity()
-                        ?.let { activity -> importMediaViewModel.handleReceivedDataFromSharingIntent(activity) }
+                        ?.let { activity ->
+                            importMediaViewModel.handleReceivedDataFromSharingIntent(activity.toImportMediaSharingContent())
+                        }
                 }
             }
         }

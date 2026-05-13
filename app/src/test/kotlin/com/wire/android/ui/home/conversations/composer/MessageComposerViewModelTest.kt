@@ -96,6 +96,21 @@ class MessageComposerViewModelTest {
     }
 
     @Test
+    fun `given temp attachment uris, when init, then expose provider values`() = runTest {
+        // given
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+        advanceUntilIdle()
+
+        // then
+        assertEquals("image.jpg", viewModel.tempWritableImageUri)
+        assertEquals("video.mp4", viewModel.tempWritableVideoUri)
+        assertEquals(1, arrangement.tempWritableAttachmentUriProvider.imageUriCalls)
+        assertEquals(1, arrangement.tempWritableAttachmentUriProvider.videoUriCalls)
+    }
+
+    @Test
     fun `given messages were viewed, when conversation is closed, then mark as read with last viewed timestamp`() = runTest {
         // given
         val (arrangement, viewModel) = MessageComposerViewModelArrangement()

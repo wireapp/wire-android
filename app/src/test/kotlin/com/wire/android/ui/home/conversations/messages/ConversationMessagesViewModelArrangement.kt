@@ -32,7 +32,6 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
-import com.wire.android.util.FileManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -95,7 +94,7 @@ class ConversationMessagesViewModelArrangement {
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
-    lateinit var fileManager: FileManager
+    lateinit var assetFileGateway: ConversationAssetFileGateway
 
     @MockK
     lateinit var getMessageAsset: GetMessageAssetUseCase
@@ -138,7 +137,7 @@ class ConversationMessagesViewModelArrangement {
             getMessageById,
             updateAssetMessageDownloadStatus,
             observeAssetStatuses,
-            fileManager,
+            assetFileGateway,
             TestDispatcherProvider(),
             getMessagesForConversationUseCase,
             fetchOlderNomadMessagesByConversationUseCase,
@@ -190,7 +189,7 @@ class ConversationMessagesViewModelArrangement {
         val assetBundle =
             AssetBundle("key", assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType))
         viewModel.showOnAssetDownloadedDialog(assetBundle, messageId)
-        every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
+        every { assetFileGateway.openWithExternalApp(any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
     }
@@ -258,9 +257,12 @@ class ConversationMessagesViewModelArrangement {
             AttachmentType.fromMimeTypeString(assetMimeType)
         )
         viewModel.showOnAssetDownloadedDialog(assetBundle, messageId)
-        coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }.answers {
-            viewModel.hideOnAssetDownloadedDialog()
-        }
+        coEvery { assetFileGateway.saveToExternalStorage(any(), any(), any()) } returns assetName
+    }
+
+    fun withSuccessfulShareAsset(decodedAssetPath: Path, assetSize: Long, assetName: String = "name") = apply {
+        withGetMessageAssetUseCaseReturning(decodedAssetPath, assetSize, assetName)
+        every { assetFileGateway.shareWithExternalApp(any(), any()) } returns Unit
     }
 
     fun withFailureOnDeletingMessages() = apply {

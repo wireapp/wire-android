@@ -64,6 +64,8 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
 import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.util.PlatformRotation
+import com.wire.kalium.logic.util.PlatformView
 
 @Suppress("ParameterWrapping")
 @Composable
@@ -152,7 +154,7 @@ fun IncomingCallScreen(
             toggleVideo = ::toggleVideo,
             declineCall = incomingCallViewModel::declineCall,
             acceptCall = audioPermissionCheck::launch,
-            onVideoPreviewCreated = ::setVideoPreview,
+            onVideoPreviewCreated = { view -> setVideoPreview(PlatformView(view)) },
             onSelfClearVideoPreview = ::clearVideoPreview,
             onCameraPermissionPermanentlyDenied = {
                 permissionPermanentlyDeniedDialogState.show(
@@ -166,7 +168,7 @@ fun IncomingCallScreen(
                 activity.moveTaskToBack(true)
             }
         )
-        ObserveRotation(::setUIRotation)
+        ObserveRotation { rotation -> setUIRotation(PlatformRotation(rotation)) }
     }
 
     PermissionPermanentlyDeniedDialog(

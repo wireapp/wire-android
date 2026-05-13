@@ -20,7 +20,6 @@
 package com.wire.android.ui.home.conversations
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.net.Uri
 import android.text.format.DateUtils
 import androidx.activity.compose.BackHandler
@@ -79,6 +78,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.PagingData
@@ -526,7 +526,7 @@ fun ConversationScreen(
         },
         onImagesPicked = { it, fromKeyboard ->
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled && !fromKeyboard) {
-                messageAttachmentsViewModel.onFilesSelected(it)
+                messageAttachmentsViewModel.onFilesSelected(it.map { uri -> uri.toString() })
                 messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
                 navigator.navigate(
@@ -542,7 +542,7 @@ fun ConversationScreen(
         },
         onAttachmentPicked = {
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
-                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri.toString()))
                 messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
                 val bundle = ComposableMessageBundle.UriPickedBundle(conversationInfoViewModel.conversationId, it)
@@ -552,7 +552,7 @@ fun ConversationScreen(
         onAudioRecorded = {
             messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
-                messageAttachmentsViewModel.onAudioRecorded(it.uri, it.audioWavesMask)
+                messageAttachmentsViewModel.onAudioRecorded(it.uri.toString(), it.audioWavesMask)
             } else {
                 val bundle = ComposableMessageBundle.AudioMessageBundle(conversationInfoViewModel.conversationId, it)
                 sendMessageViewModel.trySendMessage(bundle)
@@ -625,8 +625,8 @@ fun ConversationScreen(
         onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
-        tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
-        tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri,
+        tempWritableImageUri = messageComposerViewModel.tempWritableImageUri?.toUri(),
+        tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri?.toUri(),
         onFailedMessageRetryClicked = sendMessageViewModel::retrySendingMessage,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
         onPermissionPermanentlyDenied = {
@@ -666,7 +666,7 @@ fun ConversationScreen(
                     DrawingCanvasScreenDestination(
                         DrawingCanvasNavArgs(
                             conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
-                            tempWritableUri = messageComposerViewModel.tempWritableImageUri
+                            tempWritableUri = messageComposerViewModel.tempWritableImageUri?.toUri()
                         )
                     )
                 )
@@ -934,7 +934,7 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
-    shareAsset: (Context, messageId: String) -> Unit,
+    shareAsset: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
@@ -957,7 +957,6 @@ private fun ConversationScreen(
     hasMoreRemoteMessages: Boolean = false,
     isWireCellsEnabled: Boolean = false,
 ) {
-    val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
     Box(modifier = Modifier) {
         // only here we will use normal Scaffold because of specific behaviour of message composer
@@ -1075,7 +1074,7 @@ private fun ConversationScreen(
             onDetailsClick = onMessageDetailsClick,
             onReplyClick = messageComposerStateHolder::toReply,
             onEditClick = messageComposerStateHolder::toEdit,
-            onShareAssetClick = { shareAsset(context, it) },
+            onShareAssetClick = shareAsset,
             onDownloadAssetClick = onDownloadAssetClick,
             onOpenAssetClick = onOpenAssetClick,
         )
@@ -1910,7 +1909,7 @@ fun PreviewConversationScreen() = WireTheme {
         onBackButtonClick = {},
         composerMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
-        shareAsset = { _, _ -> },
+        shareAsset = { },
         onOpenAssetClick = {},
         onDownloadAssetClick = {},
         onNavigateToReplyOriginalMessage = {},

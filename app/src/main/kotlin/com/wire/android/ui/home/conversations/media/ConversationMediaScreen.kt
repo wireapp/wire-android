@@ -125,7 +125,7 @@ fun ConversationMediaScreen(
             conversationMessagesViewModel.deleteMessageDialogState
                 .show(DeleteMessageDialogState(deleteForEveryone, messageId, conversationMessagesViewModel.conversationId))
         },
-        shareAsset = remember { { conversationMessagesViewModel.shareAsset(context, it) } },
+        shareAsset = remember { conversationMessagesViewModel::shareAsset },
         downloadAsset = conversationMessagesViewModel::openOrFetchAsset,
     )
 

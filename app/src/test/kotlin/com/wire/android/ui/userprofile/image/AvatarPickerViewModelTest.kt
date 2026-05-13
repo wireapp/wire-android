@@ -18,18 +18,13 @@
 
 package com.wire.android.ui.userprofile.image
 
-import android.content.Context
-import android.net.Uri
 import app.cash.turbine.test
 import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
+import com.wire.android.ui.userprofile.avatarpicker.AvatarImageGateway
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
-import com.wire.android.util.AvatarImageManager
-import com.wire.android.util.resampleImageAndCopyToTempPath
-import com.wire.android.util.toByteArray
 import com.wire.kalium.common.error.CoreFailure.Unknown
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -45,10 +40,10 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
+import okio.Path
 import okio.buffer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
@@ -77,7 +72,7 @@ class AvatarPickerViewModelTest {
                 // Then
                 with(arrangement) {
                     coVerify {
-                        uploadUserAvatarUseCase(any(), any())
+                        uploadUserAvatarUseCase(any(), 5L)
                         userDataStore.updateUserAvatarAssetId(uploadedAssetId.toString())
                     }
                     assertIs<AvatarPickerViewModel.PictureState.Completed>(avatarPickerViewModel.pictureState)
@@ -102,11 +97,9 @@ class AvatarPickerViewModelTest {
             // Then
             with(arrangement) {
                 coVerify {
-                    uploadUserAvatarUseCase(any(), any())
+                    uploadUserAvatarUseCase(any(), 5L)
                 }
-                coVerify(exactly = 1) {
-                    avatarImageManager.getWritableAvatarUri(any())
-                }
+                assertEquals(1, avatarImageGateway.writableAvatarUriCalls)
                 assertIs<AvatarPickerViewModel.PictureState.Initial>(avatarPickerViewModel.pictureState) // not PictureState.Completed
             }
 
@@ -147,6 +140,7 @@ class AvatarPickerViewModelTest {
             .arrange()
 
         avatarPickerViewModel.updatePickedAvatarUri(arrangement.mockOriginalUri, arrangement.mockTargetUri)
+        assertEquals(listOf(arrangement.mockOriginalUri), arrangement.avatarImageGateway.sanitizedAvatarUris)
         assertInstanceOf(AvatarPickerViewModel.PictureState.Picked::class.java, avatarPickerViewModel.pictureState)
         avatarPickerViewModel.loadInitialAvatarState()
         assertInstanceOf(AvatarPickerViewModel.PictureState.Initial::class.java, avatarPickerViewModel.pictureState)
@@ -159,6 +153,7 @@ class AvatarPickerViewModelTest {
             .arrange()
 
         avatarPickerViewModel.updatePickedAvatarUri(arrangement.mockOriginalUri, arrangement.mockTargetUri)
+        assertEquals(listOf(arrangement.mockOriginalUri), arrangement.avatarImageGateway.sanitizedAvatarUris)
         assertInstanceOf(AvatarPickerViewModel.PictureState.Picked::class.java, avatarPickerViewModel.pictureState)
         avatarPickerViewModel.loadInitialAvatarState()
         assertInstanceOf(AvatarPickerViewModel.PictureState.Empty::class.java, avatarPickerViewModel.pictureState)
@@ -172,30 +167,24 @@ class AvatarPickerViewModelTest {
 
         val uploadUserAvatarUseCase = mockk<UploadUserAvatarUseCase>()
 
-        val avatarImageManager = mockk<AvatarImageManager>()
-
-        val context = mockk<Context>()
+        val avatarImageGateway = FakeAvatarImageGateway()
 
         @MockK
         private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-        val dispatcherProvider = TestDispatcherProvider()
 
         val viewModel by lazy {
             AvatarPickerViewModel(
                 userDataStore,
                 getAvatarAsset,
                 uploadUserAvatarUseCase,
-                avatarImageManager,
-                dispatcherProvider,
+                avatarImageGateway,
                 fakeKaliumFileSystem,
-                qualifiedIdMapper,
-                context
+                qualifiedIdMapper
             )
         }
 
-        val mockTargetUri = mockk<Uri>()
-        val mockOriginalUri = mockk<Uri>()
+        val mockTargetUri = "file://target-avatar"
+        val mockOriginalUri = "content://original-avatar"
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -203,20 +192,13 @@ class AvatarPickerViewModelTest {
 
         fun withSuccessfulInitialAvatarLoad(): Arrangement {
             val avatarAssetId = "avatar-value@avatar-domain"
-            mockkStatic(Uri::class)
-            mockkStatic(Uri::resampleImageAndCopyToTempPath)
-            mockkStatic(Uri::toByteArray)
-            every { Uri.parse(any()) } returns mockTargetUri
             val fakeAvatarData = "some-dummy-avatar".toByteArray()
             val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
             fakeKaliumFileSystem.sink(avatarPath).buffer().use {
                 it.write(fakeAvatarData)
             }
             coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success(avatarPath)
-            coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockTargetUri
-            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockTargetUri
-            coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), eq(true), any()) } returns 1L
-            coEvery { any<Uri>().toByteArray(any(), any()) } returns ByteArray(5)
+            avatarImageGateway.imageSize = 5L
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")
 
@@ -226,7 +208,6 @@ class AvatarPickerViewModelTest {
         fun withFailedInitialAvatarLoad(): Arrangement {
             val avatarAssetId = "avatar-value@avatar-domain"
             coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Failure(Unknown(RuntimeException("some error")), false)
-            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockTargetUri
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")
 
@@ -234,7 +215,6 @@ class AvatarPickerViewModelTest {
         }
 
         fun withNoInitialAvatar(): Arrangement {
-            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockTargetUri
             every { userDataStore.avatarAssetId } returns flow { emit(null) }
 
             return this
@@ -259,7 +239,28 @@ class AvatarPickerViewModelTest {
             this to viewModel
     }
 
+    private class FakeAvatarImageGateway : AvatarImageGateway {
+        var imageSize: Long = 0L
+        var writableAvatarUriCalls: Int = 0
+            private set
+        val sanitizedAvatarUris = mutableListOf<String>()
+
+        override fun getWritableAvatarUri(avatarPath: Path): String {
+            writableAvatarUriCalls++
+            return TARGET_AVATAR_URI
+        }
+
+        override fun getShareableTempAvatarUri(avatarPath: Path): String = TARGET_AVATAR_URI
+
+        override suspend fun sanitizeAvatarImage(originalAvatarUri: String, avatarPath: Path) {
+            sanitizedAvatarUris += originalAvatarUri
+        }
+
+        override suspend fun getAvatarImageSize(avatarUri: String): Long = imageSize
+    }
+
     companion object {
         val fakeKaliumFileSystem: FakeKaliumFileSystem = FakeKaliumFileSystem()
+        const val TARGET_AVATAR_URI: String = "file://target-avatar"
     }
 }

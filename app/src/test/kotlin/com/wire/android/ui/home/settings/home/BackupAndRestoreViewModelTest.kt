@@ -18,21 +18,19 @@
 
 package com.wire.android.ui.home.settings.home
 
-import android.net.Uri
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.core.net.toUri
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
+import com.wire.android.ui.home.settings.backup.BackupFileGateway
 import com.wire.android.ui.home.settings.backup.BackupCreationProgress
 import com.wire.android.ui.home.settings.backup.BackupRestoreProgress
 import com.wire.android.ui.home.settings.backup.MPBackupSettings
 import com.wire.android.ui.home.settings.backup.PasswordValidation
 import com.wire.android.ui.home.settings.backup.RestoreFileValidation
-import com.wire.android.util.FileManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
@@ -55,8 +53,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -67,6 +63,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
 import okio.IOException
+import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
 import org.junit.jupiter.api.AfterEach
@@ -224,13 +221,7 @@ class BackupAndRestoreViewModelTest {
             ),
             backupAndRestoreViewModel.state
         )
-        coVerify(exactly = 1) {
-            arrangement.fileManager.shareWithExternalApp(
-                storedBackup.path,
-                storedBackup.assetName,
-                any()
-            )
-        }
+        assertEquals(listOf(storedBackup.path to storedBackup.assetName), arrangement.backupFileGateway.sharedBackups)
         coVerify {
             arrangement.userDataStore.setLastBackupDateSeconds(any())
         }
@@ -244,7 +235,7 @@ class BackupAndRestoreViewModelTest {
             .withPreviouslyCreatedBackup(storedBackup)
             .withUpdateLastBackupData()
             .arrange()
-        val backupUri = "some-backup".toUri()
+        val backupUri = "some-backup"
 
         // When
         backupAndRestoreViewModel.saveBackup(backupUri)
@@ -256,13 +247,7 @@ class BackupAndRestoreViewModelTest {
             BackupAndRestoreState.INITIAL_STATE.copy(lastBackupData = backupAndRestoreViewModel.state.lastBackupData),
             backupAndRestoreViewModel.state
         )
-        coVerify(exactly = 1) {
-            arrangement.fileManager.copyToUri(
-                storedBackup.path,
-                backupUri,
-                any()
-            )
-        }
+        assertEquals(listOf(storedBackup.path to backupUri), arrangement.backupFileGateway.savedBackups)
         coVerify(exactly = 1) {
             arrangement.userDataStore.setLastBackupDateSeconds(any())
         }
@@ -275,7 +260,7 @@ class BackupAndRestoreViewModelTest {
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
             .withSuccessfulDBImport(isBackupEncrypted)
             .arrange()
-        val backupUri = "some-backup".toUri()
+        val backupUri = "some-backup"
 
         // When
         backupAndRestoreViewModel.chooseBackupFileToRestore(backupUri)
@@ -285,9 +270,7 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.backupRestoreProgress == BackupRestoreProgress.Finished)
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.ValidNonEncryptedBackup)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
-        coVerify(exactly = 1) {
-            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
-        }
+        assertEquals(listOf(backupUri), arrangement.backupFileGateway.importedBackupUris)
     }
 
     @Test
@@ -297,7 +280,7 @@ class BackupAndRestoreViewModelTest {
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
             .withSuccessfulDBImport(isBackupEncrypted)
             .arrange()
-        val backupUri = "some-backup".toUri()
+        val backupUri = "some-backup"
 
         // When
         backupAndRestoreViewModel.chooseBackupFileToRestore(backupUri)
@@ -306,9 +289,7 @@ class BackupAndRestoreViewModelTest {
         // Then
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.PasswordRequired)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
-        coVerify(exactly = 1) {
-            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
-        }
+        assertEquals(listOf(backupUri), arrangement.backupFileGateway.importedBackupUris)
     }
 
     @Test
@@ -317,7 +298,7 @@ class BackupAndRestoreViewModelTest {
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
             .withFailedBackupVerification()
             .arrange()
-        val backupUri = "some-backup".toUri()
+        val backupUri = "some-backup"
 
         // When
         backupAndRestoreViewModel.chooseBackupFileToRestore(backupUri)
@@ -326,15 +307,13 @@ class BackupAndRestoreViewModelTest {
         // Then
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.IncompatibleBackup)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
-        coVerify(exactly = 1) {
-            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
-        }
+        assertEquals(listOf(backupUri), arrangement.backupFileGateway.importedBackupUris)
     }
 
     @Test
     fun givenAStoredBackup_whenThereIsAnErrorImportingTheDB_thenTheRightErrorDialogIsShown() = runTest(dispatcher.default()) {
         // Given
-        val backupUri = "some-backup".toUri()
+        val backupUri = "some-backup"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
             .withFailedDBImport()
             .arrange()
@@ -347,19 +326,16 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.IncompatibleBackup)
         assert(backupAndRestoreViewModel.state.backupRestoreProgress == BackupRestoreProgress.Failed)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
-        coVerify(exactly = 1) {
-            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
-        }
+        assertEquals(listOf(backupUri), arrangement.backupFileGateway.importedBackupUris)
     }
 
     @Test
     fun givenARestoreDialogShown_whenDismissingIt_thenTheTempImportedBackupPathIsDeleted() = runTest(dispatcher.default()) {
         // Given
-        val mockUri = "some-backup"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
             .withSuccessfulDBImport(false)
             .arrange()
-        val backupUri = mockUri.toUri()
+        val backupUri = "some-backup"
 
         // When
         backupAndRestoreViewModel.chooseBackupFileToRestore(backupUri)
@@ -372,9 +348,11 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.backupRestoreProgress == BackupRestoreProgress.InProgress(0f))
         assert(backupAndRestoreViewModel.state.restorePasswordValidation == PasswordValidation.NotVerified)
         assert(!arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
-        coVerify(exactly = 1) {
-            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
-        }
+        assertEquals(listOf(backupUri), arrangement.backupFileGateway.importedBackupUris)
+        assertEquals(
+            listOf(backupAndRestoreViewModel.latestImportedBackupTempPath),
+            arrangement.backupFileGateway.deletedImportedBackups
+        )
     }
 
     @Test
@@ -499,10 +477,7 @@ class BackupAndRestoreViewModelTest {
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
-            val mockUri = mockk<Uri>()
-            mockkStatic(Uri::class)
             withGetLastBackupDateSeconds()
-            every { Uri.parse("some-backup") } returns mockUri
             coEvery { importBackup(any(), any()) } returns RestoreBackupResult.Success
             coEvery { createMpBackupFile(any(), any()) } returns CreateBackupResult.Success("".toPath(), "")
             coEvery { verifyBackup(any()) } returns VerifyBackupResult.Success(BackupFileFormat.ANDROID, true)
@@ -527,21 +502,18 @@ class BackupAndRestoreViewModelTest {
         lateinit var validatePassword: ValidatePasswordUseCase
 
         @MockK
-        lateinit var fileManager: FileManager
-
-        @MockK
         lateinit var userDataStore: UserDataStore
 
         val fakeKaliumFileSystem = FakeKaliumFileSystem()
+        val backupFileGateway = FakeBackupFileGateway(fakeKaliumFileSystem)
 
         private val viewModel = BackupAndRestoreViewModel(
             importBackup = importBackup,
             importMpBackup = importMpBackup,
             createMpBackupFile = createMpBackupFile,
             verifyBackup = verifyBackup,
-            kaliumFileSystem = fakeKaliumFileSystem,
             dispatcher = dispatcher,
-            fileManager = fileManager,
+            backupFileGateway = backupFileGateway,
             validatePassword = validatePassword,
             userDataStore = userDataStore,
             createBackupFile = createBackupFile,
@@ -576,14 +548,6 @@ class BackupAndRestoreViewModelTest {
         }
 
         fun withSuccessfulDBImport(isEncrypted: Boolean) = apply {
-            coEvery { fileManager.copyToPath(any(), any(), any()) } returns (100L).also {
-                viewModel.latestImportedBackupTempPath =
-                    fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
-                fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {
-                    it.write("someBackupData".toByteArray())
-                }
-            }
-
             coEvery { verifyBackup(any()) } returns
                     VerifyBackupResult.Success(
                         format = BackupFileFormat.ANDROID,
@@ -593,26 +557,10 @@ class BackupAndRestoreViewModelTest {
         }
 
         fun withFailedBackupVerification() = apply {
-            coEvery { fileManager.copyToPath(any(), any(), any()) } returns (100L).also {
-                viewModel.latestImportedBackupTempPath =
-                    fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
-                fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {
-                    it.write("someBackupData".toByteArray())
-                }
-            }
-
             coEvery { verifyBackup(any()) } returns VerifyBackupResult.Failure.InvalidBackupFile
         }
 
         fun withFailedDBImport(error: Failure = Failure(IncompatibleBackup("DB failed to import"))) = apply {
-            coEvery { fileManager.copyToPath(any(), any(), any()) } returns (100L).also {
-                viewModel.latestImportedBackupTempPath =
-                    fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
-                fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {
-                    it.write("someBackupData".toByteArray())
-                }
-            }
-
             coEvery { verifyBackup(any()) } returns VerifyBackupResult.Success(
                 format = BackupFileFormat.ANDROID,
                 isEncrypted = false
@@ -637,5 +585,41 @@ class BackupAndRestoreViewModelTest {
         }
 
         fun arrange() = this to viewModel
+    }
+
+    private class FakeBackupFileGateway(
+        private val fakeKaliumFileSystem: FakeKaliumFileSystem
+    ) : BackupFileGateway {
+
+        val sharedBackups = mutableListOf<Pair<Path, String?>>()
+        val savedBackups = mutableListOf<Pair<Path, String>>()
+        val importedBackupUris = mutableListOf<String>()
+        val deletedImportedBackups = mutableListOf<Path>()
+
+        override suspend fun shareBackup(path: Path, assetName: String?) {
+            sharedBackups += path to assetName
+        }
+
+        override suspend fun saveBackup(path: Path, destinationUri: String) {
+            savedBackups += path to destinationUri
+        }
+
+        override suspend fun importBackupToTempPath(sourceUri: String): Path {
+            importedBackupUris += sourceUri
+            return fakeKaliumFileSystem
+                .tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
+                .also { path ->
+                    fakeKaliumFileSystem.sink(path).buffer().use {
+                        it.write("someBackupData".toByteArray())
+                    }
+                }
+        }
+
+        override suspend fun deleteImportedBackup(path: Path) {
+            deletedImportedBackups += path
+            if (fakeKaliumFileSystem.exists(path)) {
+                fakeKaliumFileSystem.delete(path)
+            }
+        }
     }
 }

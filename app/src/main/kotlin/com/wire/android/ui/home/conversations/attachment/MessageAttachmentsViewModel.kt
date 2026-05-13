@@ -17,8 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.attachment
 
-import android.net.Uri
-import android.webkit.MimeTypeMap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,18 +25,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.media.audiomessage.toNormalizedLoudness
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.toUiModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.ui.sharing.ImportedMediaAsset
-import com.wire.android.util.FileManager
 import com.wire.android.util.GetMediaMetadataUseCase
-import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.cells.domain.CellUploadEvent
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.model.AttachmentDraft
@@ -50,8 +43,6 @@ import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.message.AssetContent
-import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -60,21 +51,19 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okio.Path.Companion.toPath
-import java.io.File
 import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class MessageAttachmentsViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
-    private val handleUriAsset: HandleUriAssetUseCase,
+    private val assetImporter: MessageAttachmentAssetImporter,
     private val observeAttachments: ObserveAttachmentDraftsUseCase,
     private val addAttachment: AddAttachmentDraftUseCase,
     private val removeAttachment: RemoveAttachmentDraftUseCase,
     private val retryUpload: RetryAttachmentUploadUseCase,
     private val uploadManager: CellUploadManager,
-    private val fileManager: FileManager,
+    private val fileGateway: MessageAttachmentFileGateway,
     private val sharedState: MessageSharedState,
     private val getMediaMetadata: GetMediaMetadataUseCase,
 ) : ViewModel() {
@@ -113,27 +102,24 @@ class MessageAttachmentsViewModel @Inject constructor(
         }
     }
 
-    fun onAudioRecorded(uri: Uri, wavesMask: List<Int>?) = viewModelScope.launch {
-        handleImportedAsset(uri)?.assetBundle?.let { bundle ->
+    fun onAudioRecorded(uri: String, wavesMask: List<Int>?) = viewModelScope.launch {
+        assetImporter.importAsset(uri)?.assetBundle?.let { bundle ->
             addAttachment(
                 conversationId = conversationId,
                 fileName = bundle.fileName,
                 assetPath = bundle.dataPath,
                 assetSize = bundle.dataSize,
                 mimeType = bundle.mimeType,
-                assetMetadata = AssetContent.AssetMetadata.Audio(
-                    durationMs = getAudioLengthInMs(bundle.dataPath, bundle.mimeType),
-                    normalizedLoudness = wavesMask?.toNormalizedLoudness()
-                )
+                assetMetadata = fileGateway.audioMetadata(bundle.dataPath, bundle.mimeType, wavesMask)
             ).onFailure {
                 appLogger.e("Failed to add recorded audio attachment: $it", tag = "MessageAttachmentsViewModel")
             }
         }
     }
 
-    fun onFilesSelected(uriList: List<Uri>) = viewModelScope.launch {
+    fun onFilesSelected(uriList: List<String>) = viewModelScope.launch {
         uriList.forEach { uri ->
-            handleImportedAsset(uri)?.let { asset ->
+            assetImporter.importAsset(uri)?.let { asset ->
                 enqueueOrAddAttachment(asset.assetBundle)
             }
         }
@@ -178,13 +164,6 @@ class MessageAttachmentsViewModel @Inject constructor(
         showNextIncompatibleDialog()
     }
 
-    private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? =
-        when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
-            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)
-            is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
-            is HandleUriAssetUseCase.Result.Failure.Unknown -> null
-        }
-
     private fun addAttachment(bundle: AssetBundle) = viewModelScope.launch {
         addAttachment(
             conversationId = conversationId,
@@ -203,7 +182,7 @@ class MessageAttachmentsViewModel @Inject constructor(
         if (attachment.uploadError) {
             failedAttachmentDialogState = FailedAttachmentDialogState.Visible(
                 attachment = attachment,
-                showRetryOption = File(attachment.localFilePath).exists(),
+                showRetryOption = fileGateway.exists(attachment.localFilePath),
             )
         } else {
             deleteAttachment(attachment)
@@ -264,7 +243,7 @@ class MessageAttachmentsViewModel @Inject constructor(
         if (attachment.uploadError) {
             failedAttachmentDialogState = FailedAttachmentDialogState.Visible(
                 attachment = attachment,
-                showRetryOption = File(attachment.localFilePath).exists(),
+                showRetryOption = fileGateway.exists(attachment.localFilePath),
             )
         } else {
             showAttachment(attachment)
@@ -272,8 +251,7 @@ class MessageAttachmentsViewModel @Inject constructor(
     }
 
     private fun showAttachment(attachment: AttachmentDraftUi) {
-        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(attachment.fileName.fileExtension() ?: "")
-        fileManager.openWithExternalApp(attachment.localFilePath.toPath(), attachment.fileName, mimeType) {
+        fileGateway.open(attachment.localFilePath, attachment.fileName) {
             appLogger.e("Failed to open: ${attachment.localFilePath}", tag = "MessageAttachmentsViewModel")
         }
     }

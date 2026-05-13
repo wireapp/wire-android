@@ -17,16 +17,15 @@
  */
 package com.wire.android.ui.home.whatsnew
 
-import android.content.Context
 import com.prof18.rssparser.RssParser
 import com.prof18.rssparser.model.RssChannel
 import com.prof18.rssparser.model.RssItem
-import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.util.toMediumOnlyDateTime
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockkStatic
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -76,17 +75,17 @@ class WhatsNewViewModelTest {
     inner class Arrangement {
 
         @MockK
-        lateinit var context: Context
+        lateinit var releaseNotesFeedUrlProvider: ReleaseNotesFeedUrlProvider
 
         @MockK
         lateinit var rssParser: RssParser
 
         val viewModel by lazy {
-            WhatsNewViewModel(context)
+            WhatsNewViewModel(releaseNotesFeedUrlProvider)
         }
 
         fun withFeedUrl(feedUrl: String) = apply {
-            coEvery { context.resources.getString(R.string.url_android_release_notes_feed) } returns feedUrl
+            every { releaseNotesFeedUrlProvider.feedUrl } returns feedUrl
         }
 
         fun withFeedResult(rssChannel: RssChannel) = apply {

@@ -17,22 +17,19 @@
  */
 package com.wire.android.ui.home.settings.about.dependencies
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.util.getDependenciesVersion
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DependenciesViewModel @Inject constructor(
-    @ApplicationContext val context: Context
+    private val dependenciesInfoProvider: DependenciesInfoProvider
 ) : ViewModel() {
 
     var state: DependenciesState by mutableStateOf(DependenciesState())
@@ -44,7 +41,7 @@ class DependenciesViewModel @Inject constructor(
 
     private fun checkDependenciesVersion() {
         viewModelScope.launch {
-            val dependencies = context.getDependenciesVersion().toImmutableMap()
+            val dependencies = dependenciesInfoProvider.dependenciesVersion().toImmutableMap()
             state = state.copy(dependencies = dependencies)
         }
     }

@@ -50,6 +50,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.util.PlatformRotation
+import com.wire.kalium.logic.util.PlatformView
 
 @Suppress("ParameterWrapping")
 @Composable
@@ -93,7 +95,7 @@ fun OutgoingCallScreen(
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
             onHangUpCall = outgoingCallViewModel::hangUpCall,
-            onVideoPreviewCreated = ::setVideoPreview,
+            onVideoPreviewCreated = { view -> setVideoPreview(PlatformView(view)) },
             onSelfClearVideoPreview = ::clearVideoPreview,
             onCameraPermissionPermanentlyDenied = {
                 permissionPermanentlyDeniedDialogState.show(
@@ -107,7 +109,7 @@ fun OutgoingCallScreen(
                 activity.moveTaskToBack(true)
             }
         )
-        ObserveRotation(::setUIRotation)
+        ObserveRotation { rotation -> setUIRotation(PlatformRotation(rotation)) }
     }
 
     PermissionPermanentlyDeniedDialog(

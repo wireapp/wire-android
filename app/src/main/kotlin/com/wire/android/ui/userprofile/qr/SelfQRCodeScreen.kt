@@ -17,10 +17,8 @@
  */
 package com.wire.android.ui.userprofile.qr
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -61,6 +59,7 @@ import com.lightspark.composeqr.QrCodeView
 import com.wire.android.R
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -82,7 +81,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun SelfQRCodeScreen(
     navigator: Navigator,
-    viewModel: SelfQRCodeViewModel = hiltViewModel()
+    args: SelfQrCodeNavArgs,
+    viewModel: SelfQRCodeViewModel = hiltViewModel<SelfQRCodeViewModel, SelfQRCodeViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args) }
+    )
 ) {
     if (viewModel.selfQRCodeState.hasError) {
         navigator.navigateBack()
@@ -98,7 +100,7 @@ fun SelfQRCodeScreen(
 @Composable
 private fun SelfQRCodeContent(
     state: SelfQRCodeState,
-    shareQRAssetClick: suspend (Bitmap) -> Uri,
+    shareQRAssetClick: suspend (SelfQRCodeImage) -> String,
     trackAnalyticsEvent: (AnalyticsEvent.QrCode.Modal) -> Unit,
     onBackClick: () -> Unit = {}
 ) {
@@ -219,7 +221,9 @@ private fun SelfQRCodeContent(
                 )
                 coroutineScope.launch {
                     val bitmap = graphicsLayer.toImageBitmap()
-                    val qrUri = shareQRAssetClick(bitmap.asAndroidBitmap())
+                    val qrUri = shareQRAssetClick { outputStream ->
+                        bitmap.asAndroidBitmap().compress(Bitmap.CompressFormat.JPEG, QR_QUALITY_COMPRESSION, outputStream)
+                    }.toUri()
                     context.shareQRToProfile(qrUri)
                 }
             }
@@ -281,8 +285,10 @@ fun PreviewSelfQRCodeContent() {
                 userProfileLink = "wire://user/wire.com/aaaaaaa-222-3333-4444-55555555",
                 userAccountProfileLink = "https://account.wire.com/user-profile/?id=aaaaaaa-222-3333-4444-55555555@wire.com"
             ),
-            { "".toUri() },
+            { "" },
             { }
         )
     }
 }
+
+private const val QR_QUALITY_COMPRESSION = 80

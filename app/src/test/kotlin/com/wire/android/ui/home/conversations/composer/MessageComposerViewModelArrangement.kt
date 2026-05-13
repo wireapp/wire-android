@@ -18,12 +18,9 @@
 
 package com.wire.android.ui.home.conversations.composer
 
-import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.ContactMapper
@@ -38,7 +35,6 @@ import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -87,7 +83,6 @@ internal class MessageComposerViewModelArrangement {
     init {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
-        mockUri()
         every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
 
         // Default empty values
@@ -95,8 +90,6 @@ internal class MessageComposerViewModelArrangement {
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
-        coEvery { fileManager.getTempWritableVideoUri(any(), any()) } returns Uri.parse("video.mp4")
-        coEvery { fileManager.getTempWritableImageUri(any(), any()) } returns Uri.parse("image.jpg")
         coEvery {
             currentSessionFlowUseCase()
         } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
@@ -145,9 +138,6 @@ internal class MessageComposerViewModelArrangement {
     lateinit var sendTypingEvent: SendTypingEventUseCase
 
     @MockK
-    lateinit var fileManager: FileManager
-
-    @MockK
     lateinit var currentSessionFlowUseCase: CurrentSessionFlowUseCase
 
     @MockK
@@ -156,7 +146,7 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
-    private val fakeKaliumFileSystem = FakeKaliumFileSystem()
+    val tempWritableAttachmentUriProvider = FakeTempWritableAttachmentUriProvider()
 
     private val viewModel by lazy {
         MessageComposerViewModel(
@@ -171,8 +161,7 @@ internal class MessageComposerViewModelArrangement {
             enqueueMessageSelfDeletion = enqueueMessageSelfDeletionUseCase,
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
             sendTypingEvent = sendTypingEvent,
-            kaliumFileSystem = fakeKaliumFileSystem,
-            fileManager = fileManager,
+            tempWritableAttachmentUriProvider = tempWritableAttachmentUriProvider,
             currentSessionFlowUseCase = currentSessionFlowUseCase,
             observeEstablishedCalls = observeEstablishedCalls,
             globalDataStore = globalDataStore,
@@ -198,6 +187,25 @@ internal class MessageComposerViewModelArrangement {
     }
 
     fun arrange() = this to viewModel
+
+    class FakeTempWritableAttachmentUriProvider : TempWritableAttachmentUriProvider {
+        var tempWritableVideoUri = "video.mp4"
+        var tempWritableImageUri = "image.jpg"
+        var videoUriCalls = 0
+            private set
+        var imageUriCalls = 0
+            private set
+
+        override suspend fun getTempWritableVideoUri(): String {
+            videoUriCalls++
+            return tempWritableVideoUri
+        }
+
+        override suspend fun getTempWritableImageUri(): String {
+            imageUriCalls++
+            return tempWritableImageUri
+        }
+    }
 }
 
 internal fun withMockConversationDetailsOneOnOne(

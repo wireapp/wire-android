@@ -29,7 +29,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestClient
@@ -190,6 +189,49 @@ class LoginSSOViewModelTest {
 
         loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(expectedSSOCode)
         loginViewModel.login()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.ssoExtension.initiateSSO(
+                eq(SERVER_CONFIG.links),
+                eq(expectedSSOCode),
+                eq("shared-device"),
+                any(),
+                any(),
+                any()
+            )
+        }
+    }
+
+    @Test
+    fun `given auto login params, when handled, then sso code is prefilled without reading navigation args`() {
+        val expectedSSOCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
+        val (_, loginViewModel) = Arrangement().arrange()
+
+        loginViewModel.handleSSOCodeAutoLogin(
+            ssoCode = expectedSSOCode,
+            autoInitiateLogin = false,
+            nomadServiceUrl = "https://nomad.example.com/service",
+            cookieLabel = "shared-device"
+        )
+
+        loginViewModel.ssoTextState.text.toString() shouldBeEqualTo expectedSSOCode
+    }
+
+    @Test
+    fun `given auto login params with auto initiate, when handled, then login starts with cookie label`() = runTest {
+        val expectedSSOCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
+        val (arrangement, loginViewModel) = Arrangement()
+            .withValidateEmailReturning(false)
+            .withInitiateSSO(expectedSSOCode)
+            .arrange()
+
+        loginViewModel.handleSSOCodeAutoLogin(
+            ssoCode = expectedSSOCode,
+            autoInitiateLogin = true,
+            nomadServiceUrl = "https://nomad.example.com/service",
+            cookieLabel = "shared-device"
+        )
         advanceUntilIdle()
 
         coVerify(exactly = 1) {
@@ -1076,7 +1118,6 @@ class LoginSSOViewModelTest {
 
         init {
             MockKAnnotations.init(this)
-            mockUri()
             every { savedStateHandle.get<String>(any()) } returns null
             every { savedStateHandle.set(any(), any<String>()) } returns Unit
             every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
@@ -1179,28 +1220,40 @@ class LoginSSOViewModelTest {
             coEvery { doesValidSessionExistUseCase(any()) } returns DoesValidSessionExistResult.Success(valid)
         }
 
+        private var ssoCodeAutoLogin: SSOCodeAutoLogin? = null
+
         fun withNomadAutoLogin(nomadServiceUrl: String) = apply {
-            every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(
-                loginPasswordPath = LoginPasswordPath(SERVER_CONFIG.links),
-                ssoCodeAutoLogin = SSOCodeAutoLogin(
-                    ssoCode = "wire-sso-code",
-                    nomadServiceUrl = nomadServiceUrl,
-                    cookieLabel = "shared-device"
-                )
+            ssoCodeAutoLogin = SSOCodeAutoLogin(
+                ssoCode = "wire-sso-code",
+                autoInitiateLogin = false,
+                nomadServiceUrl = nomadServiceUrl,
+                cookieLabel = "shared-device"
             )
         }
 
-        fun arrange() = this to LoginSSOViewModel(
-            savedStateHandle = savedStateHandle,
-            addAuthenticatedUser = addAuthenticatedUserUseCase,
-            validateEmailUseCase = validateEmailUseCase,
-            coreLogic = coreLogic,
-            clientScopeProviderFactory = clientScopeProviderFactory,
-            userDataStoreProvider = userDataStoreProvider,
-            serverConfig = SERVER_CONFIG.links,
-            ssoExtension = ssoExtension,
-            dispatchers = TestDispatcherProvider(),
-        )
+        fun arrange(): Pair<Arrangement, LoginSSOViewModel> {
+            val viewModel = LoginSSOViewModel(
+                savedStateHandle = savedStateHandle,
+                addAuthenticatedUser = addAuthenticatedUserUseCase,
+                validateEmailUseCase = validateEmailUseCase,
+                coreLogic = coreLogic,
+                clientScopeProviderFactory = clientScopeProviderFactory,
+                userDataStoreProvider = userDataStoreProvider,
+                serverConfig = SERVER_CONFIG.links,
+                ssoExtension = ssoExtension,
+                sessionExceptionClassifier = LoginSSOSessionExceptionClassifier(),
+                dispatchers = TestDispatcherProvider(),
+            )
+            ssoCodeAutoLogin?.let {
+                viewModel.handleSSOCodeAutoLogin(
+                    ssoCode = it.ssoCode,
+                    autoInitiateLogin = it.autoInitiateLogin,
+                    nomadServiceUrl = it.nomadServiceUrl,
+                    cookieLabel = it.cookieLabel,
+                )
+            }
+            return this to viewModel
+        }
     }
 
     companion object {

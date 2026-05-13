@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.settings.backup
 
-import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
@@ -32,9 +31,7 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.backup.BackupFileFormat
@@ -70,8 +67,7 @@ class BackupAndRestoreViewModel @Inject constructor(
     private val createMpBackupFile: CreateMPBackupUseCase,
     private val verifyBackup: VerifyBackupUseCase,
     private val validatePassword: ValidatePasswordUseCase,
-    private val kaliumFileSystem: KaliumFileSystem,
-    private val fileManager: FileManager,
+    private val backupFileGateway: BackupFileGateway,
     private val userDataStore: UserDataStore,
     private val dispatcher: DispatcherProvider,
     private val mpBackupSettings: MPBackupSettings,
@@ -154,9 +150,7 @@ class BackupAndRestoreViewModel @Inject constructor(
     fun shareBackup() = viewModelScope.launch {
         updateLastBackupDate()
         latestCreatedBackup?.let { backupData ->
-            withContext(dispatcher.io()) {
-                fileManager.shareWithExternalApp(backupData.path, backupData.assetName) {}
-            }
+            backupFileGateway.shareBackup(backupData.path, backupData.assetName)
         }
         state = state.copy(
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
@@ -167,10 +161,10 @@ class BackupAndRestoreViewModel @Inject constructor(
         )
     }
 
-    fun saveBackup(uri: Uri) = viewModelScope.launch {
+    fun saveBackup(destinationUri: String) = viewModelScope.launch {
         updateLastBackupDate()
         latestCreatedBackup?.let { backupData ->
-            fileManager.copyToUri(backupData.path, uri, dispatcher)
+            backupFileGateway.saveBackup(backupData.path, destinationUri)
         }
         state = state.copy(
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
@@ -181,9 +175,8 @@ class BackupAndRestoreViewModel @Inject constructor(
         )
     }
 
-    fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
-        latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
-        fileManager.copyToPath(uri, latestImportedBackupTempPath)
+    fun chooseBackupFileToRestore(uri: String) = viewModelScope.launch {
+        latestImportedBackupTempPath = backupFileGateway.importBackupToTempPath(uri)
         verifyBackupFile(latestImportedBackupTempPath)
     }
 
@@ -294,11 +287,8 @@ class BackupAndRestoreViewModel @Inject constructor(
             restorePasswordValidation = PasswordValidation.NotVerified
         )
         withContext(dispatcher.io()) {
-            if (this@BackupAndRestoreViewModel::latestImportedBackupTempPath.isInitialized && kaliumFileSystem.exists(
-                    latestImportedBackupTempPath
-                )
-            ) {
-                kaliumFileSystem.delete(latestImportedBackupTempPath)
+            if (this@BackupAndRestoreViewModel::latestImportedBackupTempPath.isInitialized) {
+                backupFileGateway.deleteImportedBackup(latestImportedBackupTempPath)
             }
         }
     }

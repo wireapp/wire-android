@@ -17,18 +17,16 @@
  */
 package com.wire.android.ui.userprofile.service
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.framework.TestConversation
+import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.framework.TestConversation
-import com.wire.android.framework.TestConversationDetails
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -622,7 +620,7 @@ class ServiceDetailsViewModelTest {
         lateinit var addMemberToConversation: AddMemberToConversationUseCase
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
+        lateinit var serviceDetailsNavArgsProvider: ServiceDetailsNavArgsProvider
 
         private val selfUser = TestUser.SELF_USER
 
@@ -640,7 +638,7 @@ class ServiceDetailsViewModelTest {
                 removeMemberFromConversation,
                 addServiceToConversation,
                 addMemberToConversation,
-                savedStateHandle
+                serviceDetailsNavArgsProvider
             )
         }
 
@@ -659,14 +657,14 @@ class ServiceDetailsViewModelTest {
         }
 
         fun withServiceBot(service: BotService, conversationId: ConversationId? = CONVERSATION_ID) = apply {
-            every { savedStateHandle.navArgs<ServiceDetailsNavArgs>() } returns ServiceDetailsNavArgs(
+            every { serviceDetailsNavArgsProvider.serviceDetailsNavArgs() } returns ServiceDetailsNavArgs(
                 conversationId,
                 ServiceDetailsNavArgs.Id.BotServiceId(service)
             )
         }
 
         fun withServiceApp(service: UserId, conversationId: ConversationId? = CONVERSATION_ID) = apply {
-            every { savedStateHandle.navArgs<ServiceDetailsNavArgs>() } returns ServiceDetailsNavArgs(
+            every { serviceDetailsNavArgsProvider.serviceDetailsNavArgs() } returns ServiceDetailsNavArgs(
                 conversationId,
                 ServiceDetailsNavArgs.Id.AppId(service)
             )

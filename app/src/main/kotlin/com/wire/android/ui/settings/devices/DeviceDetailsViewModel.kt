@@ -22,7 +22,6 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -31,7 +30,6 @@ import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
@@ -53,16 +51,18 @@ import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel
-class DeviceDetailsViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = DeviceDetailsViewModel.Factory::class)
+class DeviceDetailsViewModel @AssistedInject constructor(
+    @Assisted private val deviceDetailsNavArgs: DeviceDetailsNavArgs,
     @CurrentAccount
     private val currentUserId: UserId,
     private val deleteClient: DeleteClientUseCase,
@@ -76,7 +76,6 @@ class DeviceDetailsViewModel @Inject constructor(
     private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : ViewModel() {
 
-    private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
     private val deviceId: ClientId = deviceDetailsNavArgs.clientId
     private val userId: UserId = deviceDetailsNavArgs.userId
 
@@ -95,6 +94,11 @@ class DeviceDetailsViewModel @Inject constructor(
         getE2eiCertificate()
         observePasswordTextChanges()
         getIsE2EIEnabled()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: DeviceDetailsNavArgs): DeviceDetailsViewModel
     }
 
     private fun getIsE2EIEnabled() {

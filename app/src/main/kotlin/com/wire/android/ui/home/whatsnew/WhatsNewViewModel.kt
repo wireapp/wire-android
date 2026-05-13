@@ -17,14 +17,12 @@
  */
 package com.wire.android.ui.home.whatsnew
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prof18.rssparser.RssParser
-import com.wire.android.R
 import com.wire.android.util.toMediumOnlyDateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -33,7 +31,9 @@ import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class WhatsNewViewModel @Inject constructor(context: Context) : ViewModel() {
+class WhatsNewViewModel @Inject constructor(
+    private val releaseNotesFeedUrlProvider: ReleaseNotesFeedUrlProvider
+) : ViewModel() {
     private val rssParser = RssParser()
     private val publishDateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", Locale.ENGLISH)
 
@@ -43,7 +43,7 @@ class WhatsNewViewModel @Inject constructor(context: Context) : ViewModel() {
     init {
         @Suppress("TooGenericExceptionCaught")
         viewModelScope.launch {
-            val feedUrl = context.resources.getString(R.string.url_android_release_notes_feed)
+            val feedUrl = releaseNotesFeedUrlProvider.feedUrl
             val items = try {
                 if (feedUrl.isNotBlank()) {
                     rssParser.getRssChannel(feedUrl).items

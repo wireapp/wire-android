@@ -82,12 +82,12 @@ fun AvatarPickerScreen(
 
     val state = rememberAvatarPickerState(
         onImageSelected = { originalUri ->
-            viewModel.updatePickedAvatarUri(originalUri, targetAvatarPath.toFile().toUri())
+            viewModel.updatePickedAvatarUri(originalUri.toString(), targetAvatarPath.toFile().toUri().toString())
         },
         onPictureTaken = {
-            viewModel.updatePickedAvatarUri(targetAvatarUri, targetAvatarPath.toFile().toUri())
+            viewModel.updatePickedAvatarUri(targetAvatarUri, targetAvatarPath.toFile().toUri().toString())
         },
-        targetPictureFileUri = targetAvatarUri,
+        targetPictureFileUri = targetAvatarUri.toUri(),
         onGalleryPermissionPermanentlyDenied = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
@@ -207,7 +207,7 @@ private fun AvatarPickerContent(
 @Composable
 fun AvatarPreview(pictureState: PictureState) {
     BulletHoleImagePreview(
-        imageUri = pictureState.avatarUri,
+        imageUri = pictureState.avatarUri.toUri(),
         contentDescription = stringResource(R.string.content_description_avatar_preview)
     )
 }
@@ -273,7 +273,7 @@ private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
 @Composable
 fun AvatarPickerPreview() = WireTheme {
     AvatarPickerContent(
-        pictureState = PictureState.Picked("https://example.com/avatar.jpg".toUri()),
+        pictureState = PictureState.Picked("https://example.com/avatar.jpg"),
         state = rememberAvatarPickerState(
             onImageSelected = {},
             onCameraPermissionPermanentlyDenied = {},

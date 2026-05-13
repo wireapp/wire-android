@@ -143,6 +143,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.util.PlatformRotation
+import com.wire.kalium.logic.util.PlatformView
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -256,7 +258,7 @@ fun OngoingCallScreen(
         hangUpCall = sharedCallingViewModel::hangUpCall,
         toggleVideo = sharedCallingViewModel::toggleVideo,
         flipCamera = sharedCallingViewModel::flipCamera,
-        setVideoPreview = sharedCallingViewModel::setVideoPreview,
+        setVideoPreview = { view -> sharedCallingViewModel.setVideoPreview(PlatformView(view)) },
         clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
         onCollapse = onCollapse,
         requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
@@ -275,7 +277,7 @@ fun OngoingCallScreen(
         toasts = ongoingCallViewModel.toasts.values.toSet(),
         onToastClick = ongoingCallViewModel::dismissToast,
     )
-    ObserveRotation(sharedCallingViewModel::setUIRotation)
+    ObserveRotation { rotation -> sharedCallingViewModel.setUIRotation(PlatformRotation(rotation)) }
 
     /**
      * Enter PiP mode when the user leaves the app by pressing the home button.

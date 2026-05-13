@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -81,13 +80,12 @@ fun LoginSSOScreen(
     // Handle SSO code auto-login from intent parameter
     LaunchedEffect(ssoCodeAutoLogin) {
         ssoCodeAutoLogin?.let {
-            // Pre-fill the SSO code
-            loginSSOViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(it.ssoCode)
-
-            // Auto-initiate login if flag is set
-            if (it.autoInitiateLogin) {
-                loginSSOViewModel.login()
-            }
+            loginSSOViewModel.handleSSOCodeAutoLogin(
+                ssoCode = it.ssoCode,
+                autoInitiateLogin = it.autoInitiateLogin,
+                nomadServiceUrl = it.nomadServiceUrl,
+                cookieLabel = it.cookieLabel,
+            )
         }
     }
     LoginSSOContent(

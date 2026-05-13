@@ -107,7 +107,10 @@ import kotlinx.datetime.Instant
 @Composable
 fun DeviceDetailsScreen(
     navigator: Navigator,
-    viewModel: DeviceDetailsViewModel = hiltViewModel()
+    args: DeviceDetailsNavArgs,
+    viewModel: DeviceDetailsViewModel = hiltViewModel<DeviceDetailsViewModel, DeviceDetailsViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args) }
+    )
 ) {
     when {
         viewModel.state.error is RemoveDeviceError.InitError -> navigator.navigateBack()

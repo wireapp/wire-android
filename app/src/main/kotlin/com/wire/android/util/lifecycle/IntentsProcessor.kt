@@ -36,12 +36,15 @@ class IntentsProcessor @Inject internal constructor(
 ) {
 
     companion object {
-        private const val AUTOMATED_LOGIN = "automated_login"
+        const val AUTOMATED_LOGIN = "automated_login"
         internal const val SKIP_SIGNATURE_VERIFICATION_TOKEN = NomadIntentSignatureValidator.SKIP_SIGNATURE_VERIFICATION_TOKEN
     }
 
+    suspend operator fun invoke(intent: Intent?): AutomatedLoginViaSSO? =
+        parseAutomatedLogin(intent?.getStringExtra(AUTOMATED_LOGIN))
+
     @Suppress("ReturnCount")
-    suspend operator fun invoke(intent: Intent?): AutomatedLoginViaSSO? {
+    suspend fun parseAutomatedLogin(automatedLogin: String?): AutomatedLoginViaSSO? {
         @Serializable
         data class Parameters(
             val backendConfig: String? = null,
@@ -51,9 +54,7 @@ class IntentsProcessor @Inject internal constructor(
         )
 
         val parsed = runCatching {
-            intent
-                ?.getStringExtra(AUTOMATED_LOGIN)
-                ?.let { Json.decodeFromString<Parameters>(it) }
+            automatedLogin?.let { Json.decodeFromString<Parameters>(it) }
         }.getOrNull() ?: return null
 
         if (parsed.nomadProfilesHost.isNullOrEmpty()) {

@@ -38,6 +38,7 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
+import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
@@ -620,6 +621,9 @@ class ConversationOptionsMenuViewModelTest {
         lateinit var leaveConversation: LeaveConversationUseCase
 
         @MockK
+        lateinit var checkConversationLeaveConditions: CheckConversationLeaveConditionsUseCase
+
+        @MockK
         lateinit var blockUser: BlockUserUseCase
 
         @MockK
@@ -648,6 +652,7 @@ class ConversationOptionsMenuViewModelTest {
             deleteTeamConversation = deleteTeamConversation,
             markConversationAsDeletedLocally = markConversationAsDeletedLocally,
             leaveConversation = leaveConversation,
+            checkConversationLeaveConditions = checkConversationLeaveConditions,
             blockUser = blockUser,
             unblockUser = unblockUser,
             clearConversationContent = clearConversationContent,

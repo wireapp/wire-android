@@ -134,7 +134,7 @@ fun ConversationOptionsModalSheetLayout(
                         sheetState.hide { viewModel.unblockUserDialogState.show(it) }
                     },
                     leaveGroup = {
-                        sheetState.hide { viewModel.leaveGroupDialogState.show(it) }
+                        sheetState.hide { viewModel.onLeaveGroup(it) }
                     },
                     deleteGroup = {
                         sheetState.hide { viewModel.deleteGroupDialogState.show(it) }

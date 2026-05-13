@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ViewModelScopedPreview
@@ -47,6 +48,7 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
+import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
@@ -100,6 +102,7 @@ interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsM
     fun unblockUser(userId: UserId, userName: String) {}
     fun clearConversationContent(conversationId: ConversationId, conversationTypeDetail: ConversationTypeDetail) {}
     fun moveToArchive(conversationId: ConversationId, shouldArchive: Boolean, isSelfAMember: Boolean) {}
+    fun onLeaveGroup(leaveGroupState: LeaveGroupDialogState) {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -116,6 +119,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val markConversationAsDeletedLocally: MarkConversationAsDeletedLocallyUseCase,
     private val leaveConversation: LeaveConversationUseCase,
+    private val checkConversationLeaveConditions: CheckConversationLeaveConditionsUseCase,
     private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
     private val clearConversationContent: ClearConversationContentUseCase,
@@ -240,6 +244,24 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
                         appLogger.d("MutedStatus changed for conversation: $conversationId to $mutedConversationStatus")
                 }
             }
+        }
+    }
+
+    override fun onLeaveGroup(leaveGroupState: LeaveGroupDialogState) {
+        if (BuildConfig.ADMINLESS_GROUP_HANDLING_ENABLED) {
+            viewModelScope.launch {
+                when (val result = checkConversationLeaveConditions(leaveGroupState.conversationId)) {
+                    CheckConversationLeaveConditionsUseCase.Result.Allow -> leaveGroupDialogState.show(leaveGroupState)
+                    is CheckConversationLeaveConditionsUseCase.Result.DoNotAllow -> {
+                        appLogger.i("TODO: Show new leave options dialog: $result")
+                    }
+                    is CheckConversationLeaveConditionsUseCase.Result.Error -> {
+                        onMessage(HomeSnackBarMessage.LeaveConversationError)
+                    }
+                }
+            }
+        } else {
+            leaveGroupDialogState.show(leaveGroupState)
         }
     }
 

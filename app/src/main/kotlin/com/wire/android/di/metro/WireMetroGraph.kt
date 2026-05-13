@@ -25,8 +25,10 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModelFactory
+import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModelFactory
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModelFactory
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModelFactory
+import com.wire.android.ui.home.conversations.folder.NewFolderViewModelFactory
 import com.wire.android.ui.home.settings.about.dependencies.AndroidDependenciesInfoProvider
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesInfoProvider
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewModelFactory
@@ -38,6 +40,10 @@ import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSett
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsViewModelFactory
 import com.wire.android.ui.home.settings.appearance.CustomizationViewModelFactory
 import com.wire.android.ui.home.settings.SettingsViewModelFactory
+import com.wire.android.ui.home.settings.account.color.ChangeUserColorViewModelFactory
+import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameViewModelFactory
+import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailViewModelFactory
+import com.wire.android.ui.home.settings.account.handle.ChangeHandleViewModelFactory
 import com.wire.android.ui.home.whatsnew.AndroidReleaseNotesFeedUrlProvider
 import com.wire.android.ui.home.whatsnew.ReleaseNotesFeedUrlProvider
 import com.wire.android.ui.home.whatsnew.WhatsNewViewModelFactory
@@ -58,16 +64,26 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
+import com.wire.kalium.logic.feature.conversation.ConversationScope
+import com.wire.kalium.logic.feature.conversation.folder.CreateConversationFolderUseCase
+import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
+import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserMlsClientIdentitiesUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
+import com.wire.kalium.logic.feature.user.UpdateAccentColorUseCase
+import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
+import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
@@ -99,6 +115,7 @@ interface WireMetroGraph {
     val whatsNewViewModelFactory: WhatsNewViewModelFactory
     val dependenciesViewModelFactory: DependenciesViewModelFactory
     val licensesViewModelFactory: LicensesViewModelFactory
+    val conversationCryptoStatsViewModelFactory: ConversationCryptoStatsViewModelFactory
     val debugFeatureFlagsViewModelFactory: DebugFeatureFlagsViewModelFactory
     val customizationViewModelFactory: CustomizationViewModelFactory
     val initialSyncViewModelFactory: InitialSyncViewModelFactory
@@ -107,6 +124,11 @@ interface WireMetroGraph {
     val settingsViewModelFactory: SettingsViewModelFactory
     val selfDevicesViewModelFactory: SelfDevicesViewModelFactory
     val avatarPickerViewModelFactory: AvatarPickerViewModelFactory
+    val changeUserColorViewModelFactory: ChangeUserColorViewModelFactory
+    val changeEmailViewModelFactory: ChangeEmailViewModelFactory
+    val changeDisplayNameViewModelFactory: ChangeDisplayNameViewModelFactory
+    val changeHandleViewModelFactory: ChangeHandleViewModelFactory
+    val newFolderViewModelFactory: NewFolderViewModelFactory
 
     val dispatcherProvider: DispatcherProvider
 
@@ -222,6 +244,13 @@ interface WireMetroGraph {
         coreLogic.getSessionScope(currentAccount).debug.getFeatureConfig
 
     @Provides
+    fun provideGetConversationCryptoStatsUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): GetConversationCryptoStatsUseCase =
+        coreLogic.getSessionScope(currentAccount).debug.getConversationCryptoStats
+
+    @Provides
     fun provideObserveIsAppLockEditableUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveIsAppLockEditableUseCase =
         coreLogic.getGlobalScope().observeIsAppLockEditableUseCase
 
@@ -231,6 +260,32 @@ interface WireMetroGraph {
         @CurrentAccount currentAccount: UserId,
     ): ObserveSelfUserUseCase =
         coreLogic.getSessionScope(currentAccount).users.observeSelfUser
+
+    @Provides
+    fun provideGetSelfUserUseCase(userScope: UserScope): GetSelfUserUseCase =
+        userScope.getSelfUser
+
+    @Provides
+    fun provideSetUserHandleUseCase(userScope: UserScope): SetUserHandleUseCase =
+        userScope.setUserHandle
+
+    @Provides
+    fun provideValidateUserHandleUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): ValidateUserHandleUseCase =
+        coreLogic.getGlobalScope().validateUserHandleUseCase
+
+    @Provides
+    fun provideUpdateEmailUseCase(userScope: UserScope): UpdateEmailUseCase =
+        userScope.updateEmail
+
+    @Provides
+    fun provideUpdateAccentColorUseCase(userScope: UserScope): UpdateAccentColorUseCase =
+        userScope.updateAccentColor
+
+    @Provides
+    fun provideUpdateDisplayNameUseCase(userScope: UserScope): UpdateDisplayNameUseCase =
+        userScope.updateDisplayName
 
     @Provides
     fun provideFetchSelfClientsFromRemoteUseCase(
@@ -266,6 +321,21 @@ interface WireMetroGraph {
         @CurrentAccount currentAccount: UserId,
     ): IsE2EIEnabledUseCase =
         coreLogic.getSessionScope(currentAccount).isE2EIEnabled
+
+    @Provides
+    fun provideConversationScope(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): ConversationScope =
+        coreLogic.getSessionScope(currentAccount).conversations
+
+    @Provides
+    fun provideObserveUserFoldersUseCase(conversationScope: ConversationScope): ObserveUserFoldersUseCase =
+        conversationScope.observeUserFolders
+
+    @Provides
+    fun provideCreateConversationFolderUseCase(conversationScope: ConversationScope): CreateConversationFolderUseCase =
+        conversationScope.createConversationFolder
 
     @Provides
     fun provideNetworkSettingsDefaultsProvider(

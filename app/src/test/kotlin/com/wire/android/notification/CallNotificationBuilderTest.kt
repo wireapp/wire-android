@@ -46,7 +46,7 @@ class CallNotificationBuilderTest {
         )
 
         assertEquals(
-            context.getString(R.string.notification_incoming_call_default_group_name),
+            context.getString(R.string.notification_outgoing_call_default_group_name),
             notification.extras.getCharSequence(Notification.EXTRA_TITLE)
         )
     }

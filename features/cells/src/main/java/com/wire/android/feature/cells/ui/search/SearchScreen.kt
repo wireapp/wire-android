@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.search
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Column
@@ -47,6 +48,7 @@ import com.ramcosta.composedestinations.generated.cells.destinations.VersionHist
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
+import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
@@ -63,6 +65,8 @@ import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -79,6 +83,7 @@ fun SearchScreen(
     searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
 ) {
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
+    val isOnline by cellViewModel.isOnline.collectAsState()
 
     val filterTypeSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
     val filterTagsSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
@@ -101,67 +106,80 @@ fun SearchScreen(
         WireScaffold(
             modifier = modifier,
             topBar = {
-                Column {
-                    SearchTopBar(
-                        modifier = Modifier.sharedElement(
-                            sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
-                            animatedVisibilityScope = animatedVisibilityScope
-                        ),
-                        isSearchActive = uiState.isSearchActive,
-                        shouldClearTextOnClearFocus = false,
-                        keepBackButtonVisible = true,
-                        searchBarHint = when (searchScreenViewModel.screenType) {
-                            DriveSearchScreenType.SHARED_DRIVE -> stringResource(R.string.search_shared_drive_text_input_hint)
-                            DriveSearchScreenType.DRIVE -> stringResource(R.string.search_drive_text_input_hint)
-                        },
-                        searchQueryTextState = searchState,
-                        onCloseSearchClicked = { navigator.navigateBack() },
-                        onActiveChanged = {
-                            searchScreenViewModel.onSetSearchActive(it)
-                        },
-                    )
-                    FilterChipsRow(
-                        state = uiState.chipsState,
-                        screenType = searchScreenViewModel.screenType,
-                        onFilterByTagsClicked = {
-                            searchScreenViewModel.onSetSearchActive(false)
-                            filterTagsSheetState.show(Unit, isImeVisible)
-                        },
-                        onFilterByTypeClicked = {
-                            searchScreenViewModel.onSetSearchActive(false)
-                            filterTypeSheetState.show(Unit, isImeVisible)
-                        },
-                        onFilterByOwnerClicked = {
-                            searchScreenViewModel.onSetSearchActive(false)
-                            filterOwnerSheetState.show(Unit, isImeVisible)
-                        },
-                        onFilterBySharedByLinkClicked = {
-                            searchScreenViewModel.onSharedByMeClicked()
-                        },
-                        onFilterByConversationClicked = {
-                            searchScreenViewModel.onSetSearchActive(false)
-                            filterConversationSheetState.show(Unit, isImeVisible)
-                        },
-                        onRemoveAllFiltersClicked = {
-                            searchScreenViewModel.onRemoveAllFilters()
-                        }
-                    )
+                AnimatedContent(isOnline) { online ->
+                    if (online) {
+                        Column {
+                            SearchTopBar(
+                                modifier = Modifier.sharedElement(
+                                    sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
+                                    animatedVisibilityScope = animatedVisibilityScope
+                                ),
+                                isSearchActive = uiState.isSearchActive,
+                                shouldClearTextOnClearFocus = false,
+                                keepBackButtonVisible = true,
+                                searchBarHint = when (searchScreenViewModel.screenType) {
+                                    DriveSearchScreenType.SHARED_DRIVE -> stringResource(R.string.search_shared_drive_text_input_hint)
+                                    DriveSearchScreenType.DRIVE -> stringResource(R.string.search_drive_text_input_hint)
+                                },
+                                searchQueryTextState = searchState,
+                                onCloseSearchClicked = { navigator.navigateBack() },
+                                onActiveChanged = {
+                                    searchScreenViewModel.onSetSearchActive(it)
+                                },
+                            )
+                            FilterChipsRow(
+                                state = uiState.chipsState,
+                                screenType = searchScreenViewModel.screenType,
+                                onFilterByTagsClicked = {
+                                    searchScreenViewModel.onSetSearchActive(false)
+                                    filterTagsSheetState.show(Unit, isImeVisible)
+                                },
+                                onFilterByTypeClicked = {
+                                    searchScreenViewModel.onSetSearchActive(false)
+                                    filterTypeSheetState.show(Unit, isImeVisible)
+                                },
+                                onFilterByOwnerClicked = {
+                                    searchScreenViewModel.onSetSearchActive(false)
+                                    filterOwnerSheetState.show(Unit, isImeVisible)
+                                },
+                                onFilterBySharedByLinkClicked = {
+                                    searchScreenViewModel.onSharedByMeClicked()
+                                },
+                                onFilterByConversationClicked = {
+                                    searchScreenViewModel.onSetSearchActive(false)
+                                    filterConversationSheetState.show(Unit, isImeVisible)
+                                },
+                                onRemoveAllFiltersClicked = {
+                                    searchScreenViewModel.onRemoveAllFilters()
+                                }
+                            )
 
-                    with(uiState) {
-                        SortRowWithMenu(
-                            screenType = searchScreenViewModel.screenType,
-                            sortingCriteria = sortingCriteria,
-                            isSearchResult = searchState.text.isNotEmpty() || hasAnyFilter,
-                            onSortByClicked = {
-                                searchScreenViewModel.setSortBy(it)
-                            },
-                            onOrderClicked = {
-                                searchScreenViewModel.setSorting(it)
+                            with(uiState) {
+                                SortRowWithMenu(
+                                    screenType = searchScreenViewModel.screenType,
+                                    sortingCriteria = sortingCriteria,
+                                    isSearchResult = searchState.text.isNotEmpty() || hasAnyFilter,
+                                    onSortByClicked = {
+                                        searchScreenViewModel.setSortBy(it)
+                                    },
+                                    onOrderClicked = {
+                                        searchScreenViewModel.setSorting(it)
+                                    }
+                                )
                             }
-                        )
+                        }
+                    } else {
+                        Column {
+                            WireCenterAlignedTopAppBar(
+                                title = "",
+                                navigationIconType = NavigationIconType.Close(),
+                                onNavigationPressed = { navigator.navigateBack() },
+                            )
+                            OfflineBanner()
+                        }
                     }
                 }
-            }
+            },
         ) { innerPadding ->
             val lazyListState = rememberLazyListState()
 
@@ -173,7 +191,7 @@ fun SearchScreen(
             val lazyItems = if (isShowingFilteredResults) filteredItems else initialItems
 
             LaunchedEffect(uiState.sortingCriteria) {
-                    lazyListState.animateScrollToItem(0)
+                lazyListState.animateScrollToItem(0)
             }
 
             CellScreenContent(

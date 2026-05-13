@@ -78,25 +78,6 @@ fun AllFilesScreen(
                         OfflineBanner()
                     }
                 }
-//                if (isOnline) {
-//                    SearchTopBar(
-//                        modifier = Modifier,
-//                        isSearchActive = false,
-//                        searchBarHint = stringResource(R.string.search_label),
-//                        searchQueryTextState = rememberTextFieldState(),
-//                        onTap = {
-//                            navigator.navigate(
-//                                NavigationCommand(
-//                                    SearchScreenDestination(
-//                                        screenType = DriveSearchScreenType.DRIVE,
-//                                    )
-//                                )
-//                            )
-//                        },
-//                    )
-//                } else {
-//                    OfflineBanner()
-//                }
             }
         },
     ) { innerPadding ->
@@ -108,6 +89,7 @@ fun AllFilesScreen(
             openFolder = { _, _, _ -> },
             menuState = viewModel.menu,
             isAllFiles = true,
+            isOffline = !isOnline,
             isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
             isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
             isRecycleBin = viewModel.isRecycleBin(),

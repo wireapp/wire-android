@@ -300,6 +300,7 @@ internal fun ConversationFilesScreenContent(
                 isRestoreInProgress = isRestoreInProgress,
                 isDeleteInProgress = isDeleteInProgress,
                 isRecycleBin = isRecycleBin,
+                isOffline = !isOnline,
                 openFolder = { path, title, parentFolderUuid ->
                     navigator.navigate(
                         NavigationCommand(

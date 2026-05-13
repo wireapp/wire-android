@@ -25,21 +25,15 @@ kotlin {
             }
         }
 
-        val iosMain by creating {
-            dependsOn(commonMain)
+        val iosArm64Main by getting {
             dependencies {
                 implementation("com.wire.kalium:kalium-logic")
             }
         }
-
-        val iosX64Main by getting {
-            dependsOn(iosMain)
-        }
-        val iosArm64Main by getting {
-            dependsOn(iosMain)
-        }
         val iosSimulatorArm64Main by getting {
-            dependsOn(iosMain)
+            dependencies {
+                implementation("com.wire.kalium:kalium-logic")
+            }
         }
     }
 

@@ -21,10 +21,8 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
@@ -47,12 +45,10 @@ interface CompositeMessageViewModel {
 @HiltViewModel(assistedFactory = CompositeMessageViewModelImpl.Factory::class)
 class CompositeMessageViewModelImpl @AssistedInject constructor(
     private val sendButtonActionMessageUseCase: SendButtonActionMessageUseCase,
-    savedStateHandle: SavedStateHandle,
     @Assisted private val scopedArgs: CompositeMessageArgs,
 ) : CompositeMessageViewModel, ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    val conversationId: QualifiedID = scopedArgs.conversationId
     private val messageId: String = scopedArgs.messageId
 
     override var pendingButtonId: MessageButtonId? by mutableStateOf(null)

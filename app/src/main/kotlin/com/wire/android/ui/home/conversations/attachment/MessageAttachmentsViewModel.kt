@@ -21,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -30,7 +29,6 @@ import com.wire.android.ui.common.attachmentdraft.model.toUiModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.kalium.cells.domain.CellUploadEvent
 import com.wire.kalium.cells.domain.CellUploadManager
@@ -43,6 +41,9 @@ import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.id.QualifiedID
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -51,12 +52,11 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel
-class MessageAttachmentsViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = MessageAttachmentsViewModel.Factory::class)
+class MessageAttachmentsViewModel @AssistedInject constructor(
+    @Assisted conversationNavArgs: ConversationNavArgs,
     private val assetImporter: MessageAttachmentAssetImporter,
     private val observeAttachments: ObserveAttachmentDraftsUseCase,
     private val addAttachment: AddAttachmentDraftUseCase,
@@ -68,7 +68,6 @@ class MessageAttachmentsViewModel @Inject constructor(
     private val getMediaMetadata: GetMediaMetadataUseCase,
 ) : ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = conversationNavArgs.conversationId
     private val uploadObservers = mutableMapOf<String, Job>()
     private val removedAttachments = MutableStateFlow(emptyList<String>())
@@ -277,6 +276,11 @@ class MessageAttachmentsViewModel @Inject constructor(
                     }
             }
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: ConversationNavArgs): MessageAttachmentsViewModel
     }
 }
 

@@ -65,8 +65,12 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun DebugConversationScreen(
     navigator: Navigator,
+    args: DebugConversationScreenNavArgs,
     modifier: Modifier = Modifier,
-    viewModel: DebugConversationViewModel = hiltViewModel(),
+    viewModel: DebugConversationViewModel =
+        hiltViewModel<DebugConversationViewModel, DebugConversationViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
 ) {
 
     val context = LocalContext.current

@@ -239,6 +239,7 @@ private fun MessageContent(
                     VerticalSpace.x4()
                 }
                 MessageBody(
+                    conversationId = message.conversationId,
                     messageBody = messageContent.messageBody,
                     searchQuery = searchQuery,
                     isAvailable = !message.isPending && message.isAvailable,
@@ -281,6 +282,7 @@ private fun MessageContent(
                     VerticalSpace.x4()
                 }
                 MessageBody(
+                    conversationId = message.conversationId,
                     messageBody = messageContent.messageBody,
                     isAvailable = !message.isPending && message.isAvailable,
                     onOpenProfile = onOpenProfile,
@@ -403,6 +405,7 @@ private fun MessageContent(
                 }
                 if (messageContent.messageBody?.message?.asString()?.isNotEmpty() == true) {
                     MessageBody(
+                        conversationId = message.conversationId,
                         messageBody = messageContent.messageBody,
                         searchQuery = searchQuery,
                         isAvailable = !message.isPending && message.isAvailable,

@@ -67,7 +67,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun MessageDetailsScreen(
     navigator: Navigator,
-    viewModel: MessageDetailsViewModel = hiltViewModel()
+    args: MessageDetailsNavArgs,
+    viewModel: MessageDetailsViewModel = hiltViewModel<MessageDetailsViewModel, MessageDetailsViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args) }
+    )
 ) {
     val context = LocalContext.current
 

@@ -17,17 +17,13 @@
  */
 package com.wire.android.ui.home.conversations
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
-import com.wire.android.config.NavigationTestExtension
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -36,7 +32,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 class CompositeMessageViewModelTest {
 
     @Test
@@ -86,17 +81,13 @@ class CompositeMessageViewModelTest {
         @MockK
         lateinit var sendButtonActionMessage: SendButtonActionMessageUseCase
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        private val scopedArgs = CompositeMessageArgs(MESSAGE_ID)
+        private val scopedArgs = CompositeMessageArgs(CONVERSATION_ID, MESSAGE_ID)
 
         init {
             MockKAnnotations.init(this)
-            every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(CONVERSATION_ID)
         }
 
-        private val viewModel = CompositeMessageViewModelImpl(sendButtonActionMessage, savedStateHandle, scopedArgs)
+        private val viewModel = CompositeMessageViewModelImpl(sendButtonActionMessage, scopedArgs)
 
         fun withButtonActionMessage(
             result: SendButtonActionMessageUseCase.Result

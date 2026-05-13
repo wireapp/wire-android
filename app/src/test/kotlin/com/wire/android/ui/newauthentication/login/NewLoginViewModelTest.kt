@@ -897,10 +897,10 @@ class NewLoginViewModelTest {
         private var loginNavArgs: LoginNavArgs = LoginNavArgs()
 
         fun arrange() = this to NewLoginViewModel(
+            loginNavArgs,
             validateEmailOrSSOCodeUseCase,
             coreLogic,
             savedStateHandle,
-            loginNavArgs,
             clientScopeProviderFactory,
             userDataStoreProvider,
             loginViewModelExtension,

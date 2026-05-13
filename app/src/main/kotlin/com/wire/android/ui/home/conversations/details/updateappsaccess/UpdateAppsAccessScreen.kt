@@ -54,7 +54,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun UpdateAppsAccessScreen(
     navigator: Navigator,
-    updateAppsAccessViewModel: UpdateAppsAccessViewModel = hiltViewModel()
+    args: UpdateAppsAccessNavArgs,
+    updateAppsAccessViewModel: UpdateAppsAccessViewModel =
+        hiltViewModel<UpdateAppsAccessViewModel, UpdateAppsAccessViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
     UpdateAppsAccessContent(
         onNavigateBack = navigator::navigateBack,

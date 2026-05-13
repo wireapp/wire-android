@@ -63,9 +63,12 @@ import kotlinx.coroutines.flow.onEach
 fun LoginSSOScreen(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
+    loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?,
-    loginSSOViewModel: LoginSSOViewModel = hiltViewModel(),
+    loginSSOViewModel: LoginSSOViewModel = hiltViewModel<LoginSSOViewModel, LoginSSOViewModel.Factory>(
+        creationCallback = { factory -> factory.create(loginNavArgs) }
+    ),
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()

@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.sendmessage
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
@@ -28,7 +27,6 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ImageUtil
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
@@ -70,9 +68,6 @@ internal class SendMessageViewModelArrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(
-            conversationId = conversationId
-        )
         // Default empty values
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
@@ -85,8 +80,7 @@ internal class SendMessageViewModelArrangement {
         coEvery { observeConversationUnderLegalHoldNotified(any()) } returns flowOf(true)
     }
 
-    @MockK
-    lateinit var savedStateHandle: SavedStateHandle
+    private var conversationNavArgs = ConversationNavArgs(conversationId = conversationId)
 
     @MockK
     lateinit var sendTextMessage: SendTextMessageUseCase
@@ -161,6 +155,7 @@ internal class SendMessageViewModelArrangement {
 
     private val viewModel by lazy {
         SendMessageViewModel(
+            conversationNavArgs = conversationNavArgs,
             sendTextMessage = sendTextMessage,
             sendEditTextMessage = sendEditTextMessage,
             sendEditMultipartMessage = sendEditMultipartMessage,
@@ -179,7 +174,6 @@ internal class SendMessageViewModelArrangement {
             observeConversationUnderLegalHoldNotified = observeConversationUnderLegalHoldNotified,
             sendLocation = sendLocation,
             removeMessageDraft = removeMessageDraftUseCase,
-            savedStateHandle = savedStateHandle,
             analyticsManager = analyticsManager,
             sendMultipartMessage = sendMultipartMessage,
             isWireCellsEnabledForConversation = isWireCellsEnabledForConversation,
@@ -280,14 +274,14 @@ internal class SendMessageViewModelArrangement {
     }
 
     fun withPendingTextBundle(textToShare: String = "some text") = apply {
-        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(
+        conversationNavArgs = ConversationNavArgs(
             conversationId = conversationId,
             pendingTextBundle = textToShare
         )
     }
 
     fun withPendingAssetBundle(vararg assetBundle: AssetBundle) = apply {
-        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(
+        conversationNavArgs = ConversationNavArgs(
             conversationId = conversationId,
             pendingBundles = arrayListOf(*assetBundle)
         )

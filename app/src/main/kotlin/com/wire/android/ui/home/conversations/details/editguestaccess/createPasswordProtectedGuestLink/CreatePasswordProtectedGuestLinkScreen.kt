@@ -73,7 +73,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun CreatePasswordProtectedGuestLinkScreen(
     navigator: Navigator,
-    viewModel: CreatePasswordGuestLinkViewModel = hiltViewModel(),
+    args: CreatePasswordGuestLinkNavArgs,
+    viewModel: CreatePasswordGuestLinkViewModel =
+        hiltViewModel<CreatePasswordGuestLinkViewModel, CreatePasswordGuestLinkViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
 ) {
     CreatePasswordProtectedGuestLinkScreenContent(
         state = viewModel.state,

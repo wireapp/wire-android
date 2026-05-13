@@ -22,10 +22,8 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.BuildConfig
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
@@ -48,23 +46,23 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 // TODO: Cover this viewModel  with unit test
-@HiltViewModel
-class CreateAccountCodeViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = CreateAccountCodeViewModel.Factory::class)
+class CreateAccountCodeViewModel @AssistedInject constructor(
+    @Assisted val createAccountNavArgs: CreateAccountNavArgs,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     defaultServerConfig: ServerConfig.Links,
     @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean
 ) : ViewModel() {
-
-    val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 
     val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig ?: defaultServerConfig
 
@@ -79,6 +77,11 @@ class CreateAccountCodeViewModel @Inject constructor(
                 if (it.length == codeState.codeLength) onCodeContinue()
             }
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: CreateAccountNavArgs): CreateAccountCodeViewModel
     }
 
     fun resendCode() {

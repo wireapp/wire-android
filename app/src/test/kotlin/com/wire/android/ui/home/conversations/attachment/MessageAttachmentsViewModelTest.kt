@@ -17,8 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.attachment
 
-import androidx.lifecycle.SavedStateHandle
-import com.ramcosta.composedestinations.generated.app.navargs.toSavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -364,11 +362,9 @@ class MessageAttachmentsViewModelTest {
 
     private class Arrangement {
 
-        // Use the generated toSavedStateHandle() extension which correctly serializes via
-        // qualifiedIDNavType (QualifiedID uses @SerialName("id") for the value field, not "value").
-        private val savedStateHandle: SavedStateHandle = ConversationNavArgs(
+        private val conversationNavArgs = ConversationNavArgs(
             conversationId = ConversationId("conv-value", "conv-domain")
-        ).toSavedStateHandle()
+        )
 
         @MockK
         lateinit var assetImporter: MessageAttachmentAssetImporter
@@ -447,7 +443,7 @@ class MessageAttachmentsViewModelTest {
         fun arrange(): Pair<Arrangement, MessageAttachmentsViewModel> {
             initializeMocks()
             val viewModel = MessageAttachmentsViewModel(
-                savedStateHandle = savedStateHandle,
+                conversationNavArgs = conversationNavArgs,
                 assetImporter = assetImporter,
                 observeAttachments = observeAttachments,
                 addAttachment = addAttachment,

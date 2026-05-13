@@ -17,19 +17,14 @@
  */
 package com.wire.android.ui.home.conversations.details.updatechannelaccess
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.framework.TestUser
-import com.ramcosta.composedestinations.generated.app.destinations.ChannelAccessOnUpdateScreenDestination
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockkObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
@@ -95,30 +90,20 @@ class UpdateChannelAccessViewModelTest {
     private class Arrangement {
 
         @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         private lateinit var updateChannelAddPermission: UpdateChannelAddPermissionUseCase
+
+        private val conversationId = "conversationId"
 
         private val viewModel by lazy {
             UpdateChannelAccessViewModel(
+                channelAccessNavArgs = UpdateChannelAccessArgs(conversationId),
                 updateChannelAddPermission = updateChannelAddPermission,
-                savedStateHandle = savedStateHandle,
                 qualifiedIdMapper = QualifiedIdMapper(TestUser.SELF_USER_ID)
             )
         }
 
         init {
-            val conversationId = "conversationId"
             MockKAnnotations.init(this, relaxUnitFun = true)
-            mockkObject(ChannelAccessOnUpdateScreenDestination)
-            every {
-                ChannelAccessOnUpdateScreenDestination.argsFrom(any<SavedStateHandle>())
-            } answers {
-                UpdateChannelAccessArgs(conversationId)
-            }
-
-            every { savedStateHandle.navArgs<UpdateChannelAccessArgs>() } returns UpdateChannelAccessArgs(conversationId)
         }
 
         fun withUpdateChannelAddPermissionUseCaseReturning(

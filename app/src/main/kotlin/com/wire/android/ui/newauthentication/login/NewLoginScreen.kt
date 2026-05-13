@@ -97,7 +97,9 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun NewLoginScreen(
     navigator: Navigator,
     navArgs: LoginNavArgs,
-    viewModel: NewLoginViewModel = hiltViewModel()
+    viewModel: NewLoginViewModel = hiltViewModel<NewLoginViewModel, NewLoginViewModel.Factory>(
+        creationCallback = { factory -> factory.create(navArgs) }
+    )
 ) {
     val context = LocalContext.current
     val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)

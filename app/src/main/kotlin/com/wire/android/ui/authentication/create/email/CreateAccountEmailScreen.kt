@@ -85,7 +85,11 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun CreateAccountEmailScreen(
     navigator: Navigator,
-    createAccountEmailViewModel: CreateAccountEmailViewModel = hiltViewModel()
+    args: CreateAccountNavArgs,
+    createAccountEmailViewModel: CreateAccountEmailViewModel =
+        hiltViewModel<CreateAccountEmailViewModel, CreateAccountEmailViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
     with(createAccountEmailViewModel) {
         fun navigateToDetailsScreen() = navigator.navigate(

@@ -86,7 +86,9 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navigator: Navigator,
     loginNavArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
+    loginEmailViewModel: LoginEmailViewModel = hiltViewModel<LoginEmailViewModel, LoginEmailViewModel.Factory>(
+        creationCallback = { factory -> factory.create(loginNavArgs) }
+    )
 ) {
 
     LoginContent(
@@ -105,6 +107,7 @@ fun LoginScreen(
         onRemoveDeviceNeeded = {
             navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
         },
+        loginNavArgs = loginNavArgs,
         loginEmailViewModel = loginEmailViewModel,
         ssoLoginResult = loginNavArgs.ssoLoginResult,
         ssoCodeAutoLogin = loginNavArgs.ssoCodeAutoLogin
@@ -116,6 +119,7 @@ private fun LoginContent(
     onBackPressed: () -> Unit,
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
+    loginNavArgs: LoginNavArgs,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: SSOCodeAutoLogin?,
@@ -139,6 +143,7 @@ private fun LoginContent(
                     onBackPressed = onBackPressed,
                     onSuccess = onSuccess,
                     onRemoveDeviceNeeded = onRemoveDeviceNeeded,
+                    loginNavArgs = loginNavArgs,
                     loginEmailViewModel = loginEmailViewModel,
                     ssoLoginResult = ssoLoginResult,
                     ssoCodeAutoLogin = ssoCodeAutoLogin
@@ -154,6 +159,7 @@ private fun MainLoginContent(
     onBackPressed: () -> Unit,
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
+    loginNavArgs: LoginNavArgs,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: SSOCodeAutoLogin?,
@@ -233,6 +239,7 @@ private fun MainLoginContent(
                     LoginTabItem.SSO -> LoginSSOScreen(
                         onSuccess,
                         onRemoveDeviceNeeded,
+                        loginNavArgs,
                         ssoLoginResult,
                         ssoCodeAutoLogin,
                     )
@@ -264,6 +271,7 @@ private fun PreviewLoginScreen() = WireTheme {
             onBackPressed = {},
             onSuccess = { _, _ -> },
             onRemoveDeviceNeeded = {},
+            loginNavArgs = LoginNavArgs(),
             loginEmailViewModel = hiltViewModel(),
             ssoLoginResult = null,
             ssoCodeAutoLogin = null

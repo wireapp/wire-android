@@ -68,8 +68,12 @@ import com.wire.android.ui.theme.WireTheme
 @Composable
 internal fun PublicLinkPasswordScreen(
     resultNavigator: ResultBackNavigator<Boolean>,
+    args: PublicLinkPasswordNavArgs,
     modifier: Modifier = Modifier,
-    viewModel: PublicLinkPasswordScreenViewModel = hiltViewModel(),
+    viewModel: PublicLinkPasswordScreenViewModel =
+        hiltViewModel<PublicLinkPasswordScreenViewModel, PublicLinkPasswordScreenViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
 ) {
     val state by viewModel.state.collectAsState()
     val clipboardManager = LocalClipboardManager.current

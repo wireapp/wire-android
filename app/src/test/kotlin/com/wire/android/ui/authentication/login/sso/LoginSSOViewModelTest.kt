@@ -21,7 +21,6 @@ package com.wire.android.ui.authentication.login.sso
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.assertions.shouldBeInstanceOf
 import com.wire.android.assertions.shouldNotBeInstanceOf
@@ -1122,10 +1121,6 @@ class LoginSSOViewModelTest {
             every { savedStateHandle.set(any(), any<String>()) } returns Unit
             every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
             every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-            every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(
-                loginPasswordPath = LoginPasswordPath(SERVER_CONFIG.links)
-            )
-
             coEvery {
                 autoVersionAuthScopeUseCase(null)
             } returns AutoVersionAuthScopeUseCase.Result.Success(
@@ -1233,6 +1228,7 @@ class LoginSSOViewModelTest {
 
         fun arrange(): Pair<Arrangement, LoginSSOViewModel> {
             val viewModel = LoginSSOViewModel(
+                loginNavArgs = LoginNavArgs(loginPasswordPath = LoginPasswordPath(SERVER_CONFIG.links)),
                 savedStateHandle = savedStateHandle,
                 addAuthenticatedUser = addAuthenticatedUserUseCase,
                 validateEmailUseCase = validateEmailUseCase,

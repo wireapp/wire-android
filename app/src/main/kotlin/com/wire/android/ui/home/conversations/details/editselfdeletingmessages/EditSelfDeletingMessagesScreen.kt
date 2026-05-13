@@ -59,6 +59,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.sectionWithElements
+import com.wire.kalium.logic.data.id.ConversationId
 
 @WireRootDestination(
     navArgs = EditSelfDeletingMessagesNavArgs::class,
@@ -67,7 +68,11 @@ import com.wire.android.util.ui.sectionWithElements
 @Composable
 fun EditSelfDeletingMessagesScreen(
     navigator: Navigator,
-    editSelfDeletingMessagesViewModel: EditSelfDeletingMessagesViewModel = hiltViewModel(),
+    args: EditSelfDeletingMessagesNavArgs,
+    editSelfDeletingMessagesViewModel: EditSelfDeletingMessagesViewModel =
+        hiltViewModel<EditSelfDeletingMessagesViewModel, EditSelfDeletingMessagesViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
 ) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
@@ -169,7 +174,12 @@ fun SelectableSelfDeletingItem(
 @Preview
 @Composable
 fun PreviewEditSelfDeletingMessagesScreen() {
-    EditSelfDeletingMessagesScreen(rememberNavigator {})
+    EditSelfDeletingMessagesScreen(
+        navigator = rememberNavigator {},
+        args = EditSelfDeletingMessagesNavArgs(
+            conversationId = ConversationId("conversation", "domain")
+        )
+    )
 }
 
 @Preview

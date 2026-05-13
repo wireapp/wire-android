@@ -77,8 +77,11 @@ import com.wire.android.util.openDownloadFolder
 fun MediaGalleryScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<MediaGalleryNavBackArgs>,
+    args: MediaGalleryNavArgs,
     modifier: Modifier = Modifier,
-    mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()
+    mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel<MediaGalleryViewModel, MediaGalleryViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args) }
+    )
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()

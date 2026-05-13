@@ -89,7 +89,11 @@ import okio.Path.Companion.toPath
 fun ImagesPreviewScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<ImagesPreviewNavBackArgs>,
-    imagesPreviewViewModel: ImagesPreviewViewModel = hiltViewModel(),
+    args: ImagesPreviewNavArgs,
+    imagesPreviewViewModel: ImagesPreviewViewModel =
+        hiltViewModel<ImagesPreviewViewModel, ImagesPreviewViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
     checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel()
 ) {
     LaunchedEffect(checkAssetRestrictionsViewModel.state) {

@@ -21,31 +21,35 @@ package com.wire.android.ui.home.conversations.messagedetails
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.receipt.ReceiptType
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class MessageDetailsViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = MessageDetailsViewModel.Factory::class)
+class MessageDetailsViewModel @AssistedInject constructor(
+    @Assisted private val messageDetailsNavArgs: MessageDetailsNavArgs,
     private val observeReactionsForMessage: ObserveReactionsForMessageUseCase,
     private val observeReceiptsForMessage: ObserveReceiptsForMessageUseCase
 ) : ViewModel() {
 
-    private val messageDetailsNavArgs: MessageDetailsNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = messageDetailsNavArgs.conversationId
     private val messageId: String = messageDetailsNavArgs.messageId
     private val isSelfMessage: Boolean = messageDetailsNavArgs.isSelfMessage
 
     var messageDetailsState: MessageDetailsState by mutableStateOf(MessageDetailsState())
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: MessageDetailsNavArgs): MessageDetailsViewModel
+    }
 
     init {
         viewModelScope.launch {

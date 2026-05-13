@@ -18,13 +18,6 @@
 
 package com.wire.android.ui.newauthentication.login
 
-import androidx.lifecycle.SavedStateHandle
-import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.ui.authentication.login.LoginNavArgs
 import javax.inject.Inject
 
-class NewLoginNavArgsProvider @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-) {
-    fun loginNavArgs(): LoginNavArgs = savedStateHandle.navArgs()
-}
+class NewLoginNavArgsProvider @Inject constructor()

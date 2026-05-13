@@ -78,8 +78,11 @@ import com.wire.android.ui.theme.wireTypography
 fun MoveToFolderScreen(
     navigator: WireNavigator,
     createFolderResultRecipient: ResultRecipient<CreateFolderScreenDestination, Boolean>,
+    args: MoveToFolderNavArgs,
     modifier: Modifier = Modifier,
-    moveToFolderViewModel: MoveToFolderViewModel = hiltViewModel()
+    moveToFolderViewModel: MoveToFolderViewModel = hiltViewModel<MoveToFolderViewModel, MoveToFolderViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args) }
+    )
 ) {
     val context = LocalContext.current
     val viewState by moveToFolderViewModel.state.collectAsState()
@@ -292,6 +295,11 @@ fun PreviewMoveToFolderScreen() {
     WireTheme {
         MoveToFolderScreen(
             navigator = PreviewNavigator,
+            args = MoveToFolderNavArgs(
+                currentPath = "",
+                nodeToMovePath = "",
+                uuid = ""
+            ),
             createFolderResultRecipient = PreviewResultRecipient as ResultRecipient<CreateFolderScreenDestination, Boolean>
         )
     }

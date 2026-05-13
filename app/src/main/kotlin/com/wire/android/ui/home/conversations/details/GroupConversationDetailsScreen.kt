@@ -147,7 +147,11 @@ fun GroupConversationDetailsScreen(
     editChannelAccessResultRecipient: ResultRecipient<ChannelAccessOnUpdateScreenDestination, UpdateChannelAccessArgs>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
+    args: GroupConversationDetailsNavArgs,
+    viewModel: GroupConversationDetailsViewModel =
+        hiltViewModel<GroupConversationDetailsViewModel, GroupConversationDetailsViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources

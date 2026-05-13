@@ -21,13 +21,11 @@ package com.wire.android.ui.home.conversations.banner
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -38,17 +36,19 @@ import com.wire.kalium.logic.data.user.type.isFederated
 import com.wire.kalium.logic.data.user.type.isGuest
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel
-class ConversationBannerViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = ConversationBannerViewModel.Factory::class)
+class ConversationBannerViewModel @AssistedInject constructor(
+    @Assisted private val conversationNavArgs: ConversationNavArgs,
     private val observeConversationMembersByTypes: ObserveConversationMembersByTypesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val notifyConversationIsOpen: NotifyConversationIsOpenUseCase,
@@ -56,7 +56,6 @@ class ConversationBannerViewModel @Inject constructor(
 
     var bannerState by mutableStateOf<UIText?>(null)
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     init {
@@ -74,6 +73,11 @@ class ConversationBannerViewModel @Inject constructor(
         viewModelScope.launch {
             notifyConversationIsOpen(conversationId)
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: ConversationNavArgs): ConversationBannerViewModel
     }
 
     @Suppress("ComplexMethod")

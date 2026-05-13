@@ -72,6 +72,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDes
 import com.ramcosta.composedestinations.generated.app.navgraphs.HomeGraph
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.navigation.destination
+import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -159,7 +160,7 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(homeViewModel.savedStateHandle) {
+    LaunchedEffect(Unit) {
         showNotificationsFlow.launch()
     }
 
@@ -376,7 +377,12 @@ fun HomeContent(
                                             homeStateHolder.navigator.navController
                                                 .getBackStackEntry(HomeScreenDestination.route)
                                         }
-                                        dependency(hiltViewModel<CellViewModel>(parentEntry))
+                                        dependency(
+                                            hiltViewModel<CellViewModel, CellViewModel.Factory>(
+                                                parentEntry,
+                                                creationCallback = { factory -> factory.create(CellFilesNavArgs(), null) }
+                                            )
+                                        )
                                     }
                                 }
                             )

@@ -21,10 +21,8 @@ package com.wire.android.ui.home.conversations.messages
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -65,6 +63,9 @@ import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePosit
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.CoroutineScope
@@ -81,14 +82,13 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
-import javax.inject.Inject
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel
+@HiltViewModel(assistedFactory = ConversationMessagesViewModel.Factory::class)
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationMessagesViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+class ConversationMessagesViewModel @AssistedInject constructor(
+    @Assisted private val conversationNavArgs: ConversationNavArgs,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
@@ -108,7 +108,6 @@ class ConversationMessagesViewModel @Inject constructor(
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
 ) : ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
     private val searchedMessageIdNavArgs: String? = conversationNavArgs.searchedMessageId
 
@@ -133,6 +132,11 @@ class ConversationMessagesViewModel @Inject constructor(
         loadLastMessageInstant()
         observeAudioPlayerState()
         observeAssetStatuses()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationNavArgs: ConversationNavArgs): ConversationMessagesViewModel
     }
 
     val currentTimeInMillisFlow: Flow<Long> = flow {

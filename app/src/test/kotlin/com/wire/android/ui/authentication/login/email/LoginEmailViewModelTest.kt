@@ -38,7 +38,6 @@ import com.wire.android.framework.TestClient
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginState
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
 import com.wire.android.util.ui.CountdownTimer
@@ -861,9 +860,6 @@ class LoginEmailViewModelTest {
             every { userScope.persistSelfUserEmail } returns persistSelfUserEmailUseCase
             every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
             every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-            every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(
-                loginPasswordPath = LoginPasswordPath(newServerConfig(1).links)
-            )
             coEvery { autoVersionAuthScopeUseCase(any()) } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
             every { authenticationScope.login } returns loginUseCase
             every { authenticationScope.requestSecondFactorVerificationCode } returns requestSecondFactorCodeUseCase
@@ -877,6 +873,7 @@ class LoginEmailViewModelTest {
         }
 
         fun arrange() = this to LoginEmailViewModel(
+            LoginNavArgs(loginPasswordPath = LoginPasswordPath(newServerConfig(1).links)),
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
             savedStateHandle,

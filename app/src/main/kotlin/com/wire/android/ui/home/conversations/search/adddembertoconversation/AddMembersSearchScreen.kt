@@ -42,7 +42,10 @@ import com.wire.kalium.logic.data.user.UserId
 fun AddMembersSearchScreen(
     navigator: Navigator,
     navArgs: AddMembersSearchNavArgs,
-    addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel(),
+    addMembersToConversationViewModel: AddMembersToConversationViewModel =
+        hiltViewModel<AddMembersToConversationViewModel, AddMembersToConversationViewModel.Factory>(
+            creationCallback = { factory -> factory.create(navArgs) }
+        ),
 ) {
     if (addMembersToConversationViewModel.newGroupState.isCompleted) {
         navigator.navigateBack()
@@ -75,6 +78,7 @@ fun AddMembersSearchScreen(
         isUserAllowedToCreateChannels = false,
         shouldShowChannelPromotion = false,
         isConversationAppsEnabled = navArgs.isConversationAppsEnabled,
-        conversationProtocol = navArgs.protocolInfo
+        conversationProtocol = navArgs.protocolInfo,
+        addMembersSearchNavArgs = navArgs
     )
 }

@@ -18,8 +18,6 @@
 package com.wire.android.ui.home.conversations.media.preview
 
 import androidx.core.net.toUri
-import androidx.lifecycle.SavedStateHandle
-import com.ramcosta.composedestinations.generated.app.navargs.toSavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.sharing.ImportedMediaAsset
@@ -105,16 +103,16 @@ class ImagesPreviewViewModelTest {
         fun arrange(
             assetUris: ArrayList<String> = arrayListOf(),
         ): Pair<Arrangement, ImagesPreviewViewModel> = this to ImagesPreviewViewModel(
-            savedStateHandle = savedStateHandle(assetUris),
+            navArgs = navArgs(assetUris),
             assetImporter = assetImporter,
         )
 
-        private fun savedStateHandle(assetUris: ArrayList<String>): SavedStateHandle =
+        private fun navArgs(assetUris: ArrayList<String>): ImagesPreviewNavArgs =
             ImagesPreviewNavArgs(
                 conversationId = ConversationId("conversation-value", "conversation-domain"),
                 conversationName = "Conversation",
                 assetUriList = ArrayList(assetUris.map { it.toUri() })
-            ).toSavedStateHandle()
+            )
     }
 
     private class FakeImagesPreviewAssetImporter : ImagesPreviewAssetImporter {

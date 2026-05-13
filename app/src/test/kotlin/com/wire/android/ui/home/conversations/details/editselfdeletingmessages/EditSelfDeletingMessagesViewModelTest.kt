@@ -17,9 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestConversationDetails
@@ -27,7 +25,6 @@ import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
@@ -35,7 +32,6 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTim
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -48,7 +44,6 @@ import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 class EditSelfDeletingMessagesViewModelTest {
 
     @Test
@@ -88,9 +83,6 @@ class EditSelfDeletingMessagesViewModelTest {
     private class Arrangement {
 
         @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         private lateinit var observerConversationMembers: ObserveParticipantsForConversationUseCase
 
         @MockK
@@ -107,7 +99,9 @@ class EditSelfDeletingMessagesViewModelTest {
 
         private val viewModel by lazy {
             EditSelfDeletingMessagesViewModel(
-                savedStateHandle = savedStateHandle,
+                editSelfDeletingMessagesNavArgs = EditSelfDeletingMessagesNavArgs(
+                    conversationId = TestConversation.ID
+                ),
                 dispatcher = TestDispatcherProvider(),
                 observeConversationMembers = observerConversationMembers,
                 observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
@@ -119,10 +113,6 @@ class EditSelfDeletingMessagesViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.navArgs<EditSelfDeletingMessagesNavArgs>() } returns EditSelfDeletingMessagesNavArgs(
-                conversationId = TestConversation.ID
-            )
-
             coEvery { selfUser() } returns flowOf(TestUser.SELF_USER)
             coEvery { conversationDetails(any()) } returns flowOf(
                 ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP)

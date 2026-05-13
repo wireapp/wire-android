@@ -21,20 +21,20 @@ package com.wire.android.ui.home.conversations.details.participants
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-open class GroupConversationParticipantsViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = GroupConversationParticipantsViewModel.Factory::class)
+open class GroupConversationParticipantsViewModel @AssistedInject constructor(
+    @Assisted private val conversationId: QualifiedID,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
 ) : ViewModel() {
@@ -43,12 +43,14 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
 
     var groupParticipantsState: GroupConversationParticipantsState by mutableStateOf(GroupConversationParticipantsState())
 
-    private val groupConversationAllParticipantsNavArgs: GroupConversationAllParticipantsNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = groupConversationAllParticipantsNavArgs.conversationId
-
     init {
         runRefreshUsersWithoutMetadata()
         observeConversationMembers()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: QualifiedID): GroupConversationParticipantsViewModel
     }
 
     private fun runRefreshUsersWithoutMetadata() {

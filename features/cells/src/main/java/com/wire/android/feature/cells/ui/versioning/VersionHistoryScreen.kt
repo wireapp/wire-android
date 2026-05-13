@@ -71,8 +71,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun VersionHistoryScreen(
     navigator: WireNavigator,
+    args: VersionHistoryNavArgs,
     modifier: Modifier = Modifier,
-    versionHistoryViewModel: VersionHistoryViewModel = hiltViewModel()
+    versionHistoryViewModel: VersionHistoryViewModel =
+        hiltViewModel<VersionHistoryViewModel, VersionHistoryViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
     val optionsBottomSheetState = rememberWireModalSheetState<Pair<String, CellVersion>>()
     val snackbarHostState = LocalSnackbarHostState.current

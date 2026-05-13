@@ -88,6 +88,7 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_FOUND
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOAD_IN_PROGRESS
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.PersistentList
 import okio.Path
 
@@ -95,6 +96,7 @@ import okio.Path
 //       waiting for the backend to implement mapping logic for the MessageBody
 @Composable
 internal fun MessageBody(
+    conversationId: ConversationId,
     messageId: String,
     messageBody: MessageBody?,
     isAvailable: Boolean,
@@ -154,6 +156,7 @@ internal fun MessageBody(
     buttonList?.also {
         VerticalSpace.x4()
         MessageButtonsContent(
+            conversationId = conversationId,
             messageId = messageId,
             buttonList = it,
             messageStyle = messageStyle
@@ -163,6 +166,7 @@ internal fun MessageBody(
 
 @Composable
 fun MessageButtonsContent(
+    conversationId: ConversationId,
     messageId: String,
     buttonList: List<MessageButton>,
     messageStyle: MessageStyle,
@@ -174,7 +178,7 @@ fun MessageButtonsContent(
                 CompositeMessageArgs,
                 CompositeMessageViewModelImpl.Factory
                 >(
-            CompositeMessageArgs(messageId)
+            CompositeMessageArgs(conversationId, messageId)
         )
 ) {
     Column(

@@ -75,8 +75,11 @@ fun SearchScreen(
     navigator: WireNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
     cellViewModel: CellViewModel,
+    args: SearchNavArgs,
     modifier: Modifier = Modifier,
-    searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
+    searchScreenViewModel: SearchScreenViewModel = hiltViewModel<SearchScreenViewModel, SearchScreenViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args) }
+    ),
 ) {
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
 

@@ -18,12 +18,9 @@
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
@@ -52,11 +49,6 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-
-@ExtendWith(
-    NavigationTestExtension::class
-)
 class CreatePasswordGuestLinkViewModelTest {
 
     private val dispatcher: TestDispatcher = StandardTestDispatcher()
@@ -274,9 +266,6 @@ class CreatePasswordGuestLinkViewModelTest {
     private class Arrangement(private val dispatcher: TestDispatcher) {
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var generateGuestRoomLink: GenerateGuestRoomLinkUseCase
 
         @MockK
@@ -287,11 +276,6 @@ class CreatePasswordGuestLinkViewModelTest {
 
         init {
             MockKAnnotations.init(this)
-            every {
-                savedStateHandle.navArgs<CreatePasswordGuestLinkNavArgs>()
-            } returns CreatePasswordGuestLinkNavArgs(
-                conversationId = CONVERSATION_ID
-            )
         }
 
         fun withPasswordValidation(result: Boolean) = apply {
@@ -328,10 +312,12 @@ class CreatePasswordGuestLinkViewModelTest {
 
         private val viewModel: CreatePasswordGuestLinkViewModel by lazy {
             CreatePasswordGuestLinkViewModel(
+                createPasswordGuestLinkNavArgs = CreatePasswordGuestLinkNavArgs(
+                    conversationId = CONVERSATION_ID
+                ),
                 generateGuestRoomLink = generateGuestRoomLink,
                 validatePassword = validatePassword,
                 generatePassword = generateRandomPassword,
-                savedStateHandle = savedStateHandle
             )
         }
 

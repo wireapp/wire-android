@@ -32,8 +32,10 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
+import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -55,6 +57,9 @@ import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -62,33 +67,49 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class LoginSSOViewModel(
-    private val savedStateHandle: SavedStateHandle,
-    val addAuthenticatedUser: AddAuthenticatedUserUseCase,
-    private val validateEmailUseCase: ValidateEmailUseCase,
-    coreLogic: CoreLogic,
-    clientScopeProviderFactory: ClientScopeProvider.Factory,
-    userDataStoreProvider: UserDataStoreProvider,
-    private val ssoExtension: LoginSSOViewModelExtension,
-    serverConfig: ServerConfig.Links,
-    private val sessionExceptionClassifier: LoginSSOSessionExceptionClassifier,
-    private val dispatchers: DispatcherProvider,
-) : LoginViewModel(
-    savedStateHandle,
-    clientScopeProviderFactory,
-    userDataStoreProvider,
-    coreLogic,
-    serverConfig
-) {
+@HiltViewModel(assistedFactory = LoginSSOViewModel.Factory::class)
+class LoginSSOViewModel : LoginViewModel {
+    private val savedStateHandle: SavedStateHandle
+    val addAuthenticatedUser: AddAuthenticatedUserUseCase
+    private val validateEmailUseCase: ValidateEmailUseCase
+    private val ssoExtension: LoginSSOViewModelExtension
+    private val sessionExceptionClassifier: LoginSSOSessionExceptionClassifier
+    private val dispatchers: DispatcherProvider
+
     private var pendingNomadServiceUrl: String? = null
     private var pendingCookieLabel: String? = null
 
-    @Inject
     constructor(
+        loginNavArgs: LoginNavArgs,
+        savedStateHandle: SavedStateHandle,
+        addAuthenticatedUser: AddAuthenticatedUserUseCase,
+        validateEmailUseCase: ValidateEmailUseCase,
+        coreLogic: CoreLogic,
+        clientScopeProviderFactory: ClientScopeProvider.Factory,
+        userDataStoreProvider: UserDataStoreProvider,
+        serverConfig: ServerConfig.Links,
+        ssoExtension: LoginSSOViewModelExtension,
+        sessionExceptionClassifier: LoginSSOSessionExceptionClassifier,
+        dispatchers: DispatcherProvider,
+    ) : this(
+        loginNavArgs,
+        savedStateHandle,
+        addAuthenticatedUser,
+        validateEmailUseCase,
+        coreLogic,
+        clientScopeProviderFactory,
+        userDataStoreProvider,
+        ssoExtension,
+        serverConfig,
+        sessionExceptionClassifier,
+        dispatchers,
+    )
+
+    @AssistedInject
+    constructor(
+        @Assisted loginNavArgs: LoginNavArgs,
         savedStateHandle: SavedStateHandle,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         validateEmailUseCase: ValidateEmailUseCase,
@@ -100,24 +121,59 @@ class LoginSSOViewModel(
         sessionExceptionClassifier: LoginSSOSessionExceptionClassifier,
         dispatchers: DispatcherProvider,
     ) : this(
+        loginNavArgs,
         savedStateHandle,
         addAuthenticatedUser,
         validateEmailUseCase,
         coreLogic,
         clientScopeProviderFactory,
         userDataStoreProvider,
-        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, defaultWebSocketEnabledByDefault),
         serverConfig,
+        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, defaultWebSocketEnabledByDefault),
         sessionExceptionClassifier,
         dispatchers,
     )
+
+    private constructor(
+        loginNavArgs: LoginNavArgs,
+        savedStateHandle: SavedStateHandle,
+        addAuthenticatedUser: AddAuthenticatedUserUseCase,
+        validateEmailUseCase: ValidateEmailUseCase,
+        coreLogic: CoreLogic,
+        clientScopeProviderFactory: ClientScopeProvider.Factory,
+        userDataStoreProvider: UserDataStoreProvider,
+        ssoExtension: LoginSSOViewModelExtension,
+        serverConfig: ServerConfig.Links,
+        sessionExceptionClassifier: LoginSSOSessionExceptionClassifier,
+        dispatchers: DispatcherProvider,
+    ) : super(
+        loginNavArgs,
+        clientScopeProviderFactory,
+        userDataStoreProvider,
+        coreLogic,
+        LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
+        serverConfig
+    ) {
+        this.savedStateHandle = savedStateHandle
+        this.addAuthenticatedUser = addAuthenticatedUser
+        this.validateEmailUseCase = validateEmailUseCase
+        this.ssoExtension = ssoExtension
+        this.sessionExceptionClassifier = sessionExceptionClassifier
+        this.dispatchers = dispatchers
+        observeSSOCodeInput()
+    }
 
     var openWebUrl = MutableSharedFlow<Pair<String, ServerConfig.Links>>()
 
     val ssoTextState: TextFieldState = TextFieldState()
     var loginState: LoginSSOState by mutableStateOf(LoginSSOState())
 
-    init {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: LoginNavArgs): LoginSSOViewModel
+    }
+
+    private fun observeSSOCodeInput() {
         ssoTextState.setTextAndPlaceCursorAtEnd(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY)
         viewModelScope.launch {
             ssoTextState.textAsFlow().distinctUntilChanged().collectLatest {

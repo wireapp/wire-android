@@ -1,7 +1,6 @@
 package com.wire.android.ui.registration.details
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
@@ -10,7 +9,6 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
@@ -23,7 +21,6 @@ import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -161,8 +158,7 @@ class CreateAccountDataDetailViewModelTest {
     }
 
     private class Arrangement {
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
+        private val createAccountDataNavArgs = CreateAccountDataNavArgs(userRegistrationInfo = UserRegistrationInfo())
 
         @MockK
         lateinit var validateEmailUseCase: ValidateEmailUseCase
@@ -190,8 +186,6 @@ class CreateAccountDataDetailViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.navArgs<CreateAccountDataNavArgs>() } returns
-                    CreateAccountDataNavArgs(userRegistrationInfo = UserRegistrationInfo())
 
             coEvery { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
             coEvery {
@@ -218,7 +212,7 @@ class CreateAccountDataDetailViewModelTest {
         }
 
         fun arrange() = this to CreateAccountDataDetailViewModel(
-            savedStateHandle = savedStateHandle,
+            createAccountNavArgs = createAccountDataNavArgs,
             validateEmail = validateEmailUseCase,
             validatePassword = validatePasswordUseCase,
             coreLogic = coreLogic,

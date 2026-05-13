@@ -105,7 +105,9 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun NewLoginPasswordScreen(
     navigator: Navigator,
     navArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
+    loginEmailViewModel: LoginEmailViewModel = hiltViewModel<LoginEmailViewModel, LoginEmailViewModel.Factory>(
+        creationCallback = { factory -> factory.create(navArgs) }
+    )
 ) {
     clearAutofillTree()
     LoginStateNavigationAndDialogs(loginEmailViewModel, navigator)

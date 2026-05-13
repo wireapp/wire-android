@@ -20,16 +20,13 @@
 
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
@@ -50,7 +47,6 @@ import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeat
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -64,7 +60,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class)
 class EditGuestAccessViewModelTest {
     private val dispatcher = TestDispatcherProvider()
 
@@ -257,9 +253,6 @@ class EditGuestAccessViewModelTest {
 
     private class Arrangement(dispatcherProvider: TestDispatcherProvider) {
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
         @MockK
@@ -294,7 +287,14 @@ class EditGuestAccessViewModelTest {
 
         val editGuestAccessViewModel: EditGuestAccessViewModel by lazy {
             EditGuestAccessViewModel(
-                savedStateHandle = savedStateHandle,
+                editGuestAccessNavArgs = EditGuestAccessNavArgs(
+                    conversationId = OtherUserProfileScreenViewModelTest.CONVERSATION_ID,
+                    editGuessAccessParams = EditGuestAccessParams(
+                        isGuestAccessAllowed = true,
+                        isServicesAllowed = true,
+                        isUpdatingGuestAccessAllowed = true
+                    )
+                ),
                 observeConversationDetails = observeConversationDetails,
                 observeConversationMembers = observeConversationMembers,
                 updateConversationAccessRole = updateConversationAccessRole,
@@ -312,14 +312,6 @@ class EditGuestAccessViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.navArgs<EditGuestAccessNavArgs>() } returns EditGuestAccessNavArgs(
-                conversationId = OtherUserProfileScreenViewModelTest.CONVERSATION_ID,
-                editGuessAccessParams = EditGuestAccessParams(
-                    isGuestAccessAllowed = true,
-                    isServicesAllowed = true,
-                    isUpdatingGuestAccessAllowed = true
-                )
-            )
             coEvery { observeConversationDetails(any()) } returns flowOf()
             coEvery { observeConversationMembers(any()) } returns flowOf()
             coEvery { observeGuestRoomLink(any()) } returns flowOf()

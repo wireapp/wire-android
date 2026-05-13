@@ -21,9 +21,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.CreateFileScreenDestination
 import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.android.feature.cells.ui.common.validateFileName
 import com.wire.android.ui.common.ActionsViewModel
@@ -33,21 +31,21 @@ import com.wire.kalium.cells.domain.usecase.create.CreatePresentationFileUseCase
 import com.wire.kalium.cells.domain.usecase.create.CreateSpreadsheetFileUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class CreateFileViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = CreateFileViewModel.Factory::class)
+class CreateFileViewModel @AssistedInject constructor(
+    @Assisted private val navArgs: CreateFileScreenNavArgs,
     private val createPresentationFileUseCase: CreatePresentationFileUseCase,
     private val createDocumentFileUseCase: CreateDocumentFileUseCase,
     private val createSpreadsheetFileUseCase: CreateSpreadsheetFileUseCase
 ) : ActionsViewModel<CreateFileViewModelAction>() {
-
-    private val navArgs: CreateFileScreenNavArgs = CreateFileScreenDestination.argsFrom(savedStateHandle)
 
     val fileExtension: String = navArgs.fileType.getExtension()
 
@@ -66,6 +64,11 @@ class CreateFileViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: CreateFileScreenNavArgs): CreateFileViewModel
     }
 
     internal fun createFile(fileName: String) = viewModelScope.launch {

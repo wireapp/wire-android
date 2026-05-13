@@ -75,7 +75,11 @@ import kotlinx.coroutines.job
 @Composable
 fun CreateAccountCodeScreen(
     navigator: Navigator,
-    createAccountCodeViewModel: CreateAccountCodeViewModel = hiltViewModel()
+    args: CreateAccountNavArgs,
+    createAccountCodeViewModel: CreateAccountCodeViewModel =
+        hiltViewModel<CreateAccountCodeViewModel, CreateAccountCodeViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
     with(createAccountCodeViewModel) {
         fun navigateToSummaryScreen() = navigator.navigate(

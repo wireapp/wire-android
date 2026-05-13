@@ -71,8 +71,12 @@ import kotlinx.parcelize.Parcelize
 @Composable
 internal fun PublicLinkExpirationScreen(
     resultNavigator: ResultBackNavigator<PublicLinkExpirationResult>,
+    args: PublicLinkExpirationScreenNavArgs,
     modifier: Modifier = Modifier,
-    viewModel: PublicLinkExpirationScreenViewModel = hiltViewModel(),
+    viewModel: PublicLinkExpirationScreenViewModel =
+        hiltViewModel<PublicLinkExpirationScreenViewModel, PublicLinkExpirationScreenViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
 ) {
 
     val state by viewModel.state.collectAsState()

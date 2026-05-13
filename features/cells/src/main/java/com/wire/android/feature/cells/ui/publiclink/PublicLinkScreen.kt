@@ -81,8 +81,11 @@ fun PublicLinkScreen(
     navigator: WireNavigator,
     onPasswordChange: ResultRecipient<PublicLinkPasswordScreenDestination, Boolean>,
     onExpirationChange: ResultRecipient<PublicLinkExpirationScreenDestination, PublicLinkExpirationResult>,
+    args: PublicLinkNavArgs,
     modifier: Modifier = Modifier,
-    viewModel: PublicLinkViewModel = hiltViewModel(),
+    viewModel: PublicLinkViewModel = hiltViewModel<PublicLinkViewModel, PublicLinkViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args) }
+    ),
 ) {
 
     val context = LocalContext.current

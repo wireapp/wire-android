@@ -64,8 +64,11 @@ import com.wire.android.ui.theme.wireDimensions
 @Composable
 fun RenameNodeScreen(
     navigator: WireNavigator,
+    args: RenameNodeNavArgs,
     modifier: Modifier = Modifier,
-    renameNodeViewModel: RenameNodeViewModel = hiltViewModel()
+    renameNodeViewModel: RenameNodeViewModel = hiltViewModel<RenameNodeViewModel, RenameNodeViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args) }
+    )
 ) {
     val context = LocalContext.current
 
@@ -170,7 +173,8 @@ private fun computeNameErrorState(error: FileNameError?, isFolder: Boolean): Wir
 fun PreviewRenameNodeScreen() {
     WireTheme {
         RenameNodeScreen(
-            navigator = PreviewNavigator
+            navigator = PreviewNavigator,
+            args = RenameNodeNavArgs()
         )
     }
 }

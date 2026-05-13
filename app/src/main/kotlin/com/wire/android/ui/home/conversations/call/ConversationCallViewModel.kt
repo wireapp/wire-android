@@ -22,13 +22,11 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
@@ -49,6 +47,9 @@ import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNot
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -57,12 +58,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
+@HiltViewModel(assistedFactory = ConversationCallViewModel.Factory::class)
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationCallViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+class ConversationCallViewModel @AssistedInject constructor(
+    @Assisted private val conversationNavArgs: ConversationNavArgs,
     @CurrentAccount val currentAccount: UserId,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
@@ -78,7 +78,6 @@ class ConversationCallViewModel @Inject constructor(
     private val observeSelf: ObserveSelfUserUseCase
 ) : ActionsViewModel<ConversationCallViewActions>() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
@@ -95,6 +94,11 @@ class ConversationCallViewModel @Inject constructor(
         observeInformedAboutDegradedVerification()
         observeSelfTeamRole()
         observeCallingActivatedEvent()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: ConversationNavArgs): ConversationCallViewModel
     }
 
     private fun observeCallingActivatedEvent() {

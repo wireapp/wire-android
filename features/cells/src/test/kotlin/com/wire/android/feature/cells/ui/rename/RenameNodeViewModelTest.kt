@@ -17,9 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.rename
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.cells.navArgs
 import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.kalium.cells.domain.usecase.RenameNodeFailure
 import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
@@ -29,7 +27,6 @@ import com.wire.kalium.common.functional.left
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -175,30 +172,22 @@ class RenameNodeViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var renameNodeUseCase: RenameNodeUseCase
 
+        private var navArgs = RenameNodeNavArgs(
+            uuid = UUID,
+            currentPath = CURRENT_PATH,
+            nodeName = NODE_NAME,
+            isFolder = false
+        )
+
         init {
-
             MockKAnnotations.init(this, relaxUnitFun = true)
-
-            every { savedStateHandle.navArgs<RenameNodeNavArgs>() } returns RenameNodeNavArgs(
-                uuid = UUID,
-                currentPath = CURRENT_PATH,
-                nodeName = NODE_NAME,
-                isFolder = true
-            )
-            every { savedStateHandle.get<String>("uuid") } returns UUID
-            every { savedStateHandle.get<String>("currentPath") } returns CURRENT_PATH
-            every { savedStateHandle.get<Boolean>("isFolder") } returns false
-            every { savedStateHandle.get<String>("nodeName") } returns NODE_NAME
         }
 
         private val viewModel by lazy {
             RenameNodeViewModel(
-                savedStateHandle = savedStateHandle,
+                navArgs = navArgs,
                 renameNodeUseCase = renameNodeUseCase,
             )
         }
@@ -207,7 +196,7 @@ class RenameNodeViewModelTest {
             coEvery { renameNodeUseCase(any(), any(), any()) } returns result
         }
         fun withNodeNameReturning(name: String) = apply {
-            every { savedStateHandle.get<String>("nodeName") } returns name
+            navArgs = navArgs.copy(nodeName = name)
         }
 
         fun arrange() = this to viewModel

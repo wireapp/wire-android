@@ -17,14 +17,11 @@
  */
 package com.wire.android.ui.home.conversations.migration
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
@@ -32,7 +29,6 @@ import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -40,7 +36,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 class ConversationMigrationViewModelTest {
 
     @Test
@@ -79,12 +74,8 @@ class ConversationMigrationViewModelTest {
         @MockK
         lateinit var observeConversationDetailsUseCase: ObserveConversationDetailsUseCase
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
         init {
             MockKAnnotations.init(this)
-            every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId)
         }
 
         fun withConversationDetailsReturning(conversationDetails: ConversationDetails) = apply {
@@ -94,7 +85,7 @@ class ConversationMigrationViewModelTest {
 
         fun arrange(): Pair<Arrangement, ConversationMigrationViewModel> = run {
             configure()
-            this@Arrangement to ConversationMigrationViewModel(savedStateHandle, observeConversationDetailsUseCase)
+            this@Arrangement to ConversationMigrationViewModel(ConversationNavArgs(conversationId), observeConversationDetailsUseCase)
         }
     }
 

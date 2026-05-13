@@ -18,11 +18,9 @@
 
 package com.wire.android.ui.home.conversations.info
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
@@ -51,9 +49,6 @@ class ConversationInfoViewModelArrangement {
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
@@ -64,8 +59,8 @@ class ConversationInfoViewModelArrangement {
 
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
+            conversationNavArgs = ConversationNavArgs(conversationId = conversationId),
             qualifiedIdMapper = qualifiedIdMapper,
-            savedStateHandle = savedStateHandle,
             observeConversationDetails = observeConversationDetails,
             fetchConversationMLSVerificationStatus = fetchConversationMLSVerificationStatus,
             selfUserId = TestUser.SELF_USER_ID,
@@ -76,7 +71,6 @@ class ConversationInfoViewModelArrangement {
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
 
         every {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")

@@ -17,28 +17,32 @@
  */
 package com.wire.android.ui.registration.selector
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class CreateAccountSelectorViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = CreateAccountSelectorViewModel.Factory::class)
+class CreateAccountSelectorViewModel @AssistedInject constructor(
+    @Assisted navArgs: CreateAccountSelectorNavArgs,
     private val globalDataStore: GlobalDataStore,
-    savedStateHandle: SavedStateHandle,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
-    val navArgs: CreateAccountSelectorNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = navArgs.customServerConfig ?: defaultServerConfig
     val email: String = navArgs.email.orEmpty()
     val teamAccountCreationUrl = serverConfig.teams
 
     fun onPageLoaded() = viewModelScope.launch {
         globalDataStore.setAnonymousRegistrationEnabled(false)
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: CreateAccountSelectorNavArgs): CreateAccountSelectorViewModel
     }
 }

@@ -61,7 +61,11 @@ import kotlinx.coroutines.withContext
 @Composable
 fun E2eiCertificateDetailsScreen(
     navigator: Navigator,
-    e2eiCertificateDetailsViewModel: E2eiCertificateDetailsViewModel = hiltViewModel()
+    args: E2eiCertificateDetailsScreenNavArgs,
+    e2eiCertificateDetailsViewModel: E2eiCertificateDetailsViewModel =
+        hiltViewModel<E2eiCertificateDetailsViewModel, E2eiCertificateDetailsViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()

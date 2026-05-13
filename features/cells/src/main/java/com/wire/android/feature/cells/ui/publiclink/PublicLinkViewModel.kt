@@ -17,9 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.publiclink
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationResult
 import com.wire.android.feature.cells.util.FileHelper
@@ -30,23 +28,23 @@ import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class PublicLinkViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = PublicLinkViewModel.Factory::class)
+class PublicLinkViewModel @AssistedInject constructor(
+    @Assisted private val navArgs: PublicLinkNavArgs,
     private val createPublicLink: CreatePublicLinkUseCase,
     private val getPublicLinkUseCase: GetPublicLinkUseCase,
     private val deletePublicLinkUseCase: DeletePublicLinkUseCase,
     private val fileHelper: FileHelper,
 ) : ActionsViewModel<PublicLinkViewAction>() {
-
-    private val navArgs: PublicLinkNavArgs = PublicLinkScreenDestination.argsFrom(savedStateHandle)
 
     private val _state = MutableStateFlow(
         PublicLinkViewState(
@@ -226,6 +224,11 @@ class PublicLinkViewModel @Inject constructor(
             PublicLinkError.Create -> createPublicLink()
             PublicLinkError.Remove -> onConfirmRemoval(true)
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navArgs: PublicLinkNavArgs): PublicLinkViewModel
     }
 }
 

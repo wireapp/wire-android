@@ -101,7 +101,10 @@ import kotlinx.coroutines.flow.flowOf
 fun ConversationFilesScreen(
     navigator: WireNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    viewModel: CellViewModel = hiltViewModel(),
+    args: CellFilesNavArgs,
+    viewModel: CellViewModel = hiltViewModel<CellViewModel, CellViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args, null) }
+    ),
 ) {
     ConversationFilesScreenContent(
         animatedVisibilityScope = animatedVisibilityScope,

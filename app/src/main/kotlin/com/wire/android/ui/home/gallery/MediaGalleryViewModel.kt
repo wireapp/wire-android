@@ -21,14 +21,12 @@ package com.wire.android.ui.home.gallery
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
@@ -42,6 +40,9 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -50,12 +51,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class MediaGalleryViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = MediaGalleryViewModel.Factory::class)
+class MediaGalleryViewModel @AssistedInject constructor(
+    @Assisted private val mediaGalleryNavArgs: MediaGalleryNavArgs,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
@@ -64,8 +64,6 @@ class MediaGalleryViewModel @Inject constructor(
     private val getAttachment: GetMessageAttachmentUseCase,
     private val getCellNode: GetCellFileUseCase,
 ) : ActionsViewModel<MediaGalleryAction>() {
-
-    private val mediaGalleryNavArgs: MediaGalleryNavArgs = savedStateHandle.navArgs()
 
     private val messageId = mediaGalleryNavArgs.messageId
     private val conversationId = mediaGalleryNavArgs.conversationId
@@ -83,6 +81,11 @@ class MediaGalleryViewModel @Inject constructor(
     init {
         getConversationTitle()
         setupImageAsset()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: MediaGalleryNavArgs): MediaGalleryViewModel
     }
 
     private fun setupImageAsset() = viewModelScope.launch {

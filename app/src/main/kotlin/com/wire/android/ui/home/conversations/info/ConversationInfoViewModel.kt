@@ -21,7 +21,6 @@ package com.wire.android.ui.home.conversations.info
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
@@ -29,7 +28,6 @@ import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.common.error.StorageFailure
@@ -41,28 +39,33 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class ConversationInfoViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = ConversationInfoViewModel.Factory::class)
+class ConversationInfoViewModel @AssistedInject constructor(
+    @Assisted private val conversationNavArgs: ConversationNavArgs,
     private val qualifiedIdMapper: QualifiedIdMapper,
-    val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
     @CurrentAccount private val selfUserId: UserId,
 ) : ViewModel() {
-
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     var conversationInfoViewState by mutableStateOf(ConversationInfoViewState(conversationId))
 
     init {
         fetchMLSVerificationStatus()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: ConversationNavArgs): ConversationInfoViewModel
     }
 
     private fun fetchMLSVerificationStatus() {

@@ -1,13 +1,9 @@
 package com.wire.android.ui.registration.selector
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.datastore.GlobalDataStore
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import io.mockk.MockKAnnotations
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -16,7 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class)
 class CreateAccountSelectorViewModelTest {
 
     @Test
@@ -46,20 +42,16 @@ class CreateAccountSelectorViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
+        private var navArgs = CreateAccountSelectorNavArgs(ServerConfig.STAGING)
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.navArgs<CreateAccountSelectorNavArgs>() } returns
-                    CreateAccountSelectorNavArgs(ServerConfig.STAGING)
         }
 
         fun withEmailNavArgs(email: String) = apply {
-            every { savedStateHandle.navArgs<CreateAccountSelectorNavArgs>() } returns
-                    CreateAccountSelectorNavArgs(ServerConfig.STAGING, email)
+            navArgs = CreateAccountSelectorNavArgs(ServerConfig.STAGING, email)
         }
 
-        fun arrange() = this to CreateAccountSelectorViewModel(globalDataStore, savedStateHandle, ServerConfig.STAGING)
+        fun arrange() = this to CreateAccountSelectorViewModel(navArgs, globalDataStore, ServerConfig.STAGING)
     }
 }

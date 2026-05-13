@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.publiclink.settings.expiration
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.ui.common.datetime.TimePickerResult
 import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUseCase
@@ -297,13 +296,11 @@ class PublicLinkExpirationScreenViewModelTest {
 
         fun arrange(): Pair<Arrangement, PublicLinkExpirationScreenViewModel> {
             return this to PublicLinkExpirationScreenViewModel(
+                navArgs = PublicLinkExpirationScreenNavArgs(
+                    linkUuid = "public_link_uuid",
+                    expiresAt = expiresAt,
+                ),
                 setExpiration = setExpiration,
-                savedStateHandle = SavedStateHandle(
-                    mapOf<String, Any?>(
-                        "linkUuid" to "public_link_uuid",
-                        "expiresAt" to expiresAt
-                    )
-                )
             )
         }
     }

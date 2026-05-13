@@ -86,6 +86,7 @@ fun SearchUsersAndAppsScreen(
     isConversationAppsEnabled: Boolean = true,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     conversationProtocol: Conversation.ProtocolInfo? = null,
+    addMembersSearchNavArgs: AddMembersSearchNavArgs? = null,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
     onCreateNewChannel: () -> Unit = {},
@@ -185,6 +186,7 @@ fun SearchUsersAndAppsScreen(
                                 isSearchActive = searchBarState.isSearchActive,
                                 actionType = actionType,
                                 lazyListState = lazyListStates[pageIndex],
+                                addMembersSearchNavArgs = addMembersSearchNavArgs,
                             )
                         }
 
@@ -261,7 +263,10 @@ private fun SearchAllPeopleOrContactsScreen(
     actionType: ItemActionType,
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
-    searchUserViewModel: SearchUserViewModel = hiltViewModel(),
+    addMembersSearchNavArgs: AddMembersSearchNavArgs? = null,
+    searchUserViewModel: SearchUserViewModel = hiltViewModel<SearchUserViewModel, SearchUserViewModel.Factory>(
+        creationCallback = { factory -> factory.create(addMembersSearchNavArgs) }
+    ),
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
 

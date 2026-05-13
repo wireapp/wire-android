@@ -21,9 +21,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
 import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.android.feature.cells.ui.common.validateFileName
 import com.wire.android.ui.common.ActionsViewModel
@@ -33,22 +31,22 @@ import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.util.splitFileExtension
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel
-class RenameNodeViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = RenameNodeViewModel.Factory::class)
+class RenameNodeViewModel @AssistedInject constructor(
+    @Assisted private val navArgs: RenameNodeNavArgs,
     private val renameNodeUseCase: RenameNodeUseCase,
 ) : ActionsViewModel<RenameNodeViewModelAction>() {
-
-    private val navArgs: RenameNodeNavArgs = RenameNodeScreenDestination.argsFrom(savedStateHandle)
 
     private var clearErrorJob: Job? = null
 
@@ -71,6 +69,11 @@ class RenameNodeViewModel @Inject constructor(
                     )
             }
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: RenameNodeNavArgs): RenameNodeViewModel
     }
 
     fun renameNode(newName: String) {

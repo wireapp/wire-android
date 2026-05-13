@@ -17,7 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
-import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -25,8 +25,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -40,7 +38,8 @@ import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
-import com.wire.android.ui.common.ActionsViewModel
+import com.wire.android.ui.common.ActionsManager
+import com.wire.android.ui.common.ActionsManagerImpl
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
@@ -54,6 +53,9 @@ import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -72,12 +74,12 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel
-class CellViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = CellViewModel.Factory::class)
+class CellViewModel @AssistedInject constructor(
+    @Assisted private val navArgs: CellFilesNavArgs,
+    @Assisted private val searchNavArgs: SearchNavArgs?,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
@@ -89,15 +91,7 @@ class CellViewModel @Inject constructor(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
     private val openFileDownloadController: OpenFileDownloadController,
-) : ActionsViewModel<CellViewAction>() {
-
-    private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
-    private val searchNavArgs: SearchNavArgs? = try {
-        SearchScreenDestination.argsFrom(savedStateHandle)
-    } catch (_: RuntimeException) {
-        // Not coming from Search screen, ignore
-        null
-    }
+) : ViewModel(), ActionsManager<CellViewAction> by ActionsManagerImpl() {
 
     // Show menu with actions for the selected file.
     private val _menu: MutableSharedFlow<MenuOptions> = MutableSharedFlow()
@@ -467,6 +461,11 @@ class CellViewModel @Inject constructor(
                 append = LoadState.NotLoading(true)
             )
         )
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navArgs: CellFilesNavArgs, searchNavArgs: SearchNavArgs?): CellViewModel
     }
 }
 

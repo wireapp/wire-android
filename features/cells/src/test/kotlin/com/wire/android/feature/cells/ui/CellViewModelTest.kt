@@ -17,14 +17,11 @@
  */
 package com.wire.android.feature.cells.ui
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
@@ -46,7 +43,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockkObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
@@ -60,10 +56,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
-@ExtendWith(NavigationTestExtension::class)
 class CellViewModelTest {
 
     private companion object {
@@ -267,10 +261,7 @@ class CellViewModelTest {
         }
     }
 
-    private class Arrangement(conversationId: String? = null) {
-
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
+    private class Arrangement(private val conversationId: String? = null) {
 
         @MockK
         lateinit var getCellFilesPagedUseCase: GetPaginatedFilesFlowUseCase
@@ -313,14 +304,6 @@ class CellViewModelTest {
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
-
-            mockkObject(ConversationFilesScreenDestination)
-            every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } returns CellFilesNavArgs(
-                conversationId = conversationId
-            )
-
-            every { savedStateHandle.get<String>(any()) } returns conversationId
-            every { savedStateHandle.get<String>("conversationId") } returns conversationId
 
             coEvery { isCellAvailableUseCase.invoke() } returns true.right()
 
@@ -401,7 +384,8 @@ class CellViewModelTest {
             )
 
             return this to CellViewModel(
-                savedStateHandle = savedStateHandle,
+                navArgs = CellFilesNavArgs(conversationId = conversationId),
+                searchNavArgs = null,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,

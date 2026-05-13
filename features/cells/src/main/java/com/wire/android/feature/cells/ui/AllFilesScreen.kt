@@ -44,7 +44,9 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 fun AllFilesScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    viewModel: CellViewModel = hiltViewModel(),
+    viewModel: CellViewModel = hiltViewModel<CellViewModel, CellViewModel.Factory>(
+        creationCallback = { factory -> factory.create(CellFilesNavArgs(), null) }
+    ),
 ) {
 
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()

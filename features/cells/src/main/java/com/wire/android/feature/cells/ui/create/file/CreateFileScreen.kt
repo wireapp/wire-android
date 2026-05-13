@@ -63,8 +63,11 @@ import java.util.Locale
 fun CreateFileScreen(
     navigator: WireNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
+    args: CreateFileScreenNavArgs,
     modifier: Modifier = Modifier,
-    createFileViewModel: CreateFileViewModel = hiltViewModel()
+    createFileViewModel: CreateFileViewModel = hiltViewModel<CreateFileViewModel, CreateFileViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args) }
+    )
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
 
@@ -169,6 +172,7 @@ fun PreviewCreateFileScreen() {
         CreateFileScreen(
             navigator = PreviewNavigator,
             resultNavigator = PreviewResultBackNavigator as ResultBackNavigator<Boolean>,
+            args = CreateFileScreenNavArgs(uuid = "preview-uuid", fileType = FileType.DOCUMENT),
         )
     }
 }

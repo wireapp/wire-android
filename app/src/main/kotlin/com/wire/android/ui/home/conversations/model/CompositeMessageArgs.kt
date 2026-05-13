@@ -18,13 +18,15 @@
 package com.wire.android.ui.home.conversations.model
 
 import com.wire.android.di.ScopedArgs
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class CompositeMessageArgs(
+    val conversationId: ConversationId,
     val messageId: String
 ) : ScopedArgs {
-    override val key = "$ARGS_KEY:$messageId"
+    override val key = "$ARGS_KEY:$conversationId:$messageId"
 
     companion object {
         const val ARGS_KEY = "CompositeMessageArgsKey"

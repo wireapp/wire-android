@@ -47,6 +47,7 @@ import com.ramcosta.composedestinations.navigation.navGraph
 import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Direction
+import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
@@ -94,7 +95,12 @@ fun MainNavHost(
                         val loginPasswordEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
                         }
-                        dependency(hiltViewModel<LoginEmailViewModel>(loginPasswordEntry))
+                        val args = NewLoginPasswordScreenDestination.argsFrom(loginPasswordEntry.arguments)
+                        dependency(
+                            hiltViewModel<LoginEmailViewModel, LoginEmailViewModel.Factory>(loginPasswordEntry) { factory ->
+                                factory.create(args)
+                            }
+                        )
                     }
 
                     // 👇 To reuse CellViewModel from the parent screen on SearchScreen
@@ -102,7 +108,18 @@ fun MainNavHost(
                         val parentEntry = remember(navBackStackEntry) {
                             navController.previousBackStackEntry
                         }
-                        dependency(hiltViewModel<CellViewModel>(parentEntry ?: navBackStackEntry))
+                        dependency(
+                            hiltViewModel<CellViewModel, CellViewModel.Factory>(
+                                parentEntry ?: navBackStackEntry,
+                                creationCallback = { factory ->
+                                    val searchArgs = SearchScreenDestination.argsFrom(navBackStackEntry)
+                                    factory.create(
+                                        CellFilesNavArgs(conversationId = searchArgs.conversationId),
+                                        searchArgs
+                                    )
+                                }
+                            )
+                        )
                     }
 
                     // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph,
@@ -120,8 +137,10 @@ fun MainNavHost(
                      * those destinations to rely on generated dependencies directly.
                      */
                     composable(ConversationScreenDestination) {
+                        val args = ConversationScreenDestination.argsFrom(navBackStackEntry.arguments)
                         ConversationScreen(
                             navigator = navigator,
+                            args = args,
                             groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
                             mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),
                             imagePreviewScreenResultRecipient = resultRecipient(imagesPreviewNavBackArgsNavType),

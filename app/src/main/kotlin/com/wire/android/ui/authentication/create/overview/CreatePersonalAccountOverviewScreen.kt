@@ -64,7 +64,11 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun CreatePersonalAccountOverviewScreen(
     navigator: Navigator,
-    viewModel: CreateAccountOverviewViewModel = hiltViewModel()
+    args: CreateAccountOverviewNavArgs,
+    viewModel: CreateAccountOverviewViewModel =
+        hiltViewModel<CreateAccountOverviewViewModel, CreateAccountOverviewViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
     CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreatePersonalAccount, viewModel)
 }
@@ -73,7 +77,11 @@ fun CreatePersonalAccountOverviewScreen(
 @Composable
 fun CreateTeamAccountOverviewScreen(
     navigator: Navigator,
-    viewModel: CreateAccountOverviewViewModel = hiltViewModel()
+    args: CreateAccountOverviewNavArgs,
+    viewModel: CreateAccountOverviewViewModel =
+        hiltViewModel<CreateAccountOverviewViewModel, CreateAccountOverviewViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
     CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreateTeam, viewModel)
 }

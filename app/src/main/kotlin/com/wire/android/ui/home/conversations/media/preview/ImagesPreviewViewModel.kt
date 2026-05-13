@@ -20,22 +20,21 @@ package com.wire.android.ui.home.conversations.media.preview
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class ImagesPreviewViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = ImagesPreviewViewModel.Factory::class)
+class ImagesPreviewViewModel @AssistedInject constructor(
+    @Assisted private val navArgs: ImagesPreviewNavArgs,
     private val assetImporter: ImagesPreviewAssetImporter
 ) : ViewModel() {
 
-    private val navArgs: ImagesPreviewNavArgs = savedStateHandle.navArgs()
     var viewState by mutableStateOf(
         ImagesPreviewState(
             conversationId = navArgs.conversationId,
@@ -46,6 +45,11 @@ class ImagesPreviewViewModel @Inject constructor(
 
     init {
         handleAssets()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: ImagesPreviewNavArgs): ImagesPreviewViewModel
     }
 
     fun onSelected(index: Int) {

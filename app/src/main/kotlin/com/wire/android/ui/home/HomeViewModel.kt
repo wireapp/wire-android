@@ -22,7 +22,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.ImageAsset.UserAvatarAsset
@@ -50,7 +49,6 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
     private val dataStore: UserDataStore,
     private val observeSelf: ObserveSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,

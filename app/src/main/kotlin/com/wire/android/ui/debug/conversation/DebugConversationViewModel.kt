@@ -17,11 +17,9 @@
  */
 package com.wire.android.ui.debug.conversation
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.ui.common.ActionsViewModel
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -33,24 +31,24 @@ import com.wire.kalium.logic.feature.debug.DebugFeedConversationUseCase
 import com.wire.kalium.logic.feature.debug.DebugFeedResult
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCResult
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class DebugConversationViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = DebugConversationViewModel.Factory::class)
+class DebugConversationViewModel @AssistedInject constructor(
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,
     private val fetchConversation: FetchConversationUseCase,
     private val feedConversation: DebugFeedConversationUseCase,
     private val getConversationEpochFromCC: GetConversationEpochFromCCUseCase,
-    savedStateHandle: SavedStateHandle,
+    @Assisted args: DebugConversationScreenNavArgs,
 ) : ActionsViewModel<DebugConversationScreenAction>() {
-
-    val args: DebugConversationScreenNavArgs = savedStateHandle.navArgs()
 
     val conversationId = args.conversationId
 
@@ -60,6 +58,11 @@ class DebugConversationViewModel @Inject constructor(
 
     init {
         loadConversationDetails()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: DebugConversationScreenNavArgs): DebugConversationViewModel
     }
 
     private fun loadConversationDetails() = viewModelScope.launch {

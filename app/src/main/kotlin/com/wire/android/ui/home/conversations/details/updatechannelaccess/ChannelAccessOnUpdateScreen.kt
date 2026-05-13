@@ -38,7 +38,11 @@ import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessScree
 @Composable
 fun ChannelAccessOnUpdateScreen(
     resultNavigator: ResultBackNavigator<UpdateChannelAccessArgs>,
-    updateChannelAccessViewModel: UpdateChannelAccessViewModel = hiltViewModel()
+    args: UpdateChannelAccessArgs,
+    updateChannelAccessViewModel: UpdateChannelAccessViewModel =
+        hiltViewModel<UpdateChannelAccessViewModel, UpdateChannelAccessViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
 
     fun navigateBack() {

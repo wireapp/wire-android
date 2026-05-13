@@ -21,31 +21,29 @@ package com.wire.android.ui.home.conversations.search.adddembertoconversation
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class AddMembersToConversationViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = AddMembersToConversationViewModel.Factory::class)
+class AddMembersToConversationViewModel @AssistedInject constructor(
+    @Assisted private val addMembersSearchNavArgs: AddMembersSearchNavArgs,
     private val addMemberToConversation: AddMemberToConversationUseCase,
-    private val dispatchers: DispatcherProvider,
-    savedStateHandle: SavedStateHandle
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
-
-    private val addMembersSearchNavArgs: AddMembersSearchNavArgs = savedStateHandle.navArgs()
 
     var newGroupState: AddMembersToConversationState by mutableStateOf(AddMembersToConversationState())
         private set
@@ -74,6 +72,11 @@ class AddMembersToConversationViewModel @Inject constructor(
                 }.toImmutableSet()
             )
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: AddMembersSearchNavArgs): AddMembersToConversationViewModel
     }
 }
 

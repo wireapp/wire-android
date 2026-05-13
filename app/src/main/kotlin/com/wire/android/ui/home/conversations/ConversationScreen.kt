@@ -248,21 +248,49 @@ private const val MAX_GROUP_SIZE_FOR_PING = 3
 @Composable
 fun ConversationScreen(
     navigator: Navigator,
+    args: ConversationNavArgs,
     groupDetailsScreenResultRecipient:
     ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
     imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
-    conversationInfoViewModel: ConversationInfoViewModel = hiltViewModel(),
-    conversationBannerViewModel: ConversationBannerViewModel = hiltViewModel(),
-    conversationCallViewModel: ConversationCallViewModel = hiltViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
-    messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
-    sendMessageViewModel: SendMessageViewModel = hiltViewModel(),
-    conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
-    messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
-    messageAttachmentsViewModel: MessageAttachmentsViewModel = hiltViewModel(),
+    conversationInfoViewModel: ConversationInfoViewModel =
+        hiltViewModel<ConversationInfoViewModel, ConversationInfoViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
+    conversationBannerViewModel: ConversationBannerViewModel =
+        hiltViewModel<ConversationBannerViewModel, ConversationBannerViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
+    conversationCallViewModel: ConversationCallViewModel =
+        hiltViewModel<ConversationCallViewModel, ConversationCallViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
+    conversationMessagesViewModel: ConversationMessagesViewModel =
+        hiltViewModel<ConversationMessagesViewModel, ConversationMessagesViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
+    messageComposerViewModel: MessageComposerViewModel =
+        hiltViewModel<MessageComposerViewModel, MessageComposerViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
+    sendMessageViewModel: SendMessageViewModel =
+        hiltViewModel<SendMessageViewModel, SendMessageViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
+    conversationMigrationViewModel: ConversationMigrationViewModel =
+        hiltViewModel<ConversationMigrationViewModel, ConversationMigrationViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
+    messageDraftViewModel: MessageDraftViewModel =
+        hiltViewModel<MessageDraftViewModel, MessageDraftViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
+    messageAttachmentsViewModel: MessageAttachmentsViewModel =
+        hiltViewModel<MessageAttachmentsViewModel, MessageAttachmentsViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current

@@ -82,7 +82,11 @@ import com.wire.android.ui.common.R as commonR
 @Composable
 fun CreateAccountSelectorScreen(
     navigator: Navigator,
-    viewModel: CreateAccountSelectorViewModel = hiltViewModel()
+    args: CreateAccountSelectorNavArgs,
+    viewModel: CreateAccountSelectorViewModel =
+        hiltViewModel<CreateAccountSelectorViewModel, CreateAccountSelectorViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
     val context = LocalContext.current
     fun navigateToEmailScreen() {

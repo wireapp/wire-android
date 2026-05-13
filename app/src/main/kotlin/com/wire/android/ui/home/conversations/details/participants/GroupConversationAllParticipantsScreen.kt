@@ -57,7 +57,10 @@ import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 fun GroupConversationAllParticipantsScreen(
     navigator: Navigator,
     navArgs: GroupConversationAllParticipantsNavArgs,
-    viewModel: GroupConversationParticipantsViewModel = hiltViewModel()
+    viewModel: GroupConversationParticipantsViewModel =
+        hiltViewModel<GroupConversationParticipantsViewModel, GroupConversationParticipantsViewModel.Factory>(
+            creationCallback = { factory -> factory.create(navArgs.conversationId) }
+        )
 ) {
     GroupConversationAllParticipantsContent(
         onBackPressed = navigator::navigateBack,

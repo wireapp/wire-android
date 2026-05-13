@@ -54,8 +54,11 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun RecycleBinScreen(
     navigator: WireNavigator,
+    args: CellFilesNavArgs,
     modifier: Modifier = Modifier,
-    cellViewModel: CellViewModel = hiltViewModel()
+    cellViewModel: CellViewModel = hiltViewModel<CellViewModel, CellViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args, null) }
+    )
 ) {
 
     Box(modifier = modifier) {

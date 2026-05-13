@@ -21,13 +21,11 @@ package com.wire.android.ui.home.conversations.details.editguestaccess
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -47,6 +45,9 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomL
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -59,11 +60,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
+@HiltViewModel(assistedFactory = EditGuestAccessViewModel.Factory::class)
 @Suppress("LongParameterList", "TooManyFunctions")
-class EditGuestAccessViewModel @Inject constructor(
+class EditGuestAccessViewModel @AssistedInject constructor(
+    @Assisted private val editGuestAccessNavArgs: EditGuestAccessNavArgs,
     private val dispatcher: DispatcherProvider,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -76,10 +77,8 @@ class EditGuestAccessViewModel @Inject constructor(
     private val syncConversationCode: SyncConversationCodeUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val selfUser: ObserveSelfUserUseCase,
-    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val editGuestAccessNavArgs: EditGuestAccessNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = editGuestAccessNavArgs.conversationId
     private val accessParams = editGuestAccessNavArgs.editGuessAccessParams
 
@@ -96,6 +95,11 @@ class EditGuestAccessViewModel @Inject constructor(
         startObservingGuestRoomLink()
         observeGuestRoomLinkFeature()
         checkIfUserCanCreatePasswordProtectedLinks()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: EditGuestAccessNavArgs): EditGuestAccessViewModel
     }
 
     private val syncCodeMutex = Mutex()

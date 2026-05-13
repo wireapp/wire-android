@@ -21,7 +21,6 @@ package com.wire.android.ui.home.drawer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
@@ -44,7 +43,6 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class HomeDrawerViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
     private val observeArchivedUnreadConversationsCount: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
     private val observeSelfUser: ObserveSelfUserUseCase,
     private val getTeamUrl: GetTeamUrlUseCase,

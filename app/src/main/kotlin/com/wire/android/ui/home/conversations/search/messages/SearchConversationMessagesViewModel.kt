@@ -21,30 +21,28 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
-import javax.inject.Inject
 
-@HiltViewModel
-class SearchConversationMessagesViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = SearchConversationMessagesViewModel.Factory::class)
+class SearchConversationMessagesViewModel @AssistedInject constructor(
+    @Assisted searchConversationMessagesNavArgs: SearchConversationMessagesNavArgs,
     private val getSearchMessagesForConversation: GetConversationMessagesFromSearchUseCase,
-    private val dispatchers: DispatcherProvider,
-    savedStateHandle: SavedStateHandle
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
-
-    private val searchConversationMessagesNavArgs: SearchConversationMessagesNavArgs = savedStateHandle.navArgs()
 
     val conversationId: QualifiedID = searchConversationMessagesNavArgs.conversationId
     val groupName: String = searchConversationMessagesNavArgs.groupName
@@ -78,5 +76,10 @@ class SearchConversationMessagesViewModel @Inject constructor(
         searchConversationMessagesState = searchConversationMessagesState.copy(
             searchResult = messagesResultFlow,
         )
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: SearchConversationMessagesNavArgs): SearchConversationMessagesViewModel
     }
 }

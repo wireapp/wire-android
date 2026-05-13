@@ -25,23 +25,24 @@ import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.scope.DestinationScope
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.wrapper.DestinationWrapper
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.isTablet
 
 object TabletDialogWrapper : DestinationWrapper {
 
     @Composable
     override fun <T> DestinationScope<T>.Wrap(screenContent: @Composable () -> Unit) {
         val movableContent = remember(screenContent) { movableContentOf(screenContent) }
+        val isTablet = LocalConfiguration.current.smallestScreenWidthDp >= TABLET_MIN_SCREEN_WIDTH_DP
         val shouldWrapAsDialog = destination.style is DestinationStyle.Dialog ||
             (isTablet && shouldWrapTabletRouteAsDialog(destination.route))
         if (shouldWrapAsDialog) {
             Row(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(dimensions().spacing20x))
+                    .clip(RoundedCornerShape(20.dp))
                     .imePadding()
             ) {
                 movableContent()
@@ -58,3 +59,5 @@ fun setTabletDialogRouteMatcher(routeMatcher: (String) -> Boolean) {
 
 @Volatile
 private var shouldWrapTabletRouteAsDialog: (String) -> Boolean = { false }
+
+private const val TABLET_MIN_SCREEN_WIDTH_DP = 600

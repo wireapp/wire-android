@@ -21,7 +21,6 @@ package com.wire.android.ui.home.conversations.composer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
@@ -31,7 +30,6 @@ import com.wire.android.ui.home.conversations.InvalidLinkDialogState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.VisitLinkDialogState
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.FileSharingStatus
@@ -52,6 +50,9 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collectLatest
@@ -63,12 +64,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class MessageComposerViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = MessageComposerViewModel.Factory::class)
+class MessageComposerViewModel @AssistedInject constructor(
+    @Assisted conversationNavArgs: ConversationNavArgs,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
@@ -94,7 +94,6 @@ class MessageComposerViewModel @Inject constructor(
     var tempWritableImageUri: String? = null
         private set
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     var visitLinkDialogState: VisitLinkDialogState by mutableStateOf(
@@ -245,5 +244,10 @@ class MessageComposerViewModel @Inject constructor(
             .collectLatest { hasOngoingCalls ->
                 messageComposerViewState.value = messageComposerViewState.value.copy(isCallOngoing = hasOngoingCalls)
             }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: ConversationNavArgs): MessageComposerViewModel
     }
 }

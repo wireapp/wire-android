@@ -68,8 +68,11 @@ import java.util.Locale
 fun CreateFolderScreen(
     navigator: WireNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
+    args: CreateFolderScreenNavArgs,
     modifier: Modifier = Modifier,
-    createFolderViewModel: CreateFolderViewModel = hiltViewModel()
+    createFolderViewModel: CreateFolderViewModel = hiltViewModel<CreateFolderViewModel, CreateFolderViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args) }
+    )
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
 
@@ -181,6 +184,7 @@ fun PreviewCreateFolderScreen() {
         CreateFolderScreen(
             navigator = PreviewNavigator,
             resultNavigator = PreviewResultBackNavigator as ResultBackNavigator<Boolean>,
+            args = CreateFolderScreenNavArgs(uuid = "preview-uuid"),
         )
     }
 }

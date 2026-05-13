@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.composer
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestConversation
@@ -34,7 +33,6 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -83,7 +81,6 @@ internal class MessageComposerViewModelArrangement {
     init {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
-        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
 
         // Default empty values
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
@@ -98,8 +95,7 @@ internal class MessageComposerViewModelArrangement {
         coEvery { markConversationAsReadLocallyUseCase(any(), any()) } returns MarkConversationAsReadResult.Success(false)
     }
 
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
+    private val conversationNavArgs = ConversationNavArgs(conversationId = conversationId)
 
     @MockK
     lateinit var isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase
@@ -150,7 +146,7 @@ internal class MessageComposerViewModelArrangement {
 
     private val viewModel by lazy {
         MessageComposerViewModel(
-            savedStateHandle = savedStateHandle,
+            conversationNavArgs = conversationNavArgs,
             dispatchers = TestDispatcherProvider(),
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             updateConversationReadDate = updateConversationReadDateUseCase,

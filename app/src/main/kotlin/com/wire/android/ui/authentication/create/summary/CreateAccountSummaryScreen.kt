@@ -52,7 +52,11 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun CreateAccountSummaryScreen(
     navigator: Navigator,
-    viewModel: CreateAccountSummaryViewModel = hiltViewModel()
+    args: CreateAccountSummaryNavArgs,
+    viewModel: CreateAccountSummaryViewModel =
+        hiltViewModel<CreateAccountSummaryViewModel, CreateAccountSummaryViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
     SummaryContent(
         state = viewModel.summaryState,

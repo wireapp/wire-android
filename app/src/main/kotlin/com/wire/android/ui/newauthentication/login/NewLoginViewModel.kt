@@ -60,6 +60,9 @@ import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
@@ -69,16 +72,15 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import javax.inject.Inject
 import javax.inject.Named
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
+@HiltViewModel(assistedFactory = NewLoginViewModel.Factory::class)
 class NewLoginViewModel(
+    private val loginNavArgs: LoginNavArgs,
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     val coreLogic: CoreLogic,
     savedStateHandle: SavedStateHandle,
-    private val loginNavArgs: LoginNavArgs,
     val clientScopeProviderFactory: ClientScopeProvider.Factory,
     val userDataStoreProvider: UserDataStoreProvider,
     private val loginExtension: LoginViewModelExtension,
@@ -89,12 +91,12 @@ class NewLoginViewModel(
     private val recoverableLogoutExceptionDetector: NewLoginRecoverableLogoutExceptionDetector,
 ) : ActionsViewModel<NewLoginAction>() {
 
-    @Inject
+    @AssistedInject
     constructor(
+        @Assisted loginNavArgs: LoginNavArgs,
         validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
         @KaliumCoreLogic coreLogic: CoreLogic,
         savedStateHandle: SavedStateHandle,
-        loginNavArgsProvider: NewLoginNavArgsProvider,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         clientScopeProviderFactory: ClientScopeProvider.Factory,
         userDataStoreProvider: UserDataStoreProvider,
@@ -104,10 +106,10 @@ class NewLoginViewModel(
         @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
         recoverableLogoutExceptionDetector: NewLoginRecoverableLogoutExceptionDetector,
     ) : this(
+        loginNavArgs,
         validateEmailOrSSOCode,
         coreLogic,
         savedStateHandle,
-        loginNavArgsProvider.loginNavArgs(),
         clientScopeProviderFactory,
         userDataStoreProvider,
         LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
@@ -117,6 +119,11 @@ class NewLoginViewModel(
         defaultSSOCodeConfig,
         recoverableLogoutExceptionDetector
     )
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: LoginNavArgs): NewLoginViewModel
+    }
 
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
     private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl

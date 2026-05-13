@@ -80,7 +80,11 @@ import kotlinx.coroutines.job
 @Composable
 fun CreateAccountVerificationCodeScreen(
     navigator: Navigator,
-    createAccountCodeVerificationViewModel: CreateAccountVerificationCodeViewModel = hiltViewModel()
+    args: CreateAccountDataNavArgs,
+    createAccountCodeVerificationViewModel: CreateAccountVerificationCodeViewModel =
+        hiltViewModel<CreateAccountVerificationCodeViewModel, CreateAccountVerificationCodeViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
     with(createAccountCodeVerificationViewModel) {
         fun navigateToUsernameScreen() = navigator.navigate(

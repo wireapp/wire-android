@@ -74,7 +74,11 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun CreateAccountDetailsScreen(
     navigator: Navigator,
-    createAccountDetailsViewModel: CreateAccountDetailsViewModel = hiltViewModel()
+    args: CreateAccountNavArgs,
+    createAccountDetailsViewModel: CreateAccountDetailsViewModel =
+        hiltViewModel<CreateAccountDetailsViewModel, CreateAccountDetailsViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        )
 ) {
     with(createAccountDetailsViewModel) {
         fun navigateToCodeScreen() = navigator.navigate(

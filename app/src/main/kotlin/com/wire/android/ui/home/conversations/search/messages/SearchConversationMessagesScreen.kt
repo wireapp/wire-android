@@ -59,7 +59,11 @@ import com.wire.android.ui.common.R as commonR
 @Composable
 fun SearchConversationMessagesScreen(
     navigator: Navigator,
-    searchConversationMessagesViewModel: SearchConversationMessagesViewModel = hiltViewModel()
+    navArgs: SearchConversationMessagesNavArgs,
+    searchConversationMessagesViewModel: SearchConversationMessagesViewModel =
+        hiltViewModel<SearchConversationMessagesViewModel, SearchConversationMessagesViewModel.Factory>(
+            creationCallback = { factory -> factory.create(navArgs) }
+        )
 ) {
     SearchConversationMessagesResultContent(
         isCellsConversation = searchConversationMessagesViewModel.isCellsConversation,

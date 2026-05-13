@@ -77,8 +77,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddRemoveTagsScreen(
     navigator: WireNavigator,
+    args: AddRemoveTagsNavArgs,
     modifier: Modifier = Modifier,
-    addRemoveTagsViewModel: AddRemoveTagsViewModel = hiltViewModel(),
+    addRemoveTagsViewModel: AddRemoveTagsViewModel =
+        hiltViewModel<AddRemoveTagsViewModel, AddRemoveTagsViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
 ) {
     val context = LocalContext.current
 

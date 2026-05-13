@@ -59,7 +59,7 @@ class OtherUserProfileScreenViewModelTest {
             // given
             val expected = OtherUserProfileGroupState("some_name", Member.Role.Member, false, CONVERSATION_ID)
             val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
-                .withConversationIdInSavedState(CONVERSATION_ID)
+                .withConversationIdInArgs(CONVERSATION_ID)
                 .withGetOneToOneConversation(GetOneToOneConversationDetailsUseCase.Result.Success(CONVERSATION_ONE_ONE))
                 .arrange()
 
@@ -78,7 +78,7 @@ class OtherUserProfileScreenViewModelTest {
     fun `given no conversationId, when loading the data, then return null group state`() = runTest {
         // given
         val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
-            .withConversationIdInSavedState(null)
+            .withConversationIdInArgs(null)
             .arrange()
 
         // when

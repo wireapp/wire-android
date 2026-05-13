@@ -17,17 +17,14 @@
  */
 package com.wire.android.ui.home.conversations.messages.draft
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.draft.MessageDraft
@@ -37,7 +34,6 @@ import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -47,7 +43,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class, SnapshotExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class MessageDraftViewModelTest {
 
     @Test
@@ -169,13 +165,7 @@ class MessageDraftViewModelTest {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
-            every {
-                savedStateHandle.navArgs<ConversationNavArgs>()
-            } returns ConversationNavArgs(conversationId = TestConversation.ID)
         }
-
-        @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
         lateinit var getMessageDraft: GetMessageDraftUseCase
@@ -188,7 +178,7 @@ class MessageDraftViewModelTest {
 
         private val viewModel by lazy {
             MessageDraftViewModel(
-                savedStateHandle,
+                ConversationNavArgs(conversationId = TestConversation.ID),
                 getMessageDraft,
                 getQuoteMessageForConversation,
                 saveMessageDraft,

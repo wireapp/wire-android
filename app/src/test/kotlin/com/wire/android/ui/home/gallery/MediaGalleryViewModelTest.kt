@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.gallery
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
@@ -27,7 +26,6 @@ import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
@@ -54,7 +52,6 @@ import com.wire.kalium.logic.feature.message.MessageOperationResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -380,9 +377,6 @@ class MediaGalleryViewModelTest {
 
     private class Arrangement {
         @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var getConversationDetails: ObserveConversationDetailsUseCase
 
         @MockK
@@ -400,24 +394,24 @@ class MediaGalleryViewModelTest {
         @MockK
         lateinit var getCellFile: GetCellFileUseCase
 
+        private var navArgs = MediaGalleryNavArgs(
+            conversationId = dummyConversationId,
+            messageId = dummyMessageId,
+            isSelfAsset = true,
+            isEphemeral = false,
+            messageOptionsEnabled = true,
+            cellAssetId = null,
+        )
+
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
-
-            every { savedStateHandle.navArgs<MediaGalleryNavArgs>() } returns MediaGalleryNavArgs(
-                conversationId = dummyConversationId,
-                messageId = dummyMessageId,
-                isSelfAsset = true,
-                isEphemeral = false,
-                messageOptionsEnabled = true,
-                cellAssetId = null,
-            )
 
             coEvery { deleteMessage(any(), any(), any()) } returns MessageOperationResult.Success
         }
 
         fun withNavArgs(messageOptionsEnabled: Boolean = true, isEphemeral: Boolean = false, cellAssetId: String? = null) = apply {
-            every { savedStateHandle.navArgs<MediaGalleryNavArgs>() } returns MediaGalleryNavArgs(
+            navArgs = MediaGalleryNavArgs(
                 conversationId = dummyConversationId,
                 messageId = dummyMessageId,
                 isSelfAsset = true,
@@ -478,7 +472,7 @@ class MediaGalleryViewModelTest {
         }
 
         fun arrange() = this to MediaGalleryViewModel(
-            savedStateHandle,
+            navArgs,
             getConversationDetails,
             TestDispatcherProvider(),
             getImageData,

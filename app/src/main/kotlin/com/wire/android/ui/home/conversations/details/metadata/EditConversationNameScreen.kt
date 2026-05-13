@@ -40,7 +40,11 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun EditConversationNameScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<Boolean>,
-    viewModel: EditConversationMetadataViewModel = hiltViewModel(),
+    args: EditConversationNameNavArgs,
+    viewModel: EditConversationMetadataViewModel =
+        hiltViewModel<EditConversationMetadataViewModel, EditConversationMetadataViewModel.Factory>(
+            creationCallback = { factory -> factory.create(args) }
+        ),
 ) {
     with(viewModel) {
         LaunchedEffect(editConversationState.completed) {

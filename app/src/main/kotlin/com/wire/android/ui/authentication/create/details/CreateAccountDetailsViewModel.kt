@@ -21,29 +21,27 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 // TODO: Cover this viewModel  with unit test
-@HiltViewModel
-class CreateAccountDetailsViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = CreateAccountDetailsViewModel.Factory::class)
+class CreateAccountDetailsViewModel @AssistedInject constructor(
+    @Assisted val createAccountNavArgs: CreateAccountNavArgs,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
-
-    val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 
     val firstNameTextState: TextFieldState = TextFieldState()
     val lastNameTextState: TextFieldState = TextFieldState()
@@ -72,6 +70,11 @@ class CreateAccountDetailsViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: CreateAccountNavArgs): CreateAccountDetailsViewModel
     }
 
     fun onDetailsContinue() {

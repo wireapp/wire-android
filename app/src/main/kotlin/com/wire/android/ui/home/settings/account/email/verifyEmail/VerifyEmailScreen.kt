@@ -57,7 +57,10 @@ import com.wire.android.util.ui.stringWithStyledArgs
 @Composable
 fun VerifyEmailScreen(
     navigator: Navigator,
-    viewModel: VerifyEmailViewModel = hiltViewModel()
+    args: VerifyEmailNavArgs,
+    viewModel: VerifyEmailViewModel = hiltViewModel<VerifyEmailViewModel, VerifyEmailViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args) }
+    )
 ) {
     LaunchedEffect(viewModel.state.noChange) {
         if (viewModel.state.noChange) navigator.navigateBack()

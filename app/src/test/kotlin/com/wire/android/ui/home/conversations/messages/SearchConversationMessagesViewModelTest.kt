@@ -17,15 +17,11 @@
  */
 package com.wire.android.ui.home.conversations.messages
 
-import android.os.Bundle
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.core.os.bundleOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import androidx.paging.map
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -36,13 +32,11 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesNavArgs
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -56,7 +50,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class, SnapshotExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class SearchConversationMessagesViewModelTest {
 
     @Test
@@ -209,16 +203,15 @@ class SearchConversationMessagesViewModelTest {
         private val messagesChannel = Channel<PagingData<UIMessage>>(capacity = Channel.UNLIMITED)
 
         @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var getSearchMessagesForConversation: GetConversationMessagesFromSearchUseCase
 
         private val viewModel: SearchConversationMessagesViewModel by lazy {
             SearchConversationMessagesViewModel(
+                searchConversationMessagesNavArgs = SearchConversationMessagesNavArgs(
+                    conversationId = conversationId
+                ),
                 getSearchMessagesForConversation = getSearchMessagesForConversation,
-                dispatchers = TestDispatcherProvider(),
-                savedStateHandle = savedStateHandle
+                dispatchers = TestDispatcherProvider()
             )
         }
 
@@ -226,12 +219,6 @@ class SearchConversationMessagesViewModelTest {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
-            every { savedStateHandle.navArgs<SearchConversationMessagesNavArgs>() } returns SearchConversationMessagesNavArgs(
-                conversationId = conversationId
-            )
-            every { savedStateHandle.get<Bundle?>("searchConversationMessagesState") } returns bundleOf(
-                "value" to ""
-            )
             coEvery {
                 getSearchMessagesForConversation(
                     any(),

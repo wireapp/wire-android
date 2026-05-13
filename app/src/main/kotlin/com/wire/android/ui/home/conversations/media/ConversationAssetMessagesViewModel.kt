@@ -21,31 +21,29 @@ package com.wire.android.ui.home.conversations.media
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesFromConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
+@HiltViewModel(assistedFactory = ConversationAssetMessagesViewModel.Factory::class)
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationAssetMessagesViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+class ConversationAssetMessagesViewModel @AssistedInject constructor(
+    @Assisted conversationMediaNavArgs: ConversationMediaNavArgs,
     private val getImageMessages: ObserveImageAssetMessagesFromConversationUseCase,
     private val getAssetMessages: GetAssetMessagesFromConversationUseCase,
     private val observeAssetStatuses: ObserveAssetStatusesUseCase,
 ) : ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    val conversationId: QualifiedID = conversationMediaNavArgs.conversationId
 
     var viewState by mutableStateOf(ConversationAssetMessagesViewState())
         private set
@@ -54,6 +52,11 @@ class ConversationAssetMessagesViewModel @Inject constructor(
         loadImages()
         loadAssets()
         observeAssetStatuses()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: ConversationMediaNavArgs): ConversationAssetMessagesViewModel
     }
 
     private fun loadAssets() = viewModelScope.launch {

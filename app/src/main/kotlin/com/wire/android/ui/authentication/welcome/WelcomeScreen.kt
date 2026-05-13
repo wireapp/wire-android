@@ -113,7 +113,10 @@ import kotlinx.coroutines.flow.scan
 @Composable
 fun WelcomeScreen(
     navigator: Navigator,
-    viewModel: WelcomeViewModel = hiltViewModel()
+    args: WelcomeNavArgs,
+    viewModel: WelcomeViewModel = hiltViewModel<WelcomeViewModel, WelcomeViewModel.Factory>(
+        creationCallback = { factory -> factory.create(args) }
+    )
 ) {
     WelcomeContent(
         viewModel.state.isThereActiveSession,

@@ -121,7 +121,10 @@ fun OtherUserProfileScreen(
     resultNavigator: ResultBackNavigator<String>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    viewModel: OtherUserProfileScreenViewModel = hiltViewModel()
+    viewModel: OtherUserProfileScreenViewModel =
+        hiltViewModel<OtherUserProfileScreenViewModel, OtherUserProfileScreenViewModel.Factory>(
+            creationCallback = { factory -> factory.create(navArgs) }
+        )
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current

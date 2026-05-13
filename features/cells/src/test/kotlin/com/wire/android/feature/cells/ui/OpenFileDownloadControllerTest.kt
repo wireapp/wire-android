@@ -290,7 +290,7 @@ class OpenFileDownloadControllerTest {
         val (arrangement, controller) = Arrangement()
             .also { arr ->
                 coEvery { arr.downloadUseCase(eq(testFile.uuid), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
-                    val onProgressUpdate = arg<(Long) -> Unit>(6)
+                    val onProgressUpdate = arg<(Long) -> Unit>(7)
                     capturedOldProgressCallback = onProgressUpdate
                     delay(10_000L) // very long — cancelled before completing
                     Unit.right()
@@ -434,7 +434,7 @@ class OpenFileDownloadControllerTest {
 
         fun withProgressThenSuccess(progress: Long, uuid: String = testFile.uuid) = apply {
             coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
-                val onProgressUpdate = arg<(Long) -> Unit>(6)
+                val onProgressUpdate = arg<(Long) -> Unit>(7)
                 delay(450)
                 onProgressUpdate(progress)
                 delay(50) // download finishes at 500 ms total

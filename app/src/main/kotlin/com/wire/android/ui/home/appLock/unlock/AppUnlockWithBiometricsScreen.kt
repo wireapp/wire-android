@@ -34,10 +34,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.biometric.showBiometricPrompt
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -49,7 +49,9 @@ import com.ramcosta.composedestinations.generated.app.destinations.EnterLockCode
 @Composable
 fun AppUnlockWithBiometricsScreen(
     navigator: Navigator,
-    appUnlockWithBiometricsViewModel: AppUnlockWithBiometricsViewModel = hiltViewModel()
+    appUnlockWithBiometricsViewModel: AppUnlockWithBiometricsViewModel = metroViewModel {
+        appUnlockWithBiometricsViewModelFactory.create()
+    }
 ) {
     AppUnLockBackground()
 

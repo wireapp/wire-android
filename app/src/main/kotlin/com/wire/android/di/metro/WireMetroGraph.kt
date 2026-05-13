@@ -24,10 +24,20 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.emm.ManagedConfigurationsManager
+import com.wire.android.feature.ObserveAppLockConfigUseCase
+import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModelFactory
+import com.wire.android.ui.authentication.devices.common.ClearSessionViewModelFactory
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModelFactory
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModelFactory
+import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModelFactory
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModelFactory
+import com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModelFactory
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
+import com.wire.android.ui.home.appLock.set.SetLockScreenViewModelFactory
+import com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModelFactory
+import com.wire.android.ui.home.appLock.unlock.EnterLockScreenViewModelFactory
 import com.wire.android.ui.home.conversations.folder.NewFolderViewModelFactory
 import com.wire.android.ui.home.settings.about.dependencies.AndroidDependenciesInfoProvider
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesInfoProvider
@@ -40,7 +50,9 @@ import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSett
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsViewModelFactory
 import com.wire.android.ui.home.settings.appearance.CustomizationViewModelFactory
 import com.wire.android.ui.home.settings.SettingsViewModelFactory
+import com.wire.android.ui.home.settings.account.MyAccountViewModelFactory
 import com.wire.android.ui.home.settings.account.color.ChangeUserColorViewModelFactory
+import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountViewModelFactory
 import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameViewModelFactory
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailViewModelFactory
 import com.wire.android.ui.home.settings.account.handle.ChangeHandleViewModelFactory
@@ -63,9 +75,16 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
+import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
+import com.wire.kalium.logic.feature.call.CallsScope
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
+import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationScope
@@ -77,10 +96,19 @@ import com.wire.kalium.logic.feature.e2ei.usecase.GetUserMlsClientIdentitiesUseC
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.team.TeamScope
+import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
+import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
+import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateAccentColorUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
@@ -120,7 +148,9 @@ interface WireMetroGraph {
     val customizationViewModelFactory: CustomizationViewModelFactory
     val initialSyncViewModelFactory: InitialSyncViewModelFactory
     val networkSettingsViewModelFactory: NetworkSettingsViewModelFactory
+    val e2EIEnrollmentViewModelFactory: E2EIEnrollmentViewModelFactory
     val getE2EICertificateViewModelFactory: GetE2EICertificateViewModelFactory
+    val clearSessionViewModelFactory: ClearSessionViewModelFactory
     val settingsViewModelFactory: SettingsViewModelFactory
     val selfDevicesViewModelFactory: SelfDevicesViewModelFactory
     val avatarPickerViewModelFactory: AvatarPickerViewModelFactory
@@ -128,7 +158,13 @@ interface WireMetroGraph {
     val changeEmailViewModelFactory: ChangeEmailViewModelFactory
     val changeDisplayNameViewModelFactory: ChangeDisplayNameViewModelFactory
     val changeHandleViewModelFactory: ChangeHandleViewModelFactory
+    val myAccountViewModelFactory: MyAccountViewModelFactory
+    val deleteAccountViewModelFactory: DeleteAccountViewModelFactory
+    val appUnlockWithBiometricsViewModelFactory: AppUnlockWithBiometricsViewModelFactory
+    val enterLockScreenViewModelFactory: EnterLockScreenViewModelFactory
     val newFolderViewModelFactory: NewFolderViewModelFactory
+    val forgotLockScreenViewModelFactory: ForgotLockScreenViewModelFactory
+    val setLockScreenViewModelFactory: SetLockScreenViewModelFactory
 
     val dispatcherProvider: DispatcherProvider
 
@@ -171,6 +207,18 @@ interface WireMetroGraph {
     @Provides
     fun provideManagedConfigurationsManager(entryPoint: WireMetroHiltEntryPoint): ManagedConfigurationsManager =
         entryPoint.managedConfigurationsManager()
+
+    @Provides
+    fun provideLockCodeTimeManager(entryPoint: WireMetroHiltEntryPoint): LockCodeTimeManager =
+        entryPoint.lockCodeTimeManager()
+
+    @Provides
+    fun provideWireNotificationManager(entryPoint: WireMetroHiltEntryPoint): WireNotificationManager =
+        entryPoint.wireNotificationManager()
+
+    @Provides
+    fun provideAccountSwitchUseCase(entryPoint: WireMetroHiltEntryPoint): AccountSwitchUseCase =
+        entryPoint.accountSwitchUseCase()
 
     @CurrentAccount
     @Provides
@@ -262,8 +310,28 @@ interface WireMetroGraph {
         coreLogic.getSessionScope(currentAccount).users.observeSelfUser
 
     @Provides
+    fun provideObserveSelfUserWithTeamUseCase(userScope: UserScope): ObserveSelfUserWithTeamUseCase =
+        userScope.observeSelfUserWithTeam
+
+    @Provides
     fun provideGetSelfUserUseCase(userScope: UserScope): GetSelfUserUseCase =
         userScope.getSelfUser
+
+    @Provides
+    fun provideSelfServerConfigUseCase(userScope: UserScope): SelfServerConfigUseCase =
+        userScope.serverLinks
+
+    @Provides
+    fun provideIsPasswordRequiredUseCase(userScope: UserScope): IsPasswordRequiredUseCase =
+        userScope.isPasswordRequired
+
+    @Provides
+    fun provideIsReadOnlyAccountUseCase(userScope: UserScope): IsReadOnlyAccountUseCase =
+        userScope.isReadOnlyAccount
+
+    @Provides
+    fun provideDeleteAccountUseCase(userScope: UserScope): DeleteAccountUseCase =
+        userScope.deleteAccount
 
     @Provides
     fun provideSetUserHandleUseCase(userScope: UserScope): SetUserHandleUseCase =
@@ -276,6 +344,29 @@ interface WireMetroGraph {
         coreLogic.getGlobalScope().validateUserHandleUseCase
 
     @Provides
+    fun provideValidatePasswordUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): ValidatePasswordUseCase =
+        coreLogic.getGlobalScope().validatePasswordUseCase
+
+    @Provides
+    fun provideObserveAppLockConfigUseCase(
+        globalDataStore: GlobalDataStore,
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): ObserveAppLockConfigUseCase =
+        ObserveAppLockConfigUseCase(
+            globalDataStore = globalDataStore,
+            coreLogic = coreLogic,
+        )
+
+    @Provides
+    fun provideMarkTeamAppLockStatusAsNotifiedUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): MarkTeamAppLockStatusAsNotifiedUseCase =
+        coreLogic.getSessionScope(currentAccount).markTeamAppLockStatusAsNotified
+
+    @Provides
     fun provideUpdateEmailUseCase(userScope: UserScope): UpdateEmailUseCase =
         userScope.updateEmail
 
@@ -286,6 +377,21 @@ interface WireMetroGraph {
     @Provides
     fun provideUpdateDisplayNameUseCase(userScope: UserScope): UpdateDisplayNameUseCase =
         userScope.updateDisplayName
+
+    @Provides
+    fun provideFinalizeMLSClientAfterE2EIEnrollmentUseCase(userScope: UserScope): FinalizeMLSClientAfterE2EIEnrollment =
+        userScope.finalizeMLSClientAfterE2EIEnrollment
+
+    @Provides
+    fun provideDeleteSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): DeleteSessionUseCase =
+        coreLogic.getGlobalScope().deleteSession
+
+    @Provides
+    fun provideLogoutUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): LogoutUseCase =
+        coreLogic.getSessionScope(currentAccount).logout
 
     @Provides
     fun provideFetchSelfClientsFromRemoteUseCase(
@@ -323,6 +429,17 @@ interface WireMetroGraph {
         coreLogic.getSessionScope(currentAccount).isE2EIEnabled
 
     @Provides
+    fun provideTeamScope(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): TeamScope =
+        coreLogic.getSessionScope(currentAccount).team
+
+    @Provides
+    fun provideIsSelfATeamMemberUseCase(teamScope: TeamScope): IsSelfATeamMemberUseCase =
+        teamScope.isSelfATeamMember
+
+    @Provides
     fun provideConversationScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId,
@@ -336,6 +453,25 @@ interface WireMetroGraph {
     @Provides
     fun provideCreateConversationFolderUseCase(conversationScope: ConversationScope): CreateConversationFolderUseCase =
         conversationScope.createConversationFolder
+
+    @Provides
+    fun provideGetSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): GetSessionsUseCase =
+        coreLogic.getGlobalScope().session.allSessions
+
+    @Provides
+    fun provideCallsScope(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): CallsScope =
+        coreLogic.getSessionScope(currentAccount).calls
+
+    @Provides
+    fun provideObserveEstablishedCallsUseCase(callsScope: CallsScope): ObserveEstablishedCallsUseCase =
+        callsScope.establishedCall
+
+    @Provides
+    fun provideEndCallUseCase(callsScope: CallsScope): EndCallUseCase =
+        callsScope.endCall
 
     @Provides
     fun provideNetworkSettingsDefaultsProvider(
@@ -396,4 +532,10 @@ interface WireMetroHiltEntryPoint {
     fun automatedLoginManager(): AutomatedLoginManager
 
     fun managedConfigurationsManager(): ManagedConfigurationsManager
+
+    fun lockCodeTimeManager(): LockCodeTimeManager
+
+    fun wireNotificationManager(): WireNotificationManager
+
+    fun accountSwitchUseCase(): AccountSwitchUseCase
 }

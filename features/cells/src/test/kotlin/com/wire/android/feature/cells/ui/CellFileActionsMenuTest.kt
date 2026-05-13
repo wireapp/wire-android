@@ -560,6 +560,7 @@ class CellFileActionsMenuTest {
     private companion object {
         val fileNode = CellNodeUi.File(
             name = "file.txt",
+            conversationId = "conversationId",
             conversationName = "Conversation",
             uuid = "fileUuid",
             mimeType = "video/mp4",

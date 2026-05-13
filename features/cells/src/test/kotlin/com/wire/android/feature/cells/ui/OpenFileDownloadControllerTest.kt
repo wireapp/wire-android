@@ -95,7 +95,7 @@ class OpenFileDownloadControllerTest {
 
         assertEquals(fileWithLocalPath.uuid, openedFile?.uuid)
         assertTrue(controller.openLoadStates.value.isEmpty(), "No load state should be set")
-        coVerify(exactly = 0) { arrangement.downloadUseCase(any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.downloadUseCase(any(), any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -289,7 +289,7 @@ class OpenFileDownloadControllerTest {
         var capturedOldProgressCallback: ((Long) -> Unit)? = null
         val (arrangement, controller) = Arrangement()
             .also { arr ->
-                coEvery { arr.downloadUseCase(eq(testFile.uuid), any(), any(), any(), any(), any(), any()) } coAnswers {
+                coEvery { arr.downloadUseCase(eq(testFile.uuid), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
                     val onProgressUpdate = arg<(Long) -> Unit>(6)
                     capturedOldProgressCallback = onProgressUpdate
                     delay(10_000L) // very long — cancelled before completing
@@ -308,7 +308,7 @@ class OpenFileDownloadControllerTest {
         assertNull(controller.openLoadStates.value[testFile.uuid], "State must be cleared on cancel")
 
         // Re-configure the mock so the second download is also slow (but we control it).
-        coEvery { arrangement.downloadUseCase(eq(testFile.uuid), any(), any(), any(), any(), any(), any()) } coAnswers {
+        coEvery { arrangement.downloadUseCase(eq(testFile.uuid), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
             delay(10_000L) // stays in-flight during the test
             Unit.right()
         }
@@ -380,6 +380,7 @@ class OpenFileDownloadControllerTest {
 
         val testFile = CellNodeUi.File(
             uuid = "test-uuid",
+            conversationId = "conversation-id",
             name = "report.pdf",
             mimeType = "application/pdf",
             assetType = AttachmentFileType.OTHER,
@@ -416,23 +417,23 @@ class OpenFileDownloadControllerTest {
         }
 
         fun withDownloadSuccess(uuid: String = testFile.uuid) = apply {
-            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any()) } returns Unit.right()
+            coEvery { downloadUseCase(eq(uuid), any(), any(),any(), any(), any(), any(), any()) } returns Unit.right()
         }
 
         fun withSlowDownloadSuccess(uuid: String = testFile.uuid) = apply {
-            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any()) } coAnswers {
+            coEvery { downloadUseCase(eq(uuid), any(), any(),any(), any(), any(), any(), any()) } coAnswers {
                 delay(500) // Exceeds 400 ms spinner threshold
                 Unit.right()
             }
         }
 
         fun withDownloadFailure(uuid: String = testFile.uuid) = apply {
-            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any()) } returns
+            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(),any(), any()) } returns
                     StorageFailure.DataNotFound.left()
         }
 
         fun withProgressThenSuccess(progress: Long, uuid: String = testFile.uuid) = apply {
-            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(), any()) } coAnswers {
+            coEvery { downloadUseCase(eq(uuid), any(), any(), any(), any(), any(),any(), any()) } coAnswers {
                 val onProgressUpdate = arg<(Long) -> Unit>(6)
                 delay(450)
                 onProgressUpdate(progress)

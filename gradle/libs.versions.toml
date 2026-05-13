@@ -101,7 +101,7 @@ profileinstaller = "1.4.1"
 
 # Testing
 androidx-espresso = "3.7.0"
-androidx-test-core = "1.6.1"
+androidx-test-core = "1.7.0"
 androidx-test-extensions = "1.2.1"
 androidx-test-orchestrator = "1.5.1"
 androidx-test-rules = "1.6.1"

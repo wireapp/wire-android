@@ -79,6 +79,7 @@ class CellViewModelTest {
         val testFiles = listOf(
             Node.File(
                 uuid = "fileUuid",
+                conversationId = "conversationId",
                 versionId = "versionId",
                 name = "fileName",
                 mimeType = "image/png",
@@ -90,6 +91,7 @@ class CellViewModelTest {
             ),
             Node.File(
                 uuid = "fileUuid2",
+                conversationId = "conversationId",
                 versionId = "versionId2",
                 name = "fileName2",
                 mimeType = "image/png",
@@ -156,24 +158,25 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when file clicked and local file is not present and url is not openable then download starts immediately`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .withDownloadSuccess()
-            .arrange()
+    fun `given view model when file clicked and local file is not present and url is not openable then download starts immediately`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withLoadSuccess()
+                .withDownloadSuccess()
+                .arrange()
 
-        val testFile = testFiles[0].copy(
-            localPath = null,
-            contentUrl = null
-        ).toUiModel()
+            val testFile = testFiles[0].copy(
+                localPath = null,
+                contentUrl = null
+            ).toUiModel()
 
-        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
-        // Advance time so download coroutine can complete
-        advanceUntilIdle()
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
+            // Advance time so download coroutine can complete
+            advanceUntilIdle()
 
-        // Download use case was called
-        coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any()) }
-    }
+            // Download use case was called
+            coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) }
+        }
 
     @Test
     fun `given file has local path in DB when clicked with error state then file opened without re-downloading`() = runTest {
@@ -188,7 +191,7 @@ class CellViewModelTest {
         viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
         advanceUntilIdle()
 
-        coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) }
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
@@ -367,11 +370,11 @@ class CellViewModelTest {
         }
 
         fun withDownloadSuccess() = apply {
-            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()
+            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()
         }
 
         fun withSlowDownloadSuccess() = apply {
-            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any()) } coAnswers {
+            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
                 delay(500) // Simulate download taking 500ms (longer than the 300ms threshold)
                 Unit.right()
             }

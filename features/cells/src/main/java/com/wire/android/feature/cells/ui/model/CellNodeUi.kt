@@ -83,7 +83,7 @@ sealed class CellNodeUi {
         internal override val openLoadState: OpenLoadState? = null,
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
-        val conversationId: String? = null,
+        val conversationId: String?,
     ) : CellNodeUi()
 }
 

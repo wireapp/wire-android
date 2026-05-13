@@ -472,6 +472,7 @@ private fun PreviewCellListItem() {
         CellListItem(
             cell = CellNodeUi.File(
                 uuid = "",
+                conversationId = "conversationId",
                 name = "file name",
                 assetType = AttachmentFileType.IMAGE,
                 size = 123214,
@@ -499,6 +500,7 @@ private fun PreviewCellListItemLoading() {
         CellListItem(
             cell = CellNodeUi.File(
                 uuid = "",
+                conversationId = "conversationId",
                 name = "file name",
                 assetType = AttachmentFileType.IMAGE,
                 size = 123214,
@@ -527,6 +529,7 @@ private fun PreviewCellListItemReady() {
         CellListItem(
             cell = CellNodeUi.File(
                 uuid = "",
+                conversationId = "conversationId",
                 name = "file name",
                 assetType = AttachmentFileType.IMAGE,
                 size = 123214,
@@ -555,6 +558,7 @@ private fun PreviewCellListItemDownloading() {
         CellListItem(
             cell = CellNodeUi.File(
                 uuid = "",
+                conversationId = "conversationId",
                 name = "file name",
                 assetType = AttachmentFileType.IMAGE,
                 size = 123214,

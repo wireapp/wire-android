@@ -1,5 +1,6 @@
 plugins {
     id(libs.plugins.wire.kmp.library.get().pluginId)
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrains.compose)
 }
 

@@ -165,6 +165,7 @@ googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.re
 googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
 kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
+metro-gradlePlugin = { module = "dev.zacsweers.metro:dev.zacsweers.metro.gradle.plugin", version.ref = "metro" }
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }
@@ -183,6 +184,7 @@ allure-kotlin-android = { module = "io.qameta.allure:allure-kotlin-android", ver
 # android dependencies
 
 # KotlinX
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 

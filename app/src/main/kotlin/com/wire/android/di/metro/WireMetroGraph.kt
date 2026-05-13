@@ -19,12 +19,14 @@ package com.wire.android.di.metro
 
 import android.content.Context
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModelFactory
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModelFactory
+import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModelFactory
 import com.wire.android.ui.home.settings.about.dependencies.AndroidDependenciesInfoProvider
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesInfoProvider
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewModelFactory
@@ -35,6 +37,7 @@ import com.wire.android.ui.home.settings.appsettings.networkSettings.AndroidNetw
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsDefaultsProvider
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsViewModelFactory
 import com.wire.android.ui.home.settings.appearance.CustomizationViewModelFactory
+import com.wire.android.ui.home.settings.SettingsViewModelFactory
 import com.wire.android.ui.home.whatsnew.AndroidReleaseNotesFeedUrlProvider
 import com.wire.android.ui.home.whatsnew.ReleaseNotesFeedUrlProvider
 import com.wire.android.ui.home.whatsnew.WhatsNewViewModelFactory
@@ -42,14 +45,31 @@ import com.wire.android.ui.initialsync.InitialSyncViewModelFactory
 import com.wire.android.ui.settings.about.AboutThisAppInfoProvider
 import com.wire.android.ui.settings.about.AboutThisAppViewModelFactory
 import com.wire.android.ui.settings.about.AndroidAboutThisAppInfoProvider
+import com.wire.android.ui.settings.devices.SelfDevicesViewModelFactory
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModelFactory
+import com.wire.android.ui.userprofile.avatarpicker.AndroidAvatarImageGateway
+import com.wire.android.ui.userprofile.avatarpicker.AvatarImageGateway
+import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModelFactory
+import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
+import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
+import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
+import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserMlsClientIdentitiesUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
+import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.PersistPersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -83,6 +103,15 @@ interface WireMetroGraph {
     val customizationViewModelFactory: CustomizationViewModelFactory
     val initialSyncViewModelFactory: InitialSyncViewModelFactory
     val networkSettingsViewModelFactory: NetworkSettingsViewModelFactory
+    val getE2EICertificateViewModelFactory: GetE2EICertificateViewModelFactory
+    val settingsViewModelFactory: SettingsViewModelFactory
+    val selfDevicesViewModelFactory: SelfDevicesViewModelFactory
+    val avatarPickerViewModelFactory: AvatarPickerViewModelFactory
+
+    val dispatcherProvider: DispatcherProvider
+
+    @get:CurrentAccount
+    val currentAccount: UserId
 
     @Provides
     fun provideWireMetroHiltEntryPoint(
@@ -96,11 +125,19 @@ interface WireMetroGraph {
     ): GlobalDataStore = GlobalDataStore(context)
 
     @Provides
-    fun provideCoreLogic(entryPoint: WireMetroHiltEntryPoint): CoreLogic = entryPoint.coreLogic()
+    @KaliumCoreLogic
+    fun provideKaliumCoreLogic(entryPoint: WireMetroHiltEntryPoint): CoreLogic = entryPoint.coreLogic()
 
     @Provides
     fun provideUserDataStoreProvider(entryPoint: WireMetroHiltEntryPoint): UserDataStoreProvider =
         entryPoint.userDataStoreProvider()
+
+    @Provides
+    fun provideCurrentAccountUserDataStore(
+        @CurrentAccount currentAccount: UserId,
+        userDataStoreProvider: UserDataStoreProvider,
+    ): UserDataStore =
+        userDataStoreProvider.getOrCreate(currentAccount)
 
     @Provides
     fun provideDispatchers(entryPoint: WireMetroHiltEntryPoint): DispatcherProvider = entryPoint.dispatcherProvider()
@@ -115,7 +152,7 @@ interface WireMetroGraph {
 
     @CurrentAccount
     @Provides
-    fun provideCurrentSession(coreLogic: CoreLogic): UserId =
+    fun provideCurrentSession(@KaliumCoreLogic coreLogic: CoreLogic): UserId =
         runBlocking {
             when (val result = coreLogic.getGlobalScope().session.currentSession()) {
                 is CurrentSessionResult.Success -> result.accountInfo.userId
@@ -125,14 +162,110 @@ interface WireMetroGraph {
 
     @Provides
     fun provideObserveSyncStateUseCase(
-        coreLogic: CoreLogic,
+        @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId,
     ): ObserveSyncStateUseCase =
         coreLogic.getSessionScope(currentAccount).observeSyncState
 
     @Provides
-    fun provideGetFeatureConfigUseCase(coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetFeatureConfigUseCase =
+    fun provideUserScope(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): UserScope =
+        coreLogic.getSessionScope(currentAccount).users
+
+    @Provides
+    fun provideGetAvatarAssetUseCase(userScope: UserScope): GetAvatarAssetUseCase =
+        userScope.getPublicAsset
+
+    @Provides
+    fun provideUploadUserAvatarUseCase(userScope: UserScope): UploadUserAvatarUseCase =
+        userScope.uploadUserAvatar
+
+    @Provides
+    fun provideKaliumFileSystem(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): KaliumFileSystem =
+        coreLogic.getSessionScope(currentAccount).kaliumFileSystem
+
+    @Provides
+    fun provideQualifiedIdMapper(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): QualifiedIdMapper =
+        coreLogic.getSessionScope(currentAccount).qualifiedIdMapper
+
+    @Provides
+    fun provideAvatarImageManager(
+        @ApplicationContext context: Context,
+    ): AvatarImageManager =
+        AvatarImageManager(context)
+
+    @Provides
+    fun provideAvatarImageGateway(
+        avatarImageManager: AvatarImageManager,
+        dispatchers: DispatcherProvider,
+        @ApplicationContext context: Context,
+    ): AvatarImageGateway =
+        AndroidAvatarImageGateway(
+            avatarImageManager = avatarImageManager,
+            dispatchers = dispatchers,
+            appContext = context,
+        )
+
+    @Provides
+    fun provideGetFeatureConfigUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): GetFeatureConfigUseCase =
         coreLogic.getSessionScope(currentAccount).debug.getFeatureConfig
+
+    @Provides
+    fun provideObserveIsAppLockEditableUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveIsAppLockEditableUseCase =
+        coreLogic.getGlobalScope().observeIsAppLockEditableUseCase
+
+    @Provides
+    fun provideObserveSelfUserUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): ObserveSelfUserUseCase =
+        coreLogic.getSessionScope(currentAccount).users.observeSelfUser
+
+    @Provides
+    fun provideFetchSelfClientsFromRemoteUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): FetchSelfClientsFromRemoteUseCase =
+        coreLogic.getSessionScope(currentAccount).client.fetchSelfClients
+
+    @Provides
+    fun provideObserveClientsByUserIdUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): ObserveClientsByUserIdUseCase =
+        coreLogic.getSessionScope(currentAccount).client.getOtherUserClients
+
+    @Provides
+    fun provideObserveCurrentClientIdUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): ObserveCurrentClientIdUseCase =
+        coreLogic.getSessionScope(currentAccount).client.observeCurrentClientId
+
+    @Provides
+    fun provideGetUserMlsClientIdentitiesUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): GetUserMlsClientIdentitiesUseCase =
+        coreLogic.getSessionScope(currentAccount).users.getUserMlsClientIdentities
+
+    @Provides
+    fun provideIsE2EIEnabledUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): IsE2EIEnabledUseCase =
+        coreLogic.getSessionScope(currentAccount).isE2EIEnabled
 
     @Provides
     fun provideNetworkSettingsDefaultsProvider(
@@ -140,18 +273,18 @@ interface WireMetroGraph {
     ): NetworkSettingsDefaultsProvider = AndroidNetworkSettingsDefaultsProvider(context)
 
     @Provides
-    fun provideCurrentSessionUseCase(coreLogic: CoreLogic): CurrentSessionUseCase =
+    fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): CurrentSessionUseCase =
         coreLogic.getGlobalScope().session.currentSession
 
     @Provides
     fun provideObservePersistentWebSocketConnectionStatusUseCase(
-        coreLogic: CoreLogic,
+        @KaliumCoreLogic coreLogic: CoreLogic,
     ): ObservePersistentWebSocketConnectionStatusUseCase =
         coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
 
     @Provides
     fun providePersistPersistentWebSocketConnectionStatusUseCase(
-        coreLogic: CoreLogic,
+        @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId,
     ): PersistPersistentWebSocketConnectionStatusUseCase =
         coreLogic.getSessionScope(currentAccount).persistPersistentWebSocketConnectionStatus

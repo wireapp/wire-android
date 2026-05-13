@@ -33,9 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.DeviceItem
@@ -56,7 +56,9 @@ import com.wire.kalium.logic.data.conversation.ClientId
 @Composable
 fun SelfDevicesScreen(
     navigator: Navigator,
-    viewModel: SelfDevicesViewModel = hiltViewModel()
+    viewModel: SelfDevicesViewModel = metroViewModel {
+        selfDevicesViewModelFactory.create()
+    }
 ) {
     val lifecycleEvent = rememberLifecycleEvent()
     LaunchedEffect(lifecycleEvent) {

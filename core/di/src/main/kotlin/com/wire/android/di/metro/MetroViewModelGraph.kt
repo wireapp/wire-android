@@ -19,7 +19,7 @@ package com.wire.android.di.metro
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -27,17 +27,23 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 
+interface MetroViewModelGraph
+
+val LocalMetroViewModelGraph = staticCompositionLocalOf<MetroViewModelGraph?> {
+    null
+}
+
 @Composable
-inline fun <reified VM : ViewModel> metroViewModel(
+inline fun <reified Graph, reified VM> metroViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
     key: String? = null,
-    crossinline create: WireMetroGraph.() -> VM,
-): VM {
-    val providedGraph = LocalMetroViewModelGraph.current as? WireMetroGraph
-    val context = LocalContext.current
-    val graph = providedGraph ?: remember(context) { createWireMetroGraph(context) }
+    crossinline create: Graph.() -> VM,
+): VM where Graph : MetroViewModelGraph, VM : ViewModel {
+    val graph = checkNotNull(LocalMetroViewModelGraph.current as? Graph) {
+        "No Metro graph matching ${Graph::class.qualifiedName} was provided"
+    }
     val factory = remember(graph) {
         viewModelFactory {
             initializer {

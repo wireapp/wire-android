@@ -43,8 +43,8 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 fun AllFilesScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    viewModel: CellViewModel = wireCellsViewModel<CellViewModel, CellViewModel.Factory>(
-        creationCallback = { factory -> factory.create(CellFilesNavArgs(), null) }
+    viewModel: CellViewModel = cellsMetroViewModel<CellViewModel>(
+        creationCallback = { cellViewModelFactory.create(CellFilesNavArgs(), null) }
     ),
 ) {
 

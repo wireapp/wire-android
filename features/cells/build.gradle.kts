@@ -14,6 +14,7 @@ dependencies {
     implementation("com.wire.kalium:kalium-common")
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-cells")
+    implementation(project(":core:di"))
     implementation(project(":core:ui-common"))
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)

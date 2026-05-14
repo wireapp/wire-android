@@ -36,19 +36,14 @@ import com.wire.kalium.logic.data.user.type.isFederated
 import com.wire.kalium.logic.data.user.type.isGuest
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel(assistedFactory = ConversationBannerViewModel.Factory::class)
-class ConversationBannerViewModel @AssistedInject constructor(
-    @Assisted private val conversationNavArgs: ConversationNavArgs,
+class ConversationBannerViewModel(
+    private val conversationNavArgs: ConversationNavArgs,
     private val observeConversationMembersByTypes: ObserveConversationMembersByTypesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val notifyConversationIsOpen: NotifyConversationIsOpenUseCase,
@@ -73,11 +68,6 @@ class ConversationBannerViewModel @AssistedInject constructor(
         viewModelScope.launch {
             notifyConversationIsOpen(conversationId)
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: ConversationNavArgs): ConversationBannerViewModel
     }
 
     @Suppress("ComplexMethod")

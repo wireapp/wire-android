@@ -38,7 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.wire.android.feature.cells.ui.wireCellsViewModel
+import com.wire.android.feature.cells.ui.cellsMetroViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.ErrorScreen
 import com.wire.android.feature.cells.ui.common.LoadingScreen
@@ -74,8 +74,8 @@ fun VersionHistoryScreen(
     args: VersionHistoryNavArgs,
     modifier: Modifier = Modifier,
     versionHistoryViewModel: VersionHistoryViewModel =
-        wireCellsViewModel<VersionHistoryViewModel, VersionHistoryViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
+        cellsMetroViewModel<VersionHistoryViewModel>(
+            creationCallback = { versionHistoryViewModelFactory.create(args) }
         )
 ) {
     val optionsBottomSheetState = rememberWireModalSheetState<Pair<String, CellVersion>>()

@@ -27,7 +27,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.ui.calling.model.InCallReaction
 import com.wire.android.ui.calling.model.ReactionSender
@@ -62,10 +61,6 @@ import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -87,10 +82,9 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel(assistedFactory = OngoingCallViewModel.Factory::class)
-class OngoingCallViewModel @AssistedInject constructor(
-    @Assisted val conversationId: ConversationId,
-    @CurrentAccount val currentUserId: UserId,
+class OngoingCallViewModel(
+    val conversationId: ConversationId,
+    val currentUserId: UserId,
     private val globalDataStore: GlobalDataStore,
     private val networkStateObserver: NetworkStateObserver,
     private val observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase,
@@ -374,11 +368,6 @@ class OngoingCallViewModel @AssistedInject constructor(
         const val DOUBLE_TAP_TOAST_DISPLAY_TIME = 7000L // according to the designs
         const val DELAY_TO_SHOW_DOUBLE_TAP_TOAST = 500L
         const val TAG = "OngoingCallViewModel"
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(conversationId: ConversationId): OngoingCallViewModel
     }
 }
 

@@ -50,10 +50,6 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.util.PlatformRotation
 import com.wire.kalium.logic.util.PlatformView
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -66,9 +62,8 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel(assistedFactory = SharedCallingViewModel.Factory::class)
-class SharedCallingViewModel @AssistedInject constructor(
-    @Assisted val conversationId: ConversationId,
+class SharedCallingViewModel(
+    val conversationId: ConversationId,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeLastActiveCallWithSortedParticipants: ObserveLastActiveCallWithSortedParticipantsUseCase,
     private val hangUpCall: HangUpCallUseCase,
@@ -249,11 +244,6 @@ class SharedCallingViewModel @AssistedInject constructor(
         viewModelScope.launch {
             setUIRotationUseCase(rotation)
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(conversationId: ConversationId): SharedCallingViewModel
     }
 }
 

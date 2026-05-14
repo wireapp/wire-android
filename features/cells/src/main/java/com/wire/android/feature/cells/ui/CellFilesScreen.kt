@@ -40,12 +40,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
@@ -59,12 +59,12 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 
 @Composable
-internal inline fun <reified VM : ViewModel, reified VMF> wireCellsViewModel(
+internal inline fun <reified VM : ViewModel> cellsMetroViewModel(
     key: String? = null,
-    noinline creationCallback: (VMF) -> VM,
-): VM = hiltViewModel<VM, VMF>(
+    noinline creationCallback: CellViewModelGraph.() -> VM,
+): VM = metroViewModel<CellViewModelGraph, VM>(
     key = key,
-    creationCallback = creationCallback
+    create = creationCallback,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)

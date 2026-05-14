@@ -35,12 +35,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.common.CallVideoPreview
@@ -72,15 +72,13 @@ import com.wire.kalium.logic.util.PlatformView
 fun IncomingCallScreen(
     conversationId: ConversationId,
     shouldTryToAnswerCallAutomatically: Boolean,
-    incomingCallViewModel: IncomingCallViewModel = hiltViewModel<IncomingCallViewModel, IncomingCallViewModel.Factory>(
-        key = "incoming_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
+    incomingCallViewModel: IncomingCallViewModel = metroViewModel(key = "incoming_$conversationId") {
+        incomingCallViewModelFactory.create(conversationId = conversationId)
+    },
     sharedCallingViewModel: SharedCallingViewModel =
-    hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
-        key = "shared_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
+        metroViewModel(key = "shared_$conversationId") {
+            sharedCallingViewModelFactory.create(conversationId = conversationId)
+        },
     onCallAccepted: () -> Unit
 ) {
     val activity = LocalActivity.current

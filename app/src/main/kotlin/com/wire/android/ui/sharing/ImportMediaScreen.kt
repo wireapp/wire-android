@@ -55,7 +55,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
@@ -125,7 +124,9 @@ import okio.Path.Companion.toPath
 fun ImportMediaScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
-    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
+    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = metroViewModel {
+        featureFlagNotificationViewModelFactory.create()
+    },
 ) {
     when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
         FeatureFlagState.FileSharingState.Loading -> {

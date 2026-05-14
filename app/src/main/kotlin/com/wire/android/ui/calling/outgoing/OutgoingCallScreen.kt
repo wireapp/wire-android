@@ -34,8 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
@@ -58,14 +58,12 @@ import com.wire.kalium.logic.util.PlatformView
 fun OutgoingCallScreen(
     conversationId: ConversationId,
     sharedCallingViewModel: SharedCallingViewModel =
-    hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
-        key = "shared_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
-    outgoingCallViewModel: OutgoingCallViewModel = hiltViewModel<OutgoingCallViewModel, OutgoingCallViewModel.Factory>(
-        key = "outgoing_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
+        metroViewModel(key = "shared_$conversationId") {
+            sharedCallingViewModelFactory.create(conversationId = conversationId)
+        },
+    outgoingCallViewModel: OutgoingCallViewModel = metroViewModel(key = "outgoing_$conversationId") {
+        outgoingCallViewModelFactory.create(conversationId = conversationId)
+    },
     onCallAccepted: () -> Unit
 ) {
     val permissionPermanentlyDeniedDialogState =

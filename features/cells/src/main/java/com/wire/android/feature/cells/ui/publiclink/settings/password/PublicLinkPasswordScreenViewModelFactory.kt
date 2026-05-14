@@ -24,13 +24,13 @@ import com.wire.kalium.logic.util.RandomPassword
 import dev.zacsweers.metro.Inject
 
 @Inject
-internal class PublicLinkPasswordScreenViewModelFactory(
+class PublicLinkPasswordScreenViewModelFactory(
     private val generateRandomPassword: RandomPassword,
     private val createPassword: CreatePublicLinkPasswordUseCase,
     private val updatePassword: UpdatePublicLinkPasswordUseCase,
     private val getPublicLinkPassword: GetPublicLinkPasswordUseCase,
 ) {
-    fun create(navArgs: PublicLinkPasswordNavArgs): PublicLinkPasswordScreenViewModel =
+    internal fun create(navArgs: PublicLinkPasswordNavArgs): PublicLinkPasswordScreenViewModel =
         PublicLinkPasswordScreenViewModel(
             navArgs = navArgs,
             generateRandomPassword = generateRandomPassword,

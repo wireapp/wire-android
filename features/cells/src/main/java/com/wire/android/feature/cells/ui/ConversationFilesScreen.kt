@@ -101,8 +101,8 @@ fun ConversationFilesScreen(
     navigator: WireNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
     args: CellFilesNavArgs,
-    viewModel: CellViewModel = wireCellsViewModel<CellViewModel, CellViewModel.Factory>(
-        creationCallback = { factory -> factory.create(args, null) }
+    viewModel: CellViewModel = cellsMetroViewModel<CellViewModel>(
+        creationCallback = { cellViewModelFactory.create(args, null) }
     ),
 ) {
     ConversationFilesScreenContent(

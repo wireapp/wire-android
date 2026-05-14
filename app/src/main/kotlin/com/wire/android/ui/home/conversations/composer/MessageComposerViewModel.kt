@@ -50,10 +50,6 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -66,9 +62,8 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel(assistedFactory = MessageComposerViewModel.Factory::class)
-class MessageComposerViewModel @AssistedInject constructor(
-    @Assisted conversationNavArgs: ConversationNavArgs,
+class MessageComposerViewModel(
+    conversationNavArgs: ConversationNavArgs,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
@@ -244,10 +239,5 @@ class MessageComposerViewModel @AssistedInject constructor(
             .collectLatest { hasOngoingCalls ->
                 messageComposerViewState.value = messageComposerViewState.value.copy(isCallOngoing = hasOngoingCalls)
             }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: ConversationNavArgs): MessageComposerViewModel
     }
 }

@@ -38,14 +38,24 @@ import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
+import com.wire.android.feature.cells.ui.AndroidCellFileExternalActions
+import com.wire.android.feature.cells.ui.CellFileActionsMenu
+import com.wire.android.feature.cells.ui.CellFileExternalActions
+import com.wire.android.feature.cells.ui.CellFileLocalPathCache
+import com.wire.android.feature.cells.ui.OpenFileDownloadController
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
+import com.wire.android.feature.cells.util.FileHelper
+import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.media.audiomessage.AudioFocusHelper
 import com.wire.android.media.audiomessage.AudioMessageViewModelFactory
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
+import com.wire.android.media.CallRinger
+import com.wire.android.media.PingRinger
 import com.wire.android.mapper.MessageContentMapper
 import com.wire.android.mapper.MessageMapper
 import com.wire.android.mapper.MessageResourceProvider
@@ -54,9 +64,11 @@ import com.wire.android.mapper.ContactMapper
 import com.wire.android.mapper.RegularMessageMapper
 import com.wire.android.mapper.SystemMessageContentMapper
 import com.wire.android.mapper.UIAssetMapper
+import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UIParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.notification.CallNotificationManager
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelFactory
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModelFactory
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModelFactory
@@ -99,9 +111,22 @@ import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.E
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessViewModelFactory
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModelFactory
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModelFactory
+import com.wire.android.ui.home.conversations.MessageSharedState
+import com.wire.android.ui.home.conversations.attachment.MessageAttachmentAssetImporter
+import com.wire.android.ui.home.conversations.attachment.MessageAttachmentAssetImporterImpl
+import com.wire.android.ui.home.conversations.attachment.MessageAttachmentFileGateway
+import com.wire.android.ui.home.conversations.attachment.MessageAttachmentFileGatewayImpl
+import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModelFactory
+import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModelFactory
+import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
+import com.wire.android.ui.home.conversations.call.ConversationCallViewModelFactory
+import com.wire.android.ui.home.conversations.composer.AndroidTempWritableAttachmentUriProvider
+import com.wire.android.ui.home.conversations.composer.MessageComposerViewModelFactory
+import com.wire.android.ui.home.conversations.composer.TempWritableAttachmentUriProvider
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersViewModelFactory
 import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderViewModelFactory
 import com.wire.android.ui.home.conversations.folder.NewFolderViewModelFactory
+import com.wire.android.ui.home.conversations.info.ConversationInfoViewModelFactory
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessViewModelFactory
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModelFactory
@@ -120,16 +145,20 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewM
 import com.wire.android.ui.home.conversations.messages.QuotedMultipartMessageViewModelFactory
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModelFactory
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModelFactory
+import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModelFactory
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellAssetRefreshHelper
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelFactory
+import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModelFactory
 import com.wire.android.ui.home.conversations.search.SearchUserViewModelFactory
 import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModelFactory
 import com.wire.android.ui.home.conversations.search.apps.SearchAppsViewModelFactory
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModelFactory
+import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModelFactory
 import com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
+import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.GetUsersForMessageUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesFromConversationUseCase
@@ -137,7 +166,13 @@ import com.wire.android.ui.home.conversations.usecase.ObserveMessageForConversat
 import com.wire.android.ui.home.conversations.usecase.ObserveQuoteMessageForConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConversationUseCase
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModelFactory
+import com.wire.android.ui.home.AppSyncViewModelFactory
+import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelFactory
+import com.wire.android.ui.home.conversationslist.ConversationListViewModelFactory
 import com.wire.android.ui.home.gallery.MediaGalleryViewModelFactory
+import com.wire.android.ui.home.HomeViewModelFactory
+import com.wire.android.ui.home.drawer.HomeDrawerViewModelFactory
+import com.wire.android.ui.home.newconversation.NewConversationViewModelFactory
 import com.wire.android.ui.home.messagecomposer.attachments.IsFileSharingEnabledViewModelFactory
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelFactory
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerHelperFlavor
@@ -173,7 +208,26 @@ import com.wire.android.ui.home.settings.privacy.PrivacySettingsViewModelFactory
 import com.wire.android.ui.home.whatsnew.AndroidReleaseNotesFeedUrlProvider
 import com.wire.android.ui.home.whatsnew.ReleaseNotesFeedUrlProvider
 import com.wire.android.ui.home.whatsnew.WhatsNewViewModelFactory
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModelFactory
 import com.wire.android.ui.analytics.AnalyticsConfiguration
+import com.wire.android.ui.analytics.AnalyticsUsageViewModelFactory
+import com.wire.android.feature.cells.ui.CellViewModelGraph
+import com.wire.android.feature.cells.ui.CellViewModelFactory
+import com.wire.android.feature.cells.ui.create.file.CreateFileViewModelFactory
+import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModelFactory
+import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModelFactory
+import com.wire.android.feature.cells.ui.publiclink.PublicLinkViewModelFactory
+import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationScreenViewModelFactory
+import com.wire.android.feature.cells.ui.publiclink.settings.password.PublicLinkPasswordScreenViewModelFactory
+import com.wire.android.feature.cells.ui.rename.RenameNodeViewModelFactory
+import com.wire.android.feature.cells.ui.search.SearchScreenViewModelFactory
+import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModelFactory
+import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModelFactory
+import com.wire.android.ui.calling.common.SharedCallingViewModelFactory
+import com.wire.android.ui.calling.incoming.IncomingCallViewModelFactory
+import com.wire.android.ui.calling.ongoing.OngoingCallViewModelFactory
+import com.wire.android.ui.calling.outgoing.OutgoingCallViewModelFactory
+import com.wire.android.ui.calling.usecase.HangUpCallUseCase
 import com.wire.android.ui.initialsync.InitialSyncViewModelFactory
 import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewModelFactory
 import com.wire.android.ui.registration.details.CreateAccountDataDetailViewModelFactory
@@ -186,6 +240,7 @@ import com.wire.android.ui.settings.devices.SelfDevicesViewModelFactory
 import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsViewModelFactory
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModelFactory
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModelFactory
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModelFactory
 import com.wire.android.ui.connection.ConnectionActionButtonViewModelFactory
 import com.wire.android.ui.newauthentication.login.NewLoginRecoverableLogoutExceptionDetector
 import com.wire.android.ui.newauthentication.login.NewLoginViewModelFactory
@@ -199,6 +254,7 @@ import com.wire.android.ui.userprofile.qr.SelfQRCodeAssetRepository
 import com.wire.android.ui.userprofile.qr.SelfQRCodeViewModelFactory
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModelFactory
 import com.wire.android.ui.userprofile.service.ServiceDetailsViewModelFactory
+import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModelFactory
 import com.wire.android.ui.sharing.ImportMediaAssetImporter
 import com.wire.android.ui.sharing.ImportMediaAssetImporterImpl
 import com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModelFactory
@@ -206,6 +262,10 @@ import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.EMPTY
 import com.wire.android.util.FileManager
+import com.wire.android.util.FileSizeFormatter
+import com.wire.android.util.GetMediaMetadataUseCase
+import com.wire.android.util.GetMediaMetadataUseCaseImpl
+import com.wire.android.util.ImageUtil
 import com.wire.android.util.ScreenStateObserver
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.isWebsocketEnabledByDefault
@@ -217,12 +277,45 @@ import com.wire.android.util.ui.AndroidUiTextResolver
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.cells.CellsScope
+import com.wire.kalium.cells.domain.CellUploadManager
+import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
+import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
+import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
+import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
+import com.wire.kalium.cells.domain.usecase.GetPaginatedCellConversationsFlowUseCase
+import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
+import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
+import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
+import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
+import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.RemoveNodeTagsUseCase
+import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
+import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
+import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
+import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateDocumentFileUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateFolderUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreatePresentationFileUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateSpreadsheetFileUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellVersionUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkPasswordUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
+import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
+import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
+import com.wire.kalium.cells.paginatedConversationsFlowUseCase
+import com.wire.kalium.cells.paginatedFilesFlowUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.conversation.FetchConversationUseCase
@@ -238,6 +331,7 @@ import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetMessageByConve
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.ObservePaginatedAssetImageMessages
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
+import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -258,9 +352,36 @@ import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
 import com.wire.kalium.logic.feature.call.CallsScope
+import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
+import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
+import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveCallModerationActionsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveCallQualityDataUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveConferenceCallingEnabledUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
+import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetCallQualityIntervalUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetUIRotationUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
+import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
+import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
+import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.channels.ChannelsScope
+import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
@@ -269,7 +390,9 @@ import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
+import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
@@ -295,12 +418,25 @@ import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversation
 import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
+import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
+import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
+import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
+import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
+import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -308,6 +444,8 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.conversation.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
@@ -337,13 +475,16 @@ import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserMlsClientIdentitiesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
+import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
@@ -351,6 +492,7 @@ import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.team.TeamScope
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
@@ -364,16 +506,29 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesByConversationUseCase
+import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
+import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
+import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
+import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
+import com.wire.kalium.logic.feature.message.SendKnockUseCase
+import com.wire.kalium.logic.feature.message.SendLocationUseCase
+import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
+import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
+import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.message.fetchOlderMessagesByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessageByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
+import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 import com.wire.kalium.logic.feature.message.observePaginatedImageAssetMessageByConversationId
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
@@ -418,10 +573,12 @@ import com.wire.kalium.logic.feature.user.webSocketStatus.PersistPersistentWebSo
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import com.wire.kalium.logic.featureFlags.BuildFileRestrictionState
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import com.wire.kalium.logic.sync.ForegroundActionsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import com.wire.kalium.logic.util.RandomPassword
+import com.wire.kalium.network.NetworkStateObserver
 import com.wire.kalium.util.DelicateKaliumApi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.EntryPoint
@@ -440,7 +597,7 @@ abstract class WireMetroScope private constructor()
 
 @DependencyGraph(WireMetroScope::class)
 @Suppress("LargeClass", "TooManyFunctions")
-interface WireMetroGraph {
+interface WireMetroGraph : CellViewModelGraph {
     @DependencyGraph.Factory
     fun interface Factory {
         fun create(@Provides @ApplicationContext context: Context): WireMetroGraph
@@ -538,6 +695,39 @@ interface WireMetroGraph {
     val conversationAssetMessagesViewModelFactory: ConversationAssetMessagesViewModelFactory
     val conversationMessagesViewModelFactory: ConversationMessagesViewModelFactory
     val audioMessageViewModelFactory: AudioMessageViewModelFactory
+    val conversationInfoViewModelFactory: ConversationInfoViewModelFactory
+    val conversationBannerViewModelFactory: ConversationBannerViewModelFactory
+    val conversationCallViewModelFactory: ConversationCallViewModelFactory
+    val messageComposerViewModelFactory: MessageComposerViewModelFactory
+    val sendMessageViewModelFactory: SendMessageViewModelFactory
+    val conversationMigrationViewModelFactory: ConversationMigrationViewModelFactory
+    val messageDraftViewModelFactory: MessageDraftViewModelFactory
+    val messageAttachmentsViewModelFactory: MessageAttachmentsViewModelFactory
+    val homeViewModelFactory: HomeViewModelFactory
+    val appSyncViewModelFactory: AppSyncViewModelFactory
+    val homeDrawerViewModelFactory: HomeDrawerViewModelFactory
+    val newConversationViewModelFactory: NewConversationViewModelFactory
+    val analyticsUsageViewModelFactory: AnalyticsUsageViewModelFactory
+    override val cellViewModelFactory: CellViewModelFactory
+    override val createFileViewModelFactory: CreateFileViewModelFactory
+    override val createFolderViewModelFactory: CreateFolderViewModelFactory
+    override val renameNodeViewModelFactory: RenameNodeViewModelFactory
+    override val moveToFolderViewModelFactory: MoveToFolderViewModelFactory
+    override val addRemoveTagsViewModelFactory: AddRemoveTagsViewModelFactory
+    override val versionHistoryViewModelFactory: VersionHistoryViewModelFactory
+    override val publicLinkViewModelFactory: PublicLinkViewModelFactory
+    override val publicLinkExpirationScreenViewModelFactory: PublicLinkExpirationScreenViewModelFactory
+    override val publicLinkPasswordScreenViewModelFactory: PublicLinkPasswordScreenViewModelFactory
+    override val searchScreenViewModelFactory: SearchScreenViewModelFactory
+    val teamMigrationViewModelFactory: TeamMigrationViewModelFactory
+    val incomingCallViewModelFactory: IncomingCallViewModelFactory
+    val outgoingCallViewModelFactory: OutgoingCallViewModelFactory
+    val ongoingCallViewModelFactory: OngoingCallViewModelFactory
+    val sharedCallingViewModelFactory: SharedCallingViewModelFactory
+    val conversationListViewModelFactory: ConversationListViewModelFactory
+    val conversationListCallViewModelFactory: ConversationListCallViewModelFactory
+    val featureFlagNotificationViewModelFactory: FeatureFlagNotificationViewModelFactory
+    val legalHoldRequestedViewModelFactory: LegalHoldRequestedViewModelFactory
 
     val dispatcherProvider: DispatcherProvider
 
@@ -560,6 +750,13 @@ interface WireMetroGraph {
     fun provideKaliumCoreLogic(entryPoint: WireMetroHiltEntryPoint): CoreLogic = entryPoint.coreLogic()
 
     @Provides
+    @KaliumCoreLogic
+    fun provideKaliumCoreLogicLazy(@KaliumCoreLogic coreLogic: CoreLogic): dagger.Lazy<CoreLogic> =
+        object : dagger.Lazy<CoreLogic> {
+            override fun get(): CoreLogic = coreLogic
+        }
+
+    @Provides
     fun provideUserDataStoreProvider(entryPoint: WireMetroHiltEntryPoint): UserDataStoreProvider =
         entryPoint.userDataStoreProvider()
 
@@ -569,6 +766,18 @@ interface WireMetroGraph {
         userDataStoreProvider: UserDataStoreProvider,
     ): UserDataStore =
         userDataStoreProvider.getOrCreate(currentAccount)
+
+    @Provides
+    fun provideCurrentAccountUserDataStoreLazy(userDataStore: UserDataStore): dagger.Lazy<UserDataStore> =
+        object : dagger.Lazy<UserDataStore> {
+            override fun get(): UserDataStore = userDataStore
+        }
+
+    @Provides
+    fun provideGlobalDataStoreLazy(globalDataStore: GlobalDataStore): dagger.Lazy<GlobalDataStore> =
+        object : dagger.Lazy<GlobalDataStore> {
+            override fun get(): GlobalDataStore = globalDataStore
+        }
 
     @Provides
     fun provideDispatchers(entryPoint: WireMetroHiltEntryPoint): DispatcherProvider = entryPoint.dispatcherProvider()
@@ -663,6 +872,35 @@ interface WireMetroGraph {
     @Provides
     fun provideAnonymousAnalyticsManager(): AnonymousAnalyticsManager =
         AnonymousAnalyticsManagerImpl
+
+    @Provides
+    fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic): CurrentSessionFlowUseCase =
+        coreLogic.getGlobalScope().session.currentSessionFlow
+
+    @Provides
+    fun provideCurrentSessionFlowUseCaseLazy(currentSessionFlow: CurrentSessionFlowUseCase): dagger.Lazy<CurrentSessionFlowUseCase> =
+        object : dagger.Lazy<CurrentSessionFlowUseCase> {
+            override fun get(): CurrentSessionFlowUseCase = currentSessionFlow
+        }
+
+    @Provides
+    fun provideSelfServerConfigUseCaseLazy(selfServerConfig: SelfServerConfigUseCase): dagger.Lazy<SelfServerConfigUseCase> =
+        object : dagger.Lazy<SelfServerConfigUseCase> {
+            override fun get(): SelfServerConfigUseCase = selfServerConfig
+        }
+
+    @Provides
+    fun provideDisableAppLockUseCase(
+        globalDataStore: GlobalDataStore,
+        observeIsAppLockEditable: ObserveIsAppLockEditableUseCase,
+    ): DisableAppLockUseCase =
+        DisableAppLockUseCase(globalDataStore, observeIsAppLockEditable)
+
+    @Provides
+    fun provideDisableAppLockUseCaseLazy(disableAppLockUseCase: DisableAppLockUseCase): dagger.Lazy<DisableAppLockUseCase> =
+        object : dagger.Lazy<DisableAppLockUseCase> {
+            override fun get(): DisableAppLockUseCase = disableAppLockUseCase
+        }
 
     @Provides
     fun provideKaliumConfigs(): KaliumConfigs =
@@ -926,6 +1164,13 @@ interface WireMetroGraph {
         coreLogic.getSessionScope(currentAccount).checkCrlRevocationList
 
     @Provides
+    fun provideFetchConversationMLSVerificationStatusUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): FetchConversationMLSVerificationStatusUseCase =
+        coreLogic.getSessionScope(currentAccount).fetchConversationMLSVerificationStatus
+
+    @Provides
     fun provideGetCurrentAnalyticsTrackingIdentifierUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId,
@@ -998,6 +1243,13 @@ interface WireMetroGraph {
         userScope.isPersonalToTeamAccountSupportedByBackend
 
     @Provides
+    fun provideMigrateFromPersonalToTeamUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): MigrateFromPersonalToTeamUseCase =
+        coreLogic.getSessionScope(currentAccount).migrateFromPersonalToTeam
+
+    @Provides
     fun provideIsProfileQRCodeEnabledUseCase(userScope: UserScope): IsProfileQRCodeEnabledUseCase =
         userScope.isProfileQRCodeEnabled
 
@@ -1024,12 +1276,54 @@ interface WireMetroGraph {
         UserTypeMapper()
 
     @Provides
+    fun provideUICallParticipantMapper(userTypeMapper: UserTypeMapper): UICallParticipantMapper =
+        UICallParticipantMapper(userTypeMapper)
+
+    @Provides
     fun provideContactMapper(userTypeMapper: UserTypeMapper): ContactMapper =
         ContactMapper(userTypeMapper)
 
     @Provides
     fun provideMessageResourceProvider(): MessageResourceProvider =
         MessageResourceProvider()
+
+    @Provides
+    fun provideMessageSharedState(): MessageSharedState =
+        MessageSharedState()
+
+    @Provides
+    fun provideGetMediaMetadataUseCase(): GetMediaMetadataUseCase =
+        GetMediaMetadataUseCaseImpl()
+
+    @Provides
+    fun provideImageUtil(): ImageUtil =
+        ImageUtil
+
+    @Provides
+    fun providePingRinger(@ApplicationContext context: Context): PingRinger =
+        PingRinger(context)
+
+    @Provides
+    fun provideTempWritableAttachmentUriProvider(
+        fileManager: FileManager,
+        kaliumFileSystem: KaliumFileSystem,
+    ): TempWritableAttachmentUriProvider =
+        AndroidTempWritableAttachmentUriProvider(
+            fileManager = fileManager,
+            kaliumFileSystem = kaliumFileSystem,
+        )
+
+    @Provides
+    fun provideMessageAttachmentAssetImporter(
+        handleUriAsset: HandleUriAssetUseCase,
+    ): MessageAttachmentAssetImporter =
+        MessageAttachmentAssetImporterImpl(handleUriAsset)
+
+    @Provides
+    fun provideMessageAttachmentFileGateway(
+        fileManager: FileManager,
+    ): MessageAttachmentFileGateway =
+        MessageAttachmentFileGatewayImpl(fileManager)
 
     @Provides
     fun provideISOFormatter(): ISOFormatter =
@@ -1267,6 +1561,10 @@ interface WireMetroGraph {
         clientScope.getOrRegister
 
     @Provides
+    fun provideNeedsToRegisterClientUseCase(clientScope: ClientScope): NeedsToRegisterClientUseCase =
+        clientScope.needsToRegisterClient
+
+    @Provides
     fun provideFetchSelfClientsFromRemoteUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId,
@@ -1329,6 +1627,14 @@ interface WireMetroGraph {
         userScope.isWireCellsEnabled
 
     @Provides
+    fun provideIsWireCellsEnabledForConversationUseCase(userScope: UserScope): IsWireCellsEnabledForConversationUseCase =
+        userScope.isWireCellsEnabledForConversation
+
+    @Provides
+    fun provideForegroundActionsUseCase(userScope: UserScope): ForegroundActionsUseCase =
+        userScope.foregroundActions
+
+    @Provides
     fun provideTeamScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId,
@@ -1355,12 +1661,98 @@ interface WireMetroGraph {
         conversationScope.observeConversationDetails
 
     @Provides
+    fun provideObserveConversationListDetailsWithEventsUseCase(
+        conversationScope: ConversationScope,
+    ): ObserveConversationListDetailsWithEventsUseCase =
+        conversationScope.observeConversationListDetailsWithEvents
+
+    @Provides
     fun provideGetConversationUnreadEventsCountUseCase(conversationScope: ConversationScope): GetConversationUnreadEventsCountUseCase =
         conversationScope.getConversationUnreadEventsCountUseCase
 
     @Provides
     fun provideClearUsersTypingEventsUseCase(conversationScope: ConversationScope): ClearUsersTypingEventsUseCase =
         conversationScope.clearUsersTypingEvents
+
+    @Provides
+    fun provideRefreshConversationsWithoutMetadataUseCase(
+        conversationScope: ConversationScope,
+    ): RefreshConversationsWithoutMetadataUseCase =
+        conversationScope.refreshConversationsWithoutMetadata
+
+    @Provides
+    fun provideObserveArchivedUnreadConversationsCountUseCase(
+        conversationScope: ConversationScope,
+    ): ObserveArchivedUnreadConversationsCountUseCase =
+        conversationScope.observeArchivedUnreadConversationsCount
+
+    @Provides
+    fun provideObserveArchivedUnreadConversationsCountUseCaseLazy(
+        observeArchivedUnreadConversationsCount: ObserveArchivedUnreadConversationsCountUseCase,
+    ): dagger.Lazy<ObserveArchivedUnreadConversationsCountUseCase> =
+        object : dagger.Lazy<ObserveArchivedUnreadConversationsCountUseCase> {
+            override fun get(): ObserveArchivedUnreadConversationsCountUseCase = observeArchivedUnreadConversationsCount
+        }
+
+    @Provides
+    fun provideNotifyConversationIsOpenUseCase(conversationScope: ConversationScope): NotifyConversationIsOpenUseCase =
+        conversationScope.notifyConversationIsOpen
+
+    @Provides
+    fun provideObserveConversationInteractionAvailabilityUseCase(
+        conversationScope: ConversationScope,
+    ): ObserveConversationInteractionAvailabilityUseCase =
+        conversationScope.observeConversationInteractionAvailabilityUseCase
+
+    @Provides
+    fun provideMembersToMentionUseCase(conversationScope: ConversationScope): MembersToMentionUseCase =
+        conversationScope.getMembersToMention
+
+    @Provides
+    fun provideUpdateConversationReadDateUseCase(conversationScope: ConversationScope): UpdateConversationReadDateUseCase =
+        conversationScope.updateConversationReadDateUseCase
+
+    @Provides
+    fun provideMarkConversationAsReadLocallyUseCase(conversationScope: ConversationScope): MarkConversationAsReadLocallyUseCase =
+        conversationScope.markConversationAsReadLocally
+
+    @Provides
+    fun provideSendTypingEventUseCase(conversationScope: ConversationScope): SendTypingEventUseCase =
+        conversationScope.sendTypingEvent
+
+    @Provides
+    fun provideSetUserInformedAboutVerificationUseCase(
+        conversationScope: ConversationScope,
+    ): SetUserInformedAboutVerificationUseCase =
+        conversationScope.setUserInformedAboutVerificationBeforeMessagingUseCase
+
+    @Provides
+    fun provideObserveDegradedConversationNotifiedUseCase(
+        conversationScope: ConversationScope,
+    ): ObserveDegradedConversationNotifiedUseCase =
+        conversationScope.observeInformAboutVerificationBeforeMessagingFlagUseCase
+
+    @Provides
+    fun provideSetNotifiedAboutConversationUnderLegalHoldUseCase(
+        conversationScope: ConversationScope,
+    ): SetNotifiedAboutConversationUnderLegalHoldUseCase =
+        conversationScope.setNotifiedAboutConversationUnderLegalHold
+
+    @Provides
+    fun provideObserveConversationUnderLegalHoldNotifiedUseCase(
+        conversationScope: ConversationScope,
+    ): ObserveConversationUnderLegalHoldNotifiedUseCase =
+        conversationScope.observeConversationUnderLegalHoldNotified
+
+    @Provides
+    fun provideObserveConversationMembersByTypesUseCase(
+        observeConversationMembers: ObserveConversationMembersUseCase,
+        dispatchers: DispatcherProvider,
+    ): ObserveConversationMembersByTypesUseCase =
+        ObserveConversationMembersByTypesUseCase(
+            observeConversationMembers = observeConversationMembers,
+            dispatchers = dispatchers,
+        )
 
     @Provides
     fun provideResetMLSConversationUseCase(
@@ -1391,6 +1783,14 @@ interface WireMetroGraph {
     @Provides
     fun provideObserveConversationMembersUseCase(conversationScope: ConversationScope): ObserveConversationMembersUseCase =
         conversationScope.observeConversationMembers
+
+    @Provides
+    fun provideCreateRegularGroupUseCase(conversationScope: ConversationScope): CreateRegularGroupUseCase =
+        conversationScope.createRegularGroup
+
+    @Provides
+    fun provideCreateChannelUseCase(conversationScope: ConversationScope): CreateChannelUseCase =
+        conversationScope.createChannel
 
     @Provides
     fun provideObserveUsersTypingUseCase(conversationScope: ConversationScope): ObserveUsersTypingUseCase =
@@ -1555,6 +1955,12 @@ interface WireMetroGraph {
         channelsScope.updateChannelAddPermission
 
     @Provides
+    fun provideObserveChannelsCreationPermissionUseCase(
+        channelsScope: ChannelsScope,
+    ): ObserveChannelsCreationPermissionUseCase =
+        channelsScope.observeChannelsCreationPermissionUseCase
+
+    @Provides
     fun provideSendConnectionRequestUseCase(connectionScope: ConnectionScope): SendConnectionRequestUseCase =
         connectionScope.sendConnectionRequest
 
@@ -1699,10 +2105,64 @@ interface WireMetroGraph {
         messageScope.sendButtonActionMessage
 
     @Provides
+    fun provideEnqueueMessageSelfDeletionUseCase(messageScope: MessageScope): EnqueueMessageSelfDeletionUseCase =
+        messageScope.enqueueMessageSelfDeletion
+
+    @Provides
+    fun provideScheduleNewAssetMessageUseCase(messageScope: MessageScope): ScheduleNewAssetMessageUseCase =
+        messageScope.sendAssetMessage
+
+    @Provides
+    fun provideSendTextMessageUseCase(messageScope: MessageScope): SendTextMessageUseCase =
+        messageScope.sendTextMessage
+
+    @Provides
+    fun provideSendMultipartMessageUseCase(messageScope: MessageScope): SendMultipartMessageUseCase =
+        messageScope.sendMultipartMessage
+
+    @Provides
+    fun provideSendEditTextMessageUseCase(messageScope: MessageScope): SendEditTextMessageUseCase =
+        messageScope.sendEditTextMessage
+
+    @Provides
+    fun provideSendEditMultipartMessageUseCase(messageScope: MessageScope): SendEditMultipartMessageUseCase =
+        messageScope.sendEditMultipartMessage
+
+    @Provides
+    fun provideRetryFailedMessageUseCase(messageScope: MessageScope): RetryFailedMessageUseCase =
+        messageScope.retryFailedMessage
+
+    @Provides
+    fun provideSendKnockUseCase(messageScope: MessageScope): SendKnockUseCase =
+        messageScope.sendKnock
+
+    @Provides
+    fun provideSendLocationUseCase(messageScope: MessageScope): SendLocationUseCase =
+        messageScope.sendLocation
+
+    @Provides
+    fun provideRemoveMessageDraftUseCase(messageScope: MessageScope): RemoveMessageDraftUseCase =
+        messageScope.removeMessageDraftUseCase
+
+    @Provides
+    fun provideGetMessageDraftUseCase(messageScope: MessageScope): GetMessageDraftUseCase =
+        messageScope.getMessageDraftUseCase
+
+    @Provides
+    fun provideSaveMessageDraftUseCase(messageScope: MessageScope): SaveMessageDraftUseCase =
+        messageScope.saveMessageDraftUseCase
+
+    @Provides
     fun provideGetPaginatedFlowOfMessagesByConversationUseCase(
         messageScope: MessageScope,
     ): GetPaginatedFlowOfMessagesByConversationUseCase =
         messageScope.getPaginatedFlowOfMessagesByConversation
+
+    @Provides
+    fun provideGetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase(
+        messageScope: MessageScope,
+    ): GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase =
+        messageScope.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 
     @Provides
     fun provideGetPaginatedFlowOfAssetMessageByConversationIdUseCase(
@@ -1756,6 +2216,20 @@ interface WireMetroGraph {
     ): ObserveQuoteMessageForConversationUseCase =
         ObserveQuoteMessageForConversationUseCase(
             observeMessageById = observeMessageById,
+            getUsersForMessage = getUsersForMessage,
+            messageMapper = messageMapper,
+            dispatchers = dispatchers,
+        )
+
+    @Provides
+    fun provideGetQuoteMessageForConversationUseCase(
+        getMessageById: GetMessageByIdUseCase,
+        getUsersForMessage: GetUsersForMessageUseCase,
+        messageMapper: MessageMapper,
+        dispatchers: DispatcherProvider,
+    ): GetQuoteMessageForConversationUseCase =
+        GetQuoteMessageForConversationUseCase(
+            getMessageById = getMessageById,
             getUsersForMessage = getUsersForMessage,
             messageMapper = messageMapper,
             dispatchers = dispatchers,
@@ -1839,6 +2313,130 @@ interface WireMetroGraph {
         cellsScope.getMessageAttachmentUseCase
 
     @Provides
+    fun provideGetPaginatedFilesFlowUseCase(cellsScope: CellsScope): GetPaginatedFilesFlowUseCase =
+        cellsScope.paginatedFilesFlowUseCase
+
+    @Provides
+    fun provideGetPaginatedCellConversationsFlowUseCase(cellsScope: CellsScope): GetPaginatedCellConversationsFlowUseCase =
+        cellsScope.paginatedConversationsFlowUseCase
+
+    @Provides
+    fun provideDeleteCellAssetUseCase(cellsScope: CellsScope): DeleteCellAssetUseCase =
+        cellsScope.deleteCellAssetUseCase
+
+    @Provides
+    fun provideCreateFolderUseCase(cellsScope: CellsScope): CreateFolderUseCase =
+        cellsScope.createFolderUseCase
+
+    @Provides
+    fun provideCreatePresentationFileUseCase(cellsScope: CellsScope): CreatePresentationFileUseCase =
+        cellsScope.createPresentationFileUseCase
+
+    @Provides
+    fun provideCreateDocumentFileUseCase(cellsScope: CellsScope): CreateDocumentFileUseCase =
+        cellsScope.createDocumentFileUseCase
+
+    @Provides
+    fun provideCreateSpreadsheetFileUseCase(cellsScope: CellsScope): CreateSpreadsheetFileUseCase =
+        cellsScope.createSpreadsheetFileUseCase
+
+    @Provides
+    fun provideMoveNodeUseCase(cellsScope: CellsScope): MoveNodeUseCase =
+        cellsScope.moveNodeUseCase
+
+    @Provides
+    fun provideGetFoldersUseCase(cellsScope: CellsScope): GetFoldersUseCase =
+        cellsScope.getFoldersUseCase
+
+    @Provides
+    fun provideGetAllTagsUseCase(cellsScope: CellsScope): GetAllTagsUseCase =
+        cellsScope.getAllTags
+
+    @Provides
+    fun provideUpdateNodeTagsUseCase(cellsScope: CellsScope): UpdateNodeTagsUseCase =
+        cellsScope.updateNodeTagsUseCase
+
+    @Provides
+    fun provideRemoveNodeTagsUseCase(cellsScope: CellsScope): RemoveNodeTagsUseCase =
+        cellsScope.removeNodeTagsUseCase
+
+    @Provides
+    fun provideRenameNodeUseCase(cellsScope: CellsScope): RenameNodeUseCase =
+        cellsScope.renameNodeUseCase
+
+    @Provides
+    fun provideGetOwnersUseCase(cellsScope: CellsScope): GetOwnersUseCase =
+        cellsScope.getOwnersUseCase
+
+    @Provides
+    fun provideCreatePublicLinkUseCase(cellsScope: CellsScope): CreatePublicLinkUseCase =
+        cellsScope.createPublicLinkUseCase
+
+    @Provides
+    fun provideGetPublicLinkUseCase(cellsScope: CellsScope): GetPublicLinkUseCase =
+        cellsScope.getPublicLinkUseCase
+
+    @Provides
+    fun provideDeletePublicLinkUseCase(cellsScope: CellsScope): DeletePublicLinkUseCase =
+        cellsScope.deletePublicLinkUseCase
+
+    @Provides
+    fun provideCreatePublicLinkPasswordUseCase(cellsScope: CellsScope): CreatePublicLinkPasswordUseCase =
+        cellsScope.createPublicLinkPasswordUseCase
+
+    @Provides
+    fun provideUpdatePublicLinkPasswordUseCase(cellsScope: CellsScope): UpdatePublicLinkPasswordUseCase =
+        cellsScope.updatePublicLinkPasswordUseCase
+
+    @Provides
+    fun provideGetPublicLinkPasswordUseCase(cellsScope: CellsScope): GetPublicLinkPasswordUseCase =
+        cellsScope.getPublicLinkPassword
+
+    @Provides
+    fun provideSetPublicLinkExpirationUseCase(cellsScope: CellsScope): SetPublicLinkExpirationUseCase =
+        cellsScope.setPublicLinkExpiration
+
+    @Provides
+    fun provideGetNodeVersionsUseCase(cellsScope: CellsScope): GetNodeVersionsUseCase =
+        cellsScope.getNodeVersions
+
+    @Provides
+    fun provideRestoreNodeVersionUseCase(cellsScope: CellsScope): RestoreNodeVersionUseCase =
+        cellsScope.restoreNodeVersion
+
+    @Provides
+    fun provideDownloadCellVersionUseCase(cellsScope: CellsScope): DownloadCellVersionUseCase =
+        cellsScope.downloadCellVersion
+
+    @Provides
+    fun provideRestoreNodeFromRecycleBinUseCase(cellsScope: CellsScope): RestoreNodeFromRecycleBinUseCase =
+        cellsScope.restoreNodeFromRecycleBin
+
+    @Provides
+    fun provideIsAtLeastOneCellAvailableUseCase(cellsScope: CellsScope): IsAtLeastOneCellAvailableUseCase =
+        cellsScope.isCellAvailable
+
+    @Provides
+    fun provideObserveAttachmentDraftsUseCase(cellsScope: CellsScope): ObserveAttachmentDraftsUseCase =
+        cellsScope.observeAttachments
+
+    @Provides
+    fun provideAddAttachmentDraftUseCase(cellsScope: CellsScope): AddAttachmentDraftUseCase =
+        cellsScope.addAttachment
+
+    @Provides
+    fun provideRemoveAttachmentDraftUseCase(cellsScope: CellsScope): RemoveAttachmentDraftUseCase =
+        cellsScope.removeAttachment
+
+    @Provides
+    fun provideRetryAttachmentUploadUseCase(cellsScope: CellsScope): RetryAttachmentUploadUseCase =
+        cellsScope.retryAttachmentUpload
+
+    @Provides
+    fun provideCellUploadManager(cellsScope: CellsScope): CellUploadManager =
+        cellsScope.uploadManager
+
+    @Provides
     fun provideGetCellFileUseCase(cellsScope: CellsScope): GetCellFileUseCase =
         cellsScope.getCellFileUseCase
 
@@ -1861,6 +2459,44 @@ interface WireMetroGraph {
     @Provides
     fun provideOnlineEditor(@ApplicationContext context: Context): OnlineEditor =
         OnlineEditor(context)
+
+    @Provides
+    fun provideCellsFileHelper(@ApplicationContext context: Context): FileHelper =
+        FileHelper(context)
+
+    @Provides
+    fun provideFileNameResolver(): FileNameResolver =
+        FileNameResolver()
+
+    @Provides
+    fun provideFileSizeFormatter(@ApplicationContext context: Context): FileSizeFormatter =
+        FileSizeFormatter(context)
+
+    @Provides
+    fun provideCellFileExternalActions(fileHelper: FileHelper): CellFileExternalActions =
+        AndroidCellFileExternalActions(fileHelper)
+
+    @Provides
+    fun provideCellFileActionsMenu(kaliumConfigs: KaliumConfigs): CellFileActionsMenu =
+        CellFileActionsMenu(kaliumConfigs)
+
+    @Provides
+    fun provideCellFileLocalPathCache(): CellFileLocalPathCache =
+        CellFileLocalPathCache()
+
+    @Provides
+    fun provideOpenFileDownloadController(
+        downloadCellFile: DownloadCellFileUseCase,
+        fileHelper: FileHelper,
+        fileNameResolver: FileNameResolver,
+        sharedPathCache: CellFileLocalPathCache,
+    ): OpenFileDownloadController =
+        OpenFileDownloadController(
+            download = downloadCellFile,
+            fileHelper = fileHelper,
+            fileNameResolver = fileNameResolver,
+            sharedPathCache = sharedPathCache,
+        )
 
     @Provides
     fun provideCellAssetRefreshHelper(
@@ -1975,9 +2611,17 @@ interface WireMetroGraph {
 
     @Provides
     fun provideGetConversationMessagesFromSearchUseCase(
-        entryPoint: WireMetroHiltEntryPoint,
+        getMessagesSearch: GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase,
+        getUsersForMessage: GetUsersForMessageUseCase,
+        messageMapper: MessageMapper,
+        dispatchers: DispatcherProvider,
     ): GetConversationMessagesFromSearchUseCase =
-        entryPoint.getConversationMessagesFromSearchUseCase()
+        GetConversationMessagesFromSearchUseCase(
+            getMessagesSearch = getMessagesSearch,
+            getUsersForMessage = getUsersForMessage,
+            messageMapper = messageMapper,
+            dispatchers = dispatchers,
+        )
 
     @Provides
     fun provideObserveSelfDeletionTimerSettingsForConversationUseCase(
@@ -2085,8 +2729,153 @@ interface WireMetroGraph {
         callsScope.establishedCall
 
     @Provides
+    fun provideObserveLastActiveCallWithSortedParticipantsUseCase(
+        callsScope: CallsScope,
+    ): ObserveLastActiveCallWithSortedParticipantsUseCase =
+        callsScope.observeLastActiveCallWithSortedParticipants
+
+    @Provides
+    fun provideObserveOngoingCallsUseCase(callsScope: CallsScope): ObserveOngoingCallsUseCase =
+        callsScope.observeOngoingCalls
+
+    @Provides
+    fun provideObserveOutgoingCallUseCase(callsScope: CallsScope): ObserveOutgoingCallUseCase =
+        callsScope.observeOutgoingCall
+
+    @Provides
+    fun provideGetIncomingCallsUseCase(callsScope: CallsScope): GetIncomingCallsUseCase =
+        callsScope.getIncomingCalls
+
+    @Provides
+    fun provideRejectCallUseCase(callsScope: CallsScope): RejectCallUseCase =
+        callsScope.rejectCall
+
+    @Provides
+    fun provideAnswerCallUseCase(callsScope: CallsScope): AnswerCallUseCase =
+        callsScope.answerCall
+
+    @Provides
     fun provideEndCallUseCase(callsScope: CallsScope): EndCallUseCase =
         callsScope.endCall
+
+    @Provides
+    fun provideStartCallUseCase(callsScope: CallsScope): StartCallUseCase =
+        callsScope.startCall
+
+    @Provides
+    fun provideIsLastCallClosedUseCase(callsScope: CallsScope): IsLastCallClosedUseCase =
+        callsScope.isLastCallClosed
+
+    @Provides
+    fun provideMuteCallUseCase(callsScope: CallsScope): MuteCallUseCase =
+        callsScope.muteCall
+
+    @Provides
+    fun provideUnMuteCallUseCase(callsScope: CallsScope): UnMuteCallUseCase =
+        callsScope.unMuteCall
+
+    @Provides
+    fun provideSetVideoPreviewUseCase(callsScope: CallsScope): SetVideoPreviewUseCase =
+        callsScope.setVideoPreview
+
+    @Provides
+    fun provideSetUIRotationUseCase(callsScope: CallsScope): SetUIRotationUseCase =
+        callsScope.setUIRotation
+
+    @Provides
+    fun provideFlipToFrontCameraUseCase(callsScope: CallsScope): FlipToFrontCameraUseCase =
+        callsScope.flipToFrontCamera
+
+    @Provides
+    fun provideFlipToBackCameraUseCase(callsScope: CallsScope): FlipToBackCameraUseCase =
+        callsScope.flipToBackCamera
+
+    @Provides
+    fun provideTurnLoudSpeakerOffUseCase(callsScope: CallsScope): TurnLoudSpeakerOffUseCase =
+        callsScope.turnLoudSpeakerOff
+
+    @Provides
+    fun provideTurnLoudSpeakerOnUseCase(callsScope: CallsScope): TurnLoudSpeakerOnUseCase =
+        callsScope.turnLoudSpeakerOn
+
+    @Provides
+    fun provideObserveSpeakerUseCase(callsScope: CallsScope): ObserveSpeakerUseCase =
+        callsScope.observeSpeaker
+
+    @Provides
+    fun provideUpdateVideoStateUseCase(callsScope: CallsScope): UpdateVideoStateUseCase =
+        callsScope.updateVideoState
+
+    @Provides
+    fun provideRequestVideoStreamsUseCase(callsScope: CallsScope): RequestVideoStreamsUseCase =
+        callsScope.requestVideoStreams
+
+    @Provides
+    fun provideSetVideoSendStateUseCase(callsScope: CallsScope): SetVideoSendStateUseCase =
+        callsScope.setVideoSendState
+
+    @Provides
+    fun provideIsEligibleToStartCallUseCase(callsScope: CallsScope): IsEligibleToStartCallUseCase =
+        callsScope.isEligibleToStartCall
+
+    @Provides
+    fun provideObserveConferenceCallingEnabledUseCase(callsScope: CallsScope): ObserveConferenceCallingEnabledUseCase =
+        callsScope.observeConferenceCallingEnabled
+
+    @Provides
+    fun provideObserveInCallReactionsUseCase(callsScope: CallsScope): ObserveInCallReactionsUseCase =
+        callsScope.observeInCallReactions
+
+    @Provides
+    fun provideObserveCallQualityDataUseCase(callsScope: CallsScope): ObserveCallQualityDataUseCase =
+        callsScope.observeCallQualityData
+
+    @Provides
+    fun provideSetCallQualityIntervalUseCase(callsScope: CallsScope): SetCallQualityIntervalUseCase =
+        callsScope.setCallQualityInterval
+
+    @Provides
+    fun provideObserveCallModerationActionsUseCase(callsScope: CallsScope): ObserveCallModerationActionsUseCase =
+        callsScope.observeCallModerationActions
+
+    @Provides
+    fun provideSendInCallReactionUseCase(messageScope: MessageScope): SendInCallReactionUseCase =
+        messageScope.sendInCallReactionUseCase
+
+    @Provides
+    fun provideNetworkStateObserver(@KaliumCoreLogic coreLogic: CoreLogic): NetworkStateObserver =
+        coreLogic.networkStateObserver
+
+    @Provides
+    fun provideCallRinger(@ApplicationContext context: Context): CallRinger =
+        CallRinger(context)
+
+    @Provides
+    @Suppress("LongParameterList")
+    fun provideHangUpCallUseCase(
+        @ApplicationScope coroutineScope: CoroutineScope,
+        observeEstablishedCalls: ObserveEstablishedCallsUseCase,
+        observeSpeaker: ObserveSpeakerUseCase,
+        endCall: EndCallUseCase,
+        muteCall: MuteCallUseCase,
+        turnLoudSpeakerOff: TurnLoudSpeakerOffUseCase,
+        flipToFrontCamera: FlipToFrontCameraUseCase,
+        callRinger: CallRinger,
+    ): HangUpCallUseCase =
+        HangUpCallUseCase(
+            coroutineScope = coroutineScope,
+            observeEstablishedCalls = observeEstablishedCalls,
+            observeSpeaker = observeSpeaker,
+            endCall = endCall,
+            muteCall = muteCall,
+            turnLoudSpeakerOff = turnLoudSpeakerOff,
+            flipToFrontCamera = flipToFrontCamera,
+            callRinger = callRinger,
+        )
+
+    @Provides
+    fun provideCallNotificationManager(entryPoint: WireMetroHiltEntryPoint): CallNotificationManager =
+        entryPoint.callNotificationManager()
 
     @Provides
     fun provideNetworkSettingsDefaultsProvider(
@@ -2159,6 +2948,8 @@ interface WireMetroHiltEntryPoint {
 
     fun wireNotificationManager(): WireNotificationManager
 
+    fun callNotificationManager(): CallNotificationManager
+
     fun conversationAudioMessagePlayer(): ConversationAudioMessagePlayer
 
     fun locationPickerHelperFlavor(): LocationPickerHelperFlavor
@@ -2166,6 +2957,4 @@ interface WireMetroHiltEntryPoint {
     fun logFileWriter(): LogFileWriter
 
     fun accountSwitchUseCase(): AccountSwitchUseCase
-
-    fun getConversationMessagesFromSearchUseCase(): GetConversationMessagesFromSearchUseCase
 }

@@ -79,7 +79,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -257,39 +256,23 @@ fun ConversationScreen(
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     conversationInfoViewModel: ConversationInfoViewModel =
-        hiltViewModel<ConversationInfoViewModel, ConversationInfoViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+        metroViewModel { conversationInfoViewModelFactory.create(args) },
     conversationBannerViewModel: ConversationBannerViewModel =
-        hiltViewModel<ConversationBannerViewModel, ConversationBannerViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+        metroViewModel { conversationBannerViewModelFactory.create(args) },
     conversationCallViewModel: ConversationCallViewModel =
-        hiltViewModel<ConversationCallViewModel, ConversationCallViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+        metroViewModel { conversationCallViewModelFactory.create(args) },
     conversationMessagesViewModel: ConversationMessagesViewModel =
         metroViewModel { conversationMessagesViewModelFactory.create(args) },
     messageComposerViewModel: MessageComposerViewModel =
-        hiltViewModel<MessageComposerViewModel, MessageComposerViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+        metroViewModel { messageComposerViewModelFactory.create(args) },
     sendMessageViewModel: SendMessageViewModel =
-        hiltViewModel<SendMessageViewModel, SendMessageViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+        metroViewModel { sendMessageViewModelFactory.create(args) },
     conversationMigrationViewModel: ConversationMigrationViewModel =
-        hiltViewModel<ConversationMigrationViewModel, ConversationMigrationViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+        metroViewModel { conversationMigrationViewModelFactory.create(args) },
     messageDraftViewModel: MessageDraftViewModel =
-        hiltViewModel<MessageDraftViewModel, MessageDraftViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+        metroViewModel { messageDraftViewModelFactory.create(args) },
     messageAttachmentsViewModel: MessageAttachmentsViewModel =
-        hiltViewModel<MessageAttachmentsViewModel, MessageAttachmentsViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+        metroViewModel { messageAttachmentsViewModelFactory.create(args) },
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current

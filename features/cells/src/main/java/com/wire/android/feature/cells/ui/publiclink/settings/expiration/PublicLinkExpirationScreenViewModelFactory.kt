@@ -21,10 +21,10 @@ import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUs
 import dev.zacsweers.metro.Inject
 
 @Inject
-internal class PublicLinkExpirationScreenViewModelFactory(
+class PublicLinkExpirationScreenViewModelFactory(
     private val setExpiration: SetPublicLinkExpirationUseCase,
 ) {
-    fun create(navArgs: PublicLinkExpirationScreenNavArgs): PublicLinkExpirationScreenViewModel =
+    internal fun create(navArgs: PublicLinkExpirationScreenNavArgs): PublicLinkExpirationScreenViewModel =
         PublicLinkExpirationScreenViewModel(
             navArgs = navArgs,
             setExpiration = setExpiration,

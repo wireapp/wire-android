@@ -28,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
@@ -40,6 +39,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProf
 import com.ramcosta.composedestinations.generated.app.destinations.PromoteAdminScreenDestination
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.NavigationCommand
@@ -87,16 +87,15 @@ fun ConversationsScreenContent(
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
-        else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
-            key = "list_$conversationsSource",
-            creationCallback = { factory ->
-                factory.create(conversationsSource = conversationsSource)
-            }
-        )
+        else -> metroViewModel<ConversationListViewModelImpl>(key = "list_$conversationsSource") {
+            conversationListViewModelFactory.create(conversationsSource = conversationsSource)
+        }
     },
     conversationListCallViewModel: ConversationListCallViewModel = when {
         LocalInspectionMode.current -> ConversationListCallViewModelPreview
-        else -> hiltViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
+        else -> metroViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource") {
+            conversationListCallViewModelFactory.create()
+        }
     },
 ) {
     val sheetState = rememberWireModalSheetState<ConversationSheetState>()

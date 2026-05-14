@@ -27,7 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.wire.android.feature.cells.ui.wireCellsViewModel
+import com.wire.android.feature.cells.ui.cellsMetroViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
@@ -56,8 +56,8 @@ fun RecycleBinScreen(
     navigator: WireNavigator,
     args: CellFilesNavArgs,
     modifier: Modifier = Modifier,
-    cellViewModel: CellViewModel = wireCellsViewModel<CellViewModel, CellViewModel.Factory>(
-        creationCallback = { factory -> factory.create(args, null) }
+    cellViewModel: CellViewModel = cellsMetroViewModel<CellViewModel>(
+        creationCallback = { cellViewModelFactory.create(args, null) }
     )
 ) {
 

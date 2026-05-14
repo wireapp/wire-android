@@ -57,27 +57,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.GlobalCellsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.GlobalCellsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.app.navgraphs.HomeGraph
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.navigation.destination
-import com.wire.android.feature.cells.ui.CellFilesNavArgs
-import com.wire.android.feature.cells.ui.CellViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.metro.metroViewModel
+import com.wire.android.feature.cells.ui.CellFilesNavArgs
+import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeDestination.FabOptions
 import com.wire.android.navigation.NavigationCommand
@@ -113,10 +113,10 @@ fun HomeScreen(
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    homeViewModel: HomeViewModel = hiltViewModel(),
-    appSyncViewModel: AppSyncViewModel = hiltViewModel(),
-    homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
-    analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel(),
+    homeViewModel: HomeViewModel = metroViewModel { homeViewModelFactory.create() },
+    appSyncViewModel: AppSyncViewModel = metroViewModel { appSyncViewModelFactory.create() },
+    homeDrawerViewModel: HomeDrawerViewModel = metroViewModel { homeDrawerViewModelFactory.create() },
+    analyticsUsageViewModel: AnalyticsUsageViewModel = metroViewModel { analyticsUsageViewModelFactory.create() },
 ) {
     val context = LocalContext.current
 
@@ -378,10 +378,9 @@ fun HomeContent(
                                                 .getBackStackEntry(HomeScreenDestination.route)
                                         }
                                         dependency(
-                                            hiltViewModel<CellViewModel, CellViewModel.Factory>(
-                                                parentEntry,
-                                                creationCallback = { factory -> factory.create(CellFilesNavArgs(), null) }
-                                            )
+                                            metroViewModel<CellViewModel>(viewModelStoreOwner = parentEntry) {
+                                                cellViewModelFactory.create(CellFilesNavArgs(), null)
+                                            }
                                         )
                                     }
                                 }

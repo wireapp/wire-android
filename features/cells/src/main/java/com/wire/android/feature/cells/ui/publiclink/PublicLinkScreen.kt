@@ -44,7 +44,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import com.wire.android.feature.cells.ui.wireCellsViewModel
+import com.wire.android.feature.cells.ui.cellsMetroViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.TypedDestinationSpec
@@ -83,8 +83,8 @@ fun PublicLinkScreen(
     onExpirationChange: ResultRecipient<PublicLinkExpirationScreenDestination, PublicLinkExpirationResult>,
     args: PublicLinkNavArgs,
     modifier: Modifier = Modifier,
-    viewModel: PublicLinkViewModel = wireCellsViewModel<PublicLinkViewModel, PublicLinkViewModel.Factory>(
-        creationCallback = { factory -> factory.create(args) }
+    viewModel: PublicLinkViewModel = cellsMetroViewModel<PublicLinkViewModel>(
+        creationCallback = { publicLinkViewModelFactory.create(args) }
     ),
 ) {
 

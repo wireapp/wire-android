@@ -39,7 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.wire.android.feature.cells.ui.wireCellsViewModel
+import com.wire.android.feature.cells.ui.cellsMetroViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
@@ -74,8 +74,8 @@ internal fun PublicLinkExpirationScreen(
     args: PublicLinkExpirationScreenNavArgs,
     modifier: Modifier = Modifier,
     viewModel: PublicLinkExpirationScreenViewModel =
-        wireCellsViewModel<PublicLinkExpirationScreenViewModel, PublicLinkExpirationScreenViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
+        cellsMetroViewModel<PublicLinkExpirationScreenViewModel>(
+            creationCallback = { publicLinkExpirationScreenViewModelFactory.create(args) }
         ),
 ) {
 

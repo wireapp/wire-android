@@ -40,8 +40,8 @@ fun ConversationFilesWithSlideInTransitionScreen(
     navigator: WireNavigator,
     cellFilesNavArgs: CellFilesNavArgs,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    viewModel: CellViewModel = wireCellsViewModel<CellViewModel, CellViewModel.Factory>(
-        creationCallback = { factory -> factory.create(cellFilesNavArgs, null) }
+    viewModel: CellViewModel = cellsMetroViewModel<CellViewModel>(
+        creationCallback = { cellViewModelFactory.create(cellFilesNavArgs, null) }
     ),
 ) {
     LaunchedEffect(viewModel.navigateToRecycleBinRoot.collectAsState().value) {

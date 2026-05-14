@@ -73,13 +73,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.common.ObservePictureInPictureMode
 import com.wire.android.ui.calling.common.ObserveRotation
@@ -156,15 +156,13 @@ import java.util.Locale
 @Composable
 fun OngoingCallScreen(
     conversationId: ConversationId,
-    ongoingCallViewModel: OngoingCallViewModel = hiltViewModel<OngoingCallViewModel, OngoingCallViewModel.Factory>(
-        key = "ongoing_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
+    ongoingCallViewModel: OngoingCallViewModel = metroViewModel(key = "ongoing_$conversationId") {
+        ongoingCallViewModelFactory.create(conversationId = conversationId)
+    },
     sharedCallingViewModel: SharedCallingViewModel =
-        hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
-            key = "shared_$conversationId",
-            creationCallback = { factory -> factory.create(conversationId = conversationId) }
-        )
+        metroViewModel(key = "shared_$conversationId") {
+            sharedCallingViewModelFactory.create(conversationId = conversationId)
+        }
 ) {
     val scope = rememberCoroutineScope()
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()

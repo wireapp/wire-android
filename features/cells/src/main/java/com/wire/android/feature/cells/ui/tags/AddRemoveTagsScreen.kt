@@ -47,7 +47,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.wire.android.feature.cells.ui.wireCellsViewModel
+import com.wire.android.feature.cells.ui.cellsMetroViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.WireNavigator
@@ -80,8 +80,8 @@ fun AddRemoveTagsScreen(
     args: AddRemoveTagsNavArgs,
     modifier: Modifier = Modifier,
     addRemoveTagsViewModel: AddRemoveTagsViewModel =
-        wireCellsViewModel<AddRemoveTagsViewModel, AddRemoveTagsViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
+        cellsMetroViewModel<AddRemoveTagsViewModel>(
+            creationCallback = { addRemoveTagsViewModelFactory.create(args) }
         ),
 ) {
     val context = LocalContext.current

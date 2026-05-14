@@ -41,7 +41,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
@@ -56,13 +56,12 @@ fun SecurityClassificationBannerForConversation(
     conversationId: ConversationId,
     modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
-        SecurityClassificationArgs.Conversation(conversationId).let { args ->
-            metroViewModel(
-                key = args.key.toString(),
-            ) {
-                securityClassificationViewModelFactory.create(args)
-            }
-        }
+        wireViewModelScoped<
+                SecurityClassificationViewModelImpl,
+                SecurityClassificationViewModel,
+                SecurityClassificationArgs,
+                SecurityClassificationViewModelFactory
+                >(SecurityClassificationArgs.Conversation(conversationId))
 ) {
     SecurityClassificationBanner(
         state = viewModel.state(),
@@ -75,13 +74,14 @@ fun SecurityClassificationBannerForUser(
     userId: UserId,
     modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
-        SecurityClassificationArgs.User(id = userId).let { args ->
-            metroViewModel(
-                key = args.key.toString(),
-            ) {
-                securityClassificationViewModelFactory.create(args)
-            }
-        }
+        wireViewModelScoped<
+                SecurityClassificationViewModelImpl,
+                SecurityClassificationViewModel,
+                SecurityClassificationArgs,
+                SecurityClassificationViewModelFactory
+                >(
+            SecurityClassificationArgs.User(id = userId)
+        )
 ) {
     SecurityClassificationBanner(
         state = viewModel.state(),

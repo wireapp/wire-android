@@ -33,7 +33,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
@@ -74,11 +74,14 @@ fun ConnectionActionButton(
     onConnectionRequestIgnored: (String) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit = {},
     viewModel: ConnectionActionButtonViewModel =
-        ConnectionActionButtonArgs(userId, userName).let { args ->
-            metroViewModel<ConnectionActionButtonViewModelImpl>(key = args.key) {
-                connectionActionButtonViewModelFactory.createImpl(args)
-            }
-        },
+        wireViewModelScoped<
+                ConnectionActionButtonViewModelImpl,
+                ConnectionActionButtonViewModel,
+                ConnectionActionButtonArgs,
+                ConnectionActionButtonViewModelFactory
+                >(
+            ConnectionActionButtonArgs(userId, userName)
+        ),
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()

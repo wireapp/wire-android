@@ -41,9 +41,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.di.metro.metroViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -150,9 +151,7 @@ internal fun UserDebugContent(
 fun DangerOptions(
     modifier: Modifier = Modifier,
     exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel =
-        metroViewModel<ExportObfuscatedCopyViewModelImpl> {
-            exportObfuscatedCopyViewModelFactory.create()
-        }
+        wireViewModelScoped<ExportObfuscatedCopyViewModelImpl, ExportObfuscatedCopyViewModel, ExportObfuscatedCopyViewModelFactory>()
 ) {
 
     Column(modifier = modifier) {

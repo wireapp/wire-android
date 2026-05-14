@@ -34,7 +34,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -51,7 +51,7 @@ fun RecordAudioComponent(
     onCloseRecordAudio: () -> Unit,
     modifier: Modifier = Modifier,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    viewModel: RecordAudioViewModel = metroViewModel { recordAudioViewModelFactory.create() }
+    viewModel: RecordAudioViewModel = wireViewModelScoped<RecordAudioViewModel, RecordAudioViewModel, RecordAudioViewModelFactory>()
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current

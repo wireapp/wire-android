@@ -30,6 +30,7 @@ import com.sebaslogen.resaca.KeyInScopeResolver
 import com.wire.android.di.metro.LocalMetroViewModelGraph
 import com.wire.android.di.metro.WireMetroGraph
 import com.wire.android.di.metro.createWireMetroGraph
+import java.lang.reflect.InvocationTargetException
 import kotlin.time.Duration
 
 /**
@@ -52,7 +53,7 @@ interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
  */
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER", "UnusedParameter")
 @Composable
-inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
+inline fun <reified T, reified S, reified R : ScopedArgs, reified F : Any>
         wireViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
@@ -60,14 +61,14 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
         key = arguments.key,
         clearDelay = clearDelay,
         factory = rememberMetroScopedViewModelFactory<T> {
-            metroFactory<F>().create(arguments)
+            metroFactory<F>().createWith<T, R>(arguments)
         },
     )
 }
 
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER", "UnusedParameter")
 @Composable
-inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
+inline fun <reified T, reified S, reified R : ScopedArgs, reified F : Any>
         wireViewModelScoped(
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
@@ -84,7 +85,7 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
             keyInScopeResolver = keyInScopeResolver,
             clearDelay = clearDelay,
             factory = rememberMetroScopedViewModelFactory<T> {
-                metroFactory<F>().create(arguments)
+                metroFactory<F>().createWith<T, R>(arguments)
             },
         )
     }
@@ -100,12 +101,12 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
  */
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
-inline fun <reified T, reified S> wireViewModelScoped(): S where T : ViewModel, T : S = when {
+inline fun <reified T, reified S, reified F : Any> wireViewModelScoped(): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> metroViewModelScoped<T>(
         factory = rememberMetroScopedViewModelFactory {
-            metroFactory<AssistedViewModelFactory<T, ScopedArgs>>().create(EmptyScopedArgs)
+            metroFactory<F>().createWithoutArgs<T>()
         },
     )
 }
@@ -133,8 +134,38 @@ internal inline fun <reified F> WireMetroGraph.metroFactory(): F =
         .firstOrNull { method ->
             method.parameterCount == 0 && F::class.java.isAssignableFrom(method.returnType)
         }
-        ?.invoke(this) as? F
+        ?.invokeUnwrapped(this)
         ?: error("No Metro factory matching ${F::class.qualifiedName} was provided.")
+
+@PublishedApi
+internal inline fun <reified VM : ViewModel, R : ScopedArgs> Any.createWith(args: R): VM =
+    this::class.java.methods
+        .firstOrNull { method ->
+            method.name == "create" &&
+                    method.parameterCount == 1 &&
+                    method.parameterTypes.first().isAssignableFrom(args::class.java)
+        }
+        ?.invokeUnwrapped(this, args)
+        ?: error("No create(${args::class.qualifiedName}) method was provided by ${this::class.qualifiedName}.")
+
+@PublishedApi
+internal inline fun <reified VM : ViewModel> Any.createWithoutArgs(): VM =
+    this::class.java.methods
+        .firstOrNull { method ->
+            method.name == "create" &&
+                    method.parameterCount == 0 &&
+                    VM::class.java.isAssignableFrom(method.returnType)
+        }
+        ?.invokeUnwrapped(this)
+        ?: error("No create() method returning ${VM::class.qualifiedName} was provided by ${this::class.qualifiedName}.")
+
+@PublishedApi
+internal inline fun <reified R> java.lang.reflect.Method.invokeUnwrapped(target: Any, vararg args: Any?): R =
+    try {
+        invoke(target, *args) as? R ?: error("${declaringClass.name}#$name returned a value that is not ${R::class.qualifiedName}.")
+    } catch (exception: InvocationTargetException) {
+        throw exception.targetException ?: exception
+    }
 
 @PublishedApi
 internal data object EmptyScopedArgs : ScopedArgs {

@@ -31,7 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.AssistedViewModelFactory
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
@@ -245,13 +246,14 @@ fun SelfDeletingMessageAction(
     conversationId: ConversationId,
     onButtonClicked: (SelfDeletionTimer) -> Unit,
     viewModel: SelfDeletingMessageActionViewModel =
-        SelfDeletingMessageActionArgs(conversationId = conversationId).let { args ->
-            metroViewModel<SelfDeletingMessageActionViewModelImpl>(
-                key = args.key.toString(),
-            ) {
-                selfDeletingMessageActionViewModelFactory.create(args)
-            }
-        },
+        wireViewModelScoped<
+                SelfDeletingMessageActionViewModelImpl,
+                SelfDeletingMessageActionViewModel,
+                SelfDeletingMessageActionArgs,
+                AssistedViewModelFactory<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionArgs>
+                >(
+            SelfDeletingMessageActionArgs(conversationId = conversationId)
+        ),
 ) {
     when (val state = viewModel.state()) {
         SelfDeletionTimer.Disabled -> {}

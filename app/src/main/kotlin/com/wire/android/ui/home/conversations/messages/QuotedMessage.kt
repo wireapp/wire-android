@@ -55,7 +55,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil3.compose.SubcomposeAsyncImage
 import com.wire.android.R
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.StatusBox
@@ -67,6 +67,7 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.LocalAssetLocalPathKeyInScopeResolver
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModel
+import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModelFactory
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModelImpl
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.highlighted
@@ -622,9 +623,22 @@ private fun QuotedImageThumbnail(
     val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
     val viewModel: AssetLocalPathViewModel =
         if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
-            assetLocalPathViewModel(args)
+            wireViewModelScoped<
+                    AssetLocalPathViewModelImpl,
+                    AssetLocalPathViewModel,
+                    AssetLocalPathArgs,
+                    AssetLocalPathViewModelFactory,
+                    >(
+                arguments = args,
+                keyInScopeResolver = keyInScopeResolver,
+            )
         } else {
-            assetLocalPathViewModel(args)
+            wireViewModelScoped<
+                    AssetLocalPathViewModelImpl,
+                    AssetLocalPathViewModel,
+                    AssetLocalPathArgs,
+                    AssetLocalPathViewModelFactory,
+                    >(args)
         }
 
     LaunchedEffect(Unit) {
@@ -657,12 +671,6 @@ private fun QuotedImageThumbnail(
         }
     }
 }
-
-@Composable
-private fun assetLocalPathViewModel(args: AssetLocalPathArgs): AssetLocalPathViewModel =
-    metroViewModel<AssetLocalPathViewModelImpl>(key = args.key) {
-        assetLocalPathViewModelFactory.create(args)
-    }
 
 @Composable
 fun QuotedAudioMessage(

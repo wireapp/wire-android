@@ -43,7 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.DpSize
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.applyIf
@@ -56,6 +56,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
+import com.wire.android.ui.home.conversations.CompositeMessageViewModelFactory
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.error
@@ -172,11 +173,12 @@ fun MessageButtonsContent(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     viewModel: CompositeMessageViewModel =
-        CompositeMessageArgs(conversationId, messageId).let { args ->
-            metroViewModel<CompositeMessageViewModelImpl>(key = args.key) {
-                compositeMessageViewModelFactory.create(args)
-            }
-        }
+        wireViewModelScoped<
+                CompositeMessageViewModelImpl,
+                CompositeMessageViewModel,
+                CompositeMessageArgs,
+                CompositeMessageViewModelFactory
+                >(CompositeMessageArgs(conversationId, messageId))
 ) {
     Column(
         modifier = modifier

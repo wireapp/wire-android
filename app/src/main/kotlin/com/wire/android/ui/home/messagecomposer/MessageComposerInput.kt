@@ -55,7 +55,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.atMost
 import com.wire.android.R
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.AssistedViewModelFactory
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -184,11 +185,14 @@ private fun InputContent(
     onPlusClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SelfDeletingMessageActionViewModel =
-        SelfDeletingMessageActionArgs(conversationId = conversationId).let { args ->
-            metroViewModel<SelfDeletingMessageActionViewModelImpl>(key = args.key) {
-                selfDeletingMessageActionViewModelFactory.create(args)
-            }
-        },
+        wireViewModelScoped<
+                SelfDeletingMessageActionViewModelImpl,
+                SelfDeletingMessageActionViewModel,
+                SelfDeletingMessageActionArgs,
+                AssistedViewModelFactory<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionArgs>
+                >(
+            SelfDeletingMessageActionArgs(conversationId = conversationId)
+        ),
 ) {
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()

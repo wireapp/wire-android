@@ -37,7 +37,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import com.wire.android.R
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -79,9 +79,8 @@ fun JoinConversationViaDeepLinkDialog(
     onFlowCompleted: (conversationId: ConversationId?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: JoinConversationViaCodeViewModel = metroViewModel {
-        joinConversationViaCodeViewModelFactory.create()
-    }
+    val viewModel: JoinConversationViaCodeViewModel =
+        wireViewModelScoped<JoinConversationViaCodeViewModel, JoinConversationViaCodeViewModel, JoinConversationViaCodeViewModelFactory>()
 
     val isLoading: Boolean by remember {
         derivedStateOf { viewModel.state is JoinViaDeepLinkDialogState.Loading }

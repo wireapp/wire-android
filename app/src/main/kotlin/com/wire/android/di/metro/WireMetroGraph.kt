@@ -290,6 +290,8 @@ import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.lifecycle.NomadIntentSignatureValidator
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.util.logging.LogFileWriter
+import com.wire.android.util.logging.LogFileWriterV1Impl
+import com.wire.android.util.logging.LogFileWriterV2Impl
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.time.TimeZoneProvider
 import com.wire.android.util.ui.AndroidUiTextResolver
@@ -935,8 +937,14 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         NotificationManagerCompat.from(context)
 
     @Provides
-    fun provideLogFileWriter(entryPoint: WireMetroHiltEntryPoint): LogFileWriter =
-        entryPoint.logFileWriter()
+    fun provideLogFileWriter(@ApplicationContext context: Context): LogFileWriter {
+        val logsDirectory = LogFileWriter.logsDirectory(context)
+        return if (BuildConfig.USE_ASYNC_FLUSH_LOGGING) {
+            LogFileWriterV2Impl(logsDirectory)
+        } else {
+            LogFileWriterV1Impl(logsDirectory)
+        }
+    }
 
     @Provides
     fun provideAccountSwitchUseCase(entryPoint: WireMetroHiltEntryPoint): AccountSwitchUseCase =
@@ -3087,8 +3095,6 @@ interface WireMetroHiltEntryPoint {
     fun callNotificationManager(): CallNotificationManager
 
     fun conversationAudioMessagePlayer(): ConversationAudioMessagePlayer
-
-    fun logFileWriter(): LogFileWriter
 
     fun syncLifecycleManager(): SyncLifecycleManager
 

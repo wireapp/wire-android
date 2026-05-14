@@ -19,17 +19,12 @@ package com.wire.android.ui.home.conversations.edit
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.ObserveMessageForConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -48,10 +43,9 @@ interface MessageOptionsMenuViewModel {
         MutableStateFlow(MessageOptionsMenuState.Message(mockMessageWithText))
 }
 
-@HiltViewModel(assistedFactory = MessageOptionsMenuViewModelImpl.Factory::class)
-class MessageOptionsMenuViewModelImpl @AssistedInject constructor(
+class MessageOptionsMenuViewModelImpl(
     private val observeMessageForConversation: ObserveMessageForConversationUseCase,
-    @Assisted private val args: MessageOptionsMenuArgs,
+    private val args: MessageOptionsMenuArgs,
 ) : MessageOptionsMenuViewModel, ViewModel() {
 
     private val messageStateFlow: ConcurrentHashMap<String, StateFlow<MessageOptionsMenuState>> = ConcurrentHashMap()
@@ -74,11 +68,6 @@ class MessageOptionsMenuViewModelImpl @AssistedInject constructor(
                 started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L),
                 initialValue = MessageOptionsMenuState.Loading,
             )
-    }
-
-    @AssistedFactory
-    interface Factory : AssistedViewModelFactory<MessageOptionsMenuViewModelImpl, MessageOptionsMenuArgs> {
-        override fun create(args: MessageOptionsMenuArgs): MessageOptionsMenuViewModelImpl
     }
 }
 

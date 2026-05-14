@@ -63,10 +63,6 @@ import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePosit
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -85,10 +81,9 @@ import okio.Path
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel(assistedFactory = ConversationMessagesViewModel.Factory::class)
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationMessagesViewModel @AssistedInject constructor(
-    @Assisted private val conversationNavArgs: ConversationNavArgs,
+class ConversationMessagesViewModel(
+    private val conversationNavArgs: ConversationNavArgs,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
@@ -132,11 +127,6 @@ class ConversationMessagesViewModel @AssistedInject constructor(
         loadLastMessageInstant()
         observeAudioPlayerState()
         observeAssetStatuses()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(conversationNavArgs: ConversationNavArgs): ConversationMessagesViewModel
     }
 
     val currentTimeInMillisFlow: Flow<Long> = flow {

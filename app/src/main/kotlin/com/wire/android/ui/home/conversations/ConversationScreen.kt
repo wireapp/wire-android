@@ -102,6 +102,7 @@ import com.sebaslogen.resaca.rememberKeysInScope
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.cells.ui.dialog.IncompatibleFileNameDialog
@@ -268,9 +269,7 @@ fun ConversationScreen(
             creationCallback = { factory -> factory.create(args) }
         ),
     conversationMessagesViewModel: ConversationMessagesViewModel =
-        hiltViewModel<ConversationMessagesViewModel, ConversationMessagesViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+        metroViewModel { conversationMessagesViewModelFactory.create(args) },
     messageComposerViewModel: MessageComposerViewModel =
         hiltViewModel<MessageComposerViewModel, MessageComposerViewModel.Factory>(
             creationCallback = { factory -> factory.create(args) }

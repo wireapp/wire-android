@@ -42,8 +42,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -89,14 +89,12 @@ import kotlinx.serialization.Serializable
 fun ConversationMediaScreen(
     navigator: Navigator,
     args: ConversationMediaNavArgs,
-    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel =
-        hiltViewModel<ConversationAssetMessagesViewModel, ConversationAssetMessagesViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
-    conversationMessagesViewModel: ConversationMessagesViewModel =
-        hiltViewModel<ConversationMessagesViewModel, ConversationMessagesViewModel.Factory>(
-            creationCallback = { factory -> factory.create(ConversationNavArgs(args.conversationId)) }
-        )
+    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = metroViewModel {
+        conversationAssetMessagesViewModelFactory.create(args)
+    },
+    conversationMessagesViewModel: ConversationMessagesViewModel = metroViewModel {
+        conversationMessagesViewModelFactory.create(ConversationNavArgs(args.conversationId))
+    }
 ) {
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val context = LocalContext.current

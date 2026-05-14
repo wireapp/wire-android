@@ -43,7 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.DpSize
-import com.wire.android.di.wireViewModelScoped
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.applyIf
@@ -172,14 +172,11 @@ fun MessageButtonsContent(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     viewModel: CompositeMessageViewModel =
-        wireViewModelScoped<
-                CompositeMessageViewModelImpl,
-                CompositeMessageViewModel,
-                CompositeMessageArgs,
-                CompositeMessageViewModelImpl.Factory
-                >(
-            CompositeMessageArgs(conversationId, messageId)
-        )
+        CompositeMessageArgs(conversationId, messageId).let { args ->
+            metroViewModel<CompositeMessageViewModelImpl>(key = args.key) {
+                compositeMessageViewModelFactory.create(args)
+            }
+        }
 ) {
     Column(
         modifier = modifier

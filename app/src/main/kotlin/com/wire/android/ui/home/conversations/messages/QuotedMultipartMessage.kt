@@ -45,12 +45,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
 import com.wire.android.feature.cells.domain.model.icon
@@ -75,7 +75,9 @@ fun QuotedMultipartMessage(
     accent: Accent,
     clickable: Clickable?,
     modifier: Modifier = Modifier,
-    viewModel: QuotedMultipartMessageViewModel = hiltViewModel(key = conversationId.toString()),
+    viewModel: QuotedMultipartMessageViewModel = metroViewModel(key = conversationId.toString()) {
+        quotedMultipartMessageViewModelFactory.create()
+    },
     startContent: @Composable () -> Unit = {}
 ) {
 

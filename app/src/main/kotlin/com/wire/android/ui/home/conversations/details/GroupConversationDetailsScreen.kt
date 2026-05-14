@@ -60,10 +60,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -148,10 +148,9 @@ fun GroupConversationDetailsScreen(
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
     args: GroupConversationDetailsNavArgs,
-    viewModel: GroupConversationDetailsViewModel =
-        hiltViewModel<GroupConversationDetailsViewModel, GroupConversationDetailsViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+    viewModel: GroupConversationDetailsViewModel = metroViewModel {
+        groupConversationDetailsViewModelFactory.create(args)
+    },
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
@@ -315,6 +314,7 @@ fun GroupConversationDetailsScreen(
                 )
             )
         },
+        onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         isScreenLoading = viewModel.isFetchingInitialData
     )
 
@@ -385,6 +385,7 @@ private fun GroupConversationDetailsContent(
     onDeletedConversation: () -> Unit = {},
     onPromoteAdmin: (ConversationId) -> Unit = {},
     openConversationDebugMenu: (ConversationId) -> Unit = {},
+    onReadReceiptSwitchClicked: (Boolean) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
     isScreenLoading: StateFlow<Boolean> = MutableStateFlow(false),
 ) {
@@ -537,11 +538,13 @@ private fun GroupConversationDetailsContent(
                 ) { pageIndex ->
                     when (GroupConversationDetailsTabItem.entries[pageIndex]) {
                         GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
+                            state = groupConversationOptionsState,
                             lazyListState = lazyListStates[pageIndex],
                             onEditGuestAccess = onEditGuestAccess,
                             onAppsAccessItemClicked = onAppsAccessItemClicked,
                             onChannelAccessItemClicked = onChannelAccessItemClicked,
                             onEditSelfDeletingMessages = onEditSelfDeletingMessages,
+                            onReadReceiptSwitchClicked = onReadReceiptSwitchClicked,
                             onEditGroupName = onEditGroupName
                         )
 

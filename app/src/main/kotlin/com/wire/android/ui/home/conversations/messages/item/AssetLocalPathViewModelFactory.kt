@@ -22,7 +22,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import dev.zacsweers.metro.Inject
 
 @Inject
-internal class AssetLocalPathViewModelFactory(
+class AssetLocalPathViewModelFactory(
     private val getMessageAsset: GetMessageAssetUseCase,
     private val dispatchers: DispatcherProvider,
 ) {

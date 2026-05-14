@@ -27,17 +27,12 @@ import com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConver
 import com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesFromConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = ConversationAssetMessagesViewModel.Factory::class)
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationAssetMessagesViewModel @AssistedInject constructor(
-    @Assisted conversationMediaNavArgs: ConversationMediaNavArgs,
+class ConversationAssetMessagesViewModel(
+    conversationMediaNavArgs: ConversationMediaNavArgs,
     private val getImageMessages: ObserveImageAssetMessagesFromConversationUseCase,
     private val getAssetMessages: GetAssetMessagesFromConversationUseCase,
     private val observeAssetStatuses: ObserveAssetStatusesUseCase,
@@ -52,11 +47,6 @@ class ConversationAssetMessagesViewModel @AssistedInject constructor(
         loadImages()
         loadAssets()
         observeAssetStatuses()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: ConversationMediaNavArgs): ConversationAssetMessagesViewModel
     }
 
     private fun loadAssets() = viewModelScope.launch {

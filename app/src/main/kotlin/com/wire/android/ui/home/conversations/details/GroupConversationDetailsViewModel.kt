@@ -46,12 +46,8 @@ import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -66,9 +62,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel(assistedFactory = GroupConversationDetailsViewModel.Factory::class)
-class GroupConversationDetailsViewModel @AssistedInject constructor(
-    @Assisted private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs,
+class GroupConversationDetailsViewModel(
+    private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs,
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     observeConversationMembers: ObserveParticipantsForConversationUseCase,
@@ -96,11 +91,6 @@ class GroupConversationDetailsViewModel @AssistedInject constructor(
 
     init {
         observeConversationDetails()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: GroupConversationDetailsNavArgs): GroupConversationDetailsViewModel
     }
 
     private suspend fun groupDetailsFlow(): Flow<ConversationDetails.Group> = observeConversationDetails(conversationId)

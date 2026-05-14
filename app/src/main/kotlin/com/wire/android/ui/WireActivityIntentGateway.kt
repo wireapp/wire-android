@@ -23,12 +23,7 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.lifecycle.AutomatedLoginViaSSO
 import com.wire.android.util.lifecycle.IntentsProcessor
-import dagger.Binds
 import dagger.Lazy
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import javax.inject.Inject
 
 data class WireActivityIntentContent(
     val dataUri: String?,
@@ -41,7 +36,7 @@ interface WireActivityIntentGateway {
     suspend fun parseAutomatedLogin(intentContent: WireActivityIntentContent?): AutomatedLoginViaSSO?
 }
 
-class AndroidWireActivityIntentGateway @Inject constructor(
+class AndroidWireActivityIntentGateway(
     private val deepLinkProcessor: Lazy<DeepLinkProcessor>,
     private val intentsProcessor: Lazy<IntentsProcessor>,
 ) : WireActivityIntentGateway {
@@ -59,10 +54,3 @@ fun Intent.toWireActivityIntentContent(): WireActivityIntentContent =
         action = action,
         automatedLogin = getStringExtra(IntentsProcessor.AUTOMATED_LOGIN),
     )
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface WireActivityIntentGatewayModule {
-    @Binds
-    fun bindWireActivityIntentGateway(gateway: AndroidWireActivityIntentGateway): WireActivityIntentGateway
-}

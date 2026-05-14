@@ -21,21 +21,16 @@ package com.wire.android.ui.debug
 import androidx.core.net.toUri
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dev.zacsweers.metro.Inject as MetroInject
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.withContext
 import okio.Path
-import javax.inject.Inject
 
 interface ExportObfuscatedCopyFileGateway {
     suspend fun shareCopy(path: Path, assetName: String?)
     suspend fun saveCopy(path: Path, destinationUri: String)
 }
 
-class AndroidExportObfuscatedCopyFileGateway @Inject @MetroInject constructor(
+class AndroidExportObfuscatedCopyFileGateway @Inject constructor(
     private val fileManager: FileManager,
     private val dispatcher: DispatcherProvider,
 ) : ExportObfuscatedCopyFileGateway {
@@ -47,13 +42,4 @@ class AndroidExportObfuscatedCopyFileGateway @Inject @MetroInject constructor(
     override suspend fun saveCopy(path: Path, destinationUri: String) {
         fileManager.copyToUri(path, destinationUri.toUri(), dispatcher)
     }
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface ExportObfuscatedCopyFileGatewayModule {
-    @Binds
-    fun bindExportObfuscatedCopyFileGateway(
-        gateway: AndroidExportObfuscatedCopyFileGateway
-    ): ExportObfuscatedCopyFileGateway
 }

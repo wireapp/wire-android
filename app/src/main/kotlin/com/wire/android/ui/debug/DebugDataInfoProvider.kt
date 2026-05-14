@@ -20,10 +20,6 @@ package com.wire.android.ui.debug
 import android.content.Context
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -37,14 +33,4 @@ class AndroidDebugDataInfoProvider @Inject constructor(
 ) : DebugDataInfoProvider {
     override fun deviceId(): String? = context.getDeviceIdString()
     override fun gitBuildId(): String = context.getGitBuildId()
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface DebugDataInfoProviderModule {
-
-    @Binds
-    fun bindDebugDataInfoProvider(
-        provider: AndroidDebugDataInfoProvider
-    ): DebugDataInfoProvider
 }

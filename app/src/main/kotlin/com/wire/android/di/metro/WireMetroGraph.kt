@@ -51,7 +51,6 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.cells.ui.AndroidCellFileExternalActions
 import com.wire.android.feature.cells.ui.CellFileExternalActions
-import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.media.audiomessage.AudioFocusHelper
 import com.wire.android.media.audiomessage.AudioMessageViewModelFactory
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -2601,8 +2600,8 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         FileSizeFormatter(context)
 
     @Provides
-    fun provideCellFileExternalActions(fileHelper: FileHelper): CellFileExternalActions =
-        AndroidCellFileExternalActions(fileHelper)
+    fun provideCellFileExternalActions(androidCellFileExternalActions: AndroidCellFileExternalActions): CellFileExternalActions =
+        androidCellFileExternalActions
 
     @Provides
     fun provideCellAssetRefreshHelper(
@@ -2754,13 +2753,8 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
 
     @Provides
     fun provideExportObfuscatedCopyFileGateway(
-        fileManager: FileManager,
-        dispatchers: DispatcherProvider,
-    ): ExportObfuscatedCopyFileGateway =
-        AndroidExportObfuscatedCopyFileGateway(
-            fileManager = fileManager,
-            dispatcher = dispatchers,
-        )
+        gateway: AndroidExportObfuscatedCopyFileGateway,
+    ): ExportObfuscatedCopyFileGateway = gateway
 
     @Provides
     fun provideWorkManager(@ApplicationContext context: Context): WorkManager =

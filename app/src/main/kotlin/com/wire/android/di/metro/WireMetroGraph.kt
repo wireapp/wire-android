@@ -18,6 +18,9 @@
 package com.wire.android.di.metro
 
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.MediaPlayer
 import androidx.lifecycle.SavedStateHandle
 import androidx.work.WorkManager
 import com.wire.android.BuildConfig
@@ -27,6 +30,7 @@ import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.di.ApplicationScope
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
@@ -36,7 +40,10 @@ import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
+import com.wire.android.media.audiomessage.AudioFocusHelper
+import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.mapper.OtherAccountMapper
+import com.wire.android.mapper.ContactMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelFactory
@@ -75,13 +82,22 @@ import com.wire.android.ui.home.appLock.set.SetLockScreenViewModelFactory
 import com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModelFactory
 import com.wire.android.ui.home.appLock.unlock.EnterLockScreenViewModelFactory
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
+import com.wire.android.ui.home.conversations.details.metadata.EditConversationMetadataViewModelFactory
 import com.wire.android.ui.home.conversations.folder.NewFolderViewModelFactory
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewAssetImporter
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewAssetImporterImpl
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewViewModelFactory
+import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModelFactory
+import com.wire.android.ui.home.conversations.search.apps.SearchAppsViewModelFactory
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.gallery.MediaGalleryViewModelFactory
+import com.wire.android.ui.home.messagecomposer.attachments.IsFileSharingEnabledViewModelFactory
+import com.wire.android.ui.home.messagecomposer.recordaudio.AndroidRecordAudioFileGateway
+import com.wire.android.ui.home.messagecomposer.recordaudio.AudioMediaRecorder
+import com.wire.android.ui.home.messagecomposer.recordaudio.GenerateAudioFileWithEffectsUseCase
+import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioFileGateway
+import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioViewModelFactory
 import com.wire.android.ui.home.settings.about.dependencies.AndroidDependenciesInfoProvider
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesInfoProvider
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewModelFactory
@@ -138,8 +154,10 @@ import com.wire.android.ui.sharing.ImportMediaAssetImporter
 import com.wire.android.ui.sharing.ImportMediaAssetImporterImpl
 import com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModelFactory
 import com.wire.android.util.AvatarImageManager
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.EMPTY
 import com.wire.android.util.FileManager
+import com.wire.android.util.ScreenStateObserver
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.isWebsocketEnabledByDefault
 import com.wire.android.util.lifecycle.AutomatedLoginManager
@@ -159,6 +177,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
+import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
@@ -169,7 +188,9 @@ import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.app.AppScope
 import com.wire.kalium.logic.feature.app.GetAppByIdUseCase
+import com.wire.kalium.logic.feature.app.ObserveAllAppsUseCase
 import com.wire.kalium.logic.feature.app.ObserveIsAppMemberUseCase
+import com.wire.kalium.logic.feature.app.SearchAppsByNameUseCase
 import com.wire.kalium.logic.feature.backup.BackupScope
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.CreateMPBackupUseCase
@@ -213,6 +234,7 @@ import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -254,7 +276,9 @@ import com.wire.kalium.logic.feature.team.TeamScope
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
+import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
+import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import com.wire.kalium.logic.feature.service.ServiceScope
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
@@ -268,6 +292,7 @@ import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -305,6 +330,8 @@ import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Named
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraphFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 
 abstract class WireMetroScope private constructor()
@@ -380,6 +407,11 @@ interface WireMetroGraph {
     val securityClassificationViewModelFactory: SecurityClassificationViewModelFactory
     val connectionActionButtonViewModelFactory: ConnectionActionButtonViewModelFactory
     val conversationOptionsMenuViewModelFactory: ConversationOptionsMenuViewModelFactory
+    val isFileSharingEnabledViewModelFactory: IsFileSharingEnabledViewModelFactory
+    val addMembersToConversationViewModelFactory: AddMembersToConversationViewModelFactory
+    val editConversationMetadataViewModelFactory: EditConversationMetadataViewModelFactory
+    val searchAppsViewModelFactory: SearchAppsViewModelFactory
+    val recordAudioViewModelFactory: RecordAudioViewModelFactory
 
     val dispatcherProvider: DispatcherProvider
 
@@ -580,6 +612,80 @@ interface WireMetroGraph {
         AvatarImageManager(context)
 
     @Provides
+    fun provideAudioNormalizedLoudnessBuilder(@KaliumCoreLogic coreLogic: CoreLogic): AudioNormalizedLoudnessBuilder =
+        coreLogic.audioNormalizedLoudnessBuilder
+
+    @ApplicationScope
+    @Provides
+    fun provideApplicationCoroutineScope(dispatchers: DispatcherProvider): CoroutineScope =
+        CoroutineScope(SupervisorJob() + dispatchers.default())
+
+    @Provides
+    fun provideMusicMediaPlayer(): MediaPlayer =
+        MediaPlayer().apply {
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
+        }
+
+    @Provides
+    fun provideAudioManager(@ApplicationContext context: Context): AudioManager =
+        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+    @Provides
+    fun provideAudioFocusHelper(audioManager: AudioManager): AudioFocusHelper =
+        AudioFocusHelper(audioManager)
+
+    @Provides
+    fun provideRecordAudioMessagePlayer(
+        @ApplicationContext context: Context,
+        mediaPlayer: MediaPlayer,
+        audioFocusHelper: AudioFocusHelper,
+        @ApplicationScope applicationScope: CoroutineScope,
+    ): RecordAudioMessagePlayer =
+        RecordAudioMessagePlayer(
+            context = context,
+            audioMediaPlayer = mediaPlayer,
+            audioFocusHelper = audioFocusHelper,
+            scope = applicationScope,
+        )
+
+    @Provides
+    fun provideScreenStateObserver(@ApplicationContext context: Context): ScreenStateObserver =
+        ScreenStateObserver(context)
+
+    @Provides
+    fun provideCurrentScreenManager(screenStateObserver: ScreenStateObserver): CurrentScreenManager =
+        CurrentScreenManager(screenStateObserver)
+
+    @Provides
+    fun provideGenerateAudioFileWithEffectsUseCase(dispatchers: DispatcherProvider): GenerateAudioFileWithEffectsUseCase =
+        GenerateAudioFileWithEffectsUseCase(dispatchers)
+
+    @Provides
+    fun provideRecordAudioFileGateway(
+        @ApplicationContext context: Context,
+        generateAudioFileWithEffects: GenerateAudioFileWithEffectsUseCase,
+    ): RecordAudioFileGateway =
+        AndroidRecordAudioFileGateway(
+            context = context,
+            generateAudioFileWithEffects = generateAudioFileWithEffects,
+        )
+
+    @Provides
+    fun provideAudioMediaRecorder(
+        kaliumFileSystem: KaliumFileSystem,
+        dispatchers: DispatcherProvider,
+    ): AudioMediaRecorder =
+        AudioMediaRecorder(
+            kaliumFileSystem = kaliumFileSystem,
+            dispatcherProvider = dispatchers,
+        )
+
+    @Provides
     fun provideAvatarImageGateway(
         avatarImageManager: AvatarImageManager,
         dispatchers: DispatcherProvider,
@@ -751,6 +857,10 @@ interface WireMetroGraph {
         UserTypeMapper()
 
     @Provides
+    fun provideContactMapper(userTypeMapper: UserTypeMapper): ContactMapper =
+        ContactMapper(userTypeMapper)
+
+    @Provides
     fun provideGetSelfUserUseCase(userScope: UserScope): GetSelfUserUseCase =
         userScope.getSelfUser
 
@@ -836,6 +946,13 @@ interface WireMetroGraph {
     @Provides
     fun provideIsReadOnlyAccountUseCase(userScope: UserScope): IsReadOnlyAccountUseCase =
         userScope.isReadOnlyAccount
+
+    @Provides
+    fun provideIsFileSharingEnabledUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): IsFileSharingEnabledUseCase =
+        coreLogic.getSessionScope(currentAccount).isFileSharingEnabled
 
     @Provides
     fun provideDeleteAccountUseCase(userScope: UserScope): DeleteAccountUseCase =
@@ -1104,6 +1221,10 @@ interface WireMetroGraph {
         conversationScope.clearConversationContent
 
     @Provides
+    fun provideRenameConversationUseCase(conversationScope: ConversationScope): RenameConversationUseCase =
+        conversationScope.renameConversation
+
+    @Provides
     fun provideSendConnectionRequestUseCase(connectionScope: ConnectionScope): SendConnectionRequestUseCase =
         connectionScope.sendConnectionRequest
 
@@ -1143,6 +1264,14 @@ interface WireMetroGraph {
         appScope.observeIsAppMember
 
     @Provides
+    fun provideSearchAppsByNameUseCase(appScope: AppScope): SearchAppsByNameUseCase =
+        appScope.searchAppsByName
+
+    @Provides
+    fun provideObserveAllAppsUseCase(appScope: AppScope): ObserveAllAppsUseCase =
+        appScope.observeAllApps
+
+    @Provides
     fun provideServiceScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId,
@@ -1156,6 +1285,14 @@ interface WireMetroGraph {
     @Provides
     fun provideObserveIsServiceMemberUseCase(serviceScope: ServiceScope): ObserveIsServiceMemberUseCase =
         serviceScope.observeIsServiceMember
+
+    @Provides
+    fun provideObserveAllServicesUseCase(serviceScope: ServiceScope): ObserveAllServicesUseCase =
+        serviceScope.observeAllServices
+
+    @Provides
+    fun provideSearchServicesByNameUseCase(serviceScope: ServiceScope): SearchServicesByNameUseCase =
+        serviceScope.searchServicesByName
 
     @Provides
     fun provideObserveIsAppsAllowedForUsageUseCase(serviceScope: ServiceScope): ObserveIsAppsAllowedForUsageUseCase =

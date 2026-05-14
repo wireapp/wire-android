@@ -22,8 +22,8 @@ import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.groupname.GroupMetadataState
@@ -42,9 +42,7 @@ fun EditConversationNameScreen(
     resultNavigator: ResultBackNavigator<Boolean>,
     args: EditConversationNameNavArgs,
     viewModel: EditConversationMetadataViewModel =
-        hiltViewModel<EditConversationMetadataViewModel, EditConversationMetadataViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+        metroViewModel { editConversationMetadataViewModelFactory.create(args) },
 ) {
     with(viewModel) {
         LaunchedEffect(editConversationState.completed) {

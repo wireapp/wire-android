@@ -35,10 +35,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.filterIsInstance
@@ -47,9 +43,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@HiltViewModel(assistedFactory = EditConversationMetadataViewModel.Factory::class)
-class EditConversationMetadataViewModel @AssistedInject constructor(
-    @Assisted private val editConversationNameNavArgs: EditConversationNameNavArgs,
+class EditConversationMetadataViewModel(
+    private val editConversationNameNavArgs: EditConversationNameNavArgs,
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val renameConversation: RenameConversationUseCase,
@@ -64,11 +59,6 @@ class EditConversationMetadataViewModel @AssistedInject constructor(
     init {
         getConversationDetails()
         observeConversationNameChanges()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: EditConversationNameNavArgs): EditConversationMetadataViewModel
     }
 
     private fun getConversationDetails() {

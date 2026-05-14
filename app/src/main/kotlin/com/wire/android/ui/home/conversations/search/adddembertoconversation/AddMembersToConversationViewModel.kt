@@ -28,19 +28,14 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@HiltViewModel(assistedFactory = AddMembersToConversationViewModel.Factory::class)
-class AddMembersToConversationViewModel @AssistedInject constructor(
-    @Assisted private val addMembersSearchNavArgs: AddMembersSearchNavArgs,
+class AddMembersToConversationViewModel(
+    private val addMembersSearchNavArgs: AddMembersSearchNavArgs,
     private val addMemberToConversation: AddMemberToConversationUseCase,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
@@ -72,11 +67,6 @@ class AddMembersToConversationViewModel @AssistedInject constructor(
                 }.toImmutableSet()
             )
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: AddMembersSearchNavArgs): AddMembersToConversationViewModel
     }
 }
 

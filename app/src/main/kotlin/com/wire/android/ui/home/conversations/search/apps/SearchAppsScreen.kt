@@ -35,8 +35,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.UserBadge
@@ -66,10 +66,11 @@ fun SearchAppsScreen(
     searchQuery: String,
     onServiceClicked: (Contact) -> Unit,
     isConversationAppsEnabled: Boolean,
-    searchAppsViewModel: SearchAppsViewModel = hiltViewModel<SearchAppsViewModel, SearchAppsViewModel.Factory>(
+    searchAppsViewModel: SearchAppsViewModel = metroViewModel(
         key = "search_apps_protocol_info_${protocolInfo?.name()}",
-        creationCallback = { factory -> factory.create(protocolInfo = protocolInfo) }
-    ),
+    ) {
+        searchAppsViewModelFactory.create(protocolInfo = protocolInfo)
+    },
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     LaunchedEffect(key1 = searchQuery) {

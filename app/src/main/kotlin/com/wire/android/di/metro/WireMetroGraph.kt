@@ -639,22 +639,7 @@ import dev.zacsweers.metro.Named
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
-
-data class WireApplicationDependencies(
-    @KaliumCoreLogic val coreLogic: dagger.Lazy<CoreLogic>,
-    val logFileWriter: dagger.Lazy<LogFileWriter>,
-    val syncLifecycleManager: dagger.Lazy<SyncLifecycleManager>,
-    val wireWorkerFactory: dagger.Lazy<WireWorkerFactory>,
-    val globalObserversManager: dagger.Lazy<GlobalObserversManager>,
-    val globalDataStore: dagger.Lazy<GlobalDataStore>,
-    val userDataStoreProvider: dagger.Lazy<UserDataStoreProvider>,
-    @ApplicationScope val globalAppScope: CoroutineScope,
-    val currentScreenManager: CurrentScreenManager,
-    val analyticsManager: dagger.Lazy<AnonymousAnalyticsManager>,
-    val workManager: WorkManager,
-)
 
 abstract class WireMetroScope private constructor()
 
@@ -815,7 +800,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     @get:KaliumCoreLogic
     val coreLogic: CoreLogic
     val networkUtil: NetworkUtil
-    val wireApplicationDependencies: WireApplicationDependencies
     val persistentWebSocketServiceDependencies: PersistentWebSocketService.Dependencies
     val callServiceDependencies: CallService.Dependencies
     val playingAudioMessageServiceDependencies: PlayingAudioMessageService.Dependencies
@@ -980,38 +964,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         object : dagger.Lazy<AnonymousAnalyticsManager> {
             override fun get(): AnonymousAnalyticsManager = anonymousAnalyticsManager
         }
-
-    @Provides
-    fun provideWireApplicationDependencies(
-        entryPoint: WireMetroHiltEntryPoint,
-        @KaliumCoreLogic coreLogic: dagger.Lazy<CoreLogic>,
-        globalDataStore: dagger.Lazy<GlobalDataStore>,
-        analyticsManager: dagger.Lazy<AnonymousAnalyticsManager>,
-        workManager: WorkManager,
-    ): WireApplicationDependencies =
-        WireApplicationDependencies(
-            coreLogic = coreLogic,
-            logFileWriter = object : dagger.Lazy<LogFileWriter> {
-                override fun get(): LogFileWriter = entryPoint.logFileWriter()
-            },
-            syncLifecycleManager = object : dagger.Lazy<SyncLifecycleManager> {
-                override fun get(): SyncLifecycleManager = entryPoint.syncLifecycleManager()
-            },
-            wireWorkerFactory = object : dagger.Lazy<WireWorkerFactory> {
-                override fun get(): WireWorkerFactory = entryPoint.wireWorkerFactory()
-            },
-            globalObserversManager = object : dagger.Lazy<GlobalObserversManager> {
-                override fun get(): GlobalObserversManager = entryPoint.globalObserversManager()
-            },
-            globalDataStore = globalDataStore,
-            userDataStoreProvider = object : dagger.Lazy<UserDataStoreProvider> {
-                override fun get(): UserDataStoreProvider = entryPoint.userDataStoreProvider()
-            },
-            globalAppScope = entryPoint.applicationScope(),
-            currentScreenManager = entryPoint.currentScreenManager(),
-            analyticsManager = analyticsManager,
-            workManager = workManager,
-        )
 
     @Provides
     fun provideNomadProfilesFeatureConfig(): NomadProfilesFeatureConfig =
@@ -1382,8 +1334,8 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
 
     @ApplicationScope
     @Provides
-    fun provideApplicationCoroutineScope(dispatchers: DispatcherProvider): CoroutineScope =
-        CoroutineScope(SupervisorJob() + dispatchers.default())
+    fun provideApplicationCoroutineScope(entryPoint: WireMetroHiltEntryPoint): CoroutineScope =
+        entryPoint.applicationScope()
 
     @Provides
     fun provideMusicMediaPlayer(): MediaPlayer =

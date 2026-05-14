@@ -27,9 +27,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.work.WorkManager
 import com.wire.android.BuildConfig
 import com.wire.android.GlobalObserversManager
-import com.wire.android.analytics.FinalizeRegistrationAnalyticsMetadataUseCase
-import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
-import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
@@ -49,18 +46,12 @@ import com.wire.android.emm.ManagedConfigurationsReceiver
 import com.wire.android.emm.ManagedConfigurationsReporter
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.DisableAppLockUseCase
-import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.cells.ui.AndroidCellFileExternalActions
-import com.wire.android.feature.cells.ui.CellFileActionsMenu
 import com.wire.android.feature.cells.ui.CellFileExternalActions
-import com.wire.android.feature.cells.ui.CellFileLocalPathCache
-import com.wire.android.feature.cells.ui.OpenFileDownloadController
-import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.util.FileHelper
-import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.media.audiomessage.AudioFocusHelper
 import com.wire.android.media.audiomessage.AudioMessageViewModelFactory
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -140,14 +131,12 @@ import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.E
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessViewModelFactory
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModelFactory
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModelFactory
-import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentAssetImporter
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentAssetImporterImpl
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentFileGateway
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentFileGatewayImpl
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModelFactory
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModelFactory
-import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModelFactory
 import com.wire.android.ui.home.conversations.composer.AndroidTempWritableAttachmentUriProvider
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModelFactory
@@ -161,8 +150,6 @@ import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateApp
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModelFactory
 import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuViewModelFactory
 import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsViewModelFactory
-import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase
-import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewAssetImporter
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewAssetImporterImpl
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewViewModelFactory
@@ -183,17 +170,7 @@ import com.wire.android.ui.home.conversations.search.adddembertoconversation.Add
 import com.wire.android.ui.home.conversations.search.apps.SearchAppsViewModelFactory
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModelFactory
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModelFactory
-import com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConversationUseCase
-import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
-import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
-import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
-import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
-import com.wire.android.ui.home.conversations.usecase.GetUsersForMessageUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesFromConversationUseCase
-import com.wire.android.ui.home.conversations.usecase.ObserveMessageForConversationUseCase
-import com.wire.android.ui.home.conversations.usecase.ObserveQuoteMessageForConversationUseCase
-import com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConversationUseCase
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModelFactory
 import com.wire.android.ui.home.AppSyncViewModelFactory
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelFactory
@@ -935,13 +912,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         NotificationManagerCompat.from(context)
 
     @Provides
-    fun provideNotificationChannelsManager(
-        @ApplicationContext context: Context,
-        notificationManagerCompat: NotificationManagerCompat,
-    ): NotificationChannelsManager =
-        NotificationChannelsManager(context, notificationManagerCompat)
-
-    @Provides
     fun provideLocationPickerHelperFlavor(entryPoint: WireMetroHiltEntryPoint): LocationPickerHelperFlavor =
         entryPoint.locationPickerHelperFlavor()
 
@@ -964,10 +934,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         object : dagger.Lazy<AnonymousAnalyticsManager> {
             override fun get(): AnonymousAnalyticsManager = anonymousAnalyticsManager
         }
-
-    @Provides
-    fun provideNomadProfilesFeatureConfig(): NomadProfilesFeatureConfig =
-        NomadProfilesFeatureConfig()
 
     @Provides
     fun provideLoginTypeSelector(entryPoint: WireMetroHiltEntryPoint): LoginTypeSelector =
@@ -1202,13 +1168,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         }
 
     @Provides
-    fun provideDisableAppLockUseCase(
-        globalDataStore: GlobalDataStore,
-        observeIsAppLockEditable: ObserveIsAppLockEditableUseCase,
-    ): DisableAppLockUseCase =
-        DisableAppLockUseCase(globalDataStore, observeIsAppLockEditable)
-
-    @Provides
     fun provideDisableAppLockUseCaseLazy(disableAppLockUseCase: DisableAppLockUseCase): dagger.Lazy<DisableAppLockUseCase> =
         object : dagger.Lazy<DisableAppLockUseCase> {
             override fun get(): DisableAppLockUseCase = disableAppLockUseCase
@@ -1353,10 +1312,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     @Provides
-    fun provideAudioFocusHelper(audioManager: AudioManager): AudioFocusHelper =
-        AudioFocusHelper(audioManager)
-
-    @Provides
     fun provideRecordAudioMessagePlayer(
         @ApplicationContext context: Context,
         mediaPlayer: MediaPlayer,
@@ -1425,10 +1380,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     @Provides
     fun provideProximitySensorManager(entryPoint: WireMetroHiltEntryPoint): ProximitySensorManager =
         entryPoint.proximitySensorManager()
-
-    @Provides
-    fun provideGenerateAudioFileWithEffectsUseCase(dispatchers: DispatcherProvider): GenerateAudioFileWithEffectsUseCase =
-        GenerateAudioFileWithEffectsUseCase(dispatchers)
 
     @Provides
     fun provideRecordAudioFileGateway(
@@ -1648,10 +1599,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         MessageResourceProvider()
 
     @Provides
-    fun provideMessageSharedState(): MessageSharedState =
-        MessageSharedState()
-
-    @Provides
     fun provideGetMediaMetadataUseCase(): GetMediaMetadataUseCase =
         GetMediaMetadataUseCaseImpl()
 
@@ -1759,28 +1706,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         if (BuildConfig.ANALYTICS_ENABLED) AnalyticsConfiguration.Enabled else AnalyticsConfiguration.Disabled
 
     @Provides
-    fun provideRegistrationAnalyticsManagerUseCase(
-        globalDataStore: GlobalDataStore,
-        anonymousAnalyticsManager: AnonymousAnalyticsManager,
-    ): RegistrationAnalyticsManagerUseCase =
-        RegistrationAnalyticsManagerUseCase(
-            globalDataStore = globalDataStore,
-            anonymousAnalyticsManager = anonymousAnalyticsManager,
-        )
-
-    @Provides
-    fun provideFinalizeRegistrationAnalyticsMetadataUseCase(
-        globalDataStore: GlobalDataStore,
-        @CurrentAccount currentAccount: UserId,
-        @KaliumCoreLogic coreLogic: CoreLogic,
-    ): FinalizeRegistrationAnalyticsMetadataUseCase =
-        FinalizeRegistrationAnalyticsMetadataUseCase(
-            globalDataStore = globalDataStore,
-            currentAccount = currentAccount,
-            coreLogic = coreLogic,
-        )
-
-    @Provides
     fun provideObserveReadReceiptsEnabledUseCase(userScope: UserScope): ObserveReadReceiptsEnabledUseCase =
         userScope.observeReadReceiptsEnabled
 
@@ -1867,16 +1792,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     @Provides
     fun provideNewLoginRecoverableLogoutExceptionDetector(): NewLoginRecoverableLogoutExceptionDetector =
         NewLoginRecoverableLogoutExceptionDetector()
-
-    @Provides
-    fun provideObserveAppLockConfigUseCase(
-        globalDataStore: GlobalDataStore,
-        @KaliumCoreLogic coreLogic: CoreLogic,
-    ): ObserveAppLockConfigUseCase =
-        ObserveAppLockConfigUseCase(
-            globalDataStore = globalDataStore,
-            coreLogic = coreLogic,
-        )
 
     @Provides
     fun provideMarkTeamAppLockStatusAsNotifiedUseCase(
@@ -2105,16 +2020,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         conversationScope.observeConversationUnderLegalHoldNotified
 
     @Provides
-    fun provideObserveConversationMembersByTypesUseCase(
-        observeConversationMembers: ObserveConversationMembersUseCase,
-        dispatchers: DispatcherProvider,
-    ): ObserveConversationMembersByTypesUseCase =
-        ObserveConversationMembersByTypesUseCase(
-            observeConversationMembers = observeConversationMembers,
-            dispatchers = dispatchers,
-        )
-
-    @Provides
     fun provideResetMLSConversationUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId,
@@ -2159,16 +2064,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     @Provides
     fun provideObserveUserListByIdUseCase(conversationScope: ConversationScope): ObserveUserListByIdUseCase =
         conversationScope.observeUserListById
-
-    @Provides
-    fun provideObserveUsersTypingInConversationUseCase(
-        observeUsersTyping: ObserveUsersTypingUseCase,
-        uiParticipantMapper: UIParticipantMapper,
-    ): ObserveUsersTypingInConversationUseCase =
-        ObserveUsersTypingInConversationUseCase(
-            observeUsersTyping = observeUsersTyping,
-            uiParticipantMapper = uiParticipantMapper,
-        )
 
     @Provides
     fun provideObserveConversationRoleForUserUseCase(
@@ -2547,121 +2442,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         messageScope.observeMessageById
 
     @Provides
-    fun provideGetUsersForMessageUseCase(
-        observeUserListById: ObserveUserListByIdUseCase,
-        messageMapper: MessageMapper,
-    ): GetUsersForMessageUseCase =
-        GetUsersForMessageUseCase(observeUserListById, messageMapper)
-
-    @Provides
-    fun provideObserveMessageForConversationUseCase(
-        observeMessageById: ObserveMessageByIdUseCase,
-        getUsersForMessage: GetUsersForMessageUseCase,
-        messageMapper: MessageMapper,
-        dispatchers: DispatcherProvider,
-    ): ObserveMessageForConversationUseCase =
-        ObserveMessageForConversationUseCase(
-            observeMessage = observeMessageById,
-            getUsersForMessage = getUsersForMessage,
-            messageMapper = messageMapper,
-            dispatchers = dispatchers,
-        )
-
-    @Provides
-    fun provideObserveQuoteMessageForConversationUseCase(
-        observeMessageById: ObserveMessageByIdUseCase,
-        getUsersForMessage: GetUsersForMessageUseCase,
-        messageMapper: MessageMapper,
-        dispatchers: DispatcherProvider,
-    ): ObserveQuoteMessageForConversationUseCase =
-        ObserveQuoteMessageForConversationUseCase(
-            observeMessageById = observeMessageById,
-            getUsersForMessage = getUsersForMessage,
-            messageMapper = messageMapper,
-            dispatchers = dispatchers,
-        )
-
-    @Provides
-    fun provideGetQuoteMessageForConversationUseCase(
-        getMessageById: GetMessageByIdUseCase,
-        getUsersForMessage: GetUsersForMessageUseCase,
-        messageMapper: MessageMapper,
-        dispatchers: DispatcherProvider,
-    ): GetQuoteMessageForConversationUseCase =
-        GetQuoteMessageForConversationUseCase(
-            getMessageById = getMessageById,
-            getUsersForMessage = getUsersForMessage,
-            messageMapper = messageMapper,
-            dispatchers = dispatchers,
-        )
-
-    @Provides
-    fun provideGetMessagesForConversationUseCase(
-        getMessages: GetPaginatedFlowOfMessagesByConversationUseCase,
-        getUsersForMessage: GetUsersForMessageUseCase,
-        messageMapper: MessageMapper,
-        dispatchers: DispatcherProvider,
-    ): GetMessagesForConversationUseCase =
-        GetMessagesForConversationUseCase(
-            getMessages = getMessages,
-            getUsersForMessage = getUsersForMessage,
-            messageMapper = messageMapper,
-            dispatchers = dispatchers,
-        )
-
-    @Provides
-    fun provideGetAssetMessagesFromConversationUseCase(
-        getAssetMessages: GetPaginatedFlowOfAssetMessageByConversationIdUseCase,
-        getUsersForMessage: GetUsersForMessageUseCase,
-        messageMapper: MessageMapper,
-        dispatchers: DispatcherProvider,
-    ): GetAssetMessagesFromConversationUseCase =
-        GetAssetMessagesFromConversationUseCase(
-            getAssetMessages = getAssetMessages,
-            getUsersForMessage = getUsersForMessage,
-            messageMapper = messageMapper,
-            dispatchers = dispatchers,
-        )
-
-    @Provides
-    fun provideObserveImageAssetMessagesFromConversationUseCase(
-        getAssetMessages: ObservePaginatedAssetImageMessages,
-        assetMapper: UIAssetMapper,
-        dispatchers: DispatcherProvider,
-        timeZoneProvider: TimeZoneProvider,
-    ): ObserveImageAssetMessagesFromConversationUseCase =
-        ObserveImageAssetMessagesFromConversationUseCase(
-            getAssetMessages = getAssetMessages,
-            assetMapper = assetMapper,
-            dispatchers = dispatchers,
-            timeZoneProvider = timeZoneProvider,
-        )
-
-    @Provides
-    fun provideObserveReactionsForMessageUseCase(
-        observeMessageReactions: ObserveMessageReactionsUseCase,
-        uiParticipantMapper: UIParticipantMapper,
-        dispatchers: DispatcherProvider,
-    ): ObserveReactionsForMessageUseCase =
-        ObserveReactionsForMessageUseCase(
-            observeMessageReactions = observeMessageReactions,
-            uiParticipantMapper = uiParticipantMapper,
-            dispatchers = dispatchers,
-        )
-
-    @Provides
-    fun provideObserveReceiptsForMessageUseCase(
-        observeMessageReceipts: ObserveMessageReceiptsUseCase,
-        uiParticipantMapper: UIParticipantMapper,
-        dispatchers: DispatcherProvider,
-    ): ObserveReceiptsForMessageUseCase =
-        ObserveReceiptsForMessageUseCase(
-            observeMessageReceipts = observeMessageReceipts,
-            uiParticipantMapper = uiParticipantMapper,
-            dispatchers = dispatchers,
-        )
-
-    @Provides
     fun provideCellsScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId,
@@ -2817,46 +2597,12 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         cellsScope.getCellConfig
 
     @Provides
-    fun provideOnlineEditor(@ApplicationContext context: Context): OnlineEditor =
-        OnlineEditor(context)
-
-    @Provides
-    fun provideCellsFileHelper(@ApplicationContext context: Context): FileHelper =
-        FileHelper(context)
-
-    @Provides
-    fun provideFileNameResolver(): FileNameResolver =
-        FileNameResolver()
-
-    @Provides
     fun provideFileSizeFormatter(@ApplicationContext context: Context): FileSizeFormatter =
         FileSizeFormatter(context)
 
     @Provides
     fun provideCellFileExternalActions(fileHelper: FileHelper): CellFileExternalActions =
         AndroidCellFileExternalActions(fileHelper)
-
-    @Provides
-    fun provideCellFileActionsMenu(kaliumConfigs: KaliumConfigs): CellFileActionsMenu =
-        CellFileActionsMenu(kaliumConfigs)
-
-    @Provides
-    fun provideCellFileLocalPathCache(): CellFileLocalPathCache =
-        CellFileLocalPathCache()
-
-    @Provides
-    fun provideOpenFileDownloadController(
-        downloadCellFile: DownloadCellFileUseCase,
-        fileHelper: FileHelper,
-        fileNameResolver: FileNameResolver,
-        sharedPathCache: CellFileLocalPathCache,
-    ): OpenFileDownloadController =
-        OpenFileDownloadController(
-            download = downloadCellFile,
-            fileHelper = fileHelper,
-            fileNameResolver = fileNameResolver,
-            sharedPathCache = sharedPathCache,
-        )
 
     @Provides
     fun provideCellAssetRefreshHelper(
@@ -2887,20 +2633,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     @Provides
     fun provideGetAssetSizeLimitUseCase(userScope: UserScope): GetAssetSizeLimitUseCase =
         userScope.getAssetSizeLimit
-
-    @Provides
-    fun provideHandleUriAssetUseCase(
-        getAssetSizeLimitUseCase: GetAssetSizeLimitUseCase,
-        fileManager: FileManager,
-        kaliumFileSystem: KaliumFileSystem,
-        dispatchers: DispatcherProvider,
-    ): HandleUriAssetUseCase =
-        HandleUriAssetUseCase(
-            getAssetSizeLimit = getAssetSizeLimitUseCase,
-            fileManager = fileManager,
-            kaliumFileSystem = kaliumFileSystem,
-            dispatchers = dispatchers,
-        )
 
     @Provides
     fun provideImagesPreviewAssetImporter(
@@ -2947,41 +2679,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     @Provides
     fun provideRemoveConversationFromFolderUseCase(conversationScope: ConversationScope): RemoveConversationFromFolderUseCase =
         conversationScope.removeConversationFromFolder
-
-    @Provides
-    @Suppress("LongParameterList")
-    fun provideGetConversationsFromSearchUseCase(
-        useCase: GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase,
-        getFavoriteFolderUseCase: GetFavoriteFolderUseCase,
-        observeConversationsFromFolder: ObserveConversationsFromFolderUseCase,
-        userTypeMapper: UserTypeMapper,
-        dispatchers: DispatcherProvider,
-        getSelfUser: GetSelfUserUseCase,
-        uiTextResolver: UiTextResolver,
-    ): GetConversationsFromSearchUseCase =
-        GetConversationsFromSearchUseCase(
-            useCase = useCase,
-            getFavoriteFolderUseCase = getFavoriteFolderUseCase,
-            observeConversationsFromFromFolder = observeConversationsFromFolder,
-            userTypeMapper = userTypeMapper,
-            dispatchers = dispatchers,
-            getSelfUser = getSelfUser,
-            uiTextResolver = uiTextResolver,
-        )
-
-    @Provides
-    fun provideGetConversationMessagesFromSearchUseCase(
-        getMessagesSearch: GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase,
-        getUsersForMessage: GetUsersForMessageUseCase,
-        messageMapper: MessageMapper,
-        dispatchers: DispatcherProvider,
-    ): GetConversationMessagesFromSearchUseCase =
-        GetConversationMessagesFromSearchUseCase(
-            getMessagesSearch = getMessagesSearch,
-            getUsersForMessage = getUsersForMessage,
-            messageMapper = messageMapper,
-            dispatchers = dispatchers,
-        )
 
     @Provides
     fun provideObserveSelfDeletionTimerSettingsForConversationUseCase(

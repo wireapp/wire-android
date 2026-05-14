@@ -18,10 +18,18 @@
 package com.wire.android.di
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.sebaslogen.resaca.metro.metroViewModelScoped
 import com.sebaslogen.resaca.KeyInScopeResolver
-import com.sebaslogen.resaca.hilt.hiltViewModelScoped
+import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.WireMetroGraph
+import com.wire.android.di.metro.createWireMetroGraph
 import kotlin.time.Duration
 
 /**
@@ -42,18 +50,22 @@ interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
  *
  * @param arguments The arguments that will be provided to the [ViewModel].
  */
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER", "UnusedParameter")
 @Composable
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
         wireViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> hiltViewModelScoped<T, F>(key = arguments.key?.toString(), clearDelay = clearDelay) { factory ->
-        factory.create(arguments)
-    }
+    else -> metroViewModelScoped<T>(
+        key = arguments.key,
+        clearDelay = clearDelay,
+        factory = rememberMetroScopedViewModelFactory<T> {
+            metroFactory<F>().create(arguments)
+        },
+    )
 }
 
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER", "UnusedParameter")
 @Composable
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
         wireViewModelScoped(
@@ -64,16 +76,17 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> {
-        val scopedKey = requireNotNull(arguments.key?.toString()) {
+        requireNotNull(arguments.key?.toString()) {
             "Scoped key must not be null for ${T::class.qualifiedName}"
         }
-        hiltViewModelScoped<T, F, String>(
-            key = scopedKey,
+        metroViewModelScoped<T, String>(
+            key = arguments.key.toString(),
             keyInScopeResolver = keyInScopeResolver,
-            clearDelay = clearDelay
-        ) { factory ->
-            factory.create(arguments)
-        }
+            clearDelay = clearDelay,
+            factory = rememberMetroScopedViewModelFactory<T> {
+                metroFactory<F>().create(arguments)
+            },
+        )
     }
 }
 
@@ -90,45 +103,43 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
 inline fun <reified T, reified S> wireViewModelScoped(): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> hiltViewModelScoped<T>()
+    else -> metroViewModelScoped<T>(
+        factory = rememberMetroScopedViewModelFactory {
+            metroFactory<AssistedViewModelFactory<T, ScopedArgs>>().create(EmptyScopedArgs)
+        },
+    )
 }
 
-@Deprecated(
-    message = "Use wireViewModelScoped to avoid exposing the DI implementation in local APIs.",
-    replaceWith = ReplaceWith("wireViewModelScoped(arguments, clearDelay)")
-)
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
+@PublishedApi
 @Composable
-inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        hiltViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S =
-    wireViewModelScoped<T, S, R, F>(arguments = arguments, clearDelay = clearDelay)
+internal inline fun <reified VM : ViewModel> rememberMetroScopedViewModelFactory(
+    crossinline create: WireMetroGraph.() -> VM,
+): ViewModelProvider.Factory {
+    val providedGraph = LocalMetroViewModelGraph.current as? WireMetroGraph
+    val context = LocalContext.current
+    val graph = providedGraph ?: remember(context) { createWireMetroGraph(context) }
+    return remember(graph) {
+        viewModelFactory {
+            initializer {
+                graph.create()
+            }
+        }
+    }
+}
 
-@Deprecated(
-    message = "Use wireViewModelScoped to avoid exposing the DI implementation in local APIs.",
-    replaceWith = ReplaceWith("wireViewModelScoped(arguments, keyInScopeResolver, clearDelay)")
-)
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-@Composable
-inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        hiltViewModelScoped(
-    arguments: R,
-    noinline keyInScopeResolver: KeyInScopeResolver<String>,
-    clearDelay: Duration? = null,
-): S where T : ViewModel, T : S =
-    wireViewModelScoped<T, S, R, F>(
-        arguments = arguments,
-        keyInScopeResolver = keyInScopeResolver,
-        clearDelay = clearDelay
-    )
+@PublishedApi
+internal inline fun <reified F> WireMetroGraph.metroFactory(): F =
+    this::class.java.methods
+        .firstOrNull { method ->
+            method.parameterCount == 0 && F::class.java.isAssignableFrom(method.returnType)
+        }
+        ?.invoke(this) as? F
+        ?: error("No Metro factory matching ${F::class.qualifiedName} was provided.")
 
-@Deprecated(
-    message = "Use wireViewModelScoped to avoid exposing the DI implementation in local APIs.",
-    replaceWith = ReplaceWith("wireViewModelScoped()")
-)
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-@Composable
-inline fun <reified T, reified S> hiltViewModelScoped(): S where T : ViewModel, T : S =
-    wireViewModelScoped<T, S>()
+@PublishedApi
+internal data object EmptyScopedArgs : ScopedArgs {
+    override val key: Any? = null
+}
 
 val espresso
     get() = try {

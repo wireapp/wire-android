@@ -18,11 +18,10 @@
 package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.util.FileHelper
+import dev.zacsweers.metro.Inject
 import okio.Path.Companion.toPath
-import dev.zacsweers.metro.Inject as MetroInject
-import javax.inject.Inject
 
-class AndroidCellFileExternalActions @Inject @MetroInject constructor(
+class AndroidCellFileExternalActions @Inject constructor(
     private val fileHelper: FileHelper,
 ) : CellFileExternalActions {
 

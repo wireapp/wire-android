@@ -1073,7 +1073,6 @@ class WireActivityViewModelTest {
         lateinit var getServerConfigUseCase: GetServerConfigUseCase
 
         @MockK
-        @MockK
         lateinit var intentGateway: WireActivityIntentGateway
 
         @MockK

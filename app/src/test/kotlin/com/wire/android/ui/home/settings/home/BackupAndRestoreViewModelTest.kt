@@ -544,6 +544,8 @@ class BackupAndRestoreViewModelTest {
         }
 
         fun withRequestedPasswordDialog() = apply {
+            viewModel.latestImportedBackupTempPath =
+                fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
             viewModel.state = viewModel.state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired)
         }
 

@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
-    id(libs.plugins.wire.hilt.get().pluginId)
     alias(libs.plugins.compose.compiler)
 }
 
@@ -37,14 +36,10 @@ dependencies {
     implementation(libs.androidx.paging3)
     implementation(libs.androidx.paging3Compose)
 
-    // hilt
-    implementation(libs.hilt.navigationCompose)
-    implementation(libs.hilt.work)
-
     // smaller view models
     implementation(libs.resaca.core)
-    implementation(libs.resaca.hilt)
     implementation(libs.bundlizer.core)
+    implementation(libs.dagger)
 
     // Compose Preview
     implementation(libs.compose.edgetoedge.preview)

@@ -31,7 +31,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.ui.home.appLock.CurrentTimestampProvider
 import com.wire.kalium.logger.KaliumLogLevel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import dev.zacsweers.metro.Inject as MetroInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart

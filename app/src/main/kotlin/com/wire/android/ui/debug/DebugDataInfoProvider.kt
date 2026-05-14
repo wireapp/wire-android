@@ -20,8 +20,8 @@ package com.wire.android.ui.debug
 import android.content.Context
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
+import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Inject
 
 interface DebugDataInfoProvider {
     fun deviceId(): String?

@@ -423,7 +423,7 @@ class RecordAudioViewModelTest {
 
         fun arrange() = this to viewModel
 
-        private class FakeRecordAudioFileGateway : RecordAudioFileGateway {
+        class FakeRecordAudioFileGateway : RecordAudioFileGateway {
             var generateAudioFileWithEffectsCalls = 0
                 private set
 

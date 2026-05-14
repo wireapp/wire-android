@@ -22,6 +22,7 @@ import androidx.core.net.toUri
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.withContext
 import okio.Path
 
@@ -32,7 +33,7 @@ interface BackupFileGateway {
     suspend fun deleteImportedBackup(path: Path)
 }
 
-class AndroidBackupFileGateway(
+class AndroidBackupFileGateway @Inject constructor(
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
     private val dispatcher: DispatcherProvider,

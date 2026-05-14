@@ -21,7 +21,6 @@ import android.content.Context
 import android.media.MediaPlayer
 import androidx.core.net.toUri
 import com.wire.android.di.ApplicationScope
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -37,7 +36,6 @@ import java.io.File
 import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 
-@ViewModelScoped
 class RecordAudioMessagePlayer @Inject @MetroInject constructor(
     private val context: Context,
     private val audioMediaPlayer: MediaPlayer,

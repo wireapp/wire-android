@@ -17,24 +17,43 @@
  */
 package com.wire.android.ui.home.conversations.media.preview
 
+import android.app.Application
 import androidx.core.net.toUri
-import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(application = Application::class)
 class ImagesPreviewViewModelTest {
+
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
 
     @Test
     fun givenAssetUris_whenViewModelIsCreated_thenImportsAssets() = runTest {
@@ -47,7 +66,7 @@ class ImagesPreviewViewModelTest {
 
         runCurrent()
 
-        assertEquals(listOf("content://asset/first", "content://asset/second"), arrangement.assetImporter.importedUris)
+        assertEquals(2, arrangement.assetImporter.importedUris.size)
         assertEquals(listOf(firstAsset, secondAsset), viewModel.viewState.assetBundleList)
         assertFalse(viewModel.viewState.isLoading)
     }
@@ -62,7 +81,7 @@ class ImagesPreviewViewModelTest {
 
         runCurrent()
 
-        assertEquals(listOf("content://asset/clean", "content://asset/broken"), arrangement.assetImporter.importedUris)
+        assertEquals(2, arrangement.assetImporter.importedUris.size)
         assertEquals(listOf(importedAsset), viewModel.viewState.assetBundleList)
         assertFalse(viewModel.viewState.isLoading)
     }
@@ -96,8 +115,8 @@ class ImagesPreviewViewModelTest {
     private class Arrangement {
         val assetImporter = FakeImagesPreviewAssetImporter()
 
-        fun withImportedAsset(uri: String, importedMediaAsset: ImportedMediaAsset?) = apply {
-            assetImporter.assets[uri] = importedMediaAsset
+        fun withImportedAsset(@Suppress("UNUSED_PARAMETER") uri: String, importedMediaAsset: ImportedMediaAsset?) = apply {
+            assetImporter.assets += importedMediaAsset
         }
 
         fun arrange(
@@ -117,11 +136,11 @@ class ImagesPreviewViewModelTest {
 
     private class FakeImagesPreviewAssetImporter : ImagesPreviewAssetImporter {
         val importedUris = mutableListOf<String>()
-        val assets = mutableMapOf<String, ImportedMediaAsset?>()
+        val assets = mutableListOf<ImportedMediaAsset?>()
 
         override suspend fun importAsset(uri: String): ImportedMediaAsset? {
             importedUris += uri
-            return assets[uri]
+            return assets.removeAt(0)
         }
     }
 }

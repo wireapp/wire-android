@@ -26,7 +26,6 @@ plugins {
     // id(BuildPlugins.kotlinAndroidExtensions)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
-    id(libs.plugins.wire.hilt.get().pluginId)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.compose.compiler)
@@ -274,14 +273,11 @@ dependencies {
     // Emoji
     implementation(libs.androidx.emoji.picker)
 
-    // hilt
-    implementation(libs.hilt.navigationCompose)
-    implementation(libs.hilt.work)
-
     // smaller view models
     implementation(libs.resaca.core)
-    implementation(libs.resaca.hilt)
+    implementation(libs.resaca.metro)
     implementation(libs.bundlizer.core)
+    implementation(libs.dagger)
 
     allFlavors.forEach { flavor ->
         if (flavor in nonFreeFlavors) {
@@ -331,9 +327,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.intents)
     androidTestImplementation(libs.androidx.espresso.accessibility)
     androidTestImplementation(libs.hamcrest)
-    androidTestImplementation(libs.hilt.test)
-    kspAndroidTest(libs.hilt.compiler)
-
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.test.uiAutomator)
     androidTestImplementation(libs.androidx.test.work)

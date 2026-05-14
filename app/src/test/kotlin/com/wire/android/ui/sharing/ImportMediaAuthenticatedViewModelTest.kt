@@ -158,7 +158,7 @@ class ImportMediaAuthenticatedViewModelTest {
         assetType = AttachmentType.GENERIC_FILE,
     )
 
-    inner class Arrangement {
+    private inner class Arrangement {
 
         @MockK
         lateinit var getSelfUser: ObserveSelfUserUseCase

@@ -23,7 +23,6 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -31,7 +30,6 @@ import javax.inject.Inject
  * UseCase that determines if Analytics is available for current Build and specific [UserId].
  * Use it for checking if Analytics UI (e.x. asking user for some feedback that will be sent to Analytics) should be shown to user or not.
  */
-@ViewModelScoped
 class IsAnalyticsAvailableUseCase @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val analyticsEnabled: AnalyticsConfiguration,

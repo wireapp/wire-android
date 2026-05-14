@@ -21,7 +21,7 @@ package com.wire.android.di.metro
  * Template for migrating Android ViewModels toward the Metro + native iOS shape proven in WireOne.
  *
  * The migration should move creation responsibility out of Android-specific APIs while keeping current Android runtime
- * creation on Hilt until the Metro graph is wired into the app. Prefer this shape:
+ * creation on the current Android runtime until the Metro graph is wired into the app. Prefer this shape:
  *
  * ```
  * @Inject
@@ -47,12 +47,12 @@ package com.wire.android.di.metro
  *
  * Rules for each migrated ViewModel:
  * - keep the ViewModel constructor platform-neutral: no `SavedStateHandle`, `NavController`, Compose destination args,
- *   Android `Context`, or direct Hilt-only creation contract;
+ *   Android `Context`, or direct platform-only creation contract;
  * - keep runtime/session args explicit in `create(...)`, especially values previously pulled from navigation state;
  * - keep long-lived dependencies injected into the factory by Metro;
  * - use `Provider<T>` for dependencies that can be cyclic or should stay lazy;
  * - pass a nullable/testable `CoroutineScope` only when the ViewModel already supports external scope injection;
- * - keep Android behavior unchanged while both Hilt and Metro coexist.
+ * - keep Android behavior unchanged while both Android and Metro creation coexist.
  *
  * For iOS, add a small bridge next to the feature instead of exporting Android lifecycle concepts:
  *
@@ -82,6 +82,6 @@ package com.wire.android.di.metro
  * - create all step ViewModels from factories using the same navigator/state holder;
  * - expose the iOS bridge from the Metro graph as graph properties, not through Android screens.
  *
- * Do not enable Metro Dagger interop for this pass. Existing Hilt annotations stay until the runtime bridge is ready.
+ * Do not enable Metro Dagger interop for this pass. Existing Android runtime creation stays until the bridge is ready.
  */
 internal object MetroViewModelMigrationTemplate

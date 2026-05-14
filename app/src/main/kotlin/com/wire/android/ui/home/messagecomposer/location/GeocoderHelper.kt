@@ -20,9 +20,8 @@ package com.wire.android.ui.home.messagecomposer.location
 import android.location.Geocoder
 import android.location.Location
 import dev.zacsweers.metro.Inject
-import javax.inject.Inject as HiltInject
 
-class GeocoderHelper @Inject @HiltInject constructor(private val geocoder: Geocoder) {
+class GeocoderHelper @Inject constructor(private val geocoder: Geocoder) {
 
     @Suppress("TooGenericExceptionCaught")
     fun getGeoLocatedAddress(location: Location): GeoLocatedAddress =

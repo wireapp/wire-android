@@ -36,7 +36,7 @@ import com.wire.kalium.logic.feature.message.GetNextAudioMessageInConversationUs
 import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.Lazy
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.channels.BufferOverflow

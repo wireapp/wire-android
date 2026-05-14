@@ -19,7 +19,7 @@ package com.wire.android.util
 
 import android.content.Context
 import com.wire.android.ui.common.R
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import dev.zacsweers.metro.Inject
 
 class FileSizeFormatter @Inject constructor(

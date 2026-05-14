@@ -1,7 +1,6 @@
 plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
     id(libs.plugins.wire.kover.get().pluginId)
-    id(libs.plugins.wire.hilt.get().pluginId)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
     alias(libs.plugins.ksp)
@@ -20,14 +19,10 @@ dependencies {
     implementation(libs.ktx.immutableCollections)
     implementation(libs.ktx.serialization)
 
-    // hilt
-    implementation(libs.hilt.navigationCompose)
-    implementation(libs.hilt.work)
-
     // smaller view models
     implementation(libs.resaca.core)
-    implementation(libs.resaca.hilt)
     implementation(libs.bundlizer.core)
+    implementation(libs.dagger)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

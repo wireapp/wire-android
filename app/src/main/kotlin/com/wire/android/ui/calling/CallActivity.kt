@@ -41,35 +41,31 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.appLogger
+import com.wire.android.di.metro.LocalMetroViewModelGraph
 import com.wire.android.di.metro.WireMetroGraph
 import com.wire.android.di.metro.createWireMetroGraph
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.WireTopAppBar
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 abstract class CallActivity : BaseActivity() {
 
-    @Inject
-    lateinit var switchAccountObserver: SwitchAccountObserver
-
-    @Inject
-    lateinit var proximitySensorManager: ProximitySensorManager
-
-    private val metroGraph by lazy(LazyThreadSafetyMode.NONE) {
+    protected val metroGraph by lazy(LazyThreadSafetyMode.NONE) {
         createWireMetroGraph(this)
+    }
+    private val switchAccountObserver by lazy(LazyThreadSafetyMode.NONE) {
+        metroGraph.switchAccountObserver
+    }
+    protected val proximitySensorManager by lazy(LazyThreadSafetyMode.NONE) {
+        metroGraph.proximitySensorManager
     }
 
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by metroActivityViewModel {
@@ -114,7 +110,8 @@ abstract class CallActivity : BaseActivity() {
             val snackbarHostState = remember { SnackbarHostState() }
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalActivity provides this
+                LocalActivity provides this,
+                LocalMetroViewModelGraph provides metroGraph,
             ) {
                 WireTheme {
                     Column(

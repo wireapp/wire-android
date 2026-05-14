@@ -28,20 +28,21 @@ import com.ramcosta.composedestinations.generated.app.destinations.AppUnlockWith
 import com.ramcosta.composedestinations.generated.app.destinations.EnterLockCodeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.appLogger
-import com.wire.android.navigation.LoginTypeSelector
+import com.wire.android.di.metro.createWireMetroGraph
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class AppLockActivity : BaseActivity() {
 
-    @Inject
-    lateinit var loginTypeSelector: LoginTypeSelector
+    private val metroGraph by lazy(LazyThreadSafetyMode.NONE) {
+        createWireMetroGraph(this)
+    }
+    private val loginTypeSelector by lazy(LazyThreadSafetyMode.NONE) {
+        metroGraph.loginTypeSelector
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

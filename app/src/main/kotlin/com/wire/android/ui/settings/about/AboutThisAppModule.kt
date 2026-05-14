@@ -17,14 +17,4 @@
  */
 package com.wire.android.ui.settings.about
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-
-@Module
-@InstallIn(SingletonComponent::class)
-interface AboutThisAppModule {
-    @Binds
-    fun bindAboutThisAppInfoProvider(provider: AndroidAboutThisAppInfoProvider): AboutThisAppInfoProvider
-}
+// About-this-app bindings are provided by the Metro graph.

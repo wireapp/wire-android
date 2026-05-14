@@ -44,10 +44,6 @@ class ManagedConfigurationsModule {
 
     @Provides
     @Singleton
-    fun provideServerConfigProvider(): ServerConfigProvider = ServerConfigProvider()
-
-    @Provides
-    @Singleton
     fun provideAndroidUserContextProvider(): AndroidUserContextProvider =
         AndroidUserContextProviderImpl()
 
@@ -77,14 +73,15 @@ class ManagedConfigurationsModule {
 
     @Provides
     fun provideCurrentServerConfig(
-        managedConfigurationsManager: ManagedConfigurationsManager
+        managedConfigurationsManager: ManagedConfigurationsManager,
+        serverConfigProvider: ServerConfigProvider,
     ): ServerConfig.Links {
         return if (BuildConfig.EMM_SUPPORT_ENABLED) {
             // Returns the current resolved server configuration links, which could be either managed or default
             managedConfigurationsManager.currentServerConfig
         } else {
             // If EMM support is disabled, always return the static default server configuration links
-            provideServerConfigProvider().getDefaultServerConfig(null)
+            serverConfigProvider.getDefaultServerConfig(null)
         }
     }
 

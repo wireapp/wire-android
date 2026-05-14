@@ -77,10 +77,8 @@ import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.metro.WireMetroGraph
 import com.wire.android.di.metro.createWireMetroGraph
-import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -90,7 +88,6 @@ import com.wire.android.navigation.rememberNavigator
 import com.wire.android.navigation.startDestination
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
-import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
@@ -106,7 +103,6 @@ import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EIResultDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
 import com.wire.android.ui.home.FeatureFlagState
-import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedDialog
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedState
@@ -119,16 +115,12 @@ import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
-import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.ShakeDetector
-import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.launchUpdateTheApp
-import dagger.Lazy
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
@@ -136,34 +128,20 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @OptIn(ExperimentalComposeUiApi::class)
-@AndroidEntryPoint
 @Suppress("TooManyFunctions", "LargeClass")
 class WireActivity : BaseActivity() {
-
-    @Inject
-    lateinit var currentScreenManager: CurrentScreenManager
-
-    @Inject
-    lateinit var lockCodeTimeManager: Lazy<LockCodeTimeManager>
-
-    @Inject
-    lateinit var switchAccountObserver: SwitchAccountObserver
-
-    @Inject
-    lateinit var loginTypeSelector: LoginTypeSelector
-
-    @Inject
-    lateinit var dynamicReceiversManager: DynamicReceiversManager
-
-    @Inject
-    lateinit var managedConfigurationsManager: ManagedConfigurationsManager
 
     private val metroGraph by lazy(LazyThreadSafetyMode.NONE) {
         createWireMetroGraph(this)
     }
+    private val currentScreenManager by lazy(LazyThreadSafetyMode.NONE) { metroGraph.currentScreenManager }
+    private val lockCodeTimeManager by lazy(LazyThreadSafetyMode.NONE) { metroGraph.lockCodeTimeManager }
+    private val switchAccountObserver by lazy(LazyThreadSafetyMode.NONE) { metroGraph.switchAccountObserver }
+    private val loginTypeSelector by lazy(LazyThreadSafetyMode.NONE) { metroGraph.loginTypeSelector }
+    private val dynamicReceiversManager by lazy(LazyThreadSafetyMode.NONE) { metroGraph.dynamicReceiversManager }
+    private val managedConfigurationsManager by lazy(LazyThreadSafetyMode.NONE) { metroGraph.managedConfigurationsManager }
 
     private val viewModel: WireActivityViewModel by metroActivityViewModel {
         wireActivityViewModelFactory.create()
@@ -634,7 +612,7 @@ class WireActivity : BaseActivity() {
         shakeDetector.start()
 
         lifecycleScope.launch {
-            lockCodeTimeManager.get().observeAppLock()
+            lockCodeTimeManager.observeAppLock()
                 // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
                 .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                 .first().let {

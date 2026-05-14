@@ -22,13 +22,12 @@ import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.util.dispatchers.DispatcherProvider
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 interface ImagesPreviewAssetImporter {
     suspend fun importAsset(uri: String): ImportedMediaAsset?
 }
 
-class ImagesPreviewAssetImporterImpl @Inject constructor(
+class ImagesPreviewAssetImporterImpl(
     private val handleUriAsset: HandleUriAssetUseCase,
     private val dispatchers: DispatcherProvider,
 ) : ImagesPreviewAssetImporter {

@@ -26,6 +26,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.WorkManager
 import com.wire.android.BuildConfig
+import com.wire.android.GlobalObserversManager
 import com.wire.android.analytics.FinalizeRegistrationAnalyticsMetadataUseCase
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.config.NomadProfilesFeatureConfig
@@ -44,9 +45,12 @@ import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
+import com.wire.android.emm.ManagedConfigurationsReceiver
+import com.wire.android.emm.ManagedConfigurationsReporter
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.feature.ObserveAppLockConfigUseCase
+import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.cells.ui.AndroidCellFileExternalActions
@@ -79,6 +83,7 @@ import com.wire.android.model.ImageAssetViewModelGraph
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.NotificationChannelsManager
+import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.services.CallService
 import com.wire.android.services.CallServiceManager
@@ -91,6 +96,7 @@ import com.wire.android.ui.CallFeedbackViewModelFactory
 import com.wire.android.ui.WireActivityViewModelFactory
 import com.wire.android.ui.WireActivityIntentGateway
 import com.wire.android.ui.calling.CallActivityViewModelFactory
+import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelFactory
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModelFactory
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModelFactory
@@ -295,12 +301,15 @@ import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.android.util.GetMediaMetadataUseCaseImpl
 import com.wire.android.util.ImageUtil
+import com.wire.android.util.NetworkUtil
 import com.wire.android.util.ScreenStateObserver
+import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.isWebsocketEnabledByDefault
 import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.lifecycle.NomadIntentSignatureValidator
+import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.util.logging.LogFileWriter
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.time.TimeZoneProvider
@@ -308,6 +317,7 @@ import com.wire.android.util.ui.AndroidUiTextResolver
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.android.util.ui.UiTextResolver
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.android.workmanager.WireWorkerFactory
 import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
@@ -632,6 +642,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 
+data class WireApplicationDependencies(
+    @KaliumCoreLogic val coreLogic: dagger.Lazy<CoreLogic>,
+    val logFileWriter: dagger.Lazy<LogFileWriter>,
+    val syncLifecycleManager: dagger.Lazy<SyncLifecycleManager>,
+    val wireWorkerFactory: dagger.Lazy<WireWorkerFactory>,
+    val globalObserversManager: dagger.Lazy<GlobalObserversManager>,
+    val globalDataStore: dagger.Lazy<GlobalDataStore>,
+    val userDataStoreProvider: dagger.Lazy<UserDataStoreProvider>,
+    @ApplicationScope val globalAppScope: CoroutineScope,
+    val currentScreenManager: CurrentScreenManager,
+    val analyticsManager: dagger.Lazy<AnonymousAnalyticsManager>,
+    val workManager: WorkManager,
+)
+
 abstract class WireMetroScope private constructor()
 
 @DependencyGraph(WireMetroScope::class)
@@ -776,7 +800,22 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     override val meetingOptionsMenuViewModelFactory: MeetingOptionsMenuViewModelFactory
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory
 
+    val currentScreenManager: CurrentScreenManager
+    val lockCodeTimeManager: LockCodeTimeManager
+    val switchAccountObserver: SwitchAccountObserver
+    val loginTypeSelector: LoginTypeSelector
+    val dynamicReceiversManager: DynamicReceiversManager
+    val managedConfigurationsManager: ManagedConfigurationsManager
+    val proximitySensorManager: ProximitySensorManager
+    val servicesManager: ServicesManager
+    val callNotificationManager: CallNotificationManager
+
     val dispatcherProvider: DispatcherProvider
+
+    @get:KaliumCoreLogic
+    val coreLogic: CoreLogic
+    val networkUtil: NetworkUtil
+    val wireApplicationDependencies: WireApplicationDependencies
     val persistentWebSocketServiceDependencies: PersistentWebSocketService.Dependencies
     val callServiceDependencies: CallService.Dependencies
     val playingAudioMessageServiceDependencies: PlayingAudioMessageService.Dependencies
@@ -943,17 +982,44 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         }
 
     @Provides
+    fun provideWireApplicationDependencies(
+        entryPoint: WireMetroHiltEntryPoint,
+        @KaliumCoreLogic coreLogic: dagger.Lazy<CoreLogic>,
+        globalDataStore: dagger.Lazy<GlobalDataStore>,
+        analyticsManager: dagger.Lazy<AnonymousAnalyticsManager>,
+        workManager: WorkManager,
+    ): WireApplicationDependencies =
+        WireApplicationDependencies(
+            coreLogic = coreLogic,
+            logFileWriter = object : dagger.Lazy<LogFileWriter> {
+                override fun get(): LogFileWriter = entryPoint.logFileWriter()
+            },
+            syncLifecycleManager = object : dagger.Lazy<SyncLifecycleManager> {
+                override fun get(): SyncLifecycleManager = entryPoint.syncLifecycleManager()
+            },
+            wireWorkerFactory = object : dagger.Lazy<WireWorkerFactory> {
+                override fun get(): WireWorkerFactory = entryPoint.wireWorkerFactory()
+            },
+            globalObserversManager = object : dagger.Lazy<GlobalObserversManager> {
+                override fun get(): GlobalObserversManager = entryPoint.globalObserversManager()
+            },
+            globalDataStore = globalDataStore,
+            userDataStoreProvider = object : dagger.Lazy<UserDataStoreProvider> {
+                override fun get(): UserDataStoreProvider = entryPoint.userDataStoreProvider()
+            },
+            globalAppScope = entryPoint.applicationScope(),
+            currentScreenManager = entryPoint.currentScreenManager(),
+            analyticsManager = analyticsManager,
+            workManager = workManager,
+        )
+
+    @Provides
     fun provideNomadProfilesFeatureConfig(): NomadProfilesFeatureConfig =
         NomadProfilesFeatureConfig()
 
     @Provides
-    fun provideLoginTypeSelector(
-        @KaliumCoreLogic coreLogic: dagger.Lazy<CoreLogic>,
-    ): LoginTypeSelector =
-        LoginTypeSelector(
-            coreLogic = coreLogic,
-            useNewLoginForDefaultBackend = BuildConfig.USE_NEW_LOGIN_FOR_DEFAULT_BACKEND,
-        )
+    fun provideLoginTypeSelector(entryPoint: WireMetroHiltEntryPoint): LoginTypeSelector =
+        entryPoint.loginTypeSelector()
 
     @Provides
     fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic): CurrentSessionFlowUseCase =
@@ -1361,8 +1427,52 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         ScreenStateObserver(context)
 
     @Provides
-    fun provideCurrentScreenManager(screenStateObserver: ScreenStateObserver): CurrentScreenManager =
-        CurrentScreenManager(screenStateObserver)
+    fun provideCurrentScreenManager(entryPoint: WireMetroHiltEntryPoint): CurrentScreenManager =
+        entryPoint.currentScreenManager()
+
+    @Provides
+    fun provideSwitchAccountObserver(entryPoint: WireMetroHiltEntryPoint): SwitchAccountObserver =
+        entryPoint.switchAccountObserver()
+
+    @Provides
+    fun provideNetworkUtil(@ApplicationContext context: Context): NetworkUtil =
+        NetworkUtil(context)
+
+    @Provides
+    fun provideManagedConfigurationsReporter(
+        @ApplicationContext context: Context,
+    ): ManagedConfigurationsReporter =
+        ManagedConfigurationsReporter(context)
+
+    @Provides
+    fun provideManagedConfigurationsReceiver(
+        managedConfigurationsManager: ManagedConfigurationsManager,
+        managedConfigurationsReporter: ManagedConfigurationsReporter,
+        @KaliumCoreLogic coreLogic: dagger.Lazy<CoreLogic>,
+        startPersistentWebsocketIfNecessary: StartPersistentWebsocketIfNecessaryUseCase,
+        dispatcherProvider: DispatcherProvider,
+    ): ManagedConfigurationsReceiver =
+        ManagedConfigurationsReceiver(
+            managedConfigurationsManager = managedConfigurationsManager,
+            managedConfigurationsReporter = managedConfigurationsReporter,
+            coreLogic = coreLogic,
+            startPersistentWebsocketIfNecessary = startPersistentWebsocketIfNecessary,
+            dispatcher = dispatcherProvider,
+        )
+
+    @Provides
+    fun provideDynamicReceiversManager(
+        @ApplicationContext context: Context,
+        managedConfigurationsReceiver: ManagedConfigurationsReceiver,
+    ): DynamicReceiversManager =
+        DynamicReceiversManager(
+            context = context,
+            managedConfigurationsReceiver = managedConfigurationsReceiver,
+        )
+
+    @Provides
+    fun provideProximitySensorManager(entryPoint: WireMetroHiltEntryPoint): ProximitySensorManager =
+        entryPoint.proximitySensorManager()
 
     @Provides
     fun provideGenerateAudioFileWithEffectsUseCase(dispatchers: DispatcherProvider): GenerateAudioFileWithEffectsUseCase =
@@ -3297,6 +3407,14 @@ interface WireMetroHiltEntryPoint {
 
     fun automatedLoginManager(): AutomatedLoginManager
 
+    fun currentScreenManager(): CurrentScreenManager
+
+    fun switchAccountObserver(): SwitchAccountObserver
+
+    fun loginTypeSelector(): LoginTypeSelector
+
+    fun proximitySensorManager(): ProximitySensorManager
+
     fun managedConfigurationsManager(): ManagedConfigurationsManager
 
     fun lockCodeTimeManager(): LockCodeTimeManager
@@ -3310,6 +3428,15 @@ interface WireMetroHiltEntryPoint {
     fun locationPickerHelperFlavor(): LocationPickerHelperFlavor
 
     fun logFileWriter(): LogFileWriter
+
+    fun syncLifecycleManager(): SyncLifecycleManager
+
+    fun wireWorkerFactory(): WireWorkerFactory
+
+    fun globalObserversManager(): GlobalObserversManager
+
+    @ApplicationScope
+    fun applicationScope(): CoroutineScope
 
     fun accountSwitchUseCase(): AccountSwitchUseCase
 

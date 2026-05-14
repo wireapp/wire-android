@@ -20,18 +20,13 @@ package com.wire.android.ui.home.conversations.composer
 
 import com.wire.android.util.FileManager
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import javax.inject.Inject
 
 interface TempWritableAttachmentUriProvider {
     suspend fun getTempWritableVideoUri(): String
     suspend fun getTempWritableImageUri(): String
 }
 
-class AndroidTempWritableAttachmentUriProvider @Inject constructor(
+class AndroidTempWritableAttachmentUriProvider(
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
 ) : TempWritableAttachmentUriProvider {
@@ -40,13 +35,4 @@ class AndroidTempWritableAttachmentUriProvider @Inject constructor(
 
     override suspend fun getTempWritableImageUri(): String =
         fileManager.getTempWritableImageUri(kaliumFileSystem.rootCachePath).toString()
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface TempWritableAttachmentUriProviderModule {
-    @Binds
-    fun bindTempWritableAttachmentUriProvider(
-        provider: AndroidTempWritableAttachmentUriProvider
-    ): TempWritableAttachmentUriProvider
 }

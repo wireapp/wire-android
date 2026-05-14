@@ -19,29 +19,14 @@ package com.wire.android.ui.home.whatsnew
 
 import android.content.Context
 import com.wire.android.R
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 
 interface ReleaseNotesFeedUrlProvider {
     val feedUrl: String
 }
 
-class AndroidReleaseNotesFeedUrlProvider @Inject constructor(
-    @ApplicationContext private val context: Context
+class AndroidReleaseNotesFeedUrlProvider(
+    private val context: Context
 ) : ReleaseNotesFeedUrlProvider {
     override val feedUrl: String
         get() = context.resources.getString(R.string.url_android_release_notes_feed)
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface ReleaseNotesFeedUrlProviderModule {
-    @Binds
-    fun bindReleaseNotesFeedUrlProvider(
-        provider: AndroidReleaseNotesFeedUrlProvider
-    ): ReleaseNotesFeedUrlProvider
 }

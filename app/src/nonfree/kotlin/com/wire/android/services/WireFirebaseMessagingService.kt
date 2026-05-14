@@ -30,30 +30,25 @@ import com.google.firebase.messaging.RemoteMessage
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.metro.createWireMetroGraph
 import com.wire.android.util.NetworkUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.NotificationFetchWorker
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.notificationToken.Result
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.Locale
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class WireFirebaseMessagingService : FirebaseMessagingService() {
 
-    @Inject
     @KaliumCoreLogic
     lateinit var coreLogic: CoreLogic
 
-    @Inject
     lateinit var networkUtil: NetworkUtil
 
-    @Inject
     lateinit var dispatcherProvider: DispatcherProvider
 
     private val scope by lazy {
@@ -63,6 +58,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
+        injectDependencies()
         appLogger.i(
             String.format(
                 Locale.US,
@@ -77,6 +73,15 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
         enqueueNotificationFetchWorker(extractUserId(message))
 
         appLogger.i("$TAG: onMessageReceived End")
+    }
+
+    private fun injectDependencies() {
+        if (::dispatcherProvider.isInitialized) return
+
+        val graph = createWireMetroGraph(this)
+        coreLogic = graph.coreLogic
+        networkUtil = graph.networkUtil
+        dispatcherProvider = graph.dispatcherProvider
     }
 
     private fun enqueueNotificationFetchWorker(userId: String) {
@@ -120,6 +125,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
+        injectDependencies()
         scope.launch {
             coreLogic.globalScope {
                 saveNotificationToken(token, "GCM", BuildConfig.FIREBASE_PUSH_SENDER_ID)
@@ -135,7 +141,9 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onDestroy() {
-        scope.cancel()
+        if (::dispatcherProvider.isInitialized) {
+            scope.cancel()
+        }
         appLogger.i("$TAG: onDestroy")
         super.onDestroy()
     }

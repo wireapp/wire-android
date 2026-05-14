@@ -17,15 +17,4 @@
  */
 package com.wire.android.ui.home.conversations.media.preview
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface ImagesPreviewModule {
-
-    @Binds
-    fun bindImagesPreviewAssetImporter(impl: ImagesPreviewAssetImporterImpl): ImagesPreviewAssetImporter
-}
+// Images preview bindings are provided by the Metro graph.

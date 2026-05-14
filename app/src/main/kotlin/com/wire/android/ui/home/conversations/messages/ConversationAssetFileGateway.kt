@@ -19,12 +19,7 @@
 package com.wire.android.ui.home.conversations.messages
 
 import com.wire.android.util.FileManager
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
 import okio.Path
-import javax.inject.Inject
 
 interface ConversationAssetFileGateway {
     fun openWithExternalApp(assetDataPath: Path, assetName: String?, onError: () -> Unit)
@@ -32,7 +27,7 @@ interface ConversationAssetFileGateway {
     fun shareWithExternalApp(assetDataPath: Path, assetName: String?)
 }
 
-class AndroidConversationAssetFileGateway @Inject constructor(
+class AndroidConversationAssetFileGateway(
     private val fileManager: FileManager,
 ) : ConversationAssetFileGateway {
 
@@ -51,11 +46,4 @@ class AndroidConversationAssetFileGateway @Inject constructor(
     override fun shareWithExternalApp(assetDataPath: Path, assetName: String?) {
         fileManager.shareWithExternalApp(assetDataPath, assetName) {}
     }
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface ConversationAssetFileGatewayModule {
-    @Binds
-    fun bindConversationAssetFileGateway(gateway: AndroidConversationAssetFileGateway): ConversationAssetFileGateway
 }

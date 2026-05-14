@@ -20,13 +20,12 @@ package com.wire.android.ui.home.conversations.attachment
 import androidx.core.net.toUri
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.sharing.ImportedMediaAsset
-import javax.inject.Inject
 
 interface MessageAttachmentAssetImporter {
     suspend fun importAsset(uri: String): ImportedMediaAsset?
 }
 
-class MessageAttachmentAssetImporterImpl @Inject constructor(
+class MessageAttachmentAssetImporterImpl(
     private val handleUriAsset: HandleUriAssetUseCase,
 ) : MessageAttachmentAssetImporter {
 

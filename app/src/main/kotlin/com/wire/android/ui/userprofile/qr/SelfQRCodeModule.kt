@@ -17,17 +17,4 @@
  */
 package com.wire.android.ui.userprofile.qr
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface SelfQRCodeModule {
-
-    @Binds
-    fun bindSelfQRCodeAssetRepository(
-        repository: AndroidSelfQRCodeAssetRepository
-    ): SelfQRCodeAssetRepository
-}
+// Self QR code bindings are provided by the Metro graph.

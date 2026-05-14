@@ -26,7 +26,6 @@ import com.wire.kalium.logic.util.fileExtension
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.File
-import javax.inject.Inject
 
 interface MessageAttachmentFileGateway {
     fun exists(localFilePath: String): Boolean
@@ -34,7 +33,7 @@ interface MessageAttachmentFileGateway {
     fun audioMetadata(dataPath: Path, mimeType: String, wavesMask: List<Int>?): AssetContent.AssetMetadata.Audio
 }
 
-class MessageAttachmentFileGatewayImpl @Inject constructor(
+class MessageAttachmentFileGatewayImpl(
     private val fileManager: FileManager,
 ) : MessageAttachmentFileGateway {
 

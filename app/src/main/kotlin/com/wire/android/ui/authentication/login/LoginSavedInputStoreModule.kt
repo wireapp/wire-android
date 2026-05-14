@@ -18,16 +18,4 @@
 
 package com.wire.android.ui.authentication.login
 
-import androidx.lifecycle.SavedStateHandle
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-
-@Module
-@InstallIn(ViewModelComponent::class)
-object LoginSavedInputStoreModule {
-    @Provides
-    fun provideLoginSavedInputStore(savedStateHandle: SavedStateHandle): LoginSavedInputStore =
-        SavedStateLoginSavedInputStore(savedStateHandle)
-}
+// Login saved input store bindings are provided by the Metro graph.

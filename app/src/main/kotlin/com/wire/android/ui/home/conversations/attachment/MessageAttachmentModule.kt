@@ -17,18 +17,4 @@
  */
 package com.wire.android.ui.home.conversations.attachment
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface MessageAttachmentModule {
-
-    @Binds
-    fun bindMessageAttachmentAssetImporter(impl: MessageAttachmentAssetImporterImpl): MessageAttachmentAssetImporter
-
-    @Binds
-    fun bindMessageAttachmentFileGateway(impl: MessageAttachmentFileGatewayImpl): MessageAttachmentFileGateway
-}
+// Message attachment bindings are provided by the Metro graph.

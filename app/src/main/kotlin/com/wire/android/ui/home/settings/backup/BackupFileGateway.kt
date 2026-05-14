@@ -22,13 +22,8 @@ import androidx.core.net.toUri
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
 import kotlinx.coroutines.withContext
 import okio.Path
-import javax.inject.Inject
 
 interface BackupFileGateway {
     suspend fun shareBackup(path: Path, assetName: String?)
@@ -37,7 +32,7 @@ interface BackupFileGateway {
     suspend fun deleteImportedBackup(path: Path)
 }
 
-class AndroidBackupFileGateway @Inject constructor(
+class AndroidBackupFileGateway(
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
     private val dispatcher: DispatcherProvider,
@@ -64,11 +59,4 @@ class AndroidBackupFileGateway @Inject constructor(
             kaliumFileSystem.delete(path)
         }
     }
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface BackupFileGatewayModule {
-    @Binds
-    fun bindBackupFileGateway(gateway: AndroidBackupFileGateway): BackupFileGateway
 }

@@ -22,14 +22,12 @@ import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getTempWritableAttachmentUri
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 import java.io.FileOutputStream
-import javax.inject.Inject
 
-class AndroidSelfQRCodeAssetRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+class AndroidSelfQRCodeAssetRepository(
+    private val context: Context,
     private val kaliumFileSystem: KaliumFileSystem,
     private val dispatchers: DispatcherProvider
 ) : SelfQRCodeAssetRepository {

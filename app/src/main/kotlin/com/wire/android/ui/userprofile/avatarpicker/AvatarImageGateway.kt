@@ -25,13 +25,7 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.toByteArray
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
 import okio.Path
-import javax.inject.Inject
 
 interface AvatarImageGateway {
     fun getWritableAvatarUri(avatarPath: Path): String
@@ -40,10 +34,10 @@ interface AvatarImageGateway {
     suspend fun getAvatarImageSize(avatarUri: String): Long
 }
 
-class AndroidAvatarImageGateway @Inject constructor(
+class AndroidAvatarImageGateway(
     private val avatarImageManager: AvatarImageManager,
     private val dispatchers: DispatcherProvider,
-    @ApplicationContext private val appContext: Context
+    private val appContext: Context
 ) : AvatarImageGateway {
 
     override fun getWritableAvatarUri(avatarPath: Path): String =
@@ -67,11 +61,4 @@ class AndroidAvatarImageGateway @Inject constructor(
 
     override suspend fun getAvatarImageSize(avatarUri: String): Long =
         avatarUri.toUri().toByteArray(appContext, dispatchers).size.toLong()
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface AvatarImageGatewayModule {
-    @Binds
-    fun bindAvatarImageGateway(gateway: AndroidAvatarImageGateway): AvatarImageGateway
 }

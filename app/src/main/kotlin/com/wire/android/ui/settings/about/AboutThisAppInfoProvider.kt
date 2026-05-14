@@ -20,16 +20,14 @@ package com.wire.android.ui.settings.about
 import android.content.Context
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.getGitBuildId
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 
 interface AboutThisAppInfoProvider {
     val appName: String
     fun gitBuildId(): String
 }
 
-class AndroidAboutThisAppInfoProvider @Inject constructor(
-    @ApplicationContext private val context: Context
+class AndroidAboutThisAppInfoProvider(
+    private val context: Context
 ) : AboutThisAppInfoProvider {
     override val appName: String
         get() = AppNameUtil.createAppName()

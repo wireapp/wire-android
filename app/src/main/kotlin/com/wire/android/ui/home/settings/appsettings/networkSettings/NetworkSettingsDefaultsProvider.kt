@@ -20,31 +20,15 @@ package com.wire.android.ui.home.settings.appsettings.networkSettings
 
 import android.content.Context
 import com.wire.android.util.isWebsocketEnabledByDefault
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 
 interface NetworkSettingsDefaultsProvider {
     val isWebSocketEnabledByDefault: Boolean
 }
 
-class AndroidNetworkSettingsDefaultsProvider @Inject constructor(
-    @ApplicationContext private val context: Context
+class AndroidNetworkSettingsDefaultsProvider(
+    private val context: Context
 ) : NetworkSettingsDefaultsProvider {
 
     override val isWebSocketEnabledByDefault: Boolean
         get() = isWebsocketEnabledByDefault(context)
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface NetworkSettingsDefaultsProviderModule {
-
-    @Binds
-    fun bindNetworkSettingsDefaultsProvider(
-        provider: AndroidNetworkSettingsDefaultsProvider
-    ): NetworkSettingsDefaultsProvider
 }

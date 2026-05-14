@@ -19,26 +19,13 @@ package com.wire.android.ui.home.settings.about.dependencies
 
 import android.content.Context
 import com.wire.android.util.getDependenciesVersion
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 
 interface DependenciesInfoProvider {
     suspend fun dependenciesVersion(): Map<String, String?>
 }
 
-class AndroidDependenciesInfoProvider @Inject constructor(
-    @ApplicationContext private val context: Context
+class AndroidDependenciesInfoProvider(
+    private val context: Context
 ) : DependenciesInfoProvider {
     override suspend fun dependenciesVersion(): Map<String, String?> = context.getDependenciesVersion()
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface DependenciesInfoProviderModule {
-    @Binds
-    fun bindDependenciesInfoProvider(provider: AndroidDependenciesInfoProvider): DependenciesInfoProvider
 }

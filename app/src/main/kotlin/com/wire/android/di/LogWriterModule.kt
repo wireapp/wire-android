@@ -20,8 +20,8 @@ package com.wire.android.di
 
 import android.content.Context
 import com.wire.android.BuildConfig
+import com.wire.android.util.logging.LogFileWriter
 import com.wire.android.util.logging.LogFileWriterV1Impl
-   import com.wire.android.util.logging.LogFileWriter
 import com.wire.android.util.logging.LogFileWriterV2Impl
 import dagger.Module
 import dagger.Provides

@@ -21,21 +21,15 @@ import android.content.Context
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.entity.Library
 import com.mikepenz.aboutlibraries.util.withContext
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 interface LicensesProvider {
     suspend fun getLibraries(): List<Library>
 }
 
-class AndroidLicensesProvider @Inject constructor(
-    @ApplicationContext private val context: Context
+class AndroidLicensesProvider(
+    private val context: Context
 ) : LicensesProvider {
 
     override suspend fun getLibraries(): List<Library> = withContext(Dispatchers.IO) {
@@ -45,14 +39,4 @@ class AndroidLicensesProvider @Inject constructor(
             .libraries
             .distinctBy { it.uniqueId }
     }
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface LicensesProviderModule {
-
-    @Binds
-    fun bindLicensesProvider(
-        provider: AndroidLicensesProvider
-    ): LicensesProvider
 }

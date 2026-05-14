@@ -38,9 +38,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.style.TransitionAnimationType
-import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.endOngoingCallPendingIntent
-import com.wire.android.services.ServicesManager
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
@@ -48,8 +46,6 @@ import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
 import com.wire.android.ui.calling.ongoing.OngoingCallActivity.Companion.TAG
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 /**
  * Activity that handles ongoing call screen, Ongoing.
@@ -60,13 +56,13 @@ import javax.inject.Inject
  * @see OngoingCallScreen
  */
 @OptIn(ExperimentalComposeUiApi::class)
-@AndroidEntryPoint
 class OngoingCallActivity : CallActivity() {
-    @Inject
-    lateinit var servicesManager: ServicesManager
-
-    @Inject
-    lateinit var callNotificationManager: CallNotificationManager
+    private val servicesManager by lazy(LazyThreadSafetyMode.NONE) {
+        metroGraph.servicesManager
+    }
+    private val callNotificationManager by lazy(LazyThreadSafetyMode.NONE) {
+        metroGraph.callNotificationManager
+    }
 
     var conversationId: String? by mutableStateOf(null)
     var userId: String? by mutableStateOf(null)

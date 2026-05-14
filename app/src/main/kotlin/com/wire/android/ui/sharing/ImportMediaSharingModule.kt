@@ -17,15 +17,4 @@
  */
 package com.wire.android.ui.sharing
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface ImportMediaSharingModule {
-
-    @Binds
-    fun bindImportMediaAssetImporter(impl: ImportMediaAssetImporterImpl): ImportMediaAssetImporter
-}
+// Import media sharing bindings are provided by the Metro graph.

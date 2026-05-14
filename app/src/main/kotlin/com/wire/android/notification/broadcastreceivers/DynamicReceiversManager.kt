@@ -23,17 +23,13 @@ import android.content.IntentFilter
 import com.wire.android.BuildConfig.EMM_SUPPORT_ENABLED
 import com.wire.android.appLogger
 import com.wire.android.emm.ManagedConfigurationsReceiver
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Manages dynamic registration and unregistration of broadcast receivers.
  * This are receivers that are active while the app is in foreground only.
  */
-@Singleton
-class DynamicReceiversManager @Inject constructor(
-    @ApplicationContext val context: Context,
+class DynamicReceiversManager(
+    private val context: Context,
     private val managedConfigurationsReceiver: ManagedConfigurationsReceiver
 ) {
     @Volatile

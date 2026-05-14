@@ -22,14 +22,8 @@ import android.net.Uri
 import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.fromNioPathToContentUri
 import com.wire.android.util.getAudioLengthInMs
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
 import okio.Path
 import java.io.File
-import javax.inject.Inject
 
 interface RecordAudioFileGateway {
     suspend fun generateAudioFileWithEffects(
@@ -41,8 +35,8 @@ interface RecordAudioFileGateway {
     fun contentUri(audioFile: File): Uri
 }
 
-class AndroidRecordAudioFileGateway @Inject constructor(
-    @ApplicationContext private val context: Context,
+class AndroidRecordAudioFileGateway(
+    private val context: Context,
     private val generateAudioFileWithEffects: GenerateAudioFileWithEffectsUseCase,
 ) : RecordAudioFileGateway {
 
@@ -65,11 +59,4 @@ class AndroidRecordAudioFileGateway @Inject constructor(
 
     override fun contentUri(audioFile: File): Uri =
         context.fromNioPathToContentUri(nioPath = audioFile.toPath())
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-interface RecordAudioFileGatewayModule {
-    @Binds
-    fun bindRecordAudioFileGateway(gateway: AndroidRecordAudioFileGateway): RecordAudioFileGateway
 }

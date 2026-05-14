@@ -20,7 +20,8 @@ package com.wire.android.config
 
 import com.wire.android.BuildConfig
 import dev.zacsweers.metro.Inject
+import javax.inject.Inject as HiltInject
 
-class NomadProfilesFeatureConfig @Inject constructor() {
+class NomadProfilesFeatureConfig @Inject @HiltInject constructor() {
     fun isEnabled(): Boolean = BuildConfig.NOMAD_PROFILES_ENABLED
 }

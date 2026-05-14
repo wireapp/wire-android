@@ -26,14 +26,12 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.BuildConfig
-import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.ui.home.appLock.CurrentTimestampProvider
 import com.wire.android.ui.home.conversations.MessageSharedState
-import com.wire.android.ui.home.messagecomposer.location.GeocoderHelper
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameters
 import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.android.util.GetMediaMetadataUseCaseImpl
@@ -107,9 +105,6 @@ object AppModule {
     fun provideGeocoder(appContext: Context): Geocoder = Geocoder(appContext)
 
     @Provides
-    fun provideGeocoderHelper(geocoder: Geocoder): GeocoderHelper = GeocoderHelper(geocoder)
-
-    @Provides
     fun provideLocationPickerParameters(): LocationPickerParameters = LocationPickerParameters()
 
     @Provides
@@ -118,9 +113,6 @@ object AppModule {
 
     @Provides
     fun provideAnonymousAnalyticsManager(): AnonymousAnalyticsManager = AnonymousAnalyticsManagerImpl
-
-    @Provides
-    fun provideNomadProfilesFeatureConfig(): NomadProfilesFeatureConfig = NomadProfilesFeatureConfig()
 
     @Provides
     fun provideAudioManager(@ApplicationContext context: Context): AudioManager =

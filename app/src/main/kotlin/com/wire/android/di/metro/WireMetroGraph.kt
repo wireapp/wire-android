@@ -27,6 +27,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.work.WorkManager
 import com.wire.android.BuildConfig
 import com.wire.android.GlobalObserversManager
+import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
@@ -770,15 +771,24 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     val proximitySensorManager: ProximitySensorManager
     val servicesManager: ServicesManager
     val callNotificationManager: CallNotificationManager
+    val conversationAudioMessagePlayer: ConversationAudioMessagePlayer
 
     val dispatcherProvider: DispatcherProvider
 
+    @get:ApplicationScope
+    val applicationScope: CoroutineScope
+
     @get:KaliumCoreLogic
     val coreLogic: CoreLogic
+
     val networkUtil: NetworkUtil
     val persistentWebSocketServiceDependencies: PersistentWebSocketService.Dependencies
     val callServiceDependencies: CallService.Dependencies
     val playingAudioMessageServiceDependencies: PlayingAudioMessageService.Dependencies
+    val currentSession: CurrentSessionUseCase
+    val accountSwitch: AccountSwitchUseCase
+    val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
+    val startPersistentWebsocketIfNecessary: StartPersistentWebsocketIfNecessaryUseCase
 
     @get:CurrentAccount
     val currentAccount: UserId

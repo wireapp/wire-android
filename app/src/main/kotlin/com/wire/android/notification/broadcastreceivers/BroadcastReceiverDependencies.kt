@@ -22,6 +22,7 @@ import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
+import com.wire.android.di.metro.createWireMetroGraph
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -31,14 +32,8 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 
-@EntryPoint
-@InstallIn(SingletonComponent::class)
 interface BroadcastReceiverDependencies {
     @KaliumCoreLogic
     fun coreLogic(): CoreLogic
@@ -67,7 +62,32 @@ interface BroadcastReceiverDependencies {
 }
 
 val Context.broadcastReceiverDependencies: BroadcastReceiverDependencies
-    get() = EntryPointAccessors.fromApplication(
-        applicationContext,
-        BroadcastReceiverDependencies::class.java
-    )
+    get() {
+        val graph = createWireMetroGraph(applicationContext)
+        return object : BroadcastReceiverDependencies {
+            override fun coreLogic(): CoreLogic = graph.coreLogic
+
+            override fun dispatcherProvider(): DispatcherProvider = graph.dispatcherProvider
+
+            override fun qualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapper(null)
+
+            override fun coroutineScope(): CoroutineScope = graph.applicationScope
+
+            override fun callNotificationManager(): CallNotificationManager = graph.callNotificationManager
+
+            override fun conversationAudioMessagePlayer(): ConversationAudioMessagePlayer =
+                graph.conversationAudioMessagePlayer
+
+            override fun currentSession(): CurrentSessionUseCase = graph.currentSession
+
+            override fun accountSwitch(): AccountSwitchUseCase = graph.accountSwitch
+
+            override fun switchAccountObserver(): SwitchAccountObserver = graph.switchAccountObserver
+
+            override fun nomadProfilesFeatureConfig(): NomadProfilesFeatureConfig =
+                graph.nomadProfilesFeatureConfig
+
+            override fun startPersistentWebsocketIfNecessary(): StartPersistentWebsocketIfNecessaryUseCase =
+                graph.startPersistentWebsocketIfNecessary
+        }
+    }

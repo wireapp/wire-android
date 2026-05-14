@@ -57,10 +57,6 @@ import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -69,7 +65,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel(assistedFactory = LoginSSOViewModel.Factory::class)
 class LoginSSOViewModel : LoginViewModel {
     private val savedInputStore: LoginSavedInputStore
     val addAuthenticatedUser: AddAuthenticatedUserUseCase
@@ -107,9 +102,8 @@ class LoginSSOViewModel : LoginViewModel {
         dispatchers,
     )
 
-    @AssistedInject
     constructor(
-        @Assisted loginNavArgs: LoginNavArgs,
+        loginNavArgs: LoginNavArgs,
         savedInputStore: LoginSavedInputStore,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         validateEmailUseCase: ValidateEmailUseCase,
@@ -167,11 +161,6 @@ class LoginSSOViewModel : LoginViewModel {
 
     val ssoTextState: TextFieldState = TextFieldState()
     var loginState: LoginSSOState by mutableStateOf(LoginSSOState())
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: LoginNavArgs): LoginSSOViewModel
-    }
 
     private fun observeSSOCodeInput() {
         ssoTextState.setTextAndPlaceCursorAtEnd(savedInputStore.ssoCode ?: String.EMPTY)

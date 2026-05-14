@@ -28,17 +28,12 @@ import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 // TODO: Cover this viewModel  with unit test
-@HiltViewModel(assistedFactory = CreateAccountDetailsViewModel.Factory::class)
-class CreateAccountDetailsViewModel @AssistedInject constructor(
-    @Assisted val createAccountNavArgs: CreateAccountNavArgs,
+class CreateAccountDetailsViewModel constructor(
+    val createAccountNavArgs: CreateAccountNavArgs,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
@@ -70,11 +65,6 @@ class CreateAccountDetailsViewModel @AssistedInject constructor(
                 )
             }
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: CreateAccountNavArgs): CreateAccountDetailsViewModel
     }
 
     fun onDetailsContinue() {

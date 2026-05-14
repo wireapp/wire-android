@@ -49,10 +49,6 @@ import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.UserAssetId
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -70,9 +66,8 @@ import kotlinx.coroutines.launch
 private const val SEARCH_DEBOUNCE_MILLIS = 200L
 
 @Suppress("TooManyFunctions")
-@HiltViewModel(assistedFactory = SearchScreenViewModel.Factory::class)
-class SearchScreenViewModel @AssistedInject constructor(
-    @Assisted private val navArgs: SearchNavArgs,
+class SearchScreenViewModel(
+    private val navArgs: SearchNavArgs,
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val getOwners: GetOwnersUseCase,
@@ -371,11 +366,6 @@ class SearchScreenViewModel @AssistedInject constructor(
         _uiState.update { current ->
             current.copy(sortingCriteria = criteria)
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(navArgs: SearchNavArgs): SearchScreenViewModel
     }
 }
 

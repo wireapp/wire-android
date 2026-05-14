@@ -44,9 +44,7 @@ import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import dagger.Lazy
-import dev.zacsweers.metro.Inject
 
-@Inject
 @Suppress("LongParameterList")
 class WireActivityViewModelFactory(
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,

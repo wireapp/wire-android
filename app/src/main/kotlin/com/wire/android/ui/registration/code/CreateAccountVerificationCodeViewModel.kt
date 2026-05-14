@@ -27,8 +27,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.di.DefaultWebSocketEnabledByDefault
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -44,22 +42,17 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = CreateAccountVerificationCodeViewModel.Factory::class)
-class CreateAccountVerificationCodeViewModel @AssistedInject constructor(
-    @Assisted val createAccountNavArgs: CreateAccountDataNavArgs,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
+class CreateAccountVerificationCodeViewModel(
+    val createAccountNavArgs: CreateAccountDataNavArgs,
+    private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     defaultServerConfig: ServerConfig.Links,
-    @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean,
+    private val defaultWebSocketEnabledByDefault: Boolean,
 ) : ViewModel() {
 
     val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig ?: defaultServerConfig
@@ -76,11 +69,6 @@ class CreateAccountVerificationCodeViewModel @AssistedInject constructor(
                 if (it.length == codeState.codeLength) onCodeContinue()
             }
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: CreateAccountDataNavArgs): CreateAccountVerificationCodeViewModel
     }
 
     fun resendCode() {

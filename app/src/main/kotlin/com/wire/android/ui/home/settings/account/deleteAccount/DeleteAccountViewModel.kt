@@ -23,12 +23,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class DeleteAccountViewModel @Inject constructor(
+class DeleteAccountViewModel(
     private val deleteAccount: DeleteAccountUseCase,
 ) : ViewModel() {
 

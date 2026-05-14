@@ -46,17 +46,12 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 // TODO: Cover this viewModel  with unit test
-@HiltViewModel(assistedFactory = CreateAccountCodeViewModel.Factory::class)
-class CreateAccountCodeViewModel @AssistedInject constructor(
-    @Assisted val createAccountNavArgs: CreateAccountNavArgs,
+class CreateAccountCodeViewModel constructor(
+    val createAccountNavArgs: CreateAccountNavArgs,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
@@ -77,11 +72,6 @@ class CreateAccountCodeViewModel @AssistedInject constructor(
                 if (it.length == codeState.codeLength) onCodeContinue()
             }
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: CreateAccountNavArgs): CreateAccountCodeViewModel
     }
 
     fun resendCode() {

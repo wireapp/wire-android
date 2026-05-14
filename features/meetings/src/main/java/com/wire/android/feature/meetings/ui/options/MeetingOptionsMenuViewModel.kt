@@ -22,10 +22,8 @@ import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
 import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import javax.inject.Inject
 
 interface MeetingOptionsMenuViewModel {
     fun observeMeetingStateFlow(meetingId: String): StateFlow<MeetingOptionsMenuState> = MutableStateFlow(
@@ -42,8 +40,7 @@ class MeetingOptionsMenuViewModelPreview(currentTimeProvider: CurrentTimeProvide
     )
 }
 
-@HiltViewModel
-class MeetingOptionsMenuViewModelImpl @Inject constructor() : MeetingOptionsMenuViewModel, ViewModel() {
+class MeetingOptionsMenuViewModelImpl : MeetingOptionsMenuViewModel, ViewModel() {
     private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default) // TODO replace with real data source
     override fun observeMeetingStateFlow(meetingId: String): StateFlow<MeetingOptionsMenuState> = MutableStateFlow(
         meetingMocksProvider.getItem(meetingId)?.let {

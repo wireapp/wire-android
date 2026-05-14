@@ -35,7 +35,6 @@ import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
@@ -44,12 +43,10 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 import kotlin.properties.Delegates
 
 @Suppress("LongParameterList")
-@HiltViewModel
-class MyAccountViewModel @Inject constructor(
+class MyAccountViewModel(
     private val getSelf: ObserveSelfUserUseCase,
     private val observeSelfUserWithTeam: ObserveSelfUserWithTeamUseCase,
     private val isSelfATeamMember: IsSelfATeamMemberUseCase,

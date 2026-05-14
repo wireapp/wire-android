@@ -31,10 +31,6 @@ import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.util.splitFileExtension
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -42,9 +38,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel(assistedFactory = RenameNodeViewModel.Factory::class)
-class RenameNodeViewModel @AssistedInject constructor(
-    @Assisted private val navArgs: RenameNodeNavArgs,
+class RenameNodeViewModel(
+    private val navArgs: RenameNodeNavArgs,
     private val renameNodeUseCase: RenameNodeUseCase,
 ) : ActionsViewModel<RenameNodeViewModelAction>() {
 
@@ -69,11 +64,6 @@ class RenameNodeViewModel @AssistedInject constructor(
                     )
             }
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: RenameNodeNavArgs): RenameNodeViewModel
     }
 
     fun renameNode(newName: String) {

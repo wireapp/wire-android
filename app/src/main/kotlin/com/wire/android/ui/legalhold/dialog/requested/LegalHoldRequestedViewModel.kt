@@ -36,7 +36,6 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -46,10 +45,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class LegalHoldRequestedViewModel @Inject constructor(
+class LegalHoldRequestedViewModel(
     private val validatePassword: ValidatePasswordUseCase,
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>
 ) : ViewModel() {

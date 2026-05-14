@@ -28,8 +28,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.di.DefaultWebSocketEnabledByDefault
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
@@ -59,20 +57,14 @@ import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Named
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel(assistedFactory = NewLoginViewModel.Factory::class)
 class NewLoginViewModel(
     private val loginNavArgs: LoginNavArgs,
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
@@ -87,40 +79,6 @@ class NewLoginViewModel(
     defaultSSOCodeConfig: String,
     private val recoverableLogoutExceptionDetector: NewLoginRecoverableLogoutExceptionDetector,
 ) : ActionsViewModel<NewLoginAction>() {
-
-    @AssistedInject
-    constructor(
-        @Assisted loginNavArgs: LoginNavArgs,
-        validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        savedInputStore: LoginSavedInputStore,
-        addAuthenticatedUser: AddAuthenticatedUserUseCase,
-        clientScopeProviderFactory: ClientScopeProvider.Factory,
-        userDataStoreProvider: UserDataStoreProvider,
-        dispatchers: DispatcherProvider,
-        defaultServerConfig: ServerConfig.Links,
-        @Named("ssoCodeConfig") defaultSSOCodeConfig: String,
-        @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
-        recoverableLogoutExceptionDetector: NewLoginRecoverableLogoutExceptionDetector,
-    ) : this(
-        loginNavArgs,
-        validateEmailOrSSOCode,
-        coreLogic,
-        savedInputStore,
-        clientScopeProviderFactory,
-        userDataStoreProvider,
-        LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
-        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, defaultWebSocketEnabledByDefault),
-        dispatchers,
-        defaultServerConfig,
-        defaultSSOCodeConfig,
-        recoverableLogoutExceptionDetector
-    )
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: LoginNavArgs): NewLoginViewModel
-    }
 
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
     private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl

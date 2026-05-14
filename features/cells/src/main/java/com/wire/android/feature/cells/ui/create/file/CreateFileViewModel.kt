@@ -31,17 +31,12 @@ import com.wire.kalium.cells.domain.usecase.create.CreatePresentationFileUseCase
 import com.wire.kalium.cells.domain.usecase.create.CreateSpreadsheetFileUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = CreateFileViewModel.Factory::class)
-class CreateFileViewModel @AssistedInject constructor(
-    @Assisted private val navArgs: CreateFileScreenNavArgs,
+class CreateFileViewModel(
+    private val navArgs: CreateFileScreenNavArgs,
     private val createPresentationFileUseCase: CreatePresentationFileUseCase,
     private val createDocumentFileUseCase: CreateDocumentFileUseCase,
     private val createSpreadsheetFileUseCase: CreateSpreadsheetFileUseCase
@@ -64,11 +59,6 @@ class CreateFileViewModel @AssistedInject constructor(
                 )
             }
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: CreateFileScreenNavArgs): CreateFileViewModel
     }
 
     internal fun createFile(fileName: String) = viewModelScope.launch {

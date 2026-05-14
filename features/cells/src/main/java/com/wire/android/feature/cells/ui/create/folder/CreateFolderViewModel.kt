@@ -29,17 +29,12 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.cells.domain.usecase.create.CreateFolderUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = CreateFolderViewModel.Factory::class)
-class CreateFolderViewModel @AssistedInject constructor(
-    @Assisted private val navArgs: CreateFolderScreenNavArgs,
+class CreateFolderViewModel(
+    private val navArgs: CreateFolderScreenNavArgs,
     private val createFolderUseCase: CreateFolderUseCase,
 ) : ActionsViewModel<CreateFolderViewModelAction>() {
 
@@ -58,11 +53,6 @@ class CreateFolderViewModel @AssistedInject constructor(
                 )
             }
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: CreateFolderScreenNavArgs): CreateFolderViewModel
     }
 
     internal fun createFolder(folderName: String) = viewModelScope.launch {

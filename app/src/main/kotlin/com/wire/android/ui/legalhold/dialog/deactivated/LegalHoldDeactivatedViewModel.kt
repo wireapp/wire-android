@@ -32,17 +32,14 @@ import com.wire.kalium.logic.feature.legalhold.MarkLegalHoldChangeAsNotifiedForS
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldChangeNotifiedForSelfUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class LegalHoldDeactivatedViewModel @Inject constructor(
+class LegalHoldDeactivatedViewModel(
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>
 ) : ViewModel() {
 

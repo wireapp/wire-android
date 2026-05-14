@@ -27,15 +27,12 @@ import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 import com.wire.kalium.logic.feature.e2ei.usecase.InitialEnrollmentResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class GetE2EICertificateViewModel @Inject constructor(
+class GetE2EICertificateViewModel(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val currentSession: CurrentSessionUseCase,
     val dispatcherProvider: DispatcherProvider

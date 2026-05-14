@@ -49,8 +49,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
@@ -72,7 +76,8 @@ import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.di.assistedViewModels
+import com.wire.android.di.metro.WireMetroGraph
+import com.wire.android.di.metro.createWireMetroGraph
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
@@ -157,15 +162,27 @@ class WireActivity : BaseActivity() {
     @Inject
     lateinit var managedConfigurationsManager: ManagedConfigurationsManager
 
+    private val metroGraph by lazy(LazyThreadSafetyMode.NONE) {
+        createWireMetroGraph(this)
+    }
+
     private val viewModel: WireActivityViewModel by viewModels()
-    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
+    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by metroActivityViewModel {
+        featureFlagNotificationViewModelFactory.create()
+    }
     private val callFeedbackViewModel: CallFeedbackViewModel by viewModels()
 
-    private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
-        factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true))
+    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by metroActivityViewModel {
+        commonTopAppBarViewModelFactory.create(
+            CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true)
+        )
     }
-    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
-    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
+    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by metroActivityViewModel {
+        legalHoldRequestedViewModelFactory.create()
+    }
+    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by metroActivityViewModel {
+        legalHoldDeactivatedViewModelFactory.create()
+    }
 
     private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
     private lateinit var shakeDetector: ShakeDetector
@@ -722,6 +739,15 @@ class WireActivity : BaseActivity() {
         } else {
             this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG, Intent::class.java)
         }
+    }
+
+    private inline fun <reified VM : ViewModel> metroActivityViewModel(
+        crossinline create: WireMetroGraph.() -> VM,
+    ): kotlin.Lazy<VM> = lazy(LazyThreadSafetyMode.NONE) {
+        val factory = viewModelFactory {
+            initializer { metroGraph.create() }
+        }
+        ViewModelProvider(this, factory)[VM::class.java]
     }
 
     companion object {

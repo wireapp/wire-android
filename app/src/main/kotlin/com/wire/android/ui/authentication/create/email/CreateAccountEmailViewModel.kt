@@ -31,17 +31,12 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 // TODO: Cover this viewModel  with unit test
-@HiltViewModel(assistedFactory = CreateAccountEmailViewModel.Factory::class)
-class CreateAccountEmailViewModel @AssistedInject constructor(
-    @Assisted val createAccountNavArgs: CreateAccountNavArgs,
+class CreateAccountEmailViewModel constructor(
+    val createAccountNavArgs: CreateAccountNavArgs,
     private val validateEmail: ValidateEmailUseCase,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     defaultServerConfig: ServerConfig.Links
@@ -64,11 +59,6 @@ class CreateAccountEmailViewModel @AssistedInject constructor(
                 )
             }
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: CreateAccountNavArgs): CreateAccountEmailViewModel
     }
 
     fun onEmailContinue() {

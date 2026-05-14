@@ -39,10 +39,6 @@ import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,9 +48,8 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-@HiltViewModel(assistedFactory = VersionHistoryViewModel.Factory::class)
-class VersionHistoryViewModel @AssistedInject constructor(
-    @Assisted private val navArgs: VersionHistoryNavArgs,
+class VersionHistoryViewModel(
+    private val navArgs: VersionHistoryNavArgs,
     private val getNodeVersionsUseCase: GetNodeVersionsUseCase,
     private val fileSizeFormatter: FileSizeFormatter,
     private val restoreNodeVersionUseCase: RestoreNodeVersionUseCase,
@@ -269,10 +264,5 @@ class VersionHistoryViewModel @AssistedInject constructor(
         const val DATE_PATTERN = "d MMM yyyy"
         const val DELAY_100_MS = 100L
         const val DELAY_500_MS = 500L
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(navArgs: VersionHistoryNavArgs): VersionHistoryViewModel
     }
 }

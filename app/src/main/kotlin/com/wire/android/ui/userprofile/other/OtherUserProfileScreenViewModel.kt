@@ -51,10 +51,6 @@ import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
@@ -66,9 +62,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel(assistedFactory = OtherUserProfileScreenViewModel.Factory::class)
-class OtherUserProfileScreenViewModel @AssistedInject constructor(
-    @Assisted private val otherUserProfileNavArgs: OtherUserProfileNavArgs,
+class OtherUserProfileScreenViewModel(
+    private val otherUserProfileNavArgs: OtherUserProfileNavArgs,
     private val dispatchers: DispatcherProvider,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val userTypeMapper: UserTypeMapper,
@@ -102,11 +97,6 @@ class OtherUserProfileScreenViewModel @AssistedInject constructor(
         getMLSVerificationStatus()
         getIfConversationExist()
         getE2EIStatus()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: OtherUserProfileNavArgs): OtherUserProfileScreenViewModel
     }
 
     private fun getIfConversationExist() {

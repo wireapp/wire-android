@@ -23,27 +23,17 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = VerifyEmailViewModel.Factory::class)
-class VerifyEmailViewModel @AssistedInject constructor(
+class VerifyEmailViewModel(
     private val updateEmail: UpdateEmailUseCase,
-    @Assisted private val verifyEmailNavArgs: VerifyEmailNavArgs
+    private val verifyEmailNavArgs: VerifyEmailNavArgs
 ) : ViewModel() {
 
     var state: VerifyEmailState by mutableStateOf(VerifyEmailState())
         private set
 
     val newEmail: String = verifyEmailNavArgs.newEmail
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: VerifyEmailNavArgs): VerifyEmailViewModel
-    }
 
     fun onResendVerificationEmailClicked() {
         newEmail.let {

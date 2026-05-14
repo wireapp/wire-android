@@ -29,15 +29,10 @@ import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = WelcomeViewModel.Factory::class)
-class WelcomeViewModel @AssistedInject constructor(
-    @Assisted navArgs: WelcomeNavArgs,
+class WelcomeViewModel constructor(
+    navArgs: WelcomeNavArgs,
     private val getSessions: GetSessionsUseCase,
     private val doesValidNomadAccountExist: DoesValidNomadAccountExistUseCase,
     defaultServerConfig: ServerConfig.Links
@@ -48,11 +43,6 @@ class WelcomeViewModel @AssistedInject constructor(
 
     init {
         checkNumberOfSessions()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: WelcomeNavArgs): WelcomeViewModel
     }
 
     private fun checkNumberOfSessions() {

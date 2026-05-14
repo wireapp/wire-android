@@ -23,25 +23,20 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
+import com.wire.android.feature.meetings.ui.MeetingViewModelGraph
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
@@ -49,7 +44,6 @@ import com.wire.android.ui.common.rowitem.EmptyListArrowFooter
 import com.wire.android.ui.common.rowitem.EmptyListContent
 import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 
 @Composable
 fun MeetingList(
@@ -59,7 +53,7 @@ fun MeetingList(
     openMeetingOptions: (meetingId: String) -> Unit = {},
     meetingListViewModel: MeetingListViewModel = when {
         LocalInspectionMode.current -> MeetingListViewModelPreview(CurrentTimeProvider.Preview, type)
-        else -> metroViewModel<MeetingListViewModelImpl>(key = "meeting_list_${type.name}") {
+        else -> metroViewModel<MeetingViewModelGraph, MeetingListViewModelImpl>(key = "meeting_list_${type.name}") {
             meetingListViewModelFactory.create(type = type)
         }
     },
@@ -184,32 +178,4 @@ fun MeetingListNextPreview() = WireTheme {
 @Composable
 fun MeetingListPastPreview() = WireTheme {
     MeetingList(type = MeetingsTabItem.PAST)
-}
-
-private class MeetingListMetroFactories {
-    val meetingListViewModelFactory = MeetingListViewModelFactory(DefaultDispatcherProvider())
-}
-
-@Composable
-private inline fun <reified VM : ViewModel> metroViewModel(
-    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    },
-    key: String? = null,
-    crossinline create: MeetingListMetroFactories.() -> VM,
-): VM {
-    val factories = remember { MeetingListMetroFactories() }
-    val factory = remember(factories) {
-        viewModelFactory {
-            initializer {
-                factories.create()
-            }
-        }
-    }
-    return viewModel(
-        modelClass = VM::class,
-        viewModelStoreOwner = viewModelStoreOwner,
-        key = key,
-        factory = factory,
-    )
 }

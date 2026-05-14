@@ -53,10 +53,6 @@ import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -76,10 +72,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel(assistedFactory = CellViewModel.Factory::class)
-class CellViewModel @AssistedInject constructor(
-    @Assisted private val navArgs: CellFilesNavArgs,
-    @Assisted private val searchNavArgs: SearchNavArgs?,
+class CellViewModel(
+    private val navArgs: CellFilesNavArgs,
+    private val searchNavArgs: SearchNavArgs?,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
@@ -461,11 +456,6 @@ class CellViewModel @AssistedInject constructor(
                 append = LoadState.NotLoading(true)
             )
         )
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(navArgs: CellFilesNavArgs, searchNavArgs: SearchNavArgs?): CellViewModel
     }
 }
 

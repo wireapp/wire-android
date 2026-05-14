@@ -27,10 +27,6 @@ import com.wire.android.util.uiLinkExpirationTime
 import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -43,9 +39,8 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
-@HiltViewModel(assistedFactory = PublicLinkExpirationScreenViewModel.Factory::class)
-internal class PublicLinkExpirationScreenViewModel @AssistedInject constructor(
-    @Assisted private val navArgs: PublicLinkExpirationScreenNavArgs,
+internal class PublicLinkExpirationScreenViewModel(
+    private val navArgs: PublicLinkExpirationScreenNavArgs,
     val setExpiration: SetPublicLinkExpirationUseCase,
 ) : ActionsViewModel<PublicLinkExpirationScreenAction>() {
 
@@ -193,11 +188,6 @@ internal class PublicLinkExpirationScreenViewModel @AssistedInject constructor(
 
     private fun updateState(block: PublicLinkExpirationScreenViewState.() -> PublicLinkExpirationScreenViewState) {
         _state.update(block)
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(navArgs: PublicLinkExpirationScreenNavArgs): PublicLinkExpirationScreenViewModel
     }
 }
 

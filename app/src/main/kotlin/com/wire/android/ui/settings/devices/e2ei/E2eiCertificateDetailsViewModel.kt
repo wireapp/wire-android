@@ -22,15 +22,10 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.util.DateTimeUtil
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = E2eiCertificateDetailsViewModel.Factory::class)
-class E2eiCertificateDetailsViewModel @AssistedInject constructor(
-    @Assisted private val navArgs: E2eiCertificateDetailsScreenNavArgs,
+class E2eiCertificateDetailsViewModel(
+    private val navArgs: E2eiCertificateDetailsScreenNavArgs,
     private val getSelfUser: GetSelfUserUseCase,
 ) : ViewModel() {
 
@@ -38,11 +33,6 @@ class E2eiCertificateDetailsViewModel @AssistedInject constructor(
 
     init {
         getSelfUserHandle()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: E2eiCertificateDetailsScreenNavArgs): E2eiCertificateDetailsViewModel
     }
 
     private fun getSelfUserHandle() {

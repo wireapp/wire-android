@@ -32,13 +32,10 @@ import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class ChangeHandleViewModel @Inject constructor(
+class ChangeHandleViewModel(
     private val updateHandle: SetUserHandleUseCase,
     private val validateHandle: ValidateUserHandleUseCase,
     private val getSelf: GetSelfUserUseCase

@@ -19,21 +19,11 @@ package com.wire.android.ui.authentication.create.overview
 
 import androidx.lifecycle.ViewModel
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 
-@HiltViewModel(assistedFactory = CreateAccountOverviewViewModel.Factory::class)
-class CreateAccountOverviewViewModel @AssistedInject constructor(
-    @Assisted val navArgs: CreateAccountOverviewNavArgs,
+class CreateAccountOverviewViewModel constructor(
+    val navArgs: CreateAccountOverviewNavArgs,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
     val serverConfig: ServerConfig.Links = navArgs.customServerConfig ?: defaultServerConfig
     fun learnMoreUrl(): String = serverConfig.pricing
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: CreateAccountOverviewNavArgs): CreateAccountOverviewViewModel
-    }
 }

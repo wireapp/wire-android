@@ -27,10 +27,6 @@ import com.wire.kalium.cells.domain.usecase.RemoveNodeTagsUseCase
 import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -38,9 +34,8 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = AddRemoveTagsViewModel.Factory::class)
-class AddRemoveTagsViewModel @AssistedInject constructor(
-    @Assisted private val navArgs: AddRemoveTagsNavArgs,
+class AddRemoveTagsViewModel(
+    private val navArgs: AddRemoveTagsNavArgs,
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val updateNodeTagsUseCase: UpdateNodeTagsUseCase,
     private val removeNodeTagsUseCase: RemoveNodeTagsUseCase,
@@ -63,11 +58,6 @@ class AddRemoveTagsViewModel @AssistedInject constructor(
                 .debounce(TYPING_DEBOUNCE_TIME)
                 .collectLatest { updateViewState() }
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: AddRemoveTagsNavArgs): AddRemoveTagsViewModel
     }
 
     fun isValidTag(): Boolean = with(tagsTextState) {

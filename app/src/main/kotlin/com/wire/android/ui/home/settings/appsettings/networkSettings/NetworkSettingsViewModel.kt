@@ -29,13 +29,9 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.PersistPersistentWebSocketConnectionStatusUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class NetworkSettingsViewModel
-@Inject constructor(
+class NetworkSettingsViewModel(
     private val persistPersistentWebSocketConnectionStatus: PersistPersistentWebSocketConnectionStatusUseCase,
     private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
     private val currentSession: CurrentSessionUseCase,

@@ -36,18 +36,15 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okio.Path
 import java.io.FileNotFoundException
-import javax.inject.Inject
 
-@HiltViewModel
 @Suppress("LongParameterList")
-class AvatarPickerViewModel @Inject constructor(
+class AvatarPickerViewModel(
     private val dataStore: UserDataStore,
     private val getAvatarAsset: GetAvatarAssetUseCase,
     private val uploadUserAvatar: UploadUserAvatarUseCase,

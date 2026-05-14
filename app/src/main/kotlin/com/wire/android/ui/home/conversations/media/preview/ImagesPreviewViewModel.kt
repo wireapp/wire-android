@@ -22,16 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = ImagesPreviewViewModel.Factory::class)
-class ImagesPreviewViewModel @AssistedInject constructor(
-    @Assisted private val navArgs: ImagesPreviewNavArgs,
+class ImagesPreviewViewModel(
+    private val navArgs: ImagesPreviewNavArgs,
     private val assetImporter: ImagesPreviewAssetImporter
 ) : ViewModel() {
 
@@ -45,11 +40,6 @@ class ImagesPreviewViewModel @AssistedInject constructor(
 
     init {
         handleAssets()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: ImagesPreviewNavArgs): ImagesPreviewViewModel
     }
 
     fun onSelected(index: Int) {

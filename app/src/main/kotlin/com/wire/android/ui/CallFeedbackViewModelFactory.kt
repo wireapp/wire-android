@@ -23,9 +23,7 @@ import com.wire.android.ui.analytics.IsAnalyticsAvailableUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import dagger.Lazy
-import dev.zacsweers.metro.Inject
 
-@Inject
 class CallFeedbackViewModelFactory(
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,

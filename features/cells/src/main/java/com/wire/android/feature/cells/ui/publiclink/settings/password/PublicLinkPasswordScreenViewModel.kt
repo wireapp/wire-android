@@ -30,19 +30,14 @@ import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordU
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.util.RandomPassword
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = PublicLinkPasswordScreenViewModel.Factory::class)
-internal class PublicLinkPasswordScreenViewModel @AssistedInject constructor(
-    @Assisted private val navArgs: PublicLinkPasswordNavArgs,
+internal class PublicLinkPasswordScreenViewModel(
+    private val navArgs: PublicLinkPasswordNavArgs,
     private val generateRandomPassword: RandomPassword,
     private val createPassword: CreatePublicLinkPasswordUseCase,
     private val updatePassword: UpdatePublicLinkPasswordUseCase,
@@ -178,11 +173,6 @@ internal class PublicLinkPasswordScreenViewModel @AssistedInject constructor(
 
     private fun updateState(block: PublicLinkPasswordScreenViewState.() -> PublicLinkPasswordScreenViewState) {
         _state.update(block)
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(navArgs: PublicLinkPasswordNavArgs): PublicLinkPasswordScreenViewModel
     }
 
     private companion object {

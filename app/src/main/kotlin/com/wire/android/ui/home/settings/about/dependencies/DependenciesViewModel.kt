@@ -22,13 +22,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class DependenciesViewModel @Inject constructor(
+class DependenciesViewModel(
     private val dependenciesInfoProvider: DependenciesInfoProvider
 ) : ViewModel() {
 

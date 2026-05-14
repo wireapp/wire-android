@@ -58,10 +58,6 @@ import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScop
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -73,9 +69,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Suppress("LongParameterList", "ComplexMethod", "TooManyFunctions")
-@HiltViewModel(assistedFactory = LoginEmailViewModel.Factory::class)
-class LoginEmailViewModel @AssistedInject constructor(
-    @Assisted val loginNavArgs: LoginNavArgs,
+class LoginEmailViewModel constructor(
+    val loginNavArgs: LoginNavArgs,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedInputStore: LoginSavedInputStore,
@@ -107,11 +102,6 @@ class LoginEmailViewModel @AssistedInject constructor(
 
     @VisibleForTesting
     internal val loginJobData = MutableStateFlow<LoginJobData?>(null)
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: LoginNavArgs): LoginEmailViewModel
-    }
 
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(

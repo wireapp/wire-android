@@ -73,10 +73,6 @@ import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -85,9 +81,8 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel(assistedFactory = SendMessageViewModel.Factory::class)
-class SendMessageViewModel @AssistedInject constructor(
-    @Assisted private val conversationNavArgs: ConversationNavArgs,
+class SendMessageViewModel(
+    private val conversationNavArgs: ConversationNavArgs,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendMultipartMessage: SendMultipartMessageUseCase,
@@ -544,10 +539,5 @@ class SendMessageViewModel @AssistedInject constructor(
 
     private companion object {
         const val MAX_LIMIT_MESSAGE_SEND = 20
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: ConversationNavArgs): SendMessageViewModel
     }
 }

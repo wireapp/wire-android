@@ -35,7 +35,12 @@ import com.wire.android.di.ApplicationScope
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
+import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
+import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
+import com.wire.android.di.ObserveSelfUserUseCaseProvider
+import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.DisableAppLockUseCase
@@ -67,8 +72,14 @@ import com.wire.android.mapper.UIAssetMapper
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UIParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.model.ImageAssetViewModelFactory
+import com.wire.android.model.ImageAssetViewModelGraph
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.notification.CallNotificationManager
+import com.wire.android.services.ServicesManager
+import com.wire.android.sync.MonitorSyncWorkUseCase
+import com.wire.android.ui.AndroidWireActivityIntentGateway
+import com.wire.android.ui.WireActivityIntentGateway
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelFactory
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModelFactory
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModelFactory
@@ -99,6 +110,7 @@ import com.wire.android.ui.debug.conversation.DebugConversationViewModelFactory
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModelFactory
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModelFactory
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModelFactory
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModelFactory
 import com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModelFactory
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.appLock.set.SetLockScreenViewModelFactory
@@ -210,6 +222,7 @@ import com.wire.android.ui.home.whatsnew.ReleaseNotesFeedUrlProvider
 import com.wire.android.ui.home.whatsnew.WhatsNewViewModelFactory
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModelFactory
 import com.wire.android.ui.analytics.AnalyticsConfiguration
+import com.wire.android.ui.analytics.IsAnalyticsAvailableUseCase
 import com.wire.android.ui.analytics.AnalyticsUsageViewModelFactory
 import com.wire.android.feature.cells.ui.CellViewModelGraph
 import com.wire.android.feature.cells.ui.CellViewModelFactory
@@ -223,6 +236,9 @@ import com.wire.android.feature.cells.ui.rename.RenameNodeViewModelFactory
 import com.wire.android.feature.cells.ui.search.SearchScreenViewModelFactory
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModelFactory
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModelFactory
+import com.wire.android.feature.meetings.ui.MeetingViewModelGraph
+import com.wire.android.feature.meetings.ui.list.MeetingListViewModelFactory
+import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModelFactory
 import com.wire.android.ui.calling.common.SharedCallingViewModelFactory
 import com.wire.android.ui.calling.incoming.IncomingCallViewModelFactory
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModelFactory
@@ -240,6 +256,7 @@ import com.wire.android.ui.settings.devices.SelfDevicesViewModelFactory
 import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsViewModelFactory
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModelFactory
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModelFactory
+import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedViewModelFactory
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModelFactory
 import com.wire.android.ui.connection.ConnectionActionButtonViewModelFactory
 import com.wire.android.ui.newauthentication.login.NewLoginRecoverableLogoutExceptionDetector
@@ -260,6 +277,7 @@ import com.wire.android.ui.sharing.ImportMediaAssetImporterImpl
 import com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModelFactory
 import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.EMPTY
 import com.wire.android.util.FileManager
 import com.wire.android.util.FileSizeFormatter
@@ -270,12 +288,15 @@ import com.wire.android.util.ScreenStateObserver
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.isWebsocketEnabledByDefault
 import com.wire.android.util.lifecycle.AutomatedLoginManager
+import com.wire.android.util.lifecycle.IntentsProcessor
+import com.wire.android.util.lifecycle.NomadIntentSignatureValidator
 import com.wire.android.util.logging.LogFileWriter
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.time.TimeZoneProvider
 import com.wire.android.util.ui.AndroidUiTextResolver
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.android.util.ui.UiTextResolver
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
@@ -324,8 +345,10 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
+import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
+import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetMessageByConversationIdUseCase
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
@@ -384,6 +407,7 @@ import com.wire.kalium.logic.feature.channels.ChannelsScope
 import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.ClientScope
+import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
@@ -396,6 +420,7 @@ import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
+import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
@@ -489,10 +514,13 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import com.wire.kalium.logic.feature.team.TeamScope
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
@@ -597,7 +625,7 @@ abstract class WireMetroScope private constructor()
 
 @DependencyGraph(WireMetroScope::class)
 @Suppress("LargeClass", "TooManyFunctions")
-interface WireMetroGraph : CellViewModelGraph {
+interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAssetViewModelGraph {
     @DependencyGraph.Factory
     fun interface Factory {
         fun create(@Provides @ApplicationContext context: Context): WireMetroGraph
@@ -726,8 +754,13 @@ interface WireMetroGraph : CellViewModelGraph {
     val sharedCallingViewModelFactory: SharedCallingViewModelFactory
     val conversationListViewModelFactory: ConversationListViewModelFactory
     val conversationListCallViewModelFactory: ConversationListCallViewModelFactory
+    val commonTopAppBarViewModelFactory: CommonTopAppBarViewModelFactory
     val featureFlagNotificationViewModelFactory: FeatureFlagNotificationViewModelFactory
     val legalHoldRequestedViewModelFactory: LegalHoldRequestedViewModelFactory
+    val legalHoldDeactivatedViewModelFactory: LegalHoldDeactivatedViewModelFactory
+    override val meetingListViewModelFactory: MeetingListViewModelFactory
+    override val meetingOptionsMenuViewModelFactory: MeetingOptionsMenuViewModelFactory
+    override val imageAssetViewModelFactory: ImageAssetViewModelFactory
 
     val dispatcherProvider: DispatcherProvider
 
@@ -884,6 +917,218 @@ interface WireMetroGraph : CellViewModelGraph {
         }
 
     @Provides
+    fun provideDoesValidSessionExistUseCase(@KaliumCoreLogic coreLogic: CoreLogic): DoesValidSessionExistUseCase =
+        coreLogic.getGlobalScope().doesValidSessionExist
+
+    @Provides
+    fun provideDoesValidSessionExistUseCaseLazy(
+        doesValidSessionExist: DoesValidSessionExistUseCase,
+    ): dagger.Lazy<DoesValidSessionExistUseCase> =
+        object : dagger.Lazy<DoesValidSessionExistUseCase> {
+            override fun get(): DoesValidSessionExistUseCase = doesValidSessionExist
+        }
+
+    @Provides
+    fun provideGetServerConfigUseCase(@KaliumCoreLogic coreLogic: CoreLogic): GetServerConfigUseCase =
+        coreLogic.getGlobalScope().fetchServerConfigFromDeepLink
+
+    @Provides
+    fun provideGetServerConfigUseCaseLazy(getServerConfig: GetServerConfigUseCase): dagger.Lazy<GetServerConfigUseCase> =
+        object : dagger.Lazy<GetServerConfigUseCase> {
+            override fun get(): GetServerConfigUseCase = getServerConfig
+        }
+
+    @Provides
+    fun provideObserveSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveSessionsUseCase =
+        coreLogic.getGlobalScope().session.allSessionsFlow
+
+    @Provides
+    fun provideObserveSessionsUseCaseLazy(observeSessions: ObserveSessionsUseCase): dagger.Lazy<ObserveSessionsUseCase> =
+        object : dagger.Lazy<ObserveSessionsUseCase> {
+            override fun get(): ObserveSessionsUseCase = observeSessions
+        }
+
+    @Provides
+    fun provideObserveIfAppUpdateRequiredUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): ObserveIfAppUpdateRequiredUseCase =
+        coreLogic.getGlobalScope().observeIfAppUpdateRequired
+
+    @Provides
+    fun provideObserveIfAppUpdateRequiredUseCaseLazy(
+        observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
+    ): dagger.Lazy<ObserveIfAppUpdateRequiredUseCase> =
+        object : dagger.Lazy<ObserveIfAppUpdateRequiredUseCase> {
+            override fun get(): ObserveIfAppUpdateRequiredUseCase = observeIfAppUpdateRequired
+        }
+
+    @Provides
+    fun provideObserveNewClientsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveNewClientsUseCase =
+        coreLogic.getGlobalScope().observeNewClientsUseCase
+
+    @Provides
+    fun provideObserveNewClientsUseCaseLazy(observeNewClients: ObserveNewClientsUseCase): dagger.Lazy<ObserveNewClientsUseCase> =
+        object : dagger.Lazy<ObserveNewClientsUseCase> {
+            override fun get(): ObserveNewClientsUseCase = observeNewClients
+        }
+
+    @Provides
+    fun provideClearNewClientsForUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ClearNewClientsForUserUseCase =
+        coreLogic.getGlobalScope().clearNewClientsForUser
+
+    @Provides
+    fun provideClearNewClientsForUserUseCaseLazy(
+        clearNewClientsForUser: ClearNewClientsForUserUseCase,
+    ): dagger.Lazy<ClearNewClientsForUserUseCase> =
+        object : dagger.Lazy<ClearNewClientsForUserUseCase> {
+            override fun get(): ClearNewClientsForUserUseCase = clearNewClientsForUser
+        }
+
+    @Provides
+    fun provideDoesValidNomadAccountExistUseCaseLazy(
+        doesValidNomadAccountExist: DoesValidNomadAccountExistUseCase,
+    ): dagger.Lazy<DoesValidNomadAccountExistUseCase> =
+        object : dagger.Lazy<DoesValidNomadAccountExistUseCase> {
+            override fun get(): DoesValidNomadAccountExistUseCase = doesValidNomadAccountExist
+        }
+
+    @Provides
+    fun provideAccountSwitchUseCaseLazy(accountSwitch: AccountSwitchUseCase): dagger.Lazy<AccountSwitchUseCase> =
+        object : dagger.Lazy<AccountSwitchUseCase> {
+            override fun get(): AccountSwitchUseCase = accountSwitch
+        }
+
+    @Provides
+    fun provideServicesManager(entryPoint: WireMetroHiltEntryPoint): ServicesManager =
+        entryPoint.servicesManager()
+
+    @Provides
+    fun provideServicesManagerLazy(servicesManager: ServicesManager): dagger.Lazy<ServicesManager> =
+        object : dagger.Lazy<ServicesManager> {
+            override fun get(): ServicesManager = servicesManager
+        }
+
+    @Provides
+    fun provideWorkManagerLazy(workManager: WorkManager): dagger.Lazy<WorkManager> =
+        object : dagger.Lazy<WorkManager> {
+            override fun get(): WorkManager = workManager
+        }
+
+    @Provides
+    fun provideCurrentScreenManagerLazy(currentScreenManager: CurrentScreenManager): dagger.Lazy<CurrentScreenManager> =
+        object : dagger.Lazy<CurrentScreenManager> {
+            override fun get(): CurrentScreenManager = currentScreenManager
+        }
+
+    @Provides
+    fun provideObserveSyncStateUseCaseProviderFactory(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): ObserveSyncStateUseCaseProvider.Factory =
+        object : ObserveSyncStateUseCaseProvider.Factory {
+            override fun create(userId: UserId): ObserveSyncStateUseCaseProvider =
+                ObserveSyncStateUseCaseProvider(coreLogic, userId)
+        }
+
+    @Provides
+    fun provideObserveScreenshotCensoringConfigUseCaseProviderFactory(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): ObserveScreenshotCensoringConfigUseCaseProvider.Factory =
+        object : ObserveScreenshotCensoringConfigUseCaseProvider.Factory {
+            override fun create(userId: UserId): ObserveScreenshotCensoringConfigUseCaseProvider =
+                ObserveScreenshotCensoringConfigUseCaseProvider(coreLogic, userId)
+        }
+
+    @Provides
+    fun provideObserveIfE2EIRequiredDuringLoginUseCaseProviderFactory(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory =
+        object : ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory {
+            override fun create(userId: UserId): ObserveIfE2EIRequiredDuringLoginUseCaseProvider =
+                ObserveIfE2EIRequiredDuringLoginUseCaseProvider(coreLogic, userId)
+        }
+
+    @Provides
+    fun provideIsProfileQRCodeEnabledUseCaseProviderFactory(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): IsProfileQRCodeEnabledUseCaseProvider.Factory =
+        object : IsProfileQRCodeEnabledUseCaseProvider.Factory {
+            override fun create(userId: UserId): IsProfileQRCodeEnabledUseCaseProvider =
+                IsProfileQRCodeEnabledUseCaseProvider(coreLogic, userId)
+        }
+
+    @Provides
+    fun provideObserveSelfUserUseCaseProviderFactory(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): ObserveSelfUserUseCaseProvider.Factory =
+        object : ObserveSelfUserUseCaseProvider.Factory {
+            override fun create(userId: UserId): ObserveSelfUserUseCaseProvider =
+                ObserveSelfUserUseCaseProvider(coreLogic, userId)
+        }
+
+    @Provides
+    fun provideDeepLinkProcessor(
+        accountSwitch: AccountSwitchUseCase,
+        currentSession: CurrentSessionUseCase,
+        @KaliumCoreLogic coreLogic: CoreLogic,
+    ): DeepLinkProcessor =
+        DeepLinkProcessor(accountSwitch, currentSession, coreLogic)
+
+    @Provides
+    fun provideDeepLinkProcessorLazy(deepLinkProcessor: DeepLinkProcessor): dagger.Lazy<DeepLinkProcessor> =
+        object : dagger.Lazy<DeepLinkProcessor> {
+            override fun get(): DeepLinkProcessor = deepLinkProcessor
+        }
+
+    @Provides
+    fun provideIntentsProcessor(): IntentsProcessor =
+        IntentsProcessor(NomadIntentSignatureValidator())
+
+    @Provides
+    fun provideIntentsProcessorLazy(intentsProcessor: IntentsProcessor): dagger.Lazy<IntentsProcessor> =
+        object : dagger.Lazy<IntentsProcessor> {
+            override fun get(): IntentsProcessor = intentsProcessor
+        }
+
+    @Provides
+    fun provideWireActivityIntentGateway(
+        deepLinkProcessor: dagger.Lazy<DeepLinkProcessor>,
+        intentsProcessor: dagger.Lazy<IntentsProcessor>,
+    ): WireActivityIntentGateway =
+        AndroidWireActivityIntentGateway(deepLinkProcessor, intentsProcessor)
+
+    @Provides
+    fun provideWireActivityIntentGatewayLazy(
+        intentGateway: WireActivityIntentGateway,
+    ): dagger.Lazy<WireActivityIntentGateway> =
+        object : dagger.Lazy<WireActivityIntentGateway> {
+            override fun get(): WireActivityIntentGateway = intentGateway
+        }
+
+    @Provides
+    fun provideMonitorSyncWorkUseCase(
+        @ApplicationContext context: Context,
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        observeSessions: ObserveSessionsUseCase,
+    ): MonitorSyncWorkUseCase =
+        MonitorSyncWorkUseCase(context, coreLogic, observeSessions)
+
+    @Provides
+    fun provideIsAnalyticsAvailableUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        analyticsConfiguration: AnalyticsConfiguration,
+        userDataStoreProvider: UserDataStoreProvider,
+    ): IsAnalyticsAvailableUseCase =
+        IsAnalyticsAvailableUseCase(coreLogic, analyticsConfiguration, userDataStoreProvider)
+
+    @Provides
+    fun provideIsAnalyticsAvailableUseCaseLazy(
+        isAnalyticsAvailableUseCase: IsAnalyticsAvailableUseCase,
+    ): dagger.Lazy<IsAnalyticsAvailableUseCase> =
+        object : dagger.Lazy<IsAnalyticsAvailableUseCase> {
+            override fun get(): IsAnalyticsAvailableUseCase = isAnalyticsAvailableUseCase
+        }
+
+    @Provides
     fun provideSelfServerConfigUseCaseLazy(selfServerConfig: SelfServerConfigUseCase): dagger.Lazy<SelfServerConfigUseCase> =
         object : dagger.Lazy<SelfServerConfigUseCase> {
             override fun get(): SelfServerConfigUseCase = selfServerConfig
@@ -987,6 +1232,10 @@ interface WireMetroGraph : CellViewModelGraph {
     @Provides
     fun provideGetAvatarAssetUseCase(userScope: UserScope): GetAvatarAssetUseCase =
         userScope.getPublicAsset
+
+    @Provides
+    fun provideDeleteAssetUseCase(userScope: UserScope): DeleteAssetUseCase =
+        userScope.deleteAsset
 
     @Provides
     fun provideUploadUserAvatarUseCase(userScope: UserScope): UploadUserAvatarUseCase =
@@ -2847,6 +3096,22 @@ interface WireMetroGraph : CellViewModelGraph {
         coreLogic.networkStateObserver
 
     @Provides
+    fun provideWireSessionImageLoader(
+        @ApplicationContext context: Context,
+        getAvatarAsset: GetAvatarAssetUseCase,
+        deleteAsset: DeleteAssetUseCase,
+        getMessageAsset: GetMessageAssetUseCase,
+        networkStateObserver: NetworkStateObserver,
+    ): WireSessionImageLoader =
+        WireSessionImageLoader.Factory(
+            context = context,
+            getAvatarAsset = getAvatarAsset,
+            deleteAsset = deleteAsset,
+            networkStateObserver = networkStateObserver,
+            getPrivateAsset = getMessageAsset,
+        ).newImageLoader()
+
+    @Provides
     fun provideCallRinger(@ApplicationContext context: Context): CallRinger =
         CallRinger(context)
 
@@ -2932,6 +3197,7 @@ fun createWireMetroGraph(context: Context): WireMetroGraph =
 
 @EntryPoint
 @InstallIn(SingletonComponent::class)
+@Suppress("TooManyFunctions")
 interface WireMetroHiltEntryPoint {
     @KaliumCoreLogic
     fun coreLogic(): CoreLogic
@@ -2957,4 +3223,6 @@ interface WireMetroHiltEntryPoint {
     fun logFileWriter(): LogFileWriter
 
     fun accountSwitchUseCase(): AccountSwitchUseCase
+
+    fun servicesManager(): ServicesManager
 }

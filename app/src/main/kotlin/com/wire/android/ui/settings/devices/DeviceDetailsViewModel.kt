@@ -51,18 +51,13 @@ import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel(assistedFactory = DeviceDetailsViewModel.Factory::class)
-class DeviceDetailsViewModel @AssistedInject constructor(
-    @Assisted private val deviceDetailsNavArgs: DeviceDetailsNavArgs,
+class DeviceDetailsViewModel(
+    private val deviceDetailsNavArgs: DeviceDetailsNavArgs,
     @CurrentAccount
     private val currentUserId: UserId,
     private val deleteClient: DeleteClientUseCase,
@@ -94,11 +89,6 @@ class DeviceDetailsViewModel @AssistedInject constructor(
         getE2eiCertificate()
         observePasswordTextChanges()
         getIsE2EIEnabled()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: DeviceDetailsNavArgs): DeviceDetailsViewModel
     }
 
     private fun getIsE2EIEnabled() {

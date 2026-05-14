@@ -25,7 +25,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.model.AnalyticsEvent.RegistrationPersonalAccount
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -35,23 +34,18 @@ import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel(assistedFactory = CreateAccountDataDetailViewModel.Factory::class)
-class CreateAccountDataDetailViewModel @AssistedInject constructor(
-    @Assisted val createAccountNavArgs: CreateAccountDataNavArgs,
+class CreateAccountDataDetailViewModel(
+    val createAccountNavArgs: CreateAccountDataNavArgs,
     private val validatePassword: ValidatePasswordUseCase,
     private val validateEmail: ValidateEmailUseCase,
     private val globalDataStore: GlobalDataStore,
     private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    private val coreLogic: CoreLogic,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
 
@@ -83,11 +77,6 @@ class CreateAccountDataDetailViewModel @AssistedInject constructor(
                 )
             }
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: CreateAccountDataNavArgs): CreateAccountDataDetailViewModel
     }
 
     private fun onEmailContinue() {

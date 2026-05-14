@@ -29,12 +29,9 @@ import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamResult
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class TeamMigrationViewModel @Inject constructor(
+class TeamMigrationViewModel(
     private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
     private val migrateFromPersonalToTeam: MigrateFromPersonalToTeamUseCase,
     private val observeSelfUser: ObserveSelfUserUseCase,

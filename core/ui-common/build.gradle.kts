@@ -14,6 +14,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:di"))
+
     implementation("com.wire.kalium:kalium-logic")
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)

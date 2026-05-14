@@ -21,15 +21,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = CreateAccountSelectorViewModel.Factory::class)
-class CreateAccountSelectorViewModel @AssistedInject constructor(
-    @Assisted navArgs: CreateAccountSelectorNavArgs,
+class CreateAccountSelectorViewModel(
+    navArgs: CreateAccountSelectorNavArgs,
     private val globalDataStore: GlobalDataStore,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
@@ -39,10 +34,5 @@ class CreateAccountSelectorViewModel @AssistedInject constructor(
 
     fun onPageLoaded() = viewModelScope.launch {
         globalDataStore.setAnonymousRegistrationEnabled(false)
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: CreateAccountSelectorNavArgs): CreateAccountSelectorViewModel
     }
 }

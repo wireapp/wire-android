@@ -49,18 +49,15 @@ import com.wire.kalium.logic.feature.backup.RestoreMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.VerifyBackupResult
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
 import com.wire.kalium.util.DateTimeUtil
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class BackupAndRestoreViewModel @Inject constructor(
+class BackupAndRestoreViewModel(
     private val importBackup: RestoreBackupUseCase,
     private val importMpBackup: RestoreMPBackupUseCase,
     private val createBackupFile: CreateBackupUseCase,

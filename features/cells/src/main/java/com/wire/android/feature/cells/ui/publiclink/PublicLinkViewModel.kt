@@ -28,18 +28,13 @@ import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = PublicLinkViewModel.Factory::class)
-class PublicLinkViewModel @AssistedInject constructor(
-    @Assisted private val navArgs: PublicLinkNavArgs,
+class PublicLinkViewModel(
+    private val navArgs: PublicLinkNavArgs,
     private val createPublicLink: CreatePublicLinkUseCase,
     private val getPublicLinkUseCase: GetPublicLinkUseCase,
     private val deletePublicLinkUseCase: DeletePublicLinkUseCase,
@@ -224,11 +219,6 @@ class PublicLinkViewModel @AssistedInject constructor(
             PublicLinkError.Create -> createPublicLink()
             PublicLinkError.Remove -> onConfirmRemoval(true)
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(navArgs: PublicLinkNavArgs): PublicLinkViewModel
     }
 }
 

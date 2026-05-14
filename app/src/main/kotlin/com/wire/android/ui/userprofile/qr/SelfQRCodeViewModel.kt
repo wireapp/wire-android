@@ -27,15 +27,10 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = SelfQRCodeViewModel.Factory::class)
-class SelfQRCodeViewModel @AssistedInject constructor(
-    @Assisted private val selfQrCodeNavArgs: SelfQrCodeNavArgs,
+class SelfQRCodeViewModel(
+    private val selfQrCodeNavArgs: SelfQrCodeNavArgs,
     @CurrentAccount private val selfUserId: UserId,
     private val selfServerLinks: SelfServerConfigUseCase,
     private val qrAssetRepository: SelfQRCodeAssetRepository,
@@ -54,11 +49,6 @@ class SelfQRCodeViewModel @AssistedInject constructor(
         viewModelScope.launch {
             getServerLinks()
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: SelfQrCodeNavArgs): SelfQRCodeViewModel
     }
 
     suspend fun shareQRAsset(qrCodeImage: SelfQRCodeImage): String =

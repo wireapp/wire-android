@@ -31,23 +31,18 @@ import com.wire.kalium.logic.feature.debug.DebugFeedConversationUseCase
 import com.wire.kalium.logic.feature.debug.DebugFeedResult
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCResult
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = DebugConversationViewModel.Factory::class)
-class DebugConversationViewModel @AssistedInject constructor(
+class DebugConversationViewModel(
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,
     private val fetchConversation: FetchConversationUseCase,
     private val feedConversation: DebugFeedConversationUseCase,
     private val getConversationEpochFromCC: GetConversationEpochFromCCUseCase,
-    @Assisted args: DebugConversationScreenNavArgs,
+    args: DebugConversationScreenNavArgs,
 ) : ActionsViewModel<DebugConversationScreenAction>() {
 
     val conversationId = args.conversationId
@@ -58,11 +53,6 @@ class DebugConversationViewModel @AssistedInject constructor(
 
     init {
         loadConversationDetails()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: DebugConversationScreenNavArgs): DebugConversationViewModel
     }
 
     private fun loadConversationDetails() = viewModelScope.launch {

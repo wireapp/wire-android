@@ -40,10 +40,6 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filterIsInstance
@@ -53,9 +49,8 @@ import kotlinx.coroutines.withContext
 import okio.Path
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel(assistedFactory = MediaGalleryViewModel.Factory::class)
-class MediaGalleryViewModel @AssistedInject constructor(
-    @Assisted private val mediaGalleryNavArgs: MediaGalleryNavArgs,
+class MediaGalleryViewModel(
+    private val mediaGalleryNavArgs: MediaGalleryNavArgs,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
@@ -81,11 +76,6 @@ class MediaGalleryViewModel @AssistedInject constructor(
     init {
         getConversationTitle()
         setupImageAsset()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: MediaGalleryNavArgs): MediaGalleryViewModel
     }
 
     private fun setupImageAsset() = viewModelScope.launch {

@@ -32,15 +32,10 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = MessageDraftViewModel.Factory::class)
-class MessageDraftViewModel @AssistedInject constructor(
-    @Assisted private val conversationNavArgs: ConversationNavArgs,
+class MessageDraftViewModel(
+    private val conversationNavArgs: ConversationNavArgs,
     private val getMessageDraft: GetMessageDraftUseCase,
     private val getQuotedMessage: GetQuoteMessageForConversationUseCase,
     private val saveMessageDraft: SaveMessageDraftUseCase,
@@ -53,11 +48,6 @@ class MessageDraftViewModel @AssistedInject constructor(
 
     init {
         loadMessageDraft()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(conversationNavArgs: ConversationNavArgs): MessageDraftViewModel
     }
 
     fun clearDraft() {

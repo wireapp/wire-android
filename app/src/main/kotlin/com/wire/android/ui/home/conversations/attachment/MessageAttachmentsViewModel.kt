@@ -41,10 +41,6 @@ import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.id.QualifiedID
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,9 +50,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel(assistedFactory = MessageAttachmentsViewModel.Factory::class)
-class MessageAttachmentsViewModel @AssistedInject constructor(
-    @Assisted conversationNavArgs: ConversationNavArgs,
+class MessageAttachmentsViewModel(
+    conversationNavArgs: ConversationNavArgs,
     private val assetImporter: MessageAttachmentAssetImporter,
     private val observeAttachments: ObserveAttachmentDraftsUseCase,
     private val addAttachment: AddAttachmentDraftUseCase,
@@ -276,11 +271,6 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
                     }
             }
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: ConversationNavArgs): MessageAttachmentsViewModel
     }
 }
 

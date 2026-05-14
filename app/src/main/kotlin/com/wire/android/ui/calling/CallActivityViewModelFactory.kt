@@ -21,7 +21,9 @@ import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import dev.zacsweers.metro.Inject
 
+@Inject
 class CallActivityViewModelFactory(
     private val dispatchers: DispatcherProvider,
     private val currentSession: CurrentSessionUseCase,

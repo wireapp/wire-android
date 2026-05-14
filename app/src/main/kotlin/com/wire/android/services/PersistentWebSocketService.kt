@@ -31,6 +31,7 @@ import androidx.core.app.ServiceCompat
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.metro.createWireMetroGraph
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NAME
@@ -41,7 +42,6 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.awaitCancellation
@@ -49,26 +49,20 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class PersistentWebSocketService : Service() {
 
-    @Inject
     @KaliumCoreLogic
     lateinit var coreLogic: CoreLogic
 
-    @Inject
     lateinit var dispatcherProvider: DispatcherProvider
 
     private val scope by lazy {
         CoroutineScope(SupervisorJob() + dispatcherProvider.io())
     }
 
-    @Inject
     lateinit var notificationManager: WireNotificationManager
 
-    @Inject
     lateinit var notificationChannelsManager: NotificationChannelsManager
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -77,8 +71,17 @@ class PersistentWebSocketService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        injectDependencies()
         isServiceStarted = true
         generateForegroundNotification()
+    }
+
+    private fun injectDependencies() {
+        val dependencies = createWireMetroGraph(this).persistentWebSocketServiceDependencies
+        coreLogic = dependencies.coreLogic
+        dispatcherProvider = dependencies.dispatcherProvider
+        notificationManager = dependencies.notificationManager
+        notificationChannelsManager = dependencies.notificationChannelsManager
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -178,4 +181,11 @@ class PersistentWebSocketService : Service() {
 
         var isServiceStarted = false
     }
+
+    data class Dependencies(
+        @KaliumCoreLogic val coreLogic: CoreLogic,
+        val dispatcherProvider: DispatcherProvider,
+        val notificationManager: WireNotificationManager,
+        val notificationChannelsManager: NotificationChannelsManager
+    )
 }

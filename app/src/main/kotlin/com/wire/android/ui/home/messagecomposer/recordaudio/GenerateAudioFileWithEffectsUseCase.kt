@@ -22,11 +22,12 @@ import com.waz.audioeffect.AudioEffect
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import kotlinx.coroutines.withContext
+import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GenerateAudioFileWithEffectsUseCase @Inject constructor(
+class GenerateAudioFileWithEffectsUseCase @Inject @MetroInject constructor(
     private val dispatchers: DispatcherProvider,
 ) {
     /**

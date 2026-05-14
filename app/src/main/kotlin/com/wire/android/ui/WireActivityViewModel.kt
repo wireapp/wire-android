@@ -89,7 +89,6 @@ import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotC
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -109,14 +108,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.InputStreamReader
-import javax.inject.Inject
 
 private const val AUTOMATED_NOMAD_COOKIE_LABEL = "shared-device"
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel
-class WireActivityViewModel @Inject constructor(
+class WireActivityViewModel(
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     private val dispatchers: DispatcherProvider,
     currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,

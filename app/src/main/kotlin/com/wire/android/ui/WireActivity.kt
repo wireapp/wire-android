@@ -24,7 +24,6 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
@@ -166,11 +165,15 @@ class WireActivity : BaseActivity() {
         createWireMetroGraph(this)
     }
 
-    private val viewModel: WireActivityViewModel by viewModels()
+    private val viewModel: WireActivityViewModel by metroActivityViewModel {
+        wireActivityViewModelFactory.create()
+    }
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by metroActivityViewModel {
         featureFlagNotificationViewModelFactory.create()
     }
-    private val callFeedbackViewModel: CallFeedbackViewModel by viewModels()
+    private val callFeedbackViewModel: CallFeedbackViewModel by metroActivityViewModel {
+        callFeedbackViewModelFactory.create()
+    }
 
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by metroActivityViewModel {
         commonTopAppBarViewModelFactory.create(

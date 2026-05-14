@@ -34,10 +34,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import java.io.File
+import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 
 @ViewModelScoped
-class RecordAudioMessagePlayer @Inject constructor(
+class RecordAudioMessagePlayer @Inject @MetroInject constructor(
     private val context: Context,
     private val audioMediaPlayer: MediaPlayer,
     private val audioFocusHelper: AudioFocusHelper,

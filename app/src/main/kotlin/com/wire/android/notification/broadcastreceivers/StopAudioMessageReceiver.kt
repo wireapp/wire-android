@@ -22,27 +22,15 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
-import com.wire.android.di.ApplicationScope
-import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class StopAudioMessageReceiver : BroadcastReceiver() {
-
-    @Inject
-    lateinit var audioMessagePlayer: ConversationAudioMessagePlayer
-
-    @Inject
-    @ApplicationScope
-    lateinit var coroutineScope: CoroutineScope
 
     override fun onReceive(context: Context, intent: Intent) {
         appLogger.i("StopAudioMessageReceiver: onReceive")
-        coroutineScope.launch {
-            audioMessagePlayer.forceToStopCurrentAudioMessage()
+        val dependencies = context.broadcastReceiverDependencies
+        dependencies.coroutineScope().launch {
+            dependencies.conversationAudioMessagePlayer().forceToStopCurrentAudioMessage()
         }
     }
 

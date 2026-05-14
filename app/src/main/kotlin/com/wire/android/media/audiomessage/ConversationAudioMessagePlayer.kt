@@ -58,13 +58,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 @Suppress("TooManyFunctions")
 class ConversationAudioMessagePlayer
-@Inject constructor(
+@Inject
+@MetroInject
+constructor(
     @ApplicationContext private val context: Context,
     private val audioMediaPlayer: MediaPlayer,
     private val servicesManager: Lazy<ServicesManager>,

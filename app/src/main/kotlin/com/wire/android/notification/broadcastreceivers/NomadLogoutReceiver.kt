@@ -20,49 +20,26 @@ package com.wire.android.notification.broadcastreceivers
 import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
-import com.wire.android.config.NomadProfilesFeatureConfig
-import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
-import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.lifecycle.AppBackgroundManager
-import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class NomadLogoutReceiver : CoroutineReceiver() {
 
-    @Inject
-    @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
-
-    @Inject
-    lateinit var currentSession: CurrentSessionUseCase
-
-    @Inject
-    lateinit var accountSwitch: AccountSwitchUseCase
-
-    @Inject
-    lateinit var switchAccountObserver: SwitchAccountObserver
-
-    @Inject
-    lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
-
     public override suspend fun receive(context: Context, intent: Intent) {
+        val dependencies = context.broadcastReceiverDependencies
+        val coreLogic = dependencies.coreLogic()
         when {
             intent.action != ACTION_LOGOUT -> {
                 appLogger.i("$TAG not a logout intent is passed ignore")
             }
 
-            !nomadProfilesFeatureConfig.isEnabled() -> {
+            !dependencies.nomadProfilesFeatureConfig().isEnabled() -> {
                 appLogger.i("$TAG nomadProfilesFeatureConfig is not enabled ignoring")
             }
 
@@ -75,7 +52,7 @@ class NomadLogoutReceiver : CoroutineReceiver() {
 
                 @Suppress("TooGenericExceptionCaught")
                 try {
-                    performLogout()
+                    performLogout(dependencies)
                     CoroutineScope(Dispatchers.Default).launch {
                         AppBackgroundManager.moveAppToBackground()
                     }
@@ -88,14 +65,16 @@ class NomadLogoutReceiver : CoroutineReceiver() {
         }
     }
 
-    private suspend fun performLogout() {
-        when (val session = currentSession()) {
+    private suspend fun performLogout(dependencies: BroadcastReceiverDependencies) {
+        val coreLogic = dependencies.coreLogic()
+        when (val session = dependencies.currentSession()()) {
             is CurrentSessionResult.Success -> {
                 val userId = session.accountInfo.userId
                 appLogger.i("$TAG Logging out user: ${userId.toLogString()}")
                 coreLogic.getSessionScope(userId).logout(LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
                 coreLogic.getGlobalScope().deleteSession(userId)
-                accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount).callAction(switchAccountObserver)
+                dependencies.accountSwitch()(SwitchAccountParam.TryToSwitchToNextAccount)
+                    .callAction(dependencies.switchAccountObserver())
             }
 
             is CurrentSessionResult.Failure.SessionNotFound ->

@@ -31,9 +31,10 @@ import okio.Path
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 
-class FileHelper @Inject constructor(
+class FileHelper @Inject @MetroInject constructor(
     @ApplicationContext private val context: Context
 ) {
 

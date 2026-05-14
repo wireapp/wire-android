@@ -23,10 +23,12 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import androidx.lifecycle.SavedStateHandle
+import androidx.core.app.NotificationManagerCompat
 import androidx.work.WorkManager
 import com.wire.android.BuildConfig
 import com.wire.android.analytics.FinalizeRegistrationAnalyticsMetadataUseCase
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
+import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
@@ -76,10 +78,19 @@ import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.notification.CallNotificationManager
+import com.wire.android.notification.NotificationChannelsManager
+import com.wire.android.navigation.LoginTypeSelector
+import com.wire.android.services.CallService
+import com.wire.android.services.CallServiceManager
+import com.wire.android.services.PersistentWebSocketService
+import com.wire.android.services.PlayingAudioMessageService
 import com.wire.android.services.ServicesManager
 import com.wire.android.sync.MonitorSyncWorkUseCase
 import com.wire.android.ui.AndroidWireActivityIntentGateway
+import com.wire.android.ui.CallFeedbackViewModelFactory
+import com.wire.android.ui.WireActivityViewModelFactory
 import com.wire.android.ui.WireActivityIntentGateway
+import com.wire.android.ui.calling.CallActivityViewModelFactory
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelFactory
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModelFactory
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModelFactory
@@ -758,11 +769,17 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     val featureFlagNotificationViewModelFactory: FeatureFlagNotificationViewModelFactory
     val legalHoldRequestedViewModelFactory: LegalHoldRequestedViewModelFactory
     val legalHoldDeactivatedViewModelFactory: LegalHoldDeactivatedViewModelFactory
+    val wireActivityViewModelFactory: WireActivityViewModelFactory
+    val callFeedbackViewModelFactory: CallFeedbackViewModelFactory
+    val callActivityViewModelFactory: CallActivityViewModelFactory
     override val meetingListViewModelFactory: MeetingListViewModelFactory
     override val meetingOptionsMenuViewModelFactory: MeetingOptionsMenuViewModelFactory
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory
 
     val dispatcherProvider: DispatcherProvider
+    val persistentWebSocketServiceDependencies: PersistentWebSocketService.Dependencies
+    val callServiceDependencies: CallService.Dependencies
+    val playingAudioMessageServiceDependencies: PlayingAudioMessageService.Dependencies
 
     @get:CurrentAccount
     val currentAccount: UserId
@@ -891,6 +908,17 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         entryPoint.wireNotificationManager()
 
     @Provides
+    fun provideNotificationManagerCompat(@ApplicationContext context: Context): NotificationManagerCompat =
+        NotificationManagerCompat.from(context)
+
+    @Provides
+    fun provideNotificationChannelsManager(
+        @ApplicationContext context: Context,
+        notificationManagerCompat: NotificationManagerCompat,
+    ): NotificationChannelsManager =
+        NotificationChannelsManager(context, notificationManagerCompat)
+
+    @Provides
     fun provideLocationPickerHelperFlavor(entryPoint: WireMetroHiltEntryPoint): LocationPickerHelperFlavor =
         entryPoint.locationPickerHelperFlavor()
 
@@ -905,6 +933,27 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     @Provides
     fun provideAnonymousAnalyticsManager(): AnonymousAnalyticsManager =
         AnonymousAnalyticsManagerImpl
+
+    @Provides
+    fun provideAnonymousAnalyticsManagerLazy(
+        anonymousAnalyticsManager: AnonymousAnalyticsManager,
+    ): dagger.Lazy<AnonymousAnalyticsManager> =
+        object : dagger.Lazy<AnonymousAnalyticsManager> {
+            override fun get(): AnonymousAnalyticsManager = anonymousAnalyticsManager
+        }
+
+    @Provides
+    fun provideNomadProfilesFeatureConfig(): NomadProfilesFeatureConfig =
+        NomadProfilesFeatureConfig()
+
+    @Provides
+    fun provideLoginTypeSelector(
+        @KaliumCoreLogic coreLogic: dagger.Lazy<CoreLogic>,
+    ): LoginTypeSelector =
+        LoginTypeSelector(
+            coreLogic = coreLogic,
+            useNewLoginForDefaultBackend = BuildConfig.USE_NEW_LOGIN_FOR_DEFAULT_BACKEND,
+        )
 
     @Provides
     fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic): CurrentSessionFlowUseCase =
@@ -3141,6 +3190,46 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     @Provides
     fun provideCallNotificationManager(entryPoint: WireMetroHiltEntryPoint): CallNotificationManager =
         entryPoint.callNotificationManager()
+
+    @Provides
+    fun provideCallServiceManager(@KaliumCoreLogic coreLogic: CoreLogic): CallServiceManager =
+        CallServiceManager(coreLogic)
+
+    @Provides
+    fun providePersistentWebSocketServiceDependencies(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        dispatcherProvider: DispatcherProvider,
+        notificationManager: WireNotificationManager,
+        notificationChannelsManager: NotificationChannelsManager,
+    ): PersistentWebSocketService.Dependencies =
+        PersistentWebSocketService.Dependencies(
+            coreLogic = coreLogic,
+            dispatcherProvider = dispatcherProvider,
+            notificationManager = notificationManager,
+            notificationChannelsManager = notificationChannelsManager,
+        )
+
+    @Provides
+    fun provideCallServiceDependencies(
+        lifecycleManager: CallServiceManager,
+        callNotificationManager: CallNotificationManager,
+        dispatcherProvider: DispatcherProvider,
+    ): CallService.Dependencies =
+        CallService.Dependencies(
+            lifecycleManager = lifecycleManager,
+            callNotificationManager = callNotificationManager,
+            dispatcherProvider = dispatcherProvider,
+        )
+
+    @Provides
+    fun providePlayingAudioMessageServiceDependencies(
+        dispatcherProvider: DispatcherProvider,
+        audioMessagePlayer: ConversationAudioMessagePlayer,
+    ): PlayingAudioMessageService.Dependencies =
+        PlayingAudioMessageService.Dependencies(
+            dispatcherProvider = dispatcherProvider,
+            audioMessagePlayer = audioMessagePlayer,
+        )
 
     @Provides
     fun provideNetworkSettingsDefaultsProvider(

@@ -20,7 +20,6 @@ package com.wire.android.sync
 import android.content.Context
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ForegroundInfo
@@ -34,18 +33,15 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.work.Work
 import com.wire.kalium.work.WorkId
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import com.wire.android.feature.notification.R as NR
 
-@HiltWorker
-class InitialSyncWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted parameters: WorkerParameters,
+class InitialSyncWorker(
+    context: Context,
+    parameters: WorkerParameters,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val notificationChannelsManager: NotificationChannelsManager,
 ) : CoroutineWorker(context, parameters) {

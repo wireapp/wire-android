@@ -30,11 +30,12 @@ import androidx.core.app.NotificationManagerCompat
 import com.wire.android.media.PingRinger
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
+import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class NotificationChannelsManager @Inject constructor(
+class NotificationChannelsManager @Inject @MetroInject constructor(
     private val context: Context,
     private val notificationManagerCompat: NotificationManagerCompat
 ) {

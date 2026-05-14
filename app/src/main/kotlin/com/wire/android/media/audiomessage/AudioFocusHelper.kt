@@ -20,9 +20,10 @@ package com.wire.android.media.audiomessage
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.Build
+import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 
-class AudioFocusHelper @Inject constructor(private val audioManager: AudioManager) {
+class AudioFocusHelper @Inject @MetroInject constructor(private val audioManager: AudioManager) {
 
     private var listener: PlayPauseListener? = null
 

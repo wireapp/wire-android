@@ -21,10 +21,10 @@ import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -40,9 +40,7 @@ fun ChannelAccessOnUpdateScreen(
     resultNavigator: ResultBackNavigator<UpdateChannelAccessArgs>,
     args: UpdateChannelAccessArgs,
     updateChannelAccessViewModel: UpdateChannelAccessViewModel =
-        hiltViewModel<UpdateChannelAccessViewModel, UpdateChannelAccessViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        )
+        metroViewModel { updateChannelAccessViewModelFactory.create(args) }
 ) {
 
     fun navigateBack() {

@@ -40,7 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
@@ -70,9 +70,7 @@ fun EditSelfDeletingMessagesScreen(
     navigator: Navigator,
     args: EditSelfDeletingMessagesNavArgs,
     editSelfDeletingMessagesViewModel: EditSelfDeletingMessagesViewModel =
-        hiltViewModel<EditSelfDeletingMessagesViewModel, EditSelfDeletingMessagesViewModel.Factory>(
-            creationCallback = { factory -> factory.create(args) }
-        ),
+        metroViewModel { editSelfDeletingMessagesViewModelFactory.create(args) },
 ) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current

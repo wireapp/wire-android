@@ -30,18 +30,13 @@ import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
 import com.wire.kalium.logic.util.RandomPassword
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = CreatePasswordGuestLinkViewModel.Factory::class)
-class CreatePasswordGuestLinkViewModel @AssistedInject constructor(
-    @Assisted private val createPasswordGuestLinkNavArgs: CreatePasswordGuestLinkNavArgs,
+class CreatePasswordGuestLinkViewModel(
+    createPasswordGuestLinkNavArgs: CreatePasswordGuestLinkNavArgs,
     private val generateGuestRoomLink: GenerateGuestRoomLinkUseCase,
     private val validatePassword: ValidatePasswordUseCase,
     private val generatePassword: RandomPassword,
@@ -51,11 +46,6 @@ class CreatePasswordGuestLinkViewModel @AssistedInject constructor(
 
     var state by mutableStateOf(CreatePasswordGuestLinkState())
         @VisibleForTesting set
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: CreatePasswordGuestLinkNavArgs): CreatePasswordGuestLinkViewModel
-    }
 
     suspend fun observePasswordValidation() {
         combine(

@@ -28,11 +28,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -60,10 +60,9 @@ import com.wire.android.ui.common.R as commonR
 fun SearchConversationMessagesScreen(
     navigator: Navigator,
     navArgs: SearchConversationMessagesNavArgs,
-    searchConversationMessagesViewModel: SearchConversationMessagesViewModel =
-        hiltViewModel<SearchConversationMessagesViewModel, SearchConversationMessagesViewModel.Factory>(
-            creationCallback = { factory -> factory.create(navArgs) }
-        )
+    searchConversationMessagesViewModel: SearchConversationMessagesViewModel = metroViewModel {
+        searchConversationMessagesViewModelFactory.create(navArgs)
+    }
 ) {
     SearchConversationMessagesResultContent(
         isCellsConversation = searchConversationMessagesViewModel.isCellsConversation,

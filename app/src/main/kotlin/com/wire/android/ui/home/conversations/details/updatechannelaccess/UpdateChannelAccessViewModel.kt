@@ -29,15 +29,10 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = UpdateChannelAccessViewModel.Factory::class)
-class UpdateChannelAccessViewModel @AssistedInject constructor(
-    @Assisted private val channelAccessNavArgs: UpdateChannelAccessArgs,
+class UpdateChannelAccessViewModel(
+    private val channelAccessNavArgs: UpdateChannelAccessArgs,
     val updateChannelAddPermission: UpdateChannelAddPermissionUseCase,
     private val qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
@@ -49,11 +44,6 @@ class UpdateChannelAccessViewModel @AssistedInject constructor(
         private set
 
     val conversationId: String = channelAccessNavArgs.conversationId
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: UpdateChannelAccessArgs): UpdateChannelAccessViewModel
-    }
 
     fun updateChannelAddPermission(newPermission: ChannelAddPermissionType) {
         viewModelScope.launch {

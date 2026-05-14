@@ -37,10 +37,6 @@ import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConv
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -51,9 +47,8 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@HiltViewModel(assistedFactory = UpdateAppsAccessViewModel.Factory::class)
-class UpdateAppsAccessViewModel @AssistedInject constructor(
-    @Assisted private val updateAppsAccessNavArgs: UpdateAppsAccessNavArgs,
+class UpdateAppsAccessViewModel(
+    private val updateAppsAccessNavArgs: UpdateAppsAccessNavArgs,
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
@@ -77,11 +72,6 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
 
     init {
         observeConversationDetails()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: UpdateAppsAccessNavArgs): UpdateAppsAccessViewModel
     }
 
     @Suppress("DestructuringDeclarationWithTooManyEntries")

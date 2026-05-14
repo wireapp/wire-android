@@ -35,20 +35,15 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = EditSelfDeletingMessagesViewModel.Factory::class)
 @Suppress("LongParameterList", "TooManyFunctions")
-class EditSelfDeletingMessagesViewModel @AssistedInject constructor(
-    @Assisted private val editSelfDeletingMessagesNavArgs: EditSelfDeletingMessagesNavArgs,
+class EditSelfDeletingMessagesViewModel(
+    private val editSelfDeletingMessagesNavArgs: EditSelfDeletingMessagesNavArgs,
     private val dispatcher: DispatcherProvider,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
@@ -65,11 +60,6 @@ class EditSelfDeletingMessagesViewModel @AssistedInject constructor(
 
     init {
         observeSelfDeletionTimerSettingsForConversation()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: EditSelfDeletingMessagesNavArgs): EditSelfDeletingMessagesViewModel
     }
 
     private fun observeSelfDeletionTimerSettingsForConversation() {

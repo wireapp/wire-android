@@ -45,10 +45,6 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomL
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -61,10 +57,9 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-@HiltViewModel(assistedFactory = EditGuestAccessViewModel.Factory::class)
 @Suppress("LongParameterList", "TooManyFunctions")
-class EditGuestAccessViewModel @AssistedInject constructor(
-    @Assisted private val editGuestAccessNavArgs: EditGuestAccessNavArgs,
+class EditGuestAccessViewModel(
+    private val editGuestAccessNavArgs: EditGuestAccessNavArgs,
     private val dispatcher: DispatcherProvider,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -95,11 +90,6 @@ class EditGuestAccessViewModel @AssistedInject constructor(
         startObservingGuestRoomLink()
         observeGuestRoomLinkFeature()
         checkIfUserCanCreatePasswordProtectedLinks()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: EditGuestAccessNavArgs): EditGuestAccessViewModel
     }
 
     private val syncCodeMutex = Mutex()

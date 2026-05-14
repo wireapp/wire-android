@@ -25,10 +25,11 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.wire.android.AppJsonStyledLogger
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.kalium.logger.KaliumLogLevel
+import dev.zacsweers.metro.Inject as MetroInject
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class LocationPickerHelperFlavor @Inject constructor(
+class LocationPickerHelperFlavor @Inject @MetroInject constructor(
     private val context: Context,
     private val geocoderHelper: GeocoderHelper,
     private val locationPickerHelper: LocationPickerHelper,

@@ -18,6 +18,7 @@
 package com.wire.android.di.metro
 
 import android.content.Context
+import android.location.Geocoder
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -120,6 +121,7 @@ import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModelFactory
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModelFactory
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModelFactory
 import com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModelFactory
+import com.wire.android.ui.home.appLock.CurrentTimestampProvider
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.appLock.set.SetLockScreenViewModelFactory
 import com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModelFactory
@@ -181,7 +183,7 @@ import com.wire.android.ui.home.drawer.HomeDrawerViewModelFactory
 import com.wire.android.ui.home.newconversation.NewConversationViewModelFactory
 import com.wire.android.ui.home.messagecomposer.attachments.IsFileSharingEnabledViewModelFactory
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelFactory
-import com.wire.android.ui.home.messagecomposer.location.LocationPickerHelperFlavor
+import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameters
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModelFactory
 import com.wire.android.ui.home.messagecomposer.recordaudio.AndroidRecordAudioFileGateway
 import com.wire.android.ui.home.messagecomposer.recordaudio.AudioMediaRecorder
@@ -909,6 +911,18 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         LoginSSOSessionExceptionClassifier()
 
     @Provides
+    fun provideCurrentTimestampProvider(): CurrentTimestampProvider =
+        { System.currentTimeMillis() }
+
+    @Provides
+    fun provideGeocoder(@ApplicationContext context: Context): Geocoder =
+        Geocoder(context)
+
+    @Provides
+    fun provideLocationPickerParameters(): LocationPickerParameters =
+        LocationPickerParameters()
+
+    @Provides
     fun provideLockCodeTimeManager(entryPoint: WireMetroHiltEntryPoint): LockCodeTimeManager =
         entryPoint.lockCodeTimeManager()
 
@@ -919,10 +933,6 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     @Provides
     fun provideNotificationManagerCompat(@ApplicationContext context: Context): NotificationManagerCompat =
         NotificationManagerCompat.from(context)
-
-    @Provides
-    fun provideLocationPickerHelperFlavor(entryPoint: WireMetroHiltEntryPoint): LocationPickerHelperFlavor =
-        entryPoint.locationPickerHelperFlavor()
 
     @Provides
     fun provideLogFileWriter(entryPoint: WireMetroHiltEntryPoint): LogFileWriter =
@@ -3077,8 +3087,6 @@ interface WireMetroHiltEntryPoint {
     fun callNotificationManager(): CallNotificationManager
 
     fun conversationAudioMessagePlayer(): ConversationAudioMessagePlayer
-
-    fun locationPickerHelperFlavor(): LocationPickerHelperFlavor
 
     fun logFileWriter(): LogFileWriter
 

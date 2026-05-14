@@ -33,10 +33,6 @@ import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
 import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchUserResult
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
@@ -50,9 +46,8 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = SearchUserViewModel.Factory::class)
-class SearchUserViewModel @AssistedInject constructor(
-    @Assisted private val addMembersSearchNavArgs: AddMembersSearchNavArgs?,
+class SearchUserViewModel(
+    private val addMembersSearchNavArgs: AddMembersSearchNavArgs?,
     private val searchUserUseCase: SearchUsersUseCase,
     private val searchByHandleUseCase: SearchByHandleUseCase,
     private val contactMapper: ContactMapper,
@@ -154,11 +149,6 @@ class SearchUserViewModel @AssistedInject constructor(
             excludingMembersOfConversation = addMembersSearchNavArgs?.conversationId,
             customDomain = domain
         )
-
-    @AssistedFactory
-    interface Factory {
-        fun create(addMembersSearchNavArgs: AddMembersSearchNavArgs?): SearchUserViewModel
-    }
 }
 
 data class SearchUserState(

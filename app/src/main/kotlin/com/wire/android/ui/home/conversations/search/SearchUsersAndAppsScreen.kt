@@ -45,8 +45,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.model.ItemActionType
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.TabItem
@@ -264,9 +264,11 @@ private fun SearchAllPeopleOrContactsScreen(
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
     addMembersSearchNavArgs: AddMembersSearchNavArgs? = null,
-    searchUserViewModel: SearchUserViewModel = hiltViewModel<SearchUserViewModel, SearchUserViewModel.Factory>(
-        creationCallback = { factory -> factory.create(addMembersSearchNavArgs) }
-    ),
+    searchUserViewModel: SearchUserViewModel = metroViewModel(
+        key = "search_user_${addMembersSearchNavArgs?.conversationId?.value ?: "new_conversation"}",
+    ) {
+        searchUserViewModelFactory.create(addMembersSearchNavArgs)
+    },
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
 

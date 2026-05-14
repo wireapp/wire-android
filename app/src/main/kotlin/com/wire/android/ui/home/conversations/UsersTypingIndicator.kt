@@ -49,7 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.di.wireViewModelScoped
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.avatar.UserProfileAvatarsRow
@@ -74,14 +74,13 @@ private const val ANIMATION_SPEED_MILLIS = 1_500
 fun UsersTypingIndicatorForConversation(
     conversationId: ConversationId,
     viewModel: TypingIndicatorViewModel =
-        wireViewModelScoped<
-            TypingIndicatorViewModelImpl,
-            TypingIndicatorViewModel,
-            TypingIndicatorArgs,
-            TypingIndicatorViewModelImpl.Factory
-        >(
-            TypingIndicatorArgs(conversationId)
-        )
+        TypingIndicatorArgs(conversationId).let { args ->
+            metroViewModel<TypingIndicatorViewModelImpl>(
+                key = args.key.toString(),
+            ) {
+                typingIndicatorViewModelFactory.create(args)
+            }
+        }
 ) {
     UsersTypingIndicator(usersTyping = viewModel.state().usersTyping)
 }

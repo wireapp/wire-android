@@ -26,15 +26,10 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = GroupConversationParticipantsViewModel.Factory::class)
-open class GroupConversationParticipantsViewModel @AssistedInject constructor(
-    @Assisted private val conversationId: QualifiedID,
+open class GroupConversationParticipantsViewModel(
+    private val conversationId: QualifiedID,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
 ) : ViewModel() {
@@ -46,11 +41,6 @@ open class GroupConversationParticipantsViewModel @AssistedInject constructor(
     init {
         runRefreshUsersWithoutMetadata()
         observeConversationMembers()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(conversationId: QualifiedID): GroupConversationParticipantsViewModel
     }
 
     private fun runRefreshUsersWithoutMetadata() {

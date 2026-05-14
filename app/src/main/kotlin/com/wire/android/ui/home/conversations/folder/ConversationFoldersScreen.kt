@@ -35,11 +35,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -71,15 +71,13 @@ fun ConversationFoldersScreen(
     resultNavigator: ResultBackNavigator<ConversationFoldersNavBackArgs>,
     resultRecipient: ResultRecipient<NewConversationFolderScreenDestination, NewConversationFolderNavBackArgs>,
     foldersViewModel: ConversationFoldersVM =
-        hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
-            creationCallback = { it.create(ConversationFoldersStateArgs(args.currentFolderId)) }
-        ),
+        metroViewModel { conversationFoldersViewModelFactory.create(ConversationFoldersStateArgs(args.currentFolderId)) },
     moveToFolderVM: MoveConversationToFolderVM =
-        hiltViewModel<MoveConversationToFolderVMImpl, MoveConversationToFolderVMImpl.Factory>(
-            creationCallback = {
-                it.create(MoveConversationToFolderArgs(args.conversationId, args.conversationName, args.currentFolderId))
-            }
-        )
+        metroViewModel {
+            moveConversationToFolderViewModelFactory.create(
+                MoveConversationToFolderArgs(args.conversationId, args.conversationName, args.currentFolderId)
+            )
+        }
 ) {
     val resources = LocalContext.current.resources
 

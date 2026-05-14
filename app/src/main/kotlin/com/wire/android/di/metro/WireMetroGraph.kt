@@ -83,25 +83,36 @@ import com.wire.android.ui.home.appLock.set.SetLockScreenViewModelFactory
 import com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModelFactory
 import com.wire.android.ui.home.appLock.unlock.EnterLockScreenViewModelFactory
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
+import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModelFactory
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationMetadataViewModelFactory
 import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesViewModelFactory
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessViewModelFactory
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModelFactory
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersViewModelFactory
+import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderViewModelFactory
 import com.wire.android.ui.home.conversations.folder.NewFolderViewModelFactory
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessViewModelFactory
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModelFactory
+import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsViewModelFactory
+import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase
+import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewAssetImporter
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewAssetImporterImpl
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewViewModelFactory
+import com.wire.android.ui.home.conversations.search.SearchUserViewModelFactory
 import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModelFactory
 import com.wire.android.ui.home.conversations.search.apps.SearchAppsViewModelFactory
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModelFactory
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
+import com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConversationUseCase
+import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModelFactory
 import com.wire.android.ui.home.gallery.MediaGalleryViewModelFactory
 import com.wire.android.ui.home.messagecomposer.attachments.IsFileSharingEnabledViewModelFactory
+import com.wire.android.ui.home.messagecomposer.location.LocationPickerHelperFlavor
+import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModelFactory
 import com.wire.android.ui.home.messagecomposer.recordaudio.AndroidRecordAudioFileGateway
 import com.wire.android.ui.home.messagecomposer.recordaudio.AudioMediaRecorder
 import com.wire.android.ui.home.messagecomposer.recordaudio.GenerateAudioFileWithEffectsUseCase
@@ -225,6 +236,7 @@ import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveUsersTypingUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -258,6 +270,7 @@ import com.wire.kalium.logic.feature.conversation.getPaginatedFlowOfConversation
 import com.wire.kalium.logic.feature.conversation.folder.AddConversationToFavoritesUseCase
 import com.wire.kalium.logic.feature.conversation.folder.CreateConversationFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
+import com.wire.kalium.logic.feature.conversation.folder.MoveConversationToFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFavoritesUseCase
@@ -305,6 +318,14 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
+import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
+import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
+import com.wire.kalium.logic.feature.search.FederatedSearchParser
+import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
+import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
+import com.wire.kalium.logic.feature.search.SearchScope
+import com.wire.kalium.logic.feature.search.SearchUsersUseCase
 import com.wire.kalium.logic.feature.team.SyncSelfTeamInfoUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
@@ -440,6 +461,13 @@ interface WireMetroGraph {
     val editGuestAccessViewModelFactory: EditGuestAccessViewModelFactory
     val createPasswordGuestLinkViewModelFactory: CreatePasswordGuestLinkViewModelFactory
     val searchConversationMessagesViewModelFactory: SearchConversationMessagesViewModelFactory
+    val groupConversationParticipantsViewModelFactory: GroupConversationParticipantsViewModelFactory
+    val messageDetailsViewModelFactory: MessageDetailsViewModelFactory
+    val searchUserViewModelFactory: SearchUserViewModelFactory
+    val conversationFoldersViewModelFactory: ConversationFoldersViewModelFactory
+    val moveConversationToFolderViewModelFactory: MoveConversationToFolderViewModelFactory
+    val typingIndicatorViewModelFactory: TypingIndicatorViewModelFactory
+    val locationPickerViewModelFactory: LocationPickerViewModelFactory
 
     val dispatcherProvider: DispatcherProvider
 
@@ -549,6 +577,10 @@ interface WireMetroGraph {
     @Provides
     fun provideWireNotificationManager(entryPoint: WireMetroHiltEntryPoint): WireNotificationManager =
         entryPoint.wireNotificationManager()
+
+    @Provides
+    fun provideLocationPickerHelperFlavor(entryPoint: WireMetroHiltEntryPoint): LocationPickerHelperFlavor =
+        entryPoint.locationPickerHelperFlavor()
 
     @Provides
     fun provideLogFileWriter(entryPoint: WireMetroHiltEntryPoint): LogFileWriter =
@@ -901,6 +933,10 @@ interface WireMetroGraph {
         userScope.getMembersE2EICertificateStatuses
 
     @Provides
+    fun provideRefreshUsersWithoutMetadataUseCase(userScope: UserScope): RefreshUsersWithoutMetadataUseCase =
+        userScope.refreshUsersWithoutMetadata
+
+    @Provides
     fun provideGetMLSClientIdentityUseCase(userScope: UserScope): GetMLSClientIdentityUseCase =
         userScope.getE2EICertificate
 
@@ -1185,8 +1221,26 @@ interface WireMetroGraph {
         conversationScope.createConversationFolder
 
     @Provides
+    fun provideMoveConversationToFolderUseCase(conversationScope: ConversationScope): MoveConversationToFolderUseCase =
+        conversationScope.moveConversationToFolder
+
+    @Provides
     fun provideObserveConversationMembersUseCase(conversationScope: ConversationScope): ObserveConversationMembersUseCase =
         conversationScope.observeConversationMembers
+
+    @Provides
+    fun provideObserveUsersTypingUseCase(conversationScope: ConversationScope): ObserveUsersTypingUseCase =
+        conversationScope.observeUsersTyping
+
+    @Provides
+    fun provideObserveUsersTypingInConversationUseCase(
+        observeUsersTyping: ObserveUsersTypingUseCase,
+        uiParticipantMapper: UIParticipantMapper,
+    ): ObserveUsersTypingInConversationUseCase =
+        ObserveUsersTypingInConversationUseCase(
+            observeUsersTyping = observeUsersTyping,
+            uiParticipantMapper = uiParticipantMapper,
+        )
 
     @Provides
     fun provideObserveConversationRoleForUserUseCase(
@@ -1353,6 +1407,29 @@ interface WireMetroGraph {
         connectionScope.unblockUser
 
     @Provides
+    fun provideSearchScope(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): SearchScope =
+        coreLogic.getSessionScope(currentAccount).search
+
+    @Provides
+    fun provideSearchUsersUseCase(searchScope: SearchScope): SearchUsersUseCase =
+        searchScope.searchUsers
+
+    @Provides
+    fun provideSearchByHandleUseCase(searchScope: SearchScope): SearchByHandleUseCase =
+        searchScope.searchByHandle
+
+    @Provides
+    fun provideFederatedSearchParser(searchScope: SearchScope): FederatedSearchParser =
+        searchScope.federatedSearchParser
+
+    @Provides
+    fun provideIsFederationSearchAllowedUseCase(searchScope: SearchScope): IsFederationSearchAllowedUseCase =
+        searchScope.isFederationSearchAllowedUseCase
+
+    @Provides
     fun provideAppScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId,
@@ -1416,6 +1493,38 @@ interface WireMetroGraph {
     @Provides
     fun provideDeleteMessageUseCase(messageScope: MessageScope): DeleteMessageUseCase =
         messageScope.deleteMessage
+
+    @Provides
+    fun provideObserveMessageReactionsUseCase(messageScope: MessageScope): ObserveMessageReactionsUseCase =
+        messageScope.observeMessageReactions
+
+    @Provides
+    fun provideObserveMessageReceiptsUseCase(messageScope: MessageScope): ObserveMessageReceiptsUseCase =
+        messageScope.observeMessageReceipts
+
+    @Provides
+    fun provideObserveReactionsForMessageUseCase(
+        observeMessageReactions: ObserveMessageReactionsUseCase,
+        uiParticipantMapper: UIParticipantMapper,
+        dispatchers: DispatcherProvider,
+    ): ObserveReactionsForMessageUseCase =
+        ObserveReactionsForMessageUseCase(
+            observeMessageReactions = observeMessageReactions,
+            uiParticipantMapper = uiParticipantMapper,
+            dispatchers = dispatchers,
+        )
+
+    @Provides
+    fun provideObserveReceiptsForMessageUseCase(
+        observeMessageReceipts: ObserveMessageReceiptsUseCase,
+        uiParticipantMapper: UIParticipantMapper,
+        dispatchers: DispatcherProvider,
+    ): ObserveReceiptsForMessageUseCase =
+        ObserveReceiptsForMessageUseCase(
+            observeMessageReceipts = observeMessageReceipts,
+            uiParticipantMapper = uiParticipantMapper,
+            dispatchers = dispatchers,
+        )
 
     @Provides
     fun provideCellsScope(
@@ -1710,6 +1819,8 @@ interface WireMetroHiltEntryPoint {
     fun lockCodeTimeManager(): LockCodeTimeManager
 
     fun wireNotificationManager(): WireNotificationManager
+
+    fun locationPickerHelperFlavor(): LocationPickerHelperFlavor
 
     fun logFileWriter(): LogFileWriter
 

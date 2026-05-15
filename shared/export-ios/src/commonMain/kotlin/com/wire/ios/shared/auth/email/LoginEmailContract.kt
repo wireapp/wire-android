@@ -80,6 +80,12 @@ sealed interface LoginEmailIntent {
     data object ResendSecondFactorCode : LoginEmailIntent
 }
 
+/**
+ * One-shot login actions for Swift hosts.
+ *
+ * Invalid credentials intentionally do not emit an effect. They are represented only through
+ * [LoginEmailFlowState.Error] with [LoginEmailError.InvalidCredentials].
+ */
 sealed interface LoginEmailEffect {
     data class LoginSucceeded(
         val initialSyncCompleted: Boolean,

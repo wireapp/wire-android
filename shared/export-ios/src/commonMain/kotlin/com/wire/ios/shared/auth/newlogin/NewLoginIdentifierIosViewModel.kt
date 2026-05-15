@@ -21,13 +21,17 @@ import com.wire.ios.shared.IosCloseable
 import com.wire.ios.shared.IosObservableViewModel
 import com.wire.ios.shared.IosViewModel
 import com.wire.ios.shared.WireIosSharedConfig
-import com.wire.ios.shared.auth.login.model.LoginServerLinks
 import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class NewLoginIdentifierIosViewModel(
     private val delegate: IosViewModel<NewLoginIdentifierState, NewLoginIdentifierEffect, NewLoginIdentifierIntent>,
@@ -56,11 +60,13 @@ class NewLoginIdentifierIosViewModel(
 @Inject
 class NewLoginIdentifierIosViewModelFactory(
     private val config: WireIosSharedConfig,
+    private val backend: NewLoginIdentifierBackend,
 ) {
     fun create(): NewLoginIdentifierIosViewModel =
         NewLoginIdentifierIosViewModel(createGeneric())
 
     fun createGeneric(): IosViewModel<NewLoginIdentifierState, NewLoginIdentifierEffect, NewLoginIdentifierIntent> {
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
         val state = MutableStateFlow(
             NewLoginIdentifierState(
                 isThereActiveSession = config.isThereActiveSession,
@@ -81,7 +87,7 @@ class NewLoginIdentifierIosViewModelFactory(
                         submit(
                             state = state,
                             effects = effects,
-                            serverLinks = config.defaultServerLinks,
+                            scope = scope,
                         )
                     }
 
@@ -107,41 +113,91 @@ class NewLoginIdentifierIosViewModelFactory(
                         )
                     }
                 }
-            }
+            },
+            onClose = { scope.close() },
         )
     }
 
     private fun submit(
         state: MutableStateFlow<NewLoginIdentifierState>,
         effects: MutableSharedFlow<NewLoginIdentifierEffect>,
-        serverLinks: LoginServerLinks,
+        scope: CoroutineScope,
     ) {
         val userIdentifier = state.value.userIdentifier.trim()
         when {
             userIdentifier.isValidSsoCode() -> {
-                effects.tryEmit(
-                    NewLoginIdentifierEffect.OpenSSO(
-                        url = serverLinks.accounts,
-                        config = NewLoginSsoUrlConfig(userIdentifier = userIdentifier),
-                    )
+                resolveWithBackend(
+                    state = state,
+                    effects = effects,
+                    scope = scope,
+                    resolve = { backend.initiateSso(userIdentifier) },
                 )
-                state.update { it.withFlowState(NewLoginIdentifierFlowState.Default) }
             }
 
             userIdentifier.isValidEmail() -> {
-                effects.tryEmit(
-                    NewLoginIdentifierEffect.OpenEmailPassword(
-                        userIdentifier = userIdentifier,
-                        path = NewLoginPasswordPath(),
-                    )
+                resolveWithBackend(
+                    state = state,
+                    effects = effects,
+                    scope = scope,
+                    resolve = { backend.resolveEmail(userIdentifier) },
                 )
-                state.update { it.withFlowState(NewLoginIdentifierFlowState.Default) }
             }
 
             else -> state.update {
                 it.withFlowState(
                     NewLoginIdentifierFlowState.TextFieldError(NewLoginIdentifierTextFieldError.InvalidValue)
                 )
+            }
+        }
+    }
+
+    private fun resolveWithBackend(
+        state: MutableStateFlow<NewLoginIdentifierState>,
+        effects: MutableSharedFlow<NewLoginIdentifierEffect>,
+        scope: CoroutineScope,
+        resolve: suspend () -> NewLoginIdentifierBackendResult,
+    ) {
+        state.update { it.withFlowState(NewLoginIdentifierFlowState.Loading) }
+        scope.launch {
+            when (val result = resolve()) {
+                is NewLoginIdentifierBackendResult.EnterpriseLoginNotSupported -> {
+                    effects.tryEmit(NewLoginIdentifierEffect.EnterpriseLoginNotSupported(result.userIdentifier))
+                    state.update { it.withFlowState(NewLoginIdentifierFlowState.Default) }
+                }
+
+                is NewLoginIdentifierBackendResult.Error -> {
+                    state.update { it.withFlowState(NewLoginIdentifierFlowState.DialogError(result.error)) }
+                }
+
+                is NewLoginIdentifierBackendResult.OpenCustomConfig -> {
+                    effects.tryEmit(
+                        NewLoginIdentifierEffect.OpenCustomConfig(
+                            userIdentifier = result.userIdentifier,
+                            serverLinks = result.serverLinks,
+                        )
+                    )
+                    state.update { it.withFlowState(NewLoginIdentifierFlowState.Default) }
+                }
+
+                is NewLoginIdentifierBackendResult.OpenEmailPassword -> {
+                    effects.tryEmit(
+                        NewLoginIdentifierEffect.OpenEmailPassword(
+                            userIdentifier = result.userIdentifier,
+                            path = result.path,
+                        )
+                    )
+                    state.update { it.withFlowState(NewLoginIdentifierFlowState.Default) }
+                }
+
+                is NewLoginIdentifierBackendResult.OpenSso -> {
+                    effects.tryEmit(
+                        NewLoginIdentifierEffect.OpenSSO(
+                            url = result.url,
+                            config = result.config,
+                        )
+                    )
+                    state.update { it.withFlowState(NewLoginIdentifierFlowState.Default) }
+                }
             }
         }
     }
@@ -168,6 +224,10 @@ class NewLoginIdentifierIosViewModelFactory(
             }
         }
     }
+}
+
+private fun CoroutineScope.close() {
+    coroutineContext[Job]?.cancel()
 }
 
 fun createNewLoginIdentifierIosViewModel(

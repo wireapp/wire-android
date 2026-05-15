@@ -21,6 +21,7 @@ import com.wire.ios.shared.WireIosSharedConfig
 import com.wire.ios.shared.auth.login.model.LoginServerLinks
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -29,7 +30,7 @@ import kotlin.test.assertIs
 class NewLoginIdentifierIosViewModelFactoryTest {
     @Test
     fun givenIdentifierChanged_whenSendingIntent_thenStateIsUpdated() {
-        val viewModel = NewLoginIdentifierIosViewModelFactory(WireIosSharedConfig(serverLinks)).create()
+        val viewModel = newViewModel()
 
         viewModel.sendIntent(NewLoginIdentifierIntent.UserIdentifierChanged("user@example.com"))
 
@@ -39,7 +40,7 @@ class NewLoginIdentifierIosViewModelFactoryTest {
 
     @Test
     fun givenInvalidIdentifier_whenSubmitting_thenTextFieldErrorIsShown() {
-        val viewModel = NewLoginIdentifierIosViewModelFactory(WireIosSharedConfig(serverLinks)).create()
+        val viewModel = newViewModel()
         viewModel.sendIntent(NewLoginIdentifierIntent.UserIdentifierChanged("invalid"))
 
         viewModel.sendIntent(NewLoginIdentifierIntent.Submit)
@@ -52,15 +53,13 @@ class NewLoginIdentifierIosViewModelFactoryTest {
 
     @Test
     fun givenEmailIdentifier_whenSubmitting_thenOpenEmailPasswordEffectIsEmitted() = runTest {
-        val viewModel = NewLoginIdentifierIosViewModelFactory(WireIosSharedConfig(serverLinks)).create()
+        val viewModel = newViewModel()
         viewModel.sendIntent(NewLoginIdentifierIntent.UserIdentifierChanged("user@example.com"))
         val effect = async(start = CoroutineStart.UNDISPATCHED) {
-            var observedEffect: NewLoginIdentifierEffect? = null
-            val closeable = viewModel.observeEffect { observedEffect = it }
-            viewModel.sendIntent(NewLoginIdentifierIntent.Submit)
-            closeable.close()
-            observedEffect
+            viewModel.effects.first()
         }
+
+        viewModel.sendIntent(NewLoginIdentifierIntent.Submit)
 
         val openEmailPassword = assertIs<NewLoginIdentifierEffect.OpenEmailPassword>(effect.await())
         assertEquals("user@example.com", openEmailPassword.userIdentifier)
@@ -68,7 +67,7 @@ class NewLoginIdentifierIosViewModelFactoryTest {
 
     @Test
     fun givenSsoFailure_whenReceived_thenDialogErrorIsShown() {
-        val viewModel = NewLoginIdentifierIosViewModelFactory(WireIosSharedConfig(serverLinks)).create()
+        val viewModel = newViewModel()
 
         viewModel.sendIntent(NewLoginIdentifierIntent.SSOResultReceived(NewLoginSsoResult.Failure(NewLoginSsoFailureCode.InvalidCode)))
 
@@ -81,6 +80,12 @@ class NewLoginIdentifierIosViewModelFactoryTest {
     }
 
     private companion object {
+        fun newViewModel(): NewLoginIdentifierIosViewModel =
+            NewLoginIdentifierIosViewModelFactory(
+                config = WireIosSharedConfig(serverLinks),
+                backend = LocalNewLoginIdentifierBackend(),
+            ).create()
+
         val serverLinks = LoginServerLinks(
             api = "https://api.example.com",
             accounts = "https://accounts.example.com",

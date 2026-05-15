@@ -21,6 +21,7 @@ import com.wire.ios.shared.auth.login.model.LoginServerLinks
 
 data class WireIosSharedConfig(
     val defaultServerLinks: LoginServerLinks,
+    val runtimeConfig: IosKaliumRuntimeConfig? = null,
     val isThereActiveSession: Boolean = false,
     val maxAccountsReached: Boolean = false,
     val nomadAccountBlocksLogin: Boolean = false,
@@ -28,11 +29,38 @@ data class WireIosSharedConfig(
     val useNewRegistration: Boolean = true,
 )
 
+data class IosKaliumRuntimeConfig(
+    val appGroupRootPath: String,
+    val accountDataPath: String? = null,
+    val sqlDelightRootPath: String,
+    val coreCryptoPath: String? = null,
+    val userId: String? = null,
+    val clientId: String? = null,
+    val backendDomain: String,
+    val serverLinks: LoginServerLinks,
+    val migrationMode: MigrationMode,
+)
+
+enum class MigrationMode {
+    CleanInstallProbe,
+    ExistingIosAccountOpenInPlace,
+}
+
 fun createWireIosSharedConfig(defaultServerLinks: LoginServerLinks): WireIosSharedConfig =
     WireIosSharedConfig(defaultServerLinks = defaultServerLinks)
 
 fun createWireIosSharedConfig(
     defaultServerLinks: LoginServerLinks,
+    runtimeConfig: IosKaliumRuntimeConfig?,
+): WireIosSharedConfig =
+    WireIosSharedConfig(
+        defaultServerLinks = defaultServerLinks,
+        runtimeConfig = runtimeConfig,
+    )
+
+fun createWireIosSharedConfig(
+    defaultServerLinks: LoginServerLinks,
+    runtimeConfig: IosKaliumRuntimeConfig?,
     isThereActiveSession: Boolean,
     maxAccountsReached: Boolean,
     nomadAccountBlocksLogin: Boolean,
@@ -41,9 +69,48 @@ fun createWireIosSharedConfig(
 ): WireIosSharedConfig =
     WireIosSharedConfig(
         defaultServerLinks = defaultServerLinks,
+        runtimeConfig = runtimeConfig,
         isThereActiveSession = isThereActiveSession,
         maxAccountsReached = maxAccountsReached,
         nomadAccountBlocksLogin = nomadAccountBlocksLogin,
         isAccountCreationAllowed = isAccountCreationAllowed,
         useNewRegistration = useNewRegistration,
+    )
+
+fun createIosKaliumRuntimeConfig(
+    appGroupRootPath: String,
+    sqlDelightRootPath: String,
+    backendDomain: String,
+    serverLinks: LoginServerLinks,
+    migrationMode: MigrationMode,
+): IosKaliumRuntimeConfig =
+    IosKaliumRuntimeConfig(
+        appGroupRootPath = appGroupRootPath,
+        sqlDelightRootPath = sqlDelightRootPath,
+        backendDomain = backendDomain,
+        serverLinks = serverLinks,
+        migrationMode = migrationMode,
+    )
+
+fun createIosKaliumRuntimeConfig(
+    appGroupRootPath: String,
+    accountDataPath: String?,
+    sqlDelightRootPath: String,
+    coreCryptoPath: String?,
+    userId: String?,
+    clientId: String?,
+    backendDomain: String,
+    serverLinks: LoginServerLinks,
+    migrationMode: MigrationMode,
+): IosKaliumRuntimeConfig =
+    IosKaliumRuntimeConfig(
+        appGroupRootPath = appGroupRootPath,
+        accountDataPath = accountDataPath,
+        sqlDelightRootPath = sqlDelightRootPath,
+        coreCryptoPath = coreCryptoPath,
+        userId = userId,
+        clientId = clientId,
+        backendDomain = backendDomain,
+        serverLinks = serverLinks,
+        migrationMode = migrationMode,
     )

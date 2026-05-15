@@ -34,6 +34,7 @@ import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetails
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
+import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
@@ -202,6 +203,11 @@ class ConversationModule {
     @Provides
     fun provideLeaveConversationUseCase(conversationScope: ConversationScope): LeaveConversationUseCase =
         conversationScope.leaveConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideCheckConversationLeaveConditionsUseCase(conversationScope: ConversationScope): CheckConversationLeaveConditionsUseCase =
+        conversationScope.checkConversationLeaveConditions
 
     @ViewModelScoped
     @Provides

@@ -55,7 +55,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.atMost
 import com.wire.android.R
-import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -68,6 +67,7 @@ import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversatio
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModel
+import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelFactory
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelImpl
 import com.wire.android.ui.home.messagecomposer.attachments.AdditionalOptionButton
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
@@ -189,7 +189,7 @@ private fun InputContent(
                 SelfDeletingMessageActionViewModelImpl,
                 SelfDeletingMessageActionViewModel,
                 SelfDeletingMessageActionArgs,
-                AssistedViewModelFactory<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionArgs>
+                SelfDeletingMessageActionViewModelFactory
                 >(
             SelfDeletingMessageActionArgs(conversationId = conversationId)
         ),

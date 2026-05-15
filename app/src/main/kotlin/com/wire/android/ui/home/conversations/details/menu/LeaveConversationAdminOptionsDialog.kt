@@ -35,33 +35,62 @@ internal fun LeaveConversationAdminOptionsDialog(
     onDeleteGroup: (LeaveGroupOptionsDialogState) -> Unit,
 ) {
     VisibilityState(dialogState) { state ->
+        val isInformationalOnly = !state.showPromoteOption && !state.canDeleteGroup
         WireDialog(
-            title = stringResource(id = R.string.leave_conversation_dialog_title, state.conversationName),
-            text = if (state.showPromoteOption) {
-                stringResource(id = R.string.leave_conversation_admin_options_dialog_description_with_promote)
-            } else {
-                stringResource(id = R.string.leave_conversation_admin_options_dialog_description_no_promote)
-            },
+            title = stringResource(id = titleRes(state), state.conversationName),
+            text = stringResource(id = descriptionRes(state)),
             buttonsHorizontalAlignment = false,
             onDismiss = dialogState::dismiss,
-            optionButton1Properties = if (state.showPromoteOption) {
-                WireDialogButtonProperties(
+            optionButton1Properties = when {
+                isInformationalOnly -> WireDialogButtonProperties(
+                    onClick = dialogState::dismiss,
+                    text = stringResource(id = R.string.label_ok),
+                    type = WireDialogButtonType.Primary,
+                )
+                state.showPromoteOption -> WireDialogButtonProperties(
                     onClick = { onPromoteAdmin(state) },
                     text = stringResource(id = R.string.leave_conversation_admin_options_dialog_promote_button),
                     type = WireDialogButtonType.Primary,
                 )
-            } else {
-                null
+                else -> null
             },
-            optionButton2Properties = WireDialogButtonProperties(
-                onClick = { onDeleteGroup(state) },
-                text = stringResource(id = R.string.leave_conversation_admin_options_dialog_delete_button),
-                type = WireDialogButtonType.Primary,
-            ),
-            dismissButtonProperties = WireDialogButtonProperties(
-                onClick = dialogState::dismiss,
-                text = stringResource(id = R.string.label_cancel),
-            ),
+            optionButton2Properties = when {
+                !isInformationalOnly && state.canDeleteGroup -> WireDialogButtonProperties(
+                    onClick = { onDeleteGroup(state) },
+                    text = stringResource(id = R.string.leave_conversation_admin_options_dialog_delete_button),
+                    type = WireDialogButtonType.Primary,
+                )
+                else -> null
+            },
+            dismissButtonProperties = if (isInformationalOnly) {
+                null
+            } else {
+                WireDialogButtonProperties(
+                    onClick = dialogState::dismiss,
+                    text = stringResource(id = R.string.label_cancel),
+                )
+            },
         )
     }
+}
+
+@Composable
+private fun descriptionRes(state: LeaveGroupOptionsDialogState): Int = when {
+    state.showPromoteOption && state.canDeleteGroup ->
+        R.string.leave_conversation_admin_options_dialog_description_with_promote
+
+    state.showPromoteOption && !state.canDeleteGroup ->
+        R.string.leave_conversation_admin_options_dialog_description_with_promote_no_delete
+
+    !state.showPromoteOption && state.canDeleteGroup ->
+        R.string.leave_conversation_admin_options_dialog_description_no_promote
+
+    else ->
+        R.string.leave_conversation_admin_options_dialog_description_no_promote_no_delete
+}
+
+@Composable
+private fun titleRes(state: LeaveGroupOptionsDialogState): Int = when {
+    state.canDeleteGroup || state.showPromoteOption -> R.string.leave_conversation_dialog_title
+    else -> R.string.cannot_leave_conversation_dialog_title
 }

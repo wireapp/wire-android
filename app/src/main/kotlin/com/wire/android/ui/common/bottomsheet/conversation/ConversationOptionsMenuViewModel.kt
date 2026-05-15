@@ -71,6 +71,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onCompletion
@@ -260,7 +262,8 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
                             LeaveGroupOptionsDialogState(
                                 conversationId = leaveGroupState.conversationId,
                                 conversationName = leaveGroupState.conversationName,
-                                showPromoteOption = result.eligibleUsersAvailable
+                                showPromoteOption = result.eligibleUsersAvailable,
+                                canDeleteGroup = canDeleteGroup(leaveGroupState.conversationId),
                             )
                         )
                     }
@@ -273,6 +276,12 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
             leaveGroupDialogState.show(leaveGroupState)
         }
     }
+
+    private suspend fun canDeleteGroup(conversationId: ConversationId) = observeConversationStateFlow(conversationId)
+        .filterIsInstance<ConversationOptionsMenuState.Conversation>()
+        .firstOrNull()
+        ?.conversation
+        ?.canDeleteGroup() ?: false
 
     override fun leaveGroup(conversationId: ConversationId, conversationName: String, shouldDelete: Boolean) {
         viewModelScope.launch {

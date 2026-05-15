@@ -17,13 +17,25 @@
  */
 package com.wire.ios.shared
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class IosViewModelTest {
+    @Test
+    fun givenState_whenCurrentStateIsRead_thenReturnsStateValue() {
+        val viewModel = IosViewModel<TestState, NoEffect, TestIntent>(
+            state = MutableStateFlow(TestState),
+            effects = MutableSharedFlow(),
+            onIntent = {},
+        )
+
+        assertEquals(TestState, viewModel.currentState)
+    }
 
     @Test
     fun givenIntent_whenSendIntent_thenDelegatesToHandler() {
@@ -40,18 +52,54 @@ class IosViewModelTest {
     }
 
     @Test
+    fun givenStateObserver_whenObserving_thenObserverReceivesCurrentState() = runTest {
+        val state = MutableStateFlow(TestState)
+        val viewModel = IosViewModel<TestState, NoEffect, TestIntent>(
+            state = state,
+            effects = MutableSharedFlow(),
+            onIntent = {},
+        )
+        val initialState = async(start = CoroutineStart.UNDISPATCHED) {
+            var observedState: TestState? = null
+            val closeable = viewModel.observeState { observedState = it }
+            closeable.close()
+            observedState
+        }
+
+        assertEquals(TestState, initialState.await())
+    }
+
+    @Test
+    fun givenEffectObserver_whenEffectEmits_thenObserverReceivesEffect() = runTest {
+        val effects = MutableSharedFlow<NoEffect>(extraBufferCapacity = 1)
+        val viewModel = IosViewModel<TestState, NoEffect, TestIntent>(
+            state = MutableStateFlow(TestState),
+            effects = effects,
+            onIntent = {},
+        )
+        var observedEffect: NoEffect? = null
+        val closeable = viewModel.observeEffect { observedEffect = it }
+
+        effects.emit(NoEffect)
+        closeable.close()
+
+        assertEquals(NoEffect, observedEffect)
+    }
+
+    @Test
     fun givenCloseHandler_whenClose_thenDelegatesToHandler() {
-        var closed = false
+        var closeCount = 0
         val viewModel = IosViewModel<TestState, NoEffect, TestIntent>(
             state = MutableStateFlow(TestState),
             effects = MutableSharedFlow<NoEffect>(),
             onIntent = {},
-            onClose = { closed = true },
+            onClose = { closeCount++ },
         )
 
         viewModel.close()
+        viewModel.close()
 
-        assertTrue(closed)
+        assertEquals(1, closeCount)
     }
 
     private data object TestState

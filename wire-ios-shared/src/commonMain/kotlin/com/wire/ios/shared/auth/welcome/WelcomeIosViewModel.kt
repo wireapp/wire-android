@@ -18,6 +18,8 @@
 package com.wire.ios.shared.auth.welcome
 
 import com.wire.ios.shared.IosViewModel
+import com.wire.ios.shared.IosCloseable
+import com.wire.ios.shared.IosObservableViewModel
 import com.wire.ios.shared.WireIosSharedConfig
 import com.wire.ios.shared.auth.login.model.LoginServerLinks
 import dev.zacsweers.metro.Inject
@@ -28,15 +30,24 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class WelcomeIosViewModel(
     private val delegate: IosViewModel<WelcomeState, WelcomeEffect, WelcomeIntent>,
-) {
+) : IosObservableViewModel<WelcomeState, WelcomeEffect, WelcomeIntent> {
     val state = delegate.state
     val effects = delegate.effects
 
-    fun sendIntent(intent: WelcomeIntent) {
+    override val currentState: WelcomeState
+        get() = delegate.currentState
+
+    override fun observeState(observer: (WelcomeState) -> Unit): IosCloseable =
+        delegate.observeState(observer)
+
+    override fun observeEffect(observer: (WelcomeEffect) -> Unit): IosCloseable =
+        delegate.observeEffect(observer)
+
+    override fun sendIntent(intent: WelcomeIntent) {
         delegate.sendIntent(intent)
     }
 
-    fun close() {
+    override fun close() {
         delegate.close()
     }
 }

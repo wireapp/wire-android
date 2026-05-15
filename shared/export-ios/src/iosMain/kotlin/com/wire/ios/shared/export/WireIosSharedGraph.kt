@@ -21,6 +21,13 @@ import com.wire.ios.shared.IosViewModel
 import com.wire.ios.shared.WireIosSharedConfig
 import com.wire.ios.shared.WireIosSharedScope
 import com.wire.ios.shared.auth.login.model.LoginServerLinks
+import com.wire.ios.shared.auth.newlogin.NewLoginIdentifierEffect
+import com.wire.ios.shared.auth.newlogin.NewLoginIdentifierIntent
+import com.wire.ios.shared.auth.newlogin.NewLoginIdentifierIosViewModel
+import com.wire.ios.shared.auth.newlogin.NewLoginIdentifierIosViewModelFactory
+import com.wire.ios.shared.auth.newlogin.NewLoginIdentifierState
+import com.wire.ios.shared.auth.newlogin.createGenericNewLoginIdentifierIosViewModel
+import com.wire.ios.shared.auth.newlogin.createNewLoginIdentifierIosViewModel
 import com.wire.ios.shared.auth.welcome.WelcomeEffect
 import com.wire.ios.shared.auth.welcome.WelcomeIntent
 import com.wire.ios.shared.auth.welcome.WelcomeIosViewModel
@@ -51,8 +58,22 @@ interface WireIosSharedGraph {
     ): IosViewModel<WelcomeState, WelcomeEffect, WelcomeIntent> =
         createGenericWelcomeIosViewModel(welcomeIosViewModelFactory)
 
+    @Provides
+    fun provideNewLoginIdentifierViewModel(
+        newLoginIdentifierIosViewModelFactory: NewLoginIdentifierIosViewModelFactory,
+    ): NewLoginIdentifierIosViewModel =
+        createNewLoginIdentifierIosViewModel(newLoginIdentifierIosViewModelFactory)
+
+    @Provides
+    fun provideGenericNewLoginIdentifierIosViewModel(
+        newLoginIdentifierIosViewModelFactory: NewLoginIdentifierIosViewModelFactory,
+    ): IosViewModel<NewLoginIdentifierState, NewLoginIdentifierEffect, NewLoginIdentifierIntent> =
+        createGenericNewLoginIdentifierIosViewModel(newLoginIdentifierIosViewModelFactory)
+
     val welcomeViewModel: WelcomeIosViewModel
     val welcomeIosViewModel: IosViewModel<WelcomeState, WelcomeEffect, WelcomeIntent>
+    val newLoginIdentifierViewModel: NewLoginIdentifierIosViewModel
+    val newLoginIdentifierIosViewModel: IosViewModel<NewLoginIdentifierState, NewLoginIdentifierEffect, NewLoginIdentifierIntent>
 }
 
 fun createWireIosSharedGraph(config: WireIosSharedConfig): WireIosSharedGraph =

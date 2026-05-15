@@ -27,7 +27,7 @@ pluginManagement {
 }
 
 // Include all the existent modules in the project
-val basePathModules = setOf("features", "core", "tests")
+val basePathModules = setOf("features", "core", "tests", "shared")
 val ignorableModules = setOf("buildSrc", "kalium")
 rootDir
     .walk()

@@ -26,6 +26,7 @@ import com.wire.android.testSupport.backendConnections.team.Team
 import com.wire.android.testSupport.service.TestService
 import kotlinx.coroutines.runBlocking
 import network.NetworkBackendClient
+import network.NumberSequence
 import network.RequestOptions
 import org.json.JSONArray
 import org.json.JSONObject
@@ -39,6 +40,7 @@ import util.generateQRCode
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.net.HttpURLConnection
 import java.net.URL
 import java.time.Duration
 import java.util.regex.Matcher
@@ -322,6 +324,32 @@ fun BackendClient.addUsersToGroupConversation(
         options = RequestOptions(accessToken = token)
     )
     return JSONObject(response.body)
+}
+
+fun BackendClient.removeUserFromGroupConversation(
+    asUser: ClientUser,
+    contact: ClientUser,
+    conversation: Conversation
+) {
+    val contactDomain = BackendClient.loadBackend(contact.backendName.orEmpty()).domain
+    val url = "conversations/${conversation.qualifiedID.domain}/${conversation.id}/members/$contactDomain/${contact.id}"
+        .composeCompleteUrl()
+    val token = runBlocking { getAuthToken(asUser) }
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token?.type} ${token?.value}")
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(url),
+        method = "DELETE",
+        headers = headers,
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
 }
 
 fun BackendClient.getPersonalConversationByName(user: ClientUser, name: String): Conversation =

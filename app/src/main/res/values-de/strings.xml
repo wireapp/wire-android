@@ -149,6 +149,11 @@
     <string name="content_description_calling_microphone_on">Mikrofon an</string>
     <string name="content_description_calling_microphone_off">Mikrofon aus</string>
     <string name="content_description_calling_active_speaker">Aktiver Sprecher</string>
+    <string name="content_description_calling_participants_list_drag_handle">Teilnehmerliste anzeigen</string>
+    <string name="content_description_calling_expand">Anzeigen</string>
+    <string name="content_description_calling_collapse">Ausblenden</string>
+    <string name="content_description_calling_expanded_participants_list">Teilnehmerliste anzeigen</string>
+    <string name="content_description_calling_collapsed_participants_list">Teilnehmerliste ausblenden</string>
     <string name="content_description_call_open_calling_details">Anrufdetails öffnen</string>
     <string name="content_description_call_low_network_quality">Geringe Netzwerkqualität</string>
     <string name="content_description_reply_to_messge">Auf die Nachricht antworten</string>
@@ -229,7 +234,7 @@
     <string name="content_description_login_back_btn">Zurück zur Ansicht zur Team-Erstellung und Anmeldung</string>
     <string name="content_description_login_user_identifier_field">Geben Sie Ihre E-Mail-Adresse oder Ihren Benutzernamen ein</string>
     <string name="content_description_login_email_field">Geben Sie Ihre E-Mail-Adresse ein</string>
-    <string name="content_description_enterprise_login_email_field">gib deine E-Mail oder SSO-Code ein</string>
+    <string name="content_description_enterprise_login_email_field">Geben Sie Ihre E-Mail-Adresse oder Ihren SSO-Code ein</string>
     <string name="content_description_login_password_field">Geben Sie Ihr Passwort ein</string>
     <string name="content_description_login_sso_code_field">Geben Sie Ihren SSO-Code oder Wire E-Mail-Adresse ein</string>
     <string name="content_description_whats_new_welcome_item">Willkommen bei der Android-App, Link zur Support-Seite</string>
@@ -918,6 +923,7 @@
     <string name="content_description_see_shared_drive_in_conversation_btn">Geteiltes Drive öffnen</string>
     <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
     <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
+    <string name="conversation_search_files_button">Dateien suchen</string>
     <!-- Search Contact-->
     <string name="label_selected">Ausgewählt (%1$d)</string>
     <string name="label_contacts">Kontakte</string>
@@ -1011,6 +1017,7 @@
     <string name="notification_action_reply">Antworten</string>
     <string name="notification_receiver_name">Sie</string>
     <string name="label_type_a_message">Eine Nachricht schreiben</string>
+    <string name="notification_action_open_call">Anruf öffnen</string>
     <string name="notification_action_decline_call">Ablehnen</string>
     <string name="notification_incoming_call_content">Ruft an…</string>
     <string name="notification_ongoing_call_content">Aktiver Anruf…</string>
@@ -1204,7 +1211,9 @@
     <string name="settings_myaccount_display_name_updated">Ihr Profilname wurde geändert</string>
     <string name="settings_myaccount_handle_updated">Ihr Benutzername wurde geändert</string>
     <string name="settings_myaccount_user_color_title">Profilfarbe</string>
+    <string name="settings_myaccount_user_color_description">Ihre Benutzerfarbe wird verwendet, um Sie durch die Benutzeroberfläche der App zu führen</string>
     <string name="settings_myaccount_user_color_updated">Profilfarbe geändert</string>
+    <string name="content_description_settings_myaccount_user_color">Benutzerfarbe ändern</string>
     <string name="settings_myaccount_user_color_example">BEISPIEL</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Lesebestätigungen senden</string>
@@ -1791,6 +1800,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="enable_wire_cell_switch_description">Ermöglichen Sie den Teilnehmern, ihre Dokumente und Mediendateien in Geteiltes Drive zu verwalten. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
     <string name="failed_attachment_retry_upload">Upload wiederholen</string>
     <string name="failed_attachment_remove">Entfernen</string>
+    <string name="profile_deeplink_feature_unavailable_title_alert">Diese Funktion ist nicht verfügbar. Bitte wenden Sie sich an Ihren Admin.</string>
     <string name="conversation_options_shared_drive_label">Geteiltes Drive</string>
     <string name="conversation_options_shared_drive_description">Dauerhaft aktiv für diese Unterhaltung.</string>
     <plurals name="reply_multiple_files">

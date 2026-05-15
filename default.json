@@ -174,5 +174,6 @@
     "enforce_configuration_signature": true,
     "call_quality_menu_enabled": true,
     "call_reactions_enabled": true,
-    "nomad_profiles_enabled": true
+    "nomad_profiles_enabled": true,
+    "adminless_group_handling_enabled": false
 }

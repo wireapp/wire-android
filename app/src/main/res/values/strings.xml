@@ -165,6 +165,11 @@
     <string name="content_description_calling_microphone_on">Microphone on</string>
     <string name="content_description_calling_microphone_off">Microphone off</string>
     <string name="content_description_calling_active_speaker">Active speaker</string>
+    <string name="content_description_calling_participants_list_drag_handle">Expand list of participants</string>
+    <string name="content_description_calling_expand">Expand</string>
+    <string name="content_description_calling_collapse">Collapse</string>
+    <string name="content_description_calling_expanded_participants_list">Expanded list of participants</string>
+    <string name="content_description_calling_collapsed_participants_list">Collapsed list of participants</string>
     <string name="content_description_calling_in_call_reactions_show">Show in call reactions panel</string>
     <string name="content_description_calling_in_call_reactions_hide">Hide in call reactions panel</string>
     <string name="content_description_call_open_calling_details">Open calling details</string>

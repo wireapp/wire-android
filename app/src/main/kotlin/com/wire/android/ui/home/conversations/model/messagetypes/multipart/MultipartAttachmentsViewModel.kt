@@ -32,6 +32,7 @@ import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -42,36 +43,50 @@ import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import javax.inject.Inject
 
 interface MultipartAttachmentsViewModel {
+    val offlineAttachmentIds: StateFlow<Set<String>>
     fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit)
     fun mapAttachments(
-        attachments: List<MessageAttachment>
+        attachments: List<MessageAttachment>,
+        offlineAttachmentIds: Set<String> = emptySet(),
     ): List<MultipartAttachmentGroup> {
 
         val result = mutableListOf<MultipartAttachmentGroup>()
         var group: MultipartAttachmentGroup? = null
 
         attachments.forEach {
+            val isAvailableOffline = it.assetId() in offlineAttachmentIds
             if (it.isMediaAttachment()) {
                 group = when (group) {
-                    null -> MultipartAttachmentGroup.Media(listOf(it.toUiModel()))
-                    is MultipartAttachmentGroup.Media -> group.copy(group.attachments + it.toUiModel())
+                    null -> MultipartAttachmentGroup.Media(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
+                    is MultipartAttachmentGroup.Media -> {
+                        val newAttachment = it.toUiModel(isAvailableOffline = isAvailableOffline)
+                        group.copy(attachments = group.attachments + newAttachment)
+                    }
                     else -> {
                         result.add(group)
-                        MultipartAttachmentGroup.Media(listOf(it.toUiModel()))
+                        MultipartAttachmentGroup.Media(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
                     }
                 }
             } else {
                 group = when (group) {
-                    null -> MultipartAttachmentGroup.Files(listOf(it.toUiModel()))
-                    is MultipartAttachmentGroup.Files -> group.copy(group.attachments + it.toUiModel())
+                    null -> MultipartAttachmentGroup.Files(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
+                    is MultipartAttachmentGroup.Files -> {
+                        val newAttachment = it.toUiModel(isAvailableOffline = isAvailableOffline)
+                        group.copy(attachments = group.attachments + newAttachment)
+                    }
                     else -> {
                         result.add(group)
-                        MultipartAttachmentGroup.Files(listOf(it.toUiModel()))
+                        MultipartAttachmentGroup.Files(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
                     }
                 }
             }
@@ -95,6 +110,7 @@ interface MultipartAttachmentsViewModel {
 
 @Suppress("EmptyFunctionBlock")
 object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
+    override val offlineAttachmentIds: StateFlow<Set<String>> = MutableStateFlow(emptySet<String>())
     override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {}
     override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
@@ -110,11 +126,17 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
     private val kaliumFileSystem: KaliumFileSystem,
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
+    observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
 
     private val uploadProgress = mutableStateMapOf<String, Float>()
+    override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFiles()
+        .map { offlineFiles -> offlineFiles.mapTo(mutableSetOf()) { it.id } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 
     private var isCollaboraEnabled: Boolean = false
+
+    internal var conversationId: String? = null
 
     init {
         loadWireCellConfig()
@@ -165,7 +187,7 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
 
     private fun downloadAsset(attachment: MultipartAttachmentUi) = viewModelScope.launch {
 
-        // TODO: Move kaliumFileSystem to common kalium module so that it can be used in use case
+        // Move kaliumFileSystem to common kalium module so that it can be used in use case
         val path = kaliumFileSystem.providePersistentAssetPath(attachment.fileName ?: error("No asset path"))
 
         if (kaliumFileSystem.exists(path)) {
@@ -174,7 +196,7 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
 
         download(
             assetId = attachment.uuid,
-            conversationId = null, // TODO to replace with real conversation id in next PR
+            conversationId = conversationId,
             outFilePath = path,
             assetSize = attachment.assetSize ?: 0,
         ) { progress ->
@@ -208,7 +230,7 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
     }
 }
 
-private fun MessageAttachment.assetId() =
+internal fun MessageAttachment.assetId() =
     when (this) {
         is AssetContent -> remoteData.assetId
         is CellAssetContent -> id

@@ -30,10 +30,11 @@ import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.decode.Decoder
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
@@ -59,13 +60,17 @@ fun MultipartAttachmentsView(
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
-        else -> hiltViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value)
+        else -> hiltViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value).apply {
+            this.conversationId = conversationId.value
+        }
     }
 ) {
+    val offlineAttachmentIds = viewModel.offlineAttachmentIds.collectAsStateWithLifecycle().value
 
     // TODO I found out that empty attachments list is not handled here and it shows empty message with no information
     if (attachments.size == 1) {
-        attachments.first().toUiModel().let {
+        val attachment = attachments.first()
+        attachment.toUiModel(isAvailableOffline = attachment.assetId() in offlineAttachmentIds).let {
             AssetPreview(
                 modifier = modifier
                     .onVisibilityChanged { visible ->
@@ -86,7 +91,10 @@ fun MultipartAttachmentsView(
             )
         }
     } else {
-        val groups = viewModel.mapAttachments(attachments)
+        val groups = viewModel.mapAttachments(
+            attachments = attachments,
+            offlineAttachmentIds = offlineAttachmentIds,
+        )
 
         Column(
             modifier = modifier

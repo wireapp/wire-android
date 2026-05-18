@@ -26,17 +26,21 @@ import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.message.CellAssetContent
+import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -132,6 +136,33 @@ class MultipartAttachmentsViewModelTest {
                         testAttachmentUi.copy(uuid = "asset_5"),
                     )
                 ),
+            ),
+            result
+        )
+    }
+
+    @Test
+    fun `with offline attachment id when mapped then attachment is marked as available offline`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .arrange()
+
+        val result = viewModel.mapAttachments(
+            listOf(testAssetContent.copy(id = "asset_1", mimeType = "application/pdf")),
+            offlineAttachmentIds = setOf("asset_1")
+        )
+
+        assertEquals(
+            listOf(
+                MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files(
+                    attachments = listOf(
+                        testAttachmentUi.copy(
+                            uuid = "asset_1",
+                            mimeType = "application/pdf",
+                            assetType = AttachmentFileType.PDF,
+                            isAvailableOffline = true,
+                        ),
+                    )
+                )
             ),
             result
         )
@@ -251,15 +282,19 @@ class MultipartAttachmentsViewModelTest {
         @MockK
         lateinit var getWireCellsConfig: GetWireCellConfigurationUseCase
 
+        @MockK
+        lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
+
         val kaliumFileSystem: KaliumFileSystem = FakeKaliumFileSystem()
 
-        suspend fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
+        fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
 
             coEvery { refreshHelper.refresh(any()) } returns Unit
             coEvery { fileManager.openWithExternalApp(any(), any(), any(), any()) } returns Unit
             coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
             coEvery { download(any(), any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()
             coEvery { getWireCellsConfig() } returns null
+            every { observeOfflineFiles() } returns flowOf(emptyList<OfflineFileInfo>())
 
             return this to MultipartAttachmentsViewModelImpl(
                 refreshHelper = refreshHelper,
@@ -270,7 +305,10 @@ class MultipartAttachmentsViewModelTest {
                 kaliumFileSystem = kaliumFileSystem,
                 featureFlags = kaliumConfigs,
                 getWireCellsConfig = getWireCellsConfig,
-            )
+                observeOfflineFiles = observeOfflineFiles,
+            ).apply {
+                conversationId = "test-conversation-id"
+            }
         }
     }
 

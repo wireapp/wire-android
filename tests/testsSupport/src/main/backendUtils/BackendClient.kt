@@ -641,7 +641,7 @@ class BackendClient(
         isEnabled: Boolean
     ) {
         val token = getAuthToken(ownerOrAdminUser)
-        val url = URL("teams/$teamId/services/whitelist".composeCompleteUrl())
+        val url = URI("teams/$teamId/services/whitelist".composeCompleteUrl()).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put(AUTHORIZATION, "${token?.type} ${token?.value}")
@@ -673,7 +673,7 @@ class BackendClient(
             ?: throw IllegalStateException("Conversation '${conversation.name}' has no team id.")
         val service = getWhitelistedService(asUser, teamId, serviceName)
         val token = getAuthToken(asUser)
-        val url = URL("conversations/${conversation.id}/bots".composeCompleteUrl())
+        val url = URI("conversations/${conversation.id}/bots".composeCompleteUrl()).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put(AUTHORIZATION, "${token?.type} ${token?.value}")
@@ -707,9 +707,9 @@ class BackendClient(
 
     private suspend fun getWhitelistedService(asUser: ClientUser, teamId: String, serviceName: String): JSONObject {
         val token = getAuthToken(asUser)
-        val url = URL(
+        val url = URI(
             "teams/$teamId/services/whitelisted?prefix=${Uri.encode(serviceName)}".composeCompleteUrl()
-        )
+        ).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put(AUTHORIZATION, "${token?.type} ${token?.value}")

@@ -1,4 +1,4 @@
-@file:Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown", "MagicNumber")
+@file:Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown", "MagicNumber", "TooManyFunctions")
 /*
  * Wire
  * Copyright (C) 2025 Wire Swiss GmbH
@@ -41,6 +41,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
 import java.time.Duration
 import java.util.regex.Matcher
@@ -340,7 +341,7 @@ fun BackendClient.removeUserFromGroupConversation(
     }
 
     NetworkBackendClient.sendJsonRequestWithCookies(
-        url = URL(url),
+        url = URI(url).toURL(),
         method = "DELETE",
         headers = headers,
         options = RequestOptions(

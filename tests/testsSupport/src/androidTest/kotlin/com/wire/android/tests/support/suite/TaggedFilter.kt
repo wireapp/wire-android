@@ -158,11 +158,11 @@ class TaggedFilter : Filter() {
     }
 
     private fun matchesFilters(description: Description): Boolean {
-val annotations = description.annotations
-val categories = annos.filterIsInstance<Category>()
+        val annotations = description.annotations
+        val categories = annotations.filterIsInstance<Category>()
 
         excludeCategory?.let { excludedCat ->
-            val matchesExcludedCat = cats.any { catAnno ->
+            val matchesExcludedCat = categories.any { catAnno ->
                 catAnno.value.contains(excludedCat)
             }
             if (matchesExcludedCat) return false
@@ -170,7 +170,7 @@ val categories = annos.filterIsInstance<Category>()
 
         // 1) TestCaseId
         filterTestCaseId?.let { wantedId ->
-            val testCaseAnno = annos.filterIsInstance<TestCaseId>().firstOrNull()
+            val testCaseAnno = annotations.filterIsInstance<TestCaseId>().firstOrNull()
             if (testCaseAnno == null || testCaseAnno.value != wantedId) {
                 return false
             }
@@ -178,9 +178,9 @@ val categories = annos.filterIsInstance<Category>()
 
         // 2) Category (Category(vararg val value: String))
         filterCategory?.let { wantedCat ->
-            if (cats.isEmpty()) return false
+            if (categories.isEmpty()) return false
 
-            val matchesCat = cats.any { catAnno ->
+            val matchesCat = categories.any { catAnno ->
                 catAnno.value.contains(wantedCat)
             }
             if (!matchesCat) return false
@@ -188,7 +188,7 @@ val categories = annos.filterIsInstance<Category>()
 
         // 3) Tag (key + value)
         if (filterTagKey != null || filterTagValue != null) {
-            val tags = annos.filterIsInstance<Tag>()
+            val tags = annotations.filterIsInstance<Tag>()
             if (tags.isEmpty()) return false
 
             val matchesTag = tags.any { tag ->

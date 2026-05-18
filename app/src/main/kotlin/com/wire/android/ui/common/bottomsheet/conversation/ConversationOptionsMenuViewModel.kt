@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ViewModelScopedPreview
@@ -34,6 +35,7 @@ import com.wire.android.ui.home.HomeSnackBarMessage
 import com.wire.android.ui.home.conversationslist.model.DeleteGroupDialogState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupOptionsDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
 import com.wire.kalium.logic.data.conversation.ConversationFolder
@@ -45,6 +47,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
+import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
@@ -68,6 +71,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onCompletion
@@ -80,6 +85,7 @@ import javax.inject.Inject
 @ViewModelScopedPreview
 interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsMenuViewAction> {
     val leaveGroupDialogState: VisibilityState<LeaveGroupDialogState> get() = VisibilityState()
+    val leaveGroupOptionsDialogState: VisibilityState<LeaveGroupOptionsDialogState> get() = VisibilityState()
     val deleteGroupDialogState: VisibilityState<DeleteGroupDialogState> get() = VisibilityState()
     val deleteGroupLocallyDialogState: VisibilityState<DeleteGroupDialogState> get() = VisibilityState()
     val blockUserDialogState: VisibilityState<BlockUserDialogState> get() = VisibilityState()
@@ -100,6 +106,7 @@ interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsM
     fun unblockUser(userId: UserId, userName: String) {}
     fun clearConversationContent(conversationId: ConversationId, conversationTypeDetail: ConversationTypeDetail) {}
     fun moveToArchive(conversationId: ConversationId, shouldArchive: Boolean, isSelfAMember: Boolean) {}
+    fun onLeaveGroup(leaveGroupState: LeaveGroupDialogState) {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -116,6 +123,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val markConversationAsDeletedLocally: MarkConversationAsDeletedLocallyUseCase,
     private val leaveConversation: LeaveConversationUseCase,
+    private val checkConversationLeaveConditions: CheckConversationLeaveConditionsUseCase,
     private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
     private val clearConversationContent: ClearConversationContentUseCase,
@@ -125,6 +133,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     private val nonCancellableIOContext = NonCancellable + dispatchers.io()
     private val conversationStateFlow: ConcurrentHashMap<ConversationId, StateFlow<ConversationOptionsMenuState>> = ConcurrentHashMap()
     override val leaveGroupDialogState: VisibilityState<LeaveGroupDialogState> by mutableStateOf(VisibilityState())
+    override val leaveGroupOptionsDialogState: VisibilityState<LeaveGroupOptionsDialogState> by mutableStateOf(VisibilityState())
     override val deleteGroupDialogState: VisibilityState<DeleteGroupDialogState> by mutableStateOf(VisibilityState())
     override val deleteGroupLocallyDialogState: VisibilityState<DeleteGroupDialogState> by mutableStateOf(VisibilityState())
     override val blockUserDialogState: VisibilityState<BlockUserDialogState> by mutableStateOf(VisibilityState())
@@ -242,6 +251,37 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
             }
         }
     }
+
+    override fun onLeaveGroup(leaveGroupState: LeaveGroupDialogState) {
+        if (BuildConfig.ADMINLESS_GROUP_HANDLING_ENABLED) {
+            viewModelScope.launch {
+                when (val result = checkConversationLeaveConditions(leaveGroupState.conversationId)) {
+                    CheckConversationLeaveConditionsUseCase.Result.Allow -> leaveGroupDialogState.show(leaveGroupState)
+                    is CheckConversationLeaveConditionsUseCase.Result.DoNotAllow -> {
+                        leaveGroupOptionsDialogState.show(
+                            LeaveGroupOptionsDialogState(
+                                conversationId = leaveGroupState.conversationId,
+                                conversationName = leaveGroupState.conversationName,
+                                showPromoteOption = result.eligibleUsersAvailable,
+                                canDeleteGroup = canDeleteGroup(leaveGroupState.conversationId),
+                            )
+                        )
+                    }
+                    is CheckConversationLeaveConditionsUseCase.Result.Error -> {
+                        onMessage(HomeSnackBarMessage.LeaveConversationError)
+                    }
+                }
+            }
+        } else {
+            leaveGroupDialogState.show(leaveGroupState)
+        }
+    }
+
+    private suspend fun canDeleteGroup(conversationId: ConversationId) = observeConversationStateFlow(conversationId)
+        .filterIsInstance<ConversationOptionsMenuState.Conversation>()
+        .firstOrNull()
+        ?.conversation
+        ?.canDeleteGroup() ?: false
 
     override fun leaveGroup(conversationId: ConversationId, conversationName: String, shouldDelete: Boolean) {
         viewModelScope.launch {

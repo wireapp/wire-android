@@ -613,6 +613,9 @@ sealed interface UIMessageContent {
         }
 
         @Serializable
+        data object SelfUserPromotedToAdmin : SystemMessage
+
+        @Serializable
         data object NewConversationWithCellStarted : SystemMessage
 
         @Serializable

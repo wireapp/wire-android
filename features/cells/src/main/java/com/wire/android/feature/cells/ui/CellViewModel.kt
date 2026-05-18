@@ -567,13 +567,18 @@ class CellViewModel @Inject constructor(
         openLoadState: OpenLoadState? = null,
         downloadProgress: Float? = null,
     ): CellNodeUi.File {
+        val resolvedMimeType = mimeType.orEmpty()
         val extension = name.substringAfterLast('.', "")
         return CellNodeUi.File(
             uuid = id,
             conversationId = conversationId,
             name = name,
-            mimeType = "",
-            assetType = AttachmentFileType.fromExtension(extension),
+            mimeType = resolvedMimeType,
+            assetType = if (resolvedMimeType.isNotBlank()) {
+                AttachmentFileType.fromMimeType(resolvedMimeType)
+            } else {
+                AttachmentFileType.fromExtension(extension)
+            },
             size = size,
             localPath = localPath,
             ownerUserId = owner.ifEmpty { null },

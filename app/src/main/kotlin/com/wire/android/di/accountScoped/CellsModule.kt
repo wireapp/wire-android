@@ -284,9 +284,9 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetConversationNamesUseCase(cellsScope: CellsScope): GetConversationNameUseCase = cellsScope.getConversationNames
+    fun provideGetConversationNamesUseCase(cellsScope: CellsScope): GetConversationNameUseCase = cellsScope.getConversationName
 
     @ViewModelScoped
     @Provides
-    fun provideGetUserNamesUseCase(cellsScope: CellsScope): GetUserNameUseCase = cellsScope.getUserNames
+    fun provideGetUserNamesUseCase(cellsScope: CellsScope): GetUserNameUseCase = cellsScope.getUserName
 }

@@ -174,6 +174,8 @@ count_tests_in_list_file() {
 
 install_app_before_attempt_if_needed() {
   local attempt="$1"
+  # The first argument is the attempt number and the remaining arguments are device serials.
+  # shift removes the first argument, so "$@" only contains device serials for the install loop.
   shift
   local devices=("$@")
   local apk_path="${APP_APK_BEFORE_ATTEMPT:-}"

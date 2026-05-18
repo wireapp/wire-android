@@ -66,7 +66,7 @@ class GetConversationsFromSearchUseCaseTest {
                 newActivitiesOnTop = newActivitiesOnTop,
                 onlyInteractionEnabled = onlyInteractionEnabled,
                 useStrictMlsFilter = true
-            )
+            ).asSnapshot()
         }
         // Then
         coVerify {

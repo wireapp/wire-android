@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.ios.shared.auth.newlogin
+package com.wire.shared.auth.newlogin
 
 import com.wire.ios.shared.IosKaliumRuntimeConfig
 import com.wire.ios.shared.WireIosSharedConfig
-import com.wire.ios.shared.auth.login.model.LoginApiProxy
-import com.wire.ios.shared.auth.login.model.LoginServerLinks
+import com.wire.shared.auth.login.model.LoginApiProxy
+import com.wire.shared.auth.login.model.LoginServerLinks
 import com.wire.kalium.logic.CoreLogicCommon
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.EnterpriseLoginResult

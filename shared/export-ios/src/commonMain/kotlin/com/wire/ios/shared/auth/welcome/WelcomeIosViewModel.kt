@@ -17,16 +17,14 @@
  */
 package com.wire.ios.shared.auth.welcome
 
-import com.wire.ios.shared.IosViewModel
 import com.wire.ios.shared.IosCloseable
 import com.wire.ios.shared.IosObservableViewModel
-import com.wire.ios.shared.WireIosSharedConfig
-import com.wire.ios.shared.auth.login.model.LoginServerLinks
+import com.wire.ios.shared.IosViewModel
+import com.wire.shared.auth.welcome.WelcomeEffect
+import com.wire.shared.auth.welcome.WelcomeIntent
+import com.wire.shared.auth.welcome.WelcomeState
+import com.wire.shared.auth.welcome.WelcomeViewModelFactory
 import dev.zacsweers.metro.Inject
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 class WelcomeIosViewModel(
     private val delegate: IosViewModel<WelcomeState, WelcomeEffect, WelcomeIntent>,
@@ -54,60 +52,20 @@ class WelcomeIosViewModel(
 
 @Inject
 class WelcomeIosViewModelFactory(
-    private val config: WireIosSharedConfig,
+    private val sharedFactory: WelcomeViewModelFactory,
 ) {
     fun create(): WelcomeIosViewModel =
         WelcomeIosViewModel(createGeneric())
 
     fun createGeneric(): IosViewModel<WelcomeState, WelcomeEffect, WelcomeIntent> {
-        val state = MutableStateFlow(
-            WelcomeState(
-                links = config.defaultServerLinks,
-                isThereActiveSession = config.isThereActiveSession,
-                maxAccountsReached = config.maxAccountsReached,
-                nomadAccountBlocksLogin = config.nomadAccountBlocksLogin,
-                isAccountCreationAllowed = config.isAccountCreationAllowed,
-                useNewRegistration = config.useNewRegistration,
-            )
-        )
-        val effects = MutableSharedFlow<WelcomeEffect>(extraBufferCapacity = 1)
-
+        val sharedViewModel = sharedFactory.create()
         return IosViewModel(
-            state = state.asStateFlow(),
-            effects = effects.asSharedFlow(),
-            onIntent = { intent ->
-                when (intent) {
-                    WelcomeIntent.LoginClicked -> effects.tryEmit(WelcomeEffect.NavigateToLogin(state.value.links))
-                    WelcomeIntent.CreatePersonalAccountClicked -> effects.tryEmit(
-                        createAccountEffect(
-                            state = state.value,
-                            proxyLimitedTarget = WelcomeProxyLimitedTarget.PersonalAccountCreation,
-                            navigate = WelcomeEffect::NavigateToCreatePersonalAccount,
-                        )
-                    )
-                    WelcomeIntent.CreateTeamAccountClicked -> effects.tryEmit(
-                        createAccountEffect(
-                            state = state.value,
-                            proxyLimitedTarget = WelcomeProxyLimitedTarget.TeamAccountCreation,
-                            navigate = WelcomeEffect::NavigateToCreateTeamAccount,
-                        )
-                    )
-                    WelcomeIntent.ProxyLimitationDismissed -> Unit
-                }
-            }
+            state = sharedViewModel.state,
+            effects = sharedViewModel.effects,
+            onIntent = sharedViewModel::sendIntent,
+            onClose = sharedViewModel::close,
         )
     }
-
-    private fun createAccountEffect(
-        state: WelcomeState,
-        proxyLimitedTarget: WelcomeProxyLimitedTarget,
-        navigate: (links: LoginServerLinks) -> WelcomeEffect,
-    ): WelcomeEffect =
-        if (state.links.isProxyEnabled) {
-            WelcomeEffect.ShowProxyLimitation(proxyLimitedTarget)
-        } else {
-            navigate(state.links)
-        }
 }
 
 fun createWelcomeIosViewModel(

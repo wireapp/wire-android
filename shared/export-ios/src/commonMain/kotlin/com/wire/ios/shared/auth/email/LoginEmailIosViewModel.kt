@@ -20,17 +20,12 @@ package com.wire.ios.shared.auth.email
 import com.wire.ios.shared.IosCloseable
 import com.wire.ios.shared.IosObservableViewModel
 import com.wire.ios.shared.IosViewModel
+import com.wire.shared.auth.email.LoginEmailEffect
+import com.wire.shared.auth.email.LoginEmailIntent
+import com.wire.shared.auth.email.LoginEmailState
+import com.wire.shared.auth.email.LoginEmailViewModelFactory
 import dev.zacsweers.metro.Inject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 class LoginEmailIosViewModel(
     private val delegate: IosViewModel<LoginEmailState, LoginEmailEffect, LoginEmailIntent>,
@@ -58,207 +53,33 @@ class LoginEmailIosViewModel(
 
 @Inject
 class LoginEmailIosViewModelFactory(
-    private val backend: LoginEmailBackend,
+    private val sharedFactory: LoginEmailViewModelFactory,
 ) {
     fun create(userIdentifier: String = ""): LoginEmailIosViewModel =
         LoginEmailIosViewModel(createGeneric(userIdentifier))
 
     fun createGeneric(userIdentifier: String = ""): IosViewModel<LoginEmailState, LoginEmailEffect, LoginEmailIntent> {
-        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-        val state = MutableStateFlow(
-            LoginEmailState(
-                userIdentifier = userIdentifier,
-                userIdentifierEnabled = userIdentifier.isBlank(),
-                loginEnabled = false,
-            )
+        val sharedViewModel = sharedFactory.create(
+            userIdentifier = userIdentifier,
+            coroutineContext = Dispatchers.Main.immediate,
         )
-        val effects = MutableSharedFlow<LoginEmailEffect>(extraBufferCapacity = 1)
-
         return IosViewModel(
-            state = state.asStateFlow(),
-            effects = effects.asSharedFlow(),
-            onIntent = { intent ->
-                when (intent) {
-                    is LoginEmailIntent.UserIdentifierChanged ->
-                        state.update {
-                            it.copy(
-                                userIdentifier = intent.value,
-                                loginEnabled = it.canSubmit(userIdentifier = intent.value),
-                                flowState = LoginEmailFlowState.Default,
-                            )
-                        }
-
-                    is LoginEmailIntent.PasswordChanged ->
-                        state.update {
-                            it.copy(
-                                password = intent.value,
-                                loginEnabled = it.canSubmit(password = intent.value),
-                                flowState = LoginEmailFlowState.Default,
-                            )
-                        }
-
-                    is LoginEmailIntent.ProxyIdentifierChanged ->
-                        state.update { it.copy(proxyIdentifier = intent.value) }
-
-                    is LoginEmailIntent.ProxyPasswordChanged ->
-                        state.update { it.copy(proxyPassword = intent.value) }
-
-                    is LoginEmailIntent.SecondFactorCodeChanged ->
-                        state.update {
-                            it.copy(
-                                secondFactorVerificationCode = it.secondFactorVerificationCode.copy(
-                                    code = intent.value,
-                                    isCurrentCodeInvalid = false,
-                                )
-                            )
-                        }
-
-                    is LoginEmailIntent.SubmitLogin ->
-                        submitLogin(state, effects, scope, intent.usernameAllowed)
-
-                    LoginEmailIntent.ClearLoginErrors ->
-                        state.update { it.copy(flowState = LoginEmailFlowState.Default) }
-
-                    LoginEmailIntent.CancelLogin ->
-                        state.update { it.copy(flowState = LoginEmailFlowState.Canceled) }
-
-                    LoginEmailIntent.SecondFactorBackPressed ->
-                        state.update {
-                            it.copy(
-                                secondFactorVerificationCode = LoginEmailVerificationCodeState(),
-                                flowState = LoginEmailFlowState.Default,
-                            )
-                        }
-
-                    LoginEmailIntent.ResendSecondFactorCode ->
-                        requestSecondFactorCode(state, scope)
-                }
-            },
-            onClose = { scope.close() },
+            state = sharedViewModel.state,
+            effects = sharedViewModel.effects,
+            onIntent = sharedViewModel::sendIntent,
+            onClose = sharedViewModel::close,
         )
-    }
-
-    private fun submitLogin(
-        state: MutableStateFlow<LoginEmailState>,
-        effects: MutableSharedFlow<LoginEmailEffect>,
-        scope: CoroutineScope,
-        usernameAllowed: Boolean,
-    ) {
-        val currentState = state.value
-        if (!currentState.canSubmit()) {
-            state.update { it.copy(flowState = LoginEmailFlowState.Error(LoginEmailError.InvalidCredentials)) }
-            return
-        }
-        state.update { it.copy(flowState = LoginEmailFlowState.Loading, loginEnabled = false) }
-        scope.launch {
-            when (
-                val result = backend.login(
-                    userIdentifier = currentState.userIdentifier,
-                    password = currentState.password,
-                    secondFactorVerificationCode = currentState.secondFactorVerificationCode.code.takeIf { it.isNotBlank() },
-                    usernameAllowed = usernameAllowed,
-                )
-            ) {
-                is LoginEmailBackendResult.Failure -> {
-                    state.update {
-                        val flowState = LoginEmailFlowState.Error(result.error)
-                        it.copy(
-                            flowState = flowState,
-                            loginEnabled = it.canSubmit(flowState = flowState),
-                        )
-                    }
-                }
-
-                LoginEmailBackendResult.RemoveDeviceNeeded -> {
-                    effects.tryEmit(LoginEmailEffect.RemoveDeviceNeeded)
-                    state.update {
-                        val flowState = LoginEmailFlowState.Error(LoginEmailError.TooManyDevices)
-                        it.copy(
-                            flowState = flowState,
-                            loginEnabled = it.canSubmit(flowState = flowState),
-                        )
-                    }
-                }
-
-                is LoginEmailBackendResult.SecondFactorRequired -> {
-                    state.update {
-                        it.copy(
-                            flowState = LoginEmailFlowState.Default,
-                            loginEnabled = it.canSubmit(flowState = LoginEmailFlowState.Default),
-                            secondFactorVerificationCode = it.secondFactorVerificationCode.copy(
-                                isCodeInputNecessary = true,
-                                emailUsed = result.email,
-                                isCurrentCodeInvalid = result.isCurrentCodeInvalid,
-                            ),
-                        )
-                    }
-                }
-
-                is LoginEmailBackendResult.Success -> {
-                    val flowState = LoginEmailFlowState.Success(
-                        initialSyncCompleted = result.initialSyncCompleted,
-                        isE2EIRequired = result.isE2EIRequired,
-                    )
-                    state.update { it.copy(flowState = flowState, loginEnabled = false) }
-                    effects.tryEmit(
-                        LoginEmailEffect.LoginSucceeded(
-                            initialSyncCompleted = result.initialSyncCompleted,
-                            isE2EIRequired = result.isE2EIRequired,
-                        )
-                    )
-                }
-            }
-        }
-    }
-
-    private fun requestSecondFactorCode(
-        state: MutableStateFlow<LoginEmailState>,
-        scope: CoroutineScope,
-    ) {
-        scope.launch {
-            when (val result = backend.requestSecondFactorCode(state.value.userIdentifier)) {
-                is LoginEmailBackendResult.Failure ->
-                    state.update { it.copy(flowState = LoginEmailFlowState.Error(result.error)) }
-
-                is LoginEmailBackendResult.SecondFactorRequired ->
-                    state.update {
-                        it.copy(
-                            flowState = LoginEmailFlowState.Default,
-                            secondFactorVerificationCode = it.secondFactorVerificationCode.copy(
-                                isCodeInputNecessary = true,
-                                emailUsed = result.email,
-                                isCurrentCodeInvalid = result.isCurrentCodeInvalid,
-                            ),
-                        )
-                    }
-
-                LoginEmailBackendResult.RemoveDeviceNeeded,
-                is LoginEmailBackendResult.Success ->
-                    Unit
-            }
-        }
     }
 }
 
 fun createLoginEmailIosViewModel(
-    factory: LoginEmailIosViewModelFactory,
+    loginEmailIosViewModelFactory: LoginEmailIosViewModelFactory,
     userIdentifier: String = "",
 ): LoginEmailIosViewModel =
-    factory.create(userIdentifier)
+    loginEmailIosViewModelFactory.create(userIdentifier)
 
 fun createGenericLoginEmailIosViewModel(
-    factory: LoginEmailIosViewModelFactory,
+    loginEmailIosViewModelFactory: LoginEmailIosViewModelFactory,
     userIdentifier: String = "",
 ): IosViewModel<LoginEmailState, LoginEmailEffect, LoginEmailIntent> =
-    factory.createGeneric(userIdentifier)
-
-private fun LoginEmailState.canSubmit(
-    userIdentifier: String = this.userIdentifier,
-    password: String = this.password,
-    flowState: LoginEmailFlowState = this.flowState,
-): Boolean =
-    userIdentifier.isNotBlank() && password.isNotBlank() && flowState !is LoginEmailFlowState.Loading
-
-private fun CoroutineScope.close() {
-    coroutineContext[Job]?.cancel()
-}
+    loginEmailIosViewModelFactory.createGeneric(userIdentifier)

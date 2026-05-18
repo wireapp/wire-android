@@ -5,15 +5,13 @@ plugins {
 
 kotlin {
     android {
-        namespace = "com.wire.ios.shared"
+        namespace = "com.wire.shared.auth"
     }
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(projects.shared.auth)
                 api(libs.coroutines.core)
-                implementation("com.wire.kalium:kalium-logic")
             }
         }
 
@@ -22,14 +20,6 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(libs.coroutines.test)
             }
-        }
-    }
-
-    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>().configureEach {
-        binaries.framework {
-            baseName = "WireIosShared"
-            isStatic = false
-            export(projects.shared.auth)
         }
     }
 }

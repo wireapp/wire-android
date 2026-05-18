@@ -80,6 +80,7 @@ class LoginEmailViewModel constructor(
     private val dispatchers: DispatcherProvider,
     defaultServerConfig: ServerConfig.Links,
     @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean,
+    private val sharedAuthLoginEmailAdapter: SharedAuthLoginEmailAdapter = LegacySharedAuthLoginEmailAdapter,
 ) : LoginViewModel(
     loginNavArgs,
     clientScopeProviderFactory,
@@ -160,6 +161,7 @@ class LoginEmailViewModel constructor(
                     null
                 }
             }
+            if (tryLoginWithSharedAuth(usernameAllowed)) return@launch
             // first, cancel and revert any previous login if it's still running, just to be sure
             revertLogin()
             // then, start a new login job
@@ -171,6 +173,30 @@ class LoginEmailViewModel constructor(
             }
         }
     }
+
+    private suspend fun tryLoginWithSharedAuth(usernameAllowed: Boolean): Boolean =
+        sharedAuthLoginEmailAdapter.tryLogin(
+            request = SharedAuthLoginEmailRequest(
+                userIdentifier = userIdentifierTextState.text.toString(),
+                password = passwordTextState.text.toString(),
+                secondFactorVerificationCode = secondFactorVerificationCodeTextState.text.toString(),
+                usernameAllowed = usernameAllowed,
+                serverConfig = serverConfig,
+            ),
+            callbacks = object : SharedAuthLoginEmailCallbacks {
+                override suspend fun updateFlowState(flowState: LoginState) {
+                    updateEmailFlowState(flowState)
+                }
+
+                override suspend fun updateSecondFactorState(update: (VerificationCodeState) -> VerificationCodeState) {
+                    secondFactorVerificationCodeState = update(secondFactorVerificationCodeState)
+                }
+
+                override suspend fun startResendCodeTimer() {
+                    this@LoginEmailViewModel.startResendCodeTimer()
+                }
+            }
+        )
 
     @Suppress("LongMethod")
     private fun startLoginJob(usernameAllowed: Boolean): Job {

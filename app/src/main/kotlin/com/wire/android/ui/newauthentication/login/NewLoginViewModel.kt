@@ -78,6 +78,7 @@ class NewLoginViewModel(
     defaultServerConfig: ServerConfig.Links,
     defaultSSOCodeConfig: String,
     private val recoverableLogoutExceptionDetector: NewLoginRecoverableLogoutExceptionDetector,
+    private val sharedAuthNewLoginAdapter: SharedAuthNewLoginAdapter = LegacySharedAuthNewLoginAdapter,
 ) : ActionsViewModel<NewLoginAction>() {
 
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
@@ -146,6 +147,7 @@ class NewLoginViewModel(
         viewModelScope.launch(dispatchers.io()) {
             updateLoginFlowState(NewLoginFlowState.Loading)
             val sanitizedInput = userIdentifierTextState.text.trim().toString()
+            if (tryStartSharedAuthLogin(sanitizedInput)) return@launch
             when (validateEmailOrSSOCode(sanitizedInput)) {
                 ValidateEmailOrSSOCodeUseCase.Result.InvalidInput -> {
                     updateLoginFlowState(NewLoginFlowState.Error.TextFieldError.InvalidValue)
@@ -162,6 +164,43 @@ class NewLoginViewModel(
             }
         }
     }
+
+    private suspend fun tryStartSharedAuthLogin(userIdentifier: String): Boolean =
+        sharedAuthNewLoginAdapter.tryStartLogin(
+            request = SharedAuthNewLoginRequest(
+                userIdentifier = userIdentifier,
+                serverConfig = serverConfig,
+                customServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig,
+            ),
+            callbacks = object : SharedAuthNewLoginCallbacks {
+                override suspend fun showInvalidInput() {
+                    updateLoginFlowState(NewLoginFlowState.Error.TextFieldError.InvalidValue)
+                }
+
+                override suspend fun showGenericError(failure: CoreFailure) {
+                    updateLoginFlowState(NewLoginFlowState.Error.DialogError.GenericError(failure))
+                }
+
+                override suspend fun showCustomServerDialog(serverLinks: ServerConfig.Links) {
+                    updateLoginFlowState(NewLoginFlowState.CustomConfigDialog(serverLinks))
+                }
+
+                override suspend fun openEmailPassword(userIdentifier: String, loginPasswordPath: LoginPasswordPath) {
+                    sendAction(NewLoginAction.EmailPassword(userIdentifier, loginPasswordPath))
+                    updateLoginFlowState(NewLoginFlowState.Default)
+                }
+
+                override suspend fun openSso(url: String, config: SSOUrlConfig) {
+                    sendAction(NewLoginAction.SSO(url, config))
+                    updateLoginFlowState(NewLoginFlowState.Default)
+                }
+
+                override suspend fun openEnterpriseLoginNotSupported(userIdentifier: String) {
+                    sendAction(NewLoginAction.EnterpriseLoginNotSupported(userIdentifier))
+                    updateLoginFlowState(NewLoginFlowState.Default)
+                }
+            }
+        )
 
     @VisibleForTesting
     internal suspend fun getEnterpriseLoginFlow(email: String) = withContext(dispatchers.io()) {

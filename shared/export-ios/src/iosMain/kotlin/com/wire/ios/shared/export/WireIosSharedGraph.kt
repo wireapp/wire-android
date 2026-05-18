@@ -22,35 +22,45 @@ import com.wire.ios.shared.IosViewModel
 import com.wire.ios.shared.MigrationMode
 import com.wire.ios.shared.WireIosSharedConfig
 import com.wire.ios.shared.WireIosSharedScope
-import com.wire.ios.shared.auth.email.KaliumLoginEmailBackend
-import com.wire.ios.shared.auth.email.LoginEmailBackend
-import com.wire.ios.shared.auth.email.LoginEmailEffect
-import com.wire.ios.shared.auth.email.LoginEmailIntent
+import com.wire.shared.auth.email.KaliumLoginEmailGateway
+import com.wire.shared.auth.email.LoginEmailGateway
+import com.wire.shared.auth.email.LoginEmailEffect
+import com.wire.shared.auth.email.LoginEmailIntent
+import com.wire.shared.auth.email.LoginEmailState
 import com.wire.ios.shared.auth.email.LoginEmailIosViewModel
 import com.wire.ios.shared.auth.email.LoginEmailIosViewModelFactory
-import com.wire.ios.shared.auth.email.LoginEmailState
 import com.wire.ios.shared.auth.email.createGenericLoginEmailIosViewModel
 import com.wire.ios.shared.auth.email.createLoginEmailIosViewModel
-import com.wire.ios.shared.auth.login.model.LoginServerLinks
-import com.wire.ios.shared.auth.newlogin.KaliumNewLoginIdentifierBackend
-import com.wire.ios.shared.auth.newlogin.NewLoginIdentifierBackend
-import com.wire.ios.shared.auth.newlogin.NewLoginIdentifierEffect
-import com.wire.ios.shared.auth.newlogin.NewLoginIdentifierIntent
+import com.wire.shared.auth.flow.AuthLoginFlowBackend
+import com.wire.shared.auth.flow.AuthLoginFlowEffect
+import com.wire.shared.auth.flow.AuthLoginFlowIntent
+import com.wire.shared.auth.flow.AuthLoginFlowState
+import com.wire.shared.auth.flow.KaliumAuthLoginFlowBackend
+import com.wire.ios.shared.auth.flow.AuthLoginFlowIosViewModel
+import com.wire.ios.shared.auth.flow.AuthLoginFlowIosViewModelFactory
+import com.wire.ios.shared.auth.flow.createAuthLoginFlowIosViewModel
+import com.wire.ios.shared.auth.flow.createGenericAuthLoginFlowIosViewModel
+import com.wire.shared.auth.login.model.LoginServerLinks
+import com.wire.shared.auth.newlogin.KaliumNewLoginIdentifierBackend
+import com.wire.shared.auth.newlogin.NewLoginIdentifierBackend
+import com.wire.shared.auth.newlogin.NewLoginIdentifierEffect
+import com.wire.shared.auth.newlogin.NewLoginIdentifierIntent
+import com.wire.shared.auth.newlogin.NewLoginIdentifierState
 import com.wire.ios.shared.auth.newlogin.NewLoginIdentifierIosViewModel
 import com.wire.ios.shared.auth.newlogin.NewLoginIdentifierIosViewModelFactory
-import com.wire.ios.shared.auth.newlogin.NewLoginIdentifierState
 import com.wire.ios.shared.auth.newlogin.createGenericNewLoginIdentifierIosViewModel
 import com.wire.ios.shared.auth.newlogin.createNewLoginIdentifierIosViewModel
-import com.wire.ios.shared.auth.welcome.WelcomeEffect
-import com.wire.ios.shared.auth.welcome.WelcomeIntent
+import com.wire.shared.auth.welcome.WelcomeEffect
+import com.wire.shared.auth.welcome.WelcomeIntent
+import com.wire.shared.auth.welcome.WelcomeState
 import com.wire.ios.shared.auth.welcome.WelcomeIosViewModel
 import com.wire.ios.shared.auth.welcome.WelcomeIosViewModelFactory
-import com.wire.ios.shared.auth.welcome.WelcomeState
 import com.wire.ios.shared.auth.welcome.createGenericWelcomeIosViewModel
 import com.wire.ios.shared.auth.welcome.createWelcomeIosViewModel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.CoreLogicCommon
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import com.wire.shared.auth.SharedAuthConfig
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -78,6 +88,17 @@ interface WireIosSharedGraph {
             userAgent = "WireIosShared/1.0 iOS",
         )
     }
+
+    @Provides
+    fun provideSharedAuthConfig(config: WireIosSharedConfig): SharedAuthConfig =
+        SharedAuthConfig(
+            defaultServerLinks = config.defaultServerLinks,
+            isThereActiveSession = config.isThereActiveSession,
+            maxAccountsReached = config.maxAccountsReached,
+            nomadAccountBlocksLogin = config.nomadAccountBlocksLogin,
+            isAccountCreationAllowed = config.isAccountCreationAllowed,
+            useNewRegistration = config.useNewRegistration,
+        )
 
     @Provides
     fun provideWelcomeIosViewModel(
@@ -121,9 +142,26 @@ interface WireIosSharedGraph {
         createGenericLoginEmailIosViewModel(loginEmailIosViewModelFactory)
 
     @Provides
-    fun provideLoginEmailBackend(
-        backend: KaliumLoginEmailBackend,
-    ): LoginEmailBackend = backend
+    fun provideLoginEmailGateway(
+        gateway: KaliumLoginEmailGateway,
+    ): LoginEmailGateway = gateway
+
+    @Provides
+    fun provideAuthLoginFlowViewModel(
+        authLoginFlowIosViewModelFactory: AuthLoginFlowIosViewModelFactory,
+    ): AuthLoginFlowIosViewModel =
+        createAuthLoginFlowIosViewModel(authLoginFlowIosViewModelFactory)
+
+    @Provides
+    fun provideGenericAuthLoginFlowViewModel(
+        authLoginFlowIosViewModelFactory: AuthLoginFlowIosViewModelFactory,
+    ): IosViewModel<AuthLoginFlowState, AuthLoginFlowEffect, AuthLoginFlowIntent> =
+        createGenericAuthLoginFlowIosViewModel(authLoginFlowIosViewModelFactory)
+
+    @Provides
+    fun provideAuthLoginFlowBackend(
+        backend: KaliumAuthLoginFlowBackend,
+    ): AuthLoginFlowBackend = backend
 
     val welcomeViewModel: WelcomeIosViewModel
     val welcomeIosViewModel: IosViewModel<WelcomeState, WelcomeEffect, WelcomeIntent>
@@ -131,6 +169,9 @@ interface WireIosSharedGraph {
     val newLoginIdentifierIosViewModel: IosViewModel<NewLoginIdentifierState, NewLoginIdentifierEffect, NewLoginIdentifierIntent>
     val loginEmailViewModel: LoginEmailIosViewModel
     val loginEmailIosViewModel: IosViewModel<LoginEmailState, LoginEmailEffect, LoginEmailIntent>
+    val loginEmailViewModelFactory: LoginEmailIosViewModelFactory
+    val authLoginFlowViewModel: AuthLoginFlowIosViewModel
+    val authLoginFlowIosViewModel: IosViewModel<AuthLoginFlowState, AuthLoginFlowEffect, AuthLoginFlowIntent>
 
     /**
      * Releases resources owned by the export graph.
@@ -149,6 +190,34 @@ fun createWireIosSharedGraph(config: WireIosSharedConfig): WireIosSharedGraph =
 fun createWireIosShared(defaultServerLinks: LoginServerLinks): WireIosSharedGraph =
     createWireIosSharedGraph(
         config = com.wire.ios.shared.createWireIosSharedConfig(defaultServerLinks)
+    )
+
+/**
+ * Creates the shared graph for the first real iOS auth UI slice.
+ *
+ * This factory is intended for wiring the existing iOS email/password screen to
+ * [LoginEmailIosViewModel] while the rest of the production auth flow can remain legacy iOS.
+ *
+ * Lifecycle for this phase:
+ * - keep one graph for the auth debug/app session, not one graph per SwiftUI render;
+ * - create screen ViewModels from the graph and close each ViewModel when its host adapter is
+ *   deallocated or explicitly closed;
+ * - call [WireIosSharedGraph.close] when the whole graph/session is discarded.
+ *
+ * Storage for this phase:
+ * - use temporary clean-install paths for [MigrationMode.CleanInstallProbe];
+ * - do not point this graph at production `AccountData` until the existing-account integration is
+ *   explicitly enabled and validated in `wire-ios`.
+ */
+fun createWireIosSharedAuthGraph(
+    defaultServerLinks: LoginServerLinks,
+    runtimeConfig: IosKaliumRuntimeConfig,
+): WireIosSharedGraph =
+    createWireIosSharedGraph(
+        config = com.wire.ios.shared.createWireIosSharedConfig(
+            defaultServerLinks = defaultServerLinks,
+            runtimeConfig = runtimeConfig,
+        )
     )
 
 fun createWireIosSharedProbe(

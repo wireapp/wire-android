@@ -17,7 +17,7 @@
  */
 package com.wire.ios.shared
 
-import com.wire.ios.shared.auth.login.model.LoginServerLinks
+import com.wire.shared.auth.login.model.LoginServerLinks
 
 data class WireIosSharedConfig(
     val defaultServerLinks: LoginServerLinks,

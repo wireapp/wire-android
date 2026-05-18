@@ -104,7 +104,9 @@ import com.ramcosta.composedestinations.generated.app.destinations.SearchConvers
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.UpdateAppsAccessScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.PromoteAdminScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
+import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.options.LoadingGroupConversation
@@ -299,6 +301,9 @@ fun GroupConversationDetailsScreen(
                 )
             )
         },
+        onPromoteAdmin = { conversationId ->
+            navigator.navigate(NavigationCommand(PromoteAdminScreenDestination(PromoteAdminNavArgs(conversationId))))
+        },
         openConversationDebugMenu = {
             navigator.navigate(
                 NavigationCommand(
@@ -374,6 +379,7 @@ private fun GroupConversationDetailsContent(
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     onLeftConversation: () -> Unit = {},
     onDeletedConversation: () -> Unit = {},
+    onPromoteAdmin: (ConversationId) -> Unit = {},
     openConversationDebugMenu: (ConversationId) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
     isScreenLoading: StateFlow<Boolean> = MutableStateFlow(false),
@@ -559,6 +565,7 @@ private fun GroupConversationDetailsContent(
         openConversationFolders = onMoveToFolder,
         onLeftConversation = onLeftConversation,
         onDeletedConversation = onDeletedConversation,
+        onPromoteAdmin = onPromoteAdmin,
         openConversationDebugMenu = openConversationDebugMenu,
     )
 

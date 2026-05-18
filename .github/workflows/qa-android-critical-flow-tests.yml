@@ -98,7 +98,7 @@ jobs:
 
     outputs:
       resolvedAppBuildNumber: ${{ steps.resolve_run_inputs.outputs.appBuildNumber }}
-      resolvedIsUpgrade: ${{ steps.resolve_run_inputs.outputs.isUpgrade }}
+      resolvedIsUpgrade: ${{ steps.resolve_run_inputs.outputs.isUpgrade == 'true' || steps.resolve_selector.outputs.category == 'upgrade' }}
       resolvedOldBuildNumber: ${{ steps.resolve_run_inputs.outputs.oldBuildNumber }}
       resolvedEnforceAppInstall: ${{ steps.resolve_run_inputs.outputs.enforceAppInstall }}
       resolvedFlavor: ${{ steps.resolve_run_inputs.outputs.flavor }}
@@ -179,6 +179,7 @@ jobs:
         env:
           WORKFLOW_REF: ${{ github.ref_name }}
           FLAVOR_INPUT: ${{ steps.resolve_run_inputs.outputs.flavor }}
+          IS_UPGRADE: ${{ steps.resolve_run_inputs.outputs.isUpgrade == 'true' || steps.resolve_selector.outputs.category == 'upgrade' }}
           RESOLVED_TESTCASE_ID: ${{ steps.resolve_selector.outputs.testCaseId }}
           RESOLVED_CATEGORY: ${{ steps.resolve_selector.outputs.category }}
           TESTINY_RUN_NAME: ${{ steps.resolve_run_inputs.outputs.testinyRunName }}
@@ -298,13 +299,13 @@ jobs:
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
         run: |
-          if [[ "${IS_UPGRADE}" == "true" && ( "${RESOLVED_CATEGORY}" == "upgrade" || "${RESOLVED_TESTCASE_ID}" == "TC-8607" ) ]]; then
+          if [[ "${IS_UPGRADE}" == "true" && ( "${RESOLVED_CATEGORY}" == "upgrade" || -n "${RESOLVED_TESTCASE_ID}" ) ]]; then
             # Single upgrade-tagged runs do not need the normal phase. They only
             # pin execution to one device and install the old APK before launch.
             upgrade_device="${DEVICE_LIST%% *}"
             DEVICE_LIST="${upgrade_device}" \
               DEVICE_COUNT="1" \
-              APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH}" \
+              APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
               RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
               bash scripts/qa_android_ui_tests/run_ui_tests.sh
           elif [[ "${IS_UPGRADE}" == "true" && -z "${RESOLVED_TESTCASE_ID}" ]]; then
@@ -326,7 +327,7 @@ jobs:
             DEVICE_LIST="${upgrade_device}" \
               DEVICE_COUNT="1" \
               RESOLVED_CATEGORY="upgrade" \
-              APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH}" \
+              APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
               RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
               ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/upgrade" \
               bash scripts/qa_android_ui_tests/run_ui_tests.sh || upgrade_status=$?

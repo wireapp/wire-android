@@ -173,8 +173,8 @@ jobs:
             normal_status=0
             upgrade_status=0
             retry_state_dirs=""
-            grep 'criticalFlows\.UpgradeVersion#' "${INITIAL_FAILED_TESTS_FILE}" > "${upgrade_failed_file}" || true
-            grep -v 'criticalFlows\.UpgradeVersion#' "${INITIAL_FAILED_TESTS_FILE}" > "${normal_failed_file}" || true
+            grep 'tests\.UpgradeVersion#' "${INITIAL_FAILED_TESTS_FILE}" > "${upgrade_failed_file}" || true
+            grep -v 'tests\.UpgradeVersion#' "${INITIAL_FAILED_TESTS_FILE}" > "${normal_failed_file}" || true
 
             if [[ -s "${normal_failed_file}" ]]; then
               INITIAL_FAILED_TESTS_FILE="${normal_failed_file}" \
@@ -189,7 +189,7 @@ jobs:
               DEVICE_LIST="${upgrade_device}" \
                 DEVICE_COUNT="1" \
                 INITIAL_FAILED_TESTS_FILE="${upgrade_failed_file}" \
-                APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH}" \
+                APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
                 RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade-deflake" \
                 ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/upgrade" \
                 bash scripts/qa_android_ui_tests/run_ui_tests.sh || upgrade_status=$?

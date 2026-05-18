@@ -87,6 +87,7 @@ resolve_selector_from_tags() {
 print_resolved_values() {
   echo "workflowRef=${WORKFLOW_REF:-}"
   echo "flavor=${FLAVOR_INPUT:-}"
+  echo "resolvedIsUpgrade=${IS_UPGRADE:-}"
   echo "resolvedTestCaseId=${RESOLVED_TESTCASE_ID:-}"
   echo "resolvedCategory=${RESOLVED_CATEGORY:-}"
   echo "testinyRunName=${TESTINY_RUN_NAME:-}"

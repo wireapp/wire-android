@@ -234,7 +234,8 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                                 searchQuery = searchQuery,
                                 selfUserTeamId = getSelfUser()?.teamId,
                                 playingAudioMessage = playingAudioMessage
-                            ).hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold)
+                            )
+                                .hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold)
                         } to searchQuery
                     }
                 }
@@ -401,11 +402,14 @@ private fun List<ConversationItem>.unreadToReadConversationsItems(): Pair<List<C
 
             MutedConversationStatus.AllMuted -> false
         } || (it is ConversationItem.Group && it.hasOnGoingCall)
-    }
+    }.sortedByDescending { it.isActiveGroupCall }
 
     val remainingConversations = this - unreadConversations.toSet()
     return unreadConversations to remainingConversations
 }
+
+private val ConversationItem.isActiveGroupCall: Boolean
+    get() = this is ConversationItem.Group && hasOnGoingCall
 
 private fun searchConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> =
     conversationDetails.filter { details ->

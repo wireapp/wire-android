@@ -108,7 +108,8 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                         playingAudioMessage = playingAudioMessage
                     )
                 }
-            }.flowOn(dispatchers.io())
+            }
+            .flowOn(dispatchers.io())
     }
 
     private fun staticPagingItems(conversations: List<ConversationDetailsWithEvents>): PagingData<ConversationDetailsWithEvents> {

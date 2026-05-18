@@ -158,8 +158,8 @@ class TaggedFilter : Filter() {
     }
 
     private fun matchesFilters(description: Description): Boolean {
-        val annos = description.annotations
-        val cats = annos.filterIsInstance<Category>()
+val annotations = description.annotations
+val categories = annos.filterIsInstance<Category>()
 
         excludeCategory?.let { excludedCat ->
             val matchesExcludedCat = cats.any { catAnno ->

@@ -1,0 +1,1 @@
+{"ffddada759c496cc614327c918083f4a":{"statistic":{"failed":0,"broken":1,"skipped":0,"passed":0,"unknown":0,"total":1},"items":[{"uid":"7dd6c4a16fbbd406","status":"broken","statusDetails":"Failed to upgrade Wire using APK from '/data/local/tmp/Wire.new.apk'. Output: <empty>","time":{"start":1779110269841,"stop":1779110316409,"duration":46568}}]}}

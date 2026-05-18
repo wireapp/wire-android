@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
@@ -166,7 +167,9 @@ fun ConversationsScreenContent(
 
     when (val state = conversationListViewModel.conversationListState) {
         is ConversationListState.Paginated -> {
-            val lazyPagingItems = state.conversations.collectAsLazyPagingItemsWithLifecycle()
+            val lazyPagingItems = state.conversations.collectAsLazyPagingItemsWithLifecycle(
+                minActiveState = Lifecycle.State.STARTED
+            )
             searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
             when {
                 // when conversation list is not yet fetched, show loading indicator

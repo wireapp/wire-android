@@ -62,7 +62,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
                 unreadEventCount = unreadEventCount
             ),
-            hasOnGoingCall = conversationDetails.hasOngoingCall && conversationDetails.isSelfUserMember,
+            hasOnGoingCall = false,
             isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
             isSelfUserMember = conversationDetails.isSelfUserMember,
             teamId = conversationDetails.conversation.teamId,
@@ -89,7 +89,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
                 unreadEventCount = unreadEventCount
             ),
-            hasOnGoingCall = conversationDetails.hasOngoingCall && conversationDetails.isSelfUserMember,
+            hasOnGoingCall = false,
             isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
             isSelfUserMember = conversationDetails.isSelfUserMember,
             teamId = conversationDetails.conversation.teamId,

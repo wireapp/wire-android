@@ -88,6 +88,7 @@ fun ConversationList(
     onEditConversation: (ConversationItem) -> Unit = {},
     onOpenUserProfile: (UserId) -> Unit = {},
     onJoinCall: (ConversationId) -> Unit = {},
+    activeCallConversationIds: Set<ConversationId> = emptySet(),
     onConversationSelectedOnRadioGroup: (ConversationItem) -> Unit = {},
     onAudioPermissionPermanentlyDenied: () -> Unit = {},
     onPlayPauseCurrentAudio: () -> Unit = { },
@@ -138,12 +139,13 @@ fun ConversationList(
                         is ConversationSection.WithoutHeader -> {}
                     }
 
-                    is ConversationItem ->
+                    is ConversationItem -> {
+                        val conversation = item.withActiveCallStatus(activeCallConversationIds)
                         ConversationItemFactory(
-                            conversation = item,
+                            conversation = conversation,
                             isSelectableItem = isSelectableList,
-                            isChecked = selectedConversations.contains(item.conversationId),
-                            onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(item) },
+                            isChecked = selectedConversations.contains(conversation.conversationId),
+                            onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(conversation) },
                             openConversation = onOpenConversation,
                             openMenu = onEditConversation,
                             openUserProfile = onOpenUserProfile,
@@ -152,6 +154,7 @@ fun ConversationList(
                             onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
                             onStopCurrentAudio = onStopCurrentAudio
                         )
+                    }
 
                     else -> {}
                 }
@@ -213,6 +216,7 @@ fun ConversationList(
     onEditConversation: (ConversationItem) -> Unit = {},
     onOpenUserProfile: (UserId) -> Unit = {},
     onJoinCall: (ConversationId) -> Unit = {},
+    activeCallConversationIds: Set<ConversationId> = emptySet(),
     onConversationSelectedOnRadioGroup: (ConversationId) -> Unit = {},
     onAudioPermissionPermanentlyDenied: () -> Unit = {},
     onPlayPauseCurrentAudio: () -> Unit = { },
@@ -233,11 +237,12 @@ fun ConversationList(
                     it.conversationId.toString()
                 }
             ) { generalConversation ->
+                val conversation = generalConversation.withActiveCallStatus(activeCallConversationIds)
                 ConversationItemFactory(
-                    conversation = generalConversation,
+                    conversation = conversation,
                     isSelectableItem = isSelectableList,
-                    isChecked = selectedConversations.contains(generalConversation),
-                    onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(generalConversation.conversationId) },
+                    isChecked = selectedConversations.any { it.conversationId == conversation.conversationId },
+                    onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(conversation.conversationId) },
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,

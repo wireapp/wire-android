@@ -227,7 +227,6 @@ internal fun mockConversationDetailsGroup(
 ) = ConversationDetails.Group.Regular(
     conversation = TestConversation.GROUP()
         .copy(name = conversationName, id = mockedConversationId),
-    hasOngoingCall = false,
     isSelfUserMember = true,
     selfRole = Conversation.Member.Role.Member,
     wireCell = null,

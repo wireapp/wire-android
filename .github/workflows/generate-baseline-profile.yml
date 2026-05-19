@@ -117,12 +117,20 @@ jobs:
       - name: Archive normalized measurement snapshot
         id: snapshot
         run: |
-          SNAPSHOT_DIR="benchmark/baselines/$(date -u +%Y-%m-%d)-post-profile/prodBenchmarkBenchmark/connected"
-          rm -rf "$SNAPSHOT_DIR/device"
+          SOURCE_DIR="benchmark/build/outputs/connected_android_test_additional_output/prodBenchmarkBenchmark/connected"
+          SNAPSHOT_DIR="benchmark/baselines/$(date -u +%Y-%m-%d)-post-profile/prodBenchmarkBenchmark/connected/device"
+
+          rm -rf "$SNAPSHOT_DIR"
           mkdir -p "$SNAPSHOT_DIR"
-          cp -r benchmark/build/outputs/connected_android_test_additional_output/prodBenchmarkBenchmark/connected/* \
-            "$SNAPSHOT_DIR/device"
-          echo "snapshot_dir=$SNAPSHOT_DIR/device" >> "$GITHUB_OUTPUT"
+
+          if [[ -d "$SOURCE_DIR" ]] && [[ -n "$(ls -A "$SOURCE_DIR" 2>/dev/null)" ]]; then
+            cp -r "$SOURCE_DIR"/. "$SNAPSHOT_DIR/"
+          else
+            echo "WARNING: No benchmark output found at $SOURCE_DIR"
+            ls -la benchmark/build/outputs/connected_android_test_additional_output/ 2>/dev/null || echo "(parent dir not found)"
+          fi
+
+          echo "snapshot_dir=$SNAPSHOT_DIR" >> "$GITHUB_OUTPUT"
 
       - name: Upload benchmark outputs
         uses: actions/upload-artifact@v7

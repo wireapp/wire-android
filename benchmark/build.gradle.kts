@@ -36,6 +36,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Required because :tests:testsSupport depends on java.time APIs.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     flavorDimensions += FlavorDimensions.DEFAULT
@@ -89,4 +91,5 @@ dependencies {
     implementation(libs.zxing.android.embedded)
     implementation(libs.zxing.core)
     implementation(project(":tests:testsSupport"))
+    coreLibraryDesugaring(libs.android.desugarJdkLibs)
 }

@@ -519,8 +519,12 @@ fun ConversationScreen(
                         if (isSelfUser) {
                             SelfUserProfileScreenDestination
                         } else {
-                            (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId?.let { conversationId ->
-                                OtherUserProfileScreenDestination(mentionUserId, conversationId)
+                            (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)
+                                ?.conversationId?.let { conversationId ->
+                                    OtherUserProfileScreenDestination(
+                                        mentionUserId,
+                                        conversationId
+                                    )
                             }
                         }
                     }
@@ -646,7 +650,10 @@ fun ConversationScreen(
                     is ConversationDetailsData.Group ->
                         GroupConversationDetailsScreenDestination(conversationId)
 
-                    is ConversationDetailsData.None -> { null /* do nothing */ }
+                    is ConversationDetailsData.None -> {
+                        /* do nothing */
+                        null
+                    }
                 }
 
                 route?.let {

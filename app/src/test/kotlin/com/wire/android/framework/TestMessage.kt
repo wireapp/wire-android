@@ -21,6 +21,7 @@ package com.wire.android.framework
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageHeader
+import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -154,7 +155,8 @@ object TestMessage {
         messageId = "messageID",
         connectionState = null,
         isSenderDeleted = false,
-        isSenderUnavailable = false
+        isSenderUnavailable = false,
+        senderId = MessageSenderId.User(null)
     )
     val MISSED_CALL_MESSAGE = Message.System(
         id = "messageID",

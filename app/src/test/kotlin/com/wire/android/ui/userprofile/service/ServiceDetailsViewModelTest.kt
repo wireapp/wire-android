@@ -44,6 +44,9 @@ import com.wire.kalium.logic.feature.app.ObserveIsAppMemberResult
 import com.wire.kalium.logic.feature.app.ObserveIsAppMemberUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.CreateConversationResult
+import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
@@ -213,7 +216,7 @@ class ServiceDetailsViewModelTest {
 
             // when
             viewModel.infoMessage.test {
-                viewModel.removeService()
+                viewModel.onRemoveService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -240,7 +243,7 @@ class ServiceDetailsViewModelTest {
 
             // when
             viewModel.infoMessage.test {
-                viewModel.removeService()
+                viewModel.onRemoveService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -267,7 +270,7 @@ class ServiceDetailsViewModelTest {
 
             // when
             viewModel.infoMessage.test {
-                viewModel.addService()
+                viewModel.onAddService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -294,7 +297,7 @@ class ServiceDetailsViewModelTest {
 
             // when
             viewModel.infoMessage.test {
-                viewModel.addService()
+                viewModel.onAddService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -372,6 +375,8 @@ class ServiceDetailsViewModelTest {
             // then
             assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
             assertEquals(null, viewModel.serviceDetailsState.serviceMemberId)
+            assertEquals(true, viewModel.serviceDetailsState.isAppsEnabled)
+            assertEquals(false, viewModel.serviceDetailsState.isConversationStarted)
             assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState.buttonState)
         }
 
@@ -440,7 +445,7 @@ class ServiceDetailsViewModelTest {
 
             // when
             viewModel.infoMessage.test {
-                viewModel.removeService()
+                viewModel.onRemoveService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -470,7 +475,7 @@ class ServiceDetailsViewModelTest {
 
             // when
             viewModel.infoMessage.test {
-                viewModel.removeService()
+                viewModel.onRemoveService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -500,7 +505,7 @@ class ServiceDetailsViewModelTest {
 
             // when
             viewModel.infoMessage.test {
-                viewModel.addService()
+                viewModel.onAddService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -530,7 +535,7 @@ class ServiceDetailsViewModelTest {
 
             // when
             viewModel.infoMessage.test {
-                viewModel.addService()
+                viewModel.onAddService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -541,6 +546,85 @@ class ServiceDetailsViewModelTest {
                 }
 
                 assertEquals(ServiceDetailsInfoMessageType.ErrorAddService.uiText, awaitItem())
+            }
+        }
+
+    @Test
+    fun `given user opens service details screen from create conversation flow, when one to one conversation already exists, then conversation started state is shown`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withServiceApp(
+                    service = APP_ID,
+                    conversationId = null
+                )
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.MLS)))
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withOneToOneConversationCreated(isCreated = true)
+                .arrange()
+
+            // when
+            // view model is initialized
+
+            // then
+            assertEquals(true, viewModel.serviceDetailsState.isConversationStarted)
+        }
+
+    @Test
+    fun `given user opens service details screen, when opening conversation succeeds, then conversation event is emitted`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withServiceApp(
+                    service = APP_ID,
+                    conversationId = null
+                )
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.MLS)))
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withGetOrCreateOneToOneConversation(
+                    CreateConversationResult.Success(
+                        conversation = TestConversation.ONE_ON_ONE.copy(id = CONVERSATION_ID)
+                    )
+                )
+                .arrange()
+
+            // when
+            viewModel.openConversationEvent.test {
+                viewModel.onOpenConversation()
+
+                // then
+                coVerify(exactly = 1) {
+                    arrangement.getOrCreateOneToOneConversation(APP_ID)
+                }
+                assertEquals(CONVERSATION_ID, awaitItem())
+            }
+        }
+
+    @Test
+    fun `given user opens service details screen, when opening conversation fails, then error message is emitted`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withServiceApp(
+                    service = APP_ID,
+                    conversationId = null
+                )
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.MLS)))
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withGetOrCreateOneToOneConversation(
+                    CreateConversationResult.Failure(CoreFailure.Unknown(null))
+                )
+                .arrange()
+
+            // when
+            viewModel.infoMessage.test {
+                viewModel.onOpenConversation()
+
+                // then
+                coVerify(exactly = 1) {
+                    arrangement.getOrCreateOneToOneConversation(APP_ID)
+                }
+                assertEquals(ServiceDetailsInfoMessageType.ErrorStartOrOpenConversation.uiText, awaitItem())
             }
         }
 
@@ -622,6 +706,12 @@ class ServiceDetailsViewModelTest {
         lateinit var addMemberToConversation: AddMemberToConversationUseCase
 
         @MockK
+        lateinit var isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase
+
+        @MockK
+        lateinit var getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase
+
+        @MockK
         lateinit var savedStateHandle: SavedStateHandle
 
         private val selfUser = TestUser.SELF_USER
@@ -640,6 +730,8 @@ class ServiceDetailsViewModelTest {
                 removeMemberFromConversation,
                 addServiceToConversation,
                 addMemberToConversation,
+                isOneToOneConversationCreated,
+                getOrCreateOneToOneConversation,
                 savedStateHandle
             )
         }
@@ -656,6 +748,9 @@ class ServiceDetailsViewModelTest {
             coEvery {
                 observeConversationDetails(any())
             } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(CONVERSATION_GROUP))
+            coEvery {
+                isOneToOneConversationCreated(any())
+            } returns false
         }
 
         fun withServiceBot(service: BotService, conversationId: ConversationId? = CONVERSATION_ID) = apply {
@@ -720,6 +815,14 @@ class ServiceDetailsViewModelTest {
 
         fun withAddService(result: AddServiceToConversationUseCase.Result) = apply {
             coEvery { addServiceToConversation(any(), any()) } returns result
+        }
+
+        fun withOneToOneConversationCreated(isCreated: Boolean) = apply {
+            coEvery { isOneToOneConversationCreated(any()) } returns isCreated
+        }
+
+        fun withGetOrCreateOneToOneConversation(result: CreateConversationResult) = apply {
+            coEvery { getOrCreateOneToOneConversation(any()) } returns result
         }
 
         fun arrange() = this to viewModel

@@ -169,9 +169,9 @@ data class MessageHeader(
 )
 
 sealed interface MessageSenderId {
-    data class User(val id: String?): MessageSenderId
-    data class App(val appId: UserId): MessageSenderId
-    data class Bot(val botService: BotService): MessageSenderId
+    data class User(val id: String?) : MessageSenderId
+    data class App(val appId: UserId) : MessageSenderId
+    data class Bot(val botService: BotService) : MessageSenderId
 }
 
 @Stable

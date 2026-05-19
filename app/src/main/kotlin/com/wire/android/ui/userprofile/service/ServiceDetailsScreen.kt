@@ -294,7 +294,13 @@ private fun ServiceDetailsStartOrOpenConversation(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 WirePrimaryButton(
-                    text = stringResource(if (isConversationStarted) R.string.label_open_conversation else R.string.label_start_conversation),
+                    text = stringResource(
+                        id = if (isConversationStarted) {
+                            R.string.label_open_conversation
+                        } else {
+                            R.string.label_start_conversation
+                        }
+                    ),
                     onClick = onOpenConversation,
                     clickBlockParams = ClickBlockParams(
                         blockWhenSyncing = true,

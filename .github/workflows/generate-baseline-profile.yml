@@ -39,10 +39,13 @@ jobs:
         shell: bash
 
     steps:
-      - name: Checkout develop
+      # TODO: Revert to `ref: ${{ env.BASE_BRANCH }}` once the baseline profile setup
+      # (baselineprofile plugin, benchmark module conversion) is merged to develop.
+      # Using github.ref allows testing the workflow on the feature branch before merge.
+      - name: Checkout
         uses: actions/checkout@v6
         with:
-          ref: ${{ env.BASE_BRANCH }}
+          ref: ${{ github.ref }}
           clean: true
           fetch-depth: 0
           submodules: recursive

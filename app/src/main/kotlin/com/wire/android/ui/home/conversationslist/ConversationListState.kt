@@ -20,22 +20,26 @@ package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.runtime.Stable
 import androidx.paging.PagingData
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationSection
 import com.wire.android.ui.home.conversationslist.model.ConversationItemType
-import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 @Stable
 sealed interface ConversationListState {
     data class Paginated(
         val conversations: Flow<PagingData<ConversationItemType>>,
+        val activeCallConversationIds: Flow<Set<ConversationId>> = flowOf(emptySet()),
         val domain: String = "",
     ) : ConversationListState
     data class NotPaginated(
         val isLoading: Boolean = true,
         val conversations: ImmutableMap<ConversationSection, List<ConversationItem>> = persistentMapOf(),
+        val activeCallConversationIds: Flow<Set<ConversationId>> = flowOf(emptySet()),
         val domain: String = "",
     ) : ConversationListState
 }

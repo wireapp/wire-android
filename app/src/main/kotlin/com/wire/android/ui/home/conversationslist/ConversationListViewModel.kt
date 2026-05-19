@@ -48,7 +48,9 @@ import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallConversationIdsUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
@@ -71,7 +73,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -106,6 +110,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val observeConversationListDetailsWithEvents: ObserveConversationListDetailsWithEventsUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
+    private val observeActiveCallConversationIds: ObserveActiveCallConversationIdsUseCase,
     private val observeLegalHoldStateForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
     @CurrentAccount val currentAccount: UserId,
@@ -130,6 +135,11 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
     private val isSelfUserUnderLegalHoldFlow = MutableSharedFlow<Boolean>(replay = 1)
+    private val activeCallConversationIdsFlow: Flow<Set<ConversationId>> = flow {
+        emitAll(observeActiveCallConversationIds())
+    }
+        .onStart { emit(emptySet()) }
+        .flowOn(dispatcher.io())
 
     private val containsNewActivitiesSection = when (conversationsSource) {
         ConversationsSource.MAIN,
@@ -190,8 +200,13 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     override var conversationListState by mutableStateOf(
         when (usePagination) {
-            true -> ConversationListState.Paginated(conversations = conversationsPaginatedFlow, domain = currentAccount.domain)
-            false -> ConversationListState.NotPaginated()
+            true -> ConversationListState.Paginated(
+                conversations = conversationsPaginatedFlow,
+                activeCallConversationIds = activeCallConversationIdsFlow,
+                domain = currentAccount.domain
+            )
+
+            false -> ConversationListState.NotPaginated(activeCallConversationIds = activeCallConversationIdsFlow)
         }
     )
         private set
@@ -254,6 +269,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                     conversationListState = ConversationListState.NotPaginated(
                         isLoading = false,
                         conversations = it,
+                        activeCallConversationIds = activeCallConversationIdsFlow,
                         domain = currentAccount.domain
                     )
                 }

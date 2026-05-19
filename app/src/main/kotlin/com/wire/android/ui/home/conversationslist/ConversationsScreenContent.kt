@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
@@ -167,6 +168,7 @@ fun ConversationsScreenContent(
     when (val state = conversationListViewModel.conversationListState) {
         is ConversationListState.Paginated -> {
             val lazyPagingItems = state.conversations.collectAsLazyPagingItemsWithLifecycle()
+            val activeCallConversationIds by state.activeCallConversationIds.collectAsStateWithLifecycle(emptySet())
             searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
             when {
                 // when conversation list is not yet fetched, show loading indicator
@@ -179,6 +181,7 @@ fun ConversationsScreenContent(
                     onEditConversation = onEditConversationItem,
                     onOpenUserProfile = onOpenUserProfile,
                     onJoinCall = onJoinCall,
+                    activeCallConversationIds = activeCallConversationIds,
                     onAudioPermissionPermanentlyDenied = {
                         permissionPermanentlyDeniedDialogState.show(
                             PermissionPermanentlyDeniedDialogState.Visible(
@@ -200,6 +203,7 @@ fun ConversationsScreenContent(
         }
 
         is ConversationListState.NotPaginated -> {
+            val activeCallConversationIds by state.activeCallConversationIds.collectAsStateWithLifecycle(emptySet())
             val hasConversations = state.conversations.isNotEmpty() && state.conversations.any { it.value.isNotEmpty() }
             searchBarState.searchVisibleChanged(isSearchVisible = hasConversations || searchBarState.isSearchActive)
             when {
@@ -213,6 +217,7 @@ fun ConversationsScreenContent(
                     onEditConversation = onEditConversationItem,
                     onOpenUserProfile = onOpenUserProfile,
                     onJoinCall = onJoinCall,
+                    activeCallConversationIds = activeCallConversationIds,
                     onAudioPermissionPermanentlyDenied = {
                         permissionPermanentlyDeniedDialogState.show(
                             PermissionPermanentlyDeniedDialogState.Visible(

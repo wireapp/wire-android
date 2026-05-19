@@ -79,6 +79,11 @@ class CallsModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveActiveCallConversationIdsUseCase(callsScope: CallsScope) =
+        callsScope.observeActiveCallConversationIds
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveEstablishedCallWithSortedParticipantsUseCase(callsScope: CallsScope) =
         callsScope.observeEstablishedCallWithSortedParticipants
 

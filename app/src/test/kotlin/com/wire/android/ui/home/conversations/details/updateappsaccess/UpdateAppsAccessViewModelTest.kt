@@ -385,7 +385,6 @@ class UpdateAppsAccessViewModelTest {
                 proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                 legalHoldStatus = Conversation.LegalHoldStatus.ENABLED
             ),
-            hasOngoingCall = false,
             isSelfUserMember = true,
             selfRole = Conversation.Member.Role.Member,
             wireCell = null,

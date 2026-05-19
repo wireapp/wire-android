@@ -92,8 +92,7 @@ fun ServiceDetailsScreen(
                         ConversationScreenDestination(
                             navArgs = ConversationNavArgs(conversationId = conversationId)
                         ),
-                        // TODO(Alexandre): fix here
-                        BackStackMode.CLEAR_WHOLE
+                        BackStackMode.UPDATE_EXISTED
                     )
                 )
             }

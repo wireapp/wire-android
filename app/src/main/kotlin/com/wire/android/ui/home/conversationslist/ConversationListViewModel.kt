@@ -24,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.PagingDataEvent
+import androidx.paging.PagingDataPresenter
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
@@ -63,6 +65,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -71,6 +74,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -89,10 +93,11 @@ interface ConversationListViewModel {
     val conversationListState: ConversationListState get() = ConversationListState.Paginated(emptyFlow())
 
     /**
-     * Snapshot of the latest non-empty paged conversation items, kept alive in the
-     * ViewModel so that it survives back-stack navigation. The UI feeds this from
-     * `LazyPagingItems.itemSnapshotList` while items are present, and reads it during the
-     * transient empty frame paging-compose 3.3.x emits when the cache is invalidated.
+     * Snapshot of the latest non-empty paged conversation items, derived from
+     * `conversationsPaginatedFlow` via a `PagingDataPresenter` running in `viewModelScope`.
+     * Lives in the ViewModel so that it survives back-stack navigation; the UI reads it
+     * during the transient empty frame paging-compose 3.3.x emits when the cache is
+     * invalidated, so the list stays visible while the new pages load.
      */
     val itemSnapshotCache: StateFlow<PersistentList<ConversationItemType>> get() = MutableStateFlow(persistentListOf())
 
@@ -100,7 +105,6 @@ interface ConversationListViewModel {
     fun searchQueryChanged(searchQuery: String) {}
     fun playPauseCurrentAudio() {}
     fun stopCurrentAudio() {}
-    fun updateItemSnapshotCache(items: PersistentList<ConversationItemType>) {}
 }
 
 @Suppress("TooManyFunctions")
@@ -144,10 +148,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     private val _itemSnapshotCache = MutableStateFlow<PersistentList<ConversationItemType>>(persistentListOf())
     override val itemSnapshotCache: StateFlow<PersistentList<ConversationItemType>> = _itemSnapshotCache.asStateFlow()
-
-    override fun updateItemSnapshotCache(items: PersistentList<ConversationItemType>) {
-        _itemSnapshotCache.value = items
-    }
 
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
     private val isSelfUserUnderLegalHoldFlow = MutableSharedFlow<Boolean>(replay = 1)
@@ -227,8 +227,49 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     init {
         observeSelfUserLegalHoldState()
-        if (!usePagination) {
+        if (usePagination) {
+            mirrorPagingSnapshotIntoCache()
+        } else {
             observeNonPaginatedSearchConversationList()
+        }
+    }
+
+    /**
+     * Derives the snapshot cache from [conversationsPaginatedFlow] inside the ViewModel,
+     * but only while the UI is actually collecting [itemSnapshotCache]. Without this
+     * gating, the headless presenter would be a permanent subscriber on the shared
+     * paging flow and would defeat the lifecycle gating done at the consumer side
+     * (`flowWithLifecycle` in the helper and `WhileSubscribed` on the upstream
+     * `shareIn`) — DB queries and paging work would keep running in the background.
+     *
+     * The `MutableStateFlow.value` is retained across stop/restart cycles, so the
+     * previous snapshot is still available when the user returns to the screen.
+     */
+    private fun mirrorPagingSnapshotIntoCache() {
+        viewModelScope.launch {
+            _itemSnapshotCache.subscriptionCount
+                .map { it > 0 }
+                .distinctUntilChanged()
+                .collectLatest { hasSubscribers ->
+                    if (!hasSubscribers) return@collectLatest
+                    val presenter = object : PagingDataPresenter<ConversationItemType>(
+                        mainContext = dispatcher.main(),
+                    ) {
+                        override suspend fun presentPagingDataEvent(event: PagingDataEvent<ConversationItemType>) {
+                            // PagingDataPresenter maintains its own snapshot internally;
+                            // we only need to re-read it after each event and publish
+                            // non-empty snapshots so the cache is never clobbered by the
+                            // transient empty frame paging-compose 3.3.x emits.
+                            val items = snapshot().items.filterNotNull().toPersistentList()
+                            if (items.isNotEmpty()) {
+                                _itemSnapshotCache.value = items
+                            }
+                        }
+                    }
+                    conversationsPaginatedFlow.collectLatest { pagingData ->
+                        presenter.collectFrom(pagingData)
+                    }
+                }
         }
     }
 

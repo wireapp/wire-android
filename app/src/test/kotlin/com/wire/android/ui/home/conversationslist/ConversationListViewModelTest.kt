@@ -35,7 +35,6 @@ import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.util.ui.UiTextResolver
 import com.wire.android.util.ui.UIText
@@ -53,7 +52,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -241,17 +239,49 @@ class ConversationListViewModelTest {
         }
 
     @Test
-    fun `given snapshot cache update, when reading itemSnapshotCache, then it reflects the latest value`() =
+    fun `given paging data and a subscriber on itemSnapshotCache, when collecting, then cache mirrors the items`() =
         runTest(dispatcherProvider.main()) {
-            val (_, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
-
-            val items = persistentListOf<ConversationItemType>(
+            val conversations = listOf(
                 TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", "")),
                 TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", "")),
             )
-            conversationListViewModel.updateItemSnapshotCache(items)
+            val (_, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
+                .withConversationsPaginated(conversations)
+                .withSelfUserLegalHoldState(LegalHoldStateForSelfUser.Disabled)
+                .arrange()
 
-            assertEquals(items, conversationListViewModel.itemSnapshotCache.value)
+            // The mirror only runs while there's a subscriber on itemSnapshotCache —
+            // gating the headless presenter behind subscriptionCount keeps it from
+            // doing paging work in the background. Use Turbine to drive a real
+            // subscription.
+            conversationListViewModel.itemSnapshotCache.test {
+                // initial empty value from MutableStateFlow
+                assertEquals(0, awaitItem().size)
+                // first non-empty snapshot once the PagingDataPresenter has processed
+                val populated = awaitItem()
+                assertEquals(
+                    conversations.map { it.conversationId },
+                    populated.filterIsInstance<ConversationItem>().map { it.conversationId },
+                )
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `given no subscriber on itemSnapshotCache, when paging data emits, then the cache stays empty`() =
+        runTest(dispatcherProvider.main()) {
+            val conversations = listOf(
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", "")),
+            )
+            val (_, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
+                .withConversationsPaginated(conversations)
+                .withSelfUserLegalHoldState(LegalHoldStateForSelfUser.Disabled)
+                .arrange()
+            advanceUntilIdle()
+
+            // No subscriber attached → the headless presenter never runs → the cache is
+            // still the empty initial value. This protects against background work.
+            assertEquals(0, conversationListViewModel.itemSnapshotCache.value.size)
         }
 
     @Test

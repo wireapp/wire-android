@@ -27,7 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -74,8 +73,6 @@ import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.flow.filter
 
 /**
  * This is a base for creating screens for displaying list of conversations.
@@ -174,15 +171,6 @@ fun ConversationsScreenContent(
             val lazyPagingItems = state.conversations.collectAsLazyPagingItemsWithLifecycle()
             val loadingState = lazyPagingItems.loadingState()
             val itemSnapshotCache by conversationListViewModel.itemSnapshotCache.collectAsStateWithLifecycle()
-
-            // Feed the ViewModel-side snapshot cache from the live paging items so it survives
-            // back-stack navigation. We only persist non-empty snapshots — the transient empty
-            // LazyPagingItems emitted by paging-compose 3.3.x must not overwrite the cache.
-            LaunchedEffect(lazyPagingItems, conversationListViewModel) {
-                snapshotFlow { lazyPagingItems.itemSnapshotList.items.filterNotNull() }
-                    .filter { it.isNotEmpty() }
-                    .collect { conversationListViewModel.updateItemSnapshotCache(it.toPersistentList()) }
-            }
 
             // While still loading we keep the previous search-bar visibility and skip the
             // "no conversations" branch so the screen doesn't flicker on back-navigation.

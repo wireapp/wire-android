@@ -29,10 +29,14 @@ import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
 import com.ramcosta.composedestinations.generated.app.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.BotService
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 
 @WireNewConversationDestination(
@@ -69,8 +73,25 @@ fun NewConversationSearchPeopleScreen(
         isAppsTabVisible = (newConversationViewModel.groupOptionsState.isTeamAllowedToUseApps is AppsAllowedResult.Enabled),
         conversationProtocol = null,
         onAppClicked = { contact ->
-            OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
-                .let { navigator.navigate(NavigationCommand(it)) }
+            val serviceDetailsNavArgsId: ServiceDetailsNavArgs.Id =
+                if (newConversationViewModel.groupOptionsState.shouldShowNewAppsUi) {
+                    ServiceDetailsNavArgs.Id.AppId(
+                        UserId(contact.id, contact.domain)
+                    )
+                } else {
+                    ServiceDetailsNavArgs.Id.BotServiceId(
+                        BotService(id = contact.id, provider = contact.domain)
+                    )
+                }
+
+            navigator.navigate(
+                NavigationCommand(
+                    ServiceDetailsScreenDestination(
+                        null,
+                        serviceDetailsNavArgsId
+                    )
+                )
+            )
         }
     )
 

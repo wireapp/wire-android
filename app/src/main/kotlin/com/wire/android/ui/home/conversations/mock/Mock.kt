@@ -28,6 +28,7 @@ import com.wire.android.ui.home.conversations.model.MessageEditStatus
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
+import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
@@ -87,7 +88,8 @@ val mockHeader = MessageHeader(
     messageId = "",
     connectionState = ConnectionState.ACCEPTED,
     isSenderDeleted = false,
-    isSenderUnavailable = false
+    isSenderUnavailable = false,
+    senderId = MessageSenderId.User(null)
 )
 
 fun mockHeaderWithExpiration(expirable: ExpirationStatus.Expirable, isDeleted: Boolean = false) = mockHeader.copy(
@@ -337,7 +339,8 @@ fun mockAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = U
         messageId = messageId,
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
-        isSenderUnavailable = false
+        isSenderUnavailable = false,
+        senderId = MessageSenderId.User(null)
     ),
     messageContent = UIMessageContent.AssetMessage(
         assetName = "This is some test asset message that has a not so long title",
@@ -371,7 +374,8 @@ fun mockAssetAudioMessage(
         messageId = messageId,
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
-        isSenderUnavailable = false
+        isSenderUnavailable = false,
+        senderId = MessageSenderId.User(null)
     ),
     messageContent = UIMessageContent.AudioAssetMessage(
         assetName = "Audio message",
@@ -434,7 +438,8 @@ fun mockedImageUIMessage(
         messageId = messageId,
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
-        isSenderUnavailable = false
+        isSenderUnavailable = false,
+        senderId = MessageSenderId.User(null)
     ),
     source: MessageSource = MessageSource.Self
 ) = UIMessage.Regular(
@@ -482,7 +487,8 @@ fun mockedMultipartMessage(
         messageId = messageId,
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
-        isSenderUnavailable = false
+        isSenderUnavailable = false,
+        senderId = MessageSenderId.User(null)
     ),
     source: MessageSource = MessageSource.Self,
     content: UIMessageContent.Regular = UIMessageContent.Multipart(
@@ -521,7 +527,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageId = "1",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
-            isSenderUnavailable = false
+            isSenderUnavailable = false,
+            senderId = MessageSenderId.User(null)
         ),
         messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
@@ -552,7 +559,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageId = "2",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
-            isSenderUnavailable = false
+            isSenderUnavailable = false,
+            senderId = MessageSenderId.User(null)
         ),
         messageContent = mockedImg(),
         source = MessageSource.Self,
@@ -574,7 +582,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageId = "3",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
-            isSenderUnavailable = false
+            isSenderUnavailable = false,
+            senderId = MessageSenderId.User(null)
         ),
         messageContent = mockedImg(),
         source = MessageSource.Self,
@@ -596,7 +605,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageId = "4",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
-            isSenderUnavailable = false
+            isSenderUnavailable = false,
+            senderId = MessageSenderId.User(null)
         ),
         messageContent = mockedImg(),
         source = MessageSource.Self,
@@ -618,7 +628,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageId = "5",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
-            isSenderUnavailable = false
+            isSenderUnavailable = false,
+            senderId = MessageSenderId.User(null)
         ),
         messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
@@ -649,7 +660,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageId = "6",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
-            isSenderUnavailable = false
+            isSenderUnavailable = false,
+            senderId = MessageSenderId.User(null)
         ),
         messageContent = mockedImg(),
         source = MessageSource.Self,
@@ -671,7 +683,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageId = "7",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
-            isSenderUnavailable = false
+            isSenderUnavailable = false,
+            senderId = MessageSenderId.User(null)
         ),
         messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(

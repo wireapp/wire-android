@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.NameBasedAvatar
@@ -47,6 +48,8 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarType
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.UserBadge
@@ -56,6 +59,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -80,10 +84,27 @@ fun ServiceDetailsScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.openConversationEvent.collect { conversationId ->
+            conversationId?.let {
+                navigator.navigate(
+                    NavigationCommand(
+                        ConversationScreenDestination(
+                            navArgs = ConversationNavArgs(conversationId = conversationId)
+                        ),
+                        // TODO(Alexandre): fix here
+                        BackStackMode.CLEAR_WHOLE
+                    )
+                )
+            }
+        }
+    }
+
     ServiceDetailsContent(
         navigateBack = navigator::navigateBack,
-        addService = viewModel::addService,
-        removeService = viewModel::removeService,
+        onAddService = viewModel::onAddService,
+        onRemoveService = viewModel::onRemoveService,
+        onOpenConversation = viewModel::onOpenConversation,
         serviceDetailsState = viewModel.serviceDetailsState
     )
 }
@@ -91,8 +112,9 @@ fun ServiceDetailsScreen(
 @Composable
 private fun ServiceDetailsContent(
     navigateBack: () -> Unit,
-    addService: () -> Unit,
-    removeService: () -> Unit,
+    onAddService: () -> Unit,
+    onRemoveService: () -> Unit,
+    onOpenConversation: () -> Unit,
     serviceDetailsState: ServiceDetailsState
 ) {
     WireScaffold(
@@ -112,10 +134,11 @@ private fun ServiceDetailsContent(
             }
         },
         bottomBar = {
-            ServiceDetailsAddOrRemoveButton(
-                buttonState = serviceDetailsState.buttonState,
-                addService = addService,
-                removeService = removeService
+            ServiceDetailsButtons(
+                serviceDetailsState = serviceDetailsState,
+                onAddService = onAddService,
+                onRemoveService = onRemoveService,
+                onOpenConversation = onOpenConversation
             )
         }
     )
@@ -223,8 +246,8 @@ private fun ServiceDetailsDescription(serviceDetails: ServiceDetails) {
 @Composable
 private fun ServiceDetailsAddOrRemoveButton(
     buttonState: ServiceDetailsButtonState,
-    addService: () -> Unit,
-    removeService: () -> Unit
+    onAddService: () -> Unit,
+    onRemoveService: () -> Unit
 ) {
     val (shouldShow: Boolean, textString: String?) = when (buttonState) {
         ServiceDetailsButtonState.HIDDEN -> Pair(false, null)
@@ -243,7 +266,7 @@ private fun ServiceDetailsAddOrRemoveButton(
             ) {
                 WirePrimaryButton(
                     text = textString,
-                    onClick = if (buttonState == ServiceDetailsButtonState.ADD) addService else removeService,
+                    onClick = if (buttonState == ServiceDetailsButtonState.ADD) onAddService else onRemoveService,
                     clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                     modifier = Modifier
                         .weight(1f)
@@ -254,8 +277,67 @@ private fun ServiceDetailsAddOrRemoveButton(
     }
 }
 
+@Composable
+private fun ServiceDetailsStartOrOpenConversation(
+    isDataLoading: Boolean,
+    isConversationStarted: Boolean,
+    onOpenConversation: () -> Unit
+) {
+    if (!isDataLoading) {
+        Surface(
+            color = MaterialTheme.wireColorScheme.background,
+            shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
+        ) {
+            HorizontalDivider(color = colorsScheme().outline)
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                WirePrimaryButton(
+                    text = stringResource(if (isConversationStarted) R.string.label_open_conversation else R.string.label_start_conversation),
+                    onClick = onOpenConversation,
+                    clickBlockParams = ClickBlockParams(
+                        blockWhenSyncing = true,
+                        blockWhenConnecting = true
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(dimensions().spacing16x)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ServiceDetailsButtons(
+    serviceDetailsState: ServiceDetailsState,
+    onAddService: () -> Unit,
+    onRemoveService: () -> Unit,
+    onOpenConversation: () -> Unit
+) {
+    when {
+        serviceDetailsState.conversationId != null -> ServiceDetailsAddOrRemoveButton(
+            buttonState = serviceDetailsState.buttonState,
+            onAddService = onAddService,
+            onRemoveService = onRemoveService
+        )
+        serviceDetailsState.isAppsEnabled -> ServiceDetailsStartOrOpenConversation(
+            isDataLoading = serviceDetailsState.isDataLoading,
+            isConversationStarted = serviceDetailsState.isConversationStarted,
+            onOpenConversation = onOpenConversation
+        )
+    }
+}
+
 @Preview
 @Composable
 fun PreviewServiceDetailsScreen() {
-    ServiceDetailsContent({}, {}, {}, ServiceDetailsState())
+    ServiceDetailsContent(
+        navigateBack = {},
+        onAddService = {},
+        onRemoveService = {},
+        onOpenConversation = {},
+        serviceDetailsState = ServiceDetailsState()
+    )
 }

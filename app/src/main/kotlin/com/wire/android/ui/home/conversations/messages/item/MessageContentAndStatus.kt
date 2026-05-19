@@ -45,6 +45,7 @@ import com.wire.android.ui.home.conversations.messages.QuotedUnavailable
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageImage
+import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -70,7 +71,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     messageStyle: MessageStyle,
     onAssetClicked: (String) -> Unit,
     onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit,
-    onProfileClicked: (String) -> Unit,
+    onProfileClicked: (senderId: MessageSenderId) -> Unit,
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
     shouldDisplayMessageStatus: Boolean,
@@ -163,7 +164,7 @@ private fun MessageContent(
     onAssetClick: Clickable,
     onImageClick: Clickable,
     onMultipartImageClick: (String) -> Unit,
-    onOpenProfile: (String) -> Unit,
+    onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
     accent: Accent,

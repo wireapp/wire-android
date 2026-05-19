@@ -26,6 +26,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarType.WithIndicators
 import com.wire.android.ui.home.conversations.model.MessageHeader
+import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.common.R as commonR
 
 @Composable
@@ -33,7 +34,7 @@ fun RegularMessageItemLeading(
     header: MessageHeader,
     showAuthor: Boolean,
     userAvatarData: UserAvatarData,
-    onOpenProfile: (String) -> Unit
+    onOpenProfile: (MessageSenderId) -> Unit
 ) {
     val isProfileRedirectEnabled =
         header.userId != null && !(header.isSenderDeleted || header.isSenderUnavailable)
@@ -44,7 +45,7 @@ fun RegularMessageItemLeading(
                 enabled = isProfileRedirectEnabled,
                 onClickDescription = openProfileDescription
             ) {
-                onOpenProfile(header.userId!!.toString())
+                onOpenProfile(header.senderId)
             }
         }
         val avatarContentDescription = listOfNotNull(

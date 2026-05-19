@@ -27,10 +27,12 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.AppsUtil
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
@@ -40,6 +42,9 @@ import com.wire.kalium.logic.feature.app.ObserveIsAppMemberResult
 import com.wire.kalium.logic.feature.app.ObserveIsAppMemberUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.CreateConversationResult
+import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
@@ -75,28 +80,28 @@ class ServiceDetailsViewModel @Inject constructor(
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val addServiceToConversation: AddServiceToConversationUseCase,
     private val addMemberToConversation: AddMemberToConversationUseCase,
+    private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
+    private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
 
     private val serviceId: ServiceId = serviceDetailsNavArgs.id.serviceId
+    private val userId: UserId = serviceDetailsNavArgs.id.userId
     private val conversationId: QualifiedID? = serviceDetailsNavArgs.conversationId
 
     var serviceDetailsState by mutableStateOf(ServiceDetailsState())
-    var isAppsEnabled by mutableStateOf(false)
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
 
+    private val _openConversationEvent = MutableSharedFlow<ConversationId?>()
+    val openConversationEvent = _openConversationEvent.asSharedFlow()
+
     init {
         viewModelScope.launch {
-            serviceDetailsState = serviceDetailsState.copy(
-                serviceId = serviceId,
-                conversationId = conversationId,
-                isDataLoading = true,
-                isAvatarLoading = true
-            )
+            getIfConversationExist()
 
             val appsAllowedResult = observeIsAppsAllowedForUsage().firstOrNull()
 
@@ -107,26 +112,37 @@ class ServiceDetailsViewModel @Inject constructor(
                     .firstOrNull()
             }
 
-            isAppsEnabled = AppsUtil.isAppsAllowed(
+            val isAppsEnabled = AppsUtil.isAppsAllowed(
                 appsAllowedResult = appsAllowedResult,
                 conversationProtocol = conversationProtocolInfo
             )
 
-            when {
-                isAppsEnabled && serviceDetailsNavArgs.id is ServiceDetailsNavArgs.Id.AppId -> {
-                    getAppDetailsAndUpdateViewState(serviceDetailsNavArgs.id.appId)
-                        ?.let { observeIsAppConversationMember(serviceDetailsNavArgs.id.appId) }
+            serviceDetailsState = serviceDetailsState.copy(
+                serviceId = serviceId,
+                conversationId = conversationId,
+                isDataLoading = true,
+                isAvatarLoading = true,
+                isAppsEnabled = isAppsEnabled
+            )
+
+            when (val id = serviceDetailsNavArgs.id) {
+                is ServiceDetailsNavArgs.Id.AppId -> {
+                    val details = getAppDetailsAndUpdateViewState(id.appId)
+                    if (details != null && isAppsEnabled) {
+                        observeIsAppConversationMember(id.appId)
+                    }
                 }
-                !isAppsEnabled && serviceDetailsNavArgs.id is ServiceDetailsNavArgs.Id.BotServiceId -> {
-                    getServiceDetailsAndUpdateViewState()
-                        ?.let { observeIsServiceConversationMember() }
+
+                is ServiceDetailsNavArgs.Id.BotServiceId -> {
+                    getServiceDetailsAndUpdateViewState()?.let {
+                        observeIsServiceConversationMember()
+                    }
                 }
-                else -> serviceNotFound()
             }
         }
     }
 
-    fun addService() {
+    fun onAddService() {
         viewModelScope.launch {
             val responseMessage = when (val id = serviceDetailsNavArgs.id) {
                 is ServiceDetailsNavArgs.Id.AppId -> {
@@ -159,7 +175,7 @@ class ServiceDetailsViewModel @Inject constructor(
         }
     }
 
-    fun removeService() {
+    fun onRemoveService() {
         viewModelScope.launch {
             serviceDetailsState.serviceMemberId?.let { serviceMemberId ->
                 val response = withContext(dispatchers.io()) {
@@ -175,6 +191,22 @@ class ServiceDetailsViewModel @Inject constructor(
                 }
 
                 _infoMessage.emit(responseMessage.uiText)
+            }
+        }
+    }
+
+    fun onOpenConversation() {
+        viewModelScope.launch {
+            val result = withContext(dispatchers.io()) {
+                getOrCreateOneToOneConversation(userId)
+            }
+
+            when (result) {
+                is CreateConversationResult.Failure -> {
+                    appLogger.d("Couldn't retrieve or create the conversation")
+                    _infoMessage.emit(ServiceDetailsInfoMessageType.ErrorStartOrOpenConversation.uiText)
+                }
+                is CreateConversationResult.Success -> _openConversationEvent.emit(result.conversation.id)
             }
         }
     }
@@ -262,6 +294,17 @@ class ServiceDetailsViewModel @Inject constructor(
                         groupInfo
                     )
                 }
+        }
+    }
+
+    private fun getIfConversationExist() {
+        viewModelScope.launch {
+            if (conversationId == null) {
+                val isOneToOneConversationCreated = isOneToOneConversationCreated(userId)
+                serviceDetailsState = serviceDetailsState.copy(
+                    isConversationStarted = isOneToOneConversationCreated
+                )
+            }
         }
     }
 

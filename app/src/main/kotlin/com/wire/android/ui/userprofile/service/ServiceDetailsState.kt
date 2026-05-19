@@ -31,8 +31,10 @@ data class ServiceDetailsState(
     val serviceAvatarAsset: ImageAsset.UserAvatarAsset? = null,
     val isDataLoading: Boolean = false,
     val isAvatarLoading: Boolean = false,
+    val isConversationStarted: Boolean = false,
     val buttonState: ServiceDetailsButtonState = ServiceDetailsButtonState.HIDDEN,
-    val serviceMemberId: QualifiedID? = null
+    val serviceMemberId: QualifiedID? = null,
+    val isAppsEnabled: Boolean = false
 )
 
 data class ServiceDetailsGroupState(

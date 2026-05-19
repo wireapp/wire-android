@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 2 * * 0"
+  push:
+    branches:
+      - 'perf/ci-scheduled-runs'
 
 permissions:
   contents: write

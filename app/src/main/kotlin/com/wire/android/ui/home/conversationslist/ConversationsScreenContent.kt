@@ -282,8 +282,8 @@ fun ConversationsScreenContent(
             navigator.navigate(
                 NavigationCommand(
                     DebugConversationScreenDestination(
-                navArgs = DebugConversationScreenNavArgs(conversationId)
-            )
+                        navArgs = DebugConversationScreenNavArgs(conversationId)
+                    )
                 )
             )
         },
@@ -297,9 +297,11 @@ fun ConversationsScreenContent(
 private enum class PagedLoadingState {
     /** First time the user sees this list — no cached items exist, show the skeleton. */
     InitialLoad,
+
     /** Returning to the screen mid-refresh after cache invalidation — keep the list view
      *  so the user doesn't see the skeleton or empty state flash. */
     Reloading,
+
     /** Loaded (or settled empty). The UI can use itemCount to choose a branch. */
     Loaded,
 }

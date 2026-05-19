@@ -253,11 +253,10 @@ class ConversationListViewModelTest {
             // The mirror only runs while there's a subscriber on itemSnapshotCache —
             // gating the headless presenter behind subscriptionCount keeps it from
             // doing paging work in the background. Use Turbine to drive a real
-            // subscription.
+            // subscription. Under runTest's virtual time the presenter populates
+            // before Turbine reads the first item, so StateFlow conflation skips the
+            // initial empty value — we only assert on the populated state.
             conversationListViewModel.itemSnapshotCache.test {
-                // initial empty value from MutableStateFlow
-                assertEquals(0, awaitItem().size)
-                // first non-empty snapshot once the PagingDataPresenter has processed
                 val populated = awaitItem()
                 assertEquals(
                     conversations.map { it.conversationId },

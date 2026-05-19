@@ -158,7 +158,11 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         .combine(audioMessagePlayer.playingAudioMessageFlow) { (searchQuery, isSelfUserUnderLegalHold), playingAudioMessage ->
             Triple(searchQuery, isSelfUserUnderLegalHold, playingAudioMessage)
         }
-        .flatMapLatest { (searchQuery, isSelfUserUnderLegalHold, playingAudioMessage) ->
+        .combine(activeCallConversationIdsFlow) { conversationListConfig, activeCallConversationIds ->
+            conversationListConfig to activeCallConversationIds
+        }
+        .flatMapLatest { (conversationListConfig, activeCallConversationIds) ->
+            val (searchQuery, isSelfUserUnderLegalHold, playingAudioMessage) = conversationListConfig
             getConversationsPaginated(
                 searchQuery = searchQuery,
                 fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
@@ -175,15 +179,18 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                             // do not add separators if the list shouldn't show conversations grouped into different folders
                             !containsNewActivitiesSection -> null
 
-                            before == null && after != null && after.hasNewActivitiesToShow ->
+                            before == null && after != null && after.hasNewActivitiesToShow(activeCallConversationIds) ->
                                 // list starts with items with "new activities"
                                 ConversationSection.Predefined.NewActivities
 
-                            before == null && after != null && !after.hasNewActivitiesToShow ->
+                            before == null && after != null && !after.hasNewActivitiesToShow(activeCallConversationIds) ->
                                 // list doesn't contain any items with "new activities"
                                 ConversationSection.Predefined.Conversations
 
-                            before != null && before.hasNewActivitiesToShow && after != null && !after.hasNewActivitiesToShow ->
+                            before != null &&
+                                    before.hasNewActivitiesToShow(activeCallConversationIds) &&
+                                    after != null &&
+                                    !after.hasNewActivitiesToShow(activeCallConversationIds) ->
                                 // end of "new activities" section and beginning of "conversations" section
                                 ConversationSection.Predefined.Conversations
 
@@ -237,8 +244,9 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                             conversationFilter = conversationsSource.toFilter()
                         ),
                         isSelfUserUnderLegalHoldFlow,
-                        audioMessagePlayer.playingAudioMessageFlow
-                    ) { conversations, isSelfUserUnderLegalHold, playingAudioMessage ->
+                        audioMessagePlayer.playingAudioMessageFlow,
+                        activeCallConversationIdsFlow
+                    ) { conversations, isSelfUserUnderLegalHold, playingAudioMessage, activeCallConversationIds ->
                         conversations.map { conversationDetails ->
                             conversationDetails.toConversationItem(
                                 userTypeMapper = userTypeMapper,
@@ -248,17 +256,24 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                                 playingAudioMessage = playingAudioMessage
                             )
                                 .hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold)
-                        } to searchQuery
+                        } to (searchQuery to activeCallConversationIds)
                     }
                 }
-                .map { (conversationItems, searchQuery) ->
+                .map { (conversationItems, searchQueryAndActiveCallConversationIds) ->
+                    val (searchQuery, activeCallConversationIds) = searchQueryAndActiveCallConversationIds
                     if (searchQuery.isEmpty()) {
-                        conversationItems.withSections(source = conversationsSource).toImmutableMap()
+                        conversationItems.withSections(
+                            source = conversationsSource,
+                            activeCallConversationIds = activeCallConversationIds
+                        ).toImmutableMap()
                     } else {
                         searchConversation(
                             conversationDetails = conversationItems,
                             searchQuery = searchQuery
-                        ).withSections(source = conversationsSource).toImmutableMap()
+                        ).withSections(
+                            source = conversationsSource,
+                            activeCallConversationIds = activeCallConversationIds
+                        ).toImmutableMap()
                     }
                 }
                 .flowOn(dispatcher.io())
@@ -346,7 +361,10 @@ private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUn
     }
 
 @Suppress("ComplexMethod")
-private fun List<ConversationItem>.withSections(source: ConversationsSource): Map<ConversationSection, List<ConversationItem>> {
+private fun List<ConversationItem>.withSections(
+    source: ConversationsSource,
+    activeCallConversationIds: Set<ConversationId> = emptySet()
+): Map<ConversationSection, List<ConversationItem>> {
     return when (source) {
         ConversationsSource.ARCHIVE -> {
             buildMap {
@@ -362,7 +380,7 @@ private fun List<ConversationItem>.withSections(source: ConversationsSource): Ma
         ConversationsSource.ONE_ON_ONE,
         is ConversationsSource.FOLDER,
         ConversationsSource.MAIN -> {
-            val (unreadConversations, remainingConversations) = unreadToReadConversationsItems()
+            val (unreadConversations, remainingConversations) = unreadToReadConversationsItems(activeCallConversationIds)
             buildMap {
                 if (unreadConversations.isNotEmpty()) {
                     put(ConversationSection.Predefined.NewActivities, unreadConversations)
@@ -374,7 +392,7 @@ private fun List<ConversationItem>.withSections(source: ConversationsSource): Ma
         }
 
         is ConversationsSource.CHANNELS -> {
-            val (unreadConversations, remainingConversations) = unreadToReadConversationsItems()
+            val (unreadConversations, remainingConversations) = unreadToReadConversationsItems(activeCallConversationIds)
             buildMap {
                 put(ConversationSection.Predefined.BrowseChannels, emptyList())
                 if (unreadConversations.isNotEmpty()) {
@@ -389,7 +407,9 @@ private fun List<ConversationItem>.withSections(source: ConversationsSource): Ma
 }
 
 @Suppress("CyclomaticComplexMethod")
-private fun List<ConversationItem>.unreadToReadConversationsItems(): Pair<List<ConversationItem>, List<ConversationItem>> {
+private fun List<ConversationItem>.unreadToReadConversationsItems(
+    activeCallConversationIds: Set<ConversationId>
+): Pair<List<ConversationItem>, List<ConversationItem>> {
     val unreadConversations = filter {
         when (it.mutedStatus) {
             MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
@@ -414,15 +434,21 @@ private fun List<ConversationItem>.unreadToReadConversationsItems(): Pair<List<C
                 }
 
             MutedConversationStatus.AllMuted -> false
-        } || (it is ConversationItem.Group && it.hasOnGoingCall)
-    }.sortedByDescending { it.isActiveGroupCall }
+        } || it.isActiveGroupCall(activeCallConversationIds)
+    }.sortedByDescending { it.isActiveGroupCall(activeCallConversationIds) }
 
     val remainingConversations = this - unreadConversations.toSet()
     return unreadConversations to remainingConversations
 }
 
-private val ConversationItem.isActiveGroupCall: Boolean
-    get() = this is ConversationItem.Group && hasOnGoingCall
+private fun ConversationItemType.hasNewActivitiesToShow(activeCallConversationIds: Set<ConversationId>): Boolean =
+    this is ConversationItem && hasNewActivitiesToShow(activeCallConversationIds)
+
+private fun ConversationItem.hasNewActivitiesToShow(activeCallConversationIds: Set<ConversationId>): Boolean =
+    hasNewActivitiesToShow || isActiveGroupCall(activeCallConversationIds)
+
+private fun ConversationItem.isActiveGroupCall(activeCallConversationIds: Set<ConversationId>): Boolean =
+    this is ConversationItem.Group && isSelfUserMember && conversationId in activeCallConversationIds
 
 private fun searchConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> =
     conversationDetails.filter { details ->

@@ -27,9 +27,11 @@ import com.wire.android.testSupport.service.TestService
 import kotlinx.coroutines.runBlocking
 import network.HttpRequestException
 import service.enums.LegalHoldStatus
+import service.enums.TeamService
 import service.models.Conversation
 import service.models.SendLocationParams
 import service.models.SendTextParams
+import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import java.io.File
@@ -38,6 +40,7 @@ import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class TestServiceHelper(
     private val usersManager: ClientUserManager
@@ -339,6 +342,62 @@ class TestServiceHelper(
         }
     }
 
+    fun userIsConnectedTo(userFromNameAlias: String, usersToNameAliases: String) {
+        val userFrom = toClientUser(userFromNameAlias)
+        val fromBackend = backendFor(userFrom)
+        val usersTo = usersManager
+            .splitAliases(usersToNameAliases)
+            .map(this::toClientUser)
+        runBlocking {
+            usersTo.forEach { userTo ->
+                fromBackend.sendConnectionRequest(userFrom, userTo)
+                backendFor(userTo).acceptIncomingConnectionRequest(userTo, userFrom)
+            }
+        }
+    }
+
+    fun userEnablesServiceForTeam(ownerOrAdminUserAlias: String, serviceName: String, teamName: String) {
+        userSwitchesServicesForTeam(ownerOrAdminUserAlias, true, serviceName, teamName)
+    }
+
+    fun userSwitchesServicesForTeam(
+        ownerOrAdminUserAlias: String,
+        isEnabled: Boolean,
+        serviceNames: String,
+        teamName: String
+    ) {
+        val ownerOrAdminUser = toClientUser(ownerOrAdminUserAlias)
+        val backend = backendFor(ownerOrAdminUser)
+        runBlocking {
+            val team = backend.getTeamByName(ownerOrAdminUser, teamName)
+            serviceNames.split(",")
+                .map(String::trim)
+                .map(TeamService::fromName)
+                .forEach { service ->
+                    backend.switchServiceForTeam(
+                        ownerOrAdminUser,
+                        team.id,
+                        service.providerId,
+                        service.serviceId,
+                        isEnabled
+                    )
+                }
+        }
+    }
+
+    // region Bots
+
+    fun userAddsBotToConversation(userWhoAddsAlias: String, botToAdd: String, chatName: String) {
+        val userWhoAdds = toClientUser(userWhoAddsAlias)
+        val backend = backendFor(userWhoAdds)
+        val conversation = toConvoObj(userWhoAdds, chatName)
+        runBlocking {
+            backend.addServiceToConversation(userWhoAdds, botToAdd, conversation)
+        }
+    }
+
+    // endregion Bots
+
     fun addDevice(
         ownerAlias: String,
         verificationCode: String? = null,
@@ -390,6 +449,23 @@ class TestServiceHelper(
         }
     }
 
+    fun userHas1on1ConversationInTeam(
+        chatOwnerNameAlias: String,
+        otherParticipantsNameAlises: String,
+        teamName: String
+    ) {
+        val chatOwner = toClientUser(chatOwnerNameAlias)
+        val participants = usersManager
+            .splitAliases(otherParticipantsNameAlises)
+            .map(this::toClientUser)
+        val backend = backendFor(chatOwner)
+
+        runBlocking {
+            val dstTeam = backend.getTeamByName(chatOwner, teamName)
+            backend.createTeamConversation(chatOwner, participants, null, dstTeam)
+        }
+    }
+
     fun isSendReadReceiptEnabled(userNameAlias: String): Boolean {
         val user = toClientUser(userNameAlias)
         val backend = backendFor(user)
@@ -402,6 +478,21 @@ class TestServiceHelper(
         } else {
             false
         }
+    }
+
+    fun userRemovesUserFromGroupConversation(
+        userWhoRemovesAlias: String,
+        userToRemoveAlias: String,
+        chatName: String
+    ) {
+        val userWhoRemoves = toClientUser(userWhoRemovesAlias)
+        val userToRemove = toClientUser(userToRemoveAlias)
+        val backend = backendFor(userWhoRemoves)
+        backend.removeUserFromGroupConversation(
+            userWhoRemoves,
+            userToRemove,
+            toConvoObj(userWhoRemoves, chatName)
+        )
     }
 
     private fun Int.toBoolean(): Boolean {
@@ -486,6 +577,49 @@ class TestServiceHelper(
             deviceName = deviceName,
             timeout = resolveMessageTimeout(senderAlias, dstConvoName, isSelfDeleting)
         )
+    }
+
+    fun userTogglesReactionOnLatestMessage(
+        senderAlias: String,
+        convoName: String,
+        deviceName: String,
+        reaction: String
+    ) {
+        val sender = toClientUser(senderAlias)
+        val conversation = toConvoObj(sender, convoName)
+        val convoId = conversation.qualifiedID.id
+        val convoDomain = conversation.qualifiedID.domain
+        val recentMessageId = getRecentMessageId(sender, deviceName, convoId, convoDomain)
+
+        testServiceClient.toggleReaction(
+            sender,
+            deviceName,
+            convoId,
+            convoDomain,
+            recentMessageId,
+            reaction
+        )
+    }
+
+    private fun getRecentMessageId(
+        user: ClientUser,
+        deviceName: String?,
+        convoId: String,
+        convoDomain: String
+    ): String {
+        var messageIds = emptyList<String>()
+        val hasMessages = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = 1.seconds
+        ) {
+            messageIds = testServiceClient.getMessageIds(user, deviceName, convoId, convoDomain)
+            messageIds.isNotEmpty()
+        }
+
+        if (hasMessages) {
+            return messageIds.last()
+        }
+        throw IllegalStateException("The conversation contains no messages")
     }
 
     private fun resolveMessageTimeout(

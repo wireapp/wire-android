@@ -26,10 +26,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,6 +48,8 @@ import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -56,7 +60,11 @@ fun ParticipantItem(
     RowItemTemplate(
         leadingIcon = {
             UserProfileAvatar(
-                UserAvatarData(asset = participant.avatar, nameBasedAvatar = NameBasedAvatar(participant.name, participant.accentId)),
+                avatarData = UserAvatarData(
+                    asset = participant.avatar,
+                    nameBasedAvatar = NameBasedAvatar(participant.name, participant.accentId)
+                ),
+                modifier = Modifier.alpha(if (participant.hasEstablishedAudio) 1f else 0.5f)
             )
         },
         titleStartPadding = dimensions().spacing0x,
@@ -68,46 +76,75 @@ fun ParticipantItem(
                 Text(
                     text = participant.name.orEmpty(),
                     style = typography().title02,
-                    color = colorsScheme().onSurface,
+                    color = when (participant.hasEstablishedAudio) {
+                        true -> colorsScheme().onSurface
+                        false -> colorsScheme().secondaryText
+                    },
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(weight = 1f, fill = false)
                 )
+                if (participant.isSelfUser) {
+                    Text(
+                        text = stringResource(R.string.conversation_participant_you_label),
+                        style = MaterialTheme.wireTypography.title02,
+                        color = MaterialTheme.wireColorScheme.secondaryText,
+                    )
+                }
                 MembershipQualifierLabel(membership = participant.membership)
             }
         },
         actions = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
-            ) {
-                if (participant.isSharingScreen) {
-                    ActionIcon(
-                        icon = R.drawable.ic_screen_share,
-                        contentDescription = R.string.content_description_calling_screen_share_on,
-                    )
-                }
-                if (participant.isCameraOn) {
-                    ActionIcon(
-                        icon = R.drawable.ic_camera_on,
-                        contentDescription = R.string.content_description_calling_camera_on,
-                    )
-                }
-                if (participant.isMuted) {
-                    ActionIcon(
-                        icon = R.drawable.ic_microphone_off,
-                        contentDescription = R.string.content_description_calling_microphone_off,
-                    )
-                } else {
-                    ActionIcon(
-                        icon = R.drawable.ic_microphone_on,
-                        contentDescription = R.string.content_description_calling_microphone_on,
-                        active = participant.isSpeaking,
-                    )
-                }
+            when (participant.hasEstablishedAudio) {
+                true -> ConnectedActionIcons(participant)
+                false -> ConnectingLabel()
             }
         },
         modifier = modifier.padding(start = dimensions().spacing8x),
     )
+}
+
+@Composable
+private fun ConnectingLabel() {
+    Text(
+        color = colorsScheme().error,
+        style = MaterialTheme.wireTypography.label01,
+        text = stringResource(id = R.string.participant_tile_call_connecting_label),
+        maxLines = 1,
+    )
+}
+
+@Composable
+private fun ConnectedActionIcons(participant: UICallParticipant) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+    ) {
+        if (participant.isSharingScreen) {
+            ActionIcon(
+                icon = R.drawable.ic_screen_share,
+                contentDescription = R.string.content_description_calling_screen_share_on,
+            )
+        }
+        if (participant.isCameraOn) {
+            ActionIcon(
+                icon = R.drawable.ic_camera_on,
+                contentDescription = R.string.content_description_calling_camera_on,
+            )
+        }
+        if (participant.isMuted) {
+            ActionIcon(
+                icon = R.drawable.ic_microphone_off,
+                contentDescription = R.string.content_description_calling_microphone_off,
+            )
+        } else {
+            ActionIcon(
+                icon = R.drawable.ic_microphone_on,
+                contentDescription = R.string.content_description_calling_microphone_on,
+                active = participant.isSpeaking,
+            )
+        }
+    }
 }
 
 @Composable
@@ -178,4 +215,16 @@ fun PreviewParticipantItem_NotMutedWithScreenShare() = WireTheme {
 @Composable
 fun PreviewParticipantItem_MutedGuest() = WireTheme {
     ParticipantItem(participant = previewParticipant.copy(isMuted = true, membership = Membership.Guest))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantItem_SelfUser() = WireTheme {
+    ParticipantItem(participant = previewParticipant.copy(isSelfUser = true, name = "Participant with a very long name to be truncated"))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantItem_Connecting() = WireTheme {
+    ParticipantItem(participant = previewParticipant.copy(hasEstablishedAudio = false))
 }

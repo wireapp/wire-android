@@ -65,6 +65,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -233,14 +236,15 @@ fun OngoingCallScreen(
     }
 
     BackHandler {
-            when {
-                scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded -> scope.launch {
-                    scaffoldState.bottomSheetState.partialExpand()
-                }
-                ongoingCallViewModel.state.selectedParticipant != null -> ongoingCallViewModel.onSelectedParticipant(null)
-                shouldUsePiPMode -> (activity as OngoingCallActivity).enterPiPMode(conversationId, ongoingCallViewModel.currentUserId)
-                else -> activity.moveTaskToBack(true)
+        when {
+            scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded -> scope.launch {
+                scaffoldState.bottomSheetState.partialExpand()
             }
+
+            ongoingCallViewModel.state.selectedParticipant != null -> ongoingCallViewModel.onSelectedParticipant(null)
+            shouldUsePiPMode -> (activity as OngoingCallActivity).enterPiPMode(conversationId, ongoingCallViewModel.currentUserId)
+            else -> activity.moveTaskToBack(true)
+        }
     }
 
     OngoingCallContent(
@@ -437,7 +441,21 @@ private fun OngoingCallContent(
             }
         },
         sheetDragHandle = {
-            WireDragHandle(progress = if (scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded) 0f else 1f)
+            val dragHandleContentDescription = when (scaffoldState.bottomSheetState.targetValue) {
+                SheetValue.Expanded -> stringResource(id = R.string.content_description_calling_expanded_participants_list)
+                else -> stringResource(id = R.string.content_description_calling_collapsed_participants_list)
+            }
+            val dragHandleClickContentDescription = when (scaffoldState.bottomSheetState.targetValue) {
+                SheetValue.Expanded -> stringResource(id = R.string.content_description_calling_collapse)
+                else -> stringResource(id = R.string.content_description_calling_expand)
+            }
+            WireDragHandle(
+                progress = if (scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded) 0f else 1f,
+                modifier = Modifier.semantics {
+                    this.contentDescription = dragHandleContentDescription
+                    this.onClick(label = dragHandleClickContentDescription, action = null)
+                }
+            )
         },
         sheetPeekHeight = with(LocalDensity.current) { sheetPeekHeight.toDp() },
         scaffoldState = scaffoldState,
@@ -497,7 +515,7 @@ private fun OngoingCallContent(
                         }
                         ParticipantList(
                             lazyListState = lazyListState,
-                            participants = participants,
+                            participants = participants.sortedBy { it.name }.toPersistentList(),
                         )
                     }
                 }

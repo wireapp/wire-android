@@ -224,7 +224,7 @@ class SSODeviceBackup : BaseUiTest() {
 
                 step("Start SSO login again using SSO code") {
                     pages.registrationPage.apply {
-                        assertEmailWelcomePage()
+                        assertEmailWelcomePage(timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
                     }
                     pages.loginPage.apply {
                         clickStagingDeepLink()

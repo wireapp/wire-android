@@ -116,19 +116,13 @@ object UiAutomatorSetup {
         reportUpgradeLog("Upgrading Wire using APK: $apkPath")
 
         val output = device.executeShellCommand("pm install -r -d -g $apkPath").trim()
-
-        if (!output.contains("Success")) {
-            val installOutput = output.ifBlank { "<empty>" }
-            throw IllegalStateException(
-                "Failed to upgrade Wire using APK from '$apkPath'. Output: $installOutput"
-            )
-        }
-
         val versionAfterUpgrade = getInstalledWireVersion()
         reportUpgradeLog("Installed Wire after upgrade: $versionAfterUpgrade")
         if (versionAfterUpgrade.versionCode <= versionBeforeUpgrade.versionCode) {
+            val installOutput = output.ifBlank { "<empty>" }
             throw IllegalStateException(
-                "Wire was not upgraded. Before: $versionBeforeUpgrade. After: $versionAfterUpgrade"
+                "Wire was not upgraded using APK from '$apkPath'. " +
+                        "Before: $versionBeforeUpgrade. After: $versionAfterUpgrade. Install output: $installOutput"
             )
         }
 

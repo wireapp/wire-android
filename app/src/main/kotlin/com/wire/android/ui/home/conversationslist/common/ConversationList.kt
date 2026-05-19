@@ -72,6 +72,7 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -154,6 +155,99 @@ fun ConversationList(
                         )
 
                     else -> {}
+                }
+            }
+        }
+        Snapshot.withoutReadObservation {
+            keepOnTopWhenNotScrolled(lazyListState)
+        }
+    }
+}
+
+/**
+ * Renders conversations from an in-memory snapshot (kept alive by the ViewModel) instead
+ * of from `LazyPagingItems`. Used as a fallback during the transient empty frame
+ * paging-compose 3.3.x emits when `cachedIn` was invalidated while the user was on
+ * another screen — so the list view remains visible with the previously-known items
+ * until the new paged data finishes loading and replaces it.
+ *
+ * Render logic is intentionally identical to the paginated overload above; only the
+ * source of items differs.
+ */
+@Suppress("LongParameterList", "CyclomaticComplexMethod")
+@Composable
+fun ConversationList(
+    conversationItemsSnapshot: ImmutableList<ConversationItemType>,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
+    isSelectableList: Boolean = false,
+    selectedConversations: List<ConversationId> = emptyList(),
+    onOpenConversation: (ConversationItem) -> Unit = {},
+    onEditConversation: (ConversationItem) -> Unit = {},
+    onOpenUserProfile: (UserId) -> Unit = {},
+    onJoinCall: (ConversationId) -> Unit = {},
+    onConversationSelectedOnRadioGroup: (ConversationItem) -> Unit = {},
+    onAudioPermissionPermanentlyDenied: () -> Unit = {},
+    onPlayPauseCurrentAudio: () -> Unit = { },
+    onStopCurrentAudio: () -> Unit = {},
+    onBrowsePublicChannels: () -> Unit = {}
+) {
+    LazyColumn(
+        state = lazyListState,
+        modifier = modifier.fillMaxSize()
+    ) {
+        items(
+            count = conversationItemsSnapshot.size,
+            key = { index ->
+                when (val it = conversationItemsSnapshot[index]) {
+                    is ConversationSection.Custom -> "section_custom_${it.sectionName}"
+                    is ConversationSection.WithoutHeader -> "section_without_header"
+                    is ConversationItem -> it.conversationId.toString()
+                    ConversationSection.Predefined.BrowseChannels -> "section_predefined_browse_channels"
+                    ConversationSection.Predefined.Conversations -> "section_predefined_conversations"
+                    ConversationSection.Predefined.Favorites -> "section_predefined_favorites"
+                    ConversationSection.Predefined.NewActivities -> "section_predefined_new_activities"
+                }
+            },
+            contentType = { index ->
+                when (conversationItemsSnapshot[index]) {
+                    is ConversationSection -> ConversationSection::class.simpleName
+                    is ConversationItem -> ConversationItem::class.simpleName
+                }
+            }
+        ) { index ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .let { if (LocalInspectionMode.current) it else it.animateItem() }
+            ) {
+                val item = conversationItemsSnapshot[index]
+                if (BuildConfig.PUBLIC_CHANNELS_ENABLED &&
+                    item is ConversationSection.Predefined.BrowseChannels
+                ) {
+                    BrowsePublicChannelsItem(onBrowsePublicChannels)
+                }
+                when (item) {
+                    is ConversationSection -> when (item) {
+                        is ConversationSection.Predefined -> SectionHeader(item.sectionNameResId)
+                        is ConversationSection.Custom -> SectionHeader(item.sectionName)
+                        is ConversationSection.WithoutHeader -> {}
+                    }
+
+                    is ConversationItem ->
+                        ConversationItemFactory(
+                            conversation = item,
+                            isSelectableItem = isSelectableList,
+                            isChecked = selectedConversations.contains(item.conversationId),
+                            onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(item) },
+                            openConversation = onOpenConversation,
+                            openMenu = onEditConversation,
+                            openUserProfile = onOpenUserProfile,
+                            joinCall = onJoinCall,
+                            onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
+                            onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
+                            onStopCurrentAudio = onStopCurrentAudio
+                        )
                 }
             }
         }

@@ -27,9 +27,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
@@ -72,6 +74,8 @@ import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.flow.filter
 
 /**
  * This is a base for creating screens for displaying list of conversations.
@@ -169,39 +173,68 @@ fun ConversationsScreenContent(
         is ConversationListState.Paginated -> {
             val lazyPagingItems = state.conversations.collectAsLazyPagingItemsWithLifecycle()
             val loadingState = lazyPagingItems.loadingState()
-            // paging-compose 3.3.x emits a transient empty LazyPagingItems on first composition.
+            val itemSnapshotCache by conversationListViewModel.itemSnapshotCache.collectAsStateWithLifecycle()
+
+            // Feed the ViewModel-side snapshot cache from the live paging items so it survives
+            // back-stack navigation. We only persist non-empty snapshots — the transient empty
+            // LazyPagingItems emitted by paging-compose 3.3.x must not overwrite the cache.
+            LaunchedEffect(lazyPagingItems, conversationListViewModel) {
+                snapshotFlow { lazyPagingItems.itemSnapshotList.items.filterNotNull() }
+                    .filter { it.isNotEmpty() }
+                    .collect { conversationListViewModel.updateItemSnapshotCache(it.toPersistentList()) }
+            }
+
             // While still loading we keep the previous search-bar visibility and skip the
             // "no conversations" branch so the screen doesn't flicker on back-navigation.
             if (loadingState == PagedLoadingState.Loaded) {
                 searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
             }
+
+            val onBrowsePublicChannels = remember(navigator) {
+                { navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination)) }
+            }
+            val onAudioPermissionPermanentlyDenied = remember {
+                {
+                    permissionPermanentlyDeniedDialogState.show(
+                        PermissionPermanentlyDeniedDialogState.Visible(
+                            R.string.app_permission_dialog_title,
+                            R.string.call_permission_dialog_description
+                        )
+                    )
+                }
+            }
+
             when {
-                // very first load ever — no cached items to fall back on, show the skeleton
-                loadingState == PagedLoadingState.InitialLoad -> loadingListContent(lazyListState)
-                // either we have items, or we previously had items and the cache was just
-                // invalidated while we were on another screen. Keep rendering the list view
-                // for that one empty frame instead of flashing the skeleton or empty state.
-                lazyPagingItems.itemCount > 0 || loadingState == PagedLoadingState.Reloading -> ConversationList(
+                // live items present — render the paged list
+                lazyPagingItems.itemCount > 0 -> ConversationList(
                     lazyPagingConversations = lazyPagingItems,
                     lazyListState = lazyListState,
                     onOpenConversation = onOpenConversation,
                     onEditConversation = onEditConversationItem,
                     onOpenUserProfile = onOpenUserProfile,
                     onJoinCall = onJoinCall,
-                    onAudioPermissionPermanentlyDenied = {
-                        permissionPermanentlyDeniedDialogState.show(
-                            PermissionPermanentlyDeniedDialogState.Visible(
-                                R.string.app_permission_dialog_title,
-                                R.string.call_permission_dialog_description
-                            )
-                        )
-                    },
+                    onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
                     onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
                     onStopCurrentAudio = onStopCurrentAudio,
-                    onBrowsePublicChannels = {
-                        navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination))
-                    }
+                    onBrowsePublicChannels = onBrowsePublicChannels,
                 )
+                // paging-compose has not yet replayed the cached PagingData (transient empty
+                // frame). If we have a ViewModel-side snapshot from a previous session, render
+                // it so the user sees continuity instead of a skeleton or empty state.
+                loadingState == PagedLoadingState.Reloading && itemSnapshotCache.isNotEmpty() -> ConversationList(
+                    conversationItemsSnapshot = itemSnapshotCache,
+                    lazyListState = lazyListState,
+                    onOpenConversation = onOpenConversation,
+                    onEditConversation = onEditConversationItem,
+                    onOpenUserProfile = onOpenUserProfile,
+                    onJoinCall = onJoinCall,
+                    onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
+                    onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
+                    onStopCurrentAudio = onStopCurrentAudio,
+                    onBrowsePublicChannels = onBrowsePublicChannels,
+                )
+                // very first load ever — no cached items to fall back on, show the skeleton
+                loadingState != PagedLoadingState.Loaded -> loadingListContent(lazyListState)
                 // when there is no conversation in any folder
                 searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
                 else -> emptyListContent(state.domain)

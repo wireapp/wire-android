@@ -60,13 +60,17 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -83,10 +87,20 @@ interface ConversationListViewModel {
     val infoMessage: SharedFlow<SnackBarMessage> get() = MutableSharedFlow()
     val requestInProgress: Boolean get() = false
     val conversationListState: ConversationListState get() = ConversationListState.Paginated(emptyFlow())
+
+    /**
+     * Snapshot of the latest non-empty paged conversation items, kept alive in the
+     * ViewModel so that it survives back-stack navigation. The UI feeds this from
+     * `LazyPagingItems.itemSnapshotList` while items are present, and reads it during the
+     * transient empty frame paging-compose 3.3.x emits when the cache is invalidated.
+     */
+    val itemSnapshotCache: StateFlow<PersistentList<ConversationItemType>> get() = MutableStateFlow(persistentListOf())
+
     suspend fun refreshMissingMetadata() {}
     fun searchQueryChanged(searchQuery: String) {}
     fun playPauseCurrentAudio() {}
     fun stopCurrentAudio() {}
+    fun updateItemSnapshotCache(items: PersistentList<ConversationItemType>) {}
 }
 
 @Suppress("TooManyFunctions")
@@ -127,6 +141,13 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     private var _requestInProgress: Boolean by mutableStateOf(false)
     override val requestInProgress: Boolean get() = _requestInProgress
+
+    private val _itemSnapshotCache = MutableStateFlow<PersistentList<ConversationItemType>>(persistentListOf())
+    override val itemSnapshotCache: StateFlow<PersistentList<ConversationItemType>> = _itemSnapshotCache.asStateFlow()
+
+    override fun updateItemSnapshotCache(items: PersistentList<ConversationItemType>) {
+        _itemSnapshotCache.value = items
+    }
 
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
     private val isSelfUserUnderLegalHoldFlow = MutableSharedFlow<Boolean>(replay = 1)

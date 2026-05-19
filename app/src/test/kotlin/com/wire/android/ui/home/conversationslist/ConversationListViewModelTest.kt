@@ -35,6 +35,7 @@ import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.util.ui.UiTextResolver
 import com.wire.android.util.ui.UIText
@@ -52,6 +53,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -236,6 +238,20 @@ class ConversationListViewModelTest {
 
                 cancelAndIgnoreRemainingEvents()
             }
+        }
+
+    @Test
+    fun `given snapshot cache update, when reading itemSnapshotCache, then it reflects the latest value`() =
+        runTest(dispatcherProvider.main()) {
+            val (_, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
+
+            val items = persistentListOf<ConversationItemType>(
+                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", "")),
+                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", "")),
+            )
+            conversationListViewModel.updateItemSnapshotCache(items)
+
+            assertEquals(items, conversationListViewModel.itemSnapshotCache.value)
         }
 
     @Test

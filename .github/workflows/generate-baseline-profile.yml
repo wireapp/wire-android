@@ -90,6 +90,7 @@ jobs:
       - name: Generate baseline + startup profile
         run: |
           ./gradlew :app:generateProdCompatreleaseBaselineProfile \
+            -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.BaselineGenerator \
             -Pandroid.testInstrumentationRunnerArguments.BACKEND_NAME="STAGING" \
             -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="$TARGET_PACKAGE" \
             --no-daemon \
@@ -104,42 +105,12 @@ jobs:
           test -s app/src/main/baseline-prof.txt
           test -s app/src/main/startup-prof.txt
 
-      - name: Run startup-with-login benchmark with and without profile
-        run: |
-          ./gradlew :benchmark:connectedProdBenchmarkBenchmarkAndroidTest \
-            -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.StartupBenchmarkWithLogin \
-            -Pandroid.testInstrumentationRunnerArguments.BACKEND_NAME="STAGING" \
-            -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="$TARGET_PACKAGE" \
-            --rerun-tasks \
-            --no-daemon \
-            --no-configuration-cache
-
-      - name: Archive normalized measurement snapshot
-        id: snapshot
-        run: |
-          SOURCE_DIR="benchmark/build/outputs/connected_android_test_additional_output/prodBenchmarkBenchmark/connected"
-          SNAPSHOT_DIR="benchmark/baselines/$(date -u +%Y-%m-%d)-post-profile/prodBenchmarkBenchmark/connected/device"
-
-          rm -rf "$SNAPSHOT_DIR"
-          mkdir -p "$SNAPSHOT_DIR"
-
-          if [[ -d "$SOURCE_DIR" ]] && [[ -n "$(ls -A "$SOURCE_DIR" 2>/dev/null)" ]]; then
-            cp -r "$SOURCE_DIR"/. "$SNAPSHOT_DIR/"
-          else
-            echo "WARNING: No benchmark output found at $SOURCE_DIR"
-            ls -la benchmark/build/outputs/connected_android_test_additional_output/ 2>/dev/null || echo "(parent dir not found)"
-          fi
-
-          echo "snapshot_dir=$SNAPSHOT_DIR" >> "$GITHUB_OUTPUT"
-
-      - name: Upload benchmark outputs
+      - name: Upload generated profiles
         uses: actions/upload-artifact@v7
         with:
           name: baseline-profile-${{ github.run_id }}
           path: |
             app/src/prodCompatrelease/generated/baselineProfiles/*
-            benchmark/build/outputs/connected_android_test_additional_output/prodBenchmarkBenchmark/**
-            ${{ steps.snapshot.outputs.snapshot_dir }}
           if-no-files-found: error
 
       - name: Setup GitHub Actions bot for Git
@@ -151,7 +122,6 @@ jobs:
           git checkout -B "$REFRESH_BRANCH"
           git add app/src/main/baseline-prof.txt
           git add app/src/main/startup-prof.txt
-          git add "${{ steps.snapshot.outputs.snapshot_dir }}"
 
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -167,7 +137,6 @@ jobs:
         env:
           DEVICE_MODEL: ${{ steps.device.outputs.model }}
           DEVICE_SDK: ${{ steps.device.outputs.sdk }}
-          SNAPSHOT_DIR: ${{ steps.snapshot.outputs.snapshot_dir }}
         run: |
           BODY_FILE="$(mktemp)"
           cat > "$BODY_FILE" <<EOF
@@ -175,7 +144,6 @@ jobs:
 
           Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           Device: ${DEVICE_MODEL} (SDK ${DEVICE_SDK})
-          Snapshot: \`${SNAPSHOT_DIR}\`
           EOF
 
           PR_NUMBER="$(gh pr list --head "$REFRESH_BRANCH" --base "$BASE_BRANCH" --json number -q '.[0].number')"

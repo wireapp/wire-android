@@ -18,11 +18,6 @@
 package com.wire.android.util.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.flowWithLifecycle
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -31,25 +26,16 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 /**
- * Collects a [Flow] of [PagingData] as [LazyPagingItems] that are lifecycle-aware.
+ * Collects a [Flow] of [PagingData] as [LazyPagingItems].
  *
- * This function ensures that the collection of the paging data is tied to the lifecycle of the
- * composable, preventing memory leaks and unnecessary work when the composable is not active.
- *
- * @param minActiveState The minimum lifecycle state at which the flow should be collected. Default is [Lifecycle.State.RESUMED].
- * @param context The coroutine context to use for collecting the flow. Default is [EmptyCoroutineContext].
- * @param lifecycle The lifecycle to use for determining when to collect the flow. Default is the current one from [LocalLifecycleOwner].
- * @return A [LazyPagingItems] instance that can be used in a LazyColumn or similar composable.
+ * Important: the upstream flow is expected to be a hot, shared source (e.g. produced by
+ * `cachedIn(viewModelScope).shareIn(...)`). Wrapping the upstream with `flowWithLifecycle`
+ * here would cancel and restart the collector on every lifecycle dip, which defeats
+ * `cachedIn` — Paging would treat each return-to-screen as a fresh subscriber and drop
+ * the cached pages along with the scroll position. Subscription lifecycle is handled
+ * internally by `collectAsLazyPagingItems` via `DisposableEffect`.
  */
 @Composable
 fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItemsWithLifecycle(
-    minActiveState: Lifecycle.State = Lifecycle.State.RESUMED,
     context: CoroutineContext = EmptyCoroutineContext,
-    lifecycle: Lifecycle = LocalLifecycleOwner.current.lifecycle
-): LazyPagingItems<T> {
-    val isPreview = LocalInspectionMode.current
-    val lifecycleAwareFlow = remember(this, lifecycle, isPreview) {
-        if (isPreview) this else this.flowWithLifecycle(lifecycle, minActiveState)
-    }
-    return lifecycleAwareFlow.collectAsLazyPagingItems(context)
-}
+): LazyPagingItems<T> = collectAsLazyPagingItems(context)

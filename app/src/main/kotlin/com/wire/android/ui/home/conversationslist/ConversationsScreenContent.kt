@@ -25,11 +25,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
@@ -167,15 +167,21 @@ fun ConversationsScreenContent(
 
     when (val state = conversationListViewModel.conversationListState) {
         is ConversationListState.Paginated -> {
-            val lazyPagingItems = state.conversations.collectAsLazyPagingItemsWithLifecycle(
-                minActiveState = Lifecycle.State.STARTED
-            )
-            searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
+            val lazyPagingItems = state.conversations.collectAsLazyPagingItemsWithLifecycle()
+            val loadingState = lazyPagingItems.loadingState()
+            // paging-compose 3.3.x emits a transient empty LazyPagingItems on first composition.
+            // While still loading we keep the previous search-bar visibility and skip the
+            // "no conversations" branch so the screen doesn't flicker on back-navigation.
+            if (loadingState == PagedLoadingState.Loaded) {
+                searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
+            }
             when {
-                // when conversation list is not yet fetched, show loading indicator
-                lazyPagingItems.isLoading() -> loadingListContent(lazyListState)
-                // when there is at least one conversation
-                lazyPagingItems.itemCount > 0 -> ConversationList(
+                // very first load ever — no cached items to fall back on, show the skeleton
+                loadingState == PagedLoadingState.InitialLoad -> loadingListContent(lazyListState)
+                // either we have items, or we previously had items and the cache was just
+                // invalidated while we were on another screen. Keep rendering the list view
+                // for that one empty frame instead of flashing the skeleton or empty state.
+                lazyPagingItems.itemCount > 0 || loadingState == PagedLoadingState.Reloading -> ConversationList(
                     lazyPagingConversations = lazyPagingItems,
                     lazyListState = lazyListState,
                     onOpenConversation = onOpenConversation,
@@ -267,13 +273,32 @@ fun ConversationsScreenContent(
     })
 }
 
+private enum class PagedLoadingState {
+    /** First time the user sees this list — no cached items exist, show the skeleton. */
+    InitialLoad,
+    /** Returning to the screen mid-refresh after cache invalidation — keep the list view
+     *  so the user doesn't see the skeleton or empty state flash. */
+    Reloading,
+    /** Loaded (or settled empty). The UI can use itemCount to choose a branch. */
+    Loaded,
+}
+
 @Composable
-private fun LazyPagingItems<ConversationItemType>.isLoading(): Boolean {
-    var initialLoadCompleted by remember { mutableStateOf(false) }
-    if (loadState.refresh is LoadState.NotLoading) {
-        initialLoadCompleted = true
+private fun LazyPagingItems<ConversationItemType>.loadingState(): PagedLoadingState {
+    // paging-compose 3.3.x emits an empty LazyPagingItems on each new composition before
+    // the (re)load finishes. We distinguish "first ever load" from "reload after the cache
+    // was invalidated while we were away" so that the second case keeps rendering the list
+    // view (which will populate on the next frame) instead of flashing the skeleton.
+    var hasEverHadItems by rememberSaveable { mutableStateOf(false) }
+    if (itemCount > 0) {
+        hasEverHadItems = true
     }
-    return !initialLoadCompleted && loadState.refresh == LoadState.Loading && itemCount == 0
+    val refreshing = loadState.refresh is LoadState.Loading && itemCount == 0
+    return when {
+        refreshing && !hasEverHadItems -> PagedLoadingState.InitialLoad
+        refreshing && hasEverHadItems -> PagedLoadingState.Reloading
+        else -> PagedLoadingState.Loaded
+    }
 }
 
 private const val TAG = "BaseConversationsScreen"

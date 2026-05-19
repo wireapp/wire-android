@@ -428,7 +428,7 @@ class SearchAppsViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
             coEvery { getAllServices() } returns flowOf(emptyList())
-            coEvery { syncServices() } returns Either.Right(Unit)
+            coEvery { syncServices() } returns SyncServicesUseCase.Result.Success
             coEvery { getAllApps() } returns flowOf(emptyList())
             coEvery { searchServicesByName(any()) } returns flowOf(emptyList())
             coEvery { searchAppsByName(any()) } returns flowOf(emptyList())
@@ -472,7 +472,7 @@ class SearchAppsViewModelTest {
         }
 
         fun withSyncServicesFailing() = apply {
-            coEvery { syncServices() } returns Either.Left(NetworkFailure.NoNetworkConnection(cause = null))
+            coEvery { syncServices() } returns SyncServicesUseCase.Result.Failure(NetworkFailure.NoNetworkConnection(cause = null))
         }
     }
 }

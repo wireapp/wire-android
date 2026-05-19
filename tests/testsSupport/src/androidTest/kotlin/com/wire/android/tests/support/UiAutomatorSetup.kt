@@ -18,10 +18,12 @@
 package com.wire.android.tests.support
 
 import android.Manifest
+import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -106,6 +108,52 @@ object UiAutomatorSetup {
         device.executeShellCommand("am force-stop $appPackage")
     }
 
+    fun upgradeWireToRecentVersion(apkPath: String) {
+        val device = getDevice()
+        // Log and verify the installed version so CI proves that the APK upgrade really happened.
+        val versionBeforeUpgrade = getInstalledWireVersion()
+        reportUpgradeLog("Installed Wire before upgrade: $versionBeforeUpgrade")
+        reportUpgradeLog("Upgrading Wire using APK: $apkPath")
+
+        val output = device.executeShellCommand("pm install -r -d -g $apkPath").trim()
+        val versionAfterUpgrade = getInstalledWireVersion()
+        reportUpgradeLog("Installed Wire after upgrade: $versionAfterUpgrade")
+        if (versionAfterUpgrade.versionCode <= versionBeforeUpgrade.versionCode) {
+            val installOutput = output.ifBlank { "<empty>" }
+            throw IllegalStateException(
+                "Wire was not upgraded using APK from '$apkPath'. " +
+                        "Before: $versionBeforeUpgrade. After: $versionAfterUpgrade. Install output: $installOutput"
+            )
+        }
+
+        startApp()
+        waitAppStart(device)
+    }
+
+    private fun reportUpgradeLog(message: String) {
+        InstrumentationRegistry.getInstrumentation().sendStatus(
+            0,
+            Bundle().apply {
+                putString(Instrumentation.REPORT_KEY_STREAMRESULT, message)
+            }
+        )
+    }
+
+    // Reads the installed Wire version so upgrade tests can compare the app before and after installation.
+    private fun getInstalledWireVersion(): InstalledWireVersion {
+        val context: Context = getApplicationContext()
+        val packageInfo = context.packageManager.getPackageInfo(appPackage, 0)
+        val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            packageInfo.longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            packageInfo.versionCode.toLong()
+        }
+        val versionName = packageInfo.versionName ?: "<unknown>"
+
+        return InstalledWireVersion(versionName, versionCode)
+    }
+
     // Setup-level wrapper that pre-grants notifications on Android 13+ via PermissionUtils.
     private fun grantNotificationPermissionIfSupported(appPackage: String) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
@@ -115,5 +163,12 @@ object UiAutomatorSetup {
         runCatching {
             grantRuntimePermsForApp(appPackage, Manifest.permission.POST_NOTIFICATIONS)
         }
+    }
+
+    private data class InstalledWireVersion(
+        val versionName: String,
+        val versionCode: Long
+    ) {
+        override fun toString(): String = "versionName=$versionName versionCode=$versionCode"
     }
 }

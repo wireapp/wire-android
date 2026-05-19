@@ -158,6 +158,11 @@
     <string name="content_description_calling_microphone_on">Микрофон включен</string>
     <string name="content_description_calling_microphone_off">Микрофон отключен</string>
     <string name="content_description_calling_active_speaker">Активный спикер</string>
+    <string name="content_description_calling_participants_list_drag_handle">Развернуть список участников</string>
+    <string name="content_description_calling_expand">Развернуть</string>
+    <string name="content_description_calling_collapse">Свернуть</string>
+    <string name="content_description_calling_expanded_participants_list">Развернутый список участников</string>
+    <string name="content_description_calling_collapsed_participants_list">Свернутый список участников</string>
     <string name="content_description_calling_in_call_reactions_show">Показать в панели реакций вызова</string>
     <string name="content_description_calling_in_call_reactions_hide">Скрыть в панели реакций вызова</string>
     <string name="content_description_call_open_calling_details">Открыть информацию о вызове</string>
@@ -617,8 +622,18 @@
     <string name="disable_services_dialog_text">Все приложения будут удалены из разговора. Новые приложения допущены не будут.</string>
     <string name="leave_conversation_menu_item">Покинуть беседу…</string>
     <string name="leave_conversation_dialog_title">Покинуть “%s”?</string>
+    <string name="cannot_leave_conversation_dialog_title">Невозможно покинуть \"%s\".</string>
     <string name="leave_conversation_dialog_description">Вы больше не сможете отправлять и читать сообщения в этой беседе ни на одном устройстве.</string>
     <string name="leave_conversation_dialog_delete_fully_check">Удалить беседу и ее контент у меня на всех моих устройствах</string>
+    <string name="leave_conversation_admin_options_dialog_description_with_promote">Вы - единственный администратор.\nНазначьте другого пользователя, прежде чем покинуть, или удалите группу, если она больше не нужна.</string>
+    <string name="leave_conversation_admin_options_dialog_description_with_promote_no_delete">Вы - единственный администратор.\nНазначьте другого пользователя, прежде чем покинуть.</string>
+    <string name="leave_conversation_admin_options_dialog_description_no_promote">Вы - единственный администратор. Другие участники не могут быть администраторами.\nДобавьте хотя бы одного члена команды и назначьте его администратором, прежде чем покинуть. Или удалите группу, если она больше не нужна.</string>
+    <string name="leave_conversation_admin_options_dialog_description_no_promote_no_delete">В группе нет других подходящих администраторов, и вы как персональный пользователь не можете удалить группу. Однако добавьте другого члена команды и сделайте его администратором, чтобы удалить группу.</string>
+    <string name="leave_conversation_admin_options_dialog_promote_button">Назначить нового администратора</string>
+    <string name="leave_conversation_admin_options_dialog_delete_button">Удалить группу</string>
+    <string name="promote_admin_screen_title">Назначить нового администратора</string>
+    <string name="promote_admin_search_placeholder">Введите имя или email</string>
+    <string name="promote_admin_button">Назначить администратором и покинуть группу</string>
     <string name="delete_conversation_conversation_menu_item">Удалить беседу…</string>
     <string name="delete_conversation_conversation_dialog_title">Удалить “%s”?</string>
     <string name="delete_conversation_conversation_dialog_description">Беседа будет удалена из списка бесед на всех устройствах. Вы больше не сможете получить доступ к беседе и ее контенту.</string>
@@ -1965,5 +1980,6 @@
     <string name="label_system_message_apps_access_enabled_by_other">%1$s ** приложений** включено для этой беседы</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s ** приложений** отключено для этой беседы</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
+    <string name="label_system_message_admin_role_assigned">Вы были назначены администратором группы</string>
     <string name="more_information_about_this_server">Больше информации об этом бэкенде</string>
 </resources>

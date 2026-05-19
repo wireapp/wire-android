@@ -256,7 +256,7 @@ class GroupDetailsViewModelTest {
             .withSelfTeamUseCaseReturns(selfTeam)
             .arrange()
 
-        assertEquals(false, viewModel.groupOptionsState.value.isAppsAllowed)
+        assertEquals(true, viewModel.groupOptionsState.value.isAppsAllowed)
         assertEquals(false, viewModel.groupOptionsState.value.shouldUseNewAppsUi)
         assertEquals(false, viewModel.groupOptionsState.value.isUpdatingAppsAllowed)
     }

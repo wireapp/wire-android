@@ -66,6 +66,12 @@ android {
             matchingFallbacks += listOf("release")
         }
     }
+
+    sourceSets {
+        getByName("main") {
+            kotlin.directories.add(project(":tests:testsSupport").file("src/main").path)
+        }
+    }
 }
 
 baselineProfile {
@@ -77,5 +83,10 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.test.uiAutomator)
     implementation(libs.androidx.benchmark.macro.junit4)
+    implementation(libs.datafaker)
+    implementation(libs.gson)
     implementation(libs.junit4)
+    implementation(libs.zxing.android.embedded)
+    implementation(libs.zxing.core)
+    implementation(project(":tests:testsSupport"))
 }

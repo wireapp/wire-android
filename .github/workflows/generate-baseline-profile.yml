@@ -17,6 +17,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
   BASE_BRANCH: develop
   REFRESH_BRANCH: chore/baseline-profile-refresh
+  OP_VAULT: "Test Automation"
   TARGET_PACKAGE: com.wire
 
 jobs:
@@ -56,6 +57,12 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
 
+      - name: Install 1Password CLI
+        uses: 1password/install-cli-action@v3
+
+      - name: Fetch runtime secrets
+        run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
+
       - name: Setup public keystore
         uses: ./.github/actions/setup-keystore
         with:
@@ -85,13 +92,9 @@ jobs:
           echo "sdk=$(adb shell getprop ro.build.version.sdk | tr -d '\r')" >> "$GITHUB_OUTPUT"
 
       - name: Generate baseline + startup profile
-        env:
-          BASELINE_PROFILE_EMAIL: ${{ secrets.BASELINE_PROFILE_EMAIL }}
-          BASELINE_PROFILE_PASSWORD: ${{ secrets.BASELINE_PROFILE_PASSWORD }}
         run: |
           ./gradlew :app:generateProdCompatreleaseBaselineProfile \
-            -Pandroid.testInstrumentationRunnerArguments.EMAIL="$BASELINE_PROFILE_EMAIL" \
-            -Pandroid.testInstrumentationRunnerArguments.PASSWORD="$BASELINE_PROFILE_PASSWORD" \
+            -Pandroid.testInstrumentationRunnerArguments.BACKEND_NAME="STAGING" \
             -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="$TARGET_PACKAGE" \
             --no-daemon \
             --no-configuration-cache
@@ -105,10 +108,11 @@ jobs:
           test -s app/src/main/baseline-prof.txt
           test -s app/src/main/startup-prof.txt
 
-      - name: Run startup benchmark with and without profile
+      - name: Run startup-with-login benchmark with and without profile
         run: |
           ./gradlew :benchmark:connectedProdBenchmarkBenchmarkAndroidTest \
-            -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.StartupBenchmark \
+            -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.StartupBenchmarkWithLogin \
+            -Pandroid.testInstrumentationRunnerArguments.BACKEND_NAME="STAGING" \
             -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="$TARGET_PACKAGE" \
             --rerun-tasks \
             --no-daemon \

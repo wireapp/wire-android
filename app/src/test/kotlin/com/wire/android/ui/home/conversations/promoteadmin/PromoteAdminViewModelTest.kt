@@ -18,15 +18,18 @@
 package com.wire.android.ui.home.conversations.promoteadmin
 
 import androidx.lifecycle.SavedStateHandle
+import app.cash.turbine.test
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.testOtherUser
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
+import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -168,6 +171,58 @@ class PromoteAdminViewModelTest {
         assertTrue(viewModel.state.value.filteredMembers.isEmpty())
     }
 
+    @Test
+    fun givenUserSelectedAndPromoteSucceeds_whenPromoteAdminAndLeaveCalled_thenEmitSuccess() = runTest {
+        val userId = UserId("user1", "wire.com")
+        val (_, viewModel) = Arrangement()
+            .withPromoteAdminAndLeaveResult(PromoteAdminAndLeaveConversationUseCase.Result.Success)
+            .arrange()
+
+        viewModel.onUserSelected(userId)
+        viewModel.actions.test {
+            viewModel.onPromoteAdminAndLeave()
+            assertEquals(PromoteAdminAction.Success, awaitItem())
+        }
+    }
+
+    @Test
+    fun givenUserSelectedAndPromoteFails_whenPromoteAdminAndLeaveCalled_thenEmitFailedToPromoteUser() = runTest {
+        val userId = UserId("user1", "wire.com")
+        val (_, viewModel) = Arrangement()
+            .withPromoteAdminAndLeaveResult(PromoteAdminAndLeaveConversationUseCase.Result.FailedToPromoteUser)
+            .arrange()
+
+        viewModel.onUserSelected(userId)
+        viewModel.actions.test {
+            viewModel.onPromoteAdminAndLeave()
+            assertEquals(PromoteAdminAction.FailedToPromoteUser, awaitItem())
+        }
+    }
+
+    @Test
+    fun givenUserSelectedAndLeaveFails_whenPromoteAdminAndLeaveCalled_thenEmitFailedToLeaveConversation() = runTest {
+        val userId = UserId("user1", "wire.com")
+        val (_, viewModel) = Arrangement()
+            .withPromoteAdminAndLeaveResult(PromoteAdminAndLeaveConversationUseCase.Result.FailedToLeaveConversation)
+            .arrange()
+
+        viewModel.onUserSelected(userId)
+        viewModel.actions.test {
+            viewModel.onPromoteAdminAndLeave()
+            assertEquals(PromoteAdminAction.FailedToLeaveConversation, awaitItem())
+        }
+    }
+
+    @Test
+    fun givenNoUserSelected_whenPromoteAdminAndLeaveCalled_thenNoEventEmitted() = runTest {
+        val (_, viewModel) = Arrangement().arrange()
+
+        viewModel.actions.test {
+            viewModel.onPromoteAdminAndLeave()
+            expectNoEvents()
+        }
+    }
+
     private inner class Arrangement {
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -175,17 +230,30 @@ class PromoteAdminViewModelTest {
         @MockK
         lateinit var observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase
 
+        @MockK
+        lateinit var promoteAdminAndLeave: PromoteAdminAndLeaveConversationUseCase
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.navArgs<PromoteAdminNavArgs>() } returns
                 PromoteAdminNavArgs(ConversationId("conv1", "wire.com"))
             coEvery { observeEligibleMembers(any()) } returns flowOf(emptyList())
+            coEvery { promoteAdminAndLeave(any(), any()) } returns PromoteAdminAndLeaveConversationUseCase.Result.Success
         }
 
         fun withEligibleMembers(members: List<MemberDetails>) = apply {
             coEvery { observeEligibleMembers(any()) } returns flowOf(members)
         }
 
-        fun arrange() = this to PromoteAdminViewModel(savedStateHandle, observeEligibleMembers)
+        fun withPromoteAdminAndLeaveResult(result: PromoteAdminAndLeaveConversationUseCase.Result) = apply {
+            coEvery { promoteAdminAndLeave(any(), any()) } returns result
+        }
+
+        fun arrange() = this to PromoteAdminViewModel(
+            observeEligibleMembers = observeEligibleMembers,
+            promoteAdminAndLeave = promoteAdminAndLeave,
+            dispatchers = TestDispatcherProvider(),
+            savedStateHandle = savedStateHandle,
+        )
     }
 }

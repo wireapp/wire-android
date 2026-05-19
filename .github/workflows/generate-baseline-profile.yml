@@ -69,21 +69,11 @@ jobs:
       - name: Fetch runtime secrets
         run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
 
-      - name: Setup public keystore
-        uses: ./.github/actions/setup-keystore
-        with:
-          keystore-type: public
-        env:
-          ENCODED_KEYSTORE_PUBLIC_RELEASE: ${{ secrets.ENCODED_KEYSTORE_PUBLIC_RELEASE }}
-
-      - name: Set signing environment
-        run: |
-          echo "ENABLE_SIGNING=TRUE" >> "$GITHUB_ENV"
-          echo "::add-mask::${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}"
-          echo "::add-mask::${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}"
-          echo "KEYSTORE_KEY_NAME_COMPAT_RELEASE=${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}" >> "$GITHUB_ENV"
-          echo "KEYPWD_COMPAT_RELEASE=${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}" >> "$GITHUB_ENV"
-          echo "KEYSTOREPWD_COMPAT_RELEASE=${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}" >> "$GITHUB_ENV"
+      # Baseline profile generation doesn't need production signing.
+      # The test APK is installed via adb and never distributed.
+      # ENABLE_SIGNING=FALSE makes both release and compatrelease use debug signing.
+      - name: Disable production signing
+        run: echo "ENABLE_SIGNING=FALSE" >> "$GITHUB_ENV"
 
       - name: Verify at least one device connected
         run: |

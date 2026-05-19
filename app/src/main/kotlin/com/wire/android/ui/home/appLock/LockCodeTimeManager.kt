@@ -128,4 +128,6 @@ class LockCodeTimeManager @Inject constructor(
     }
 }
 
-typealias CurrentTimestampProvider = () -> Long
+fun interface CurrentTimestampProvider {
+    operator fun invoke(): Long
+}

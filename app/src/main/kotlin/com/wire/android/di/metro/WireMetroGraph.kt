@@ -975,7 +975,7 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
 
     @Provides
     fun provideCurrentTimestampProvider(): CurrentTimestampProvider =
-        { System.currentTimeMillis() }
+        CurrentTimestampProvider { System.currentTimeMillis() }
 
     @Provides
     fun provideGeocoder(@ApplicationContext context: Context): Geocoder =

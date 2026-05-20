@@ -46,7 +46,9 @@ class AllureLabelsRule : TestRule {
                     .filterIsInstance<TestCaseId>()
                     .firstOrNull()
                     ?.let { anno ->
-                        Allure.label("tag", anno.value)
+                        anno.value.forEach { testCaseId ->
+                            Allure.label("tag", testCaseId)
+                        }
                     }
 
                 // ---- Category → tag: criticalFlow, regression, ... ----

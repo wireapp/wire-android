@@ -33,6 +33,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,11 +47,13 @@ import com.wire.android.model.ItemActionType
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.search.InternalContactSearchResultItem
@@ -61,6 +64,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.coroutines.launch
 import com.wire.android.ui.common.R as commonR
 
 @WireRootDestination(
@@ -73,6 +77,11 @@ fun PromoteAdminScreen(
     viewModel: PromoteAdminViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = LocalSnackbarHostState.current
+    val coroutineScope = rememberCoroutineScope()
+    val failedToPromoteMessage = stringResource(R.string.promote_admin_error_failed_to_promote)
+    val failedToLeaveMessage = stringResource(R.string.promote_admin_error_failed_to_leave)
+
     PromoteAdminContent(
         state = state,
         onSearchQueryChanged = viewModel::onSearchQueryChanged,
@@ -80,6 +89,16 @@ fun PromoteAdminScreen(
         onPromoteAdminAndLeave = viewModel::onPromoteAdminAndLeave,
         onClose = navigator::navigateBack,
     )
+
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            PromoteAdminAction.Success -> navigator.navigateBack()
+            PromoteAdminAction.FailedToPromoteUser ->
+                coroutineScope.launch { snackbarHostState.showSnackbar(failedToPromoteMessage) }
+            PromoteAdminAction.FailedToLeaveConversation ->
+                coroutineScope.launch { snackbarHostState.showSnackbar(failedToLeaveMessage) }
+        }
+    }
 }
 
 @Composable

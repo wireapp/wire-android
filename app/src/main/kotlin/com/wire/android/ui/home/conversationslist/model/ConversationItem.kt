@@ -79,7 +79,7 @@ sealed interface ConversationItem : ConversationItemType {
             override val proteusVerificationStatus: Conversation.VerificationStatus,
             override val hasNewActivitiesToShow: Boolean = false,
             override val searchQuery: String = "",
-            override val playingAudio: PlayingAudioInConversation?
+            override val playingAudio: PlayingAudioInConversation? = null
         ) : Group
 
         @Serializable
@@ -102,7 +102,7 @@ sealed interface ConversationItem : ConversationItemType {
             override val proteusVerificationStatus: Conversation.VerificationStatus,
             override val hasNewActivitiesToShow: Boolean = false,
             override val searchQuery: String = "",
-            override val playingAudio: PlayingAudioInConversation?,
+            override val playingAudio: PlayingAudioInConversation? = null,
             val isPrivate: Boolean,
         ) : Group
     }
@@ -127,7 +127,7 @@ sealed interface ConversationItem : ConversationItemType {
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
         override val searchQuery: String = "",
-        override val playingAudio: PlayingAudioInConversation?
+        override val playingAudio: PlayingAudioInConversation? = null
     ) : ConversationItem
 
     @Serializable
@@ -161,6 +161,7 @@ data class ConversationInfo(
 
 @Serializable
 data class PlayingAudioInConversation(
+    val conversationId: ConversationId,
     val messageId: String,
     val isPaused: Boolean
 )
@@ -179,7 +180,9 @@ val OtherUser.BlockState: BlockingState
             else -> BlockingState.NOT_BLOCKED
         }
 
-fun ConversationItem.PrivateConversation.toUserInfoLabel() =
+fun ConversationItem.PrivateConversation.toUserInfoLabel(
+    showLegalHoldIndicator: Boolean = this.showLegalHoldIndicator
+) =
     UserInfoLabel(
         labelName = conversationInfo.name,
         showLegalHoldIndicator = showLegalHoldIndicator,
@@ -189,7 +192,9 @@ fun ConversationItem.PrivateConversation.toUserInfoLabel() =
         proteusVerificationStatus = proteusVerificationStatus
     )
 
-fun ConversationItem.ConnectionConversation.toUserInfoLabel() =
+fun ConversationItem.ConnectionConversation.toUserInfoLabel(
+    showLegalHoldIndicator: Boolean = this.showLegalHoldIndicator
+) =
     UserInfoLabel(
         labelName = conversationInfo.name,
         showLegalHoldIndicator = showLegalHoldIndicator,

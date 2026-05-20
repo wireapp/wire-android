@@ -22,7 +22,6 @@ package com.wire.android.ui.home.conversationslist
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -31,6 +30,8 @@ import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestConversationItem
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
+import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
@@ -145,62 +146,39 @@ class ConversationListViewModelTest {
         }
 
     @Test
-    fun `given self user is under legal hold, when collecting conversations, then hide LH indicators`() =
+    fun `given self user is under legal hold, when observing row state, then expose hidden LH indicators state`() =
         runTest(dispatcherProvider.main()) {
             // Given
-            val conversations = listOf(
-                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_1", ""), showLegalHoldIndicator = true),
-                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_2", ""), showLegalHoldIndicator = false),
-                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", ""), showLegalHoldIndicator = true),
-                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_2", ""), showLegalHoldIndicator = false),
-                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", ""), showLegalHoldIndicator = true),
-                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_2", ""), showLegalHoldIndicator = false),
-            ).associateBy { it.conversationId }
             val (_, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
-                .withConversationsPaginated(conversations.values.toList())
                 .withSelfUserLegalHoldState(LegalHoldStateForSelfUser.Enabled)
                 .arrange()
             advanceUntilIdle()
 
             // When
-            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.asSnapshot()
-                .filterIsInstance<ConversationItem>()
-                .forEach {
-                    // Then
-                    assertEquals(false, it.showLegalHoldIndicator) // self user is under LH so hide LH indicators next to conversations
-                }
+            val isSelfUserUnderLegalHold = conversationListViewModel.isSelfUserUnderLegalHold.first()
+
+            // Then
+            assertEquals(true, isSelfUserUnderLegalHold)
         }
 
     @Test
-    fun `given self user is not under legal hold, when collecting conversations, then show LH indicator when conversation is under LH`() =
+    fun `given self user is not under legal hold, when observing row state, then expose visible LH indicators state`() =
         runTest(dispatcherProvider.main()) {
             // Given
-            val conversations = listOf(
-                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_1", ""), showLegalHoldIndicator = true),
-                TestConversationItem.CONNECTION.copy(conversationId = ConversationId("conn_2", ""), showLegalHoldIndicator = false),
-                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_1", ""), showLegalHoldIndicator = true),
-                TestConversationItem.PRIVATE.copy(conversationId = ConversationId("private_2", ""), showLegalHoldIndicator = false),
-                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_1", ""), showLegalHoldIndicator = true),
-                TestConversationItem.GROUP.copy(conversationId = ConversationId("group_2", ""), showLegalHoldIndicator = false),
-            ).associateBy { it.conversationId }
             val (_, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
-                .withConversationsPaginated(conversations.values.toList())
                 .withSelfUserLegalHoldState(LegalHoldStateForSelfUser.Disabled)
                 .arrange()
             advanceUntilIdle()
 
             // When
-            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.asSnapshot()
-                .filterIsInstance<ConversationItem>()
-                .forEach {
-                    // Then
-                    val expected = conversations[it.conversationId]!!.showLegalHoldIndicator // show indicator when conversation is under LH
-                    assertEquals(expected, it.showLegalHoldIndicator)
-                }
+            val isSelfUserUnderLegalHold = conversationListViewModel.isSelfUserUnderLegalHold.first()
+
+            // Then
+            assertEquals(false, isSelfUserUnderLegalHold)
         }
 
     @Test
-    fun `given cached PagingData, when self user legal hold changes, then should call paginated use case again`() =
+    fun `given cached PagingData, when self user legal hold changes, then should not call paginated use case again`() =
         runTest(dispatcherProvider.main()) {
             // given
             val conversations = listOf(
@@ -229,8 +207,41 @@ class ConversationListViewModelTest {
                 selfUserLegalHoldStateFlow.emit(LegalHoldStateForSelfUser.Enabled)
                 advanceUntilIdle()
 
-                // then use case should be called again (in total 2 executions) to create new PagingData
-                coVerify(exactly = 2) {
+                // then use case should not be called again because LH is derived per visible row
+                coVerify(exactly = 1) {
+                    arrangement.getConversationsPaginated(any(), any(), any(), any(), useStrictMlsFilter = any())
+                }
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `given cached PagingData, when playing audio changes, then should not call paginated use case again`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val audioMessageFlow = MutableSharedFlow<PlayingAudioMessage>()
+            val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN)
+                .withPlayingAudioMessageFlow(audioMessageFlow)
+                .arrange()
+            advanceUntilIdle()
+
+            (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
+                coVerify(exactly = 1) {
+                    arrangement.getConversationsPaginated(any(), any(), any(), any(), useStrictMlsFilter = any())
+                }
+
+                audioMessageFlow.emit(
+                    PlayingAudioMessage.Some(
+                        conversationId = ConversationId("conn_1", ""),
+                        messageId = "message_id",
+                        authorName = UIText.DynamicString("Author"),
+                        state = AudioState(AudioMediaPlayingState.Playing, 0, AudioState.TotalTimeInMs.NotKnown)
+                    )
+                )
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) {
                     arrangement.getConversationsPaginated(any(), any(), any(), any(), useStrictMlsFilter = any())
                 }
 
@@ -346,6 +357,10 @@ class ConversationListViewModelTest {
 
         fun withSelfUserLegalHoldStateFlow(legalHoldStateForSelfUserFlow: Flow<LegalHoldStateForSelfUser>) = apply {
             coEvery { observeLegalHoldStateForSelfUserUseCase() } returns legalHoldStateForSelfUserFlow
+        }
+
+        fun withPlayingAudioMessageFlow(playingAudioMessageFlow: Flow<PlayingAudioMessage>) = apply {
+            every { audioMessagePlayer.playingAudioMessageFlow } returns playingAudioMessageFlow
         }
 
         fun arrange() = this to ConversationListViewModelImpl(

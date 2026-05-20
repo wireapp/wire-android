@@ -82,12 +82,19 @@ fun ConversationItemFactory(
     joinCall: (ConversationId) -> Unit = {},
     onAudioPermissionPermanentlyDenied: () -> Unit = {},
     onPlayPauseCurrentAudio: () -> Unit = { },
-    onStopCurrentAudio: () -> Unit = {}
+    onStopCurrentAudio: () -> Unit = {},
+    searchQuery: String = conversation.searchQuery,
+    isSelfUserUnderLegalHold: Boolean = false,
+    playingAudio: PlayingAudioInConversation? = conversation.playingAudio
 ) {
     val openConversationOptionDescription = stringResource(R.string.content_description_conversation_details_more_btn)
     val openUserProfileDescription = stringResource(R.string.content_description_open_user_profile_label)
     val acceptOrIgnoreDescription = stringResource(R.string.content_description_accept_or_ignore_connection_label)
     val openConversationDescription = stringResource(R.string.content_description_open_conversation_label)
+    val showLegalHoldIndicator = conversation.showLegalHoldIndicator && !isSelfUserUnderLegalHold
+    val playingAudioInConversation = playingAudio
+        ?.takeIf { it.conversationId == conversation.conversationId }
+        ?: conversation.playingAudio
     val onConversationItemClick = remember(conversation) {
         when (val lastEvent = conversation.lastMessageContent) {
             is UILastMessageContent.Connection -> {
@@ -151,6 +158,9 @@ fun ConversationItemFactory(
             joinCall(conversation.conversationId)
         },
         onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
+        searchQuery = searchQuery,
+        showLegalHoldIndicator = showLegalHoldIndicator,
+        playingAudio = playingAudioInConversation,
         onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
         onStopCurrentAudio = onStopCurrentAudio
     )
@@ -168,6 +178,9 @@ private fun GeneralConversationItem(
     modifier: Modifier = Modifier,
     selectOnRadioGroup: () -> Unit = {},
     subTitle: @Composable () -> Unit = {},
+    searchQuery: String = conversation.searchQuery,
+    showLegalHoldIndicator: Boolean = conversation.showLegalHoldIndicator,
+    playingAudio: PlayingAudioInConversation? = conversation.playingAudio,
     onPlayPauseCurrentAudio: () -> Unit = { },
     onStopCurrentAudio: () -> Unit = {}
 ) {
@@ -197,7 +210,7 @@ private fun GeneralConversationItem(
                     title = {
                         ConversationTitle(
                             name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
-                            showLegalHoldIndicator = conversation.showLegalHoldIndicator,
+                            showLegalHoldIndicator = showLegalHoldIndicator,
                             searchQuery = searchQuery
                         )
                     },
@@ -210,9 +223,9 @@ private fun GeneralConversationItem(
                                     buttonClick = onJoinCallClick,
                                     onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
                                 )
-                            } else if (conversation.playingAudio != null) {
+                            } else if (playingAudio != null) {
                                 AudioControlButtons(
-                                    playingAudio = conversation.playingAudio!!,
+                                    playingAudio = playingAudio,
                                     onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
                                     onStopCurrentAudio = onStopCurrentAudio
                                 )
@@ -251,7 +264,7 @@ private fun GeneralConversationItem(
                     },
                     title = {
                         UserLabel(
-                            userInfoLabel = toUserInfoLabel(),
+                            userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
                             searchQuery = searchQuery
                         )
                     },
@@ -259,9 +272,9 @@ private fun GeneralConversationItem(
                     clickable = onConversationItemClick,
                     actions = {
                         if (!isSelectable) {
-                            if (conversation.playingAudio != null) {
+                            if (playingAudio != null) {
                                 AudioControlButtons(
-                                    playingAudio = conversation.playingAudio,
+                                    playingAudio = playingAudio,
                                     onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
                                     onStopCurrentAudio = onStopCurrentAudio
                                 )
@@ -293,7 +306,7 @@ private fun GeneralConversationItem(
                     },
                     title = {
                         UserLabel(
-                            userInfoLabel = toUserInfoLabel(),
+                            userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
                             searchQuery = searchQuery
                         )
                     },
@@ -683,7 +696,7 @@ fun PreviewPrivateConversationItemWithPlayingAudio() = WireTheme {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
             folder = null,
-            playingAudio = PlayingAudioInConversation("some_id", true)
+            playingAudio = PlayingAudioInConversation(QualifiedID("value", "domain"), "some_id", true)
         ),
         modifier = Modifier,
         isSelectableItem = false,

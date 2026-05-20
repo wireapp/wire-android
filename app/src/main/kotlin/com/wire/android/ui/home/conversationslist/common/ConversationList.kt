@@ -63,6 +63,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationSection
+import com.wire.android.ui.home.conversationslist.model.PlayingAudioInConversation
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -86,6 +87,9 @@ fun ConversationList(
     lazyListState: LazyListState = rememberLazyListState(),
     isSelectableList: Boolean = false,
     selectedConversations: List<ConversationId> = emptyList(),
+    searchQuery: String = "",
+    isSelfUserUnderLegalHold: Boolean = false,
+    playingAudio: PlayingAudioInConversation? = null,
     onOpenConversation: (ConversationItem) -> Unit = {},
     onEditConversation: (ConversationItem) -> Unit = {},
     onOpenUserProfile: (UserId) -> Unit = {},
@@ -160,6 +164,9 @@ fun ConversationList(
                             modifier = conversationModifier,
                             isSelectableItem = isSelectableList,
                             isChecked = selectedConversations.contains(item.conversationId),
+                            searchQuery = searchQuery,
+                            isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
+                            playingAudio = playingAudio,
                             onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(item) },
                             openConversation = onOpenConversation,
                             openMenu = onEditConversation,
@@ -227,6 +234,9 @@ fun ConversationList(
     lazyListState: LazyListState = rememberLazyListState(),
     isSelectableList: Boolean = false,
     selectedConversations: List<ConversationItem> = emptyList(),
+    searchQuery: String = "",
+    isSelfUserUnderLegalHold: Boolean = false,
+    playingAudio: PlayingAudioInConversation? = null,
     onOpenConversation: (ConversationItem) -> Unit = {},
     onEditConversation: (ConversationItem) -> Unit = {},
     onOpenUserProfile: (UserId) -> Unit = {},
@@ -270,6 +280,9 @@ fun ConversationList(
                     modifier = conversationModifier,
                     isSelectableItem = isSelectableList,
                     isChecked = selectedConversations.contains(generalConversation),
+                    searchQuery = searchQuery,
+                    isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
+                    playingAudio = playingAudio,
                     onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(generalConversation.conversationId) },
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,

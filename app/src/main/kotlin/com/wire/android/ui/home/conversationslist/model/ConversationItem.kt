@@ -37,7 +37,7 @@ import com.wire.kalium.logic.data.conversation.ConversationFolder as CurrentFold
 sealed interface ConversationItem : ConversationItemType {
     val conversationId: ConversationId
     val mutedStatus: MutedConversationStatus
-    val legalHoldStatus: Conversation.LegalHoldStatus
+    val showLegalHoldIndicator: Boolean
     val lastMessageContent: UILastMessageContent?
     val badgeEventType: BadgeEventType
     val teamId: TeamId?
@@ -47,6 +47,8 @@ sealed interface ConversationItem : ConversationItemType {
     val mlsVerificationStatus: Conversation.VerificationStatus
     val proteusVerificationStatus: Conversation.VerificationStatus
     val hasNewActivitiesToShow: Boolean
+    val searchQuery: String
+    val playingAudio: PlayingAudioInConversation?
 
     val isTeamConversation get() = teamId != null
 
@@ -67,7 +69,7 @@ sealed interface ConversationItem : ConversationItemType {
             override val isSelfUserMember: Boolean = true,
             override val conversationId: ConversationId,
             override val mutedStatus: MutedConversationStatus,
-            override val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.DISABLED,
+            override val showLegalHoldIndicator: Boolean = false,
             override val lastMessageContent: UILastMessageContent?,
             override val badgeEventType: BadgeEventType,
             override val teamId: TeamId?,
@@ -77,6 +79,8 @@ sealed interface ConversationItem : ConversationItemType {
             override val mlsVerificationStatus: Conversation.VerificationStatus,
             override val proteusVerificationStatus: Conversation.VerificationStatus,
             override val hasNewActivitiesToShow: Boolean = false,
+            override val searchQuery: String = "",
+            override val playingAudio: PlayingAudioInConversation? = null
         ) : Group
 
         @Serializable
@@ -88,7 +92,7 @@ sealed interface ConversationItem : ConversationItemType {
             override val isSelfUserMember: Boolean = true,
             override val conversationId: ConversationId,
             override val mutedStatus: MutedConversationStatus,
-            override val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.DISABLED,
+            override val showLegalHoldIndicator: Boolean = false,
             override val lastMessageContent: UILastMessageContent?,
             override val badgeEventType: BadgeEventType,
             override val teamId: TeamId?,
@@ -98,6 +102,8 @@ sealed interface ConversationItem : ConversationItemType {
             override val mlsVerificationStatus: Conversation.VerificationStatus,
             override val proteusVerificationStatus: Conversation.VerificationStatus,
             override val hasNewActivitiesToShow: Boolean = false,
+            override val searchQuery: String = "",
+            override val playingAudio: PlayingAudioInConversation? = null,
             val isPrivate: Boolean,
         ) : Group
     }
@@ -111,7 +117,7 @@ sealed interface ConversationItem : ConversationItemType {
         val isUserDeleted: Boolean,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
-        override val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.DISABLED,
+        override val showLegalHoldIndicator: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
@@ -121,6 +127,8 @@ sealed interface ConversationItem : ConversationItemType {
         override val mlsVerificationStatus: Conversation.VerificationStatus,
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
+        override val searchQuery: String = "",
+        override val playingAudio: PlayingAudioInConversation? = null
     ) : ConversationItem
 
     @Serializable
@@ -129,17 +137,19 @@ sealed interface ConversationItem : ConversationItemType {
         val conversationInfo: ConversationInfo,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
-        override val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.DISABLED,
+        override val showLegalHoldIndicator: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val isArchived: Boolean = false,
         override val isFavorite: Boolean = false,
         override val folder: CurrentFolder? = null,
         override val hasNewActivitiesToShow: Boolean = false,
+        override val searchQuery: String = "",
     ) : ConversationItem {
         override val teamId: TeamId? = null
         override val mlsVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         override val proteusVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        override val playingAudio: PlayingAudioInConversation? = null
     }
 }
 
@@ -172,7 +182,9 @@ val OtherUser.BlockState: BlockingState
             else -> BlockingState.NOT_BLOCKED
         }
 
-fun ConversationItem.PrivateConversation.toUserInfoLabel(showLegalHoldIndicator: Boolean) =
+fun ConversationItem.PrivateConversation.toUserInfoLabel(
+    showLegalHoldIndicator: Boolean = this.showLegalHoldIndicator
+) =
     UserInfoLabel(
         labelName = conversationInfo.name,
         showLegalHoldIndicator = showLegalHoldIndicator,
@@ -182,7 +194,9 @@ fun ConversationItem.PrivateConversation.toUserInfoLabel(showLegalHoldIndicator:
         proteusVerificationStatus = proteusVerificationStatus
     )
 
-fun ConversationItem.ConnectionConversation.toUserInfoLabel(showLegalHoldIndicator: Boolean) =
+fun ConversationItem.ConnectionConversation.toUserInfoLabel(
+    showLegalHoldIndicator: Boolean = this.showLegalHoldIndicator
+) =
     UserInfoLabel(
         labelName = conversationInfo.name,
         showLegalHoldIndicator = showLegalHoldIndicator,

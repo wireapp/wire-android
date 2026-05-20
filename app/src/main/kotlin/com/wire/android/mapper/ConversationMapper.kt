@@ -29,6 +29,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem.Connect
 import com.wire.android.ui.home.conversationslist.model.ConversationItem.Group.Channel
 import com.wire.android.ui.home.conversationslist.model.ConversationItem.Group.Regular
 import com.wire.android.ui.home.conversationslist.model.ConversationItem.PrivateConversation
+import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
@@ -54,7 +55,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
+            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
             badgeEventType = parseConversationEventType(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
@@ -79,7 +80,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
+            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
             badgeEventType = parseConversationEventType(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
@@ -115,7 +116,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             ),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
+            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
             badgeEventType = parsePrivateConversationEventType(
                 conversationDetails.otherUser.connectionStatus,

@@ -50,7 +50,6 @@ import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
-import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
@@ -84,17 +83,18 @@ fun ConversationItemFactory(
     onAudioPermissionPermanentlyDenied: () -> Unit = {},
     onPlayPauseCurrentAudio: () -> Unit = { },
     onStopCurrentAudio: () -> Unit = {},
-    searchQuery: String = "",
+    searchQuery: String = conversation.searchQuery,
     isSelfUserUnderLegalHold: Boolean = false,
-    playingAudio: PlayingAudioInConversation? = null
+    playingAudio: PlayingAudioInConversation? = conversation.playingAudio
 ) {
     val openConversationOptionDescription = stringResource(R.string.content_description_conversation_details_more_btn)
     val openUserProfileDescription = stringResource(R.string.content_description_open_user_profile_label)
     val acceptOrIgnoreDescription = stringResource(R.string.content_description_accept_or_ignore_connection_label)
     val openConversationDescription = stringResource(R.string.content_description_open_conversation_label)
-    val showLegalHoldIndicator = conversation.legalHoldStatus.showLegalHoldIndicator() && !isSelfUserUnderLegalHold
+    val showLegalHoldIndicator = conversation.showLegalHoldIndicator && !isSelfUserUnderLegalHold
     val playingAudioInConversation = playingAudio
         ?.takeIf { it.conversationId == conversation.conversationId }
+        ?: conversation.playingAudio
     val onConversationItemClick = remember(conversation) {
         when (val lastEvent = conversation.lastMessageContent) {
             is UILastMessageContent.Connection -> {
@@ -179,8 +179,8 @@ private fun GeneralConversationItem(
     modifier: Modifier = Modifier,
     selectOnRadioGroup: () -> Unit = {},
     subTitle: @Composable () -> Unit = {},
-    searchQuery: String = "",
-    playingAudio: PlayingAudioInConversation? = null,
+    searchQuery: String = conversation.searchQuery,
+    playingAudio: PlayingAudioInConversation? = conversation.playingAudio,
     onPlayPauseCurrentAudio: () -> Unit = { },
     onStopCurrentAudio: () -> Unit = {}
 ) {
@@ -687,7 +687,8 @@ fun PreviewPrivateConversationItemWithPlayingAudio() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null
+            folder = null,
+            playingAudio = PlayingAudioInConversation(QualifiedID("value", "domain"), "some_id", true)
         ),
         modifier = Modifier,
         isSelectableItem = false,

@@ -26,7 +26,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
-import androidx.paging.map
 import com.wire.android.BuildConfig
 import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UserTypeMapper
@@ -66,6 +65,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
@@ -210,16 +210,19 @@ class ConversationListViewModelImpl(
                 .onStart { emit("") }
                 .distinctUntilChanged()
                 .flatMapLatest { searchQuery: String ->
-                    observeConversationListDetailsWithEvents(
-                        fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
-                        conversationFilter = conversationsSource.toFilter()
-                    ).map { conversations ->
+                    combine(
+                        observeConversationListDetailsWithEvents(
+                            fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
+                            conversationFilter = conversationsSource.toFilter()
+                        ),
+                        isSelfUserUnderLegalHoldFlow
+                    ) { conversations, isSelfUserUnderLegalHold ->
                         conversations.map { conversationDetails ->
                             conversationDetails.toConversationItem(
                                 userTypeMapper = userTypeMapper,
                                 uiTextResolver = uiTextResolver,
                                 selfUserTeamId = selfTeamId
-                            )
+                            ).hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold)
                         } to searchQuery
                     }
                 }
@@ -299,6 +302,22 @@ private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
     ConversationsSource.ONE_ON_ONE -> ConversationFilter.OneOnOne
     is ConversationsSource.FOLDER -> ConversationFilter.Folder(folderId = folderId, folderName = folderName)
 }
+
+/**
+ * If self user is under legal hold then we shouldn't show legal hold indicator next to every conversation as in that case
+ * the legal hold indication is shown in the header of the conversation list for self user in that case and it's enough.
+ */
+private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold: Boolean) =
+    when (isSelfUserUnderLegalHold) {
+        true -> when (this) {
+            is ConversationItem.ConnectionConversation -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.Group.Regular -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.Group.Channel -> this.copy(showLegalHoldIndicator = false)
+            is ConversationItem.PrivateConversation -> this.copy(showLegalHoldIndicator = false)
+        }
+
+        else -> this
+    }
 
 @Suppress("ComplexMethod")
 private fun List<ConversationItem>.withSections(source: ConversationsSource): Map<ConversationSection, List<ConversationItem>> {

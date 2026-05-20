@@ -24,12 +24,14 @@ import com.wire.kalium.logic.feature.app.SearchAppsByNameUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
+import com.wire.kalium.logic.feature.service.SyncServicesUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dev.zacsweers.metro.Inject
 
 @Inject
 class SearchAppsViewModelFactory(
     private val getAllServices: ObserveAllServicesUseCase,
+    private val syncServices: SyncServicesUseCase,
     private val getAllApps: ObserveAllAppsUseCase,
     private val contactMapper: ContactMapper,
     private val searchServicesByName: SearchServicesByNameUseCase,
@@ -40,6 +42,7 @@ class SearchAppsViewModelFactory(
     fun create(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel = SearchAppsViewModel(
         protocolInfo = protocolInfo,
         getAllServices = getAllServices,
+        syncServices = syncServices,
         getAllApps = getAllApps,
         contactMapper = contactMapper,
         searchServicesByName = searchServicesByName,

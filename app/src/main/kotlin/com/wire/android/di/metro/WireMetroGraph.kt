@@ -174,6 +174,7 @@ import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewMod
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellAssetRefreshHelper
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelFactory
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModelFactory
+import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModelFactory
 import com.wire.android.ui.home.conversations.search.SearchUserViewModelFactory
 import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModelFactory
 import com.wire.android.ui.home.conversations.search.apps.SearchAppsViewModelFactory
@@ -455,6 +456,7 @@ import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
@@ -464,6 +466,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetails
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
+import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
@@ -538,6 +541,7 @@ import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import com.wire.kalium.logic.feature.service.ServiceScope
+import com.wire.kalium.logic.feature.service.SyncServicesUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -704,6 +708,7 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     val conversationOptionsMenuViewModelFactory: ConversationOptionsMenuViewModelFactory
     val isFileSharingEnabledViewModelFactory: IsFileSharingEnabledViewModelFactory
     val addMembersToConversationViewModelFactory: AddMembersToConversationViewModelFactory
+    val promoteAdminViewModelFactory: PromoteAdminViewModelFactory
     val editConversationMetadataViewModelFactory: EditConversationMetadataViewModelFactory
     val searchAppsViewModelFactory: SearchAppsViewModelFactory
     val recordAudioViewModelFactory: RecordAudioViewModelFactory
@@ -2324,6 +2329,18 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
         conversationScope.leaveConversation
 
     @Provides
+    fun providePromoteAdminAndLeaveConversationUseCase(
+        conversationScope: ConversationScope,
+    ): PromoteAdminAndLeaveConversationUseCase =
+        conversationScope.promoteAdminAndLeaveConversation
+
+    @Provides
+    fun provideObserveEligibleMembersForConversationAdminRoleUseCase(
+        conversationScope: ConversationScope,
+    ): ObserveEligibleMembersForConversationAdminRoleUseCase =
+        conversationScope.observeEligibleMembersForConversationAdminRole
+
+    @Provides
     fun provideCheckConversationLeaveConditionsUseCase(conversationScope: ConversationScope): CheckConversationLeaveConditionsUseCase =
         conversationScope.checkConversationLeaveConditions
 
@@ -2487,6 +2504,10 @@ interface WireMetroGraph : CellViewModelGraph, MeetingViewModelGraph, ImageAsset
     @Provides
     fun provideSearchServicesByNameUseCase(serviceScope: ServiceScope): SearchServicesByNameUseCase =
         serviceScope.searchServicesByName
+
+    @Provides
+    fun provideSyncServicesUseCase(serviceScope: ServiceScope): SyncServicesUseCase =
+        serviceScope.syncServices
 
     @Provides
     fun provideObserveIsAppsAllowedForUsageUseCase(serviceScope: ServiceScope): ObserveIsAppsAllowedForUsageUseCase =

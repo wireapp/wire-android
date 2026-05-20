@@ -108,7 +108,7 @@ jobs:
           if-no-files-found: error
 
       - name: Create or update baseline profile PR
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
           branch: ${{ env.REFRESH_BRANCH }}

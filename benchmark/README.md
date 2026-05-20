@@ -19,29 +19,49 @@ Run the startup benchmark without login:
   -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="com.wire"
 ```
 
-Run the startup benchmark with login:
+Run the fixture-backed startup benchmark with login:
 
 ```shell
 ./gradlew :benchmark:connectedProdBenchmarkBenchmarkAndroidTest \
   -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.StartupBenchmarkWithLogin#startUpWithoutBaselineProfiler \
   -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="com.wire" \
-  -Pandroid.testInstrumentationRunnerArguments.EMAIL="$EMAIL" \
-  -Pandroid.testInstrumentationRunnerArguments.PASSWORD="$PASSWORD"
+  -Pandroid.testInstrumentationRunnerArguments.BACKEND_NAME="STAGING"
 ```
 
-Run the baseline profile generator:
+Run the fixture-backed baseline profile generator:
 
 ```shell
 ./gradlew :benchmark:connectedProdBenchmarkBenchmarkAndroidTest \
   -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.BaselineGenerator \
   -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="com.wire" \
+  -Pandroid.testInstrumentationRunnerArguments.BACKEND_NAME="STAGING"
+```
+
+Run the manual-credentials startup benchmark with login:
+
+```shell
+./gradlew :benchmark:connectedProdBenchmarkBenchmarkAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.ManualStartupBenchmarkWithLogin#startUpWithoutBaselineProfiler \
+  -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="com.wire" \
   -Pandroid.testInstrumentationRunnerArguments.EMAIL="$EMAIL" \
   -Pandroid.testInstrumentationRunnerArguments.PASSWORD="$PASSWORD"
 ```
 
+Run the manual-credentials baseline profile generator:
+
+```shell
+./gradlew :benchmark:connectedProdBenchmarkBenchmarkAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.ManualBaselineGenerator \
+  -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="com.wire" \
+  -Pandroid.testInstrumentationRunnerArguments.EMAIL="$EMAIL" \
+  -Pandroid.testInstrumentationRunnerArguments.PASSWORD="$PASSWORD" \
+  -Pandroid.testInstrumentationRunnerArguments.CONVERSATION_NAME="Some Conversation"
+```
+
 ## Notes
 
-- The benchmark module reads `TARGET_PACKAGE`, `EMAIL`, and `PASSWORD` from instrumentation runner arguments.
+- Fixture-backed classes use `TARGET_PACKAGE`, `BACKEND_NAME`, and optional `CONVERSATION_NAME`.
+- Manual classes use `TARGET_PACKAGE`, `EMAIL`, `PASSWORD`, and optional `CONVERSATION_NAME`.
 - The app APK is produced from `:app` automatically through `targetProjectPath = ":app"`.
 - Benchmark output is written under `benchmark/build/outputs/connected_android_test_additional_output/`.
 - The committed pre-profile reference snapshot lives under `benchmark/baselines/`.

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,20 +20,20 @@ package com.wire.benchmark
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class BaselineGenerator {
+class ManualBaselineGenerator {
 
     @get:Rule
     val baselineProfileRule = BaselineProfileRule()
 
     private val args get() = InstrumentationRegistry.getArguments()
     private val targetPackage get() = args.getString("TARGET_PACKAGE", "com.wire")
-    private val backendName get() = args.getString("BACKEND_NAME", "STAGING")
+    private val email get() = args.getString("EMAIL").orEmpty()
+    private val password get() = args.getString("PASSWORD").orEmpty()
     private val conversationName get() = args.getString("CONVERSATION_NAME").orEmpty()
 
     @Test
@@ -43,18 +43,12 @@ class BaselineGenerator {
     ) {
         pressHome()
         startActivityAndWait()
-        val fixture = BenchmarkFixtureFactory.create(
-            backendName = backendName,
-            context = getInstrumentation().context,
-            conversationNameOverride = conversationName,
-        )
-        try {
-            switchBackend(fixture.backend.deeplink)
-            login(fixture.email, fixture.password)
+        if (email.isNotEmpty() && password.isNotEmpty()) {
+            login(email, password)
             openContactsAndReturn()
-            openConversation(fixture.conversationName)
-        } finally {
-            fixture.cleanup()
+            if (conversationName.isNotEmpty()) {
+                openConversation(conversationName)
+            }
         }
     }
 }

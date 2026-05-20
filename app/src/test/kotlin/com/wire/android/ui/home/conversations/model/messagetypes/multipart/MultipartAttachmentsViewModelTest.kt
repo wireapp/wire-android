@@ -17,11 +17,14 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
+import androidx.lifecycle.SavedStateHandle
+import com.ramcosta.composedestinations.generated.app.navargs.toSavedStateHandle
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
@@ -30,6 +33,7 @@ import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
@@ -261,6 +265,10 @@ class MultipartAttachmentsViewModelTest {
             MockKAnnotations.init(this)
         }
 
+        private val savedStateHandle: SavedStateHandle = ConversationNavArgs(
+            conversationId = ConversationId(testConversationId, "test-domain"),
+        ).toSavedStateHandle()
+
         @MockK
         lateinit var refreshHelper: CellAssetRefreshHelper
 
@@ -297,7 +305,7 @@ class MultipartAttachmentsViewModelTest {
             every { observeOfflineFiles() } returns flowOf(emptyList<OfflineFileInfo>())
 
             return this to MultipartAttachmentsViewModelImpl(
-                conversationId = testConversationId,
+                savedStateHandle = savedStateHandle,
                 refreshHelper = refreshHelper,
                 download = download,
                 fileManager = fileManager,

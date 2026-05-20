@@ -18,8 +18,10 @@
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
@@ -28,6 +30,7 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
@@ -41,9 +44,6 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.SharingStarted
@@ -53,6 +53,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
+import javax.inject.Inject
 
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
@@ -118,9 +119,10 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
 
-@HiltViewModel(assistedFactory = MultipartAttachmentsViewModelImpl.Factory::class)
-class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
-    @Assisted private val conversationId: String,
+@Suppress("LongParameterList")
+@HiltViewModel
+class MultipartAttachmentsViewModelImpl @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val refreshHelper: CellAssetRefreshHelper,
     private val download: DownloadCellFileUseCase,
     private val getEditorUrl: GetEditorUrlUseCase,
@@ -131,11 +133,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
-
-    @AssistedFactory
-    interface Factory {
-        fun create(conversationId: String): MultipartAttachmentsViewModelImpl
-    }
+    private val conversationId = savedStateHandle.navArgs<ConversationNavArgs>().conversationId.value
 
     private val uploadProgress = mutableStateMapOf<String, Float>()
     override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFiles()

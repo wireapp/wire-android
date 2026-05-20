@@ -416,7 +416,6 @@ private fun MessageContent(
                     Spacer(modifier = Modifier.height(dimensions().spacing8x))
                 }
                 MultipartAttachmentsView(
-                    conversationId = message.conversationId,
                     attachments = messageContent.attachments,
                     messageStyle = messageStyle,
                     onImageAttachmentClick = onMultipartImageClick

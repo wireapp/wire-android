@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -44,7 +45,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid.
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone.AssetPreview
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isFailed
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAttachment
 
 /**
@@ -53,20 +53,16 @@ import com.wire.kalium.logic.data.message.MessageAttachment
  */
 @Composable
 fun MultipartAttachmentsView(
-    conversationId: ConversationId,
     attachments: List<MessageAttachment>,
     messageStyle: MessageStyle,
     onImageAttachmentClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
-        else -> hiltViewModel<MultipartAttachmentsViewModelImpl, MultipartAttachmentsViewModelImpl.Factory>(
-            key = conversationId.value,
-            creationCallback = { factory -> factory.create(conversationId = conversationId.value) }
-        )
+        else -> hiltViewModel<MultipartAttachmentsViewModelImpl>()
     }
 ) {
-    val offlineAttachmentIds = viewModel.offlineAttachmentIds.collectAsStateWithLifecycle().value
+    val offlineAttachmentIds by viewModel.offlineAttachmentIds.collectAsStateWithLifecycle()
 
     // TODO I found out that empty attachments list is not handled here and it shows empty message with no information
     if (attachments.size == 1) {
@@ -138,6 +134,7 @@ fun MultipartAttachmentsView(
         }
     }
 }
+
 
 @Composable
 private fun AttachmentsList(

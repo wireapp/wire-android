@@ -532,7 +532,6 @@
     <string name="leave_conversation_dialog_delete_fully_check">මගේ සියලු උපාංගවල සංවාදය සහ එහි අන්තර්ගතය මා වෙනුවෙන් මකන්න.</string>
     <string name="delete_conversation_conversation_menu_item">සංවාදය මකන්න…</string>
     <string name="delete_conversation_conversation_dialog_title">“%s” ඉවත් කරන්නද?</string>
-    <string name="delete_conversation_conversation_dialog_description">ඔබගේ සියලු උපාංගවල සංවාද ලැයිස්තුවෙන් සංවාදය ඉවත් කරනු ලැබේ. ඔබට තවදුරටත් සංවාදයට සහ එහි අන්තර්ගතයට ප්‍රවේශ වීමට නොහැකි වනු ඇත.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">මට \"%s\" සංවාදය මකන්නද?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">ඔබට සංවාදයට සහ එහි අන්තර්ගතයට ප්‍රවේශ වීමට නොහැකි වනු ඇත. එය ප්‍රතිසාධනය කිරීමට විකල්පයක් නොමැත.</string>
     <string name="delete_conversation_locally_delete_for_me_label">මා වෙනුවෙන් මකන්න</string>

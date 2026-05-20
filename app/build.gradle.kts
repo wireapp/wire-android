@@ -302,7 +302,6 @@ dependencies {
 
     implementation(libs.aboutLibraries.core)
     implementation(libs.aboutLibraries.compose.core)
-    implementation(libs.aboutLibraries.compose.m3)
     implementation(libs.compose.qr.code)
     implementation(libs.enterprise.feedback)
 

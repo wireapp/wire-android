@@ -20,11 +20,15 @@ package com.wire.android.ui.home.drawer
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.framework.TestConversation
+import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
@@ -37,6 +41,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -92,6 +98,81 @@ class HomeDrawerViewModelTest {
         )
     }
 
+    @Test
+    fun `given wireCellsEnabledGlobally, when starts observing, then show cells drawer item`() = runTest {
+        // Given
+        val (arrangement, viewModel) = Arrangement()
+            .withWireCellsEnabled(true)
+            .arrange()
+
+        // When
+        arrangement.unreadArchivedConversationsCountChannel.send(0L)
+        advanceUntilIdle()
+
+        // Then
+        assertTrue(
+            listOf(
+                viewModel.drawerState.items.first,
+                viewModel.drawerState.items.second
+            ).flatten()
+                .filterIsInstance<DrawerUiItem.RegularItem>()
+                .any { it.destination.toString().contains("Cells") }
+        )
+    }
+
+    @Test
+    fun `given userInConversationWithCellsEnabled, when starts observing, then show cells drawer item`() = runTest {
+        // Given
+        val conversationWithCells = ConversationDetails.Group.Regular(
+            TestConversation.GROUP(),
+            isSelfUserMember = true,
+            selfRole = com.wire.kalium.logic.data.conversation.Conversation.Member.Role.Member,
+            wireCell = "2024-01-01T00:00:00.000Z",
+        )
+        val (arrangement, viewModel) = Arrangement()
+            .withWireCellsEnabled(false)
+            .withConversations(listOf(conversationWithCells))
+            .arrange()
+
+        // When
+        arrangement.unreadArchivedConversationsCountChannel.send(0L)
+        advanceUntilIdle()
+
+        // Then
+        assertTrue(
+            listOf(
+                viewModel.drawerState.items.first,
+                viewModel.drawerState.items.second
+            ).flatten()
+                .filterIsInstance<DrawerUiItem.RegularItem>()
+                .any { it.destination.toString().contains("Cells") }
+        )
+    }
+
+    @Test
+    fun `given noCellsEnabled_whenStartsObserving_thenDontShowCellsDrawerItem`() = runTest {
+        // Given
+        val conversationWithoutCells = TestConversationDetails.GROUP
+        val (arrangement, viewModel) = Arrangement()
+            .withWireCellsEnabled(false)
+            .withConversations(listOf(conversationWithoutCells))
+            .arrange()
+
+        // When
+        arrangement.unreadArchivedConversationsCountChannel.send(0L)
+        advanceUntilIdle()
+
+        // Then
+        assertFalse(
+            listOf(
+                viewModel.drawerState.items.first,
+                viewModel.drawerState.items.second
+            ).flatten()
+                .filterIsInstance<DrawerUiItem.RegularItem>()
+                .any { it.destination.toString().contains("Cells") }
+        )
+    }
+
     private class Arrangement {
 
         @MockK
@@ -109,12 +190,16 @@ class HomeDrawerViewModelTest {
         @MockK
         lateinit var getTeamUrlUseCase: GetTeamUrlUseCase
 
+        @MockK
+        lateinit var observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase
+
         val unreadArchivedConversationsCountChannel = Channel<Long>(capacity = Channel.UNLIMITED)
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeArchivedUnreadConversationsCount() } returns unreadArchivedConversationsCountChannel.consumeAsFlow()
             coEvery { isWireCellsEnabled() } returns false
+            coEvery { observeConversationListDetailsUseCase(fromArchive = false) } returns flowOf(emptyList())
             withSelfUserType()
             coEvery { getTeamUrlUseCase() } returns TEAM_URL
         }
@@ -123,12 +208,21 @@ class HomeDrawerViewModelTest {
             coEvery { observeSelfUserUseCase() } returns flowOf(TestUser.SELF_USER.copy(userType = UserTypeInfo.Regular(type)))
         }
 
+        fun withWireCellsEnabled(enabled: Boolean) = apply {
+            coEvery { isWireCellsEnabled() } returns enabled
+        }
+
+        fun withConversations(conversations: List<ConversationDetails>) = apply {
+            coEvery { observeConversationListDetailsUseCase(fromArchive = false) } returns flowOf(conversations)
+        }
+
         fun arrange() = this to HomeDrawerViewModel(
             savedStateHandle = savedStateHandle,
             observeArchivedUnreadConversationsCount = { observeArchivedUnreadConversationsCount },
             observeSelfUser = observeSelfUserUseCase,
             getTeamUrl = getTeamUrlUseCase,
             isWireCellsEnabled = isWireCellsEnabled,
+            observeConversationListDetails = { observeConversationListDetailsUseCase },
         )
 
         companion object {

@@ -27,9 +27,11 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.Lazy
@@ -49,6 +51,7 @@ class HomeDrawerViewModel @Inject constructor(
     private val observeSelfUser: ObserveSelfUserUseCase,
     private val getTeamUrl: GetTeamUrlUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
+    private val observeConversationListDetails: Lazy<ObserveConversationListDetailsUseCase>,
 ) : ViewModel() {
 
     var drawerState by mutableStateOf(HomeDrawerState())
@@ -73,11 +76,17 @@ class HomeDrawerViewModel @Inject constructor(
             combine(
                 flowOf(isWireCellsEnabled()),
                 observeArchivedUnreadConversationsCount.get().invoke(),
-                observeTeamManagementUrlForUser()
-            ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
+                observeTeamManagementUrlForUser(),
+                observeConversationListDetails.get().invoke(fromArchive = false)
+            ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl, conversations ->
+                val hasConversationWithCells = conversations.any { conversation ->
+                    (conversation as? ConversationDetails.Group)?.wireCell != null
+                }
+                val shouldShowCells = wireCellsEnabled || hasConversationWithCells
+
                 buildList {
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))
-                    if (wireCellsEnabled) {
+                    if (shouldShowCells) {
                         add(DrawerUiItem.RegularItem(destination = HomeDestination.Cells))
                     }
                     if (BuildConfig.MEETINGS_ENABLED) {

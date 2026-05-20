@@ -58,18 +58,3 @@ fun MacrobenchmarkScope.switchBackend(backendConfigUrl: String) {
     device.findObject(By.text("Proceed"))?.click()
     device.wait(Until.hasObject(By.res("loginButton")), 30.seconds.inWholeMilliseconds)
 }
-
-fun MacrobenchmarkScope.openContactsAndReturn() {
-    device.findObject(By.desc("New. Start a new conversation"))?.click()
-    device.wait(Until.hasObject(By.text("Contacts")), 10.seconds.inWholeMilliseconds)
-    device.pressBack()
-    device.wait(Until.hasObject(By.text("Conversations")), 10.seconds.inWholeMilliseconds)
-}
-
-fun MacrobenchmarkScope.openConversation(conversationName: String) {
-    val conversationTarget = device.findObject(By.text(conversationName))
-    conversationTarget?.click()
-    device.wait(Until.hasObject(By.desc(" Type a message")), 10.seconds.inWholeMilliseconds)
-    device.pressBack()
-    device.wait(Until.hasObject(By.text("Conversations")), 10.seconds.inWholeMilliseconds)
-}

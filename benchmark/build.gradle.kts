@@ -53,11 +53,6 @@ android {
     experimentalProperties["android.experimental.self-instrumenting"] = true
 
     buildTypes {
-        create("benchmark") {
-            isDebuggable = true
-            signingConfig = signingConfigs.getByName("debug")
-            matchingFallbacks += listOf("release", "compatrelease")
-        }
         // For baseline profile generation targeting prodCompatrelease.
         // The benchmark module itself doesn't need minification (it's not shipped).
         // What matters is that the app it targets is minified correctly.

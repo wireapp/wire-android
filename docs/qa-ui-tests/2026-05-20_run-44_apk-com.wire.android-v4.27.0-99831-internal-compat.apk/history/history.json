@@ -1,0 +1,1 @@
+{"fdb0dea16008d85728d4f5f7b390c808":{"statistic":{"failed":1,"broken":0,"skipped":0,"passed":0,"unknown":0,"total":1},"items":[{"uid":"9f2f27a8bfd89678","status":"failed","statusDetails":"Element not found with selector: text='\uD83D\uDC4D'","time":{"start":1779310241274,"stop":1779310315215,"duration":73941}}]}}

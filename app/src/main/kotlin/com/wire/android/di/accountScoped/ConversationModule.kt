@@ -36,6 +36,8 @@ import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedU
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
+import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -206,8 +208,20 @@ class ConversationModule {
 
     @ViewModelScoped
     @Provides
+    fun providePromoteAdminAndLeaveConversationUseCase(conversationScope: ConversationScope): PromoteAdminAndLeaveConversationUseCase =
+        conversationScope.promoteAdminAndLeaveConversation
+
+    @ViewModelScoped
+    @Provides
     fun provideCheckConversationLeaveConditionsUseCase(conversationScope: ConversationScope): CheckConversationLeaveConditionsUseCase =
         conversationScope.checkConversationLeaveConditions
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveEligibleMembersForConversationAdminRoleUseCase(
+        conversationScope: ConversationScope
+    ): ObserveEligibleMembersForConversationAdminRoleUseCase =
+        conversationScope.observeEligibleMembersForConversationAdminRole
 
     @ViewModelScoped
     @Provides

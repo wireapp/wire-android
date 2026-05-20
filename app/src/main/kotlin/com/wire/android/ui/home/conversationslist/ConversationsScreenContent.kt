@@ -37,6 +37,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.ConversationS
 import com.ramcosta.composedestinations.generated.app.destinations.DebugConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.PromoteAdminScreenDestination
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
@@ -58,6 +59,7 @@ import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.debug.conversation.DebugConversationScreenNavArgs
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
+import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItemType
@@ -81,7 +83,7 @@ fun ConversationsScreenContent(
     searchBarState: SearchBarState,
     emptyListContent: @Composable (domain: String) -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
-    loadingListContent: @Composable (LazyListState) -> Unit = { LoadingListContent(it) },
+    loadingListContent: @Composable () -> Unit = { LoadingListContent() },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
@@ -168,7 +170,7 @@ fun ConversationsScreenContent(
             searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
             when {
                 // when conversation list is not yet fetched, show loading indicator
-                lazyPagingItems.isLoading() -> loadingListContent(lazyListState)
+                lazyPagingItems.isLoading() -> loadingListContent()
                 // when there is at least one conversation
                 lazyPagingItems.itemCount > 0 -> ConversationList(
                     lazyPagingConversations = lazyPagingItems,
@@ -202,7 +204,7 @@ fun ConversationsScreenContent(
             searchBarState.searchVisibleChanged(isSearchVisible = hasConversations || searchBarState.isSearchActive)
             when {
                 // when conversation list is not yet fetched, show loading indicator
-                state.isLoading -> loadingListContent(lazyListState)
+                state.isLoading -> loadingListContent()
                 // when there is at least one conversation in any folder
                 hasConversations -> ConversationList(
                     lazyListState = lazyListState,
@@ -245,6 +247,7 @@ fun ConversationsScreenContent(
     ConversationOptionsModalSheetLayout(
         sheetState = sheetState,
         openConversationFolders = { navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it))) },
+        onPromoteAdmin = { navigator.navigate(NavigationCommand(PromoteAdminScreenDestination(PromoteAdminNavArgs(it)))) },
         openConversationDebugMenu = { conversationId ->
             navigator.navigate(
                 NavigationCommand(

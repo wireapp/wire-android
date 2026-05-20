@@ -36,6 +36,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Required because :tests:testsSupport depends on java.time APIs.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     flavorDimensions += FlavorDimensions.DEFAULT
@@ -61,6 +63,12 @@ android {
             matchingFallbacks += listOf("release")
         }
     }
+
+    sourceSets {
+        getByName("main") {
+            kotlin.directories.add(project(":tests:testsSupport").file("src/main").path)
+        }
+    }
 }
 
 baselineProfile {
@@ -72,5 +80,11 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.test.uiAutomator)
     implementation(libs.androidx.benchmark.macro.junit4)
+    implementation(libs.datafaker)
+    implementation(libs.gson)
     implementation(libs.junit4)
+    implementation(libs.zxing.android.embedded)
+    implementation(libs.zxing.core)
+    implementation(project(":tests:testsSupport"))
+    coreLibraryDesugaring(libs.android.desugarJdkLibs)
 }

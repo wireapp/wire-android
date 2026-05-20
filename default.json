@@ -88,7 +88,8 @@
             "enforce_configuration_signature": true,
             "use_strict_mls_filter": false,
             "conversation_feeder_enabled": true,
-            "db_invalidation_control_enabled": false
+            "db_invalidation_control_enabled": false,
+            "adminless_group_handling_enabled": true
         },
         "fdroid": {
             "application_id": "com.wire",

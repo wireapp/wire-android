@@ -42,6 +42,13 @@ data class LeaveGroupDialogState(
     val loading: Boolean = false,
 ) : GroupDialogState(conversationId, conversationName)
 
+data class LeaveGroupOptionsDialogState(
+    override val conversationId: ConversationId,
+    override val conversationName: String,
+    val showPromoteOption: Boolean,
+    val canDeleteGroup: Boolean,
+) : GroupDialogState(conversationId, conversationName)
+
 data class DeleteGroupDialogState(
     override val conversationId: ConversationId,
     override val conversationName: String,

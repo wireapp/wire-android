@@ -133,6 +133,7 @@ fun ConversationFilesScreen(
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun ConversationFilesScreenContent(
     animatedVisibilityScope: AnimatedVisibilityScope,

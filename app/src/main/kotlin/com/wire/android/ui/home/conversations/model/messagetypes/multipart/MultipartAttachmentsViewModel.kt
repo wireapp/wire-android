@@ -187,7 +187,7 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
 
     private fun downloadAsset(attachment: MultipartAttachmentUi) = viewModelScope.launch {
 
-        // Move kaliumFileSystem to common kalium module so that it can be used in use case
+        // TODO: Move kaliumFileSystem to common kalium module so that it can be used in use case
         val path = kaliumFileSystem.providePersistentAssetPath(attachment.fileName ?: error("No asset path"))
 
         if (kaliumFileSystem.exists(path)) {

@@ -133,8 +133,11 @@ private fun StatsSummary(uiModel: ConversationCryptoStatsUiModel) {
         StatRow("MLS", uiModel.mlsCount.toString())
         StatRow("Mixed", uiModel.mixedCount.toString())
         HorizontalDivider(modifier = Modifier.padding(vertical = dimensions().spacing4x))
-        StatRow("MLS not in core crypto", uiModel.mlsNotEstablishedInCrypto.toString())
-        StatRow("Mixed not in core crypto", uiModel.mixedNotEstablishedInCrypto.toString())
+        StatRow("MLS drift", uiModel.mlsDriftCount.toString())
+        StatRow("Mixed drift", uiModel.mixedDriftCount.toString())
+        StatRow("MLS left", uiModel.mlsLeftCount.toString())
+        StatRow("Mixed left", uiModel.mixedLeftCount.toString())
+        StatRow("CC lookup failed", uiModel.ccLookupFailedCount.toString())
     }
 }
 
@@ -177,7 +180,7 @@ private fun FilterSection(
             }
         }
         Text(
-            text = "Core crypto status",
+            text = "Crypto status",
             style = MaterialTheme.wireTypography.label01,
         )
         FlowRow(
@@ -275,13 +278,21 @@ private fun ConversationDetailsList(
                         style = MaterialTheme.wireTypography.body01,
                     )
                 }
+                Text(
+                    text = "Self is member: ${detail.selfIsMember}",
+                    style = MaterialTheme.wireTypography.body01,
+                )
+                Text(
+                    text = "CC lookup failed: ${detail.ccLookupFailed}",
+                    style = MaterialTheme.wireTypography.body01,
+                )
                 val color = when {
-                    detail.establishedInCrypto == "Yes" -> MaterialTheme.wireColorScheme.positive
-                    detail.establishedInCrypto == "No" -> MaterialTheme.wireColorScheme.error
+                    detail.cryptoStatus == ConversationCryptoStatus.IN_SYNC -> MaterialTheme.wireColorScheme.positive
+                    detail.cryptoStatus == ConversationCryptoStatus.NOT_APPLICABLE -> MaterialTheme.wireColorScheme.onBackground
                     else -> MaterialTheme.wireColorScheme.onBackground
                 }
                 Text(
-                    text = "In core crypto: ${detail.establishedInCrypto}",
+                    text = "Status: ${detail.cryptoStatus.label}",
                     style = MaterialTheme.wireTypography.body01,
                     color = color,
                 )

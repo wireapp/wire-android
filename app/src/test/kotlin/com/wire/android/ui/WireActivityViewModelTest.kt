@@ -20,7 +20,6 @@
 
 package com.wire.android.ui
 
-import android.content.Intent
 import androidx.work.Operation
 import androidx.work.WorkManager
 import app.cash.turbine.test
@@ -30,7 +29,6 @@ import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
 import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
@@ -52,12 +50,10 @@ import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
-import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.android.util.lifecycle.AutomatedLoginViaSSO
-import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
@@ -158,9 +154,26 @@ class WireActivityViewModelTest {
 
         viewModel.actions.test {
             viewModel.handleDeepLink(mockedIntent())
-            coVerify(exactly = 1) { arrangement.deepLinkProcessor.invoke(any(), any()) }
+            coVerify(exactly = 1) { arrangement.intentGateway.parseDeepLink(any()) }
             assertEquals(OnSSOLogin(result), expectMostRecentItem())
         }
+    }
+
+    @Test
+    fun `given parsed intent content, when handling deep link, then content is delegated to gateway`() = runTest {
+        val intentContent = WireActivityIntentContent(
+            dataUri = "wire://conversation/domain/conversation-id",
+            action = "android.intent.action.VIEW",
+            automatedLogin = null,
+        )
+        val (arrangement, viewModel) = Arrangement()
+            .withDeepLinkResult(DeepLinkResult.Unknown)
+            .arrange()
+
+        viewModel.handleDeepLink(intentContent)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.intentGateway.parseDeepLink(intentContent) }
     }
 
     @Test
@@ -871,7 +884,7 @@ class WireActivityViewModelTest {
 
             assertEquals(true, handled)
             assertEquals(false, arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
-            coVerify(exactly = 1) { arrangement.intentsProcessor(any()) }
+            coVerify(exactly = 1) { arrangement.intentGateway.parseAutomatedLogin(any()) }
             coVerify(exactly = 0) { arrangement.isNomadProfilesEnabledUseCase.invoke() }
             coVerify(exactly = 0) { arrangement.observeSessionsUseCase.invoke() }
             expectNoEvents()
@@ -1016,12 +1029,11 @@ class WireActivityViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
             // Default empty values
-            mockUri()
             coEvery { monitorSyncWorkUseCase() } returns Unit
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
-            coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
-            coEvery { intentsProcessor(any()) } returns null
+            coEvery { intentGateway.parseDeepLink(any()) } returns DeepLinkResult.Unknown
+            coEvery { intentGateway.parseAutomatedLogin(any()) } returns null
             coEvery { observeSessionsUseCase.invoke() } returns flowOf(GetAllSessionsResult.Failure.NoSessionFound)
             every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
             every { observeSyncStateUseCase() } returns emptyFlow()
@@ -1061,10 +1073,7 @@ class WireActivityViewModelTest {
         lateinit var getServerConfigUseCase: GetServerConfigUseCase
 
         @MockK
-        lateinit var deepLinkProcessor: DeepLinkProcessor
-
-        @MockK
-        lateinit var intentsProcessor: IntentsProcessor
+        lateinit var intentGateway: WireActivityIntentGateway
 
         @MockK
         lateinit var observeSessionsUseCase: ObserveSessionsUseCase
@@ -1148,8 +1157,7 @@ class WireActivityViewModelTest {
                 currentSessionFlow = { currentSessionFlow },
                 doesValidSessionExist = { doesValidSessionExist },
                 getServerConfigUseCase = { getServerConfigUseCase },
-                deepLinkProcessor = { deepLinkProcessor },
-                intentsProcessor = { intentsProcessor },
+                intentGateway = { intentGateway },
                 observeSessions = { observeSessionsUseCase },
                 accountSwitch = { switchAccount },
                 servicesManager = { servicesManager },
@@ -1205,7 +1213,7 @@ class WireActivityViewModelTest {
         }
 
         fun withDeepLinkResult(result: DeepLinkResult): Arrangement {
-            coEvery { deepLinkProcessor(any(), any()) } returns result
+            coEvery { intentGateway.parseDeepLink(any()) } returns result
             return this
         }
 
@@ -1303,7 +1311,7 @@ class WireActivityViewModelTest {
             ssoCode: String? = null,
             backendConfig: String? = null,
         ): Arrangement = apply {
-            coEvery { intentsProcessor(any()) } returns when {
+            coEvery { intentGateway.parseAutomatedLogin(any()) } returns when {
                 ssoCode == null || backendConfig == null -> null
                 else -> AutomatedLoginViaSSO(
                     ssoCode = ssoCode,
@@ -1340,13 +1348,12 @@ class WireActivityViewModelTest {
             TEST_ACCOUNT_INFO.copy(userId = USER_ID.copy("user_$i"))
         }
 
-        private fun mockedIntent(isFromHistory: Boolean = false): Intent {
-            return mockk<Intent>().also {
-                every { it.data } returns mockk()
-                every { it.flags } returns if (isFromHistory) Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY else 0
-                every { it.action } returns null
-            }
-        }
+        private fun mockedIntent(): WireActivityIntentContent =
+            WireActivityIntentContent(
+                dataUri = "wire://conversation/domain/conversation-id",
+                action = null,
+                automatedLogin = null,
+            )
 
         val ongoingCall = Call(
             CommonTopAppBarViewModelTest.conversationId,

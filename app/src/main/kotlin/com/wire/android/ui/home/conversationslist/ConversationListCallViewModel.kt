@@ -29,12 +29,10 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 interface ConversationListCallViewModel : ActionsManager<ConversationListCallViewActions> {
     val joinCallDialogState: VisibilityState<ConversationId> get() = VisibilityState()
@@ -45,8 +43,7 @@ interface ConversationListCallViewModel : ActionsManager<ConversationListCallVie
 object ConversationListCallViewModelPreview : ConversationListCallViewModel
 
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
-@HiltViewModel
-class ConversationListCallViewModelImpl @Inject constructor(
+class ConversationListCallViewModelImpl(
     @CurrentAccount val currentAccount: UserId,
     private val answerCall: AnswerCallUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,

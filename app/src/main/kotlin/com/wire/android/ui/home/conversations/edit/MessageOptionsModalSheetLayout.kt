@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -62,11 +62,11 @@ fun MessageOptionsModalSheetLayout(
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
     viewModel: MessageOptionsMenuViewModel =
-        hiltViewModelScoped<
+        wireViewModelScoped<
                 MessageOptionsMenuViewModelImpl,
                 MessageOptionsMenuViewModel,
                 MessageOptionsMenuArgs,
-                MessageOptionsMenuViewModelImpl.Factory
+                MessageOptionsMenuViewModelFactory,
                 >(MessageOptionsMenuArgs(conversationId))
 ) {
     val context = LocalContext.current

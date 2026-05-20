@@ -26,8 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
@@ -42,7 +42,9 @@ import com.wire.android.ui.theme.WireTheme
 @Composable
 fun NetworkSettingsScreen(
     navigator: Navigator,
-    networkSettingsViewModel: NetworkSettingsViewModel = hiltViewModel()
+    networkSettingsViewModel: NetworkSettingsViewModel = metroViewModel {
+        networkSettingsViewModelFactory.create()
+    }
 ) {
     NetworkSettingsScreenContent(
         onBackPressed = navigator::navigateBack,

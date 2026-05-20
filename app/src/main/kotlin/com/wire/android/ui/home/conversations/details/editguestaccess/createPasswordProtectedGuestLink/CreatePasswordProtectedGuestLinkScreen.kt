@@ -46,8 +46,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.GeneratePasswordButton
 import com.wire.android.ui.common.button.WireButtonState
@@ -73,7 +73,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun CreatePasswordProtectedGuestLinkScreen(
     navigator: Navigator,
-    viewModel: CreatePasswordGuestLinkViewModel = hiltViewModel(),
+    args: CreatePasswordGuestLinkNavArgs,
+    viewModel: CreatePasswordGuestLinkViewModel =
+        metroViewModel { createPasswordGuestLinkViewModelFactory.create(args) },
 ) {
     CreatePasswordProtectedGuestLinkScreenContent(
         state = viewModel.state,

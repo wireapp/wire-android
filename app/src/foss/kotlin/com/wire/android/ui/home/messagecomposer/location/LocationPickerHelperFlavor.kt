@@ -17,9 +17,10 @@
  */
 package com.wire.android.ui.home.messagecomposer.location
 
+import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 
-class LocationPickerHelperFlavor @Inject constructor(
+class LocationPickerHelperFlavor @Inject @MetroInject constructor(
     private val locationPickerHelper: LocationPickerHelper,
 ) {
     suspend fun getLocation(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {

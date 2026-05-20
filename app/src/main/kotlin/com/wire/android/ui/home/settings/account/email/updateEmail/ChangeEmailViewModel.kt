@@ -29,13 +29,10 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.Patterns
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class ChangeEmailViewModel @Inject constructor(
+class ChangeEmailViewModel(
     private val updateEmail: UpdateEmailUseCase,
     private val getSelf: GetSelfUserUseCase,
 ) : ViewModel() {

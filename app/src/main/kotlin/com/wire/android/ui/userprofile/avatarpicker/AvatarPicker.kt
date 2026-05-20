@@ -35,9 +35,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.ArrowRightIcon
@@ -72,7 +72,9 @@ import com.wire.android.util.ui.PreviewMultipleThemesForSquare
 fun AvatarPickerScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<String?>,
-    viewModel: AvatarPickerViewModel = hiltViewModel()
+    viewModel: AvatarPickerViewModel = metroViewModel {
+        avatarPickerViewModelFactory.create()
+    }
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -82,12 +84,12 @@ fun AvatarPickerScreen(
 
     val state = rememberAvatarPickerState(
         onImageSelected = { originalUri ->
-            viewModel.updatePickedAvatarUri(originalUri, targetAvatarPath.toFile().toUri())
+            viewModel.updatePickedAvatarUri(originalUri.toString(), targetAvatarPath.toFile().toUri().toString())
         },
         onPictureTaken = {
-            viewModel.updatePickedAvatarUri(targetAvatarUri, targetAvatarPath.toFile().toUri())
+            viewModel.updatePickedAvatarUri(targetAvatarUri, targetAvatarPath.toFile().toUri().toString())
         },
-        targetPictureFileUri = targetAvatarUri,
+        targetPictureFileUri = targetAvatarUri.toUri(),
         onGalleryPermissionPermanentlyDenied = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
@@ -207,7 +209,7 @@ private fun AvatarPickerContent(
 @Composable
 fun AvatarPreview(pictureState: PictureState) {
     BulletHoleImagePreview(
-        imageUri = pictureState.avatarUri,
+        imageUri = pictureState.avatarUri.toUri(),
         contentDescription = stringResource(R.string.content_description_avatar_preview)
     )
 }
@@ -273,7 +275,7 @@ private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
 @Composable
 fun AvatarPickerPreview() = WireTheme {
     AvatarPickerContent(
-        pictureState = PictureState.Picked("https://example.com/avatar.jpg".toUri()),
+        pictureState = PictureState.Picked("https://example.com/avatar.jpg"),
         state = rememberAvatarPickerState(
             onImageSelected = {},
             onCameraPermissionPermanentlyDenied = {},

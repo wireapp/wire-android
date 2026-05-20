@@ -28,11 +28,12 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class PingRinger @Inject constructor(private val context: Context) {
+class PingRinger @Inject @MetroInject constructor(private val context: Context) {
 
     private var vibrator: Vibrator? = null
 

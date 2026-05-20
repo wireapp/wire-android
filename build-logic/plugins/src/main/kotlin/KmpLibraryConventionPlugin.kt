@@ -28,7 +28,6 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
         with(pluginManager) {
             apply("org.jetbrains.kotlin.multiplatform")
             apply("com.android.kotlin.multiplatform.library")
-            apply("org.jetbrains.kotlin.plugin.compose")
         }
 
         extensions.getByType<KotlinMultiplatformExtension>().apply {
@@ -44,7 +43,6 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
                 }
             }
 
-            iosX64()
             iosArm64()
             iosSimulatorArm64()
         }

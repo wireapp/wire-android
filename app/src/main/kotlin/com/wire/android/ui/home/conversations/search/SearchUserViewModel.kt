@@ -20,13 +20,11 @@ package com.wire.android.ui.home.conversations.search
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
@@ -35,7 +33,6 @@ import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
 import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchUserResult
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
@@ -48,25 +45,16 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class SearchUserViewModel @Inject constructor(
+class SearchUserViewModel(
+    private val addMembersSearchNavArgs: AddMembersSearchNavArgs?,
     private val searchUserUseCase: SearchUsersUseCase,
     private val searchByHandleUseCase: SearchByHandleUseCase,
     private val contactMapper: ContactMapper,
     private val federatedSearchParser: FederatedSearchParser,
     private val validateUserHandle: ValidateUserHandleUseCase,
-    private val isFederationSearchAllowed: IsFederationSearchAllowedUseCase,
-    savedStateHandle: SavedStateHandle
+    private val isFederationSearchAllowed: IsFederationSearchAllowedUseCase
 ) : ViewModel() {
-
-    @Suppress("TooGenericExceptionCaught")
-    private val addMembersSearchNavArgs: AddMembersSearchNavArgs? = try {
-        savedStateHandle.navArgs<AddMembersSearchNavArgs>()
-    } catch (e: RuntimeException) {
-        null
-    }
 
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
     private val selectedContactsFlow = MutableStateFlow<ImmutableSet<Contact>>(persistentSetOf())

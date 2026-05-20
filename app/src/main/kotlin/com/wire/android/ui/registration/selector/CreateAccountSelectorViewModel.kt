@@ -17,23 +17,17 @@
  */
 package com.wire.android.ui.registration.selector
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class CreateAccountSelectorViewModel @Inject constructor(
+class CreateAccountSelectorViewModel(
+    navArgs: CreateAccountSelectorNavArgs,
     private val globalDataStore: GlobalDataStore,
-    savedStateHandle: SavedStateHandle,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
-    val navArgs: CreateAccountSelectorNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = navArgs.customServerConfig ?: defaultServerConfig
     val email: String = navArgs.email.orEmpty()
     val teamAccountCreationUrl = serverConfig.teams

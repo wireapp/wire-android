@@ -34,8 +34,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.rememberTopBarElevationState
@@ -57,7 +57,8 @@ import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 fun GroupConversationAllParticipantsScreen(
     navigator: Navigator,
     navArgs: GroupConversationAllParticipantsNavArgs,
-    viewModel: GroupConversationParticipantsViewModel = hiltViewModel()
+    viewModel: GroupConversationParticipantsViewModel =
+        metroViewModel { groupConversationParticipantsViewModelFactory.create(navArgs.conversationId) }
 ) {
     GroupConversationAllParticipantsContent(
         onBackPressed = navigator::navigateBack,

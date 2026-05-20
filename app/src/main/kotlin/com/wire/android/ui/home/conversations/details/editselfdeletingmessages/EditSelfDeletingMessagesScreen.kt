@@ -40,7 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
@@ -59,6 +59,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.sectionWithElements
+import com.wire.kalium.logic.data.id.ConversationId
 
 @WireRootDestination(
     navArgs = EditSelfDeletingMessagesNavArgs::class,
@@ -67,7 +68,9 @@ import com.wire.android.util.ui.sectionWithElements
 @Composable
 fun EditSelfDeletingMessagesScreen(
     navigator: Navigator,
-    editSelfDeletingMessagesViewModel: EditSelfDeletingMessagesViewModel = hiltViewModel(),
+    args: EditSelfDeletingMessagesNavArgs,
+    editSelfDeletingMessagesViewModel: EditSelfDeletingMessagesViewModel =
+        metroViewModel { editSelfDeletingMessagesViewModelFactory.create(args) },
 ) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
@@ -169,7 +172,12 @@ fun SelectableSelfDeletingItem(
 @Preview
 @Composable
 fun PreviewEditSelfDeletingMessagesScreen() {
-    EditSelfDeletingMessagesScreen(rememberNavigator {})
+    EditSelfDeletingMessagesScreen(
+        navigator = rememberNavigator {},
+        args = EditSelfDeletingMessagesNavArgs(
+            conversationId = ConversationId("conversation", "domain")
+        )
+    )
 }
 
 @Preview

@@ -20,7 +20,6 @@ package com.wire.android.workmanager.worker
 
 import android.content.Context
 import androidx.core.app.NotificationCompat
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
@@ -29,14 +28,10 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.WireNotificationManager
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 
-@HiltWorker
-class NotificationFetchWorker
-@AssistedInject constructor(
-    @Assisted appContext: Context,
-    @Assisted workerParams: WorkerParameters,
+class NotificationFetchWorker(
+    appContext: Context,
+    workerParams: WorkerParameters,
     private val wireNotificationManager: WireNotificationManager,
     private val notificationChannelsManager: NotificationChannelsManager
 ) : CoroutineWorker(appContext, workerParams) {

@@ -20,11 +20,9 @@ package com.wire.android.ui.home.conversations.details.updateappsaccess
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.AppsUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -39,7 +37,6 @@ import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConv
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -49,20 +46,17 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class UpdateAppsAccessViewModel @Inject constructor(
+class UpdateAppsAccessViewModel(
+    private val updateAppsAccessNavArgs: UpdateAppsAccessNavArgs,
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
     private val selfUser: ObserveSelfUserUseCase,
     private val changeAccessForAppsInConversation: ChangeAccessForAppsInConversationUseCase,
-    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val updateAppsAccessNavArgs: UpdateAppsAccessNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = updateAppsAccessNavArgs.conversationId
     private val currentAccessParams = updateAppsAccessNavArgs.updateAppsAccessParams
     val shouldUseNewAppsUi: Boolean = currentAccessParams.shouldUseNewAppsUi

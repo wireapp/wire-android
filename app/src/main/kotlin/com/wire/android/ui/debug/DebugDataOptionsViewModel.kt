@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.debug
 
-import android.content.Context
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
@@ -30,8 +29,6 @@ import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getDeviceIdString
-import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
@@ -58,8 +55,6 @@ import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -68,7 +63,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.days
 
 @Suppress("TooManyFunctions")
@@ -94,10 +88,8 @@ interface DebugDataOptionsViewModel {
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class DebugDataOptionsViewModelImpl
-@Inject constructor(
-    @ApplicationContext private val context: Context,
+class DebugDataOptionsViewModelImpl(
+    private val debugDataInfoProvider: DebugDataInfoProvider,
     @CurrentAccount val currentAccount: UserId,
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCount: MLSKeyPackageCountUseCase,
@@ -186,11 +178,9 @@ class DebugDataOptionsViewModelImpl
 
     private fun setGitHashAndDeviceId() {
         viewModelScope.launch {
-            val deviceId = context.getDeviceIdString() ?: "null"
-            val gitBuildId = context.getGitBuildId()
             state = state.copy(
-                debugId = deviceId,
-                commitish = gitBuildId
+                debugId = debugDataInfoProvider.deviceId() ?: "null",
+                commitish = debugDataInfoProvider.gitBuildId()
             )
         }
     }

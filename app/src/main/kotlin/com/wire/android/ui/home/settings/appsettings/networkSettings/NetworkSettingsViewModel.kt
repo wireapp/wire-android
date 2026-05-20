@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.settings.appsettings.networkSettings
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,24 +25,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.emm.ManagedConfigurationsManager
-import com.wire.android.util.isWebsocketEnabledByDefault
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.PersistPersistentWebSocketConnectionStatusUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class NetworkSettingsViewModel
-@Inject constructor(
+class NetworkSettingsViewModel(
     private val persistPersistentWebSocketConnectionStatus: PersistPersistentWebSocketConnectionStatusUseCase,
     private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
     private val currentSession: CurrentSessionUseCase,
     private val managedConfigurationsManager: ManagedConfigurationsManager,
-    @ApplicationContext private val context: Context
+    private val networkSettingsDefaultsProvider: NetworkSettingsDefaultsProvider
 ) : ViewModel() {
     var networkSettingsState by mutableStateOf(NetworkSettingsState())
 
@@ -55,7 +48,7 @@ class NetworkSettingsViewModel
 
     private fun checkWebSocketEnforcedByDefault() {
         networkSettingsState = networkSettingsState.copy(
-            isWebSocketEnforcedByDefault = isWebsocketEnabledByDefault(context)
+            isWebSocketEnforcedByDefault = networkSettingsDefaultsProvider.isWebSocketEnabledByDefault
         )
     }
 

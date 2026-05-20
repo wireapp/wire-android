@@ -36,9 +36,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.animation.ShakeAnimation
@@ -68,7 +68,9 @@ import com.wire.android.util.ui.SnackBarMessageHandler
 fun NewConversationFolderScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<NewConversationFolderNavBackArgs>,
-    viewModel: NewFolderViewModel = hiltViewModel()
+    viewModel: NewFolderViewModel = metroViewModel {
+        newFolderViewModelFactory.create()
+    }
 ) {
 
     LaunchedEffect(viewModel.folderNameState.folderId) {

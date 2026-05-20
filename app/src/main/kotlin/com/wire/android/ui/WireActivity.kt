@@ -24,7 +24,6 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
@@ -49,8 +48,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
@@ -72,11 +75,10 @@ import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.di.assistedViewModels
-import com.wire.android.emm.ManagedConfigurationsManager
+import com.wire.android.di.metro.WireMetroGraph
+import com.wire.android.di.metro.createWireMetroGraph
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -86,7 +88,6 @@ import com.wire.android.navigation.rememberNavigator
 import com.wire.android.navigation.startDestination
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
-import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
@@ -102,7 +103,6 @@ import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EIResultDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
 import com.wire.android.ui.home.FeatureFlagState
-import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedDialog
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedState
@@ -115,16 +115,12 @@ import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
-import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.ShakeDetector
-import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.launchUpdateTheApp
-import dagger.Lazy
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
@@ -132,40 +128,42 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @OptIn(ExperimentalComposeUiApi::class)
-@AndroidEntryPoint
 @Suppress("TooManyFunctions", "LargeClass")
 class WireActivity : BaseActivity() {
 
-    @Inject
-    lateinit var currentScreenManager: CurrentScreenManager
-
-    @Inject
-    lateinit var lockCodeTimeManager: Lazy<LockCodeTimeManager>
-
-    @Inject
-    lateinit var switchAccountObserver: SwitchAccountObserver
-
-    @Inject
-    lateinit var loginTypeSelector: LoginTypeSelector
-
-    @Inject
-    lateinit var dynamicReceiversManager: DynamicReceiversManager
-
-    @Inject
-    lateinit var managedConfigurationsManager: ManagedConfigurationsManager
-
-    private val viewModel: WireActivityViewModel by viewModels()
-    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
-    private val callFeedbackViewModel: CallFeedbackViewModel by viewModels()
-
-    private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
-        factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true))
+    private val metroGraph by lazy(LazyThreadSafetyMode.NONE) {
+        createWireMetroGraph(this)
     }
-    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
-    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
+    private val currentScreenManager by lazy(LazyThreadSafetyMode.NONE) { metroGraph.currentScreenManager }
+    private val lockCodeTimeManager by lazy(LazyThreadSafetyMode.NONE) { metroGraph.lockCodeTimeManager }
+    private val switchAccountObserver by lazy(LazyThreadSafetyMode.NONE) { metroGraph.switchAccountObserver }
+    private val loginTypeSelector by lazy(LazyThreadSafetyMode.NONE) { metroGraph.loginTypeSelector }
+    private val dynamicReceiversManager by lazy(LazyThreadSafetyMode.NONE) { metroGraph.dynamicReceiversManager }
+    private val managedConfigurationsManager by lazy(LazyThreadSafetyMode.NONE) { metroGraph.managedConfigurationsManager }
+
+    private val viewModel: WireActivityViewModel by metroActivityViewModel {
+        wireActivityViewModelFactory.create()
+    }
+    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by metroActivityViewModel {
+        featureFlagNotificationViewModelFactory.create()
+    }
+    private val callFeedbackViewModel: CallFeedbackViewModel by metroActivityViewModel {
+        callFeedbackViewModelFactory.create()
+    }
+
+    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by metroActivityViewModel {
+        commonTopAppBarViewModelFactory.create(
+            CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true)
+        )
+    }
+    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by metroActivityViewModel {
+        legalHoldRequestedViewModelFactory.create()
+    }
+    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by metroActivityViewModel {
+        legalHoldDeactivatedViewModelFactory.create()
+    }
 
     private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
     private lateinit var shakeDetector: ShakeDetector
@@ -614,7 +612,7 @@ class WireActivity : BaseActivity() {
         shakeDetector.start()
 
         lifecycleScope.launch {
-            lockCodeTimeManager.get().observeAppLock()
+            lockCodeTimeManager.observeAppLock()
                 // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
                 .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                 .first().let {
@@ -681,16 +679,16 @@ class WireActivity : BaseActivity() {
             || originalIntent == intent // This is the case when the activity is recreated and already handled
             || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
-            val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent)
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent?.toWireActivityIntentContent())
             if (!handled && navigator.isEmptyWelcomeStartDestination()) {
                 // nothing to handle so if "welcome empty start" screen then switch "start" screen to login by navigating to it
                 navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
             }
             return
         } else {
-            val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent)
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent.toWireActivityIntentContent())
             if (!handled) {
-                viewModel.handleDeepLink(intent)
+                viewModel.handleDeepLink(intent.toWireActivityIntentContent())
                 intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
             }
         }
@@ -722,6 +720,15 @@ class WireActivity : BaseActivity() {
         } else {
             this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG, Intent::class.java)
         }
+    }
+
+    private inline fun <reified VM : ViewModel> metroActivityViewModel(
+        crossinline create: WireMetroGraph.() -> VM,
+    ): kotlin.Lazy<VM> = lazy(LazyThreadSafetyMode.NONE) {
+        val factory = viewModelFactory {
+            initializer { metroGraph.create() }
+        }
+        ViewModelProvider(this, factory)[VM::class.java]
     }
 
     companion object {

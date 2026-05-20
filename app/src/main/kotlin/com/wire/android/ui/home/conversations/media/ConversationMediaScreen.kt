@@ -42,8 +42,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -63,6 +63,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialog
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
@@ -87,8 +88,13 @@ import kotlinx.serialization.Serializable
 @Composable
 fun ConversationMediaScreen(
     navigator: Navigator,
-    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = hiltViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel()
+    args: ConversationMediaNavArgs,
+    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = metroViewModel {
+        conversationAssetMessagesViewModelFactory.create(args)
+    },
+    conversationMessagesViewModel: ConversationMessagesViewModel = metroViewModel {
+        conversationMessagesViewModelFactory.create(ConversationNavArgs(args.conversationId))
+    }
 ) {
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val context = LocalContext.current
@@ -125,7 +131,7 @@ fun ConversationMediaScreen(
             conversationMessagesViewModel.deleteMessageDialogState
                 .show(DeleteMessageDialogState(deleteForEveryone, messageId, conversationMessagesViewModel.conversationId))
         },
-        shareAsset = remember { { conversationMessagesViewModel.shareAsset(context, it) } },
+        shareAsset = remember { conversationMessagesViewModel::shareAsset },
         downloadAsset = conversationMessagesViewModel::openOrFetchAsset,
     )
 

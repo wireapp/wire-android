@@ -25,12 +25,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.theme.ThemeOption
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class CustomizationViewModel @Inject constructor(
+class CustomizationViewModel(
     private val globalDataStore: GlobalDataStore,
 ) : ViewModel() {
     var state by mutableStateOf(CustomizationState())

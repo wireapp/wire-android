@@ -42,10 +42,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.Clickable
@@ -94,8 +94,8 @@ fun MyAccountScreen(
     changeDisplayNameResultRecipient: ResultRecipient<ChangeDisplayNameScreenDestination, Boolean>,
     changeHandleResultRecipient: ResultRecipient<ChangeHandleScreenDestination, Boolean>,
     changeUserColorResultRecipient: ResultRecipient<ChangeUserColorScreenDestination, Boolean>,
-    viewModel: MyAccountViewModel = hiltViewModel(),
-    deleteAccountViewModel: DeleteAccountViewModel = hiltViewModel()
+    viewModel: MyAccountViewModel = metroViewModel { myAccountViewModelFactory.create() },
+    deleteAccountViewModel: DeleteAccountViewModel = metroViewModel { deleteAccountViewModelFactory.create() }
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()

@@ -18,15 +18,12 @@
 
 package com.wire.android.ui.home.conversations.banner
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
@@ -35,7 +32,6 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -47,7 +43,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 class ConversationBannerViewModelTest {
 
     @Test
@@ -130,9 +125,6 @@ class ConversationBannerViewModelTest {
 private class Arrangement {
 
     @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
     lateinit var observeConversationMembersByTypesUseCase: ObserveConversationMembersByTypesUseCase
 
     @MockK
@@ -143,7 +135,7 @@ private class Arrangement {
 
     private val viewModel by lazy {
         ConversationBannerViewModel(
-            savedStateHandle,
+            ConversationNavArgs(conversationId = conversationId),
             observeConversationMembersByTypesUseCase,
             observeConversationDetailsUseCase,
             notifyConversationIsOpenUseCase
@@ -155,7 +147,6 @@ private class Arrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
         // Default empty values
         coEvery { observeConversationMembersByTypesUseCase(any()) } returns flowOf()
         coEvery { notifyConversationIsOpenUseCase(any()) } returns Unit

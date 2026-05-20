@@ -19,7 +19,6 @@
 package com.wire.android.ui.authentication.create.details
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.assertions.shouldBeInstanceOf
 import com.wire.android.config.CoroutineTestExtension
@@ -27,13 +26,11 @@ import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -47,7 +44,7 @@ class CreateAccountDetailsViewModelTest {
 
     @Test
     fun `given invalid password, when executing, then show error`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withValidatePasswordResult(ValidatePasswordResult.Invalid())
             .arrange()
         viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
@@ -62,7 +59,7 @@ class CreateAccountDetailsViewModelTest {
 
     @Test
     fun `given passwords do not match, when executing, then show error`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withValidatePasswordResult(ValidatePasswordResult.Valid)
             .arrange()
         viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
@@ -78,7 +75,7 @@ class CreateAccountDetailsViewModelTest {
 
     @Test
     fun `given valid passwords, when executing, then show success`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withValidatePasswordResult(ValidatePasswordResult.Valid)
             .arrange()
         viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
@@ -93,21 +90,18 @@ class CreateAccountDetailsViewModelTest {
 
     private class Arrangement {
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var validatePasswordUseCase: ValidatePasswordUseCase
+
+        private val createAccountNavArgs = CreateAccountNavArgs(CreateAccountFlowType.CreatePersonalAccount)
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.navArgs<CreateAccountNavArgs>() } returns
-                    CreateAccountNavArgs(CreateAccountFlowType.CreatePersonalAccount)
         }
 
         fun withValidatePasswordResult(result: ValidatePasswordResult) = apply {
             coEvery { validatePasswordUseCase(any()) } returns result
         }
 
-        fun arrange() = this to CreateAccountDetailsViewModel(savedStateHandle, validatePasswordUseCase, ServerConfig.STAGING)
+        fun arrange() = this to CreateAccountDetailsViewModel(createAccountNavArgs, validatePasswordUseCase, ServerConfig.STAGING)
     }
 }

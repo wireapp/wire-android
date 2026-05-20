@@ -19,15 +19,13 @@
 
 package com.wire.android.ui.settings.debug
 
-import android.content.Context
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.ScopedArgsTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
+import com.wire.android.ui.debug.DebugDataInfoProvider
 import com.wire.android.ui.debug.DebugDataOptionsViewModelImpl
-import com.wire.android.util.getDeviceIdString
-import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
@@ -56,10 +54,8 @@ import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -79,7 +75,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given token sending token will succeed, when sending FCM token, then info message should emmit success message`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withSendFCMTokenSuccess()
             .arrange()
 
@@ -96,7 +92,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given there is not client ID, when sending FCM token,info message should emit error message`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withSendFCMTokenClientIdFailure()
             .arrange()
 
@@ -113,7 +109,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given there is not notification token, when sending FCM token,info message should emit error message`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withSendFCMTokenNotificationTokenFailure()
             .arrange()
 
@@ -130,7 +126,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that there is API failure, when sending FCM token,info message should emit error message`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withSendFCMTokenClientRepositoryRegisterTokenFailure()
             .arrange()
 
@@ -147,7 +143,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that Proteus protocol is used, view state should have Proteus protocol name`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withProteusProtocolSetup()
             .arrange()
 
@@ -157,7 +153,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that Mls protocol is used, view state should have proteus Mls name`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withMlsProtocolSetup()
             .arrange()
 
@@ -167,7 +163,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that federation is disabled, view state should have federation value of false`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withFederationDisabled()
             .arrange()
 
@@ -177,7 +173,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that federation is enabled, view state should have federation value of true`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withFederationEnabled()
             .arrange()
 
@@ -187,7 +183,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that api version is unknown, view state should have api version unknown`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withApiVersionUnknown()
             .arrange()
 
@@ -197,7 +193,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that api version is set, view state should have api version set`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withApiVersionSet(7)
             .arrange()
 
@@ -205,9 +201,22 @@ class DebugDataOptionsViewModelTest {
     }
 
     @Test
+    fun `given debug data info is available, view state should contain debug id and commitish`() = runTest {
+        val (_, viewModel) = DebugDataOptionsArrangement()
+            .withDebugDataInfo(
+                deviceId = "fakeDeviceId",
+                gitBuildId = "fakeGitBuildId"
+            )
+            .arrange()
+
+        assertEquals("fakeDeviceId", viewModel.state.debugId)
+        assertEquals("fakeGitBuildId", viewModel.state.commitish)
+    }
+
+    @Test
     fun `given server config failure, view state should have default values`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withServerConfigError()
             .arrange()
 
@@ -218,7 +227,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given async notifications is not enabled, when enabling, then start using async notifications is called`() = runTest {
         // given
-        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
+        val (arrangement, viewModel) = DebugDataOptionsArrangement()
             .withObserveIsConsumableNotificationsEnabled(false)
             .withStartUsingAsyncNotificationsResult()
             .arrange()
@@ -234,7 +243,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given async notifications is enabled, then start using async notifications is never called`() = runTest {
         // given
-        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
+        val (arrangement, viewModel) = DebugDataOptionsArrangement()
             .withObserveIsConsumableNotificationsEnabled(true)
             .withStartUsingAsyncNotificationsResult()
             .arrange()
@@ -249,7 +258,7 @@ class DebugDataOptionsViewModelTest {
 
     @Test
     fun `given e2ei expiration is loaded, view state should contain loaded value`() = runTest {
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withDebugE2EICertificateExpiration(999)
             .arrange()
 
@@ -258,7 +267,7 @@ class DebugDataOptionsViewModelTest {
 
     @Test
     fun `given default e2ei expiration is loaded, then minimum debug value is applied`() = runTest {
-        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
+        val (arrangement, viewModel) = DebugDataOptionsArrangement()
             .withDebugE2EICertificateExpiration(90.days.inWholeSeconds)
             .arrange()
 
@@ -268,7 +277,7 @@ class DebugDataOptionsViewModelTest {
 
     @Test
     fun `given expiration below minimum, when updating e2ei expiration, then minimum value is used`() = runTest {
-        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement().arrange()
+        val (arrangement, viewModel) = DebugDataOptionsArrangement().arrange()
 
         viewModel.updateE2EICertificateExpiration(120)
 
@@ -278,7 +287,7 @@ class DebugDataOptionsViewModelTest {
 
     @Test
     fun `given valid expiration value, when updating e2ei expiration, then value is updated and use case is called`() = runTest {
-        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
+        val (arrangement, viewModel) = DebugDataOptionsArrangement()
             .withDebugE2EICertificateExpiration(360)
             .arrange()
 
@@ -289,10 +298,9 @@ class DebugDataOptionsViewModelTest {
     }
 }
 
-internal class DebugDataOptionsHiltArrangement {
+internal class DebugDataOptionsArrangement {
 
-    @MockK(relaxed = true)
-    lateinit var context: Context
+    private var debugDataInfoProvider = FakeDebugDataInfoProvider()
 
     private val currentAccount: UserId = TestUser.SELF_USER_ID
 
@@ -337,7 +345,7 @@ internal class DebugDataOptionsHiltArrangement {
 
     private val viewModel by lazy {
         DebugDataOptionsViewModelImpl(
-            context = context,
+            debugDataInfoProvider = debugDataInfoProvider,
             currentAccount = currentAccount,
             updateApiVersions = updateApiVersions,
             mlsKeyPackageCount = mlsKeyPackageCount,
@@ -359,7 +367,6 @@ internal class DebugDataOptionsHiltArrangement {
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(UnconfinedTestDispatcher())
-        mockkStatic("com.wire.android.util.FileUtilKt")
         runBlocking {
             coEvery {
                 mlsKeyPackageCount()
@@ -367,12 +374,6 @@ internal class DebugDataOptionsHiltArrangement {
             coEvery {
                 getCurrentAnalyticsTrackingIdentifier()
             } returns "trackingId"
-            every {
-                context.getDeviceIdString()
-            } returns "deviceId"
-            every {
-                context.getGitBuildId()
-            } returns "gitBuildId"
             coEvery {
                 selfServerConfigUseCase()
             } returns SelfServerConfigUseCase.Result.Success(
@@ -398,6 +399,16 @@ internal class DebugDataOptionsHiltArrangement {
 
     fun withDebugE2EICertificateExpiration(expiration: Long) = apply {
         coEvery { getDebugE2EICertificateExpiration() } returns expiration
+    }
+
+    fun withDebugDataInfo(
+        deviceId: String? = "deviceId",
+        gitBuildId: String = "gitBuildId"
+    ) = apply {
+        debugDataInfoProvider = FakeDebugDataInfoProvider(
+            deviceId = deviceId,
+            gitBuildId = gitBuildId
+        )
     }
 
     suspend fun withObserveIsConsumableNotificationsEnabled(isEnabled: Boolean = false) = apply {
@@ -521,4 +532,12 @@ internal class DebugDataOptionsHiltArrangement {
     }
 
     fun arrange() = this to viewModel
+}
+
+private class FakeDebugDataInfoProvider(
+    private val deviceId: String? = "deviceId",
+    private val gitBuildId: String = "gitBuildId"
+) : DebugDataInfoProvider {
+    override fun deviceId(): String? = deviceId
+    override fun gitBuildId(): String = gitBuildId
 }

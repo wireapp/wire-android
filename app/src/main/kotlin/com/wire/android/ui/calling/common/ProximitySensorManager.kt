@@ -32,6 +32,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.Lazy
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,8 +40,8 @@ import javax.inject.Singleton
 
 @Singleton
 class ProximitySensorManager @Inject constructor(
-    private val context: Context,
-    private val currentSession: Lazy<CurrentSessionUseCase>,
+    @ApplicationContext private val context: Context,
+    private val currentSession: CurrentSessionUseCase,
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     @ApplicationScope private val appCoroutineScope: CoroutineScope
 ) {
@@ -74,7 +75,7 @@ class ProximitySensorManager @Inject constructor(
         override fun onSensorChanged(event: SensorEvent) {
             appCoroutineScope.launch {
                 coreLogic.get().globalScope {
-                    val currentSession = currentSession.get().invoke()
+                    val currentSession = currentSession.invoke()
                     when {
                         currentSession is CurrentSessionResult.Success && currentSession.accountInfo.isValid() -> {
                             val userId = currentSession.accountInfo.userId

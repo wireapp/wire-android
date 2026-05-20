@@ -43,7 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.DpSize
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.applyIf
@@ -56,6 +56,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
+import com.wire.android.ui.home.conversations.CompositeMessageViewModelFactory
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.error
@@ -88,6 +89,7 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_FOUND
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOAD_IN_PROGRESS
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.PersistentList
 import okio.Path
 
@@ -95,6 +97,7 @@ import okio.Path
 //       waiting for the backend to implement mapping logic for the MessageBody
 @Composable
 internal fun MessageBody(
+    conversationId: ConversationId,
     messageId: String,
     messageBody: MessageBody?,
     isAvailable: Boolean,
@@ -154,6 +157,7 @@ internal fun MessageBody(
     buttonList?.also {
         VerticalSpace.x4()
         MessageButtonsContent(
+            conversationId = conversationId,
             messageId = messageId,
             buttonList = it,
             messageStyle = messageStyle
@@ -163,19 +167,18 @@ internal fun MessageBody(
 
 @Composable
 fun MessageButtonsContent(
+    conversationId: ConversationId,
     messageId: String,
     buttonList: List<MessageButton>,
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     viewModel: CompositeMessageViewModel =
-        hiltViewModelScoped<
+        wireViewModelScoped<
                 CompositeMessageViewModelImpl,
                 CompositeMessageViewModel,
                 CompositeMessageArgs,
-                CompositeMessageViewModelImpl.Factory
-                >(
-            CompositeMessageArgs(messageId)
-        )
+                CompositeMessageViewModelFactory
+                >(CompositeMessageArgs(conversationId, messageId))
 ) {
     Column(
         modifier = modifier

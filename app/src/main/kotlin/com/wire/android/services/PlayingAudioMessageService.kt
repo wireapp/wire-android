@@ -33,6 +33,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.metro.createWireMetroGraph
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.notification.NotificationConstants.PLAYING_AUDIO_CHANNEL_ID
@@ -41,26 +42,21 @@ import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.notification.playPauseAudioPendingIntent
 import com.wire.android.notification.stopAudioPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class PlayingAudioMessageService : Service() {
 
-    @Inject
     lateinit var dispatcherProvider: DispatcherProvider
 
     private val scope by lazy {
         CoroutineScope(SupervisorJob() + dispatcherProvider.io())
     }
 
-    @Inject
     lateinit var audioMessagePlayer: ConversationAudioMessagePlayer
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -69,9 +65,16 @@ class PlayingAudioMessageService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        injectDependencies()
         appLogger.i("$TAG: starting foreground")
         isServiceStarted = true
         generateForegroundNotification(null)
+    }
+
+    private fun injectDependencies() {
+        val dependencies = createWireMetroGraph(this).playingAudioMessageServiceDependencies
+        dispatcherProvider = dependencies.dispatcherProvider
+        audioMessagePlayer = dependencies.audioMessagePlayer
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -170,4 +173,9 @@ class PlayingAudioMessageService : Service() {
 
         var isServiceStarted = false
     }
+
+    data class Dependencies(
+        val dispatcherProvider: DispatcherProvider,
+        val audioMessagePlayer: ConversationAudioMessagePlayer
+    )
 }

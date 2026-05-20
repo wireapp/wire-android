@@ -82,6 +82,9 @@ fun DrawingCanvasScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val sketchImageSaver = remember(context) {
+        AndroidSketchImageSaver(context.applicationContext)
+    }
     val discardDrawing: () -> Unit = remember {
         {
             viewModel.initializeCanvas()
@@ -110,10 +113,15 @@ fun DrawingCanvasScreen(
         onStopDrawing = viewModel::onStopDrawing,
         onDismissEvent = onDismissEvent,
         onUndoStroke = viewModel::onUndoLastStroke,
-        onSendSketch = remember {
+        onSendSketch = remember(scope, sketchImageSaver, viewModel, resultNavigator, drawingCanvasNavArgs.tempWritableUri) {
             {
                 scope.launch {
-                    resultNavigator.setResult(DrawingCanvasNavBackArgs(viewModel.saveImage(context)))
+                    val savedImageUri = sketchImageSaver.save(
+                        state = viewModel.state,
+                        tempWritableUri = drawingCanvasNavArgs.tempWritableUri
+                    )
+                    viewModel.initializeCanvas()
+                    resultNavigator.setResult(DrawingCanvasNavBackArgs(savedImageUri))
                     resultNavigator.navigateBack()
                 }
             }

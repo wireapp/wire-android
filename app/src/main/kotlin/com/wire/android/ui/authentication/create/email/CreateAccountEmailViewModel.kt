@@ -21,33 +21,26 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 // TODO: Cover this viewModel  with unit test
-@HiltViewModel
-class CreateAccountEmailViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class CreateAccountEmailViewModel constructor(
+    val createAccountNavArgs: CreateAccountNavArgs,
     private val validateEmail: ValidateEmailUseCase,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
-
-    val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 
     val emailTextState: TextFieldState = TextFieldState()
     var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(createAccountNavArgs.flowType))

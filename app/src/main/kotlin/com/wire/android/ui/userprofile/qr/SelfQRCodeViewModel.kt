@@ -17,45 +17,25 @@
  */
 package com.wire.android.ui.userprofile.qr
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getTempWritableAttachmentUri
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okio.Path
-import okio.Path.Companion.toPath
-import java.io.FileOutputStream
-import javax.inject.Inject
 
-@HiltViewModel
-class SelfQRCodeViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val context: Context,
+class SelfQRCodeViewModel(
+    private val selfQrCodeNavArgs: SelfQrCodeNavArgs,
     @CurrentAccount private val selfUserId: UserId,
     private val selfServerLinks: SelfServerConfigUseCase,
-    private val kaliumFileSystem: KaliumFileSystem,
-    private val dispatchers: DispatcherProvider,
+    private val qrAssetRepository: SelfQRCodeAssetRepository,
     private val analyticsManager: AnonymousAnalyticsManager
 ) : ViewModel() {
-    private val selfQrCodeNavArgs: SelfQrCodeNavArgs = savedStateHandle.navArgs()
     var selfQRCodeState by mutableStateOf(
         SelfQRCodeState(
             selfUserId,
@@ -64,8 +44,6 @@ class SelfQRCodeViewModel @Inject constructor(
         )
     )
         private set
-    private val cachePath: Path
-        get() = kaliumFileSystem.rootCachePath
 
     init {
         viewModelScope.launch {
@@ -73,32 +51,11 @@ class SelfQRCodeViewModel @Inject constructor(
         }
     }
 
-    suspend fun shareQRAsset(bitmap: Bitmap): Uri {
-        val job = viewModelScope.async {
-            val qrImageFile = getTempWritableQRUri(cachePath)
-            withContext(dispatchers.io()) {
-                context.contentResolver.openFileDescriptor(qrImageFile, "rwt")?.use { fileDescriptor ->
-                    FileOutputStream(fileDescriptor.fileDescriptor)
-                        .use { fileOutputStream ->
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, QR_QUALITY_COMPRESSION, fileOutputStream)
-                            fileOutputStream.flush()
-                        }.also {
-                            appLogger.withTextTag("SelfQRCodeViewModel").d("Image written to: $qrImageFile")
-                        }
-                }
-            }
-            qrImageFile
-        }
-        return job.await()
-    }
+    suspend fun shareQRAsset(qrCodeImage: SelfQRCodeImage): String =
+        qrAssetRepository.saveQRCode(qrCodeImage)
 
     fun trackAnalyticsEvent(event: AnalyticsEvent.QrCode.Modal) {
         analyticsManager.sendEvent(event)
-    }
-
-    private suspend fun getTempWritableQRUri(tempCachePath: Path): Uri = withContext(dispatchers.io()) {
-        val tempImagePath = "$tempCachePath/$TEMP_SELF_QR_FILENAME".toPath()
-        return@withContext getTempWritableAttachmentUri(context, tempImagePath)
     }
 
     private suspend fun getServerLinks() {
@@ -116,10 +73,8 @@ class SelfQRCodeViewModel @Inject constructor(
         )
 
     companion object {
-        const val TEMP_SELF_QR_FILENAME = "temp_self_qr.jpg"
         const val BASE_USER_PROFILE_URL = "%s/user-profile/?id=%s"
 
         const val DIRECT_BASE_USER_PROFILE_URL = "wire://user/%s/%s"
-        const val QR_QUALITY_COMPRESSION = 80
     }
 }

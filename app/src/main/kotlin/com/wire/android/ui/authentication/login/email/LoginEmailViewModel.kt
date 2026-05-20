@@ -25,21 +25,21 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
+import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.CountdownTimer
@@ -58,7 +58,6 @@ import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScop
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -68,28 +67,28 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "ComplexMethod", "TooManyFunctions")
-@HiltViewModel
-class LoginEmailViewModel @Inject constructor(
+class LoginEmailViewModel constructor(
+    val loginNavArgs: LoginNavArgs,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val savedStateHandle: SavedStateHandle,
+    private val savedInputStore: LoginSavedInputStore,
     userDataStoreProvider: UserDataStoreProvider,
     @KaliumCoreLogic coreLogic: CoreLogic,
     private val resendCodeTimer: CountdownTimer,
     private val dispatchers: DispatcherProvider,
     defaultServerConfig: ServerConfig.Links,
     @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean,
+    private val sharedAuthLoginEmailAdapter: SharedAuthLoginEmailAdapter = LegacySharedAuthLoginEmailAdapter,
 ) : LoginViewModel(
-    savedStateHandle,
+    loginNavArgs,
     clientScopeProviderFactory,
     userDataStoreProvider,
     coreLogic,
+    LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
     defaultServerConfig
 ) {
-    val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
 
     val userIdentifierTextState: TextFieldState = TextFieldState()
@@ -110,13 +109,13 @@ class LoginEmailViewModel @Inject constructor(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
                 preFilledUserIdentifier.userIdentifier
             } else {
-                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+                savedInputStore.userIdentifier ?: String.EMPTY
             }
         )
         viewModelScope.launch {
             combine(
                 userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
-                    savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
+                    savedInputStore.userIdentifier = it.toString()
                 },
                 passwordTextState.textAsFlow(),
                 proxyIdentifierTextState.textAsFlow(),
@@ -162,6 +161,7 @@ class LoginEmailViewModel @Inject constructor(
                     null
                 }
             }
+            if (tryLoginWithSharedAuth(usernameAllowed)) return@launch
             // first, cancel and revert any previous login if it's still running, just to be sure
             revertLogin()
             // then, start a new login job
@@ -173,6 +173,30 @@ class LoginEmailViewModel @Inject constructor(
             }
         }
     }
+
+    private suspend fun tryLoginWithSharedAuth(usernameAllowed: Boolean): Boolean =
+        sharedAuthLoginEmailAdapter.tryLogin(
+            request = SharedAuthLoginEmailRequest(
+                userIdentifier = userIdentifierTextState.text.toString(),
+                password = passwordTextState.text.toString(),
+                secondFactorVerificationCode = secondFactorVerificationCodeTextState.text.toString(),
+                usernameAllowed = usernameAllowed,
+                serverConfig = serverConfig,
+            ),
+            callbacks = object : SharedAuthLoginEmailCallbacks {
+                override suspend fun updateFlowState(flowState: LoginState) {
+                    updateEmailFlowState(flowState)
+                }
+
+                override suspend fun updateSecondFactorState(update: (VerificationCodeState) -> VerificationCodeState) {
+                    secondFactorVerificationCodeState = update(secondFactorVerificationCodeState)
+                }
+
+                override suspend fun startResendCodeTimer() {
+                    this@LoginEmailViewModel.startResendCodeTimer()
+                }
+            }
+        )
 
     @Suppress("LongMethod")
     private fun startLoginJob(usernameAllowed: Boolean): Job {
@@ -404,7 +428,6 @@ class LoginEmailViewModel @Inject constructor(
     }
 
     companion object {
-        const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
         const val RESEND_TIMER_DELAY = 300L
     }
 }

@@ -20,15 +20,13 @@ package com.wire.android.ui.userprofile.service
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.AppsUtil
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -46,7 +44,6 @@ import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageU
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberResult
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -58,11 +55,9 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@HiltViewModel
-class ServiceDetailsViewModel @Inject constructor(
+class ServiceDetailsViewModel(
     private val dispatchers: DispatcherProvider,
     @CurrentAccount private val selfUserId: UserId,
     private val getServiceById: GetServiceByIdUseCase,
@@ -75,10 +70,8 @@ class ServiceDetailsViewModel @Inject constructor(
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val addServiceToConversation: AddServiceToConversationUseCase,
     private val addMemberToConversation: AddMemberToConversationUseCase,
-    savedStateHandle: SavedStateHandle
+    private val serviceDetailsNavArgs: ServiceDetailsNavArgs
 ) : ViewModel() {
-
-    private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
 
     private val serviceId: ServiceId = serviceDetailsNavArgs.id.serviceId
     private val conversationId: QualifiedID? = serviceDetailsNavArgs.conversationId

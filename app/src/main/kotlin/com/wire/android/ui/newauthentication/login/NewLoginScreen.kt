@@ -47,7 +47,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
@@ -56,7 +55,9 @@ import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPassw
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -69,7 +70,6 @@ import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
-import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -87,6 +87,8 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.serialization.json.Json
 
 @WireNewLoginDestination(
     start = true,
@@ -97,7 +99,9 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun NewLoginScreen(
     navigator: Navigator,
     navArgs: LoginNavArgs,
-    viewModel: NewLoginViewModel = hiltViewModel()
+    viewModel: NewLoginViewModel = metroViewModel {
+        newLoginViewModelFactory.create(navArgs, provideLoginSavedInputStore())
+    }
 ) {
     val context = LocalContext.current
     val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
@@ -140,8 +144,15 @@ fun NewLoginScreen(
     }
 
     LaunchedEffect(Unit) {
-        navigator.navController.currentBackStackEntry?.savedStateHandle
-            ?.let { viewModel.observeSSOResult(it) }
+        val backStackSavedState = navigator.navController.currentBackStackEntry?.savedStateHandle
+            ?: return@LaunchedEffect
+        backStackSavedState
+            .getStateFlow<String?>(NewLoginViewModel.SSO_LOGIN_RESULT_KEY, null)
+            .filterNotNull()
+            .collect { json ->
+                viewModel.handleSSOResult(Json.decodeFromString(json))
+                backStackSavedState.remove<String>(NewLoginViewModel.SSO_LOGIN_RESULT_KEY)
+            }
     }
 
     // Handle SSO code auto-login from intent parameter

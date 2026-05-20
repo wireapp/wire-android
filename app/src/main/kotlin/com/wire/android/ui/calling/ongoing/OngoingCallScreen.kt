@@ -73,13 +73,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.common.ObservePictureInPictureMode
 import com.wire.android.ui.calling.common.ObserveRotation
@@ -143,6 +143,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.util.PlatformRotation
+import com.wire.kalium.logic.util.PlatformView
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -154,15 +156,13 @@ import java.util.Locale
 @Composable
 fun OngoingCallScreen(
     conversationId: ConversationId,
-    ongoingCallViewModel: OngoingCallViewModel = hiltViewModel<OngoingCallViewModel, OngoingCallViewModel.Factory>(
-        key = "ongoing_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
+    ongoingCallViewModel: OngoingCallViewModel = metroViewModel(key = "ongoing_$conversationId") {
+        ongoingCallViewModelFactory.create(conversationId = conversationId)
+    },
     sharedCallingViewModel: SharedCallingViewModel =
-        hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
-            key = "shared_$conversationId",
-            creationCallback = { factory -> factory.create(conversationId = conversationId) }
-        )
+        metroViewModel(key = "shared_$conversationId") {
+            sharedCallingViewModelFactory.create(conversationId = conversationId)
+        }
 ) {
     val scope = rememberCoroutineScope()
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -256,7 +256,7 @@ fun OngoingCallScreen(
         hangUpCall = sharedCallingViewModel::hangUpCall,
         toggleVideo = sharedCallingViewModel::toggleVideo,
         flipCamera = sharedCallingViewModel::flipCamera,
-        setVideoPreview = sharedCallingViewModel::setVideoPreview,
+        setVideoPreview = { view -> sharedCallingViewModel.setVideoPreview(PlatformView(view)) },
         clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
         onCollapse = onCollapse,
         requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
@@ -275,7 +275,7 @@ fun OngoingCallScreen(
         toasts = ongoingCallViewModel.toasts.values.toSet(),
         onToastClick = ongoingCallViewModel::dismissToast,
     )
-    ObserveRotation(sharedCallingViewModel::setUIRotation)
+    ObserveRotation { rotation -> sharedCallingViewModel.setUIRotation(PlatformRotation(rotation)) }
 
     /**
      * Enter PiP mode when the user leaves the app by pressing the home button.

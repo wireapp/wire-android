@@ -33,11 +33,9 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
 import com.wire.kalium.logic.feature.debug.ObserveDatabaseLoggerStateUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class UserDebugState(
     val isLoggingEnabled: Boolean = false,
@@ -50,9 +48,7 @@ data class UserDebugState(
 )
 
 @Suppress("LongParameterList")
-@HiltViewModel
-class UserDebugViewModel
-@Inject constructor(
+class UserDebugViewModel(
     @CurrentAccount val currentAccount: UserId,
     private val logFileWriter: LogFileWriter,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,

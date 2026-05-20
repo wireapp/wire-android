@@ -18,10 +18,19 @@
 package com.wire.android.di
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.sebaslogen.resaca.metro.metroViewModelScoped
 import com.sebaslogen.resaca.KeyInScopeResolver
-import com.sebaslogen.resaca.hilt.hiltViewModelScoped
+import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.WireMetroGraph
+import com.wire.android.di.metro.createWireMetroGraph
+import java.lang.reflect.InvocationTargetException
 import kotlin.time.Duration
 
 /**
@@ -32,7 +41,7 @@ interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
 }
 
 /**
- * Custom implementation of [hiltViewModelScoped] that uses our generated previews for scoped ViewModels
+ * Repo-local scoped ViewModel accessor that uses our generated previews for scoped ViewModels
  * and creates assisted injected scoped [ViewModel] instances using [ScopedArgs].
  *
  * [ViewModel] needs to implement an interface annotated with [ViewModelScopedPreview] and with default
@@ -42,21 +51,25 @@ interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
  *
  * @param arguments The arguments that will be provided to the [ViewModel].
  */
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER", "UnusedParameter")
 @Composable
-inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        hiltViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S = when {
+inline fun <reified T, reified S, reified R : ScopedArgs, reified F : Any>
+        wireViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> hiltViewModelScoped<T, F>(key = arguments.key?.toString(), clearDelay = clearDelay) { factory ->
-        factory.create(arguments)
-    }
+    else -> metroViewModelScoped<T>(
+        key = arguments.key,
+        clearDelay = clearDelay,
+        factory = rememberMetroScopedViewModelFactory<T> {
+            metroFactory<F>().createWith<T, R>(arguments)
+        },
+    )
 }
 
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER", "UnusedParameter")
 @Composable
-inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        hiltViewModelScoped(
+inline fun <reified T, reified S, reified R : ScopedArgs, reified F : Any>
+        wireViewModelScoped(
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
     clearDelay: Duration? = null,
@@ -64,21 +77,22 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> {
-        val scopedKey = requireNotNull(arguments.key?.toString()) {
+        requireNotNull(arguments.key?.toString()) {
             "Scoped key must not be null for ${T::class.qualifiedName}"
         }
-        hiltViewModelScoped<T, F, String>(
-            key = scopedKey,
+        metroViewModelScoped<T, String>(
+            key = arguments.key.toString(),
             keyInScopeResolver = keyInScopeResolver,
-            clearDelay = clearDelay
-        ) { factory ->
-            factory.create(arguments)
-        }
+            clearDelay = clearDelay,
+            factory = rememberMetroScopedViewModelFactory<T> {
+                metroFactory<F>().createWith<T, R>(arguments)
+            },
+        )
     }
 }
 
 /**
- * Custom implementation of [hiltViewModelScoped] that uses our generated previews for scoped ViewModels.
+ * Repo-local scoped ViewModel accessor that uses our generated previews for scoped ViewModels.
  * This is version that does not take and pass any arguments, it does not use any key to generate a new
  * version when it changes, so it basically keeps the same instance.
  *
@@ -87,10 +101,75 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
  */
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
-inline fun <reified T, reified S> hiltViewModelScoped(): S where T : ViewModel, T : S = when {
+inline fun <reified T, reified S, reified F : Any> wireViewModelScoped(): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> hiltViewModelScoped<T>()
+    else -> metroViewModelScoped<T>(
+        factory = rememberMetroScopedViewModelFactory {
+            metroFactory<F>().createWithoutArgs<T>()
+        },
+    )
+}
+
+@PublishedApi
+@Composable
+internal inline fun <reified VM : ViewModel> rememberMetroScopedViewModelFactory(
+    crossinline create: WireMetroGraph.() -> VM,
+): ViewModelProvider.Factory {
+    val providedGraph = LocalMetroViewModelGraph.current as? WireMetroGraph
+    val context = LocalContext.current
+    val graph = providedGraph ?: remember(context) { createWireMetroGraph(context) }
+    return remember(graph) {
+        viewModelFactory {
+            initializer {
+                graph.create()
+            }
+        }
+    }
+}
+
+@PublishedApi
+internal inline fun <reified F> WireMetroGraph.metroFactory(): F =
+    this::class.java.methods
+        .firstOrNull { method ->
+            method.parameterCount == 0 && F::class.java.isAssignableFrom(method.returnType)
+        }
+        ?.invokeUnwrapped(this)
+        ?: error("No Metro factory matching ${F::class.qualifiedName} was provided.")
+
+@PublishedApi
+internal inline fun <reified VM : ViewModel, R : ScopedArgs> Any.createWith(args: R): VM =
+    this::class.java.methods
+        .firstOrNull { method ->
+            method.name == "create" &&
+                    method.parameterCount == 1 &&
+                    method.parameterTypes.first().isAssignableFrom(args::class.java)
+        }
+        ?.invokeUnwrapped(this, args)
+        ?: error("No create(${args::class.qualifiedName}) method was provided by ${this::class.qualifiedName}.")
+
+@PublishedApi
+internal inline fun <reified VM : ViewModel> Any.createWithoutArgs(): VM =
+    this::class.java.methods
+        .firstOrNull { method ->
+            method.name == "create" &&
+                    method.parameterCount == 0 &&
+                    VM::class.java.isAssignableFrom(method.returnType)
+        }
+        ?.invokeUnwrapped(this)
+        ?: error("No create() method returning ${VM::class.qualifiedName} was provided by ${this::class.qualifiedName}.")
+
+@PublishedApi
+internal inline fun <reified R> java.lang.reflect.Method.invokeUnwrapped(target: Any, vararg args: Any?): R =
+    try {
+        invoke(target, *args) as? R ?: error("${declaringClass.name}#$name returned a value that is not ${R::class.qualifiedName}.")
+    } catch (exception: InvocationTargetException) {
+        throw exception.targetException ?: exception
+    }
+
+@PublishedApi
+internal data object EmptyScopedArgs : ScopedArgs {
+    override val key: Any? = null
 }
 
 val espresso

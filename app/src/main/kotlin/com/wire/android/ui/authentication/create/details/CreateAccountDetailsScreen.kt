@@ -44,8 +44,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.ServerTitle
@@ -74,7 +74,10 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun CreateAccountDetailsScreen(
     navigator: Navigator,
-    createAccountDetailsViewModel: CreateAccountDetailsViewModel = hiltViewModel()
+    args: CreateAccountNavArgs,
+    createAccountDetailsViewModel: CreateAccountDetailsViewModel = metroViewModel {
+        createAccountDetailsViewModelFactory.create(args)
+    }
 ) {
     with(createAccountDetailsViewModel) {
         fun navigateToCodeScreen() = navigator.navigate(

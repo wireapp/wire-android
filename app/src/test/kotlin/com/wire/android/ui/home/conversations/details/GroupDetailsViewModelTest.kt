@@ -19,7 +19,6 @@
 
 package com.wire.android.ui.home.conversations.details
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -28,12 +27,10 @@ import com.wire.android.framework.TestTeam
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
-import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAccess
@@ -66,7 +63,6 @@ import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -745,9 +741,6 @@ class GroupDetailsViewModelTest {
 internal class GroupConversationDetailsViewModelArrangement {
 
     @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
@@ -790,12 +783,12 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
+            groupConversationDetailsNavArgs = GroupConversationDetailsNavArgs(conversationId = conversationId),
             dispatcher = TestDispatcherProvider(),
             observeConversationDetails = observeConversationDetails,
             observeConversationMembers = observeParticipantsForConversationUseCase,
             observeSelfUserWithTeam = observeSelfUserWithTeam,
             observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
-            savedStateHandle = savedStateHandle,
             updateConversationReceiptMode = updateConversationReceiptMode,
             isMLSEnabled = isMLSEnabledUseCase,
             observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
@@ -809,15 +802,6 @@ internal class GroupConversationDetailsViewModelArrangement {
     init {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
-
-        every {
-            savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>()
-        } returns GroupConversationAllParticipantsNavArgs(
-            conversationId = conversationId
-        )
-        every { savedStateHandle.navArgs<GroupConversationDetailsNavArgs>() } returns GroupConversationDetailsNavArgs(
-            conversationId = conversationId
-        )
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()

@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.movetofolder
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.kalium.cells.domain.model.Node
@@ -27,7 +26,6 @@ import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -188,29 +186,25 @@ class MoveToFolderViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var getFoldersUseCase: GetFoldersUseCase
 
         @MockK
         lateinit var moveNodeUseCase: MoveNodeUseCase
 
-        private val navArgsMap = mutableMapOf<String, Any?>(
-            "currentPath" to CURRENT_PATH,
-            "nodeToMovePath" to NODE_TO_MOVE_PATH,
-            "uuid" to UUID,
-            "breadcrumbs" to BREADCRUMBS,
+        private val navArgs = MoveToFolderNavArgs(
+            currentPath = CURRENT_PATH,
+            nodeToMovePath = NODE_TO_MOVE_PATH,
+            uuid = UUID,
+            breadcrumbs = BREADCRUMBS,
         )
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<Any?>(any()) } answers { navArgsMap[firstArg()] }
         }
 
         private val viewModel by lazy {
             MoveToFolderViewModel(
-                savedStateHandle = savedStateHandle,
+                navArgs = navArgs,
                 getFoldersUseCase = getFoldersUseCase,
                 moveNodeUseCase = moveNodeUseCase,
             )

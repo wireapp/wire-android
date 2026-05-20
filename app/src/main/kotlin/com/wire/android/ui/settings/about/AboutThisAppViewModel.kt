@@ -17,27 +17,20 @@
  */
 package com.wire.android.ui.settings.about
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.util.AppNameUtil
-import com.wire.android.util.getGitBuildId
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class AboutThisAppViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+class AboutThisAppViewModel(
+    private val aboutThisAppInfoProvider: AboutThisAppInfoProvider
 ) : ViewModel() {
 
     var state by mutableStateOf(
         AboutThisAppState(
-            appName = AppNameUtil.createAppName()
+            appName = aboutThisAppInfoProvider.appName
         )
     )
 
@@ -47,7 +40,7 @@ class AboutThisAppViewModel @Inject constructor(
 
     private fun setGitHash() {
         viewModelScope.launch {
-            val gitBuildId = context.getGitBuildId()
+            val gitBuildId = aboutThisAppInfoProvider.gitBuildId()
             state = state.copy(
                 commitish = gitBuildId
             )

@@ -17,9 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.movetofolder
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.ui.common.ActionsViewModel
@@ -27,21 +25,16 @@ import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class MoveToFolderViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+class MoveToFolderViewModel(
+    private val navArgs: MoveToFolderNavArgs,
     private val getFoldersUseCase: GetFoldersUseCase,
     private val moveNodeUseCase: MoveNodeUseCase
 ) : ActionsViewModel<MoveToFolderViewAction>() {
-
-    private val navArgs: MoveToFolderNavArgs = MoveToFolderScreenDestination.argsFrom(savedStateHandle)
 
     private val currentPath: String = navArgs.currentPath
     private val nodeToMovePath: String = navArgs.nodeToMovePath

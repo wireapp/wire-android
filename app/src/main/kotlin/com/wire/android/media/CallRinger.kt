@@ -28,11 +28,12 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import com.wire.android.appLogger
+import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CallRinger @Inject constructor(private val context: Context) {
+class CallRinger @Inject @MetroInject constructor(private val context: Context) {
 
     private var mediaPlayer: MediaPlayer? = null
     private var vibrator: Vibrator? = null

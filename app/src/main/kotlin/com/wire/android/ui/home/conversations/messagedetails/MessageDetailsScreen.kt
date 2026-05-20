@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.messagedetails
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -44,9 +43,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -67,7 +67,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MessageDetailsScreen(
     navigator: Navigator,
-    viewModel: MessageDetailsViewModel = hiltViewModel()
+    args: MessageDetailsNavArgs,
+    viewModel: MessageDetailsViewModel = metroViewModel { messageDetailsViewModelFactory.create(args) }
 ) {
     val context = LocalContext.current
 

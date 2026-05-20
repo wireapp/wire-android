@@ -17,15 +17,12 @@
  */
 package com.wire.android.ui.home.conversations.search
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -57,7 +54,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class, SnapshotExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class SearchUserViewModelTest {
 
     @Test
@@ -65,7 +62,6 @@ class SearchUserViewModelTest {
         val query = "query"
 
         val (arrangement, viewModel) = Arrangement()
-            .withAddMembersSearchNavArgsThatThrowsException()
             .withSearchResult(
                 SearchUserResult(
                     connected = listOf(),
@@ -239,7 +235,6 @@ class SearchUserViewModelTest {
             val query = "query"
 
             val (arrangement, viewModel) = Arrangement()
-                .withAddMembersSearchNavArgsThatThrowsException()
                 .withSearchResult(result)
                 .withFederatedSearchParserResult(
                     FederatedSearchParser.Result(
@@ -272,7 +267,6 @@ class SearchUserViewModelTest {
     fun `given search term is a valid handle, when searching, then search by handle`() = runTest {
         val query = "query"
         val (arrangement, viewModel) = Arrangement()
-            .withAddMembersSearchNavArgsThatThrowsException()
             .withSearchByHandleResult(
                 SearchUserResult(
                     connected = listOf(),
@@ -315,7 +309,6 @@ class SearchUserViewModelTest {
             handle = "handle"
         )
         val (arrangement, viewModel) = Arrangement()
-            .withAddMembersSearchNavArgsThatThrowsException()
             .withSearchByHandleResult(
                 SearchUserResult(
                     connected = listOf(selectedUserSearchDetails),
@@ -344,9 +337,6 @@ class SearchUserViewModelTest {
         lateinit var contactMapper: ContactMapper
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var federatedSearchParser: FederatedSearchParser
 
         @MockK
@@ -366,6 +356,8 @@ class SearchUserViewModelTest {
             }
             withIsFederationSearchAllowedResult(false)
         }
+
+        private var addMembersSearchNavArgs: AddMembersSearchNavArgs? = null
 
         @Suppress("CyclomaticComplexMethod")
         fun fromSearchUserResult(user: UserSearchDetails): Contact {
@@ -398,13 +390,7 @@ class SearchUserViewModelTest {
         }
 
         fun withAddMembersSearchNavArgs(navArgs: AddMembersSearchNavArgs) = apply {
-            every { savedStateHandle.navArgs<AddMembersSearchNavArgs>() } returns navArgs
-        }
-
-        fun withAddMembersSearchNavArgsThatThrowsException() = apply {
-            every { savedStateHandle.navArgs<AddMembersSearchNavArgs>() } answers {
-                throw RuntimeException()
-            }
+            addMembersSearchNavArgs = navArgs
         }
 
         fun withSearchResult(result: SearchUserResult) = apply {
@@ -431,13 +417,13 @@ class SearchUserViewModelTest {
 
         fun arrange() = apply {
             searchUserViewModel = SearchUserViewModel(
+                addMembersSearchNavArgs = addMembersSearchNavArgs,
                 searchUserUseCase = searchUsersUseCase,
                 searchByHandleUseCase = searchByHandleUseCase,
                 contactMapper = contactMapper,
                 federatedSearchParser = federatedSearchParser,
                 validateUserHandle = validateUserHandle,
-                isFederationSearchAllowed = isFederationSearchAllowedUseCase,
-                savedStateHandle = savedStateHandle
+                isFederationSearchAllowed = isFederationSearchAllowedUseCase
             )
         }.run {
             this to searchUserViewModel

@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -42,8 +41,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
@@ -64,9 +63,12 @@ import kotlinx.coroutines.flow.onEach
 fun LoginSSOScreen(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
+    loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?,
-    loginSSOViewModel: LoginSSOViewModel = hiltViewModel(),
+    loginSSOViewModel: LoginSSOViewModel = metroViewModel {
+        loginSSOViewModelFactory.create(loginNavArgs)
+    },
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
@@ -81,13 +83,12 @@ fun LoginSSOScreen(
     // Handle SSO code auto-login from intent parameter
     LaunchedEffect(ssoCodeAutoLogin) {
         ssoCodeAutoLogin?.let {
-            // Pre-fill the SSO code
-            loginSSOViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(it.ssoCode)
-
-            // Auto-initiate login if flag is set
-            if (it.autoInitiateLogin) {
-                loginSSOViewModel.login()
-            }
+            loginSSOViewModel.handleSSOCodeAutoLogin(
+                ssoCode = it.ssoCode,
+                autoInitiateLogin = it.autoInitiateLogin,
+                nomadServiceUrl = it.nomadServiceUrl,
+                cookieLabel = it.cookieLabel,
+            )
         }
     }
     LoginSSOContent(

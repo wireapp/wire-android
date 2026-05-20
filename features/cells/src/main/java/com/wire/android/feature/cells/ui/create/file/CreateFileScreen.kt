@@ -28,7 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.feature.cells.ui.cellsMetroViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.FileNameError
@@ -63,8 +63,11 @@ import java.util.Locale
 fun CreateFileScreen(
     navigator: WireNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
+    args: CreateFileScreenNavArgs,
     modifier: Modifier = Modifier,
-    createFileViewModel: CreateFileViewModel = hiltViewModel()
+    createFileViewModel: CreateFileViewModel = cellsMetroViewModel<CreateFileViewModel>(
+        creationCallback = { createFileViewModelFactory.create(args) }
+    )
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
 
@@ -169,6 +172,7 @@ fun PreviewCreateFileScreen() {
         CreateFileScreen(
             navigator = PreviewNavigator,
             resultNavigator = PreviewResultBackNavigator as ResultBackNavigator<Boolean>,
+            args = CreateFileScreenNavArgs(uuid = "preview-uuid", fileType = FileType.DOCUMENT),
         )
     }
 }

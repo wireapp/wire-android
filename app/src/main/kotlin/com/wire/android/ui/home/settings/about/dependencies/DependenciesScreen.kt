@@ -29,8 +29,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.dimensions
@@ -46,7 +46,9 @@ import kotlinx.collections.immutable.persistentMapOf
 @WireRootDestination
 fun DependenciesScreen(
     navigator: Navigator,
-    viewModel: DependenciesViewModel = hiltViewModel()
+    viewModel: DependenciesViewModel = metroViewModel {
+        dependenciesViewModelFactory.create()
+    }
 ) {
     WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(

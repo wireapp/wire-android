@@ -18,27 +18,22 @@
 
 package com.wire.android.ui.newauthentication.login
 
-import android.database.sqlite.SQLiteException
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.di.DefaultWebSocketEnabledByDefault
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
+import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
-import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.USER_IDENTIFIER_SAVED_STATE_KEY
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.authentication.login.sso.ssoCodeWithPrefix
@@ -62,25 +57,19 @@ import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Named
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
 class NewLoginViewModel(
+    private val loginNavArgs: LoginNavArgs,
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     val coreLogic: CoreLogic,
-    savedStateHandle: SavedStateHandle,
+    private val savedInputStore: LoginSavedInputStore,
     val clientScopeProviderFactory: ClientScopeProvider.Factory,
     val userDataStoreProvider: UserDataStoreProvider,
     private val loginExtension: LoginViewModelExtension,
@@ -88,34 +77,10 @@ class NewLoginViewModel(
     private val dispatchers: DispatcherProvider,
     defaultServerConfig: ServerConfig.Links,
     defaultSSOCodeConfig: String,
+    private val recoverableLogoutExceptionDetector: NewLoginRecoverableLogoutExceptionDetector,
+    private val sharedAuthNewLoginAdapter: SharedAuthNewLoginAdapter = LegacySharedAuthNewLoginAdapter,
 ) : ActionsViewModel<NewLoginAction>() {
 
-    @Inject
-    constructor(
-        validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        savedStateHandle: SavedStateHandle,
-        addAuthenticatedUser: AddAuthenticatedUserUseCase,
-        clientScopeProviderFactory: ClientScopeProvider.Factory,
-        userDataStoreProvider: UserDataStoreProvider,
-        dispatchers: DispatcherProvider,
-        defaultServerConfig: ServerConfig.Links,
-        @Named("ssoCodeConfig") defaultSSOCodeConfig: String,
-        @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
-    ) : this(
-        validateEmailOrSSOCode,
-        coreLogic,
-        savedStateHandle,
-        clientScopeProviderFactory,
-        userDataStoreProvider,
-        LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
-        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, defaultWebSocketEnabledByDefault),
-        dispatchers,
-        defaultServerConfig,
-        defaultSSOCodeConfig
-    )
-
-    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
     private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
     private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
@@ -134,12 +99,12 @@ class NewLoginViewModel(
             } else if (defaultSSOCodeConfig.isNotEmpty() && !isCustomServerDeepLink) {
                 defaultSSOCodeConfig.ssoCodeWithPrefix()
             } else {
-                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+                savedInputStore.userIdentifier ?: String.EMPTY
             }
         )
         viewModelScope.launch {
             userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
-                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
+                savedInputStore.userIdentifier = it.toString()
             }.collectLatest {
                 getAndUpdateLoginFlowState { currentState: NewLoginFlowState ->
                     if (currentState is NewLoginFlowState.Error.TextFieldError) NewLoginFlowState.Default else currentState
@@ -164,7 +129,7 @@ class NewLoginViewModel(
                             appLogger.d("$TAG Successfully fetched default SSO code")
                             withContext(dispatchers.main()) {
                                 userIdentifierTextState.setTextAndPlaceCursorAtEnd(defaultSSOCode)
-                                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = defaultSSOCode
+                                savedInputStore.userIdentifier = defaultSSOCode
                             }
                         } else {
                             appLogger.d("$TAG No default SSO code configured for this server")
@@ -182,6 +147,7 @@ class NewLoginViewModel(
         viewModelScope.launch(dispatchers.io()) {
             updateLoginFlowState(NewLoginFlowState.Loading)
             val sanitizedInput = userIdentifierTextState.text.trim().toString()
+            if (tryStartSharedAuthLogin(sanitizedInput)) return@launch
             when (validateEmailOrSSOCode(sanitizedInput)) {
                 ValidateEmailOrSSOCodeUseCase.Result.InvalidInput -> {
                     updateLoginFlowState(NewLoginFlowState.Error.TextFieldError.InvalidValue)
@@ -198,6 +164,43 @@ class NewLoginViewModel(
             }
         }
     }
+
+    private suspend fun tryStartSharedAuthLogin(userIdentifier: String): Boolean =
+        sharedAuthNewLoginAdapter.tryStartLogin(
+            request = SharedAuthNewLoginRequest(
+                userIdentifier = userIdentifier,
+                serverConfig = serverConfig,
+                customServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig,
+            ),
+            callbacks = object : SharedAuthNewLoginCallbacks {
+                override suspend fun showInvalidInput() {
+                    updateLoginFlowState(NewLoginFlowState.Error.TextFieldError.InvalidValue)
+                }
+
+                override suspend fun showGenericError(failure: CoreFailure) {
+                    updateLoginFlowState(NewLoginFlowState.Error.DialogError.GenericError(failure))
+                }
+
+                override suspend fun showCustomServerDialog(serverLinks: ServerConfig.Links) {
+                    updateLoginFlowState(NewLoginFlowState.CustomConfigDialog(serverLinks))
+                }
+
+                override suspend fun openEmailPassword(userIdentifier: String, loginPasswordPath: LoginPasswordPath) {
+                    sendAction(NewLoginAction.EmailPassword(userIdentifier, loginPasswordPath))
+                    updateLoginFlowState(NewLoginFlowState.Default)
+                }
+
+                override suspend fun openSso(url: String, config: SSOUrlConfig) {
+                    sendAction(NewLoginAction.SSO(url, config))
+                    updateLoginFlowState(NewLoginFlowState.Default)
+                }
+
+                override suspend fun openEnterpriseLoginNotSupported(userIdentifier: String) {
+                    sendAction(NewLoginAction.EnterpriseLoginNotSupported(userIdentifier))
+                    updateLoginFlowState(NewLoginFlowState.Default)
+                }
+            }
+        )
 
     @VisibleForTesting
     internal suspend fun getEnterpriseLoginFlow(email: String) = withContext(dispatchers.io()) {
@@ -308,18 +311,6 @@ class NewLoginViewModel(
             )
         }
 
-    fun observeSSOResult(backStackSavedState: SavedStateHandle) {
-        viewModelScope.launch {
-            backStackSavedState
-                .getStateFlow<String?>(SSO_LOGIN_RESULT_KEY, null)
-                .filterNotNull()
-                .collect { json ->
-                    handleSSOResult(Json.decodeFromString(json))
-                    backStackSavedState.remove<String>(SSO_LOGIN_RESULT_KEY)
-                }
-        }
-    }
-
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin) {
         updateLoginFlowState(NewLoginFlowState.Loading)
         when (ssoLoginResult) {
@@ -404,15 +395,12 @@ class NewLoginViewModel(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            when (e) {
-                is IllegalStateException, is IOException, is SQLiteException -> {
-                    if (isSessionStillValid(storedUserId)) throw e
-                    appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${e.message}")
-                    return
-                }
-
-                else -> throw e
+            if (recoverableLogoutExceptionDetector.isRecoverableLogoutInterruption(e)) {
+                if (isSessionStillValid(storedUserId)) throw e
+                appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${e.message}")
+                return
             }
+            throw e
         }
 
         when (restoreResult) {
@@ -452,14 +440,12 @@ class NewLoginViewModel(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            when (e) {
-                is IllegalStateException, is IOException, is SQLiteException -> {
-                    if (isSessionStillValid(userId)) throw e
-                    appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${e.message}")
-                }
-
-                else -> throw e
+            if (recoverableLogoutExceptionDetector.isRecoverableLogoutInterruption(e)) {
+                if (isSessionStillValid(userId)) throw e
+                appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${e.message}")
+                return
             }
+            throw e
         }
     }
 

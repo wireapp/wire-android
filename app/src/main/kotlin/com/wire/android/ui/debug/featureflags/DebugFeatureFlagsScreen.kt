@@ -28,8 +28,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -43,7 +43,9 @@ import com.wire.android.ui.common.typography
 fun DebugFeatureFlagsScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    viewModel: DebugFeatureFlagsViewModel = hiltViewModel(),
+    viewModel: DebugFeatureFlagsViewModel = metroViewModel {
+        debugFeatureFlagsViewModelFactory.create()
+    },
 ) {
     val scrollState = rememberScrollState()
 

@@ -32,12 +32,9 @@ import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class ClearSessionViewModel @Inject constructor(
+class ClearSessionViewModel constructor(
     private val currentSession: CurrentSessionUseCase,
     private val deleteSession: DeleteSessionUseCase,
     private val switchAccount: AccountSwitchUseCase,

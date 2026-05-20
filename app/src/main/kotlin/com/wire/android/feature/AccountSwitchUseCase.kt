@@ -40,12 +40,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Suppress("LongParameterList")
 @Singleton
-class AccountSwitchUseCase @Inject constructor(
+class AccountSwitchUseCase @Inject @MetroInject constructor(
     private val updateCurrentSession: UpdateCurrentSessionUseCase,
     private val getSessions: GetSessionsUseCase,
     private val getCurrentSession: CurrentSessionUseCase,

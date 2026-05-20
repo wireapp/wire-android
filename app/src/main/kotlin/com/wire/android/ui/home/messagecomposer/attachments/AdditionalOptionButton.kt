@@ -26,7 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.theme.WireTheme
@@ -52,7 +52,7 @@ fun AdditionalOptionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: IsFileSharingEnabledViewModel =
-        hiltViewModelScoped<IsFileSharingEnabledViewModelImpl, IsFileSharingEnabledViewModel>()
+        wireViewModelScoped<IsFileSharingEnabledViewModelImpl, IsFileSharingEnabledViewModel, IsFileSharingEnabledViewModelFactory>()
 ) {
     var enableAgain by remember { mutableStateOf(true) }
     LaunchedEffect(enableAgain, block = {
@@ -84,7 +84,11 @@ private const val BUTTON_CLICK_DELAY_MILLIS = 400L
 @Composable
 fun PreviewAdditionalOptionButtonUnSelected() {
     WireTheme {
-        AdditionalOptionButton(isSelected = false, onClick = {})
+        AdditionalOptionButton(
+            isSelected = false,
+            onClick = {},
+            viewModel = object : IsFileSharingEnabledViewModel {}
+        )
     }
 }
 
@@ -92,6 +96,10 @@ fun PreviewAdditionalOptionButtonUnSelected() {
 @Composable
 fun PreviewAdditionalOptionButtonSelected() {
     WireTheme {
-        AdditionalOptionButton(isSelected = true, onClick = {})
+        AdditionalOptionButton(
+            isSelected = true,
+            onClick = {},
+            viewModel = object : IsFileSharingEnabledViewModel {}
+        )
     }
 }

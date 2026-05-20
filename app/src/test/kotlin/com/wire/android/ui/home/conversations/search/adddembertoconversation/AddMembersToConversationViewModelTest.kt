@@ -17,15 +17,12 @@
  */
 package com.wire.android.ui.home.conversations.search.adddembertoconversation
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -34,7 +31,6 @@ import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -44,7 +40,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 class AddMembersToConversationViewModelTest {
 
     @Test
@@ -154,10 +149,8 @@ class AddMembersToConversationViewModelTest {
         @MockK
         lateinit var addMemberToConversationUseCase: AddMemberToConversationUseCase
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
         val testDispatchers = TestDispatcherProvider()
+        private lateinit var navArgs: AddMembersSearchNavArgs
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -166,7 +159,7 @@ class AddMembersToConversationViewModelTest {
         lateinit var viewModel: AddMembersToConversationViewModel
 
         fun withAddMembersSearchNavArgs(navArgs: AddMembersSearchNavArgs) {
-            every { savedStateHandle.navArgs<AddMembersSearchNavArgs>() } returns navArgs
+            this.navArgs = navArgs
         }
 
         fun withAddMemberToConversationUseCase(result: AddMemberToConversationUseCase.Result) {
@@ -175,9 +168,9 @@ class AddMembersToConversationViewModelTest {
 
         fun arrange(block: Arrangement.() -> Unit): Pair<Arrangement, AddMembersToConversationViewModel> = apply(block).let {
             viewModel = AddMembersToConversationViewModel(
+                addMembersSearchNavArgs = navArgs,
                 addMemberToConversation = addMemberToConversationUseCase,
-                dispatchers = testDispatchers,
-                savedStateHandle = savedStateHandle
+                dispatchers = testDispatchers
             )
             this to viewModel
         }

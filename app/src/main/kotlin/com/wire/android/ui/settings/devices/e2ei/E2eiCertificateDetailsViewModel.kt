@@ -17,24 +17,17 @@
  */
 package com.wire.android.ui.settings.devices.e2ei
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.util.DateTimeUtil
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class E2eiCertificateDetailsViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class E2eiCertificateDetailsViewModel(
+    private val navArgs: E2eiCertificateDetailsScreenNavArgs,
     private val getSelfUser: GetSelfUserUseCase,
 ) : ViewModel() {
-    private val navArgs: E2eiCertificateDetailsScreenNavArgs =
-        savedStateHandle.navArgs()
 
     private var selfUserHandle: String? = null
 

@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.details.updateappsaccess
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -26,7 +25,6 @@ import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -45,7 +43,6 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -396,9 +393,6 @@ class UpdateAppsAccessViewModelTest {
 internal class UpdateAppsAccessViewModelArrangement {
 
     @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
@@ -413,6 +407,17 @@ internal class UpdateAppsAccessViewModelArrangement {
     @MockK
     lateinit var observeSelfUser: ObserveSelfUserUseCase
 
+    val conversationId = ConversationId("some-dummy-value", "dummyDomain")
+
+    private var navArgs = UpdateAppsAccessNavArgs(
+        conversationId = conversationId,
+        updateAppsAccessParams = UpdateAppsAccessParams(
+            isGuestAllowed = true,
+            isAppsAllowed = true,
+            shouldUseNewAppsUi = true
+        )
+    )
+
     private val conversationDetailsFlow = MutableSharedFlow<ConversationDetails>(replay = Int.MAX_VALUE)
 
     private val observeParticipantsForConversationFlow =
@@ -420,30 +425,19 @@ internal class UpdateAppsAccessViewModelArrangement {
 
     private val viewModel by lazy {
         UpdateAppsAccessViewModel(
+            updateAppsAccessNavArgs = navArgs,
             dispatcher = TestDispatcherProvider(),
             observeConversationDetails = observeConversationDetails,
             observeConversationMembers = observeParticipantsForConversationUseCase,
             changeAccessForAppsInConversation = changeAccessForAppsInConversationUseCase,
             observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
             selfUser = observeSelfUser,
-            savedStateHandle = savedStateHandle
         )
     }
-
-    val conversationId = ConversationId("some-dummy-value", "dummyDomain")
 
     init {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
-
-        every { savedStateHandle.navArgs<UpdateAppsAccessNavArgs>() } returns UpdateAppsAccessNavArgs(
-            conversationId = conversationId,
-            updateAppsAccessParams = UpdateAppsAccessParams(
-                isGuestAllowed = true,
-                isAppsAllowed = true,
-                shouldUseNewAppsUi = true
-            )
-        )
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
@@ -453,7 +447,7 @@ internal class UpdateAppsAccessViewModelArrangement {
     }
 
     fun withGuestDisabledNavArgs() = apply {
-        every { savedStateHandle.navArgs<UpdateAppsAccessNavArgs>() } returns UpdateAppsAccessNavArgs(
+        navArgs = UpdateAppsAccessNavArgs(
             conversationId = conversationId,
             updateAppsAccessParams = UpdateAppsAccessParams(
                 isGuestAllowed = false,

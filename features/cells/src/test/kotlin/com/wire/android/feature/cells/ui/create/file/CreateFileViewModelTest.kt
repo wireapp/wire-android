@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.create.file
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.kalium.cells.domain.usecase.create.CreateDocumentFileUseCase
 import com.wire.kalium.cells.domain.usecase.create.CreatePresentationFileUseCase
@@ -27,7 +26,6 @@ import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -119,7 +117,7 @@ class CreateFileViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify(exactly = 1) { arrangement.createDocumentFileUseCase(any()) }
+        coVerify(exactly = 1) { arrangement.createDocumentFileUseCase("test-uuid/NewDoc") }
         assertEquals(CreateFileViewModelAction.Success, viewModel.actions.first())
     }
 
@@ -137,7 +135,7 @@ class CreateFileViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify(exactly = 1) { arrangement.createDocumentFileUseCase(any()) }
+        coVerify(exactly = 1) { arrangement.createDocumentFileUseCase("test-uuid/NewDoc") }
         assertEquals(CreateFileViewModelAction.Failure, viewModel.actions.first())
     }
 
@@ -155,7 +153,7 @@ class CreateFileViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify(exactly = 1) { arrangement.createSpreadsheetFileUseCase(any()) }
+        coVerify(exactly = 1) { arrangement.createSpreadsheetFileUseCase("test-uuid/NewSheet") }
         assertEquals(CreateFileViewModelAction.Success, viewModel.actions.first())
     }
 
@@ -173,7 +171,7 @@ class CreateFileViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify(exactly = 1) { arrangement.createSpreadsheetFileUseCase(any()) }
+        coVerify(exactly = 1) { arrangement.createSpreadsheetFileUseCase("test-uuid/NewSheet") }
         assertEquals(CreateFileViewModelAction.Failure, viewModel.actions.first())
     }
 
@@ -191,7 +189,7 @@ class CreateFileViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify(exactly = 1) { arrangement.createPresentationFileUseCase(any()) }
+        coVerify(exactly = 1) { arrangement.createPresentationFileUseCase("test-uuid/NewSlides") }
         assertEquals(CreateFileViewModelAction.Success, viewModel.actions.first())
     }
 
@@ -209,14 +207,11 @@ class CreateFileViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify(exactly = 1) { arrangement.createPresentationFileUseCase(any()) }
+        coVerify(exactly = 1) { arrangement.createPresentationFileUseCase("test-uuid/NewSlides") }
         assertEquals(CreateFileViewModelAction.Failure, viewModel.actions.first())
     }
 
     private class Arrangement {
-
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
         lateinit var createPresentationFileUseCase: CreatePresentationFileUseCase
@@ -228,15 +223,18 @@ class CreateFileViewModelTest {
         lateinit var createSpreadsheetFileUseCase: CreateSpreadsheetFileUseCase
 
         private val testUuid = "test-uuid"
+        private var navArgs = CreateFileScreenNavArgs(
+            uuid = testUuid,
+            fileType = FileType.DOCUMENT,
+        )
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<String>("uuid") } returns testUuid
         }
 
         private val viewModel by lazy {
             CreateFileViewModel(
-                savedStateHandle = savedStateHandle,
+                navArgs = navArgs,
                 createPresentationFileUseCase = createPresentationFileUseCase,
                 createDocumentFileUseCase = createDocumentFileUseCase,
                 createSpreadsheetFileUseCase = createSpreadsheetFileUseCase,
@@ -244,7 +242,7 @@ class CreateFileViewModelTest {
         }
 
         fun withFileTypeReturning(result: FileType) = apply {
-            every { savedStateHandle.get<FileType>("fileType") } returns result
+            navArgs = navArgs.copy(fileType = result)
         }
 
         fun withCreateDocumentFileUseCaseReturning(result: Either<CoreFailure, Unit>) = apply {

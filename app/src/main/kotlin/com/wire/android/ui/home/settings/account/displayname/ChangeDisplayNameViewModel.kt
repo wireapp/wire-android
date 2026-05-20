@@ -30,13 +30,10 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class ChangeDisplayNameViewModel @Inject constructor(
+class ChangeDisplayNameViewModel(
     private val getSelf: GetSelfUserUseCase,
     private val updateDisplayName: UpdateDisplayNameUseCase,
 ) : ViewModel() {

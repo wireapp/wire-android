@@ -18,11 +18,9 @@
 
 package com.wire.android.ui.home.conversations.composer
 
-import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
@@ -32,12 +30,9 @@ import com.wire.android.ui.home.conversations.InvalidLinkDialogState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.VisitLinkDialogState
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
-import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.FileSharingStatus
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -55,7 +50,6 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -66,12 +60,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class MessageComposerViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+class MessageComposerViewModel(
+    conversationNavArgs: ConversationNavArgs,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
@@ -82,8 +74,7 @@ class MessageComposerViewModel @Inject constructor(
     private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
     private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
-    private val fileManager: FileManager,
-    private val kaliumFileSystem: KaliumFileSystem,
+    private val tempWritableAttachmentUriProvider: TempWritableAttachmentUriProvider,
     private val currentSessionFlowUseCase: CurrentSessionFlowUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val globalDataStore: GlobalDataStore,
@@ -92,13 +83,12 @@ class MessageComposerViewModel @Inject constructor(
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
         private set
 
-    var tempWritableVideoUri: Uri? = null
+    var tempWritableVideoUri: String? = null
         private set
 
-    var tempWritableImageUri: Uri? = null
+    var tempWritableImageUri: String? = null
         private set
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     var visitLinkDialogState: VisitLinkDialogState by mutableStateOf(
@@ -130,15 +120,13 @@ class MessageComposerViewModel @Inject constructor(
 
     private fun initTempWritableVideoUri() {
         viewModelScope.launch {
-            tempWritableVideoUri =
-                fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
+            tempWritableVideoUri = tempWritableAttachmentUriProvider.getTempWritableVideoUri()
         }
     }
 
     private fun initTempWritableImageUri() {
         viewModelScope.launch {
-            tempWritableImageUri =
-                fileManager.getTempWritableImageUri(kaliumFileSystem.rootCachePath)
+            tempWritableImageUri = tempWritableAttachmentUriProvider.getTempWritableImageUri()
         }
     }
 

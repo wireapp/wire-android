@@ -45,8 +45,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.model.ItemActionType
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.TabItem
@@ -86,6 +86,7 @@ fun SearchUsersAndAppsScreen(
     isConversationAppsEnabled: Boolean = true,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     conversationProtocol: Conversation.ProtocolInfo? = null,
+    addMembersSearchNavArgs: AddMembersSearchNavArgs? = null,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
     onCreateNewChannel: () -> Unit = {},
@@ -185,6 +186,7 @@ fun SearchUsersAndAppsScreen(
                                 isSearchActive = searchBarState.isSearchActive,
                                 actionType = actionType,
                                 lazyListState = lazyListStates[pageIndex],
+                                addMembersSearchNavArgs = addMembersSearchNavArgs,
                             )
                         }
 
@@ -261,7 +263,12 @@ private fun SearchAllPeopleOrContactsScreen(
     actionType: ItemActionType,
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
-    searchUserViewModel: SearchUserViewModel = hiltViewModel(),
+    addMembersSearchNavArgs: AddMembersSearchNavArgs? = null,
+    searchUserViewModel: SearchUserViewModel = metroViewModel(
+        key = "search_user_${addMembersSearchNavArgs?.conversationId?.value ?: "new_conversation"}",
+    ) {
+        searchUserViewModelFactory.create(addMembersSearchNavArgs)
+    },
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
 

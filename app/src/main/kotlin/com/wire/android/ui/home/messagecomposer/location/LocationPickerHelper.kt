@@ -31,7 +31,8 @@ import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.ui.home.appLock.CurrentTimestampProvider
 import com.wire.kalium.logger.KaliumLogLevel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Inject as MetroInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
@@ -44,7 +45,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("TooGenericExceptionCaught")
 @SuppressLint("MissingPermission")
-class LocationPickerHelper @Inject constructor(
+class LocationPickerHelper @Inject @MetroInject constructor(
     @ApplicationContext private val context: Context,
     @ApplicationScope private val scope: CoroutineScope,
     private val currentTimestampProvider: CurrentTimestampProvider,

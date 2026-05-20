@@ -30,7 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.feature.cells.ui.cellsMetroViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.FILE_NAME_MAX_COUNT
 import com.wire.android.feature.cells.ui.common.FileNameError
@@ -64,8 +64,11 @@ import com.wire.android.ui.theme.wireDimensions
 @Composable
 fun RenameNodeScreen(
     navigator: WireNavigator,
+    args: RenameNodeNavArgs,
     modifier: Modifier = Modifier,
-    renameNodeViewModel: RenameNodeViewModel = hiltViewModel()
+    renameNodeViewModel: RenameNodeViewModel = cellsMetroViewModel<RenameNodeViewModel>(
+        creationCallback = { renameNodeViewModelFactory.create(args) }
+    )
 ) {
     val context = LocalContext.current
 
@@ -170,7 +173,8 @@ private fun computeNameErrorState(error: FileNameError?, isFolder: Boolean): Wir
 fun PreviewRenameNodeScreen() {
     WireTheme {
         RenameNodeScreen(
-            navigator = PreviewNavigator
+            navigator = PreviewNavigator,
+            args = RenameNodeNavArgs()
         )
     }
 }

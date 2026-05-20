@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.publiclink
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.kalium.cells.domain.model.PublicLink
@@ -30,7 +29,6 @@ import com.wire.kalium.common.functional.right
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -200,9 +198,6 @@ class PublicLinkViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var createPublicLinkUseCase: CreatePublicLinkUseCase
 
         @MockK
@@ -214,24 +209,23 @@ class PublicLinkViewModelTest {
         @MockK
         lateinit var fileHelper: FileHelper
 
-        private val navArgsMap = mutableMapOf<String, Any?>(
-            "assetId" to "assetId",
-            "fileName" to "fileName",
-            "publicLinkId" to "publicLinkId",
-            "isFolder" to false,
+        private var navArgs = PublicLinkNavArgs(
+            assetId = "assetId",
+            fileName = "fileName",
+            publicLinkId = "publicLinkId",
+            isFolder = false,
         )
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<Any?>(any()) } answers { navArgsMap[firstArg()] }
         }
 
         fun withPublicLink() = apply {
-            navArgsMap["publicLinkId"] = "publicLinkId"
+            navArgs = navArgs.copy(publicLinkId = "publicLinkId")
         }
 
         fun withoutPublicLink() = apply {
-            navArgsMap["publicLinkId"] = null
+            navArgs = navArgs.copy(publicLinkId = null)
         }
 
         fun withLoadSuccess() = apply {
@@ -260,7 +254,7 @@ class PublicLinkViewModelTest {
 
         fun arrange(): Pair<Arrangement, PublicLinkViewModel> {
             return this to PublicLinkViewModel(
-                savedStateHandle = savedStateHandle,
+                navArgs = navArgs,
                 createPublicLink = createPublicLinkUseCase,
                 getPublicLinkUseCase = getPublicLinkUseCase,
                 deletePublicLinkUseCase = deletePublicLinkUseCase,

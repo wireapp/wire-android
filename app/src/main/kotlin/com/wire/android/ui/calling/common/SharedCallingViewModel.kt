@@ -18,8 +18,6 @@
 
 package com.wire.android.ui.calling.common
 
-import android.view.View
-import androidx.camera.core.impl.ImageOutputConfig.RotationValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -52,10 +50,6 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.util.PlatformRotation
 import com.wire.kalium.logic.util.PlatformView
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -68,9 +62,8 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel(assistedFactory = SharedCallingViewModel.Factory::class)
-class SharedCallingViewModel @AssistedInject constructor(
-    @Assisted val conversationId: ConversationId,
+class SharedCallingViewModel(
+    val conversationId: ConversationId,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeLastActiveCallWithSortedParticipants: ObserveLastActiveCallWithSortedParticipantsUseCase,
     private val hangUpCall: HangUpCallUseCase,
@@ -238,24 +231,19 @@ class SharedCallingViewModel @AssistedInject constructor(
         }
     }
 
-    fun setVideoPreview(view: View?) {
+    fun setVideoPreview(view: PlatformView) {
         viewModelScope.launch(dispatchers.default()) {
             appLogger.i("SharedCallingViewModel: setting video preview..")
             setVideoPreview(conversationId, PlatformView(null))
-            setVideoPreview(conversationId, PlatformView(view))
+            setVideoPreview(conversationId, view)
         }
     }
 
-    fun setUIRotation(@RotationValue rotation: Int) {
+    fun setUIRotation(rotation: PlatformRotation) {
         appLogger.i("SharedCallingViewModel: setting UI rotation to $rotation..")
         viewModelScope.launch {
-            setUIRotationUseCase(PlatformRotation(rotation))
+            setUIRotationUseCase(rotation)
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(conversationId: ConversationId): SharedCallingViewModel
     }
 }
 

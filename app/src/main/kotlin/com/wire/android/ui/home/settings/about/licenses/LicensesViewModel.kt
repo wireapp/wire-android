@@ -17,32 +17,23 @@
  */
 package com.wire.android.ui.home.settings.about.licenses
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mikepenz.aboutlibraries.Libs
-import com.mikepenz.aboutlibraries.util.withContext
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class LicensesViewModel @Inject constructor(
-    @ApplicationContext context: Context
+class LicensesViewModel(
+    private val licensesProvider: LicensesProvider
 ) : ViewModel() {
 
     var state: LicensesState by mutableStateOf(LicensesState())
         private set
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            val libraryList = Libs.Builder().withContext(context).build().libraries.distinctBy { it.uniqueId }
-            state = state.copy(libraryList = libraryList)
+        viewModelScope.launch {
+            state = state.copy(libraryList = licensesProvider.getLibraries())
         }
     }
 }

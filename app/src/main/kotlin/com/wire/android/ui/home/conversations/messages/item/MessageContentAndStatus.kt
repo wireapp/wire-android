@@ -25,12 +25,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.applyIf
@@ -79,7 +79,11 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
 ) {
     val conversationAssetPathsViewModel: ConversationAssetPathsViewModel = when {
         LocalInspectionMode.current -> ConversationAssetPathsViewModelPreview
-        else -> hiltViewModel<ConversationAssetPathsViewModelImpl>(key = message.conversationId.toString())
+        else -> metroViewModel<ConversationAssetPathsViewModelImpl>(
+            key = message.conversationId.toString()
+        ) {
+            conversationAssetPathsViewModelFactory.create()
+        }
     }
 
     val onAssetClickable = remember(message) {
@@ -239,6 +243,7 @@ private fun MessageContent(
                     VerticalSpace.x4()
                 }
                 MessageBody(
+                    conversationId = message.conversationId,
                     messageBody = messageContent.messageBody,
                     searchQuery = searchQuery,
                     isAvailable = !message.isPending && message.isAvailable,
@@ -281,6 +286,7 @@ private fun MessageContent(
                     VerticalSpace.x4()
                 }
                 MessageBody(
+                    conversationId = message.conversationId,
                     messageBody = messageContent.messageBody,
                     isAvailable = !message.isPending && message.isAvailable,
                     onOpenProfile = onOpenProfile,
@@ -403,6 +409,7 @@ private fun MessageContent(
                 }
                 if (messageContent.messageBody?.message?.asString()?.isNotEmpty() == true) {
                     MessageBody(
+                        conversationId = message.conversationId,
                         messageBody = messageContent.messageBody,
                         searchQuery = searchQuery,
                         isAvailable = !message.isPending && message.isAvailable,

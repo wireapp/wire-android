@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.search
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
@@ -37,7 +36,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
@@ -79,23 +77,9 @@ class SearchScreenViewModelTest {
 
     private val sharedPathCache = CellFileLocalPathCache()
 
-    private lateinit var savedStateHandle: SavedStateHandle
-
     @BeforeEach
     fun setup() {
         Dispatchers.setMain(dispatcher)
-
-        val navArgsMap = mapOf<String, Any?>(
-            "conversationId" to CONVERSATION_ID,
-            "screenType" to DriveSearchScreenType.SHARED_DRIVE
-        )
-
-        savedStateHandle = mockk(relaxed = true)
-
-        every { savedStateHandle.get<Any?>(any()) } answers {
-            val key = firstArg<String>()
-            navArgsMap[key]
-        }
 
         MockKAnnotations.init(this)
 
@@ -149,18 +133,13 @@ class SearchScreenViewModelTest {
     @Test
     fun `given parentRoute in nav args, when ViewModel is created, then parentRoute is exposed`() = runTest {
         val expectedRoute = "app/global_cells_screen"
-        val navArgsWithParentRoute = mapOf<String, Any?>(
-            "conversationId" to CONVERSATION_ID,
-            "screenType" to DriveSearchScreenType.SHARED_DRIVE,
-            "parentRoute" to expectedRoute,
-        )
-        val savedStateHandleWithParentRoute = mockk<SavedStateHandle>(relaxed = true)
-        every { savedStateHandleWithParentRoute.get<Any?>(any()) } answers {
-            navArgsWithParentRoute[firstArg<String>()]
-        }
 
         val viewModel = SearchScreenViewModel(
-            savedStateHandle = savedStateHandleWithParentRoute,
+            navArgs = SearchNavArgs(
+                conversationId = CONVERSATION_ID,
+                screenType = DriveSearchScreenType.SHARED_DRIVE,
+                parentRoute = expectedRoute,
+            ),
             getAllTagsUseCase = getAllTagsUseCase,
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,
@@ -359,7 +338,10 @@ class SearchScreenViewModelTest {
 
     private fun createViewModel(): SearchScreenViewModel {
         return SearchScreenViewModel(
-            savedStateHandle = savedStateHandle,
+            navArgs = SearchNavArgs(
+                conversationId = CONVERSATION_ID,
+                screenType = DriveSearchScreenType.SHARED_DRIVE,
+            ),
             getAllTagsUseCase = getAllTagsUseCase,
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,
@@ -369,14 +351,11 @@ class SearchScreenViewModelTest {
     }
 
     private fun createViewModelWithScreenType(screenType: DriveSearchScreenType): SearchScreenViewModel {
-        val navArgsMap = mapOf<String, Any?>(
-            "conversationId" to CONVERSATION_ID,
-            "screenType" to screenType,
-        )
-        val handle = mockk<SavedStateHandle>(relaxed = true)
-        every { handle.get<Any?>(any()) } answers { navArgsMap[firstArg<String>()] }
         return SearchScreenViewModel(
-            savedStateHandle = handle,
+            navArgs = SearchNavArgs(
+                conversationId = CONVERSATION_ID,
+                screenType = screenType,
+            ),
             getAllTagsUseCase = getAllTagsUseCase,
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,

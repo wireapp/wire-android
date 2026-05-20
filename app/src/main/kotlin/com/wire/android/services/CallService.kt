@@ -26,6 +26,7 @@ import android.content.pm.ServiceInfo
 import android.os.IBinder
 import androidx.core.app.ServiceCompat
 import com.wire.android.appLogger
+import com.wire.android.di.metro.createWireMetroGraph
 import com.wire.android.notification.CallNotificationData
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.NotificationIds
@@ -35,7 +36,6 @@ import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import dagger.hilt.android.AndroidEntryPoint
 import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -45,21 +45,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import javax.inject.Inject
 
 /**
  * Service that will be started when we have an outgoing/established call.
  */
-@AndroidEntryPoint
 class CallService : Service() {
 
-    @Inject
     lateinit var lifecycleManager: CallServiceManager
 
-    @Inject
     lateinit var callNotificationManager: CallNotificationManager
 
-    @Inject
     lateinit var dispatcherProvider: DispatcherProvider
 
     private val scope by lazy {
@@ -68,9 +63,17 @@ class CallService : Service() {
     }
 
     override fun onCreate() {
-        _serviceState.value = ServiceState.STARTED
         super.onCreate()
+        injectDependencies()
+        _serviceState.value = ServiceState.STARTED
         handleActions()
+    }
+
+    private fun injectDependencies() {
+        val dependencies = createWireMetroGraph(this).callServiceDependencies
+        lifecycleManager = dependencies.lifecycleManager
+        callNotificationManager = dependencies.callNotificationManager
+        dispatcherProvider = dependencies.dispatcherProvider
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -151,6 +154,12 @@ class CallService : Service() {
     enum class ServiceState {
         NOT_STARTED, STARTED, FOREGROUND
     }
+
+    data class Dependencies(
+        val lifecycleManager: CallServiceManager,
+        val callNotificationManager: CallNotificationManager,
+        val dispatcherProvider: DispatcherProvider
+    )
 
     @Serializable
     sealed interface Action {

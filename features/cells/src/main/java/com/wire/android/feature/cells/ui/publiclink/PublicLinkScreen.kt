@@ -44,7 +44,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.feature.cells.ui.cellsMetroViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.TypedDestinationSpec
@@ -81,8 +81,11 @@ fun PublicLinkScreen(
     navigator: WireNavigator,
     onPasswordChange: ResultRecipient<PublicLinkPasswordScreenDestination, Boolean>,
     onExpirationChange: ResultRecipient<PublicLinkExpirationScreenDestination, PublicLinkExpirationResult>,
+    args: PublicLinkNavArgs,
     modifier: Modifier = Modifier,
-    viewModel: PublicLinkViewModel = hiltViewModel(),
+    viewModel: PublicLinkViewModel = cellsMetroViewModel<PublicLinkViewModel>(
+        creationCallback = { publicLinkViewModelFactory.create(args) }
+    ),
 ) {
 
     val context = LocalContext.current

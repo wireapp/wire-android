@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
@@ -144,9 +143,6 @@ class HomeViewModelTest {
     internal class Arrangement {
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var globalDataStore: GlobalDataStore
 
         @MockK
@@ -169,7 +165,6 @@ class HomeViewModelTest {
 
         private val viewModel by lazy {
             HomeViewModel(
-                savedStateHandle = savedStateHandle,
                 dataStore = dataStore,
                 observeSelf = observeSelfUser,
                 needsToRegisterClient = needsToRegisterClient,

@@ -38,8 +38,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -64,16 +64,18 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun BackupAndRestoreScreen(
     navigator: Navigator,
-    viewModel: BackupAndRestoreViewModel = hiltViewModel()
+    viewModel: BackupAndRestoreViewModel = metroViewModel {
+        backupAndRestoreViewModelFactory.create()
+    }
 ) {
     BackupAndRestoreContent(
         backUpAndRestoreState = viewModel.state,
         createBackupPasswordTextState = viewModel.createBackupPasswordState,
         restoreBackupPasswordTextState = viewModel.restoreBackupPasswordState,
         onCreateBackup = viewModel::createBackup,
-        onSaveBackup = viewModel::saveBackup,
+        onSaveBackup = { viewModel.saveBackup(it.toString()) },
         onShareBackup = viewModel::shareBackup,
-        onChooseBackupFile = viewModel::chooseBackupFileToRestore,
+        onChooseBackupFile = { viewModel.chooseBackupFileToRestore(it.toString()) },
         onRestoreBackup = viewModel::restorePasswordProtectedBackup,
         onCancelBackupRestore = viewModel::cancelBackupRestore,
         onCancelBackupCreation = viewModel::cancelBackupCreation,

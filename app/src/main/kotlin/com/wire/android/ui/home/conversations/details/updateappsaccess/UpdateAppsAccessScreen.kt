@@ -29,8 +29,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
@@ -54,7 +54,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun UpdateAppsAccessScreen(
     navigator: Navigator,
-    updateAppsAccessViewModel: UpdateAppsAccessViewModel = hiltViewModel()
+    args: UpdateAppsAccessNavArgs,
+    updateAppsAccessViewModel: UpdateAppsAccessViewModel =
+        metroViewModel { updateAppsAccessViewModelFactory.create(args) }
 ) {
     UpdateAppsAccessContent(
         onNavigateBack = navigator::navigateBack,

@@ -34,8 +34,6 @@ import com.wire.android.notification.openAppPendingIntent
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
@@ -46,9 +44,9 @@ import kotlinx.coroutines.flow.map
  * A Worker that observes asset uploads and only completes when there are no uploads in progress.
  * This is required to let the network operations running when the app is in the background.
  */
-class AssetUploadObserverWorker @AssistedInject constructor(
-    @Assisted appContext: Context,
-    @Assisted workerParams: WorkerParameters,
+class AssetUploadObserverWorker(
+    appContext: Context,
+    workerParams: WorkerParameters,
     private val coreLogic: CoreLogic,
     private val notificationChannelsManager: NotificationChannelsManager,
 ) : CoroutineWorker(appContext, workerParams) {

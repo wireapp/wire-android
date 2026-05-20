@@ -27,16 +27,13 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class SettingsViewModel @Inject constructor(
+class SettingsViewModel(
     private val globalDataStore: GlobalDataStore,
     private val observeIsAppLockEditable: ObserveIsAppLockEditableUseCase,
     private val getSelf: ObserveSelfUserUseCase,

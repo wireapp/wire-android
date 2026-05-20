@@ -21,19 +21,13 @@ package com.wire.android.ui.authentication.create.summary
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.ramcosta.composedestinations.generated.app.navArgs
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
-@HiltViewModel
-class CreateAccountSummaryViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle
+class CreateAccountSummaryViewModel constructor(
+    createAccountSummaryNavArgs: CreateAccountSummaryNavArgs
 ) : ViewModel() {
 
-    private val createAccountSummaryNavArgs: CreateAccountSummaryNavArgs = savedStateHandle.navArgs()
     private val type: CreateAccountFlowType = createAccountSummaryNavArgs.type
 
     var summaryState: CreateAccountSummaryViewState by mutableStateOf(CreateAccountSummaryViewState(type))

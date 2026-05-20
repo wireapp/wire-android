@@ -49,11 +49,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -121,7 +121,9 @@ fun OtherUserProfileScreen(
     resultNavigator: ResultBackNavigator<String>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    viewModel: OtherUserProfileScreenViewModel = hiltViewModel()
+    viewModel: OtherUserProfileScreenViewModel = metroViewModel {
+        otherUserProfileScreenViewModelFactory.create(navArgs)
+    }
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current

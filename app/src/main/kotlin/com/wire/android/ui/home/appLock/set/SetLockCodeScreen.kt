@@ -49,8 +49,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.button.WireButtonState
@@ -78,7 +78,7 @@ import java.util.Locale
 @Composable
 fun SetLockCodeScreen(
     navigator: Navigator,
-    viewModel: SetLockScreenViewModel = hiltViewModel(),
+    viewModel: SetLockScreenViewModel = metroViewModel { setLockScreenViewModelFactory.create() },
 ) {
     SetLockCodeScreenContent(
         navigator = navigator,

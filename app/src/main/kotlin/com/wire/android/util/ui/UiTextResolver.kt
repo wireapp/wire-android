@@ -19,7 +19,7 @@
 package com.wire.android.util.ui
 
 import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import java.util.Locale
 import javax.inject.Inject
 

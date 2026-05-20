@@ -55,12 +55,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
@@ -124,7 +124,9 @@ import okio.Path.Companion.toPath
 fun ImportMediaScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
-    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
+    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = metroViewModel {
+        featureFlagNotificationViewModelFactory.create()
+    },
 ) {
     when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
         FeatureFlagState.FileSharingState.Loading -> {
@@ -192,8 +194,12 @@ private fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
 private fun ImportMediaAuthenticatedContent(
     navigator: Navigator,
     isRestrictedInTeam: Boolean,
-    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel(),
-    importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel(),
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = metroViewModel {
+        checkAssetRestrictionsViewModelFactory.create()
+    },
+    importMediaViewModel: ImportMediaAuthenticatedViewModel = metroViewModel {
+        importMediaAuthenticatedViewModelFactory.create()
+    },
 ) {
     if (isRestrictedInTeam) {
         ImportMediaRestrictedContent(
@@ -247,7 +253,9 @@ private fun ImportMediaAuthenticatedContent(
             LaunchedEffect(isImportingData()) {
                 if (importedAssets.isEmpty() || importedText.isNullOrEmpty()) {
                     context.getActivity()
-                        ?.let { activity -> importMediaViewModel.handleReceivedDataFromSharingIntent(activity) }
+                        ?.let { activity ->
+                            importMediaViewModel.handleReceivedDataFromSharingIntent(activity.toImportMediaSharingContent())
+                        }
                 }
             }
         }

@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.versioning
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
@@ -82,7 +81,6 @@ class VersionHistoryViewModelTest {
     @Test
     fun givenViewModel_whenItInits_thenIsFetchingStateIsManagedCorrectly() = runTest {
         val (_, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withGetNodeVersionReturning(Either.Right(emptyList()))
             .arrange()
 
@@ -99,7 +97,6 @@ class VersionHistoryViewModelTest {
         val twoDaysAgo = today.minusDays(2)
 
         val (_, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withGetNodeVersionReturning(Either.Right(versionsFromApi))
             .withFileSizeFormatter()
             .arrange()
@@ -145,7 +142,6 @@ class VersionHistoryViewModelTest {
     @Test
     fun givenApiFailure_whenViewModelInits_thenVersionListIsEmpty() = runTest {
         val (_, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withGetNodeVersionReturning(Either.Left(CoreFailure.MissingClientRegistration))
             .arrange()
 
@@ -160,7 +156,6 @@ class VersionHistoryViewModelTest {
         // GIVEN an initial state where the dialog is not visible
         val testVersionId = "version-id-12345"
         val (_, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withGetNodeVersionReturning(Either.Right(emptyList()))
             .arrange()
 
@@ -182,7 +177,6 @@ class VersionHistoryViewModelTest {
     fun givenDialogIsVisible_whenHideRestoreConfirmationDialogIsCalled_thenStateIsHiddenAndReset() = runTest {
         // GIVEN an initial state where the dialog is visible and has data
         val (_, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withGetNodeVersionReturning(Either.Right(emptyList()))
             .arrange()
 
@@ -210,7 +204,6 @@ class VersionHistoryViewModelTest {
         // GIVEN the restore use case will succeed
         val testVersionId = "version-to-restore"
         val (arrangement, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withGetNodeVersionReturning(Either.Right(emptyList()))
             .withRestoreNodeVersionReturning(Unit.right())
             .arrange()
@@ -238,7 +231,6 @@ class VersionHistoryViewModelTest {
         // GIVEN
         val testVersionId = "version-to-restore"
         val (arrangement, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withGetNodeVersionReturning(Either.Right(emptyList()))
             .withRestoreNodeVersionReturning(Either.Left(CoreFailure.MissingClientRegistration))
             .arrange()
@@ -263,7 +255,6 @@ class VersionHistoryViewModelTest {
     fun givenVersionExistsAndUseCaseSucceeds_whenDownloadVersionIsCalled_thenStateBecomesDownloaded() = runTest {
         // GIVEN a version exists and all dependencies will succeed
         val (_, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withDownloadVersionReturning(shouldSucceed = true, true)
             .withGetNodeVersionReturning(Either.Right(versionsFromApi))
             .withFileSizeFormatter()
@@ -287,7 +278,6 @@ class VersionHistoryViewModelTest {
     fun givenDownloadUseCaseFails_whenDownloadVersionIsCalled_thenStateBecomesFailed() = runTest {
         // GIVEN a version exists but the download use case will fail
         val (_, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withGetNodeVersionReturning(Either.Right(emptyList()))
             .withDownloadVersionReturning(shouldSucceed = false)
             .withFileSizeFormatter()
@@ -312,7 +302,6 @@ class VersionHistoryViewModelTest {
     fun givenFileCreationFails_whenDownloadVersionIsCalled_thenStateBecomesFailed() = runTest {
         // GIVEN a version exists but the file helper returns null (cannot create file)
         val (arrangement, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withGetNodeVersionReturning(Either.Right(emptyList()))
             .withFileSizeFormatter()
             .withFileCreationFailure()
@@ -336,7 +325,6 @@ class VersionHistoryViewModelTest {
     @Test
     fun givenVersionDoesNotExist_whenDownloadVersionIsCalled_thenStateBecomesFailed() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withGetNodeVersionReturning(Either.Right(emptyList()))
             .withFileSizeFormatter()
             .withFileCreationFailure()
@@ -357,7 +345,6 @@ class VersionHistoryViewModelTest {
         // Given
         val expectedUrl = "https://example.com/editor"
         val (arrangement, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withGetNodeVersionReturning(Either.Right(emptyList()))
             .withGetEditorUrlReturning(expectedUrl.right())
             .withOnlineEditor()
@@ -376,7 +363,6 @@ class VersionHistoryViewModelTest {
     fun givenGetEditorUrlFails_whenOpenOnlineEditorIsCalled_thenEditorIsNotOpened() = runTest {
         // Given
         val (arrangement, viewModel) = Arrangement()
-            .withSavedStateHandleReturning()
             .withGetNodeVersionReturning(Either.Right(emptyList()))
             .withGetEditorUrlReturning(Either.Left(CoreFailure.MissingClientRegistration))
             .withOnlineEditor()
@@ -393,7 +379,6 @@ class VersionHistoryViewModelTest {
 
     private class Arrangement {
 
-        val savedStateHandle: SavedStateHandle = mockk(relaxed = true)
         val getNodeVersionsUseCase: GetNodeVersionsUseCase = mockk()
         val fileSizeFormatter: FileSizeFormatter = mockk()
         val restoreNodeVersionUseCase: RestoreNodeVersionUseCase = mockk()
@@ -404,16 +389,6 @@ class VersionHistoryViewModelTest {
         private val testDispatcherProvider = TestDispatcherProvider(dispatcher)
 
         private val testNodeUuid = "test-node-uuid"
-
-        init {
-            every { savedStateHandle.get<String>("uuid") } returns "test-node-uuid"
-            every { savedStateHandle.get<String>("fileName") } returns "file-name"
-        }
-
-        fun withSavedStateHandleReturning() = apply {
-            every { savedStateHandle.get<String>("uuid") } returns testNodeUuid
-            every { savedStateHandle.get<String>("fileName") } returns "file-name"
-        }
 
         fun withGetNodeVersionReturning(returnValue: Either<CoreFailure, List<NodeVersion>>) = apply {
             coEvery { getNodeVersionsUseCase(testNodeUuid) } returns returnValue
@@ -469,7 +444,7 @@ class VersionHistoryViewModelTest {
 
         fun arrange(): Pair<Arrangement, VersionHistoryViewModel> {
             val viewModel = VersionHistoryViewModel(
-                savedStateHandle = savedStateHandle,
+                navArgs = VersionHistoryNavArgs(uuid = testNodeUuid, fileName = "file-name"),
                 getNodeVersionsUseCase = getNodeVersionsUseCase,
                 fileSizeFormatter = fileSizeFormatter,
                 restoreNodeVersionUseCase = restoreNodeVersionUseCase,

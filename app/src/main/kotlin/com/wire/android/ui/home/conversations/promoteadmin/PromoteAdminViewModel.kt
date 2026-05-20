@@ -17,9 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.promoteadmin
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.avatar
@@ -29,7 +27,6 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
 import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,17 +34,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class PromoteAdminViewModel @Inject constructor(
+class PromoteAdminViewModel(
     private val promoteAdminAndLeave: PromoteAdminAndLeaveConversationUseCase,
     private val observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase,
     private val dispatchers: DispatcherProvider,
-    savedStateHandle: SavedStateHandle,
+    private val navArgs: PromoteAdminNavArgs,
 ) : ActionsViewModel<PromoteAdminAction>() {
-
-    private val navArgs: PromoteAdminNavArgs = savedStateHandle.navArgs()
 
     private val allMembers = MutableStateFlow<List<PromoteAdminMemberItem>>(emptyList())
     private val searchQuery = MutableStateFlow("")

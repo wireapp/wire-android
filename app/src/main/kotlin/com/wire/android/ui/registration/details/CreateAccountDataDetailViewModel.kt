@@ -21,41 +21,33 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.model.AnalyticsEvent.RegistrationPersonalAccount
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel
-class CreateAccountDataDetailViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class CreateAccountDataDetailViewModel(
+    val createAccountNavArgs: CreateAccountDataNavArgs,
     private val validatePassword: ValidatePasswordUseCase,
     private val validateEmail: ValidateEmailUseCase,
     private val globalDataStore: GlobalDataStore,
     private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    private val coreLogic: CoreLogic,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
-
-    val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
 
     private var withPasswordTries = false
     val emailTextState: TextFieldState = TextFieldState(createAccountNavArgs.userRegistrationInfo.email)

@@ -26,7 +26,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.platform.LocalContext
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
@@ -47,7 +47,11 @@ import com.ramcosta.composedestinations.navigation.navGraph
 import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Direction
+import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellViewModel
+import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.createWireMetroGraph
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
@@ -64,8 +68,13 @@ fun MainNavHost(
     modifier: Modifier = Modifier,
 ) {
     val navHostEngine = rememberWireNavHostEngine(Alignment.Center)
+    val context = LocalContext.current
+    val metroGraph = remember(context) { createWireMetroGraph(context) }
     SharedTransitionLayout(modifier = modifier) {
-        CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+        CompositionLocalProvider(
+            LocalSharedTransitionScope provides this,
+            LocalMetroViewModelGraph provides metroGraph,
+        ) {
             DestinationsNavHost(
                 modifier = Modifier,
                 navGraph = WireRootGraph,
@@ -86,7 +95,11 @@ fun MainNavHost(
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(NewConversationGraph.route)
                         }
-                        dependency(hiltViewModel<NewConversationViewModel>(parentEntry))
+                        dependency(
+                            metroViewModel<NewConversationViewModel>(parentEntry) {
+                                newConversationViewModelFactory.create()
+                            }
+                        )
                     }
 
                     // 👇 To reuse LoginEmailViewModel from NewLoginPasswordScreen on NewLoginVerificationCodeScreen
@@ -94,7 +107,12 @@ fun MainNavHost(
                         val loginPasswordEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
                         }
-                        dependency(hiltViewModel<LoginEmailViewModel>(loginPasswordEntry))
+                        val args = NewLoginPasswordScreenDestination.argsFrom(loginPasswordEntry.arguments)
+                        dependency(
+                            metroViewModel<LoginEmailViewModel>(loginPasswordEntry) {
+                                loginEmailViewModelFactory.create(args)
+                            }
+                        )
                     }
 
                     // 👇 To reuse CellViewModel from the parent screen on SearchScreen
@@ -102,7 +120,15 @@ fun MainNavHost(
                         val parentEntry = remember(navBackStackEntry) {
                             navController.previousBackStackEntry
                         }
-                        dependency(hiltViewModel<CellViewModel>(parentEntry ?: navBackStackEntry))
+                        dependency(
+                            metroViewModel<CellViewModel>(parentEntry ?: navBackStackEntry) {
+                                val searchArgs = SearchScreenDestination.argsFrom(navBackStackEntry)
+                                cellViewModelFactory.create(
+                                    CellFilesNavArgs(conversationId = searchArgs.conversationId),
+                                    searchArgs
+                                )
+                            }
+                        )
                     }
 
                     // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph,
@@ -111,7 +137,11 @@ fun MainNavHost(
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(PersonalToTeamMigrationGraph.route)
                         }
-                        dependency(hiltViewModel<TeamMigrationViewModel>(parentEntry))
+                        dependency(
+                            metroViewModel<TeamMigrationViewModel>(parentEntry) {
+                                teamMigrationViewModelFactory.create()
+                            }
+                        )
                     }
                 },
                 manualComposableCallsBuilder = {
@@ -120,8 +150,10 @@ fun MainNavHost(
                      * those destinations to rely on generated dependencies directly.
                      */
                     composable(ConversationScreenDestination) {
+                        val args = ConversationScreenDestination.argsFrom(navBackStackEntry.arguments)
                         ConversationScreen(
                             navigator = navigator,
+                            args = args,
                             groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
                             mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),
                             imagePreviewScreenResultRecipient = resultRecipient(imagesPreviewNavBackArgsNavType),

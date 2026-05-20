@@ -18,7 +18,6 @@
 package com.wire.android.feature.cells.ui.publiclink.settings.password
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.kalium.cells.domain.model.PublicLink
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
@@ -371,18 +370,17 @@ class PublicLinkPasswordScreenViewModelTest {
 
     private class Arrangement {
 
-        private val navArgsMap = mutableMapOf<String, Any?>(
-            "linkUuid" to testLink.uuid,
-            "passwordEnabled" to false,
+        private var navArgs = PublicLinkPasswordNavArgs(
+            linkUuid = testLink.uuid,
+            passwordEnabled = false,
         )
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<Any?>(any()) } answers { navArgsMap[firstArg()] }
         }
 
         fun withPasswordEnabled(enabled: Boolean) = apply {
-            navArgsMap["passwordEnabled"] = enabled
+            navArgs = navArgs.copy(passwordEnabled = enabled)
         }
 
         fun withPasswordRemoveSuccess() = apply {
@@ -423,19 +421,16 @@ class PublicLinkPasswordScreenViewModelTest {
         @MockK
         lateinit var getLocalPassword: GetPublicLinkPasswordUseCase
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
         fun arrange(): Pair<Arrangement, PublicLinkPasswordScreenViewModel> {
 
             every { generateRandomPassword() } returns randomPassword
 
             return this to PublicLinkPasswordScreenViewModel(
+                navArgs = navArgs,
                 generateRandomPassword = generateRandomPassword,
                 createPassword = createPassword,
                 updatePassword = updatePassword,
                 getPublicLinkPassword = getLocalPassword,
-                savedStateHandle = savedStateHandle
             )
         }
     }

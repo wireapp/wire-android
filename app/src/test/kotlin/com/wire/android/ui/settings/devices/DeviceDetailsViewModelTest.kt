@@ -17,15 +17,12 @@
  */
 package com.wire.android.ui.settings.devices
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangement.Companion.CLIENT_ID
 import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangement.Companion.MLS_CLIENT_IDENTITY_WITH_VALID_E2EI
 import com.wire.kalium.common.error.CoreFailure
@@ -57,7 +54,6 @@ import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -71,7 +67,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 class DeviceDetailsViewModelTest {
 
     @Test
@@ -330,9 +325,6 @@ class DeviceDetailsViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var deleteClientUseCase: DeleteClientUseCase
 
         @MockK
@@ -361,9 +353,14 @@ class DeviceDetailsViewModelTest {
 
         val currentUserId = UserId("currentUserId", "currentUserDomain")
 
+        private var deviceDetailsNavArgs = DeviceDetailsNavArgs(
+            userId = currentUserId,
+            clientId = CLIENT_ID
+        )
+
         val viewModel by lazy {
             DeviceDetailsViewModel(
-                savedStateHandle = savedStateHandle,
+                deviceDetailsNavArgs = deviceDetailsNavArgs,
                 deleteClient = deleteClientUseCase,
                 observeClientDetails = observeClientDetails,
                 isPasswordRequired = isPasswordRequiredUseCase,
@@ -412,7 +409,7 @@ class DeviceDetailsViewModelTest {
         }
 
         fun withRequiredMockSetup(userId: UserId = currentUserId) = apply {
-            every { savedStateHandle.navArgs<DeviceDetailsNavArgs>() } returns DeviceDetailsNavArgs(
+            deviceDetailsNavArgs = DeviceDetailsNavArgs(
                 userId = userId,
                 clientId = CLIENT_ID
             )

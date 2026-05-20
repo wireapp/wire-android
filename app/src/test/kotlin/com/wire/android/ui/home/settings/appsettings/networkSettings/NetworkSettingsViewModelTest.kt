@@ -17,10 +17,8 @@
  */
 package com.wire.android.ui.home.settings.appsettings.networkSettings
 
-import android.content.Context
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.emm.ManagedConfigurationsManager
-import com.wire.android.util.isWebsocketEnabledByDefault
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -30,13 +28,12 @@ import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSo
 import com.wire.kalium.logic.feature.user.webSocketStatus.PersistPersistentWebSocketConnectionStatusUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -46,33 +43,27 @@ import org.junit.jupiter.api.extension.ExtendWith
 class NetworkSettingsViewModelTest {
 
     private lateinit var viewModel: NetworkSettingsViewModel
-    private lateinit var context: Context
     private lateinit var persistPersistentWebSocketConnectionStatus: PersistPersistentWebSocketConnectionStatusUseCase
     private lateinit var observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
     private lateinit var currentSession: CurrentSessionUseCase
     private lateinit var managedConfigurationsManager: ManagedConfigurationsManager
+    private lateinit var networkSettingsDefaultsProvider: FakeNetworkSettingsDefaultsProvider
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        mockkStatic(::isWebsocketEnabledByDefault)
 
-        context = mockk(relaxed = true)
         persistPersistentWebSocketConnectionStatus = mockk()
         observePersistentWebSocketConnectionStatus = mockk()
         currentSession = mockk()
         managedConfigurationsManager = mockk()
-    }
-
-    @AfterEach
-    fun tearDown() {
-        io.mockk.unmockkStatic(::isWebsocketEnabledByDefault)
+        networkSettingsDefaultsProvider = FakeNetworkSettingsDefaultsProvider()
     }
 
     @Test
     fun `given websocket is enabled by default, when ViewModel initializes, then state reflects it`() = runTest {
         // given
-        every { isWebsocketEnabledByDefault(context) } returns true
+        networkSettingsDefaultsProvider.isWebSocketEnabledByDefault = true
         coEvery { currentSession() } returns CurrentSessionResult.Success(
             AccountInfo.Valid(userId = QualifiedID("user", "domain"))
         )
@@ -92,7 +83,7 @@ class NetworkSettingsViewModelTest {
     @Test
     fun `given websocket is not enabled by default, when ViewModel initializes, then state reflects it`() = runTest {
         // given
-        every { isWebsocketEnabledByDefault(context) } returns false
+        networkSettingsDefaultsProvider.isWebSocketEnabledByDefault = false
         coEvery { currentSession() } returns CurrentSessionResult.Success(
             AccountInfo.Valid(userId = QualifiedID("user", "domain"))
         )
@@ -113,7 +104,7 @@ class NetworkSettingsViewModelTest {
     fun `given websocket is enabled, when ViewModel observes status, then state reflects it`() = runTest {
         // given
         val userId = QualifiedID("user", "domain")
-        every { isWebsocketEnabledByDefault(context) } returns false
+        networkSettingsDefaultsProvider.isWebSocketEnabledByDefault = false
         coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(userId = userId))
         coEvery { observePersistentWebSocketConnectionStatus() } returns
             ObservePersistentWebSocketConnectionStatusUseCase.Result.Success(
@@ -132,7 +123,7 @@ class NetworkSettingsViewModelTest {
     fun `given websocket is disabled, when ViewModel observes status, then state reflects it`() = runTest {
         // given
         val userId = QualifiedID("user", "domain")
-        every { isWebsocketEnabledByDefault(context) } returns false
+        networkSettingsDefaultsProvider.isWebSocketEnabledByDefault = false
         coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(userId = userId))
         coEvery { observePersistentWebSocketConnectionStatus() } returns
             ObservePersistentWebSocketConnectionStatusUseCase.Result.Success(
@@ -150,7 +141,7 @@ class NetworkSettingsViewModelTest {
     @Test
     fun `given MDM enforces websocket, when ViewModel observes MDM state, then state reflects it`() = runTest {
         // given
-        every { isWebsocketEnabledByDefault(context) } returns false
+        networkSettingsDefaultsProvider.isWebSocketEnabledByDefault = false
         coEvery { currentSession() } returns CurrentSessionResult.Success(
             AccountInfo.Valid(userId = QualifiedID("user", "domain"))
         )
@@ -171,7 +162,7 @@ class NetworkSettingsViewModelTest {
     @Test
     fun `given MDM does not enforce websocket, when ViewModel observes MDM state, then state reflects it`() = runTest {
         // given
-        every { isWebsocketEnabledByDefault(context) } returns false
+        networkSettingsDefaultsProvider.isWebSocketEnabledByDefault = false
         coEvery { currentSession() } returns CurrentSessionResult.Success(
             AccountInfo.Valid(userId = QualifiedID("user", "domain"))
         )
@@ -191,7 +182,7 @@ class NetworkSettingsViewModelTest {
     @Test
     fun `given websocket is not enforced by MDM, when setting websocket state to enabled, then persist is called`() = runTest {
         // given
-        every { isWebsocketEnabledByDefault(context) } returns false
+        networkSettingsDefaultsProvider.isWebSocketEnabledByDefault = false
         coEvery { currentSession() } returns CurrentSessionResult.Success(
             AccountInfo.Valid(userId = QualifiedID("user", "domain"))
         )
@@ -208,13 +199,13 @@ class NetworkSettingsViewModelTest {
         viewModel.setWebSocketState(true)
 
         // then
-        coEvery { persistPersistentWebSocketConnectionStatus(true) }
+        coVerify { persistPersistentWebSocketConnectionStatus(true) }
     }
 
     @Test
     fun `given websocket is enforced by MDM, when attempting to set websocket state, then persist is not called`() = runTest {
         // given
-        every { isWebsocketEnabledByDefault(context) } returns false
+        networkSettingsDefaultsProvider.isWebSocketEnabledByDefault = false
         coEvery { currentSession() } returns CurrentSessionResult.Success(
             AccountInfo.Valid(userId = QualifiedID("user", "domain"))
         )
@@ -230,13 +221,13 @@ class NetworkSettingsViewModelTest {
         viewModel.setWebSocketState(false)
 
         // then - persist should not be called
-        coEvery { persistPersistentWebSocketConnectionStatus(any()) } returns Unit
+        coVerify(exactly = 0) { persistPersistentWebSocketConnectionStatus(any()) }
     }
 
     @Test
     fun `given no current session, when ViewModel initializes, then state has default values`() = runTest {
         // given
-        every { isWebsocketEnabledByDefault(context) } returns false
+        networkSettingsDefaultsProvider.isWebSocketEnabledByDefault = false
         coEvery { currentSession() } returns CurrentSessionResult.Failure.SessionNotFound
         coEvery { observePersistentWebSocketConnectionStatus() } returns
             ObservePersistentWebSocketConnectionStatusUseCase.Result.Success(
@@ -256,6 +247,10 @@ class NetworkSettingsViewModelTest {
         observePersistentWebSocketConnectionStatus = observePersistentWebSocketConnectionStatus,
         currentSession = currentSession,
         managedConfigurationsManager = managedConfigurationsManager,
-        context = context
+        networkSettingsDefaultsProvider = networkSettingsDefaultsProvider
     )
+
+    private class FakeNetworkSettingsDefaultsProvider : NetworkSettingsDefaultsProvider {
+        override var isWebSocketEnabledByDefault: Boolean = false
+    }
 }

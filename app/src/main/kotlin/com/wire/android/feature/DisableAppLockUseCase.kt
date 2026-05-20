@@ -19,12 +19,11 @@ package com.wire.android.feature
 
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.firstOrNull
+import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 
-@ViewModelScoped
-class DisableAppLockUseCase @Inject constructor(
+class DisableAppLockUseCase @Inject @MetroInject constructor(
     private val dataStore: GlobalDataStore,
     private val observeIsAppLockEditableUseCase: ObserveIsAppLockEditableUseCase
 ) {

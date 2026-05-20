@@ -39,7 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.feature.cells.ui.cellsMetroViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
@@ -71,8 +71,12 @@ import kotlinx.parcelize.Parcelize
 @Composable
 internal fun PublicLinkExpirationScreen(
     resultNavigator: ResultBackNavigator<PublicLinkExpirationResult>,
+    args: PublicLinkExpirationScreenNavArgs,
     modifier: Modifier = Modifier,
-    viewModel: PublicLinkExpirationScreenViewModel = hiltViewModel(),
+    viewModel: PublicLinkExpirationScreenViewModel =
+        cellsMetroViewModel<PublicLinkExpirationScreenViewModel>(
+            creationCallback = { publicLinkExpirationScreenViewModelFactory.create(args) }
+        ),
 ) {
 
     val state by viewModel.state.collectAsState()

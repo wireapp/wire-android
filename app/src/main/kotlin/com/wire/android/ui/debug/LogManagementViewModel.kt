@@ -26,19 +26,16 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.logging.LogFileWriter
 import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logger.KaliumLogLevel
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class LogManagementState(
     val isLoggingEnabled: Boolean = false,
     val logPath: String
 )
 
-@HiltViewModel
-class LogManagementViewModel @Inject constructor(
+class LogManagementViewModel(
     private val logFileWriter: LogFileWriter,
     private val globalDataStore: GlobalDataStore
 ) : ViewModel() {

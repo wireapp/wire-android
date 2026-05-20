@@ -27,12 +27,9 @@ import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateAccentColorResult
 import com.wire.kalium.logic.feature.user.UpdateAccentColorUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class ChangeUserColorViewModel @Inject constructor(
+class ChangeUserColorViewModel(
     private val getSelf: GetSelfUserUseCase,
     private val updateAccentColor: UpdateAccentColorUseCase,
 ) : ActionsViewModel<ChangeUserColorAction>() {

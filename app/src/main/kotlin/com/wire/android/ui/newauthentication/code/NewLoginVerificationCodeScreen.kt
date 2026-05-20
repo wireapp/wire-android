@@ -57,7 +57,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun NewLoginVerificationCodeScreen(
     navigator: Navigator,
-    loginEmailViewModel: LoginEmailViewModel, // provided in MainNavHost to reuse from NewLoginPasswordScreen, don't use hiltViewModel()
+    loginEmailViewModel: LoginEmailViewModel, // provided in MainNavHost to reuse from NewLoginPasswordScreen
 ) {
     clearAutofillTree()
     LoginStateNavigationAndDialogs(loginEmailViewModel, navigator)

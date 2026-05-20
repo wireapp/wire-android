@@ -43,17 +43,14 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("TooManyFunctions")
-@HiltViewModel
-class RemoveDeviceViewModel @Inject constructor(
+class RemoveDeviceViewModel constructor(
     private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
     private val deleteClientUseCase: DeleteClientUseCase,
     private val registerClientUseCase: GetOrRegisterClientUseCase,

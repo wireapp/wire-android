@@ -17,37 +17,4 @@
  */
 package com.wire.android.di.accountScoped
 
-import com.wire.android.di.CurrentAccount
-import com.wire.android.di.KaliumCoreLogic
-import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.channels.ChannelsScope
-import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
-import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
-
-@Module
-@InstallIn(ViewModelComponent::class)
-class ChannelsModule {
-
-    @Provides
-    @ViewModelScoped
-    fun provideChannelsScope(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): ChannelsScope = coreLogic.getSessionScope(currentAccount).channels
-
-    @ViewModelScoped
-    @Provides
-    fun provideUpdateChannelAddPermission(channelsScope: ChannelsScope): UpdateChannelAddPermissionUseCase =
-        channelsScope.updateChannelAddPermission
-
-    @ViewModelScoped
-    @Provides
-    fun provideChannelCreationPermissionUseCase(channelsScope: ChannelsScope): ObserveChannelsCreationPermissionUseCase =
-        channelsScope.observeChannelsCreationPermissionUseCase
-}
+// Channels account-scoped providers are owned by WireMetroGraph.

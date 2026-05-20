@@ -17,18 +17,16 @@
  */
 package com.wire.android.ui.userprofile.service
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.framework.TestConversation
+import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.framework.TestConversation
-import com.wire.android.framework.TestConversationDetails
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -55,7 +53,6 @@ import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -621,10 +618,11 @@ class ServiceDetailsViewModelTest {
         @MockK
         lateinit var addMemberToConversation: AddMemberToConversationUseCase
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
         private val selfUser = TestUser.SELF_USER
+        private var serviceDetailsNavArgs = ServiceDetailsNavArgs(
+            CONVERSATION_ID,
+            ServiceDetailsNavArgs.Id.BotServiceId(BOT_SERVICE)
+        )
 
         private val viewModel by lazy {
             ServiceDetailsViewModel(
@@ -640,7 +638,7 @@ class ServiceDetailsViewModelTest {
                 removeMemberFromConversation,
                 addServiceToConversation,
                 addMemberToConversation,
-                savedStateHandle
+                serviceDetailsNavArgs
             )
         }
 
@@ -659,14 +657,14 @@ class ServiceDetailsViewModelTest {
         }
 
         fun withServiceBot(service: BotService, conversationId: ConversationId? = CONVERSATION_ID) = apply {
-            every { savedStateHandle.navArgs<ServiceDetailsNavArgs>() } returns ServiceDetailsNavArgs(
+            serviceDetailsNavArgs = ServiceDetailsNavArgs(
                 conversationId,
                 ServiceDetailsNavArgs.Id.BotServiceId(service)
             )
         }
 
         fun withServiceApp(service: UserId, conversationId: ConversationId? = CONVERSATION_ID) = apply {
-            every { savedStateHandle.navArgs<ServiceDetailsNavArgs>() } returns ServiceDetailsNavArgs(
+            serviceDetailsNavArgs = ServiceDetailsNavArgs(
                 conversationId,
                 ServiceDetailsNavArgs.Id.AppId(service)
             )

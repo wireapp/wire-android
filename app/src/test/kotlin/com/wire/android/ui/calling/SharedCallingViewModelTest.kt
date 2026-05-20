@@ -18,8 +18,6 @@
 
 package com.wire.android.ui.calling
 
-import android.view.Surface
-import android.view.View
 import app.cash.turbine.test
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
@@ -52,6 +50,7 @@ import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.util.PlatformRotation
+import com.wire.kalium.logic.util.PlatformView
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -194,7 +193,7 @@ class SharedCallingViewModelTest {
     fun `given a call, when setVideoPreview is called, then set the video preview`() = runTest(dispatchers.main()) {
         val (arrangement, sharedCallingViewModel) = Arrangement().arrange()
 
-        sharedCallingViewModel.setVideoPreview(arrangement.view)
+        sharedCallingViewModel.setVideoPreview(arrangement.platformView)
         advanceUntilIdle()
 
         coVerify(exactly = 2) { arrangement.setVideoPreview(any(), any()) }
@@ -231,12 +230,12 @@ class SharedCallingViewModelTest {
         val (arrangement, sharedCallingViewModel) = Arrangement().arrange()
 
         // when
-        sharedCallingViewModel.setUIRotation(Surface.ROTATION_90)
+        sharedCallingViewModel.setUIRotation(arrangement.platformRotation)
         advanceUntilIdle()
 
         // then
         coVerify(exactly = 1) {
-            arrangement.setUIRotationUseCase(eq(PlatformRotation(Surface.ROTATION_90)))
+            arrangement.setUIRotationUseCase(eq(arrangement.platformRotation))
         }
     }
 
@@ -281,7 +280,10 @@ class SharedCallingViewModelTest {
         lateinit var setUIRotationUseCase: SetUIRotationUseCase
 
         @MockK
-        lateinit var view: View
+        lateinit var platformRotation: PlatformRotation
+
+        @MockK
+        lateinit var platformView: PlatformView
 
         @MockK
         lateinit var userTypeMapper: UserTypeMapper

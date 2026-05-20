@@ -22,12 +22,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
 import com.wire.android.ui.connection.ConnectionActionButtonArgs
 import com.wire.android.ui.connection.ConnectionActionButtonViewModel
+import com.wire.android.ui.connection.ConnectionActionButtonViewModelFactory
 import com.wire.android.ui.connection.ConnectionActionButtonViewModelImpl
 import com.wire.android.ui.connection.ConnectionActionState
 import com.wire.android.ui.connection.MissingLegalHoldConsentDialogState
@@ -42,11 +43,11 @@ fun AddContactButton(
     userName: String,
     modifier: Modifier = Modifier,
     viewModel: ConnectionActionButtonViewModel =
-        hiltViewModelScoped<
+        wireViewModelScoped<
                 ConnectionActionButtonViewModelImpl,
                 ConnectionActionButtonViewModel,
                 ConnectionActionButtonArgs,
-                ConnectionActionButtonViewModelImpl.Factory
+                ConnectionActionButtonViewModelFactory
                 >(
             ConnectionActionButtonArgs(userId, userName)
         ),

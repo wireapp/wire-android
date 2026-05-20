@@ -43,6 +43,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.runs
 import io.mockk.verify
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -164,15 +165,26 @@ class NomadLogoutReceiverTest {
         @MockK
         lateinit var isCurrentSessionNomadAccount: IsCurrentSessionNomadAccountUseCase
 
+        @MockK
+        lateinit var dependencies: BroadcastReceiverDependencies
+
         val context = mockk<Context>(relaxed = true)
         val receiver = NomadLogoutReceiver()
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            mockkStatic("com.wire.android.notification.broadcastreceivers.BroadcastReceiverDependenciesKt")
 
             every { context.applicationContext } returns context
             every { context.packageName } returns "com.wire.android"
             every { context.startActivity(any()) } just runs
+            every { context.broadcastReceiverDependencies } returns dependencies
+
+            every { dependencies.coreLogic() } returns coreLogic
+            every { dependencies.currentSession() } returns currentSession
+            every { dependencies.accountSwitch() } returns accountSwitch
+            every { dependencies.switchAccountObserver() } returns switchAccountObserver
+            every { dependencies.nomadProfilesFeatureConfig() } returns nomadProfilesFeatureConfig
 
             every { userSessionScope.logout } returns logoutUseCase
             coEvery { logoutUseCase(any(), any()) } returns Unit
@@ -186,11 +198,6 @@ class NomadLogoutReceiverTest {
         }
 
         fun arrange(): Arrangement {
-            receiver.coreLogic = coreLogic
-            receiver.currentSession = currentSession
-            receiver.accountSwitch = accountSwitch
-            receiver.switchAccountObserver = switchAccountObserver
-            receiver.nomadProfilesFeatureConfig = nomadProfilesFeatureConfig
             return this
         }
 

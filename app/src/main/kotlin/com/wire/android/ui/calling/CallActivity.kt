@@ -23,7 +23,6 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -36,36 +35,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.appLogger
-import com.wire.android.di.assistedViewModels
+import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.WireMetroGraph
+import com.wire.android.di.metro.createWireMetroGraph
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.WireTopAppBar
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 abstract class CallActivity : BaseActivity() {
 
-    @Inject
-    lateinit var switchAccountObserver: SwitchAccountObserver
+    protected val metroGraph by lazy(LazyThreadSafetyMode.NONE) {
+        createWireMetroGraph(this)
+    }
+    private val switchAccountObserver by lazy(LazyThreadSafetyMode.NONE) {
+        metroGraph.switchAccountObserver
+    }
+    protected val proximitySensorManager by lazy(LazyThreadSafetyMode.NONE) {
+        metroGraph.proximitySensorManager
+    }
 
-    @Inject
-    lateinit var proximitySensorManager: ProximitySensorManager
-
-    private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
-        factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false))
+    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by metroActivityViewModel {
+        commonTopAppBarViewModelFactory.create(
+            CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false)
+        )
     }
 
     companion object {
@@ -76,7 +82,9 @@ abstract class CallActivity : BaseActivity() {
         const val TAG = "CallActivity"
     }
 
-    private val callActivityViewModel: CallActivityViewModel by viewModels()
+    private val callActivityViewModel: CallActivityViewModel by metroActivityViewModel {
+        callActivityViewModelFactory.create()
+    }
     protected val qualifiedIdMapper = QualifiedIdMapper(null)
 
     override fun onNewIntent(intent: Intent) {
@@ -102,7 +110,8 @@ abstract class CallActivity : BaseActivity() {
             val snackbarHostState = remember { SnackbarHostState() }
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalActivity provides this
+                LocalActivity provides this,
+                LocalMetroViewModelGraph provides metroGraph,
             ) {
                 WireTheme {
                     Column(
@@ -187,5 +196,14 @@ abstract class CallActivity : BaseActivity() {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
         }
+    }
+
+    private inline fun <reified VM : ViewModel> metroActivityViewModel(
+        crossinline create: WireMetroGraph.() -> VM,
+    ): Lazy<VM> = lazy(LazyThreadSafetyMode.NONE) {
+        val factory = viewModelFactory {
+            initializer { metroGraph.create() }
+        }
+        ViewModelProvider(this, factory)[VM::class.java]
     }
 }

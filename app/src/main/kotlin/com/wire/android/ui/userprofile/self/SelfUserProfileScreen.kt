@@ -46,10 +46,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.R as UICommonR
 import com.wire.android.appLogger
@@ -113,8 +113,10 @@ fun SelfUserProfileScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
     avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>,
-    viewModelSelf: SelfUserProfileViewModel = hiltViewModel(),
-    legalHoldRequestedViewModel: LegalHoldRequestedViewModel = hiltViewModel()
+    viewModelSelf: SelfUserProfileViewModel = metroViewModel { selfUserProfileViewModelFactory.create() },
+    legalHoldRequestedViewModel: LegalHoldRequestedViewModel = metroViewModel {
+        legalHoldRequestedViewModelFactory.create()
+    }
 ) {
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
 

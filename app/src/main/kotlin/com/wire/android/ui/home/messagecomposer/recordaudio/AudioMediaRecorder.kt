@@ -33,7 +33,6 @@ import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase.AssetSizeLimits.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.kalium.util.DateTimeUtil
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -54,10 +53,8 @@ import java.io.IOException
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import javax.inject.Inject
 
-@ViewModelScoped
-class AudioMediaRecorder @Inject constructor(
+class AudioMediaRecorder(
     private val kaliumFileSystem: KaliumFileSystem,
     private val dispatcherProvider: DispatcherProvider
 ) {

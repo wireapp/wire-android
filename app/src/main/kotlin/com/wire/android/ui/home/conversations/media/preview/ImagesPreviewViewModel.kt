@@ -17,31 +17,19 @@
  */
 package com.wire.android.ui.home.conversations.media.preview
 
-import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.ui.sharing.ImportedMediaAsset
-import com.wire.android.util.dispatchers.DispatcherProvider
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class ImagesPreviewViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
-    private val handleUriAsset: HandleUriAssetUseCase,
-    private val dispatchers: DispatcherProvider
+class ImagesPreviewViewModel(
+    private val navArgs: ImagesPreviewNavArgs,
+    private val assetImporter: ImagesPreviewAssetImporter
 ) : ViewModel() {
 
-    private val navArgs: ImagesPreviewNavArgs = savedStateHandle.navArgs()
     var viewState by mutableStateOf(
         ImagesPreviewState(
             conversationId = navArgs.conversationId,
@@ -65,20 +53,11 @@ class ImagesPreviewViewModel @Inject constructor(
     private fun handleAssets() {
         viewState = viewState.copy(isLoading = true)
         viewModelScope.launch {
-            val assets = navArgs.assetUriList.map { handleImportedAsset(it) }
+            val assets = navArgs.assetUriList.map { assetImporter.importAsset(it.toString()) }
             viewState = viewState.copy(
                 assetBundleList = assets.filterNotNull().toPersistentList(),
                 isLoading = false
             )
-        }
-    }
-
-    private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? = withContext(dispatchers.io()) {
-        when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
-            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)
-
-            HandleUriAssetUseCase.Result.Failure.Unknown -> null
-            is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
         }
     }
 }

@@ -35,12 +35,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.common.CallVideoPreview
@@ -64,21 +64,21 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
 import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.util.PlatformRotation
+import com.wire.kalium.logic.util.PlatformView
 
 @Suppress("ParameterWrapping")
 @Composable
 fun IncomingCallScreen(
     conversationId: ConversationId,
     shouldTryToAnswerCallAutomatically: Boolean,
-    incomingCallViewModel: IncomingCallViewModel = hiltViewModel<IncomingCallViewModel, IncomingCallViewModel.Factory>(
-        key = "incoming_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
+    incomingCallViewModel: IncomingCallViewModel = metroViewModel(key = "incoming_$conversationId") {
+        incomingCallViewModelFactory.create(conversationId = conversationId)
+    },
     sharedCallingViewModel: SharedCallingViewModel =
-    hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
-        key = "shared_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
+        metroViewModel(key = "shared_$conversationId") {
+            sharedCallingViewModelFactory.create(conversationId = conversationId)
+        },
     onCallAccepted: () -> Unit
 ) {
     val activity = LocalActivity.current
@@ -152,7 +152,7 @@ fun IncomingCallScreen(
             toggleVideo = ::toggleVideo,
             declineCall = incomingCallViewModel::declineCall,
             acceptCall = audioPermissionCheck::launch,
-            onVideoPreviewCreated = ::setVideoPreview,
+            onVideoPreviewCreated = { view -> setVideoPreview(PlatformView(view)) },
             onSelfClearVideoPreview = ::clearVideoPreview,
             onCameraPermissionPermanentlyDenied = {
                 permissionPermanentlyDeniedDialogState.show(
@@ -166,7 +166,7 @@ fun IncomingCallScreen(
                 activity.moveTaskToBack(true)
             }
         )
-        ObserveRotation(::setUIRotation)
+        ObserveRotation { rotation -> setUIRotation(PlatformRotation(rotation)) }
     }
 
     PermissionPermanentlyDeniedDialog(

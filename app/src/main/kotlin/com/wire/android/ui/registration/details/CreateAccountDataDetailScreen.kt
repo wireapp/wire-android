@@ -53,8 +53,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
@@ -95,7 +95,10 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun CreateAccountDataDetailScreen(
     navigator: Navigator,
-    createAccountDataDetailViewModel: CreateAccountDataDetailViewModel = hiltViewModel()
+    args: CreateAccountDataNavArgs,
+    createAccountDataDetailViewModel: CreateAccountDataDetailViewModel = metroViewModel {
+        createAccountDataDetailViewModelFactory.create(args)
+    }
 ) {
     with(createAccountDataDetailViewModel) {
         fun navigateToCodeScreen() = navigator.navigate(

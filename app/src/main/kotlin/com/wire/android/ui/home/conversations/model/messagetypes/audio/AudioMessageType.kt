@@ -65,10 +65,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModel
+import com.wire.android.media.audiomessage.AudioMessageViewModelFactory
 import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
 import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.AudioState
@@ -182,18 +183,18 @@ private fun UploadedAudioMessage(
 ) {
     val keyInScopeResolver = LocalAudioMessageKeyInScopeResolver.current
     val viewModel: AudioMessageViewModel = if (keyInScopeResolver != null) {
-        hiltViewModelScoped<
+        wireViewModelScoped<
                 AudioMessageViewModelImpl,
                 AudioMessageViewModel,
                 AudioMessageArgs,
-                AudioMessageViewModelImpl.Factory
+                AudioMessageViewModelFactory
                 >(audioMessageArgs, keyInScopeResolver)
     } else {
-        hiltViewModelScoped<
+        wireViewModelScoped<
                 AudioMessageViewModelImpl,
                 AudioMessageViewModel,
                 AudioMessageArgs,
-                AudioMessageViewModelImpl.Factory
+                AudioMessageViewModelFactory
                 >(audioMessageArgs)
     }
 

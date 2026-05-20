@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
 import com.wire.android.feature.cells.R
@@ -41,7 +40,9 @@ fun ConversationFilesWithSlideInTransitionScreen(
     navigator: WireNavigator,
     cellFilesNavArgs: CellFilesNavArgs,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    viewModel: CellViewModel = hiltViewModel(),
+    viewModel: CellViewModel = cellsMetroViewModel<CellViewModel>(
+        creationCallback = { cellViewModelFactory.create(cellFilesNavArgs, null) }
+    ),
 ) {
     LaunchedEffect(viewModel.navigateToRecycleBinRoot.collectAsState().value) {
         if (viewModel.navigateToRecycleBinRoot.value) {

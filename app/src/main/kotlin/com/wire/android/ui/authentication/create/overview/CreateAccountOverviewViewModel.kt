@@ -17,19 +17,13 @@
  */
 package com.wire.android.ui.authentication.create.overview
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
-@HiltViewModel
-class CreateAccountOverviewViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class CreateAccountOverviewViewModel constructor(
+    val navArgs: CreateAccountOverviewNavArgs,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
-    val navArgs: CreateAccountOverviewNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = navArgs.customServerConfig ?: defaultServerConfig
     fun learnMoreUrl(): String = serverConfig.pricing
 }

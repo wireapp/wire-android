@@ -21,7 +21,6 @@ package com.wire.android.ui.userprofile.other
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
@@ -32,7 +31,6 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.userprofile.common.UsernameMapper.fromOtherUser
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ChangeGroupRoleError
@@ -53,7 +51,6 @@ import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
@@ -63,11 +60,10 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class OtherUserProfileScreenViewModel @Inject constructor(
+class OtherUserProfileScreenViewModel(
+    private val otherUserProfileNavArgs: OtherUserProfileNavArgs,
     private val dispatchers: DispatcherProvider,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val userTypeMapper: UserTypeMapper,
@@ -80,10 +76,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
     private val mlsClientIdentity: GetMLSClientIdentityUseCase,
     private val isE2EIEnabled: IsE2EIEnabledUseCase,
-    savedStateHandle: SavedStateHandle
 ) : ActionsViewModel<OtherUserProfileViewAction>(), OtherUserProfileEventsHandler {
 
-    private val otherUserProfileNavArgs: OtherUserProfileNavArgs = savedStateHandle.navArgs()
     private val userId: QualifiedID = otherUserProfileNavArgs.userId
     private val groupConversationId: QualifiedID? = otherUserProfileNavArgs.groupConversationId
 

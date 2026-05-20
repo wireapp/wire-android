@@ -20,8 +20,8 @@ package com.wire.android.ui.home.conversations.search.adddembertoconversation
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
@@ -42,7 +42,9 @@ import com.wire.kalium.logic.data.user.UserId
 fun AddMembersSearchScreen(
     navigator: Navigator,
     navArgs: AddMembersSearchNavArgs,
-    addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel(),
+    addMembersToConversationViewModel: AddMembersToConversationViewModel = metroViewModel {
+        addMembersToConversationViewModelFactory.create(navArgs)
+    },
 ) {
     if (addMembersToConversationViewModel.newGroupState.isCompleted) {
         navigator.navigateBack()
@@ -75,6 +77,7 @@ fun AddMembersSearchScreen(
         isUserAllowedToCreateChannels = false,
         shouldShowChannelPromotion = false,
         isConversationAppsEnabled = navArgs.isConversationAppsEnabled,
-        conversationProtocol = navArgs.protocolInfo
+        conversationProtocol = navArgs.protocolInfo,
+        addMembersSearchNavArgs = navArgs
     )
 }

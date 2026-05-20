@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -33,19 +32,14 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
-import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.fileDateTime
-import com.wire.android.util.fromNioPathToContentUri
-import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.util.DateTimeUtil
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -53,17 +47,14 @@ import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import java.io.File
 import java.io.IOException
-import javax.inject.Inject
 import kotlin.io.path.deleteIfExists
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel
-class RecordAudioViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+class RecordAudioViewModel(
     private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
-    private val generateAudioFileWithEffects: GenerateAudioFileWithEffectsUseCase,
+    private val recordAudioFileGateway: RecordAudioFileGateway,
     private val currentScreenManager: CurrentScreenManager,
     private val audioMediaRecorder: AudioMediaRecorder,
     private val globalDataStore: GlobalDataStore,
@@ -201,8 +192,7 @@ class RecordAudioViewModel @Inject constructor(
                     audioState = state.audioState.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching)
                 )
                 if (state.shouldApplyEffects && state.effectsOutputFile != null) {
-                    generateAudioFileWithEffects(
-                        context = context,
+                    recordAudioFileGateway.generateAudioFileWithEffects(
                         originalFilePath = state.originalOutputFile!!.path,
                         effectsFilePath = state.effectsOutputFile!!.path
                     )
@@ -214,10 +204,7 @@ class RecordAudioViewModel @Inject constructor(
                     audioState = AudioState.DEFAULT.copy(
                         totalTimeInMs = AudioState.TotalTimeInMs.Known(
                             playableAudioFile?.let {
-                                getAudioLengthInMs(
-                                    dataPath = it.path.toPath(),
-                                    mimeType = SUPPORTED_AUDIO_MIME_TYPE
-                                ).toInt()
+                                recordAudioFileGateway.audioLengthInMs(it.path.toPath()).toInt()
                             } ?: 0
                         ),
                     ),
@@ -320,12 +307,12 @@ class RecordAudioViewModel @Inject constructor(
                 RecordAudioViewActions.Recorded(
                     uriAsset = UriAsset(
                         uri = if (didSucceed) {
-                            context.fromNioPathToContentUri(nioPath = audioMediaRecorder.m4aOutputPath!!.toNioPath())
+                            recordAudioFileGateway.contentUri(audioMediaRecorder.m4aOutputPath!!.toFile())
                         } else {
                             if (state.shouldApplyEffects) {
-                                context.fromNioPathToContentUri(nioPath = state.effectsOutputFile!!.toPath())
+                                recordAudioFileGateway.contentUri(state.effectsOutputFile!!)
                             } else {
-                                context.fromNioPathToContentUri(nioPath = state.originalOutputFile!!.toPath())
+                                recordAudioFileGateway.contentUri(state.originalOutputFile!!)
                             }
                         },
                         mimeType = if (didSucceed) {
@@ -371,8 +358,7 @@ class RecordAudioViewModel @Inject constructor(
                         audioState = state.audioState.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching)
                     )
 
-                    generateAudioFileWithEffects(
-                        context = context,
+                    recordAudioFileGateway.generateAudioFileWithEffects(
                         originalFilePath = state.originalOutputFile!!.path,
                         effectsFilePath = effectsFile.path
                     )
@@ -384,10 +370,7 @@ class RecordAudioViewModel @Inject constructor(
                             audioMediaPlayingState = AudioMediaPlayingState.Stopped,
                             currentPositionInMs = 0,
                             AudioState.TotalTimeInMs.Known(
-                                getAudioLengthInMs(
-                                    dataPath = effectsFile.path.toPath(),
-                                    mimeType = SUPPORTED_AUDIO_MIME_TYPE
-                                ).toInt()
+                                recordAudioFileGateway.audioLengthInMs(effectsFile.path.toPath()).toInt()
                             ),
                         ),
                         wavesMask = state.wavesMask,

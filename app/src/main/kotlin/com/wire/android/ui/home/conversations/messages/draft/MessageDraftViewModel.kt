@@ -18,7 +18,6 @@
 package com.wire.android.ui.home.conversations.messages.draft
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -28,25 +27,20 @@ import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversa
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.model.toDraft
 import com.wire.android.ui.home.messagecomposer.model.update
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class MessageDraftViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+class MessageDraftViewModel(
+    private val conversationNavArgs: ConversationNavArgs,
     private val getMessageDraft: GetMessageDraftUseCase,
     private val getQuotedMessage: GetQuoteMessageForConversationUseCase,
     private val saveMessageDraft: SaveMessageDraftUseCase,
 ) : ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     var state = mutableStateOf(MessageComposition(conversationId, String.EMPTY))

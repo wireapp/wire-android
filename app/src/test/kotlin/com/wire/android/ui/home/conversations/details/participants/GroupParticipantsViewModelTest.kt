@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.details.participants
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.mockUri
@@ -26,13 +25,11 @@ import com.wire.android.mapper.testUIParticipant
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -75,9 +72,6 @@ class GroupParticipantsViewModelTest {
 internal class Arrangement {
 
     @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
     private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
 
     @MockK
@@ -89,9 +83,6 @@ internal class Arrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every {
-            savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>()
-        } returns GroupConversationAllParticipantsNavArgs(conversationId = conversationId)
         // Default empty values
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
     }
@@ -110,7 +101,7 @@ internal class Arrangement {
 
     fun arrange(maxNumberOfItems: Int = -1): Pair<Arrangement, GroupConversationParticipantsViewModel> =
             this to object : GroupConversationParticipantsViewModel(
-                savedStateHandle,
+                conversationId,
                 observeParticipantsForConversationUseCase,
                 refreshUsersWithoutMetadata,
             ) {

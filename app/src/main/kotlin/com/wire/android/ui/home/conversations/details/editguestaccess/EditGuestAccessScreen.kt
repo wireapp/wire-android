@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -60,6 +60,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.shareViaIntent
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Suppress("ComplexMethod")
 @WireRootDestination(
@@ -69,8 +70,10 @@ import com.wire.android.util.shareViaIntent
 @Composable
 fun EditGuestAccessScreen(
     navigator: Navigator,
+    args: EditGuestAccessNavArgs,
     modifier: Modifier = Modifier,
-    editGuestAccessViewModel: EditGuestAccessViewModel = hiltViewModel()
+    editGuestAccessViewModel: EditGuestAccessViewModel =
+        metroViewModel { editGuestAccessViewModelFactory.create(args) }
 ) {
     val scrollState = rememberScrollState()
     val snackbarHostState = LocalSnackbarHostState.current
@@ -238,5 +241,15 @@ fun EditGuestAccessScreen(
 @Preview
 @Composable
 fun PreviewEditGuestAccessScreen() {
-    EditGuestAccessScreen(rememberNavigator {})
+    EditGuestAccessScreen(
+        navigator = rememberNavigator {},
+        args = EditGuestAccessNavArgs(
+            conversationId = ConversationId("conversation", "domain"),
+            editGuessAccessParams = EditGuestAccessParams(
+                isGuestAccessAllowed = true,
+                isServicesAllowed = true,
+                isUpdatingGuestAccessAllowed = true
+            )
+        )
+    )
 }

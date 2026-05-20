@@ -20,29 +20,22 @@ package com.wire.android.ui.home.conversations.details.updatechannelaccess
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.home.newconversation.channelaccess.toDomainEnum
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class UpdateChannelAccessViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class UpdateChannelAccessViewModel(
+    private val channelAccessNavArgs: UpdateChannelAccessArgs,
     val updateChannelAddPermission: UpdateChannelAddPermissionUseCase,
     private val qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
-
-    private val channelAccessNavArgs: UpdateChannelAccessArgs = savedStateHandle.navArgs()
 
     var accessType: ChannelAccessType by mutableStateOf(channelAccessNavArgs.accessType)
         private set

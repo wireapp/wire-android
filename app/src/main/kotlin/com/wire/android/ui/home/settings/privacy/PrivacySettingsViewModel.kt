@@ -39,15 +39,12 @@ import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotC
 import com.wire.kalium.logic.feature.user.typingIndicator.ObserveTypingIndicatorEnabledUseCase
 import com.wire.kalium.logic.feature.user.typingIndicator.PersistTypingIndicatorStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.typingIndicator.TypingIndicatorConfigResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@HiltViewModel
-class PrivacySettingsViewModel @Inject constructor(
+class PrivacySettingsViewModel(
     private val dispatchers: DispatcherProvider,
     private val persistReadReceiptsStatusConfig: PersistReadReceiptsStatusConfigUseCase,
     private val observeReadReceiptsEnabled: ObserveReadReceiptsEnabledUseCase,

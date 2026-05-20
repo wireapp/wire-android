@@ -17,31 +17,4 @@
  */
 package com.wire.android.di.accountScoped
 
-import com.wire.android.di.CurrentAccount
-import com.wire.android.di.KaliumCoreLogic
-import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.auth.AuthenticationScope
-import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
-
-@Module
-@InstallIn(ViewModelComponent::class)
-class AuthenticationModule {
-
-    @Provides
-    @ViewModelScoped
-    fun provideAuthenticationScope(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): AuthenticationScope = coreLogic.getSessionScope(currentAccount).authenticationScope
-
-    @ViewModelScoped
-    @Provides
-    fun provideRequest2FACodeUseCase(authenticationScope: AuthenticationScope): RequestSecondFactorVerificationCodeUseCase =
-        authenticationScope.requestSecondFactorVerificationCode
-}
+// Account-scoped authentication bindings are provided by the Metro graph.

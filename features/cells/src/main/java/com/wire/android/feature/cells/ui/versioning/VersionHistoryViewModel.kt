@@ -19,10 +19,8 @@ package com.wire.android.feature.cells.ui.versioning
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.versioning.download.DownloadState
@@ -41,7 +39,6 @@ import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,11 +47,9 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import javax.inject.Inject
 
-@HiltViewModel
-class VersionHistoryViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+class VersionHistoryViewModel(
+    private val navArgs: VersionHistoryNavArgs,
     private val getNodeVersionsUseCase: GetNodeVersionsUseCase,
     private val fileSizeFormatter: FileSizeFormatter,
     private val restoreNodeVersionUseCase: RestoreNodeVersionUseCase,
@@ -64,9 +59,6 @@ class VersionHistoryViewModel @Inject constructor(
     private val getEditorUrl: GetEditorUrlUseCase,
     private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
-
-    private val navArgs: VersionHistoryNavArgs = VersionHistoryScreenDestination.argsFrom(savedStateHandle)
-
     val fileName = navArgs.fileName
 
     var versionHistoryState: MutableState<VersionHistoryState> = mutableStateOf(VersionHistoryState.Idle)

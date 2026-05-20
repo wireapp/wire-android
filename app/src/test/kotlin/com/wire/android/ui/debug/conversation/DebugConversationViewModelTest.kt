@@ -19,11 +19,8 @@
 
 package com.wire.android.ui.debug.conversation
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestConversation
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -38,7 +35,6 @@ import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -48,7 +44,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 class DebugConversationViewModelTest {
 
     @Test
@@ -96,9 +91,6 @@ class DebugConversationViewModelTest {
 private class Arrangement {
 
     @MockK
-    lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
     lateinit var observeConversationDetailsUseCase: ObserveConversationDetailsUseCase
 
     @MockK
@@ -117,9 +109,6 @@ private class Arrangement {
 
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        every {
-            savedStateHandle.navArgs<DebugConversationScreenNavArgs>()
-        } returns DebugConversationScreenNavArgs(conversationId)
         coEvery { observeConversationDetailsUseCase(any()) } returns flowOf<ObserveConversationDetailsUseCase.Result>()
         coEvery { getConversationEpochFromCCUseCase(any()) } returns GetConversationEpochFromCCResult.Failure.NotMlsConversation
     }
@@ -144,7 +133,7 @@ private class Arrangement {
         fetchConversation = fetchConversationUseCase,
         feedConversation = debugFeedConversationUseCase,
         getConversationEpochFromCC = getConversationEpochFromCCUseCase,
-        savedStateHandle = savedStateHandle,
+        args = DebugConversationScreenNavArgs(conversationId),
     )
 }
 

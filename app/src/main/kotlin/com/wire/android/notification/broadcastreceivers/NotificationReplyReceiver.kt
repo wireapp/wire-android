@@ -23,34 +23,17 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.core.app.RemoteInput
 import com.wire.android.R
-import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.di.NoSession
 import com.wire.android.notification.MessageNotificationManager
 import com.wire.android.notification.NotificationConstants
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.common.functional.fold
-import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.datetime.Clock
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argument constructor
 
-    @Inject
-    @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
-
-    @Inject
-    lateinit var dispatcherProvider: DispatcherProvider
-
-    @Inject
-    @NoSession
-    lateinit var qualifiedIdMapper: QualifiedIdMapper
-
     override suspend fun receive(context: Context, intent: Intent) {
+        val dependencies = context.broadcastReceiverDependencies
+        val qualifiedIdMapper = dependencies.qualifiedIdMapper()
         val remoteInput = RemoteInput.getResultsFromIntent(intent)
         val conversationId: String? = intent.getStringExtra(EXTRA_CONVERSATION_ID)
         val userId: String? = intent.getStringExtra(EXTRA_USER_ID)
@@ -60,7 +43,7 @@ class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argumen
             val qualifiedUserId = qualifiedIdMapper.fromStringToQualifiedID(userId)
             val qualifiedConversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
 
-            with(coreLogic.getSessionScope(qualifiedUserId)) {
+            with(dependencies.coreLogic().getSessionScope(qualifiedUserId)) {
                 syncExecutor.request {
                     messages.sendTextMessage(qualifiedConversationId, replyText).toEither()
                         .fold(
@@ -84,6 +67,7 @@ class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argumen
         val userId: String? = intent.getStringExtra(EXTRA_USER_ID)
 
         if (conversationId != null && userId != null) {
+            val qualifiedIdMapper = context.broadcastReceiverDependencies.qualifiedIdMapper()
             val qualifiedUserId = qualifiedIdMapper.fromStringToQualifiedID(userId)
             updateNotification(context, conversationId, qualifiedUserId, null)
         }

@@ -27,7 +27,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_DARK
 import androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_LIGHT
 import androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_SYSTEM
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class OnlineEditor @Inject constructor(
     private val context: Context,

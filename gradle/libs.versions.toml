@@ -24,6 +24,8 @@ desugaring = "2.1.5"
 firebaseBOM = "34.7.0"
 fragment = "1.5.6"
 resaca = "5.0.2"
+resacaMetro = "5.0.0"
+metro = "1.1.1"
 bundlizer = "0.8.0"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
@@ -133,6 +135,7 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutLibraries" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
@@ -159,10 +162,12 @@ kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-pl
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android-gradlePlugin" }
 android-gradleApi = { group = "com.android.tools.build", name = "gradle-api", version.ref = "android-gradlePlugin" }
 hilt-gradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
+dagger = { module = "com.google.dagger:dagger", version.ref = "hilt" }
 googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google-gms" }
 googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
 kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
+metro-gradlePlugin = { module = "dev.zacsweers.metro:dev.zacsweers.metro.gradle.plugin", version.ref = "metro" }
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }
@@ -181,6 +186,7 @@ allure-kotlin-android = { module = "io.qameta.allure:allure-kotlin-android", ver
 # android dependencies
 
 # KotlinX
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
@@ -190,6 +196,7 @@ squareup-javapoet = { module = "com.squareup:javapoet", version.ref = "squareup-
 visibilityModifiers = { module = "io.github.esentsov:kotlin-visibility", version.ref = "visibilityModifiers" }
 resaca-core = { module = "io.github.sebaslogen:resaca", version.ref = "resaca" }
 resaca-hilt = { module = "io.github.sebaslogen:resacahilt", version.ref = "resaca" }
+resaca-metro = { module = "io.github.sebaslogen:resacametro", version.ref = "resacaMetro" }
 bundlizer-core = { module = "dev.ahmedmourad.bundlizer:bundlizer-core", version.ref = "bundlizer" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBOM" }
 firebase-fcm = { module = "com.google.firebase:firebase-messaging" }
@@ -224,7 +231,6 @@ enterprise-feedback = { group = "androidx.enterprise", name = "enterprise-feedba
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 hilt-navigationCompose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-composeNavigation" }
-hilt-test = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
 hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" }
 
 # Compose BOM

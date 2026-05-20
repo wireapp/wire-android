@@ -46,8 +46,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -82,7 +82,8 @@ import com.wire.android.ui.common.R as commonR
 @Composable
 fun CreateAccountSelectorScreen(
     navigator: Navigator,
-    viewModel: CreateAccountSelectorViewModel = hiltViewModel()
+    args: CreateAccountSelectorNavArgs,
+    viewModel: CreateAccountSelectorViewModel = metroViewModel { createAccountSelectorViewModelFactory.create(args) }
 ) {
     val context = LocalContext.current
     fun navigateToEmailScreen() {

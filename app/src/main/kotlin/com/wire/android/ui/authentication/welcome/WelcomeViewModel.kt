@@ -21,28 +21,22 @@ package com.wire.android.ui.authentication.welcome
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class WelcomeViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class WelcomeViewModel constructor(
+    navArgs: WelcomeNavArgs,
     private val getSessions: GetSessionsUseCase,
     private val doesValidNomadAccountExist: DoesValidNomadAccountExistUseCase,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
-    private val navArgs: WelcomeNavArgs = savedStateHandle.navArgs()
 
     var state by mutableStateOf(WelcomeScreenState(navArgs.customServerConfig ?: defaultServerConfig))
         private set

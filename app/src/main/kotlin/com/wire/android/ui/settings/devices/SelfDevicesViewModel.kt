@@ -32,16 +32,13 @@ import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserMlsClientIdentitiesUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class SelfDevicesViewModel @Inject constructor(
+class SelfDevicesViewModel(
     @CurrentAccount val currentAccountId: UserId,
     private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
     private val observeClientList: ObserveClientsByUserIdUseCase,

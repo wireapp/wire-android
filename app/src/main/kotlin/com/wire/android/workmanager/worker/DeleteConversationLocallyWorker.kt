@@ -19,7 +19,6 @@ package com.wire.android.workmanager.worker
 
 import android.content.Context
 import androidx.core.app.NotificationCompat
-import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
@@ -42,8 +41,6 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
@@ -60,10 +57,9 @@ import kotlinx.coroutines.flow.mapNotNull
  * @param coreLogic A utility object that handles core application logic, such as session and conversation management.
  * @param notificationChannelsManager Manages notification channels for the application.
  */
-@HiltWorker
-class DeleteConversationLocallyWorker @AssistedInject constructor(
-    @Assisted appContext: Context,
-    @Assisted workerParams: WorkerParameters,
+class DeleteConversationLocallyWorker(
+    appContext: Context,
+    workerParams: WorkerParameters,
     private val coreLogic: CoreLogic,
     private val notificationChannelsManager: NotificationChannelsManager,
 ) : CoroutineWorker(appContext, workerParams) {

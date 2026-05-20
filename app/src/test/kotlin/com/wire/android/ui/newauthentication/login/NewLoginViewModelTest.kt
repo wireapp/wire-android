@@ -1,11 +1,9 @@
 package com.wire.android.ui.newauthentication.login
 
+import android.database.sqlite.SQLiteException
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStoreProvider
@@ -14,6 +12,7 @@ import com.wire.android.framework.TestClient
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
+import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
@@ -43,12 +42,10 @@ import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateUseCase
 import com.wire.kalium.logic.feature.backup.SetLastDeviceIdResult
 import com.wire.kalium.logic.feature.backup.SetLastDeviceIdUseCase
-import android.database.sqlite.SQLiteException
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
-import java.io.IOException
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -62,10 +59,11 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.IOException
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class NewLoginViewModelTest {
     private val dispatchers = TestDispatcherProvider()
 
@@ -508,6 +506,36 @@ class NewLoginViewModelTest {
         )
 
     @Test
+    fun `given custom server nav args, when enterprise login uses password path, then keep custom server config`() =
+        runTest(dispatchers.main()) {
+            val serverConfig = newServerConfig(2).links
+            val (arrangement, viewModel) = Arrangement()
+                .withNavArgsServerConfig(serverConfig)
+                .withAuthenticationScopeSuccess()
+                .withGetLoginFlowForDomainReturning(EnterpriseLoginResult.Success(LoginRedirectPath.Default))
+                .arrange()
+
+            viewModel.actions.test {
+                viewModel.getEnterpriseLoginFlow(email)
+                advanceUntilIdle()
+
+                assertEquals(
+                    NewLoginAction.EmailPassword(
+                        userIdentifier = email,
+                        loginPasswordPath = LoginPasswordPath(
+                            customServerConfig = serverConfig,
+                            isCloudAccountCreationPossible = true,
+                        )
+                    ),
+                    expectMostRecentItem()
+                )
+            }
+            coVerify(exactly = 1) {
+                arrangement.authenticationScope.getLoginFlowForDomainUseCase(email)
+            }
+        }
+
+    @Test
     fun `given no registration path, when enterprise login, then call EmailPassword action with no creation`() =
         testEnterpriseLoginActions(
             result = EnterpriseLoginResult.Success(LoginRedirectPath.NoRegistration),
@@ -627,7 +655,7 @@ class NewLoginViewModelTest {
         lateinit var loginSSOViewModelExtension: LoginSSOViewModelExtension
 
         @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
+        private lateinit var savedInputStore: LoginSavedInputStore
 
         @MockK
         private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
@@ -657,23 +685,14 @@ class NewLoginViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every {
-                savedStateHandle.get<String>(any())
-            } returns null
-            every {
-                savedStateHandle[any()] = any<String>()
-            } returns Unit
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs()
+            every { savedInputStore.userIdentifier } returns null
+            every { savedInputStore.userIdentifier = any<String>() } returns Unit
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
         }
 
         fun withNavArgsServerConfig(serverConfig: ServerConfig.Links) = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(loginPasswordPath = LoginPasswordPath(serverConfig))
+            loginNavArgs = LoginNavArgs(loginPasswordPath = LoginPasswordPath(serverConfig))
         }
 
         fun withEmailOrSSOCodeValidatorReturning(result: ValidateEmailOrSSOCodeUseCase.Result = ValidEmail) = apply {
@@ -797,9 +816,7 @@ class NewLoginViewModelTest {
         }
 
         fun withNomadAutoLogin(nomadServiceUrl: String) = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(
+            loginNavArgs = LoginNavArgs(
                 ssoCodeAutoLogin = SSOCodeAutoLogin(
                     ssoCode = "wire-sso-code",
                     nomadServiceUrl = nomadServiceUrl,
@@ -809,24 +826,16 @@ class NewLoginViewModelTest {
         }
 
         fun withEmptyUserIdentifierAndNoPreFilledIdentifier() = apply {
-            every {
-                savedStateHandle.get<String>(any())
-            } returns null
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs()
+            every { savedInputStore.userIdentifier } returns null
+            loginNavArgs = LoginNavArgs()
         }
 
         fun withUserIdentifierAlreadySet(userIdentifier: String) = apply {
-            every {
-                savedStateHandle.get<String>(any())
-            } returns userIdentifier
+            every { savedInputStore.userIdentifier } returns userIdentifier
         }
 
         fun withPreFilledUserIdentifier(userIdentifier: String) = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(userHandle = PreFilledUserIdentifierType.PreFilled(userIdentifier))
+            loginNavArgs = LoginNavArgs(userHandle = PreFilledUserIdentifierType.PreFilled(userIdentifier))
         }
 
         fun withFetchDefaultSSOCodeSuccessAfterDelay(defaultSSOCode: String?) = apply {
@@ -844,9 +853,7 @@ class NewLoginViewModelTest {
         }
 
         fun withCustomServerConfigDeepLink() = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(
+            loginNavArgs = LoginNavArgs(
                 loginPasswordPath = LoginPasswordPath(
                     customServerConfig = ServerConfig.STAGING
                 )
@@ -879,18 +886,21 @@ class NewLoginViewModelTest {
         }
 
         private var defaultSSOCodeConfig: String = String.EMPTY
+        private var loginNavArgs: LoginNavArgs = LoginNavArgs()
 
         fun arrange() = this to NewLoginViewModel(
+            loginNavArgs,
             validateEmailOrSSOCodeUseCase,
             coreLogic,
-            savedStateHandle,
+            savedInputStore,
             clientScopeProviderFactory,
             userDataStoreProvider,
             loginViewModelExtension,
             loginSSOViewModelExtension,
             dispatchers,
             ServerConfig.STAGING,
-            defaultSSOCodeConfig
+            defaultSSOCodeConfig,
+            NewLoginRecoverableLogoutExceptionDetector()
         )
     }
 

@@ -36,7 +36,7 @@ import com.wire.kalium.logic.feature.message.GetNextAudioMessageInConversationUs
 import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.Lazy
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.channels.BufferOverflow
@@ -58,13 +58,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import dev.zacsweers.metro.Inject as MetroInject
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 @Suppress("TooManyFunctions")
 class ConversationAudioMessagePlayer
-@Inject constructor(
+@Inject
+@MetroInject
+constructor(
     @ApplicationContext private val context: Context,
     private val audioMediaPlayer: MediaPlayer,
     private val servicesManager: Lazy<ServicesManager>,

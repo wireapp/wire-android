@@ -17,7 +17,10 @@
  */
 package com.wire.benchmark
 
+import android.content.Intent
+import android.net.Uri
 import androidx.benchmark.macro.MacrobenchmarkScope
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import kotlin.time.Duration.Companion.seconds
@@ -41,4 +44,17 @@ fun MacrobenchmarkScope.login(email: String, password: String) {
 fun MacrobenchmarkScope.waitForAnalyticsIfPresentAndAgree() {
     device.wait(Until.hasObject(By.text("Agree")), 10.seconds.inWholeMilliseconds)
     device.findObject(By.text("Agree"))?.click()
+}
+
+fun MacrobenchmarkScope.switchBackend(backendConfigUrl: String) {
+    val deepLinkUrl = "wire://access/?config=$backendConfigUrl"
+    val context = InstrumentationRegistry.getInstrumentation().targetContext
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        data = Uri.parse(deepLinkUrl)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    context.startActivity(intent)
+    device.wait(Until.hasObject(By.text("Proceed")), 10.seconds.inWholeMilliseconds)
+    device.findObject(By.text("Proceed"))?.click()
+    device.wait(Until.hasObject(By.res("loginButton")), 30.seconds.inWholeMilliseconds)
 }

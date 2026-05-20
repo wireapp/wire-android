@@ -15,14 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+import flavor.FlavorDimensions
+import flavor.ProductFlavors
+
 plugins {
-    id(libs.plugins.android.library.get().pluginId)
+    id("com.android.test")
+    alias(libs.plugins.androidx.baselineprofile)
 }
 
 android {
+    namespace = "com.wire.benchmark"
+    compileSdk = 36
+
     defaultConfig {
-        minSdk = 23
-        compileSdk = 36
+        minSdk = 28
+        targetSdk = 36
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -31,17 +38,35 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    namespace = "com.wire.benchmark"
-    defaultConfig.missingDimensionStrategy("contentType", "beta")
+    flavorDimensions += FlavorDimensions.DEFAULT
+    productFlavors {
+        ProductFlavors.all.forEach { flavor ->
+            create(flavor.buildName) {
+                dimension = flavor.dimensions
+            }
+        }
+    }
+
+    targetProjectPath = ":app"
+    experimentalProperties["android.experimental.self-instrumenting"] = true
+
+    buildTypes {
+        create("benchmark") {
+            isDebuggable = true
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release", "compatrelease")
+        }
+    }
+}
+
+baselineProfile {
+    useConnectedDevices = true
 }
 
 dependencies {
-    implementation(libs.androidx.core)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.compose.runtime)
-
-    testImplementation(libs.junit4)
-    androidTestImplementation(libs.androidx.test.extJunit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.benchmark.macro.junit4)
+    implementation(libs.androidx.test.extJunit)
+    implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.test.uiAutomator)
+    implementation(libs.androidx.benchmark.macro.junit4)
+    implementation(libs.junit4)
 }

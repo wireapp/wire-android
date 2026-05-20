@@ -26,6 +26,7 @@ import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import com.wire.kalium.logic.feature.service.ServiceScope
+import com.wire.kalium.logic.feature.service.SyncServicesUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -57,6 +58,11 @@ class ServicesModule {
     @Provides
     fun provideObserveAllServicesUseCase(serviceScope: ServiceScope): ObserveAllServicesUseCase =
         serviceScope.observeAllServices
+
+    @ViewModelScoped
+    @Provides
+    fun provideSyncServicesUseCase(serviceScope: ServiceScope): SyncServicesUseCase =
+        serviceScope.syncServices
 
     @ViewModelScoped
     @Provides

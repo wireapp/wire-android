@@ -226,6 +226,7 @@ class SystemMessageContentMapper @Inject constructor(
         return UIMessageContent.SystemMessage.RenamedConversation(authorName, content.conversationName)
     }
 
+    @Suppress("CyclomaticComplexMethod")
     fun mapMemberChangeMessage(
         content: MemberChange,
         senderUserId: UserId,
@@ -286,6 +287,8 @@ class SystemMessageContentMapper @Inject constructor(
                 author = authorName,
                 memberNames = memberNameList
             )
+
+            is MemberChange.SelfUserPromotedToAdmin -> UIMessageContent.SystemMessage.SelfUserPromotedToAdmin
         }
     }
 

@@ -128,6 +128,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
+            isProfileable = true
             matchingFallbacks.add("release")
             signingConfig = signingConfigs.getByName("debug")
         }

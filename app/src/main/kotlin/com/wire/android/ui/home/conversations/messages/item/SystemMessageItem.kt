@@ -540,6 +540,13 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
         }
     }
 
+    is SystemMessage.SelfUserPromotedToAdmin -> buildContent(
+        iconResId = R.drawable.ic_member_role_updated,
+        iconTintColor = MaterialTheme.wireColorScheme.onBackground,
+    ) {
+        stringResource(id = R.string.label_system_message_admin_role_assigned).toMarkdownAnnotatedString()
+    }
+
     is SystemMessage.NewConversationWithCellStarted -> buildContent(
         iconResId = R.drawable.ic_files,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,

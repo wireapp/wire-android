@@ -81,7 +81,7 @@ fun ConversationsScreenContent(
     searchBarState: SearchBarState,
     emptyListContent: @Composable (domain: String) -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
-    loadingListContent: @Composable (LazyListState) -> Unit = { LoadingListContent(it) },
+    loadingListContent: @Composable () -> Unit = { LoadingListContent() },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
@@ -168,7 +168,7 @@ fun ConversationsScreenContent(
             searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
             when {
                 // when conversation list is not yet fetched, show loading indicator
-                lazyPagingItems.isLoading() -> loadingListContent(lazyListState)
+                lazyPagingItems.isLoading() -> loadingListContent()
                 // when there is at least one conversation
                 lazyPagingItems.itemCount > 0 -> ConversationList(
                     lazyPagingConversations = lazyPagingItems,
@@ -202,7 +202,7 @@ fun ConversationsScreenContent(
             searchBarState.searchVisibleChanged(isSearchVisible = hasConversations || searchBarState.isSearchActive)
             when {
                 // when conversation list is not yet fetched, show loading indicator
-                state.isLoading -> loadingListContent(lazyListState)
+                state.isLoading -> loadingListContent()
                 // when there is at least one conversation in any folder
                 hasConversations -> ConversationList(
                     lazyListState = lazyListState,

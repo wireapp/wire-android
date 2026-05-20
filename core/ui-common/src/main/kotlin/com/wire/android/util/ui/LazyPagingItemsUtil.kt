@@ -43,7 +43,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  */
 @Composable
 fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItemsWithLifecycle(
-    minActiveState: Lifecycle.State = Lifecycle.State.RESUMED,
+    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
     context: CoroutineContext = EmptyCoroutineContext,
     lifecycle: Lifecycle = LocalLifecycleOwner.current.lifecycle
 ): LazyPagingItems<T> {

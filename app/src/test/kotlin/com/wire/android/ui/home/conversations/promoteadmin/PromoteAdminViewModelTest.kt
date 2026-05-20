@@ -17,9 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.promoteadmin
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -32,7 +30,6 @@ import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConve
 import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -225,9 +222,6 @@ class PromoteAdminViewModelTest {
 
     private inner class Arrangement {
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase
 
         @MockK
@@ -235,8 +229,6 @@ class PromoteAdminViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.navArgs<PromoteAdminNavArgs>() } returns
-                PromoteAdminNavArgs(ConversationId("conv1", "wire.com"))
             coEvery { observeEligibleMembers(any()) } returns flowOf(emptyList())
             coEvery { promoteAdminAndLeave(any(), any()) } returns PromoteAdminAndLeaveConversationUseCase.Result.Success
         }
@@ -253,7 +245,7 @@ class PromoteAdminViewModelTest {
             observeEligibleMembers = observeEligibleMembers,
             promoteAdminAndLeave = promoteAdminAndLeave,
             dispatchers = TestDispatcherProvider(),
-            savedStateHandle = savedStateHandle,
+            navArgs = PromoteAdminNavArgs(ConversationId("conv1", "wire.com")),
         )
     }
 }

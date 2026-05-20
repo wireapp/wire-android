@@ -32,7 +32,6 @@ import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.PersistSelfUserEmailResult
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
-import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientParam
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dev.zacsweers.metro.Inject
@@ -44,6 +43,7 @@ import dev.zacsweers.metro.Inject
  * login orchestration is available from common shared auth code and no longer needs iOS runtime
  * path/config adaptation in export-ios.
  */
+@Suppress("TooManyFunctions")
 @Inject
 class KaliumLoginEmailGateway(
     private val config: WireIosSharedConfig,
@@ -57,52 +57,133 @@ class KaliumLoginEmailGateway(
         password: String,
         secondFactorVerificationCode: String?,
         usernameAllowed: Boolean,
-    ): LoginEmailGatewayResult {
-        val runtime = runtimeConfig ?: return missingRuntimeConfig()
+    ): LoginEmailGatewayResult = withRuntimeConfig { runtime ->
         if (!usernameAllowed && !coreLogic.getGlobalScope().validateEmailUseCase(userIdentifier)) {
-            return LoginEmailGatewayResult.Failure(LoginEmailError.InvalidUserIdentifier)
+            LoginEmailGatewayResult.Failure(LoginEmailError.InvalidUserIdentifier)
+        } else {
+            loginWithRuntime(
+                runtime = runtime,
+                userIdentifier = userIdentifier,
+                password = password,
+                secondFactorVerificationCode = secondFactorVerificationCode,
+            )
         }
+    }
 
-        val authScope = when (val result = resolveAuthScope(runtime)) {
-            is AuthScopeResult.Failure -> return LoginEmailGatewayResult.Failure(result.error)
-            is AuthScopeResult.Success -> result.authScope
-        }
-        val loginResult = authScope.login(
-            userIdentifier = userIdentifier,
-            password = password,
-            shouldPersistClient = true,
-            secondFactorVerificationCode = secondFactorVerificationCode,
-        )
-        if (loginResult !is AuthenticationResult.Success) {
-            return handleAuthenticationFailure(loginResult as AuthenticationResult.Failure, authScope, userIdentifier)
-        }
-
-        val storedUserId = addAuthenticatedUser(loginResult)
-            ?: return LoginEmailGatewayResult.Failure(LoginEmailError.UserAlreadyExists)
-
-        if (coreLogic.getGlobalScope().validateEmailUseCase(userIdentifier)) {
-            val persistEmailResult = coreLogic.getSessionScope(storedUserId).users.persistSelfUserEmail(userIdentifier)
-            if (persistEmailResult is PersistSelfUserEmailResult.Failure) {
-                return LoginEmailGatewayResult.Failure(LoginEmailError.Generic(persistEmailResult.coreFailure.toString()))
+    override suspend fun requestSecondFactorCode(userIdentifier: String): LoginEmailGatewayResult =
+        withRuntimeConfig { runtime ->
+            when (val result = resolveAuthScope(runtime)) {
+                is AuthScopeResult.Failure -> LoginEmailGatewayResult.Failure(result.error)
+                is AuthScopeResult.Success -> requestSecondFactorCode(result.authScope, userIdentifier)
             }
         }
 
-        return when (
+    private suspend fun withRuntimeConfig(
+        block: suspend (IosKaliumRuntimeConfig) -> LoginEmailGatewayResult,
+    ): LoginEmailGatewayResult =
+        runtimeConfig?.let { block(it) } ?: missingRuntimeConfig()
+
+    private suspend fun loginWithRuntime(
+        runtime: IosKaliumRuntimeConfig,
+        userIdentifier: String,
+        password: String,
+        secondFactorVerificationCode: String?,
+    ): LoginEmailGatewayResult =
+        when (val result = resolveAuthScope(runtime)) {
+            is AuthScopeResult.Failure -> LoginEmailGatewayResult.Failure(result.error)
+            is AuthScopeResult.Success -> authenticate(
+                runtime = runtime,
+                authScope = result.authScope,
+                userIdentifier = userIdentifier,
+                password = password,
+                secondFactorVerificationCode = secondFactorVerificationCode,
+            )
+        }
+
+    private suspend fun authenticate(
+        runtime: IosKaliumRuntimeConfig,
+        authScope: AuthenticationScope,
+        userIdentifier: String,
+        password: String,
+        secondFactorVerificationCode: String?,
+    ): LoginEmailGatewayResult =
+        when (
+            val result = authScope.login(
+                userIdentifier = userIdentifier,
+                password = password,
+                shouldPersistClient = true,
+                secondFactorVerificationCode = secondFactorVerificationCode,
+            )
+        ) {
+            is AuthenticationResult.Failure ->
+                handleAuthenticationFailure(result, authScope, userIdentifier)
+
+            is AuthenticationResult.Success ->
+                completeSuccessfulAuthentication(
+                    input = AuthLoginAttemptInput(
+                        runtime = runtime,
+                        loginResult = result,
+                        userIdentifier = userIdentifier,
+                        password = password,
+                        secondFactorVerificationCode = secondFactorVerificationCode,
+                    )
+                )
+        }
+
+    private suspend fun completeSuccessfulAuthentication(input: AuthLoginAttemptInput): LoginEmailGatewayResult {
+        val storedUserId = addAuthenticatedUser(input.loginResult)
+        return if (storedUserId == null) {
+            LoginEmailGatewayResult.Failure(LoginEmailError.UserAlreadyExists)
+        } else {
+            persistEmailAndRegisterClient(
+                input = input,
+                storedUserId = storedUserId,
+            )
+        }
+    }
+
+    private suspend fun persistEmailAndRegisterClient(
+        input: AuthLoginAttemptInput,
+        storedUserId: UserId,
+    ): LoginEmailGatewayResult =
+        persistEmailIfNeeded(storedUserId, input.userIdentifier)?.let { error ->
+            LoginEmailGatewayResult.Failure(error)
+        } ?: registerClient(
+            input = input,
+            storedUserId = storedUserId,
+        )
+
+    private suspend fun persistEmailIfNeeded(
+        storedUserId: UserId,
+        userIdentifier: String,
+    ): LoginEmailError? {
+        if (coreLogic.getGlobalScope().validateEmailUseCase(userIdentifier)) {
+            val persistEmailResult = coreLogic.getSessionScope(storedUserId).users.persistSelfUserEmail(userIdentifier)
+            if (persistEmailResult is PersistSelfUserEmailResult.Failure) {
+                return LoginEmailError.Generic(persistEmailResult.coreFailure.toString())
+            }
+        }
+        return null
+    }
+
+    private suspend fun registerClient(
+        input: AuthLoginAttemptInput,
+        storedUserId: UserId,
+    ): LoginEmailGatewayResult =
+        when (
             val clientResult = coreLogic.getSessionScope(storedUserId).client.getOrRegister(
-                RegisterClientParam(password = password, capabilities = null)
+                RegisterClientParam(password = input.password, capabilities = null)
             )
         ) {
             is RegisterClientResult.Success ->
                 LoginEmailGatewayResult.Success(
                     initialSyncCompleted = false,
                     isE2EIRequired = false,
-                    payload = loginResult.authData.toSuccessPayload(
-                        runtime = runtime,
-                        userIdentifier = userIdentifier,
-                        password = password,
-                        secondFactorVerificationCode = secondFactorVerificationCode,
-                        isE2EIRequired = false,
-                        clientId = clientResult.client.id.value,
+                    payload = input.loginResult.authData.toSuccessPayload(
+                        input = input.toSuccessPayloadInput(
+                            isE2EIRequired = false,
+                            clientId = clientResult.client.id.value,
+                        ),
                     ),
                 )
 
@@ -110,13 +191,11 @@ class KaliumLoginEmailGateway(
                 LoginEmailGatewayResult.Success(
                     initialSyncCompleted = false,
                     isE2EIRequired = true,
-                    payload = loginResult.authData.toSuccessPayload(
-                        runtime = runtime,
-                        userIdentifier = userIdentifier,
-                        password = password,
-                        secondFactorVerificationCode = secondFactorVerificationCode,
-                        isE2EIRequired = true,
-                        clientId = clientResult.client.id.value,
+                    payload = input.loginResult.authData.toSuccessPayload(
+                        input = input.toSuccessPayloadInput(
+                            isE2EIRequired = true,
+                            clientId = clientResult.client.id.value,
+                        ),
                     ),
                 )
 
@@ -126,16 +205,6 @@ class KaliumLoginEmailGateway(
             is RegisterClientResult.Failure ->
                 LoginEmailGatewayResult.Failure(clientResult.toLoginEmailError())
         }
-    }
-
-    override suspend fun requestSecondFactorCode(userIdentifier: String): LoginEmailGatewayResult {
-        val runtime = runtimeConfig ?: return missingRuntimeConfig()
-        val authScope = when (val result = resolveAuthScope(runtime)) {
-            is AuthScopeResult.Failure -> return LoginEmailGatewayResult.Failure(result.error)
-            is AuthScopeResult.Success -> result.authScope
-        }
-        return requestSecondFactorCode(authScope, userIdentifier)
-    }
 
     private suspend fun resolveAuthScope(runtime: IosKaliumRuntimeConfig): AuthScopeResult =
         when (val result = coreLogic.versionedAuthenticationScope(runtime.serverLinks.toKalium()).invoke(null)) {
@@ -182,11 +251,18 @@ class KaliumLoginEmailGateway(
     private suspend fun requestSecondFactorCode(
         authScope: AuthenticationScope,
         userIdentifier: String,
-    ): LoginEmailGatewayResult {
-        if (!userIdentifier.contains("@")) {
-            return LoginEmailGatewayResult.Failure(LoginEmailError.RequestSecondFactorWithHandle)
+    ): LoginEmailGatewayResult =
+        if (userIdentifier.contains("@")) {
+            requestSecondFactorCodeForEmail(authScope, userIdentifier)
+        } else {
+            LoginEmailGatewayResult.Failure(LoginEmailError.RequestSecondFactorWithHandle)
         }
-        return when (
+
+    private suspend fun requestSecondFactorCodeForEmail(
+        authScope: AuthenticationScope,
+        userIdentifier: String,
+    ): LoginEmailGatewayResult =
+        when (
             val result = authScope.requestSecondFactorVerificationCode(
                 email = userIdentifier,
                 verifiableAction = VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION,
@@ -201,16 +277,40 @@ class KaliumLoginEmailGateway(
 
             else -> LoginEmailGatewayResult.Failure(LoginEmailError.Generic())
         }
-    }
 }
 
-private fun AccountTokens.toSuccessPayload(
-    runtime: IosKaliumRuntimeConfig,
-    userIdentifier: String,
-    password: String,
-    secondFactorVerificationCode: String?,
+private data class AuthLoginAttemptInput(
+    val runtime: IosKaliumRuntimeConfig,
+    val loginResult: AuthenticationResult.Success,
+    val userIdentifier: String,
+    val password: String,
+    val secondFactorVerificationCode: String?,
+)
+
+private data class AuthLoginSuccessPayloadInput(
+    val runtime: IosKaliumRuntimeConfig,
+    val userIdentifier: String,
+    val password: String,
+    val secondFactorVerificationCode: String?,
+    val isE2EIRequired: Boolean,
+    val clientId: String?,
+)
+
+private fun AuthLoginAttemptInput.toSuccessPayloadInput(
     isE2EIRequired: Boolean,
     clientId: String?,
+): AuthLoginSuccessPayloadInput =
+    AuthLoginSuccessPayloadInput(
+        runtime = runtime,
+        userIdentifier = userIdentifier,
+        password = password,
+        secondFactorVerificationCode = secondFactorVerificationCode,
+        isE2EIRequired = isE2EIRequired,
+        clientId = clientId,
+    )
+
+private fun AccountTokens.toSuccessPayload(
+    input: AuthLoginSuccessPayloadInput,
 ): AuthLoginSuccessPayload =
     AuthLoginSuccessPayload(
         userIdValue = userId.value,
@@ -219,13 +319,13 @@ private fun AccountTokens.toSuccessPayload(
         accessTokenType = accessToken.tokenType,
         accessTokenExpiresInSeconds = null,
         refreshTokenValue = refreshToken.value,
-        refreshTokenCookieDomain = runtime.backendDomain,
-        email = userIdentifier,
-        password = password,
-        secondFactorCode = secondFactorVerificationCode,
+        refreshTokenCookieDomain = input.runtime.backendDomain,
+        email = input.userIdentifier,
+        password = input.password,
+        secondFactorCode = input.secondFactorVerificationCode,
         initialSyncCompleted = false,
-        isE2EIRequired = isE2EIRequired,
-        clientId = clientId,
+        isE2EIRequired = input.isE2EIRequired,
+        clientId = input.clientId,
     )
 
 private sealed interface AuthScopeResult {

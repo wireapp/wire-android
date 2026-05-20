@@ -51,7 +51,11 @@ fun RecordAudioComponent(
     onCloseRecordAudio: () -> Unit,
     modifier: Modifier = Modifier,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    viewModel: RecordAudioViewModel = wireViewModelScoped<RecordAudioViewModel, RecordAudioViewModel, RecordAudioViewModelFactory>()
+    viewModel: RecordAudioViewModel = wireViewModelScoped<
+        RecordAudioViewModel,
+        RecordAudioViewModel,
+        RecordAudioViewModelFactory,
+        >()
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current

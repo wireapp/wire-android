@@ -52,65 +52,78 @@ class LoginEmailViewModelFactory(
         return SharedViewModel(
             state = state.asStateFlow(),
             effects = effects.asSharedFlow(),
-            onIntent = { intent ->
-                when (intent) {
-                    is LoginEmailIntent.UserIdentifierChanged ->
-                        state.update {
-                            it.copy(
-                                userIdentifier = intent.value,
-                                loginEnabled = it.canSubmit(userIdentifier = intent.value),
-                                flowState = LoginEmailFlowState.Default,
-                            )
-                        }
-
-                    is LoginEmailIntent.PasswordChanged ->
-                        state.update {
-                            it.copy(
-                                password = intent.value,
-                                loginEnabled = it.canSubmit(password = intent.value),
-                                flowState = LoginEmailFlowState.Default,
-                            )
-                        }
-
-                    is LoginEmailIntent.ProxyIdentifierChanged ->
-                        state.update { it.copy(proxyIdentifier = intent.value) }
-
-                    is LoginEmailIntent.ProxyPasswordChanged ->
-                        state.update { it.copy(proxyPassword = intent.value) }
-
-                    is LoginEmailIntent.SecondFactorCodeChanged ->
-                        state.update {
-                            it.copy(
-                                secondFactorVerificationCode = it.secondFactorVerificationCode.copy(
-                                    code = intent.value,
-                                    isCurrentCodeInvalid = false,
-                                )
-                            )
-                        }
-
-                    is LoginEmailIntent.SubmitLogin ->
-                        submitLogin(state, effects, scope, intent.usernameAllowed)
-
-                    LoginEmailIntent.ClearLoginErrors ->
-                        state.update { it.copy(flowState = LoginEmailFlowState.Default) }
-
-                    LoginEmailIntent.CancelLogin ->
-                        state.update { it.copy(flowState = LoginEmailFlowState.Canceled) }
-
-                    LoginEmailIntent.SecondFactorBackPressed ->
-                        state.update {
-                            it.copy(
-                                secondFactorVerificationCode = LoginEmailVerificationCodeState(),
-                                flowState = LoginEmailFlowState.Default,
-                            )
-                        }
-
-                    LoginEmailIntent.ResendSecondFactorCode ->
-                        requestSecondFactorCode(state, scope)
-                }
-            },
+            onIntent = { intent -> handleIntent(intent, state, effects, scope) },
             onClose = { scope.cancelScope() },
         )
+    }
+
+    private fun handleIntent(
+        intent: LoginEmailIntent,
+        state: MutableStateFlow<LoginEmailState>,
+        effects: MutableSharedFlow<LoginEmailEffect>,
+        scope: CoroutineScope,
+    ) {
+        when (intent) {
+            is LoginEmailIntent.UserIdentifierChanged -> onUserIdentifierChanged(state, intent.value)
+            is LoginEmailIntent.PasswordChanged -> onPasswordChanged(state, intent.value)
+            is LoginEmailIntent.ProxyIdentifierChanged -> state.update { it.copy(proxyIdentifier = intent.value) }
+            is LoginEmailIntent.ProxyPasswordChanged -> state.update { it.copy(proxyPassword = intent.value) }
+            is LoginEmailIntent.SecondFactorCodeChanged -> onSecondFactorCodeChanged(state, intent.value)
+            is LoginEmailIntent.SubmitLogin -> submitLogin(state, effects, scope, intent.usernameAllowed)
+            LoginEmailIntent.ClearLoginErrors -> state.update { it.copy(flowState = LoginEmailFlowState.Default) }
+            LoginEmailIntent.CancelLogin -> state.update { it.copy(flowState = LoginEmailFlowState.Canceled) }
+            LoginEmailIntent.SecondFactorBackPressed -> onSecondFactorBackPressed(state)
+            LoginEmailIntent.ResendSecondFactorCode -> requestSecondFactorCode(state, scope)
+        }
+    }
+
+    private fun onUserIdentifierChanged(
+        state: MutableStateFlow<LoginEmailState>,
+        value: String,
+    ) {
+        state.update {
+            it.copy(
+                userIdentifier = value,
+                loginEnabled = it.canSubmit(userIdentifier = value),
+                flowState = LoginEmailFlowState.Default,
+            )
+        }
+    }
+
+    private fun onPasswordChanged(
+        state: MutableStateFlow<LoginEmailState>,
+        value: String,
+    ) {
+        state.update {
+            it.copy(
+                password = value,
+                loginEnabled = it.canSubmit(password = value),
+                flowState = LoginEmailFlowState.Default,
+            )
+        }
+    }
+
+    private fun onSecondFactorCodeChanged(
+        state: MutableStateFlow<LoginEmailState>,
+        value: String,
+    ) {
+        state.update {
+            it.copy(
+                secondFactorVerificationCode = it.secondFactorVerificationCode.copy(
+                    code = value,
+                    isCurrentCodeInvalid = false,
+                )
+            )
+        }
+    }
+
+    private fun onSecondFactorBackPressed(state: MutableStateFlow<LoginEmailState>) {
+        state.update {
+            it.copy(
+                secondFactorVerificationCode = LoginEmailVerificationCodeState(),
+                flowState = LoginEmailFlowState.Default,
+            )
+        }
     }
 
     private fun submitLogin(
@@ -126,64 +139,81 @@ class LoginEmailViewModelFactory(
         }
         state.update { it.copy(flowState = LoginEmailFlowState.Loading, loginEnabled = false) }
         scope.launch {
-            when (
-                val result = gateway.login(
+            handleLoginResult(
+                result = gateway.login(
                     userIdentifier = currentState.userIdentifier,
                     password = currentState.password,
                     secondFactorVerificationCode = currentState.secondFactorVerificationCode.code.takeIf { it.isNotBlank() },
                     usernameAllowed = usernameAllowed,
-                )
-            ) {
-                is LoginEmailGatewayResult.Failure -> {
-                    state.update {
-                        val flowState = LoginEmailFlowState.Error(result.error)
-                        it.copy(
-                            flowState = flowState,
-                            loginEnabled = it.canSubmit(flowState = flowState),
-                        )
-                    }
-                }
-
-                LoginEmailGatewayResult.RemoveDeviceNeeded -> {
-                    effects.tryEmit(LoginEmailEffect.RemoveDeviceNeeded)
-                    state.update {
-                        val flowState = LoginEmailFlowState.Error(LoginEmailError.TooManyDevices)
-                        it.copy(
-                            flowState = flowState,
-                            loginEnabled = it.canSubmit(flowState = flowState),
-                        )
-                    }
-                }
-
-                is LoginEmailGatewayResult.SecondFactorRequired -> {
-                    state.update {
-                        it.copy(
-                            flowState = LoginEmailFlowState.Default,
-                            loginEnabled = it.canSubmit(flowState = LoginEmailFlowState.Default),
-                            secondFactorVerificationCode = it.secondFactorVerificationCode.copy(
-                                isCodeInputNecessary = true,
-                                emailUsed = result.email,
-                                isCurrentCodeInvalid = result.isCurrentCodeInvalid,
-                            ),
-                        )
-                    }
-                }
-
-                is LoginEmailGatewayResult.Success -> {
-                    val flowState = LoginEmailFlowState.Success(
-                        initialSyncCompleted = result.initialSyncCompleted,
-                        isE2EIRequired = result.isE2EIRequired,
-                    )
-                    state.update { it.copy(flowState = flowState, loginEnabled = false) }
-                    effects.tryEmit(
-                        LoginEmailEffect.LoginSucceeded(
-                            initialSyncCompleted = result.initialSyncCompleted,
-                            isE2EIRequired = result.isE2EIRequired,
-                        )
-                    )
-                }
-            }
+                ),
+                state = state,
+                effects = effects,
+            )
         }
+    }
+
+    private fun handleLoginResult(
+        result: LoginEmailGatewayResult,
+        state: MutableStateFlow<LoginEmailState>,
+        effects: MutableSharedFlow<LoginEmailEffect>,
+    ) {
+        when (result) {
+            is LoginEmailGatewayResult.Failure -> setLoginError(state, result.error)
+            LoginEmailGatewayResult.RemoveDeviceNeeded -> {
+                effects.tryEmit(LoginEmailEffect.RemoveDeviceNeeded)
+                setLoginError(state, LoginEmailError.TooManyDevices)
+            }
+            is LoginEmailGatewayResult.SecondFactorRequired -> setSecondFactorRequired(state, result)
+            is LoginEmailGatewayResult.Success -> setLoginSuccess(state, effects, result)
+        }
+    }
+
+    private fun setLoginError(
+        state: MutableStateFlow<LoginEmailState>,
+        error: LoginEmailError,
+    ) {
+        state.update {
+            val flowState = LoginEmailFlowState.Error(error)
+            it.copy(
+                flowState = flowState,
+                loginEnabled = it.canSubmit(flowState = flowState),
+            )
+        }
+    }
+
+    private fun setSecondFactorRequired(
+        state: MutableStateFlow<LoginEmailState>,
+        result: LoginEmailGatewayResult.SecondFactorRequired,
+    ) {
+        state.update {
+            it.copy(
+                flowState = LoginEmailFlowState.Default,
+                loginEnabled = it.canSubmit(flowState = LoginEmailFlowState.Default),
+                secondFactorVerificationCode = it.secondFactorVerificationCode.copy(
+                    isCodeInputNecessary = true,
+                    emailUsed = result.email,
+                    isCurrentCodeInvalid = result.isCurrentCodeInvalid,
+                ),
+            )
+        }
+    }
+
+    private fun setLoginSuccess(
+        state: MutableStateFlow<LoginEmailState>,
+        effects: MutableSharedFlow<LoginEmailEffect>,
+        result: LoginEmailGatewayResult.Success,
+    ) {
+        val flowState = LoginEmailFlowState.Success(
+            initialSyncCompleted = result.initialSyncCompleted,
+            isE2EIRequired = result.isE2EIRequired,
+        )
+        state.update { it.copy(flowState = flowState, loginEnabled = false) }
+        effects.tryEmit(
+            LoginEmailEffect.LoginSucceeded(
+                initialSyncCompleted = result.initialSyncCompleted,
+                isE2EIRequired = result.isE2EIRequired,
+            )
+        )
     }
 
     private fun requestSecondFactorCode(

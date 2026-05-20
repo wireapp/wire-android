@@ -58,7 +58,11 @@ fun ConversationOptionsModalSheetLayout(
     onPromoteAdmin: (ConversationId) -> Unit = {},
     openConversationDebugMenu: (ConversationId) -> Unit = {},
     viewModel: ConversationOptionsMenuViewModel =
-        wireViewModelScoped<ConversationOptionsMenuViewModelImpl, ConversationOptionsMenuViewModel, ConversationOptionsMenuViewModelFactory>()
+        wireViewModelScoped<
+            ConversationOptionsMenuViewModelImpl,
+            ConversationOptionsMenuViewModel,
+            ConversationOptionsMenuViewModelFactory,
+            >()
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current

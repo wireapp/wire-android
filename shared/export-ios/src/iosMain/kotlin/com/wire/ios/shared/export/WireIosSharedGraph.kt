@@ -66,6 +66,7 @@ import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.createGraphFactory
 
+@Suppress("TooManyFunctions")
 @DependencyGraph(WireIosSharedScope::class)
 interface WireIosSharedGraph {
     @DependencyGraph.Factory

@@ -58,6 +58,7 @@ fun createWireIosSharedConfig(
         runtimeConfig = runtimeConfig,
     )
 
+@Suppress("LongParameterList")
 fun createWireIosSharedConfig(
     defaultServerLinks: LoginServerLinks,
     runtimeConfig: IosKaliumRuntimeConfig?,
@@ -92,6 +93,7 @@ fun createIosKaliumRuntimeConfig(
         migrationMode = migrationMode,
     )
 
+@Suppress("LongParameterList")
 fun createIosKaliumRuntimeConfig(
     appGroupRootPath: String,
     accountDataPath: String?,

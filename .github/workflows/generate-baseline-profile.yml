@@ -113,7 +113,7 @@ jobs:
           token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
           branch: ${{ env.REFRESH_BRANCH }}
           base: ${{ env.BASE_BRANCH }}
-          title: "chore: refresh baseline profile"
+          title: "chore(perf): refresh baseline and startup profiles (WPB-8645)"
           commit-message: "chore: refresh baseline profile"
           body: |
             Auto-generated baseline profile refresh.

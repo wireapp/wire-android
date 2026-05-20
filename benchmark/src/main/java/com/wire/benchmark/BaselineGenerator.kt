@@ -34,6 +34,7 @@ class BaselineGenerator {
     private val targetPackage get() = args.getString("TARGET_PACKAGE", "com.wire")
     private val email get() = args.getString("EMAIL").orEmpty()
     private val password get() = args.getString("PASSWORD").orEmpty()
+    private val conversationName get() = args.getString("CONVERSATION_NAME").orEmpty()
 
     @Test
     fun startup() = baselineProfileRule.collect(
@@ -42,6 +43,10 @@ class BaselineGenerator {
     ) {
         pressHome()
         startActivityAndWait()
-        if (email.isNotEmpty() && password.isNotEmpty()) login(email, password)
+        if (email.isNotEmpty() && password.isNotEmpty()) {
+            login(email, password)
+            openContactsAndReturn()
+            openConversation(conversationName)
+        }
     }
 }

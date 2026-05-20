@@ -388,8 +388,13 @@ fun EnabledMessageComposer(
                                 additionalOptionStateHolder.toRichTextEditing()
                             },
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                            onDrawingModeClicked = openDrawingCanvas,
-                            isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled
+                            onDrawingModeClicked = {
+                                if (messageComposerViewState.value.areAttachmentOptionsEnabled) {
+                                    openDrawingCanvas()
+                                }
+                            },
+                            isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
+                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled,
                         )
                     }
                 }

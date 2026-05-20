@@ -297,6 +297,7 @@ class MultipartAttachmentsViewModelTest {
             every { observeOfflineFiles() } returns flowOf(emptyList<OfflineFileInfo>())
 
             return this to MultipartAttachmentsViewModelImpl(
+                conversationId = testConversationId,
                 refreshHelper = refreshHelper,
                 download = download,
                 fileManager = fileManager,
@@ -306,13 +307,13 @@ class MultipartAttachmentsViewModelTest {
                 featureFlags = kaliumConfigs,
                 getWireCellsConfig = getWireCellsConfig,
                 observeOfflineFiles = observeOfflineFiles,
-            ).apply {
-                conversationId = "test-conversation-id"
-            }
+            )
         }
     }
 
     private companion object {
+        const val testConversationId = "test-conversation-id"
+
         val testAssetContent = CellAssetContent(
             id = "assetId1",
             versionId = "1",

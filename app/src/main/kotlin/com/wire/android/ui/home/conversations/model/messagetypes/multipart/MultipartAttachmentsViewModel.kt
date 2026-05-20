@@ -41,6 +41,9 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.SharingStarted
@@ -50,7 +53,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
-import javax.inject.Inject
 
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
@@ -116,8 +118,9 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
 
-@HiltViewModel
-class MultipartAttachmentsViewModelImpl @Inject constructor(
+@HiltViewModel(assistedFactory = MultipartAttachmentsViewModelImpl.Factory::class)
+class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
+    @Assisted private val conversationId: String,
     private val refreshHelper: CellAssetRefreshHelper,
     private val download: DownloadCellFileUseCase,
     private val getEditorUrl: GetEditorUrlUseCase,
@@ -129,6 +132,11 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
     observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
 
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: String): MultipartAttachmentsViewModelImpl
+    }
+
     private val uploadProgress = mutableStateMapOf<String, Float>()
     override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFiles()
         .map { offlineFiles -> offlineFiles.mapTo(mutableSetOf()) { it.id } }
@@ -136,13 +144,14 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
 
     private var isCollaboraEnabled: Boolean = false
 
-    internal var conversationId: String? = null
-
     init {
         loadWireCellConfig()
     }
 
-    override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {
+    override fun onClick(
+        attachment: MultipartAttachmentUi,
+        openInImageViewer: (String) -> Unit,
+    ) {
         when {
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
             attachment.isEditSupported && isCollaboraEnabled && featureFlags.collaboraIntegration ->

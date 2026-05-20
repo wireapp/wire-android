@@ -30,11 +30,11 @@ import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.decode.Decoder
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
@@ -60,9 +60,10 @@ fun MultipartAttachmentsView(
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
-        else -> hiltViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value).apply {
-            this.conversationId = conversationId.value
-        }
+        else -> hiltViewModel<MultipartAttachmentsViewModelImpl, MultipartAttachmentsViewModelImpl.Factory>(
+            key = conversationId.value,
+            creationCallback = { factory -> factory.create(conversationId = conversationId.value) }
+        )
     }
 ) {
     val offlineAttachmentIds = viewModel.offlineAttachmentIds.collectAsStateWithLifecycle().value

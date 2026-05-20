@@ -34,6 +34,7 @@ import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
@@ -45,18 +46,23 @@ import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
+import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -72,7 +78,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -99,6 +107,9 @@ class CellViewModel @Inject constructor(
     private val observeOfflineFiles: ObserveOfflineFilesUseCase,
     private val deleteOfflineFile: DeleteOfflineFileUseCase,
     private val getOfflineFile: GetOfflineFileUseCase,
+    private val networkStateObserver: NetworkStateObserver,
+    private val getConversationName: GetConversationNameUseCase,
+    private val getUserName: GetUserNameUseCase,
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
@@ -146,6 +157,14 @@ class CellViewModel @Inject constructor(
             SortingCriteria.FoldersFirst
         }
     )
+
+    val isOnline: StateFlow<Boolean> = networkStateObserver.observeNetworkState()
+        .map { it is NetworkState.ConnectedWithInternet }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = networkStateObserver.observeNetworkState().value is NetworkState.ConnectedWithInternet,
+        )
 
     private var isCollaboraEnabled: Boolean = false
 
@@ -219,15 +238,47 @@ class CellViewModel @Inject constructor(
         }
     }.shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)
 
-    internal val nodesFlow = cellAvailableFlow.flatMapLatest { cellAvailable ->
-        if (!cellAvailable || searchNavArgs != null) {
-            flowOf(emptyData)
-        } else {
-            sharedNodesFlow
+    private val offlineNodesFlow: Flow<PagingData<CellNodeUi>> =
+        combine(
+            observeOfflineFiles(),
+            sharedPathCache.openLoadStates,
+            offlineFileDownloadController.downloadProgresses,
+        ) { offlineFiles, openLoadStates, downloadProgresses ->
+            val rootConversationId = navArgs.conversationId?.substringBefore("/")
+            val filtered = if (rootConversationId != null) {
+                offlineFiles.filter { it.conversationId == rootConversationId }
+            } else {
+                offlineFiles
+            }
+            PagingData.from(
+                data = filtered.map { info ->
+                    info.toCellNodeUi(
+                        conversationName = info.conversationId?.let { getConversationName(it) },
+                        userName = info.owner.ifEmpty { null }?.let { getUserName(it) },
+                        openLoadState = openLoadStates[info.id],
+                        downloadProgress = downloadProgresses[info.id],
+                    )
+                },
+                sourceLoadStates = LoadStates(
+                    refresh = LoadState.NotLoading(true),
+                    prepend = LoadState.NotLoading(true),
+                    append = LoadState.NotLoading(true),
+                )
+            )
+        }
+
+    internal val nodesFlow = combine(cellAvailableFlow, isOnline) { cellAvailable, online ->
+        cellAvailable to online
+    }.flatMapLatest { (cellAvailable, online) ->
+        when {
+            !cellAvailable || searchNavArgs != null -> flowOf(emptyData)
+            !online -> offlineNodesFlow
+            else -> sharedNodesFlow
         }
     }
 
     fun onPullToRefresh() {
+        if (!isOnline.value) return
         _isPullToRefresh.value = true
         refreshNodes()
     }
@@ -357,6 +408,7 @@ class CellViewModel @Inject constructor(
             isSearching = searchNavArgs?.screenType == DriveSearchScreenType.SHARED_DRIVE ||
                     searchNavArgs?.screenType == DriveSearchScreenType.DRIVE,
             isCollaboraEnabled = isCollaboraEnabled,
+            isOnline = isOnline.value,
         )
 
         _menu.emit(MenuOptions(cellNode, menuItems))
@@ -371,6 +423,7 @@ class CellViewModel @Inject constructor(
         ) { result ->
             when (result) {
                 is CellFileActionsMenu.Action -> sendAction(result.action)
+                is CellFileActionsMenu.Open -> sendIntent(CellViewIntent.OnItemClick(result.node))
                 is CellFileActionsMenu.Edit -> editNode(result.node.uuid)
                 is CellFileActionsMenu.Share -> shareFile(result.node)
                 is CellFileActionsMenu.CancelLoading -> cancelDownload(result.node.uuid)
@@ -384,7 +437,9 @@ class CellViewModel @Inject constructor(
     private fun makeAvailableOffline(node: CellNodeUi.File) {
         offlineFileDownloadController.start(
             scope = viewModelScope,
-            cellNode = node,
+            cellNode = node.copy(
+                conversationId = navArgs.conversationId
+            ),
             onSuccess = { _ -> sendAction(ShowOfflineFileSaved) },
             onError = { sendAction(ShowError(it)) },
         )
@@ -504,6 +559,37 @@ class CellViewModel @Inject constructor(
     private fun loadWireCellConfig() = viewModelScope.launch {
         val config = getWireCellsConfig()
         isCollaboraEnabled = config?.collabora != CollaboraEdition.NO
+    }
+
+    private fun OfflineFileInfo.toCellNodeUi(
+        conversationName: String? = null,
+        userName: String? = null,
+        openLoadState: OpenLoadState? = null,
+        downloadProgress: Float? = null,
+    ): CellNodeUi.File {
+        val resolvedMimeType = mimeType.orEmpty()
+        val extension = name.substringAfterLast('.', "")
+        return CellNodeUi.File(
+            uuid = id,
+            conversationId = conversationId,
+            name = name,
+            mimeType = resolvedMimeType,
+            assetType = if (resolvedMimeType.isNotBlank()) {
+                AttachmentFileType.fromMimeType(resolvedMimeType)
+            } else {
+                AttachmentFileType.fromExtension(extension)
+            },
+            size = size,
+            localPath = localPath,
+            ownerUserId = owner.ifEmpty { null },
+            userName = userName,
+            userHandle = null,
+            conversationName = conversationName,
+            modifiedTime = modifiedAt,
+            isAvailableOffline = true,
+            openLoadState = openLoadState,
+            downloadProgress = downloadProgress,
+        )
     }
 
     companion object {

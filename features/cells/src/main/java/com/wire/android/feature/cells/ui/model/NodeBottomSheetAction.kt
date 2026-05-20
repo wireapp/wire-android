@@ -24,6 +24,7 @@ enum class NodeBottomSheetAction(
     val icon: Int,
     val isHighlighted: Boolean = false
 ) {
+    OPEN(R.string.open_label, R.drawable.ic_open),
     SHARE(R.string.share_label, R.drawable.ic_share),
     PUBLIC_LINK(R.string.public_link, R.drawable.ic_link),
     ADD_REMOVE_TAGS(R.string.add_remove_tags_label, R.drawable.ic_tags),

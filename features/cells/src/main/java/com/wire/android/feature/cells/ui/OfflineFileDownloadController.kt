@@ -103,6 +103,7 @@ class OfflineFileDownloadController @Inject constructor(
                 OfflineFileInfo(
                     id = cellNode.uuid,
                     name = nodeName,
+                    mimeType = cellNode.mimeType,
                     owner = cellNode.ownerUserId ?: "",
                     localPath = existingPath,
                     size = cellNode.size,
@@ -150,6 +151,7 @@ class OfflineFileDownloadController @Inject constructor(
                 OfflineFileInfo(
                     id = cellNode.uuid,
                     name = nodeName,
+                    mimeType = cellNode.mimeType,
                     owner = cellNode.ownerUserId ?: "",
                     localPath = filePath.toString(),
                     size = cellNode.size,

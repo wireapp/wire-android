@@ -95,6 +95,7 @@ internal fun CellListItem(
     cell: CellNodeUi,
     onMenuClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showConversationName: Boolean = true,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var showReadyState by remember { mutableStateOf(false) }
@@ -132,7 +133,7 @@ internal fun CellListItem(
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                CellItemSubtitle(cell = cell, showReadyState = showReadyState)
+                CellItemSubtitle(cell = cell, showReadyState = showReadyState, showConversationName = showConversationName)
             }
         }
 
@@ -184,7 +185,7 @@ private fun CellItemIcon(cell: CellNodeUi, showReadyState: Boolean) {
 }
 
 @Composable
-private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean) {
+private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean, showConversationName: Boolean) {
     when {
         cell.openLoadState is OpenLoadState.Loading -> Text(
             text = stringResource(R.string.tap_to_cancel_loading),
@@ -241,7 +242,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean) {
                     modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
             }
-            cell.subtitle()?.let {
+            cell.subtitle(showConversationName)?.let {
                 Text(
                     text = it,
                     textAlign = TextAlign.Left,
@@ -446,19 +447,19 @@ private fun PublicLinkIcon(
 }
 
 @Composable
-private fun CellNodeUi.subtitle(): String? {
+private fun CellNodeUi.subtitle(showConversationName: Boolean): String? {
     val formattedTime = modifiedTime?.let {
         remember(it) { Instant.fromEpochMilliseconds(it).cellFileDateTime() }
     }
     return when {
-        userName != null && conversationName != null ->
+        showConversationName && userName != null && conversationName != null ->
             stringResource(R.string.file_subtitle, userName!!, conversationName!!)
 
         userName != null && formattedTime != null ->
             stringResource(R.string.file_subtitle_modified, formattedTime, userName!!)
 
         userName != null -> userName
-        conversationName != null -> conversationName
+        showConversationName && conversationName != null -> conversationName
         formattedTime != null -> formattedTime
         else -> null
     }

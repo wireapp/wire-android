@@ -106,17 +106,17 @@ class ConversationCryptoStatsViewModelTest {
     }
 
     @Test
-    fun givenStatsLoaded_whenNotEstablishedFilterSet_thenFilteredDetailsMatch() = runTest {
+    fun givenStatsLoaded_whenDriftFilterSet_thenFilteredDetailsMatch() = runTest {
         val (_, viewModel) = Arrangement()
             .withResult(GetConversationCryptoStatsResult.Success(testStats()))
             .arrange()
 
         advanceUntilIdle()
 
-        viewModel.setEstablishmentFilter(EstablishmentFilter.NOT_ESTABLISHED)
+        viewModel.setEstablishmentFilter(EstablishmentFilter.DRIFT)
         val filtered = viewModel.filteredDetails()
         assertEquals(1, filtered.size)
-        assertEquals("No", filtered.first().establishedInCrypto)
+        assertEquals(ConversationCryptoStatus.DRIFT, filtered.first().cryptoStatus)
     }
 
     @Test
@@ -128,11 +128,11 @@ class ConversationCryptoStatsViewModelTest {
         advanceUntilIdle()
 
         viewModel.setProtocolFilter(ProtocolFilter.MIXED)
-        viewModel.setEstablishmentFilter(EstablishmentFilter.ESTABLISHED)
+        viewModel.setEstablishmentFilter(EstablishmentFilter.IN_SYNC)
         val filtered = viewModel.filteredDetails()
         assertEquals(1, filtered.size)
         assertEquals("Mixed", filtered.first().protocolType)
-        assertEquals("Yes", filtered.first().establishedInCrypto)
+        assertEquals(ConversationCryptoStatus.IN_SYNC, filtered.first().cryptoStatus)
     }
 
     private class Arrangement {
@@ -162,8 +162,11 @@ class ConversationCryptoStatsViewModelTest {
         proteusCount = 1,
         mlsCount = 1,
         mixedCount = 1,
-        mlsNotEstablishedInCrypto = 1,
-        mixedNotEstablishedInCrypto = 0,
+        mlsDriftCount = 1,
+        mixedDriftCount = 0,
+        mlsLeftCount = 0,
+        mixedLeftCount = 0,
+        ccLookupFailedCount = 0,
         conversationDetails = listOf(
             ConversationCryptoDetail(
                 conversationId = ConversationId("conv1", "domain"),
@@ -173,17 +176,19 @@ class ConversationCryptoStatsViewModelTest {
                 dbGroupState = null,
                 dbEpoch = null,
                 ccEpoch = null,
-                establishedInCrypto = null,
+                ccLookupFailed = false,
+                selfIsMember = true,
             ),
             ConversationCryptoDetail(
                 conversationId = ConversationId("conv2", "domain"),
                 conversationName = "MLS Conv",
                 protocolType = ConversationCryptoProtocolType.MLS,
                 groupId = "group-mls",
-                dbGroupState = DetailGroupState.PENDING_JOIN,
+                dbGroupState = DetailGroupState.ESTABLISHED,
                 dbEpoch = 10UL,
-                ccEpoch = 42UL,
-                establishedInCrypto = false,
+                ccEpoch = null,
+                ccLookupFailed = false,
+                selfIsMember = true,
             ),
             ConversationCryptoDetail(
                 conversationId = ConversationId("conv3", "domain"),
@@ -193,7 +198,8 @@ class ConversationCryptoStatsViewModelTest {
                 dbGroupState = DetailGroupState.ESTABLISHED,
                 dbEpoch = 5UL,
                 ccEpoch = 5UL,
-                establishedInCrypto = true,
+                ccLookupFailed = false,
+                selfIsMember = true,
             ),
         ),
     )

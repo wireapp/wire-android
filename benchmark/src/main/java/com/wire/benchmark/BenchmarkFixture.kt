@@ -25,7 +25,6 @@ import backendUtils.team.deleteTeam
 import backendUtils.user.removeBackendClients
 import service.TestServiceHelper
 import user.usermanager.ClientUserManager
-import user.utils.ClientUser
 import java.util.UUID
 
 data class BenchmarkFixture(

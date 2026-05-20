@@ -71,6 +71,7 @@ fun AttachmentOptionsComponent(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     isFileSharingEnabled: Boolean,
+    areAttachmentOptionsEnabled: Boolean,
     onLocationPickerClicked: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     modifier: Modifier = Modifier,
@@ -80,6 +81,7 @@ fun AttachmentOptionsComponent(
 
     val attachmentOptions = buildAttachmentOptionItems(
         isFileSharingEnabled = isFileSharingEnabled,
+        areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
         tempWritableImageUri = tempWritableImageUri,
         tempWritableVideoUri = tempWritableVideoUri,
         onImagesPicked = onImagesPicked,
@@ -163,7 +165,8 @@ fun AttachmentOptionsComponent(
                             icon = option.icon,
                             labelStyle = labelStyle,
                             modifier = Modifier.scale(animatedScale),
-                            text = stringResource(option.text)
+                            text = stringResource(option.text),
+                            enabled = option.isEnabled,
                         ) { option.onClick() }
                     }
                 }
@@ -278,6 +281,7 @@ private fun rememberCaptureVideoFlow(
 @Composable
 private fun buildAttachmentOptionItems(
     isFileSharingEnabled: Boolean,
+    areAttachmentOptionsEnabled: Boolean,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onImagesPicked: (List<Uri>) -> Unit,
@@ -311,39 +315,44 @@ private fun buildAttachmentOptionItems(
         with(localFeatureVisibilityFlags) {
             add(
                 AttachmentOptionItem(
-                    isFileSharingEnabled,
-                    R.string.attachment_share_file,
-                    R.drawable.ic_attach_file
+                    shouldShow = isFileSharingEnabled,
+                    isEnabled = areAttachmentOptionsEnabled,
+                    text = R.string.attachment_share_file,
+                    icon = R.drawable.ic_attach_file,
                 ) { fileFlow.launch() }
             )
             add(
                 AttachmentOptionItem(
-                    isFileSharingEnabled,
-                    R.string.attachment_share_image,
-                    R.drawable.ic_gallery
+                    shouldShow = isFileSharingEnabled,
+                    isEnabled = areAttachmentOptionsEnabled,
+                    text = R.string.attachment_share_image,
+                    icon = R.drawable.ic_gallery,
                 ) { galleryFlow.launch() }
             )
             add(
                 AttachmentOptionItem(
-                    isFileSharingEnabled,
-                    R.string.attachment_take_photo,
-                    R.drawable.ic_camera
+                    shouldShow = isFileSharingEnabled,
+                    isEnabled = areAttachmentOptionsEnabled,
+                    text = R.string.attachment_take_photo,
+                    icon = R.drawable.ic_camera,
                 ) { takePictureFlow?.launch() }
             )
             add(
                 AttachmentOptionItem(
-                    isFileSharingEnabled,
-                    R.string.attachment_record_video,
-                    R.drawable.ic_video
+                    shouldShow = isFileSharingEnabled,
+                    isEnabled = areAttachmentOptionsEnabled,
+                    text = R.string.attachment_record_video,
+                    icon = R.drawable.ic_video,
                 ) { captureVideoFlow?.launch() }
             )
             if (AudioMessagesIcon) {
                 add(
                     AttachmentOptionItem(
-                        isFileSharingEnabled,
-                        R.string.attachment_voice_message,
-                        R.drawable.ic_mic_on,
-                        onRecordAudioMessageClicked
+                        shouldShow = isFileSharingEnabled,
+                        isEnabled = areAttachmentOptionsEnabled,
+                        text = R.string.attachment_voice_message,
+                        icon = R.drawable.ic_mic_on,
+                        onClick = onRecordAudioMessageClicked,
                     )
                 )
             }
@@ -363,6 +372,7 @@ private fun buildAttachmentOptionItems(
 
 private data class AttachmentOptionItem(
     val shouldShow: Boolean = true,
+    val isEnabled: Boolean = true,
     @StringRes val text: Int,
     @DrawableRes val icon: Int,
     val onClick: () -> Unit
@@ -377,6 +387,7 @@ fun PreviewAttachmentComponents() {
             onImagesPicked = {},
             onAttachmentPicked = {},
             isFileSharingEnabled = true,
+            areAttachmentOptionsEnabled = true,
             tempWritableImageUri = null,
             tempWritableVideoUri = null,
             onRecordAudioMessageClicked = {},
@@ -398,6 +409,7 @@ fun PreviewAttachmentOptionsComponentSmallScreen() {
                 onAttachmentPicked = {},
                 onImagesPicked = {},
                 isFileSharingEnabled = true,
+                areAttachmentOptionsEnabled = true,
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
                 onRecordAudioMessageClicked = {},
@@ -420,6 +432,7 @@ fun PreviewAttachmentOptionsComponentNormalScreen() {
                 onAttachmentPicked = {},
                 onImagesPicked = {},
                 isFileSharingEnabled = true,
+                areAttachmentOptionsEnabled = true,
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
                 onRecordAudioMessageClicked = {},
@@ -442,6 +455,7 @@ fun PreviewAttachmentOptionsComponentTabledScreen() {
                 onAttachmentPicked = {},
                 onImagesPicked = {},
                 isFileSharingEnabled = true,
+                areAttachmentOptionsEnabled = true,
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
                 onRecordAudioMessageClicked = {},

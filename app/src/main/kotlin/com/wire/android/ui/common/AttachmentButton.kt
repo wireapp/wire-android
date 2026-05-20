@@ -48,19 +48,42 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun AttachmentButton(@DrawableRes icon: Int, labelStyle: TextStyle, modifier: Modifier = Modifier, text: String = "", onClick: () -> Unit) {
+fun AttachmentButton(
+    @DrawableRes icon: Int,
+    labelStyle: TextStyle,
+    modifier: Modifier = Modifier,
+    text: String = "",
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
+    val buttonBackgroundColor = if (enabled) {
+        MaterialTheme.wireColorScheme.primaryButtonEnabled
+    } else {
+        MaterialTheme.wireColorScheme.primaryButtonDisabled
+    }
+    val buttonContentColor = if (enabled) {
+        MaterialTheme.wireColorScheme.onPrimaryButtonEnabled
+    } else {
+        MaterialTheme.wireColorScheme.onPrimaryButtonDisabled
+    }
+    val labelColor = if (enabled) {
+        MaterialTheme.wireColorScheme.onBackground
+    } else {
+        MaterialTheme.wireColorScheme.secondaryText
+    }
+
     Column(
         modifier = modifier
             .padding(dimensions().spacing4x)
             .clip(RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize))
-            .clickable { onClick() }
+            .clickable(enabled = enabled) { onClick() }
             .padding(dimensions().spacing8x),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
                 .size(dimensions().attachmentButtonSize)
-                .background(MaterialTheme.wireColorScheme.primaryButtonEnabled, CircleShape)
+                .background(buttonBackgroundColor, CircleShape)
                 .padding(dimensions().spacing2x)
         ) {
             Image(
@@ -70,7 +93,7 @@ fun AttachmentButton(@DrawableRes icon: Int, labelStyle: TextStyle, modifier: Mo
                 modifier = Modifier
                     .padding(dimensions().spacing8x)
                     .align(Alignment.Center),
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onPrimaryButtonEnabled)
+                colorFilter = ColorFilter.tint(buttonContentColor)
             )
         }
         VerticalSpace.x4()
@@ -80,7 +103,7 @@ fun AttachmentButton(@DrawableRes icon: Int, labelStyle: TextStyle, modifier: Mo
             maxLines = 2,
             textAlign = TextAlign.Center,
             style = labelStyle,
-            color = MaterialTheme.wireColorScheme.onBackground,
+            color = labelColor,
         )
         Spacer(modifier = Modifier.weight(1F))
     }

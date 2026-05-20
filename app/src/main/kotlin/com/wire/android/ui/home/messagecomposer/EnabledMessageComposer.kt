@@ -453,6 +453,7 @@ fun EnabledMessageComposer(
                         AdditionalOptionSubMenu(
                             optionsVisible = inputStateHolder.optionsVisible,
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
+                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
                             onRecordAudioMessageClicked = {
                                 if (!messageComposerViewState.value.isCallOngoing) {

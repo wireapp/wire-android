@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -32,22 +33,24 @@ import com.wire.android.ui.home.conversations.InvalidLinkDialogState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.VisitLinkDialogState
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
-import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
+import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
@@ -55,10 +58,13 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -74,6 +80,8 @@ class MessageComposerViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
+    private val observeConversationDetails: ObserveConversationDetailsUseCase,
+    private val observeSelfUser: ObserveSelfUserUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
     private val updateConversationReadDate: UpdateConversationReadDateUseCase,
     private val markConversationAsReadLocally: MarkConversationAsReadLocallyUseCase,
@@ -116,6 +124,7 @@ class MessageComposerViewModel @Inject constructor(
         initTempWritableImageUri()
         observeIsTypingAvailable()
         setFileSharingStatus()
+        observeAttachmentOptionsAvailability()
         getEnterToSendState()
         observeCallState()
     }
@@ -197,6 +206,38 @@ class MessageComposerViewModel @Inject constructor(
                     messageComposerViewState.value.copy(isFileSharingEnabled = true)
             }
         }
+    }
+
+    private fun observeAttachmentOptionsAvailability() {
+        viewModelScope.launch {
+
+            combine(
+                observeSelfUser().distinctUntilChanged(),
+                observeConversationDetails(conversationId)
+                    .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
+                    .map { it.conversationDetails }
+                    .distinctUntilChanged(),
+            ) { selfUser, conversationDetails ->
+                canUseAttachmentOptions(
+                    selfUser = selfUser,
+                    conversationDetails = conversationDetails,
+                )
+            }.collectLatest { areAttachmentOptionsEnabled ->
+                messageComposerViewState.value = messageComposerViewState.value.copy(
+                    areAttachmentOptionsEnabled = areAttachmentOptionsEnabled
+                )
+            }
+        }
+    }
+
+    private fun canUseAttachmentOptions(
+        selfUser: SelfUser,
+        conversationDetails: ConversationDetails,
+    ): Boolean {
+        val isCellsConversation = (conversationDetails as? ConversationDetails.Group)?.wireCell != null
+        val isConversationOwnedBySelfTeam = conversationDetails.conversation.teamId == selfUser.teamId
+
+        return !(isCellsConversation && !isConversationOwnedBySelfTeam)
     }
 
     fun updateConversationReadDate(utcISO: String) {

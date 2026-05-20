@@ -20,8 +20,12 @@ package com.wire.android.ui.home.conversations.composer
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.framework.TestUser
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
+import com.wire.kalium.logic.data.id.TeamId
+import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,6 +43,46 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(NavigationTestExtension::class)
 @Suppress("LargeClass")
 class MessageComposerViewModelTest {
+
+    @Test
+    fun `given guest in foreign-team cells conversation when init then attachment options are disabled`() = runTest {
+        val foreignTeamId = TeamId("foreign-team")
+
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withSelfUser(TestUser.SELF_USER.copy(userType = UserTypeInfo.Regular(UserType.GUEST)))
+            .withConversationDetails(
+                mockConversationDetailsGroup(
+                    conversationName = "Foreign team cells",
+                    teamId = foreignTeamId,
+                    wireCell = "wire-cell-id",
+                )
+            )
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.messageComposerViewState.value.areAttachmentOptionsEnabled)
+    }
+
+    @Test
+    fun `given guest in self-team cells conversation when init then attachment options stay enabled`() = runTest {
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withSelfUser(TestUser.SELF_USER.copy(userType = UserTypeInfo.Regular(UserType.GUEST)))
+            .withConversationDetails(
+                mockConversationDetailsGroup(
+                    conversationName = "Own team cells",
+                    teamId = TestUser.SELF_USER.teamId,
+                    wireCell = "wire-cell-id",
+                )
+            )
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertTrue(viewModel.messageComposerViewState.value.areAttachmentOptionsEnabled)
+    }
 
     @Test
     fun `given that user types a text message, when invoked typing invoked, then send typing event is called`() = runTest {

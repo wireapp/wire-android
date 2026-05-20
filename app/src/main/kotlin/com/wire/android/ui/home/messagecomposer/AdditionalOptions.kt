@@ -94,6 +94,7 @@ fun AdditionalOptionsMenu(
 @Composable
 fun AdditionalOptionSubMenu(
     isFileSharingEnabled: Boolean,
+    areAttachmentOptionsEnabled: Boolean,
     optionsVisible: Boolean,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     onLocationPickerClicked: () -> Unit,
@@ -115,6 +116,7 @@ fun AdditionalOptionSubMenu(
         tempWritableImageUri = tempWritableImageUri,
         tempWritableVideoUri = tempWritableVideoUri,
         isFileSharingEnabled = isFileSharingEnabled,
+        areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
         onRecordAudioMessageClicked = onRecordAudioMessageClicked,
         onLocationPickerClicked = onLocationPickerClicked,
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,

@@ -46,6 +46,7 @@ data class BenchmarkFixture(
 
 object BenchmarkFixtureFactory {
 
+    @Suppress("MagicNumber")
     fun create(
         backendName: String,
         context: Context,

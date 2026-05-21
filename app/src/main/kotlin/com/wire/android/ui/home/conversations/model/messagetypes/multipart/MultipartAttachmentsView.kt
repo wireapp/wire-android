@@ -45,6 +45,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid.
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone.AssetPreview
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isFailed
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAttachment
 
 /**
@@ -53,13 +54,14 @@ import com.wire.kalium.logic.data.message.MessageAttachment
  */
 @Composable
 fun MultipartAttachmentsView(
+    conversationId: ConversationId,
     attachments: List<MessageAttachment>,
     messageStyle: MessageStyle,
     onImageAttachmentClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
-        else -> hiltViewModel<MultipartAttachmentsViewModelImpl>()
+        else -> hiltViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value)
     }
 ) {
     // Collect to trigger recomposition when offline availability changes.

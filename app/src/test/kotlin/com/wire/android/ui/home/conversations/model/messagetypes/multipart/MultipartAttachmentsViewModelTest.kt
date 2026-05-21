@@ -29,7 +29,7 @@ import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
-import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesByConversationUseCase
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -294,7 +294,7 @@ class MultipartAttachmentsViewModelTest {
         lateinit var getWireCellsConfig: GetWireCellConfigurationUseCase
 
         @MockK
-        lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
+        lateinit var observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase
 
         val kaliumFileSystem: KaliumFileSystem = FakeKaliumFileSystem()
         private var offlineFiles: List<OfflineFileInfo> = emptyList()
@@ -320,7 +320,8 @@ class MultipartAttachmentsViewModelTest {
             coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
             coEvery { download(any(), any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()
             coEvery { getWireCellsConfig() } returns null
-            every { observeOfflineFiles() } returns flowOf(offlineFiles)
+            every { observeOfflineFilesByConversation(testConversationId) } returns flowOf(offlineFiles)
+            every { observeOfflineFilesByConversation("other-conversation") } returns flowOf(offlineFiles)
 
             return this to MultipartAttachmentsViewModelImpl(
                 savedStateHandle = savedStateHandle,
@@ -332,7 +333,7 @@ class MultipartAttachmentsViewModelTest {
                 kaliumFileSystem = kaliumFileSystem,
                 featureFlags = kaliumConfigs,
                 getWireCellsConfig = getWireCellsConfig,
-                observeOfflineFiles = observeOfflineFiles,
+                observeOfflineFilesByConversation = observeOfflineFilesByConversation,
             )
         }
     }

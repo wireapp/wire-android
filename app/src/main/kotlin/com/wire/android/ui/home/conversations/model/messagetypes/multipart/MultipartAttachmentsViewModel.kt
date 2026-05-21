@@ -35,7 +35,7 @@ import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesByConversationUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -136,12 +136,12 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
     private val kaliumFileSystem: KaliumFileSystem,
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
-    observeOfflineFiles: ObserveOfflineFilesUseCase,
+    observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
     private val conversationId = savedStateHandle.navArgs<ConversationNavArgs>().conversationId.value
 
     private val uploadProgress = mutableStateMapOf<String, Float>()
-    override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFiles()
+    override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFilesByConversation(conversationId)
         .map { offlineFiles -> offlineFiles.mapTo(mutableSetOf()) { it.id } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 

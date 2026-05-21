@@ -16,6 +16,10 @@ concurrency:
 jobs:
   # Build for direct pushes to main (includes beta deployment)
   build-beta:
+    permissions:
+      contents: write
+      actions: read
+      security-events: write
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: push

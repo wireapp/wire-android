@@ -334,8 +334,11 @@ fun HomeContent(
                                 onOpenConversationFilter = {
                                     homeStateHolder.conversationsFilterBottomSheetState.show(Unit)
                                 },
-                                searchFocusRequester = searchFocusRequester,
-                                fabFocusRequester = if (currentNavigationItem.fab != null) fabFocusRequester else null,
+                                nextFocusRequester = if (currentNavigationItem.fab != null) {
+                                    fabFocusRequester
+                                } else {
+                                    searchFocusRequester
+                                },
                             )
                         }
                     },

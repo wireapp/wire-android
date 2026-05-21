@@ -56,8 +56,7 @@ fun HomeTopBar(
     onNavigateToSelfUserProfile: () -> Unit,
     onOpenConversationFilter: () -> Unit,
     modifier: Modifier = Modifier,
-    searchFocusRequester: FocusRequester? = null,
-    fabFocusRequester: FocusRequester? = null,
+    nextFocusRequester: FocusRequester? = null,
 ) {
     WireCenterAlignedTopAppBar(
         title = title,
@@ -90,10 +89,7 @@ fun HomeTopBar(
                 UserProfileAvatar(
                     avatarData = userAvatarData,
                     modifier = Modifier.focusProperties {
-                        when {
-                            fabFocusRequester != null -> next = fabFocusRequester
-                            searchFocusRequester != null -> next = searchFocusRequester
-                        }
+                        nextFocusRequester?.let { next = it }
                     },
                     clickable = remember(openLabel, onNavigateToSelfUserProfile) {
                         Clickable(

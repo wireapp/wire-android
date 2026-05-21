@@ -129,6 +129,10 @@ jobs:
 
   build-rc:
     needs: create-github-release
+    permissions:
+      contents: write
+      actions: read
+      security-events: write
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: rc

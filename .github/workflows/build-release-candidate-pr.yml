@@ -21,6 +21,10 @@ jobs:
   # Build for PR and merge group validation
   build-validation:
     if: github.event_name == 'merge_group' || (github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request')
+    permissions:
+      contents: write
+      actions: read
+      security-events: write
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: pr

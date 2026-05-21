@@ -115,6 +115,7 @@ jobs:
       - name: Create GitHub Pre-Release
         uses: softprops/action-gh-release@v3.0.0
         with:
+          token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
           tag_name: ${{ github.ref_name }}
           name: "Release Candidate ${{ github.ref_name }}"
           body: |
@@ -129,6 +130,10 @@ jobs:
 
   build-rc:
     needs: create-github-release
+    permissions:
+      contents: write
+      actions: read
+      security-events: write
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: rc

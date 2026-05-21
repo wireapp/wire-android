@@ -40,7 +40,7 @@ class TeamHelper {
                 defaultCipherSuite = 2,
                 allowedCipherSuites = listOf(2),
                 defaultProtocol = "mls",
-                allowedProtocols = listOf("mls")
+                allowedProtocols = listOf("mls", "proteus")
             )
         }
     }

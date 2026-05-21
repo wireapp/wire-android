@@ -18,9 +18,9 @@
 package com.wire.android.tests.support.tags
 
 /**
- * Annotation used to assign one or more Test Case IDs to a test.
+ * Annotation used to assign a unique Test Case ID to a test.
  * Example: @TestCaseId("TC-4265")
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
-annotation class TestCaseId(vararg val value: String)
+annotation class TestCaseId(val value: String)

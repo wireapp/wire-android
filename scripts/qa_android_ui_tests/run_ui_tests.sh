@@ -418,9 +418,6 @@ run_attempt_on_devices() {
         if [[ -n "${EXCLUDE_CATEGORY:-}" ]]; then
           args+=(-e excludeCategory "${EXCLUDE_CATEGORY}")
         fi
-        if [[ -n "${REQUIRED_CATEGORY:-}" ]]; then
-          args+=(-e requiredCategory "${REQUIRED_CATEGORY}")
-        fi
       else
         local retry_list_file
         local retry_test_count

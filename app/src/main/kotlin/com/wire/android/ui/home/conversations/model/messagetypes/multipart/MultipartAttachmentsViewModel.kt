@@ -58,16 +58,21 @@ import javax.inject.Inject
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
     fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit)
+    fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
+        val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
+        return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
+    }
+
     fun mapAttachments(
         attachments: List<MessageAttachment>,
-        offlineAttachmentIds: Set<String> = emptySet(),
     ): List<MultipartAttachmentGroup> {
+        val offlineIds = offlineAttachmentIds.value
 
         val result = mutableListOf<MultipartAttachmentGroup>()
         var group: MultipartAttachmentGroup? = null
 
         attachments.forEach {
-            val isAvailableOffline = it.assetId() in offlineAttachmentIds
+            val isAvailableOffline = it.assetId() in offlineIds
             if (it.isMediaAttachment()) {
                 group = when (group) {
                     null -> MultipartAttachmentGroup.Media(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))

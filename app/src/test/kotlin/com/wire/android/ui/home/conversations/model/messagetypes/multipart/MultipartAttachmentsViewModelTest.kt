@@ -43,6 +43,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -148,11 +149,13 @@ class MultipartAttachmentsViewModelTest {
     @Test
     fun `with offline attachment id when mapped then attachment is marked as available offline`() = runTest {
         val (_, viewModel) = Arrangement()
+            .withOfflineAttachmentId("asset_1")
             .arrange()
+
+        advanceUntilIdle()
 
         val result = viewModel.mapAttachments(
             listOf(testAssetContent.copy(id = "asset_1", mimeType = "application/pdf")),
-            offlineAttachmentIds = setOf("asset_1")
         )
 
         assertEquals(
@@ -294,6 +297,21 @@ class MultipartAttachmentsViewModelTest {
         lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
 
         val kaliumFileSystem: KaliumFileSystem = FakeKaliumFileSystem()
+        private var offlineFiles: List<OfflineFileInfo> = emptyList()
+
+        fun withOfflineAttachmentId(assetId: String) = apply {
+            offlineFiles = listOf(
+                OfflineFileInfo(
+                    id = assetId,
+                    conversationId = testConversationId,
+                    name = "file",
+                    owner = "owner",
+                    localPath = "local/path",
+                    size = 1L,
+                    downloadedAt = 1L,
+                )
+            )
+        }
 
         fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
 
@@ -302,7 +320,7 @@ class MultipartAttachmentsViewModelTest {
             coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
             coEvery { download(any(), any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()
             coEvery { getWireCellsConfig() } returns null
-            every { observeOfflineFiles() } returns flowOf(emptyList<OfflineFileInfo>())
+            every { observeOfflineFiles() } returns flowOf(offlineFiles)
 
             return this to MultipartAttachmentsViewModelImpl(
                 savedStateHandle = savedStateHandle,

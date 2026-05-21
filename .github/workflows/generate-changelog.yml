@@ -62,9 +62,8 @@ jobs:
 
       - name: 'Create release with changelog'
         uses: softprops/action-gh-release@v3.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
         with:
+          token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
           tag_name: ${{env.CURRENT_TAG}}
           name: ${{env.CURRENT_TAG}}
           body_path: ./CHANGELOG.md

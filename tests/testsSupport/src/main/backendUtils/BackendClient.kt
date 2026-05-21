@@ -774,6 +774,81 @@ class BackendClient(
         return getFeatureConfig("mls", user).get("status").equals("enabled")
     }
 
+    suspend fun enableMLSFeatureTeam(
+        team: Team,
+        defaultCipherSuite: Int,
+        allowedCipherSuites: List<Int>,
+        defaultProtocol: String,
+        allowedProtocols: List<String>
+    ) {
+        val teamId = Uri.encode(team.id)
+        val url = URI("i/teams/$teamId/features/mls".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        val requestBody = JSONObject().apply {
+            put("status", "enabled")
+            put(
+                "config",
+                JSONObject().apply {
+                    put("defaultCipherSuite", defaultCipherSuite)
+                    put("allowedCipherSuites", JSONArray(allowedCipherSuites))
+                    put("defaultProtocol", defaultProtocol)
+                    put("protocolToggleUsers", JSONArray())
+                    put("supportedProtocols", JSONArray(allowedProtocols))
+                }
+            )
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PUT",
+            headers = headers,
+            body = requestBody.toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
+    suspend fun enableChannelFeatureViaBackdoorTeam(team: Team) {
+        val teamId = Uri.encode(team.id)
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = URI("i/teams/$teamId/features/channels".composeCompleteUrl()).toURL(),
+            method = "PATCH",
+            headers = headers,
+            body = JSONObject().put("status", "enabled").toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
+    suspend fun unlockChannelFeature(team: Team) {
+        val teamId = Uri.encode(team.id)
+        val url = URI("i/teams/$teamId/features/channels/unlocked".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PUT",
+            headers = headers,
+            body = JSONObject().toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
     suspend fun unlockConferenceCallingFeature(team: Team) {
         val teamId = Uri.encode(team.id)
         val url = URI("i/teams/$teamId/features/conferenceCalling/unlocked".composeCompleteUrl()).toURL()

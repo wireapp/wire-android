@@ -171,7 +171,7 @@ class TaggedFilter : Filter() {
         // 1) TestCaseId
         filterTestCaseId?.let { wantedId ->
             val testCaseAnno = annotations.filterIsInstance<TestCaseId>().firstOrNull()
-            if (testCaseAnno == null || testCaseAnno.value != wantedId) {
+            if (testCaseAnno == null || !testCaseAnno.value.contains(wantedId)) {
                 return false
             }
         }

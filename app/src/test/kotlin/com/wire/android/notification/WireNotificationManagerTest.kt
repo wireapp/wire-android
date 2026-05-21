@@ -475,8 +475,7 @@ class WireNotificationManagerTest {
         manager.clearWhenNoUsers()
         advanceUntilIdle()
 
-        verify(exactly = 1) { arrangement.messageNotificationManager.hideAllNotificationsForUser(userId) }
-        verify(exactly = 1) { arrangement.callNotificationManager.hideAllIncomingCallNotifications() }
+        verify(exactly = 1) { arrangement.callNotificationManager.hideAllCallNotifications() }
         verify(exactly = 1) { arrangement.messageNotificationManager.hideAllNotifications() }
         verify(exactly = 0) { arrangement.servicesManager.startCallService() }
         verify(exactly = 1) { arrangement.servicesManager.stopCallService() }

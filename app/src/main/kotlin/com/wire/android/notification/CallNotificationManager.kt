@@ -128,13 +128,16 @@ class CallNotificationManager @Inject constructor(
         }
     }
 
-    fun hideAllIncomingCallNotifications() = hideIncomingCallNotifications { _, _ -> true }
-
     fun hideAllIncomingCallNotificationsForUser(userId: UserId) =
         hideIncomingCallNotifications { tag, _ -> tag == NotificationConstants.getIncomingCallTag(userId.toString()) }
 
     fun hideIncomingCallNotification(userIdString: String, conversationIdString: String) =
         hideIncomingCallNotifications { _, id -> id == NotificationConstants.getIncomingCallId(userIdString, conversationIdString) }
+
+    fun hideAllCallNotifications() {
+        hideIncomingCallNotifications { _, _ -> true }
+        notificationManager.cancel(NotificationIds.CALL_OUTGOING_ONGOING_NOTIFICATION_ID.ordinal)
+    }
 
     fun bringBackIncomingCallNotification(userIdString: String, conversationIdString: String) {
         scope.launch {

@@ -126,7 +126,7 @@ class WireNotificationManager @Inject constructor(
         observingWhileRunningJobs.cancelAndClearAll()
         observingPersistentlyJobs.cancelAndClearAll()
         messagesNotificationManager.hideAllNotifications()
-        callNotificationManager.hideAllIncomingCallNotifications()
+        callNotificationManager.hideAllCallNotifications()
         servicesManager.stopCallService()
     }
 

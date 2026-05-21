@@ -68,7 +68,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8716") // "TC-8717"
+    @TestCaseId("TC-8716") // TC-8717, TC-8723
     @Category("channels", "regression")
     @Test
     fun givenTeamMemberWithChannelFeatureEnabled_whenCreatingChannelWithTeammateAndDeletingCreatedChannel_thenChannelConversationIsCreatedAndDeleted() {
@@ -187,6 +187,7 @@ class ChannelTest : BaseUiTest() {
                 tapAddParticipantsButton()
             }
         }
+        // TC-8723 - I want to add a participant to an existing channel conversation
 
         step("And I select Member1 and Member2 from participant suggestions") {
             pages.groupConversationDetailsPage.apply {

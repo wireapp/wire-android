@@ -17,6 +17,7 @@
  */
 package com.wire.android
 
+import com.wire.android.common.runTestWithCancellation
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -45,11 +46,15 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runCurrent
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.util.concurrent.atomic.AtomicInteger
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -188,6 +193,34 @@ class GlobalObserversManagerTest {
         }
     }
 
+    @Test
+    fun `given valid account observer is running, when accounts become empty, then cancel conversation change observer`() =
+        runTestWithCancellation {
+            val accountsFlow = MutableStateFlow<List<Pair<SelfUser, Team?>>>(listOf(TestUser.SELF_USER to null))
+            val startedObservers = AtomicInteger(0)
+            val cancelledObservers = AtomicInteger(0)
+            val (arrangement, manager) = Arrangement()
+                .withValidAccountsFlow(accountsFlow)
+                .arrange()
+            coEvery { arrangement.endCallOnConversationChangeUseCase.invoke() } coAnswers {
+                startedObservers.incrementAndGet()
+                try {
+                    awaitCancellation()
+                } finally {
+                    cancelledObservers.incrementAndGet()
+                }
+            }
+
+            manager.observe()
+            runCurrent()
+            assertEquals(1, startedObservers.get())
+
+            accountsFlow.value = emptyList()
+            runCurrent()
+
+            assertEquals(1, cancelledObservers.get())
+        }
+
     private class Arrangement {
 
         @MockK
@@ -253,6 +286,10 @@ class GlobalObserversManagerTest {
 
         fun withValidAccounts(list: List<Pair<SelfUser, Team?>>): Arrangement = apply {
             coEvery { coreLogic.getGlobalScope().observeValidAccounts() } returns flowOf(list)
+        }
+
+        fun withValidAccountsFlow(flow: MutableStateFlow<List<Pair<SelfUser, Team?>>>): Arrangement = apply {
+            coEvery { coreLogic.getGlobalScope().observeValidAccounts() } returns flow
         }
 
         fun withPersistentWebSocketConnectionStatuses(list: List<PersistentWebSocketStatus>): Arrangement = apply {

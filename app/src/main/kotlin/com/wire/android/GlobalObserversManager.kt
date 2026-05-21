@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -67,8 +68,10 @@ class GlobalObserversManager @Inject constructor(
         scope.launch { setUpNotifications() }
         scope.launch {
             coreLogic.getGlobalScope().observeValidAccounts().distinctUntilChanged().collectLatest {
-                it.forEach {
-                    launch { coreLogic.getSessionScope(it.first.id).calls.endCallOnConversationChange() }
+                coroutineScope {
+                    it.forEach {
+                        launch { coreLogic.getSessionScope(it.first.id).calls.endCallOnConversationChange() }
+                    }
                 }
             }
         }

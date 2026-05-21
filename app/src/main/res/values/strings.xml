@@ -275,7 +275,7 @@
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
     <string name="url_android_release_notes_feed" translatable="false">https://medium.com/feed/wire-news/tagged/android</string>
-    <string name="url_maps_location_coordinates_fallback" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
+    <string name="url_maps_location_coordinates_fallback" translatable="false">https://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
     <!-- Wire Urls - Non translatable -->
     <string name="url_wire_website" translatable="false">https://www.wire.com</string>
     <string name="url_support" translatable="false">https://support.wire.com</string>

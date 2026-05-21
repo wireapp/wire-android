@@ -55,7 +55,7 @@ import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMet
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -110,7 +110,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
     @CurrentAccount val currentAccount: UserId,
     private val userTypeMapper: UserTypeMapper,
-    private val getSelfUser: GetSelfUserUseCase,
+    private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
 ) : ConversationListViewModel, ViewModel() {
 
@@ -214,6 +214,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     private fun observeNonPaginatedSearchConversationList() {
         viewModelScope.launch {
+            val selfTeamId = getSelfTeamId()
             searchQueryFlow
                 .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
                 .onStart { emit("") }
@@ -232,7 +233,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                                 userTypeMapper = userTypeMapper,
                                 uiTextResolver = uiTextResolver,
                                 searchQuery = searchQuery,
-                                selfUserTeamId = getSelfUser()?.teamId,
+                                selfUserTeamId = selfTeamId,
                                 playingAudioMessage = playingAudioMessage
                             ).hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold)
                         } to searchQuery

@@ -38,8 +38,8 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserU
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.team.SyncSelfTeamInfoUseCase
+import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
@@ -53,7 +53,7 @@ class SelfUserProfileViewModelArrangement {
     lateinit var userDataStore: UserDataStore
 
     @MockK
-    lateinit var getSelf: ObserveSelfUserUseCase
+    lateinit var getSelfTeamId: GetSelfTeamIdUseCase
 
     @MockK
     lateinit var observeSelfUserWithTeam: ObserveSelfUserWithTeamUseCase
@@ -116,7 +116,7 @@ class SelfUserProfileViewModelArrangement {
         SelfUserProfileViewModel(
             selfUserId = TestUser.SELF_USER.id,
             dataStore = userDataStore,
-            observeSelf = getSelf,
+            getSelfTeamId = getSelfTeamId,
             observeSelfUserWithTeam = observeSelfUserWithTeam,
             syncSelfTeamInfo = syncSelfTeamInfo,
             observeValidAccounts = observeValidAccounts,
@@ -143,7 +143,7 @@ class SelfUserProfileViewModelArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
 
-        coEvery { getSelf.invoke() } returns flowOf(TestUser.SELF_USER)
+        coEvery { getSelfTeamId.invoke() } returns TestUser.SELF_USER.teamId
         coEvery { observeSelfUserWithTeam.invoke() } returns flowOf(TestUser.SELF_USER to TestTeam.TEAM)
         coEvery { syncSelfTeamInfo.invoke() } returns TestTeam.TEAM
         coEvery { observeValidAccounts.invoke() } returns flowOf(listOf(TestUser.SELF_USER to TestTeam.TEAM))

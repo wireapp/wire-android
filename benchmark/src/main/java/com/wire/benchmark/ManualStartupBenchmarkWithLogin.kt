@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,54 +26,34 @@ import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * This benchmark will measure the app startup when we have a valid session.
- */
 @RunWith(AndroidJUnit4::class)
-class StartupBenchmarkWithLogin {
+class ManualStartupBenchmarkWithLogin {
 
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
     private val args get() = InstrumentationRegistry.getArguments()
     private val targetPackage get() = args.getString("TARGET_PACKAGE", "com.wire")
-    private val backendName get() = args.getString("BACKEND_NAME", "STAGING")
-    private val conversationName get() = args.getString("CONVERSATION_NAME").orEmpty()
+    private val email get() = args.getString("EMAIL").orEmpty()
+    private val password get() = args.getString("PASSWORD").orEmpty()
 
     @Test
     fun startUpWithoutBaselineProfiler() {
-        val fixture = createFixture()
-        try {
-            startup(
-            CompilationMode.None()
-        ) {
+        startup(CompilationMode.None()) {
             startActivityAndWait()
-            switchBackend(fixture.backend.deeplink)
-            login(fixture.email, fixture.password)
-        }
-        } finally {
-            fixture.cleanup()
+            if (email.isNotEmpty() && password.isNotEmpty()) login(email, password)
         }
     }
 
     @Test
     fun startUpWithBaselineProfiler() {
-        val fixture = createFixture()
-        try {
-            startup(
-            CompilationMode.Partial(BaselineProfileMode.Require)
-        ) {
+        startup(CompilationMode.Partial(BaselineProfileMode.Require)) {
             startActivityAndWait()
-            switchBackend(fixture.backend.deeplink)
-            login(fixture.email, fixture.password)
-        }
-        } finally {
-            fixture.cleanup()
+            if (email.isNotEmpty() && password.isNotEmpty()) login(email, password)
         }
     }
 
@@ -91,12 +71,6 @@ class StartupBenchmarkWithLogin {
         pressHome()
         startActivityAndWait()
     }
-
-    private fun createFixture() = BenchmarkFixtureFactory.create(
-        backendName = backendName,
-        context = getInstrumentation().context,
-        conversationNameOverride = conversationName,
-    )
 
     companion object {
         private const val ITERATIONS = 5

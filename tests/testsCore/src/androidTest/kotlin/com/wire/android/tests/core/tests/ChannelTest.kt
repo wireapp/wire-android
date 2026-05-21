@@ -71,7 +71,7 @@ class ChannelTest : BaseUiTest() {
     @TestCaseId("TC-8716") // "TC-8717"
     @Category("channels", "regression")
     @Test
-    fun givenTeamMemberWithChannelFeatureEnabled_whenCreatingChannelWithTeammate_thenChannelConversationIsCreated() {
+    fun givenTeamMemberWithChannelFeatureEnabled_whenCreatingChannelWithTeammateAndDeletingCreatedChannel_thenChannelConversationIsCreatedAndDeleted() {
         step("There is TeamOwner with team ChannelCreation on Staging backend") {
             teamHelper.usersManager.createTeamOwnerByAlias(
                 "user1Name",

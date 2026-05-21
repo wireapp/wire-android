@@ -57,6 +57,7 @@ fun SearchBarInput(
     textState: TextFieldState,
     modifier: Modifier = Modifier,
     inputModifier: Modifier = Modifier,
+    clearButtonModifier: Modifier = Modifier,
     placeholderTextStyle: TextStyle = LocalTextStyle.current,
     placeholderAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -65,7 +66,6 @@ fun SearchBarInput(
     isLoading: Boolean = false,
     inputEnabled: Boolean = true,
     semanticDescription: String? = null,
-    clearButtonModifier: Modifier = Modifier,
     onTap: (() -> Unit)? = null
 ) {
 

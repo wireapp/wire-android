@@ -123,8 +123,8 @@ class WireNotificationManager @Inject constructor(
      * hide all the notifications and stop the call service, because they are not relevant anymore.
      */
     fun clearWhenNoUsers() {
-        observingWhileRunningJobs.userJobs.keys.forEach { userId -> stopObservingForUser(userId, observingWhileRunningJobs) }
-        observingPersistentlyJobs.userJobs.keys.forEach { userId -> stopObservingForUser(userId, observingPersistentlyJobs) }
+        observingWhileRunningJobs.cancelAndClearAll()
+        observingPersistentlyJobs.cancelAndClearAll()
         messagesNotificationManager.hideAllNotifications()
         callNotificationManager.hideAllIncomingCallNotifications()
         servicesManager.stopCallService()
@@ -605,7 +605,14 @@ class WireNotificationManager @Inject constructor(
     private data class ObservingJobs(
         val outgoingOngoingCallJob: AtomicReference<Job?> = AtomicReference(),
         val userJobs: ConcurrentHashMap<QualifiedID, UserObservingJobs> = ConcurrentHashMap()
-    )
+    ) {
+        fun cancelAndClearAll() {
+            outgoingOngoingCallJob.get()?.cancel()
+            outgoingOngoingCallJob.set(null)
+            userJobs.values.forEach { it.cancelAll() }
+            userJobs.clear()
+        }
+    }
 
     companion object {
         private const val TAG = "WireNotificationManager"

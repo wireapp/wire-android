@@ -483,6 +483,31 @@ class WireNotificationManagerTest {
     }
 
     @Test
+    fun givenSomeUsers_whenAllUsersBecomeInvalid_thenOutgoingOngoingCallObserverIsStopped() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val userId = provideUserId()
+            val call = provideCall().copy(status = CallStatus.ESTABLISHED)
+            val (arrangement, manager) = Arrangement()
+                .withIncomingCalls(listOf())
+                .withOutgoingCalls(listOf())
+                .withMessageNotifications(listOf())
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .withEstablishedCall(listOf(call))
+                .arrange()
+
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
+            runCurrent()
+
+            manager.clearWhenNoUsers()
+            arrangement.clearRecordedCallsForServicesManager()
+
+            arrangement.withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
+            runCurrent()
+
+            verify(exactly = 0) { arrangement.servicesManager.startCallService() }
+        }
+
+    @Test
     fun givenAppInBackground_withValidCurrentAccountAndOngoingCall_whenObserving_thenStartCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()

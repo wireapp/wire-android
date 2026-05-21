@@ -46,7 +46,7 @@ import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMet
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -288,7 +288,7 @@ class ConversationListViewModelTest {
         private lateinit var observeLegalHoldStateForSelfUserUseCase: ObserveLegalHoldStateForSelfUserUseCase
 
         @MockK
-        private lateinit var getSelfUser: GetSelfUserUseCase
+        private lateinit var getSelfTeamId: GetSelfTeamIdUseCase
 
         @MockK
         lateinit var audioMessagePlayer: ConversationAudioMessagePlayer
@@ -312,6 +312,7 @@ class ConversationListViewModelTest {
                 }
             )
             every { audioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
+            coEvery { getSelfTeamId() } returns TestUser.SELF_USER.teamId
             coEvery { uiTextResolver.resolve(any()) } answers {
                 val text = firstArg<UIText>()
                 when (text) {
@@ -357,7 +358,7 @@ class ConversationListViewModelTest {
             observeConversationListDetailsWithEvents = observeConversationListDetailsWithEventsUseCase,
             observeLegalHoldStateForSelfUser = observeLegalHoldStateForSelfUserUseCase,
             userTypeMapper = UserTypeMapper(),
-            getSelfUser = getSelfUser,
+            getSelfTeamId = getSelfTeamId,
             uiTextResolver = uiTextResolver,
             usePagination = true,
             audioMessagePlayer = audioMessagePlayer,

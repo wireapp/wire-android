@@ -27,6 +27,7 @@ plugins {
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
     id(libs.plugins.wire.hilt.get().pluginId)
+    alias(libs.plugins.androidx.baselineprofile)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.compose.compiler)
@@ -170,6 +171,13 @@ android {
     }
 }
 
+baselineProfile {
+    mergeIntoMain = false
+    saveInSrc = true
+    automaticGenerationDuringBuild = false
+    dexLayoutOptimization = true
+}
+
 ksp {
     arg("compose-destinations.moduleName", "app")
 }
@@ -267,6 +275,7 @@ dependencies {
     implementation(libs.androidx.paging3Compose)
 
     implementation(libs.androidx.profile.installer)
+    "baselineProfile"(project(":benchmark"))
 
     // Compose iterative code, layout inspector, etc.
     debugImplementation(libs.compose.ui.tooling)
@@ -302,7 +311,6 @@ dependencies {
 
     implementation(libs.aboutLibraries.core)
     implementation(libs.aboutLibraries.compose.core)
-    implementation(libs.aboutLibraries.compose.m3)
     implementation(libs.compose.qr.code)
     implementation(libs.enterprise.feedback)
 

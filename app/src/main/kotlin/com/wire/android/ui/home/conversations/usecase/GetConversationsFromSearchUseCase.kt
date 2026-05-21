@@ -35,7 +35,7 @@ import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -48,7 +48,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
     private val observeConversationsFromFromFolder: ObserveConversationsFromFolderUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider,
-    private val getSelfUser: GetSelfUserUseCase,
+    private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
 ) {
     @Suppress("LongParameterList")
@@ -61,6 +61,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
         playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None,
         useStrictMlsFilter: Boolean,
     ): Flow<PagingData<ConversationItem>> {
+        val selfUserTeamId = getSelfTeamId()
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
             prefetchDistance = PREFETCH_DISTANCE,
@@ -104,7 +105,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                         userTypeMapper = userTypeMapper,
                         uiTextResolver = uiTextResolver,
                         searchQuery = searchQuery,
-                        selfUserTeamId = getSelfUser()?.teamId,
+                        selfUserTeamId = selfUserTeamId,
                         playingAudioMessage = playingAudioMessage
                     )
                 }

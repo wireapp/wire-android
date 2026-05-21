@@ -25,10 +25,10 @@ jobs:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
       - uses: WarpBuilds/cache@v1
         with:
@@ -92,7 +92,7 @@ jobs:
           merge-multiple: true
 
       - name: Upload code coverage to codecov
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: "app/build/reports/kover/reportDevDebug.xml"

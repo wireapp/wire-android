@@ -23,13 +23,13 @@ on:
         type: string
 
       isUpgrade:
-        description: "Upgrade test? If true, oldBuildNumber is REQUIRED."
+        description: "Upgrade test? If true, oldBuildNumber is optional and defaults to the previous APK."
         required: true
         default: false
         type: boolean
 
       oldBuildNumber:
-        description: "For upgrade runs: type the old build number here"
+        description: "For upgrade runs: optional old build number. Leave empty to auto-pick the previous APK."
         required: false
         default: ""
         type: string
@@ -98,7 +98,7 @@ jobs:
 
     outputs:
       resolvedAppBuildNumber: ${{ steps.resolve_run_inputs.outputs.appBuildNumber }}
-      resolvedIsUpgrade: ${{ steps.resolve_run_inputs.outputs.isUpgrade }}
+      resolvedIsUpgrade: ${{ steps.resolve_run_inputs.outputs.isUpgrade == 'true' || steps.resolve_selector.outputs.category == 'upgrade' }}
       resolvedOldBuildNumber: ${{ steps.resolve_run_inputs.outputs.oldBuildNumber }}
       resolvedEnforceAppInstall: ${{ steps.resolve_run_inputs.outputs.enforceAppInstall }}
       resolvedFlavor: ${{ steps.resolve_run_inputs.outputs.flavor }}
@@ -138,7 +138,7 @@ jobs:
 
           {
             echo "appBuildNumber=latest"
-            echo "isUpgrade=false"
+            echo "isUpgrade=true"
             echo "oldBuildNumber="
             echo "enforceAppInstall=false"
             echo "flavor=internal release candidate"
@@ -179,6 +179,7 @@ jobs:
         env:
           WORKFLOW_REF: ${{ github.ref_name }}
           FLAVOR_INPUT: ${{ steps.resolve_run_inputs.outputs.flavor }}
+          IS_UPGRADE: ${{ steps.resolve_run_inputs.outputs.isUpgrade == 'true' || steps.resolve_selector.outputs.category == 'upgrade' }}
           RESOLVED_TESTCASE_ID: ${{ steps.resolve_selector.outputs.testCaseId }}
           RESOLVED_CATEGORY: ${{ steps.resolve_selector.outputs.category }}
           TESTINY_RUN_NAME: ${{ steps.resolve_run_inputs.outputs.testinyRunName }}
@@ -213,11 +214,11 @@ jobs:
           clean: true
           submodules: recursive
 
-      - name: Set up Java 17
+      - name: Set up Java 21
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
           cache: gradle
 
       - name: Set up Android SDK (ANDROID_HOME + adb)
@@ -297,7 +298,53 @@ jobs:
           RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
-        run: bash scripts/qa_android_ui_tests/run_ui_tests.sh
+        run: |
+          if [[ "${IS_UPGRADE}" == "true" && ( "${RESOLVED_CATEGORY}" == "upgrade" || -n "${RESOLVED_TESTCASE_ID}" ) ]]; then
+            # Single upgrade-tagged runs do not need the normal phase. They only
+            # pin execution to one device and install the old APK before launch.
+            upgrade_device="${DEVICE_LIST%% *}"
+            DEVICE_LIST="${upgrade_device}" \
+              DEVICE_COUNT="1" \
+              APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
+              RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
+              bash scripts/qa_android_ui_tests/run_ui_tests.sh
+          elif [[ "${IS_UPGRADE}" == "true" && -z "${RESOLVED_TESTCASE_ID}" ]]; then
+            # For broad upgrade runs, run the selected normal tests on the new APK first.
+            # Then run only upgrade tests afterward, starting them from the old APK.
+            upgrade_device="${DEVICE_LIST%% *}"
+            normal_category="${RESOLVED_CATEGORY}"
+            normal_status=0
+            upgrade_status=0
+
+            echo "Running normal tests first on the new APK, excluding upgrade tests."
+            RESOLVED_CATEGORY="${normal_category}" \
+              EXCLUDE_CATEGORY="upgrade" \
+              RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-normal" \
+              ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/normal" \
+              bash scripts/qa_android_ui_tests/run_ui_tests.sh || normal_status=$?
+
+            echo "Running upgrade tests last with old APK installed before each attempt."
+            DEVICE_LIST="${upgrade_device}" \
+              DEVICE_COUNT="1" \
+              RESOLVED_CATEGORY="upgrade" \
+              APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
+              RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
+              ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/upgrade" \
+              bash scripts/qa_android_ui_tests/run_ui_tests.sh || upgrade_status=$?
+
+            RETRY_STATE_DIRS="${RUNNER_TEMP}/retry-state-normal ${RUNNER_TEMP}/retry-state-upgrade" \
+              COMBINED_RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-combined" \
+              bash scripts/qa_android_ui_tests/reporting.sh combine-retry-state
+
+            if (( normal_status != 0 )); then
+              exit "${normal_status}"
+            fi
+            if (( upgrade_status != 0 )); then
+              exit "${upgrade_status}"
+            fi
+          else
+            bash scripts/qa_android_ui_tests/run_ui_tests.sh
+          fi
 
       # Export one standard artifact so future manual deflake runs can reuse
       # this workflow's exact run context and leftover failed test list.
@@ -320,7 +367,7 @@ jobs:
           RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
           APP_BUILD_NUMBER_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAppBuildNumber }}
           IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
-          OLD_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedOldBuildNumber }}
+          OLD_BUILD_NUMBER: ${{ steps.download_apks.outputs.OLD_BUILD_NUMBER }}
           ENFORCE_APP_INSTALL: ${{ needs.validate-and-resolve-inputs.outputs.resolvedEnforceAppInstall }}
           TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
           ANDROID_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}

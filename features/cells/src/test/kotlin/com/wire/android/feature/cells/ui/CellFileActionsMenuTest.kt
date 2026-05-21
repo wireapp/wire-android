@@ -40,8 +40,8 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                 ),
                 items
@@ -83,9 +83,10 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
-                    NodeBottomSheetAction.PUBLIC_LINK,
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
                     NodeBottomSheetAction.DELETE,
@@ -106,8 +107,8 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                 ),
                 items
@@ -129,12 +130,13 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                     NodeBottomSheetAction.EDIT,
                     NodeBottomSheetAction.VERSION_HISTORY,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
                     NodeBottomSheetAction.DELETE,
@@ -157,10 +159,11 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
                     NodeBottomSheetAction.DELETE,
@@ -460,8 +463,8 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS,
                 ),
                 items
@@ -480,10 +483,11 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
                     NodeBottomSheetAction.DELETE,

@@ -49,6 +49,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
@@ -265,6 +268,8 @@ fun HomeContent(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val searchFocusRequester = remember { FocusRequester() }
+    val fabFocusRequester = remember { FocusRequester() }
 
     with(homeStateHolder) {
         fun openWireHomeDestination(item: HomeDestination) {
@@ -329,6 +334,8 @@ fun HomeContent(
                                 onOpenConversationFilter = {
                                     homeStateHolder.conversationsFilterBottomSheetState.show(Unit)
                                 },
+                                searchFocusRequester = searchFocusRequester,
+                                fabFocusRequester = if (currentNavigationItem.fab != null) fabFocusRequester else null,
                             )
                         }
                     },
@@ -343,7 +350,14 @@ fun HomeContent(
                                     isSearchActive = searchBarState.isSearchActive,
                                     searchBarHint = stringResource(searchBar.hint),
                                     searchQueryTextState = searchBarState.searchQueryTextState,
-                                    onActiveChanged = searchBarState::searchActiveChanged,
+                                    onCloseSearchClicked = searchBarState::closeSearch,
+                                    onActiveChanged = { isFocused ->
+                                        if (isFocused) {
+                                            searchBarState.openSearch()
+                                        }
+                                    },
+                                    externalFocusRequester = searchFocusRequester,
+                                    nextFocusRequester = homeStateHolder.emptySearchResultFocusRequester,
                                 )
                             }
                         }
@@ -388,30 +402,12 @@ fun HomeContent(
                             enter = scaleIn(),
                             exit = scaleOut(),
                         ) {
-                            var currentFab by remember { mutableStateOf(currentNavigationItem.fab ?: FabOptions.NewConversation) }
-                            // to keep the fab during the exit animation, we need to keep last known (non-null) fab data
-                            if (currentNavigationItem.fab != null) currentFab = currentNavigationItem.fab!!
-
-                            FloatingActionButton(
-                                text = stringResource(currentFab.text),
-                                icon = {
-                                    Image(
-                                        painter = painterResource(currentFab.icon),
-                                        contentDescription = stringResource(currentFab.contentDescription),
-                                        contentScale = ContentScale.FillBounds,
-                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                                        modifier = Modifier
-                                            .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
-                                            .size(dimensions().fabIconSize)
-                                    )
-                                },
-                                onClick = {
-                                    when (currentNavigationItem.fab) {
-                                        FabOptions.NewConversation -> onNewConversationClick()
-                                        FabOptions.NewMeeting -> homeStateHolder.newMeetingBottomSheetState.show(Unit)
-                                        else -> { /* no-op */ }
-                                    }
-                                }
+                            HomeFloatingActionButton(
+                                currentNavigationItem = currentNavigationItem,
+                                fabFocusRequester = fabFocusRequester,
+                                searchFocusRequester = searchFocusRequester,
+                                onNewConversationClick = onNewConversationClick,
+                                onNewMeetingClick = { homeStateHolder.newMeetingBottomSheetState.show(Unit) }
                             )
                         }
                     }
@@ -419,4 +415,46 @@ fun HomeContent(
             }
         )
     }
+}
+
+@Composable
+private fun HomeFloatingActionButton(
+    currentNavigationItem: HomeDestination,
+    fabFocusRequester: FocusRequester,
+    searchFocusRequester: FocusRequester,
+    onNewConversationClick: () -> Unit,
+    onNewMeetingClick: () -> Unit,
+) {
+    var currentFab by remember { mutableStateOf(currentNavigationItem.fab ?: FabOptions.NewConversation) }
+    // to keep the fab during the exit animation, we need to keep last known (non-null) fab data
+    currentNavigationItem.fab?.let { currentFab = it }
+
+    FloatingActionButton(
+        text = stringResource(currentFab.text),
+        modifier = Modifier
+            .focusRequester(fabFocusRequester)
+            .focusProperties {
+                if (currentNavigationItem.searchBar != null) {
+                    next = searchFocusRequester
+                }
+            },
+        icon = {
+            Image(
+                painter = painterResource(currentFab.icon),
+                contentDescription = stringResource(currentFab.contentDescription),
+                contentScale = ContentScale.FillBounds,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                modifier = Modifier
+                    .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
+                    .size(dimensions().fabIconSize)
+            )
+        },
+        onClick = {
+            when (currentNavigationItem.fab) {
+                FabOptions.NewConversation -> onNewConversationClick()
+                FabOptions.NewMeeting -> onNewMeetingClick()
+                else -> { /* no-op */ }
+            }
+        }
+    )
 }

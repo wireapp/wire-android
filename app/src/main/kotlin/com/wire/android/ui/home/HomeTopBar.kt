@@ -20,6 +20,9 @@ package com.wire.android.ui.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -52,9 +55,13 @@ fun HomeTopBar(
     onHamburgerMenuClick: () -> Unit,
     onNavigateToSelfUserProfile: () -> Unit,
     onOpenConversationFilter: () -> Unit,
+    modifier: Modifier = Modifier,
+    searchFocusRequester: FocusRequester? = null,
+    fabFocusRequester: FocusRequester? = null,
 ) {
     WireCenterAlignedTopAppBar(
         title = title,
+        modifier = modifier,
         onNavigationPressed = onHamburgerMenuClick,
         navigationIconType = NavigationIconType.Menu,
         actions = {
@@ -82,11 +89,18 @@ fun HomeTopBar(
                 }
                 UserProfileAvatar(
                     avatarData = userAvatarData,
-                    clickable = remember {
+                    modifier = Modifier.focusProperties {
+                        when {
+                            fabFocusRequester != null -> next = fabFocusRequester
+                            searchFocusRequester != null -> next = searchFocusRequester
+                        }
+                    },
+                    clickable = remember(openLabel, onNavigateToSelfUserProfile) {
                         Clickable(
                             enabled = true,
-                            onClickDescription = openLabel
-                        ) { onNavigateToSelfUserProfile() }
+                            onClickDescription = openLabel,
+                            onClick = onNavigateToSelfUserProfile
+                        )
                     },
                     type = UserProfileAvatarType.WithIndicators.RegularUser(
                         legalHoldIndicatorVisible = withLegalHoldIndicator

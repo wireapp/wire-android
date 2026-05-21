@@ -27,6 +27,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
@@ -39,7 +41,11 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun SearchConversationsEmptyContent(onNewConversationClicked: () -> Unit, modifier: Modifier = Modifier) {
+fun SearchConversationsEmptyContent(
+    onNewConversationClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+    newConversationFocusRequester: FocusRequester? = null,
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -72,6 +78,7 @@ fun SearchConversationsEmptyContent(onNewConversationClicked: () -> Unit, modifi
             fillMaxWidth = false,
             minSize = dimensions().buttonSmallMinSize,
             minClickableSize = dimensions().buttonMinClickableSize,
+            modifier = newConversationFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier,
             onClick = onNewConversationClicked
         )
     }

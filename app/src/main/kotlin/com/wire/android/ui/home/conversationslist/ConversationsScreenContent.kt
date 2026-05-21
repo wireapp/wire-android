@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -85,6 +86,7 @@ fun ConversationsScreenContent(
     lazyListState: LazyListState = rememberLazyListState(),
     loadingListContent: @Composable () -> Unit = { LoadingListContent() },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
+    emptySearchResultFocusRequester: FocusRequester? = null,
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
         else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
@@ -194,7 +196,10 @@ fun ConversationsScreenContent(
                     }
                 )
                 // when there is no conversation in any folder
-                searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
+                searchBarState.isSearchActive -> SearchConversationsEmptyContent(
+                    onNewConversationClicked = onNewConversationClicked,
+                    newConversationFocusRequester = emptySearchResultFocusRequester
+                )
                 else -> emptyListContent(state.domain)
             }
         }
@@ -225,7 +230,10 @@ fun ConversationsScreenContent(
                     onStopCurrentAudio = onStopCurrentAudio
                 )
                 // when there is no conversation in any folder
-                searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
+                searchBarState.isSearchActive -> SearchConversationsEmptyContent(
+                    onNewConversationClicked = onNewConversationClicked,
+                    newConversationFocusRequester = emptySearchResultFocusRequester
+                )
                 else -> emptyListContent(state.domain)
             }
         }

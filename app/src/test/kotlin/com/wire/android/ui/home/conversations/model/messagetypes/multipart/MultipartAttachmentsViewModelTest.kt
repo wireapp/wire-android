@@ -269,7 +269,7 @@ class MultipartAttachmentsViewModelTest {
         }
 
         private val savedStateHandle: SavedStateHandle = ConversationNavArgs(
-            conversationId = ConversationId(testConversationId, "test-domain"),
+            conversationId = testConversationId,
         ).toSavedStateHandle()
 
         @MockK
@@ -303,7 +303,7 @@ class MultipartAttachmentsViewModelTest {
             offlineFiles = listOf(
                 OfflineFileInfo(
                     id = assetId,
-                    conversationId = testConversationId,
+                    conversationId = testConversationId.value,
                     name = "file",
                     owner = "owner",
                     localPath = "local/path",
@@ -321,7 +321,7 @@ class MultipartAttachmentsViewModelTest {
             coEvery { download(any(), any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()
             coEvery { getWireCellsConfig() } returns null
             every { observeOfflineFilesByConversation(testConversationId) } returns flowOf(offlineFiles)
-            every { observeOfflineFilesByConversation("other-conversation") } returns flowOf(offlineFiles)
+            every { observeOfflineFilesByConversation(ConversationId("other-conversation", "test-domain")) } returns flowOf(offlineFiles)
 
             return this to MultipartAttachmentsViewModelImpl(
                 savedStateHandle = savedStateHandle,
@@ -339,7 +339,7 @@ class MultipartAttachmentsViewModelTest {
     }
 
     private companion object {
-        const val testConversationId = "test-conversation-id"
+        val testConversationId = ConversationId("test-conversation-id", "test-domain")
 
         val testAssetContent = CellAssetContent(
             id = "assetId1",

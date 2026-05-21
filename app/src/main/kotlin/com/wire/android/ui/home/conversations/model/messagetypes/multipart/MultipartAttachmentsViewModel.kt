@@ -138,7 +138,7 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
-    private val conversationId = savedStateHandle.navArgs<ConversationNavArgs>().conversationId.value
+    private val conversationId = savedStateHandle.navArgs<ConversationNavArgs>().conversationId
 
     private val uploadProgress = mutableStateMapOf<String, Float>()
     override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFilesByConversation(conversationId)
@@ -208,7 +208,7 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
 
         download(
             assetId = attachment.uuid,
-            conversationId = conversationId,
+            conversationId = conversationId.value,
             outFilePath = path,
             assetSize = attachment.assetSize ?: 0,
         ) { progress ->

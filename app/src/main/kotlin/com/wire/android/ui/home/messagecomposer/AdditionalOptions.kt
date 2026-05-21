@@ -48,6 +48,7 @@ fun AdditionalOptionsMenu(
     isEditing: Boolean,
     isMentionActive: Boolean,
     isFileSharingEnabled: Boolean,
+    areAttachmentOptionsEnabled: Boolean,
     onAdditionalOptionsMenuClicked: () -> Unit,
     onMentionButtonClicked: (() -> Unit),
     onPingOptionClicked: () -> Unit,
@@ -75,7 +76,8 @@ fun AdditionalOptionsMenu(
                     onRichEditingButtonClicked = onRichEditingButtonClicked,
                     onPingClicked = onPingOptionClicked,
                     onDrawingModeClicked = onDrawingModeClicked,
-                    isFileSharingEnabled = isFileSharingEnabled
+                    isFileSharingEnabled = isFileSharingEnabled,
+                    areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
                 )
             }
 
@@ -141,6 +143,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     attachmentsVisible: Boolean,
     isMentionActive: Boolean,
     isFileSharingEnabled: Boolean,
+    areAttachmentOptionsEnabled: Boolean,
     onMentionButtonClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: (SelfDeletionTimer) -> Unit,
     modifier: Modifier = Modifier,
@@ -165,7 +168,8 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             onGifButtonClicked = onGifButtonClicked,
             onRichEditingButtonClicked = onRichEditingButtonClicked,
             onDrawingModeClicked = onDrawingModeClicked,
-            isFileSharingEnabled = isFileSharingEnabled
+            isFileSharingEnabled = isFileSharingEnabled,
+            areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
         )
     }
 }

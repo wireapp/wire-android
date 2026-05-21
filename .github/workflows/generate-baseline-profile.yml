@@ -1,0 +1,127 @@
+name: "Generate Baseline Profile"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * 0"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: generate-baseline-profile
+  cancel-in-progress: false
+
+env:
+  GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
+  BASE_BRANCH: develop
+  REFRESH_BRANCH: chore/baseline-profile-refresh
+  OP_VAULT: "Test Automation"
+  TARGET_PACKAGE: com.wire
+
+jobs:
+  generate:
+    name: Generate baseline profile (prod compatrelease)
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - office
+      - android-qa
+    timeout-minutes: 90
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.BASE_BRANCH }}
+          clean: true
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Install 1Password CLI
+        uses: 1password/install-cli-action@v3
+
+      - name: Fetch runtime secrets
+        run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
+
+      # Baseline profile generation doesn't need production signing.
+      # The test APK is installed via adb and never distributed.
+      # ENABLE_SIGNING=FALSE makes both release and compatrelease use debug signing.
+      - name: Disable production signing
+        run: echo "ENABLE_SIGNING=FALSE" >> "$GITHUB_ENV"
+
+      - name: Verify at least one device connected
+        run: |
+          adb devices
+          DEVICE_COUNT="$(adb devices | awk '$2 == "device" { count++ } END { print count + 0 }')"
+          test "$DEVICE_COUNT" -ge 1
+
+      - name: Capture device metadata
+        id: device
+        run: |
+          echo "model=$(adb shell getprop ro.product.model | tr -d '\r')" >> "$GITHUB_OUTPUT"
+          echo "sdk=$(adb shell getprop ro.build.version.sdk | tr -d '\r')" >> "$GITHUB_OUTPUT"
+
+      - name: Generate baseline + startup profile
+        run: |
+          ./gradlew :app:generateProdCompatreleaseBaselineProfile \
+            -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.BaselineGenerator \
+            -Pandroid.testInstrumentationRunnerArguments.BACKEND_NAME="STAGING" \
+            -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="$TARGET_PACKAGE" \
+            --no-daemon \
+            --no-configuration-cache
+
+          mkdir -p app/src/main
+          cp app/src/prodCompatrelease/generated/baselineProfiles/baseline-prof.txt app/src/main/baseline-prof.txt
+          cp app/src/prodCompatrelease/generated/baselineProfiles/startup-prof.txt app/src/main/startup-prof.txt
+
+      - name: Verify generated profiles
+        run: |
+          test -s app/src/main/baseline-prof.txt
+          test -s app/src/main/startup-prof.txt
+
+      - name: Upload generated profiles
+        uses: actions/upload-artifact@v7
+        with:
+          name: baseline-profile-${{ github.run_id }}
+          path: |
+            app/src/prodCompatrelease/generated/baselineProfiles/*
+          if-no-files-found: error
+
+      - name: Create or update baseline profile PR
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
+          branch: ${{ env.REFRESH_BRANCH }}
+          base: ${{ env.BASE_BRANCH }}
+          title: "chore(perf): refresh baseline and startup profiles (WPB-8645)"
+          commit-message: "chore: refresh baseline profile"
+          body: |
+            Auto-generated baseline profile refresh.
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          labels: |
+            performance
+          add-paths: |
+            app/src/main/baseline-prof.txt
+            app/src/main/startup-prof.txt
+          delete-branch: false

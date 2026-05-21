@@ -38,6 +38,7 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
+import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
@@ -201,6 +202,11 @@ class UserModule {
     @Provides
     fun provideGetSelfUseCase(userScope: UserScope): GetSelfUserUseCase =
         userScope.getSelfUser
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetSelfTeamIdUseCase(userScope: UserScope): GetSelfTeamIdUseCase =
+        userScope.getSelfTeamId
 
     @ViewModelScoped
     @Provides

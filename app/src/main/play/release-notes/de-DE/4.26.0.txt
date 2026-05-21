@@ -1,0 +1,15 @@
+Neu
+- Liste der Anrufteilnehmer
+- Drive:
+    - Hochladens von Dateien mit Sonderzeichen verhindern
+    - Seitenzahlen bei der Verwendung von Filtern
+    - Verhalten beim Laden und Öffnen von Dateien
+
+Verbessert
+- Barrierefreiheit
+- Umgang mit Profilfarben
+- Drive: Standardmäßiges Sortierverhalten
+
+Behoben
+- Verzögerte Benachrichtigungen
+- Mehrere Probleme im Zusammenhang mit MLS (Messaging Layer Security)

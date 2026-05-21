@@ -67,8 +67,8 @@ class RegistrationPage(private val device: UiDevice) {
     private val agreeButton = UiSelectorParams(text = "Agree")
     private val conversationsPage = UiSelectorParams(text = "Conversations")
 
-    fun assertEmailWelcomePage(): RegistrationPage {
-        val element = UiWaitUtils.waitElement(welcomePage)
+    fun assertEmailWelcomePage(timeout: Duration = UiWaitUtils.DEFAULT_TIMEOUT): RegistrationPage {
+        val element = UiWaitUtils.waitElement(welcomePage, timeout = timeout)
         assertTrue("Expected 'Enter your email to start!' to be visible", !element.visibleBounds.isEmpty)
         return this
     }

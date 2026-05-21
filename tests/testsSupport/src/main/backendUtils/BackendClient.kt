@@ -815,21 +815,15 @@ class BackendClient(
 
     suspend fun enableChannelFeatureViaBackdoorTeam(team: Team) {
         val teamId = Uri.encode(team.id)
-        val url = URI("i/teams/$teamId/features/channels".composeCompleteUrl()).toURL()
-
         val headers = defaultheaders.toMutableMap().apply {
             put("Authorization", basicAuth.getEncoded())
         }
 
-        val requestBody = JSONObject().apply {
-            put("status", "enabled")
-        }
-
         NetworkBackendClient.sendJsonRequestWithCookies(
-            url = url,
+            url = URI("i/teams/$teamId/features/channels".composeCompleteUrl()).toURL(),
             method = "PATCH",
             headers = headers,
-            body = requestBody.toString(),
+            body = JSONObject().put("status", "enabled").toString(),
             options = RequestOptions(
                 expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
             )

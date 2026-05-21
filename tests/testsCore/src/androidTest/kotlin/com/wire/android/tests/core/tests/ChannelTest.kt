@@ -267,6 +267,7 @@ class ChannelTest : BaseUiTest() {
                 assertChannelConversationVisible("TestChannel")
             }
         }
+        // TC-8717 - I want to be able to delete a channel of which I am the creator
 
         step("And I long press on conversation name TestChannel in conversation list") {
             pages.conversationListPage.apply {

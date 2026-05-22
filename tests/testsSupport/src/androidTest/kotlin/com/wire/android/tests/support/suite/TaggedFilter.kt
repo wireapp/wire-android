@@ -33,9 +33,11 @@ import java.io.File
 /**
  * JUnit filter used by AndroidJUnitRunner / AllureAndroidJUnitRunner.
  *
- * Supports normal selector args (@TestCaseId, @Category, @Tag, excludeCategory),
- * and rerun selector args (Class#method). excludeCategory skips tests that also
- * have that category, for example normal test phases skip upgrade tests.
+ * Supports normal selector args (@TestCaseId, @Category, @Tag, excludeCategory,
+ * requiredCategory), and rerun selector args (Class#method). excludeCategory
+ * skips tests that also have that category, for example normal test phases skip
+ * upgrade tests. requiredCategory lets CI keep the original selector and add one
+ * more category requirement for a second pass, for example regression + upgrade.
  */
 class TaggedFilter : Filter() {
     private val args = InstrumentationRegistry.getArguments()
@@ -43,6 +45,7 @@ class TaggedFilter : Filter() {
     private val filterTestCaseId: String? = args.getString("testCaseId")
     private val filterCategory: String? = args.getString("category")
     private val excludeCategory: String? = args.getString("excludeCategory")
+    private val requiredCategory: String? = args.getString("requiredCategory")
     private val filterTagKey: String? = args.getString("tagKey")
     private val filterTagValue: String? = args.getString("tagValue")
 
@@ -67,6 +70,7 @@ class TaggedFilter : Filter() {
         if (filterTestCaseId == null &&
             filterCategory == null &&
             excludeCategory == null &&
+            requiredCategory == null &&
             filterTagKey == null &&
             filterTagValue == null
         ) {
@@ -171,7 +175,7 @@ class TaggedFilter : Filter() {
         // 1) TestCaseId
         filterTestCaseId?.let { wantedId ->
             val testCaseAnno = annotations.filterIsInstance<TestCaseId>().firstOrNull()
-            if (testCaseAnno == null || testCaseAnno.value != wantedId) {
+            if (testCaseAnno == null || !testCaseAnno.value.contains(wantedId)) {
                 return false
             }
         }
@@ -184,6 +188,15 @@ class TaggedFilter : Filter() {
                 catAnno.value.contains(wantedCat)
             }
             if (!matchesCat) return false
+        }
+
+        requiredCategory?.let { requiredCat ->
+            if (categories.isEmpty()) return false
+
+            val matchesRequiredCat = categories.any { catAnno ->
+                catAnno.value.contains(requiredCat)
+            }
+            if (!matchesRequiredCat) return false
         }
 
         // 3) Tag (key + value)
@@ -205,6 +218,7 @@ class TaggedFilter : Filter() {
     override fun describe(): String {
         return "TaggedFilter(testCaseId=$filterTestCaseId, " +
                 "category=$filterCategory, excludeCategory=$excludeCategory, " +
+                "requiredCategory=$requiredCategory, " +
                 "tagKey=$filterTagKey, tagValue=$filterTagValue, " +
                 "rerunModeEnabled=$rerunModeEnabled, rerunAttempt=$rerunAttempt)"
     }

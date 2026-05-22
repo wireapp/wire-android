@@ -32,6 +32,7 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import io.mockk.MockKAnnotations
@@ -50,13 +51,31 @@ class CallServiceManagerTest {
 
     @Test
     fun `given action stop, when handling, then emit proper stop`() = runTest {
-        val (_, callServiceManager) = Arrangement().arrange()
+        val (_, callServiceManager) = Arrangement()
+            .withCurrentSession(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(selfUser.id))))
+            .arrange()
         callServiceManager.handleAction(CallService.Action.Stop)
         callServiceManager.handleActionsFlow().test {
             assertIsStop(awaitItem()).also {
                 assertEquals(CallServiceManager.StopReason.ACTION_STOP_CALLED, it)
             }
         }
+    }
+
+    @Test
+    fun `given action stop & call still ongoing, when handling, then end ongoing call`() = runTest {
+        val establishedCall = call.copy(status = CallStatus.ESTABLISHED)
+        val (arrangement, callServiceManager) = Arrangement()
+            .withCurrentSession(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(selfUser.id))))
+            .withSpecificUserSession(selfUser = selfUser, established = flowOf(listOf(establishedCall)))
+            .arrange()
+        callServiceManager.handleAction(CallService.Action.Stop)
+        callServiceManager.handleActionsFlow().test {
+            assertIsStop(awaitItem()).also {
+                assertEquals(CallServiceManager.StopReason.ACTION_STOP_CALLED, it)
+            }
+        }
+        coVerify(exactly = 1) { arrangement.endCallForUser(selfUser.id)(conversationId) }
     }
 
     @Test
@@ -279,6 +298,7 @@ class CallServiceManagerTest {
         @MockK
         lateinit var coreLogic: CoreLogic
         private val answerCallForUser: MutableMap<UserId, AnswerCallUseCase> = mutableMapOf()
+        private val endCallForUser: MutableMap<UserId, EndCallUseCase> = mutableMapOf()
 
         init {
             MockKAnnotations.init(this)
@@ -287,6 +307,7 @@ class CallServiceManagerTest {
 
         fun arrange() = this to CallServiceManager(coreLogic)
         fun answerCallForUser(userId: UserId): AnswerCallUseCase = answerCallForUser.getOrPut(userId) { mockk(relaxed = true) }
+        fun endCallForUser(userId: UserId): EndCallUseCase = endCallForUser.getOrPut(userId) { mockk(relaxed = true) }
         fun withCurrentSession(result: Flow<CurrentSessionResult>) = apply {
             coEvery { coreLogic.getGlobalScope().session.currentSessionFlow() } returns (result)
         }
@@ -305,6 +326,7 @@ class CallServiceManagerTest {
             coEvery { coreLogic.getSessionScope(selfUser.id).calls.observeOutgoingCall() } returns outgoing
             coEvery { coreLogic.getSessionScope(selfUser.id).calls.establishedCall() } returns established
             coEvery { coreLogic.getSessionScope(selfUser.id).calls.answerCall } returns answerCallForUser(selfUser.id)
+            coEvery { coreLogic.getSessionScope(selfUser.id).calls.endCall } returns endCallForUser(selfUser.id)
         }
     }
 

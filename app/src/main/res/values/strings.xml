@@ -1119,7 +1119,9 @@
     <string name="notification_ongoing_call_content">Ongoing call…</string>
     <string name="notification_group_channel_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
-    <string name="notification_call_default_group_name">Incoming group call</string>
+    <string name="notification_incoming_call_default_group_name">Incoming group call</string>
+    <string name="notification_ongoing_call_default_group_name">Ongoing group call</string>
+    <string name="notification_outgoing_call_default_group_name">Outgoing group call</string>
     <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <string name="notification_audio_message_body">Audio message</string>
     <string name="notification_deleting_conversation">Deleting conversation…</string>

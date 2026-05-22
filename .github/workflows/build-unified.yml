@@ -18,30 +18,65 @@ on:
         type: string
 
 permissions:
-  contents: write
-  actions: read
+  contents: read # reusable workflow default; deploy job escalates explicitly where required
+  actions: read # required for reading workflow metadata and called workflows
 
 concurrency:
   group: build-unified-${{ github.ref }}-${{ inputs.concurrency-group-suffix }}
   cancel-in-progress: true
 
 jobs:
+  workflow-security:
+    name: Workflow security analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # required for actions/checkout to read workflow sources
+      actions: read # required for zizmor online audits in private repositories
+      security-events: write # required for SARIF upload
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Run zizmor
+        id: zizmor
+        uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
+        with:
+          inputs: .github/workflows/build-unified.yml
+          version: 1.25.2
+          persona: pedantic
+          min-severity: informational
+          min-confidence: low
+          config: .github/zizmor.yml
+
+      - name: Fail if zizmor reported findings
+        env:
+          sarifFilePath: ${{ steps.zizmor.outputs.output-file }}
+        run: |
+          findingsCount="$(jq '[.runs[].results[]] | length' "$sarifFilePath")"
+          echo "zizmor findings: $findingsCount"
+          test "$findingsCount" -eq 0
+
   # Inline simple quality check jobs for better check names
   lint:
+    name: Lint
+    needs: [workflow-security]
     runs-on: warp-ubuntu-2404-x64-8x
     # Override JVM args from gradle.properties which sets 10GB heap
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          persist-credentials: false
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
       - name: Set up JDK 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           java-version: '21'
           distribution: 'temurin'
-      - uses: WarpBuilds/cache@v1
+      - uses: WarpBuilds/cache@6ab98e7fdd65255995acec1de229a0bf2a40fe37 # v1
         with:
           path: |
             ~/.gradle/caches
@@ -50,7 +85,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6
+        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6
       - name: Run Linter
         env:
           GRADLE_OPTS: "-Xmx6G -XX:+UseParallelGC -XX:MaxMetaspaceSize=2g"
@@ -64,19 +99,22 @@ jobs:
           rm -f ~/.gradle/caches/modules-2/gc.properties
 
   style:
+    name: Style
+    needs: [workflow-security]
     runs-on: warp-ubuntu-2404-x64-2x
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          persist-credentials: false
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
       - name: Set up JDK 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           java-version: '21'
           distribution: 'temurin'
-      - uses: WarpBuilds/cache@v1
+      - uses: WarpBuilds/cache@6ab98e7fdd65255995acec1de229a0bf2a40fe37 # v1
         with:
           path: |
             ~/.gradle/caches
@@ -85,7 +123,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6
+        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6
       - name: Run Detekt
         run: |
           ./gradlew detektAll
@@ -99,21 +137,24 @@ jobs:
   # Keep complex workflows as reusable but call them directly
   ui-tests:
     name: "UI Tests"
+    needs: [workflow-security]
     uses: ./.github/workflows/gradle-run-ui-tests.yml
     with:
       artifact-suffix: ${{ inputs.concurrency-group-suffix }}
 
   unit-tests:
     name: "Unit Tests"
+    needs: [workflow-security]
     uses: ./.github/workflows/gradle-run-unit-tests.yml
     with:
       artifact-suffix: ${{ inputs.concurrency-group-suffix }}
-    secrets: inherit
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   # Build matrix job - only runs if all quality checks pass
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
-    needs: [ lint, style, ui-tests, unit-tests ]
+    needs: [ workflow-security, lint, style, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false  # Continue building other flavors even if one fails
@@ -122,19 +163,23 @@ jobs:
     
     steps:
       - name: Quality gates passed - starting build
+        env:
+          BUILD_FLAVOR: ${{ matrix.flavor }}
+          BUILD_VARIANT: ${{ matrix.variant }}
         run: |
           echo "## Build Starting" >> $GITHUB_STEP_SUMMARY
           echo "✅ Quality gates passed successfully" >> $GITHUB_STEP_SUMMARY
-          echo "🚀 Building ${{ matrix.flavor }}${{ matrix.variant }}..." >> $GITHUB_STEP_SUMMARY
+          echo "🚀 Building ${BUILD_FLAVOR}${BUILD_VARIANT}..." >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          persist-credentials: false
           submodules: recursive
           fetch-depth: 0
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -158,15 +203,31 @@ jobs:
         run: ./gradlew generateVersionFile
 
       - name: Set build environment variables
+        env:
+          KEYSTORE_TYPE: ${{ matrix.keystore-type }}
+          SIGNING_KEY_ALIAS_DEBUG: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
+          SIGNING_KEY_PASSWORD_DEBUG: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
+          SIGNING_STORE_PASSWORD_DEBUG: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
+          SIGNING_KEY_ALIAS_PRE_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}
+          SIGNING_KEY_PASSWORD_PRE_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}
+          SIGNING_STORE_PASSWORD_PRE_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}
+          SIGNING_KEY_ALIAS_INTERNAL_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}
+          SIGNING_KEY_PASSWORD_INTERNAL_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}
+          SIGNING_STORE_PASSWORD_INTERNAL_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}
+          SIGNING_KEY_ALIAS_PUBLIC_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}
+          SIGNING_KEY_PASSWORD_PUBLIC_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}
+          SIGNING_STORE_PASSWORD_PUBLIC_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}
+          BUILD_FLAVOR: ${{ matrix.flavor }}
+          BUILD_VARIANT: ${{ matrix.variant }}
         run: |
-          echo "Building ${{ matrix.flavor }}${{ matrix.variant }}"
+          echo "Building ${BUILD_FLAVOR}${BUILD_VARIANT}"
           
           # Load only the required secrets for this keystore type
-          case "${{ matrix.keystore-type }}" in
+          case "${KEYSTORE_TYPE}" in
             debug)
-              SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}"
-              SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}"
-              SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}"
+              SIGNING_KEY_ALIAS="${SIGNING_KEY_ALIAS_DEBUG}"
+              SIGNING_KEY_PASSWORD="${SIGNING_KEY_PASSWORD_DEBUG}"
+              SIGNING_STORE_PASSWORD="${SIGNING_STORE_PASSWORD_DEBUG}"
           
               # Mask sensitive values immediately
               echo "::add-mask::${SIGNING_KEY_PASSWORD}"
@@ -178,9 +239,9 @@ jobs:
               echo "KEYSTOREPWD_DEBUG=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
               ;;
             prerelease)
-              SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}"
-              SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}"
-              SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}"
+              SIGNING_KEY_ALIAS="${SIGNING_KEY_ALIAS_PRE_RELEASE}"
+              SIGNING_KEY_PASSWORD="${SIGNING_KEY_PASSWORD_PRE_RELEASE}"
+              SIGNING_STORE_PASSWORD="${SIGNING_STORE_PASSWORD_PRE_RELEASE}"
           
               # Mask sensitive values immediately
               echo "::add-mask::${SIGNING_KEY_PASSWORD}"
@@ -192,9 +253,9 @@ jobs:
               echo "KEYSTOREPWD_RELEASE=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
               ;;
             internal)
-              SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}"
-              SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}"
-              SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}"
+              SIGNING_KEY_ALIAS="${SIGNING_KEY_ALIAS_INTERNAL_RELEASE}"
+              SIGNING_KEY_PASSWORD="${SIGNING_KEY_PASSWORD_INTERNAL_RELEASE}"
+              SIGNING_STORE_PASSWORD="${SIGNING_STORE_PASSWORD_INTERNAL_RELEASE}"
           
               # Mask sensitive values immediately
               echo "::add-mask::${SIGNING_KEY_PASSWORD}"
@@ -209,9 +270,9 @@ jobs:
               echo "KEYSTOREPWD_COMPAT_RELEASE=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
               ;;
             public)
-              SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}"
-              SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}"
-              SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}"
+              SIGNING_KEY_ALIAS="${SIGNING_KEY_ALIAS_PUBLIC_RELEASE}"
+              SIGNING_KEY_PASSWORD="${SIGNING_KEY_PASSWORD_PUBLIC_RELEASE}"
+              SIGNING_STORE_PASSWORD="${SIGNING_STORE_PASSWORD_PUBLIC_RELEASE}"
           
               # Mask sensitive values immediately
               echo "::add-mask::${SIGNING_KEY_PASSWORD}"
@@ -223,37 +284,59 @@ jobs:
               echo "KEYSTOREPWD_COMPAT_RELEASE=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
               ;;
             *)
-              echo "Error: Invalid keystore type '${{ matrix.keystore-type }}'"
+              echo "Error: Invalid keystore type '${KEYSTORE_TYPE}'"
               exit 1
               ;;
           esac
 
       - name: Build APK
         if: matrix.build-type == 'apk' || matrix.build-type == 'both'
-        run: |
-          ./gradlew app:assemble${{ matrix.flavor }}${{ matrix.variant }}
         env:
+          BUILD_FLAVOR: ${{ matrix.flavor }}
+          BUILD_VARIANT: ${{ matrix.variant }}
           DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
           DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
           DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}
+        run: |
+          GRADLE_TASK="app:assemble${BUILD_FLAVOR}${BUILD_VARIANT}"
+          case "${GRADLE_TASK}" in
+            app:assemble[A-Za-z0-9]*)
+              ./gradlew "${GRADLE_TASK}"
+              ;;
+            *)
+              echo "Invalid Gradle task name: ${GRADLE_TASK}"
+              exit 1
+              ;;
+          esac
 
       - name: Build AAB
         if: matrix.build-type == 'bundle' || matrix.build-type == 'both'
-        run: |
-          ./gradlew app:bundle${{ matrix.flavor }}${{ matrix.variant }}
         env:
+          BUILD_FLAVOR: ${{ matrix.flavor }}
+          BUILD_VARIANT: ${{ matrix.variant }}
           DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
           DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
           DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}
+        run: |
+          GRADLE_TASK="app:bundle${BUILD_FLAVOR}${BUILD_VARIANT}"
+          case "${GRADLE_TASK}" in
+            app:bundle[A-Za-z0-9]*)
+              ./gradlew "${GRADLE_TASK}"
+              ;;
+            *)
+              echo "Invalid Gradle task name: ${GRADLE_TASK}"
+              exit 1
+              ;;
+          esac
 
       - name: Move version file for consistent artifact structure
         if: matrix.generate-version-file == true
         run: mv app/version.txt app/build/outputs/
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: ${{ matrix.flavor }}-${{ matrix.variant }}-artifacts
           path: app/build/outputs/
@@ -267,19 +350,24 @@ jobs:
       - name: Upload SBOM artifact
         if: github.actor != 'dependabot[bot]'
         continue-on-error: true
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: sbom-${{ matrix.flavor }}-${{ matrix.variant }}
           path: build/reports/cyclonedx/
           retention-days: 30
 
       - name: Build summary
+        env:
+          BUILD_FLAVOR: ${{ matrix.flavor }}
+          BUILD_VARIANT: ${{ matrix.variant }}
+          KEYSTORE_TYPE: ${{ matrix.keystore-type }}
+          BUILD_TYPE: ${{ matrix.build-type }}
         run: |
           echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "**Flavor**: ${{ matrix.flavor }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Variant**: ${{ matrix.variant }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Keystore**: ${{ matrix.keystore-type }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Build Type**: ${{ matrix.build-type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Flavor**: ${BUILD_FLAVOR}" >> $GITHUB_STEP_SUMMARY
+          echo "**Variant**: ${BUILD_VARIANT}" >> $GITHUB_STEP_SUMMARY
+          echo "**Keystore**: ${KEYSTORE_TYPE}" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Type**: ${BUILD_TYPE}" >> $GITHUB_STEP_SUMMARY
           
           # List generated artifacts
           echo "**Generated Artifacts**:" >> $GITHUB_STEP_SUMMARY
@@ -291,6 +379,9 @@ jobs:
   deploy:
     needs: build
     if: inputs.enable-deployment == true
+    permissions:
+      contents: write # required by called deploy.yml workflow
+      actions: read # required by called deploy.yml workflow
     strategy:
       matrix:
         include: ${{ fromJson(inputs.build-config) }}

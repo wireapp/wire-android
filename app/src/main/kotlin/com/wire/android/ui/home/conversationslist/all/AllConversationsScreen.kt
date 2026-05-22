@@ -66,6 +66,7 @@ fun AllConversationsScreen(
                     is ConversationFilter.Channels -> ConversationsSource.CHANNELS
                 },
                 lazyListState = lazyListStateFor(HomeDestination.Conversations, filter),
+                emptySearchResultFocusRequester = emptySearchResultFocusRequester,
                 emptyListContent = { ConversationsEmptyContent(filter = filter, navigator = navigator) }
             )
         }

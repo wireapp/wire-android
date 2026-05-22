@@ -18,18 +18,23 @@
 
 package com.wire.android.services
 
+import android.Manifest.permission.RECORD_AUDIO
 import android.app.Notification
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.IBinder
 import androidx.core.app.ServiceCompat
+import androidx.core.content.ContextCompat
 import com.wire.android.appLogger
 import com.wire.android.notification.CallNotificationData
 import com.wire.android.notification.CallNotificationManager
+import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationIds
 import com.wire.android.services.CallService.Action
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.data.call.CallStatus
@@ -60,6 +65,12 @@ class CallService : Service() {
     lateinit var callNotificationManager: CallNotificationManager
 
     @Inject
+    lateinit var notificationChannelsManager: NotificationChannelsManager
+
+    @Inject
+    lateinit var currentScreenManager: CurrentScreenManager
+
+    @Inject
     lateinit var dispatcherProvider: DispatcherProvider
 
     private val scope by lazy {
@@ -79,8 +90,8 @@ class CallService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         appLogger.i("$TAG: onStartCommand")
+        startForegroundWithPlaceholderNotification()
         val action = intent?.getActionTypeExtra(EXTRA_ACTION_TYPE) ?: Action.Start.Default
-        generatePlaceholderForegroundNotification()
         _serviceState.value = ServiceState.FOREGROUND
         scope.launch {
             lifecycleManager.handleAction(action)
@@ -123,18 +134,40 @@ class CallService : Service() {
         }
     }
 
-    private fun generatePlaceholderForegroundNotification() {
+    private fun startForegroundWithPlaceholderNotification() {
         appLogger.i("$TAG: generating foregroundNotification placeholder...")
-        val notification: Notification =
-            callNotificationManager.builder.getCallServicePlaceholderNotification()
-        ServiceCompat.startForeground(
-            this,
-            NotificationIds.CALL_OUTGOING_ONGOING_NOTIFICATION_ID.ordinal,
-            notification,
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-        )
+        notificationChannelsManager.createOngoingCallNotificationChannel()
+        val notification: Notification = callNotificationManager.builder.getCallServicePlaceholderNotification()
+        val hasRecordAudioPermission = ContextCompat.checkSelfPermission(this, RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        val isAppVisible = currentScreenManager.isAppVisibleFlow().value
+        try {
+            ServiceCompat.startForeground(
+                this,
+                NotificationIds.CALL_OUTGOING_ONGOING_NOTIFICATION_ID.ordinal,
+                notification,
+                when (hasRecordAudioPermission) {
+                    true -> ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
 
-        appLogger.i("$TAG: started foreground with placeholder notification")
+                    // Safety measure, we don't have the required permission, but startForeground still needs to be called to avoid crash.
+                    // In that case, we start it with the type that doesn't require the runtime permission to avoid potential crash,
+                    // and then the service is being stopped right after starting foreground.
+                    false -> ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL
+                }
+            )
+            appLogger.i("$TAG: started foreground with placeholder notification, isAppVisible:$isAppVisible")
+            if (!hasRecordAudioPermission) {
+                scope.launch {
+                    appLogger.i("$TAG: Stopping service started without RECORD_AUDIO permission")
+                    lifecycleManager.handleAction(Action.Stop)
+                }
+            }
+        } catch (e: SecurityException) {
+            throw StartForegroundException(
+                message = "$TAG: Unable to start foreground service, " +
+                        "RECORD_AUDIO permission: $hasRecordAudioPermission, isAppVisible:$isAppVisible, original message: ${e.message}",
+                cause = e,
+            )
+        }
     }
 
     companion object {
@@ -174,3 +207,5 @@ private fun Intent.putExtra(name: String, actionType: Action): Intent = putExtra
 private fun Intent.getActionTypeExtra(name: String): Action? = getBundleExtra(name)?.let {
     Bundlizer.unbundle(Action.serializer(), it)
 }
+
+private class StartForegroundException(override val message: String, override val cause: Throwable?) : RuntimeException(message, cause)

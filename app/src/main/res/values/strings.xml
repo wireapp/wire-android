@@ -279,6 +279,7 @@
     <!-- Wire Urls - Non translatable -->
     <string name="url_wire_website" translatable="false">https://www.wire.com</string>
     <string name="url_support" translatable="false">https://support.wire.com</string>
+    <string name="url_report_misuse" translatable="false">https://support.wire.com/hc/articles/202857164</string>
     <string name="url_terms_of_use_legal" translatable="false">https://wire.com/legal</string>
     <string name="url_privacy_policy" translatable="false">https://wire.com/privacy-policy#:~:text=We%20process%20individual%20data%20about,%C2%A7%201%20a)%20GDPR).</string>
     <string name="url_create_account_learn_more" translatable="false">https://support.wire.com/hc/articles/115004082129</string>
@@ -330,6 +331,7 @@
     <string name="label_copyright_value" translatable="false">© Wire Swiss GmbH</string>
     <string name="item_dependencies_title">Dependencies:</string>
     <string name="support_screen_title">Support</string>
+    <string name="report_misuse_screen_title">Report misuse</string>
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_conversations_hint">Search conversations</string>
     <string name="search_no_results">No matches found</string>
@@ -1119,7 +1121,9 @@
     <string name="notification_ongoing_call_content">Ongoing call…</string>
     <string name="notification_group_channel_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
-    <string name="notification_call_default_group_name">Incoming group call</string>
+    <string name="notification_incoming_call_default_group_name">Incoming group call</string>
+    <string name="notification_ongoing_call_default_group_name">Ongoing group call</string>
+    <string name="notification_outgoing_call_default_group_name">Outgoing group call</string>
     <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <string name="notification_audio_message_body">Audio message</string>
     <string name="notification_deleting_conversation">Deleting conversation…</string>

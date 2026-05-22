@@ -18,9 +18,11 @@
 package com.wire.android.feature.cells.util
 
 import android.content.ActivityNotFoundException
+import android.content.ComponentName
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
@@ -116,7 +118,9 @@ class FileHelper @Inject constructor(
                 putExtra(Intent.EXTRA_STREAM, assetUri)
             }
             val chooserIntent = Intent.createChooser(intent, null).apply {
+                excludeOwnShareTargets(intent)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             context.startActivity(chooserIntent)
         } catch (e: java.lang.IllegalArgumentException) {
@@ -134,6 +138,7 @@ class FileHelper @Inject constructor(
                 putExtra(Intent.EXTRA_TEXT, url)
             }
             val chooserIntent = Intent.createChooser(intent, null).apply {
+                excludeOwnShareTargets(intent)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(chooserIntent)
@@ -150,4 +155,22 @@ class FileHelper @Inject constructor(
 
     private fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =
         FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile(), assetName ?: assetDataPath.name)
+
+    private fun Intent.excludeOwnShareTargets(sendIntent: Intent) {
+        val ownShareComponents = context.packageManager.queryIntentActivitiesCompat(sendIntent)
+            .map { ComponentName(it.activityInfo.packageName, it.activityInfo.name) }
+            .filter { it.packageName == context.packageName }
+            .toTypedArray()
+        if (ownShareComponents.isNotEmpty()) {
+            putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, ownShareComponents)
+        }
+    }
+
+    private fun PackageManager.queryIntentActivitiesCompat(intent: Intent) =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
+        } else {
+            @Suppress("DEPRECATION")
+            queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+        }
 }

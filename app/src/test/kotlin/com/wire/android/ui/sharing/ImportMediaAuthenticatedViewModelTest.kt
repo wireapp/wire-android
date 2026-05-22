@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.sharing
 
+import android.net.Uri
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.paging.PagingData
 import app.cash.turbine.test
@@ -34,11 +35,15 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -68,6 +73,26 @@ class ImportMediaAuthenticatedViewModelTest {
             }
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun `given uri from Wire file provider, when checking imported uri, then reject it`() {
+        val uri = mockk<Uri> {
+            every { scheme } returns "content"
+            every { authority } returns "com.wire.android.provider"
+        }
+
+        assertTrue(uri.isWireFileProviderUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given uri from another content provider, when checking imported uri, then allow it`() {
+        val uri = mockk<Uri> {
+            every { scheme } returns "content"
+            every { authority } returns "com.android.providers.media.documents"
+        }
+
+        assertFalse(uri.isWireFileProviderUri("com.wire.android.provider"))
     }
 
     inner class Arrangement {

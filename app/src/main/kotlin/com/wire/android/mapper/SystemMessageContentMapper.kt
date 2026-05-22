@@ -21,6 +21,14 @@ package com.wire.android.mapper
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage.ConversationStartedWithMembers
+import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage.FederationMemberRemoved
+import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage.MemberAdded
+import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage.MemberFailedToAdd
+import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage.MemberJoined
+import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage.MemberLeft
+import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage.MemberRemoved
+import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage.TeamMemberRemoved
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.util.formatFullDateShortTime
 import com.wire.android.util.orDefault
@@ -245,9 +253,9 @@ class SystemMessageContentMapper @Inject constructor(
         return when (content) {
             is Added ->
                 if (isAuthorSelfAction) {
-                    UIMessageContent.SystemMessage.MemberJoined(author = authorName, isSelfTriggered = isSelfTriggered)
+                    MemberJoined(author = authorName, isSelfTriggered = isSelfTriggered)
                 } else {
-                    UIMessageContent.SystemMessage.MemberAdded(
+                    MemberAdded(
                         author = authorName,
                         memberNames = memberNameList,
                         isSelfTriggered = isSelfTriggered
@@ -256,9 +264,9 @@ class SystemMessageContentMapper @Inject constructor(
 
             is Removed ->
                 if (isAuthorSelfAction) {
-                    UIMessageContent.SystemMessage.MemberLeft(author = authorName, isSelfTriggered = isSelfTriggered)
+                    MemberLeft(author = authorName, isSelfTriggered = isSelfTriggered)
                 } else {
-                    UIMessageContent.SystemMessage.MemberRemoved(
+                    MemberRemoved(
                         author = authorName,
                         memberNames = memberNameList,
                         isSelfTriggered = isSelfTriggered
@@ -266,10 +274,10 @@ class SystemMessageContentMapper @Inject constructor(
                 }
 
             is CreationAdded -> {
-                UIMessageContent.SystemMessage.ConversationStartedWithMembers(memberNames = memberNameList)
+                ConversationStartedWithMembers(memberNames = memberNameList)
             }
 
-            is FailedToAdd -> UIMessageContent.SystemMessage.MemberFailedToAdd(
+            is FailedToAdd -> MemberFailedToAdd(
                 memberNames = memberNameList,
                 type = when (content.type) {
                     FailedToAdd.Type.Federation -> UIMessageContent.SystemMessage.MemberFailedToAdd.Type.Federation
@@ -279,11 +287,11 @@ class SystemMessageContentMapper @Inject constructor(
                 }
             )
 
-            is MemberChange.FederationRemoved -> UIMessageContent.SystemMessage.FederationMemberRemoved(
+            is MemberChange.FederationRemoved -> FederationMemberRemoved(
                 memberNames = memberNameList
             )
 
-            is MemberChange.RemovedFromTeam -> UIMessageContent.SystemMessage.TeamMemberRemoved(
+            is MemberChange.RemovedFromTeam -> TeamMemberRemoved(
                 author = authorName,
                 memberNames = memberNameList
             )

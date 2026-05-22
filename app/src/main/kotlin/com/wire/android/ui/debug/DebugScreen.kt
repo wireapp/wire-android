@@ -18,10 +18,8 @@
 
 package com.wire.android.ui.debug
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -48,6 +46,7 @@ import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -60,13 +59,9 @@ import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
 import com.wire.android.ui.home.settings.backup.rememberBackUpAndRestoreStateHolder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.AppNameUtil
-import com.wire.android.util.getMimeType
-import com.wire.android.util.getUrisOfFilesInDirectory
-import com.wire.android.util.multipleFileSharingIntent
+import com.wire.android.util.logging.LogShareLauncher
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.launch
 import java.io.File
 
 @WireRootDestination
@@ -193,14 +188,24 @@ fun rememberDebugContentState(logPath: String): DebugContentState {
     val clipboardManager = LocalClipboardManager.current
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
+    val shareLogsFailureMessage = stringResource(R.string.label_share_logs_failed)
+    val logShareLauncher = remember(context, coroutineScope, shareLogsFailureMessage) {
+        LogShareLauncher(
+            context = context,
+            coroutineScope = coroutineScope,
+            onFailure = {
+                Toast.makeText(context, shareLogsFailureMessage, Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
 
-    return remember {
+    return remember(context, clipboardManager, logPath, scrollState, logShareLauncher) {
         DebugContentState(
             context,
             clipboardManager,
             logPath,
             scrollState,
-            coroutineScope
+            logShareLauncher
         )
     }
 }
@@ -210,7 +215,7 @@ data class DebugContentState(
     val clipboardManager: ClipboardManager,
     val logPath: String,
     val scrollState: ScrollState,
-    val coroutineScope: CoroutineScope
+    val logShareLauncher: LogShareLauncher
 ) {
     fun copyToClipboard(text: String) {
         clipboardManager.setText(AnnotatedString(text))
@@ -222,20 +227,12 @@ data class DebugContentState(
     }
 
     fun shareLogs(onFlushLogs: () -> Deferred<Unit>) {
-        coroutineScope.launch {
-            // Flush any buffered logs before sharing to ensure completeness
-            onFlushLogs().await()
-            val dir = File(logPath).parentFile
-            val fileUris =
-                if (dir != null && dir.exists()) context.getUrisOfFilesInDirectory(dir) else arrayListOf()
-            val intent = context.multipleFileSharingIntent(fileUris)
-            // The first log file is simply text, not compressed. Get its mime type separately
-            // and set it as the mime type for the intent.
-            intent.type = fileUris.firstOrNull()?.getMimeType(context) ?: "text/plain"
-            // Get all other mime types and add them
-            val mimeTypes = fileUris.drop(1).mapNotNull { it.getMimeType(context) }
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toSet().toTypedArray())
-            context.startActivity(intent)
+        val dir = File(logPath).parentFile
+        if (dir != null && dir.exists()) {
+            logShareLauncher.shareLogs(dir) {
+                // Flush any buffered logs before sharing to ensure completeness.
+                onFlushLogs().await()
+            }
         }
     }
 }

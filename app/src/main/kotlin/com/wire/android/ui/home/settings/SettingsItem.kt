@@ -35,7 +35,6 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.GiveFeedbackDestination
 import com.wire.android.navigation.PrivacyPolicyScreenDestination
-import com.wire.android.navigation.ReportBugDestination
 import com.wire.android.navigation.ReportMisuseScreenDestination
 import com.wire.android.navigation.SupportScreenDestination
 import com.wire.android.navigation.TermsOfUseScreenDestination
@@ -146,6 +145,11 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
         override val title: UIText
     ) : SettingsItem(id, title)
 
+    sealed class ActionItem(
+        override val id: String,
+        override val title: UIText
+    ) : SettingsItem(id, title)
+
     data object AppSettings : DirectionItem(
         id = "general_app_settings",
         title = UIText.StringResource(R.string.app_settings_screen_title),
@@ -242,10 +246,9 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
         direction = GiveFeedbackDestination
     )
 
-    data object ReportBug : DirectionItem(
+    data object ReportBug : ActionItem(
         id = "report_bug",
-        title = UIText.StringResource(R.string.report_bug_screen_title),
-        direction = ReportBugDestination
+        title = UIText.StringResource(R.string.report_bug_screen_title)
     )
 
     data class AppLock(override val switchState: SwitchState) : SwitchItem(

@@ -121,6 +121,7 @@ fun HomeScreen(
     analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     homeViewModel.checkRequirements()
 
@@ -147,7 +148,6 @@ fun HomeScreen(
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val snackbarHostState = LocalSnackbarHostState.current
-    val coroutineScope = rememberCoroutineScope()
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->

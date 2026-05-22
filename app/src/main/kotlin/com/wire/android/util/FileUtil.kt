@@ -22,10 +22,12 @@ package com.wire.android.util
 
 import android.app.DownloadManager
 import android.content.ActivityNotFoundException
+import android.content.ComponentName
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
@@ -280,7 +282,7 @@ fun Context.startFileShareIntent(path: Path, assetName: String?) {
     shareIntent.putExtra(Intent.EXTRA_STREAM, fileURI)
     assetName?.let { shareIntent.putExtra(Intent.EXTRA_SUBJECT, it) }
     shareIntent.type = fileURI.getMimeType(context = this)
-    startActivity(shareIntent)
+    startActivity(externalShareChooserIntent(shareIntent))
 }
 
 fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataSize: Long, context: Context): Uri? =
@@ -377,7 +379,7 @@ fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetNa
             setDataAndType(assetUri, mimeType)
             putExtra(Intent.EXTRA_STREAM, assetUri)
         }
-        context.startActivity(intent)
+        context.startActivity(context.externalShareChooserIntent(intent))
     } catch (e: java.lang.IllegalArgumentException) {
         appLogger.e("The file couldn't be found on the internal storage \n$e")
         onError()
@@ -386,6 +388,27 @@ fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetNa
         onError()
     }
 }
+
+fun Context.externalShareChooserIntent(sendIntent: Intent, title: CharSequence? = null): Intent =
+    Intent.createChooser(sendIntent, title).apply {
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val ownShareComponents = packageManager.queryIntentActivitiesCompat(sendIntent)
+            .map { ComponentName(it.activityInfo.packageName, it.activityInfo.name) }
+            .filter { it.packageName == packageName }
+            .toTypedArray()
+        if (ownShareComponents.isNotEmpty()) {
+            putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, ownShareComponents)
+        }
+    }
+
+private fun PackageManager.queryIntentActivitiesCompat(intent: Intent) =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
+    } else {
+        @Suppress("DEPRECATION")
+        queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+    }
 
 inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
     Build.VERSION.SDK_INT >= SDK_VERSION -> getParcelableExtra(key, T::class.java)

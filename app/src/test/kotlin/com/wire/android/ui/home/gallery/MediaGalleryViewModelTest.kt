@@ -270,7 +270,8 @@ class MediaGalleryViewModelTest {
         assertEquals(
             listOf(
                 MediaGalleryMenuItem.DOWNLOAD,
-                MediaGalleryMenuItem.SHARE,
+                MediaGalleryMenuItem.SHARE_VIA_WIRE,
+                MediaGalleryMenuItem.SHARE_EXTERNALLY,
                 MediaGalleryMenuItem.DELETE,
             ),
             state.menuItems
@@ -371,7 +372,8 @@ class MediaGalleryViewModelTest {
                 MediaGalleryMenuItem.SHOW_DETAILS,
                 MediaGalleryMenuItem.REPLY,
                 MediaGalleryMenuItem.DOWNLOAD,
-                MediaGalleryMenuItem.SHARE,
+                MediaGalleryMenuItem.SHARE_VIA_WIRE,
+                MediaGalleryMenuItem.SHARE_EXTERNALLY,
                 MediaGalleryMenuItem.DELETE,
             ),
             state.menuItems

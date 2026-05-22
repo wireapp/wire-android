@@ -64,6 +64,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
+import java.nio.file.Files
 import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -75,9 +76,9 @@ suspend fun Uri.toByteArray(context: Context, dispatcher: DispatcherProvider = D
 }
 
 fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
-    val file = attachmentPath.toFile()
+    val file = context.fileProviderSharedCacheFile(attachmentPath.name)
     file.setWritable(true)
-    return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
+    return context.fileProviderUri(file)
 }
 
 suspend fun createPemFile(
@@ -193,7 +194,7 @@ private fun Context.saveFileDataToMediaFolder(assetName: String, downloadedDataP
 fun Context.fromNioPathToContentUri(nioPath: java.nio.file.Path): Uri = this.pathToUri(nioPath.toOkioPath(), null)
 
 fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =
-    FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile(), assetName ?: assetDataPath.name)
+    shareableFileProviderUri(assetDataPath.toFile(), assetName ?: assetDataPath.name)
 
 fun Uri.getMimeType(context: Context): String? {
     val mimeType: String? = if (this.scheme == ContentResolver.SCHEME_CONTENT) {
@@ -266,13 +267,7 @@ private fun Context.getContentFileName(uri: Uri): String? = runCatching {
 }.getOrNull()
 
 fun Context.startFileShareIntent(path: Path, assetName: String?) {
-    val assetDisplayName = assetName ?: path.name
-    val fileURI = FileProvider.getUriForFile(
-        this,
-        getProviderAuthority(),
-        path.toFile(),
-        assetDisplayName
-    )
+    val fileURI = fileShareUri(path, assetName)
     val shareIntent = Intent(Intent.ACTION_SEND)
     shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -284,6 +279,9 @@ fun Context.startFileShareIntent(path: Path, assetName: String?) {
     shareIntent.type = fileURI.getMimeType(context = this)
     startActivity(externalShareChooserIntent(shareIntent))
 }
+
+fun Context.fileShareUri(path: Path, assetName: String?): Uri =
+    shareableFileProviderUri(path.toFile(), assetName ?: path.name)
 
 fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataSize: Long, context: Context): Uri? =
     context.saveFileDataToDownloadsFolder(assetName, assetDataPath, assetDataSize)
@@ -304,11 +302,7 @@ fun Context.getUrisOfFilesInDirectory(dir: File): ArrayList<Uri> {
     val files = ArrayList<Uri>()
 
     dir.listFiles()?.map {
-        val uri = FileProvider.getUriForFile(
-            this,
-            getProviderAuthority(),
-            it
-        )
+        val uri = shareableFileProviderUri(it)
         files.add(uri)
     }
 
@@ -401,6 +395,48 @@ fun Context.externalShareChooserIntent(sendIntent: Intent, title: CharSequence? 
             putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, ownShareComponents)
         }
     }
+
+fun Context.fileProviderSharedCacheFile(fileName: String): File {
+    val shareDirectory = fileProviderSharedCacheDirectory()
+    deleteStaleFileProviderSharedCacheFiles(shareDirectory)
+    return File(shareDirectory, findFirstUniqueName(shareDirectory, fileName.ifBlank { ATTACHMENT_FILENAME }))
+}
+
+fun Context.shareableFileProviderUri(sourceFile: File, displayName: String? = null): Uri {
+    val shareFile = when {
+        sourceFile.isInDirectory(fileProviderSharedCacheDirectory()) -> sourceFile
+        else -> linkOrCopyToFileProviderSharedCache(sourceFile, displayName ?: sourceFile.name)
+    }
+    return fileProviderUri(shareFile, displayName)
+}
+
+private fun Context.linkOrCopyToFileProviderSharedCache(sourceFile: File, displayName: String): File {
+    val shareFile = fileProviderSharedCacheFile(displayName)
+    runCatching {
+        Files.createLink(shareFile.toPath(), sourceFile.toPath())
+    }.recoverCatching {
+        sourceFile.copyTo(shareFile, overwrite = true)
+    }.getOrThrow()
+    return shareFile
+}
+
+private fun Context.fileProviderSharedCacheDirectory(): File =
+    File(cacheDir, FILE_PROVIDER_SHARED_CACHE_DIRECTORY).apply { mkdirs() }
+
+private fun Context.fileProviderUri(file: File, displayName: String? = null): Uri =
+    FileProvider.getUriForFile(this, getProviderAuthority(), file, displayName ?: file.name)
+
+private fun File.isInDirectory(directory: File): Boolean {
+    val directoryPath = directory.canonicalFile.toPath()
+    return canonicalFile.toPath().startsWith(directoryPath)
+}
+
+private fun deleteStaleFileProviderSharedCacheFiles(directory: File) {
+    val oldestAllowedTimestamp = System.currentTimeMillis() - FILE_PROVIDER_SHARED_CACHE_MAX_AGE_MILLIS
+    directory.listFiles()
+        ?.filter { it.isFile && it.lastModified() < oldestAllowedTimestamp }
+        ?.forEach(File::delete)
+}
 
 private fun PackageManager.queryIntentActivitiesCompat(intent: Intent) =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -521,5 +557,8 @@ fun getAudioLengthInMs(dataPath: Path, mimeType: String): Long =
 
 private const val ATTACHMENT_FILENAME = "attachment"
 private const val DATA_COPY_BUFFER_SIZE = 2048
+const val FILE_PROVIDER_SHARED_FILES_ROOT = "shared_files"
+private const val FILE_PROVIDER_SHARED_CACHE_DIRECTORY = "file-provider-shares"
+private const val FILE_PROVIDER_SHARED_CACHE_MAX_AGE_MILLIS = 24 * 60 * 60 * 1000L
 const val SDK_VERSION = 33
 const val SUPPORTED_AUDIO_MIME_TYPE = "audio/wav"

@@ -21,14 +21,14 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.core.content.FileProvider
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.util.EmailComposer
+import com.wire.android.util.externalShareChooserIntent
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
-import com.wire.android.util.getProviderAuthority
 import com.wire.android.util.sha256
+import com.wire.android.util.shareableFileProviderUri
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -65,7 +65,21 @@ class LogShareLauncher(
         share(
             logsDirectory = logsDirectory,
             flushLogs = flushLogs,
-            intent = { archive -> context.logsSharingIntent(archive) }
+            shareArchive = { archive ->
+                context.startActivity(context.externalShareChooserIntent(context.logsSharingIntent(archive)))
+            }
+        )
+    }
+
+    fun shareLogsViaWire(
+        logsDirectory: File,
+        onShareUri: (Uri) -> Unit,
+        flushLogs: suspend () -> Unit = {}
+    ) {
+        share(
+            logsDirectory = logsDirectory,
+            flushLogs = flushLogs,
+            shareArchive = { archive -> onShareUri(context.logsSharingUri(archive)) }
         )
     }
 
@@ -75,20 +89,20 @@ class LogShareLauncher(
         share(
             logsDirectory = LogFileWriter.logsDirectory(context),
             flushLogs = flushLogs,
-            intent = { archive -> context.bugReportLogsSharingIntent(archive) }
+            shareArchive = { archive -> context.startActivity(context.bugReportLogsSharingIntent(archive)) }
         )
     }
 
     private fun share(
         logsDirectory: File,
         flushLogs: suspend () -> Unit,
-        intent: (File) -> Intent
+        shareArchive: (File) -> Unit
     ) {
         coroutineScope.launch {
             runCatching {
                 flushLogs()
                 val archive = archiveCreator.create(logsDirectory)
-                context.startActivity(intent(archive))
+                shareArchive(archive)
             }.onFailure { error ->
                 appLogger.e("Failed to prepare logs for sharing", error)
                 onFailure(error)
@@ -114,8 +128,10 @@ class CompressedLogsArchiveCreator(
     }
 }
 
+fun Context.logsSharingUri(archiveFile: File): Uri = shareableFileProviderUri(archiveFile)
+
 fun Context.logsSharingIntent(archiveFile: File): Intent {
-    val archiveUri = FileProvider.getUriForFile(this, getProviderAuthority(), archiveFile)
+    val archiveUri = logsSharingUri(archiveFile)
     return Intent(Intent.ACTION_SEND).apply {
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         type = LOGS_ARCHIVE_MIME_TYPE
@@ -137,7 +153,7 @@ fun Context.bugReportLogsSharingIntent(archiveFile: File): Intent {
         )
         selector = Intent(Intent.ACTION_SENDTO).setData(Uri.parse("mailto:"))
     }
-    return Intent.createChooser(intent, getString(R.string.send_feedback_choose_email))
+    return externalShareChooserIntent(intent, getString(R.string.send_feedback_choose_email))
 }
 
 internal fun deleteStaleCompressedLogsArchives(

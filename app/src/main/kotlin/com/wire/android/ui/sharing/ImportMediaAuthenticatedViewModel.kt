@@ -18,6 +18,7 @@
 package com.wire.android.ui.sharing
 
 import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
@@ -34,6 +35,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.di.ApplicationContext
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -44,6 +46,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.EMPTY
+import com.wire.android.util.FILE_PROVIDER_SHARED_FILES_ROOT
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getProviderAuthority
 import com.wire.android.util.parcelableArrayList
@@ -71,6 +74,7 @@ import kotlinx.coroutines.withContext
 @OptIn(FlowPreview::class)
 @Suppress("LongParameterList", "TooManyFunctions")
 class ImportMediaAuthenticatedViewModel(
+    @ApplicationContext private val context: Context,
     private val getSelf: ObserveSelfUserUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val handleUriAsset: HandleUriAssetUseCase,
@@ -164,6 +168,27 @@ class ImportMediaAuthenticatedViewModel(
         importMediaState = importMediaState.copy(isImporting = false)
     }
 
+    suspend fun handleReceivedDataFromInternalShare(uris: List<Uri>) {
+        appLogger.i("Received data from internal share ${uris.size}")
+        importMediaState = importMediaState.copy(isImporting = true)
+        val providerAuthority = context.getProviderAuthority()
+        val importedMediaAssets = uris.mapNotNull { uri ->
+            if (uri.isWireInternalShareUri(providerAuthority)) {
+                handleImportedAsset(uri, rejectOwnFileProviderUri = false)
+            } else {
+                appLogger.w("$TAG: Ignoring internal share URI outside Wire's share provider root")
+                null
+            }
+        }
+        importMediaState = importMediaState.copy(
+            importedAssets = importedMediaAssets.toPersistentList(),
+            isImporting = false
+        )
+        importedMediaAssets.firstOrNull { it.assetSizeExceeded != null }?.let {
+            onSnackbarMessage(SendMessagesSnackbarMessages.MaxAssetSizeExceeded(it.assetSizeExceeded!!))
+        }
+    }
+
     private fun handleSharedText(text: String) {
         appLogger.d("$TAG: handleSharedText")
         importMediaState = importMediaState.copy(importedText = text)
@@ -214,8 +239,11 @@ class ImportMediaAuthenticatedViewModel(
             }
         }
 
-    private suspend fun handleImportedAsset(activity: AppCompatActivity, uri: Uri): ImportedMediaAsset? {
-        if (uri.isWireFileProviderUri(activity.getProviderAuthority())) {
+    private suspend fun handleImportedAsset(activity: AppCompatActivity, uri: Uri): ImportedMediaAsset? =
+        handleImportedAsset(uri, rejectOwnFileProviderUri = uri.isWireFileProviderUri(activity.getProviderAuthority()))
+
+    private suspend fun handleImportedAsset(uri: Uri, rejectOwnFileProviderUri: Boolean): ImportedMediaAsset? {
+        if (rejectOwnFileProviderUri) {
             appLogger.w("$TAG: Ignoring shared URI from Wire's own file provider")
             return null
         }
@@ -247,3 +275,11 @@ class ImportMediaAuthenticatedViewModel(
 
 internal fun Uri.isWireFileProviderUri(providerAuthority: String): Boolean =
     scheme.equals(ContentResolver.SCHEME_CONTENT, ignoreCase = true) && authority == providerAuthority
+
+internal fun Uri.isWireInternalShareUri(providerAuthority: String): Boolean =
+    isWireFileProviderUri(providerAuthority) &&
+        pathSegments.let { segments ->
+            segments.size > 1 &&
+                segments.firstOrNull() == FILE_PROVIDER_SHARED_FILES_ROOT &&
+                segments.none { it == ".." }
+        }

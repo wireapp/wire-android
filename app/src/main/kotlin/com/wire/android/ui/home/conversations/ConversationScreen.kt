@@ -90,6 +90,7 @@ import androidx.paging.compose.itemKey
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.MessageDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
@@ -191,12 +192,16 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.android.util.DateAndTimeParsers
+import com.wire.android.util.fileShareUri
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.openDownloadFolder
 import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
+import com.wire.android.ui.sharing.ImportMediaNavArgs
+import com.wire.kalium.common.error.NetworkFailure
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
@@ -555,7 +560,19 @@ fun ConversationScreen(
         },
         composerMessages = sendMessageViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
-        shareAsset = conversationMessagesViewModel::shareAsset,
+        shareAssetExternally = conversationMessagesViewModel::shareAsset,
+        shareAssetViaWire = { messageId ->
+            conversationMessagesViewModel.shareAssetViaWire(messageId) { path, assetName ->
+                navigator.navigate(
+                    NavigationCommand(
+                        ImportMediaScreenDestination(
+                            ImportMediaNavArgs(arrayListOf(context.fileShareUri(path, assetName)))
+                        ),
+                        BackStackMode.UPDATE_EXISTED
+                    )
+                )
+            }
+        },
         onDownloadAssetClick = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset,
         onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage,
@@ -820,7 +837,8 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
-    shareAsset: (Context, messageId: String) -> Unit,
+    shareAssetExternally: (Context, messageId: String) -> Unit,
+    shareAssetViaWire: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
@@ -963,7 +981,8 @@ private fun ConversationScreen(
             onDetailsClick = onMessageDetailsClick,
             onReplyClick = messageComposerStateHolder::toReply,
             onEditClick = messageComposerStateHolder::toEdit,
-            onShareAssetClick = { shareAsset(context, it) },
+            onShareAssetExternallyClick = { shareAssetExternally(context, it) },
+            onShareAssetViaWireClick = shareAssetViaWire,
             onDownloadAssetClick = onDownloadAssetClick,
             onOpenAssetClick = onOpenAssetClick,
         )
@@ -1830,7 +1849,8 @@ fun PreviewConversationScreen() = WireTheme {
         onBackButtonClick = {},
         composerMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
-        shareAsset = { _, _ -> },
+        shareAssetExternally = { _, _ -> },
+        shareAssetViaWire = {},
         onOpenAssetClick = {},
         onDownloadAssetClick = {},
         onNavigateToReplyOriginalMessage = {},

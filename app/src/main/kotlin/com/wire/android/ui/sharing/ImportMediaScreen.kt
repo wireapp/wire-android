@@ -119,24 +119,27 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import okio.Path.Companion.toPath
 
-@WireRootDestination
+@WireRootDestination(navArgs = ImportMediaNavArgs::class)
 @Composable
 fun ImportMediaScreen(
+    navArgs: ImportMediaNavArgs,
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
 ) {
+    val navigateBack = if (navArgs.isInternalShare()) navigator::navigateBack else navigator.finish
+
     when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
         FeatureFlagState.FileSharingState.Loading -> {
             ImportMediaLoadingContent(
-                navigateBack = navigator.finish
+                navigateBack = navigateBack
             )
         }
 
         FeatureFlagState.FileSharingState.NoUser -> {
             ImportMediaLoggedOutContent(
                 fileSharingRestrictedState = fileSharingRestrictedState,
-                navigateBack = navigator.finish,
+                navigateBack = navigateBack,
                 openWireAction = {
                     val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
                     navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
@@ -148,13 +151,15 @@ fun ImportMediaScreen(
         FeatureFlagState.FileSharingState.AllowAll,
         is FeatureFlagState.FileSharingState.AllowSome -> {
             ImportMediaAuthenticatedContent(
+                navArgs = navArgs,
                 navigator = navigator,
                 isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.FileSharingState.DisabledByTeam,
+                navigateBack = navigateBack,
             )
         }
     }
 
-    BackHandler { navigator.finish() }
+    BackHandler { navigateBack() }
 }
 
 @Composable
@@ -190,8 +195,10 @@ private fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
 
 @Composable
 private fun ImportMediaAuthenticatedContent(
+    navArgs: ImportMediaNavArgs,
     navigator: Navigator,
     isRestrictedInTeam: Boolean,
+    navigateBack: () -> Unit,
     checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel(),
     importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel(),
 ) {
@@ -199,7 +206,7 @@ private fun ImportMediaAuthenticatedContent(
         ImportMediaRestrictedContent(
             importMediaAuthenticatedState = importMediaViewModel.importMediaState,
             avatarAsset = null,
-            navigateBack = navigator.finish
+            navigateBack = navigateBack
         )
     } else {
         LaunchedEffect(checkAssetRestrictionsViewModel.state) {
@@ -234,7 +241,7 @@ private fun ImportMediaAuthenticatedContent(
             },
             onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
             infoMessage = importMediaViewModel.infoMessage,
-            navigateBack = navigator.finish,
+            navigateBack = navigateBack,
             onRemoveAsset = importMediaViewModel::onRemove
         )
         AssetTooLargeDialog(
@@ -244,15 +251,21 @@ private fun ImportMediaAuthenticatedContent(
 
         val context = LocalContext.current
         with(importMediaViewModel.importMediaState) {
-            LaunchedEffect(isImportingData()) {
-                if (importedAssets.isEmpty() || importedText.isNullOrEmpty()) {
-                    context.getActivity()
-                        ?.let { activity -> importMediaViewModel.handleReceivedDataFromSharingIntent(activity) }
+            LaunchedEffect(navArgs.internalAssetUriList) {
+                if (!hasImportedContent()) {
+                    if (navArgs.internalAssetUriList.isNotEmpty()) {
+                        importMediaViewModel.handleReceivedDataFromInternalShare(navArgs.internalAssetUriList)
+                    } else {
+                        context.getActivity()
+                            ?.let { activity -> importMediaViewModel.handleReceivedDataFromSharingIntent(activity) }
+                    }
                 }
             }
         }
     }
 }
+
+private fun ImportMediaNavArgs.isInternalShare(): Boolean = internalAssetUriList.isNotEmpty()
 
 @Composable
 fun ImportMediaRestrictedContent(

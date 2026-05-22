@@ -37,6 +37,7 @@ import coil3.annotation.ExperimentalCoilApi
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -55,13 +56,16 @@ import com.wire.android.ui.edit.DownloadAssetExternallyOption
 import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
-import com.wire.android.ui.edit.ShareAssetMenuOption
+import com.wire.android.ui.edit.ShareAssetExternallyMenuOption
+import com.wire.android.ui.edit.ShareAssetViaWireMenuOption
 import com.wire.android.ui.edit.SharePublicLinkMenuOption
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
+import com.wire.android.ui.sharing.ImportMediaNavArgs
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.fileShareUri
 import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
 import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -135,7 +139,15 @@ fun MediaGalleryScreen(
 
     HandleActions(mediaGalleryViewModel.actions) { action ->
         when (action) {
-            is MediaGalleryAction.Share -> context.startFileShareIntent(action.path, action.assetName)
+            is MediaGalleryAction.ShareExternally -> context.startFileShareIntent(action.path, action.assetName)
+            is MediaGalleryAction.ShareViaWire -> navigator.navigate(
+                NavigationCommand(
+                    ImportMediaScreenDestination(
+                        ImportMediaNavArgs(arrayListOf(context.fileShareUri(action.path, action.assetName)))
+                    )
+                )
+            )
+
             is MediaGalleryAction.ShowDetails -> {
                 resultNavigator.setResult(
                     MediaGalleryNavBackArgs(
@@ -255,11 +267,14 @@ private fun MediaGalleryOptionsBottomSheetLayout(
                 MediaGalleryMenuItem.DOWNLOAD -> add {
                     DownloadAssetExternallyOption { onOptionsClick(MenuIntent.Download) }
                 }
-                MediaGalleryMenuItem.SHARE -> add {
-                    ShareAssetMenuOption { onOptionsClick(MenuIntent.Share) }
+                MediaGalleryMenuItem.SHARE_EXTERNALLY -> add {
+                    ShareAssetExternallyMenuOption { onOptionsClick(MenuIntent.ShareExternally) }
+                }
+                MediaGalleryMenuItem.SHARE_VIA_WIRE -> add {
+                    ShareAssetViaWireMenuOption { onOptionsClick(MenuIntent.ShareViaWire) }
                 }
                 MediaGalleryMenuItem.SHARE_PUBLIC_LINK -> add {
-                    SharePublicLinkMenuOption { onOptionsClick(MenuIntent.Share) }
+                    SharePublicLinkMenuOption { onOptionsClick(MenuIntent.ShareExternally) }
                 }
                 MediaGalleryMenuItem.DELETE -> add {
                     DeleteItemMenuOption { onOptionsClick(MenuIntent.Delete) }

@@ -36,7 +36,8 @@ fun messageOptionsMenuItems(
     onDetailsClick: () -> Unit,
     onReplyClick: () -> Unit,
     onEditClick: () -> Unit,
-    onShareAssetClick: () -> Unit,
+    onShareAssetExternallyClick: () -> Unit,
+    onShareAssetViaWireClick: () -> Unit,
     onDownloadAssetClick: () -> Unit,
     onOpenAssetClick: () -> Unit
 ): List<@Composable () -> Unit> {
@@ -48,7 +49,8 @@ fun messageOptionsMenuItems(
             isOpenable = isOpenable,
             onDeleteClick = onDeleteClick,
             onDetailsClick = onDetailsClick,
-            onShareAsset = onShareAssetClick,
+            onShareAssetExternally = onShareAssetExternallyClick,
+            onShareAssetViaWire = onShareAssetViaWireClick,
             onDownloadAsset = onDownloadAssetClick,
             onReplyClick = onReplyClick,
             onReactionClick = onReactionClick,

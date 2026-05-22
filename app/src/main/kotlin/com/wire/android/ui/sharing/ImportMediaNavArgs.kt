@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,23 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.sharing
 
-package com.wire.android.util
-
-import android.content.Context
 import android.net.Uri
-import androidx.core.net.toUri
-import okio.Path
-import javax.inject.Inject
 
-class AvatarImageManager @Inject constructor(val context: Context) {
-
-    fun getWritableAvatarUri(imageDataPath: Path): Uri {
-        val file = imageDataPath.toFile()
-        return file.toUri()
-    }
-
-    fun getShareableTempAvatarUri(filePath: Path): Uri {
-        return context.shareableFileProviderUri(context.fileProviderSharedCacheFile(filePath.name))
-    }
-}
+data class ImportMediaNavArgs(
+    val internalAssetUriList: ArrayList<Uri>
+)

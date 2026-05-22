@@ -63,6 +63,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialog
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
@@ -70,8 +71,10 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
+import com.wire.android.ui.sharing.ImportMediaNavArgs
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.fileShareUri
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.UIText
@@ -125,7 +128,18 @@ fun ConversationMediaScreen(
             conversationMessagesViewModel.deleteMessageDialogState
                 .show(DeleteMessageDialogState(deleteForEveryone, messageId, conversationMessagesViewModel.conversationId))
         },
-        shareAsset = remember { { conversationMessagesViewModel.shareAsset(context, it) } },
+        shareAssetExternally = { conversationMessagesViewModel.shareAsset(context, it) },
+        shareAssetViaWire = { messageId ->
+            conversationMessagesViewModel.shareAssetViaWire(messageId) { path, assetName ->
+                navigator.navigate(
+                    NavigationCommand(
+                        ImportMediaScreenDestination(
+                            ImportMediaNavArgs(arrayListOf(context.fileShareUri(path, assetName)))
+                        )
+                    )
+                )
+            }
+        },
         downloadAsset = conversationMessagesViewModel::openOrFetchAsset,
     )
 
@@ -246,7 +260,8 @@ private fun Content(
 private fun AssetOptionsModalSheetLayout(
     sheetState: WireModalSheetState<AssetOptionsData>,
     deleteAsset: (messageId: String, isMyMessage: Boolean) -> Unit,
-    shareAsset: (messageId: String) -> Unit,
+    shareAssetExternally: (messageId: String) -> Unit,
+    shareAssetViaWire: (messageId: String) -> Unit,
     downloadAsset: (messageId: String) -> Unit,
 ) {
     WireModalSheetLayout(
@@ -257,7 +272,8 @@ private fun AssetOptionsModalSheetLayout(
                     isUploading = false, // only uploaded assets
                     isEphemeral = false, // only non-self-deleting assets
                     onDeleteClick = remember { { sheetState.hide { deleteAsset(messageId, isMyMessage) } } },
-                    onShareAsset = remember { { sheetState.hide { shareAsset(messageId) } } },
+                    onShareAssetExternally = remember { { sheetState.hide { shareAssetExternally(messageId) } } },
+                    onShareAssetViaWire = remember { { sheetState.hide { shareAssetViaWire(messageId) } } },
                     onDownloadAsset = remember { { sheetState.hide { downloadAsset(messageId) } } },
                 )
             )
@@ -319,7 +335,8 @@ fun PreviewAssetOptionsModalSheetLayout() = WireTheme {
             )
         ),
         deleteAsset = { _, _ -> },
-        shareAsset = { },
+        shareAssetExternally = { },
+        shareAssetViaWire = { },
         downloadAsset = { }
     )
 }

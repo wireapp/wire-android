@@ -79,8 +79,9 @@ fun E2EIEnrollmentScreen(
         state = state,
         clearSessionState = clearSessionViewModel.state,
         dismissSuccess = {
-            navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
-            viewModel.finalizeMLSClient()
+            viewModel.finalizeMLSClient {
+                navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
+            }
         },
         dismissErrorDialog = viewModel::dismissErrorDialog,
         enrollE2EICertificate = viewModel::enrollE2EICertificate,

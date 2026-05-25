@@ -43,9 +43,10 @@ class E2EIEnrollmentViewModel @Inject constructor(
 ) : ViewModel() {
     var state by mutableStateOf(E2EIEnrollmentState())
 
-    fun finalizeMLSClient() {
+    fun finalizeMLSClient(onComplete: () -> Unit) {
         viewModelScope.launch {
             finalizeMLSClientAfterE2EIEnrollment.invoke()
+            onComplete()
         }
     }
 

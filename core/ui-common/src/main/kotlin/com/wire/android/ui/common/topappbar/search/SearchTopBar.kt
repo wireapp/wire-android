@@ -39,12 +39,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -79,6 +80,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.PreviewMultipleThemes
+import kotlinx.coroutines.launch
 
 @Composable
 fun SearchTopBar(
@@ -310,7 +312,7 @@ private fun InactiveSearchBarInput(
     activateSearchOnFocus: Boolean,
 ) {
     var isSearchBarFocused by remember { mutableStateOf(false) }
-    val keyboardFocusInteraction = remember { mutableStateOf<FocusInteraction.Focus?>(null) }
+    val keyboardFocusInteraction = remember { KeyboardFocusInteractionState() }
 
     InactiveSearchFocusInteraction(
         activateSearchOnFocus = activateSearchOnFocus,
@@ -397,33 +399,42 @@ private fun InactiveSearchBarInput(
 private fun InactiveSearchFocusInteraction(
     activateSearchOnFocus: Boolean,
     isSearchBarFocused: Boolean,
-    keyboardFocusInteraction: MutableState<FocusInteraction.Focus?>,
+    keyboardFocusInteraction: KeyboardFocusInteractionState,
     interactionSource: MutableInteractionSource,
 ) {
+    val currentInteractionSource = rememberUpdatedState(interactionSource)
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(activateSearchOnFocus, isSearchBarFocused) {
         val interaction = keyboardFocusInteraction.value
         when {
             !activateSearchOnFocus && isSearchBarFocused && interaction == null -> {
                 FocusInteraction.Focus().also {
                     keyboardFocusInteraction.value = it
-                    interactionSource.emit(it)
+                    currentInteractionSource.value.emit(it)
                 }
             }
 
             (activateSearchOnFocus || !isSearchBarFocused) && interaction != null -> {
-                interactionSource.emit(FocusInteraction.Unfocus(interaction))
+                currentInteractionSource.value.emit(FocusInteraction.Unfocus(interaction))
                 keyboardFocusInteraction.value = null
             }
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(currentInteractionSource) {
         onDispose {
             keyboardFocusInteraction.value?.let {
-                interactionSource.tryEmit(FocusInteraction.Unfocus(it))
+                coroutineScope.launch {
+                    currentInteractionSource.value.emit(FocusInteraction.Unfocus(it))
+                }
             }
         }
     }
+}
+
+private class KeyboardFocusInteractionState {
+    var value: FocusInteraction.Focus? = null
 }
 
 @Composable

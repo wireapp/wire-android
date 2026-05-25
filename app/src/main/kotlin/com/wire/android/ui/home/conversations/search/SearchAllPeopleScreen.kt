@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
@@ -296,7 +297,7 @@ private fun LazyListScope.internalSearchResults(
                     isSelected = isSelected,
                     onCheckClickable = onCheckClickable,
                     actionType = actionType,
-                    clickable = remember { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } },
+                    clickable = remember(contact) { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } },
                     modifier = contact.firstContactFocusModifier(firstContactId, firstContactFocusRequester)
                 )
             }
@@ -354,7 +355,7 @@ private fun LazyListScope.externalSearchResults(
                 membership = membership,
                 connectionState = connectionState,
                 searchQuery = searchQuery,
-                clickable = remember { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } },
+                clickable = remember(contact) { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } },
                 modifier = contact.firstContactFocusModifier(firstContactId, firstContactFocusRequester)
             )
         }
@@ -387,7 +388,7 @@ private fun Contact.firstContactFocusModifier(
     Modifier
 }
 
-private val androidx.compose.ui.input.key.KeyEvent.isForwardTabKey: Boolean
+private val KeyEvent.isForwardTabKey: Boolean
     get() = type == KeyEventType.KeyDown && key == Key.Tab && !isShiftPressed
 
 @Composable

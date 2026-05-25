@@ -55,6 +55,7 @@ import kotlin.math.ceil
 fun WireCenterAlignedTopAppBar(
     title: String,
     modifier: Modifier = Modifier,
+    navigationIconModifier: Modifier = Modifier,
     titleStyle: TextStyle = MaterialTheme.wireTypography.title01,
     maxLines: Int = 2,
     subtitleContent: @Composable ColumnScope.() -> Unit = {},
@@ -62,7 +63,6 @@ fun WireCenterAlignedTopAppBar(
     navigationIconType: NavigationIconType? = NavigationIconType.Back(),
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     titleContentDescription: String? = null,
-    navigationIconModifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
     bottomContent: @Composable ColumnScope.() -> Unit = {}
 ) {
@@ -91,10 +91,10 @@ fun WireCenterAlignedTopAppBar(
 fun WireCenterAlignedTopAppBar(
     titleContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
+    navigationIconModifier: Modifier = Modifier,
     subtitleContent: @Composable ColumnScope.() -> Unit = {},
     onNavigationPressed: () -> Unit = {},
     navigationIconType: NavigationIconType? = NavigationIconType.Back(),
-    navigationIconModifier: Modifier = Modifier,
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     actions: @Composable RowScope.() -> Unit = {},
     bottomContent: @Composable ColumnScope.() -> Unit = {}

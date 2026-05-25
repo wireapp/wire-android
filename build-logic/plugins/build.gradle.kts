@@ -38,6 +38,7 @@ dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.kover.gradlePlugin)
+    compileOnly(libs.metro.gradlePlugin)
 
     testImplementation(libs.junit4)
     testImplementation(kotlin("test"))

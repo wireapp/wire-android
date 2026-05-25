@@ -91,6 +91,7 @@ fun ConversationsScreenContent(
     loadingListContent: @Composable () -> Unit = { LoadingListContent() },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     emptySearchResultFocusRequester: FocusRequester? = null,
+    firstConversationFocusRequester: FocusRequester? = null,
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
         else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
@@ -185,6 +186,7 @@ fun ConversationsScreenContent(
                     lazyPagingItems.itemCount > 0 -> ConversationList(
                         lazyPagingConversations = lazyPagingItems,
                         lazyListState = lazyListState,
+                        firstConversationFocusRequester = firstConversationFocusRequester,
                         onOpenConversation = onOpenConversation,
                         onEditConversation = onEditConversationItem,
                         onOpenUserProfile = onOpenUserProfile,
@@ -222,6 +224,7 @@ fun ConversationsScreenContent(
                     hasConversations -> ConversationList(
                         lazyListState = lazyListState,
                         conversationListItems = state.conversations,
+                        firstConversationFocusRequester = firstConversationFocusRequester,
                         onOpenConversation = onOpenConversation,
                         onEditConversation = onEditConversationItem,
                         onOpenUserProfile = onOpenUserProfile,

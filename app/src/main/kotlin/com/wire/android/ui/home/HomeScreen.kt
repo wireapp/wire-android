@@ -334,11 +334,7 @@ fun HomeContent(
                                 onOpenConversationFilter = {
                                     homeStateHolder.conversationsFilterBottomSheetState.show(Unit)
                                 },
-                                nextFocusRequester = if (currentNavigationItem.fab != null) {
-                                    fabFocusRequester
-                                } else {
-                                    searchFocusRequester
-                                },
+                                nextFocusRequester = searchFocusRequester,
                             )
                         }
                     },
@@ -360,7 +356,12 @@ fun HomeContent(
                                         }
                                     },
                                     externalFocusRequester = searchFocusRequester,
-                                    nextFocusRequester = homeStateHolder.emptySearchResultFocusRequester,
+                                    nextFocusRequester = when {
+                                        searchBarState.isSearchActive -> homeStateHolder.emptySearchResultFocusRequester
+                                        currentNavigationItem.fab != null -> fabFocusRequester
+                                        else -> homeStateHolder.firstConversationFocusRequester
+                                    },
+                                    activateSearchOnFocus = false,
                                 )
                             }
                         }
@@ -408,7 +409,7 @@ fun HomeContent(
                             HomeFloatingActionButton(
                                 currentNavigationItem = currentNavigationItem,
                                 fabFocusRequester = fabFocusRequester,
-                                searchFocusRequester = searchFocusRequester,
+                                nextFocusRequester = homeStateHolder.firstConversationFocusRequester,
                                 onNewConversationClick = onNewConversationClick,
                                 onNewMeetingClick = { homeStateHolder.newMeetingBottomSheetState.show(Unit) }
                             )
@@ -424,7 +425,7 @@ fun HomeContent(
 private fun HomeFloatingActionButton(
     currentNavigationItem: HomeDestination,
     fabFocusRequester: FocusRequester,
-    searchFocusRequester: FocusRequester,
+    nextFocusRequester: FocusRequester,
     onNewConversationClick: () -> Unit,
     onNewMeetingClick: () -> Unit,
 ) {
@@ -437,9 +438,7 @@ private fun HomeFloatingActionButton(
         modifier = Modifier
             .focusRequester(fabFocusRequester)
             .focusProperties {
-                if (currentNavigationItem.searchBar != null) {
-                    next = searchFocusRequester
-                }
+                next = nextFocusRequester
             },
         icon = {
             Image(

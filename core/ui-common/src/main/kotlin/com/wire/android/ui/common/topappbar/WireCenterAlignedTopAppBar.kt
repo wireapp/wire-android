@@ -62,6 +62,7 @@ fun WireCenterAlignedTopAppBar(
     navigationIconType: NavigationIconType? = NavigationIconType.Back(),
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     titleContentDescription: String? = null,
+    navigationIconModifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
     bottomContent: @Composable ColumnScope.() -> Unit = {}
 ) {
@@ -77,6 +78,7 @@ fun WireCenterAlignedTopAppBar(
         subtitleContent = subtitleContent,
         onNavigationPressed = onNavigationPressed,
         navigationIconType = navigationIconType,
+        navigationIconModifier = navigationIconModifier,
         elevation = elevation,
         actions = actions,
         modifier = modifier,
@@ -92,6 +94,7 @@ fun WireCenterAlignedTopAppBar(
     subtitleContent: @Composable ColumnScope.() -> Unit = {},
     onNavigationPressed: () -> Unit = {},
     navigationIconType: NavigationIconType? = NavigationIconType.Back(),
+    navigationIconModifier: Modifier = Modifier,
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     actions: @Composable RowScope.() -> Unit = {},
     bottomContent: @Composable ColumnScope.() -> Unit = {}
@@ -109,7 +112,15 @@ fun WireCenterAlignedTopAppBar(
                         subtitleContent()
                     }
                 },
-                navigationIcon = { navigationIconType?.let { NavigationIconButton(iconType = it, onClick = onNavigationPressed) } },
+                navigationIcon = {
+                    navigationIconType?.let {
+                        NavigationIconButton(
+                            iconType = it,
+                            onClick = onNavigationPressed,
+                            modifier = navigationIconModifier
+                        )
+                    }
+                },
                 colors = wireTopAppBarColors(),
                 actions = actions,
                 modifier = Modifier

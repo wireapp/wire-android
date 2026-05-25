@@ -62,6 +62,7 @@ class HomeStateHolder(
     private val lazyListStateProvider: LazyListStateProvider<String>,
 ) {
     val emptySearchResultFocusRequester = FocusRequester()
+    val firstConversationFocusRequester = FocusRequester()
 
     val currentNavigationItem
         get() = currentNavigationItemState.value

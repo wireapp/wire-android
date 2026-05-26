@@ -73,7 +73,7 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "enforce_configuration_signature": true,
+            "enforce_configuration_signature": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -88,8 +88,7 @@
             "enforce_configuration_signature": true,
             "use_strict_mls_filter": false,
             "conversation_feeder_enabled": true,
-            "db_invalidation_control_enabled": false,
-            "adminless_group_handling_enabled": true
+            "db_invalidation_control_enabled": false
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -175,6 +174,5 @@
     "enforce_configuration_signature": true,
     "call_quality_menu_enabled": true,
     "call_reactions_enabled": true,
-    "nomad_profiles_enabled": true,
-    "adminless_group_handling_enabled": false
+    "nomad_profiles_enabled": true
 }

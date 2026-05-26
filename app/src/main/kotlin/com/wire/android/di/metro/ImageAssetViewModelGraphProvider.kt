@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2025 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.di
+package com.wire.android.di.metro
 
-import javax.inject.Qualifier
+import androidx.lifecycle.ViewModel
+import com.wire.android.model.ImageAssetViewModelFactory
+import com.wire.android.model.ImageAssetViewModelGraph
+import com.wire.android.util.ui.WireSessionImageLoader
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class KaliumCoreLogic
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class ApplicationContext
+@HiltViewModel
+class ImageAssetViewModelGraphProvider @Inject constructor(
+    imageLoader: WireSessionImageLoader,
+) : ViewModel(), ImageAssetViewModelGraph {
+    override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
+        ImageAssetViewModelFactory(imageLoader = imageLoader)
+}

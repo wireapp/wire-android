@@ -19,7 +19,7 @@
 package com.wire.android.ui.e2eiEnrollment
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
+import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollmentUseCase
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -37,7 +37,7 @@ class E2EIEnrollmentViewModelTest {
     fun givenMLSClientFinalizationIsRunning_whenFinalizing_thenOnCompleteWaitsForFinalization() = runTest {
         val finalizationCompleted = CompletableDeferred<Unit>()
         val viewModel = E2EIEnrollmentViewModel(
-            finalizeMLSClientAfterE2EIEnrollment = object : FinalizeMLSClientAfterE2EIEnrollment {
+            finalizeMLSClientAfterE2EIEnrollment = object : FinalizeMLSClientAfterE2EIEnrollmentUseCase {
                 override suspend fun invoke() {
                     finalizationCompleted.await()
                 }

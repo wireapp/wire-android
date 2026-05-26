@@ -22,7 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
+import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollmentUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -40,7 +40,7 @@ data class E2EIEnrollmentState(
 
 @HiltViewModel
 class E2EIEnrollmentViewModel @Inject constructor(
-    private val finalizeMLSClientAfterE2EIEnrollment: FinalizeMLSClientAfterE2EIEnrollment,
+    private val finalizeMLSClientAfterE2EIEnrollment: FinalizeMLSClientAfterE2EIEnrollmentUseCase,
 ) : ViewModel() {
     var state by mutableStateOf(E2EIEnrollmentState())
 

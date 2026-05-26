@@ -25,9 +25,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.logging.LogFileWriter
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
@@ -41,6 +44,7 @@ class SettingsViewModel @Inject constructor(
     private val observeIsAppLockEditable: ObserveIsAppLockEditableUseCase,
     private val getSelf: ObserveSelfUserUseCase,
     private val dispatchers: DispatcherProvider,
+    private val logFileWriter: LogFileWriter,
 ) : ViewModel() {
     var state by mutableStateOf(SettingsState())
         private set
@@ -67,6 +71,10 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             globalDataStore.clearAppLockPasscode()
         }
+    }
+
+    fun flushLogs(): Deferred<Unit> = viewModelScope.async {
+        logFileWriter.forceFlush()
     }
 
     private suspend fun fetchSelfUser() {

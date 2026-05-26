@@ -42,6 +42,7 @@ import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import com.wire.kalium.logic.feature.user.IsPreventAdminlessGroupsEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
@@ -160,6 +161,14 @@ class UserModule {
     fun provideIsPasswordRequiredUseCase(
         userScope: UserScope
     ): IsPasswordRequiredUseCase = userScope.isPasswordRequired
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsPreventAdminlessGroupsEnabledUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): IsPreventAdminlessGroupsEnabledUseCase =
+        coreLogic.getSessionScope(currentAccount).isPreventAdminlessGroupsEnabled
 
     @ViewModelScoped
     @Provides

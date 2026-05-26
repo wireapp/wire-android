@@ -32,6 +32,7 @@ data class E2EIEnrollmentState(
     val certificate: String = "null",
     val showCertificate: Boolean = false,
     val isLoading: Boolean = false,
+    val isFinalizing: Boolean = false,
     val isCertificateEnrollError: Boolean = false,
     val isCertificateEnrollSuccess: Boolean = false,
     val startGettingE2EICertificate: Boolean = false
@@ -44,8 +45,10 @@ class E2EIEnrollmentViewModel @Inject constructor(
     var state by mutableStateOf(E2EIEnrollmentState())
 
     fun finalizeMLSClient(onComplete: () -> Unit) {
+        state = state.copy(isFinalizing = true)
         viewModelScope.launch {
             finalizeMLSClientAfterE2EIEnrollment.invoke()
+            state = state.copy(isFinalizing = false)
             onComplete()
         }
     }

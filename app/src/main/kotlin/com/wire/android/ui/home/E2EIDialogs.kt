@@ -38,6 +38,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -147,21 +148,24 @@ fun E2EISnoozeDialog(
 fun E2EISuccessDialog(
     openCertificateDetails: () -> Unit,
     dismissDialog: () -> Unit,
+    isLoading: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     WireDialog(
         modifier = modifier,
         title = stringResource(id = R.string.end_to_end_identity_renew_success_dialog_title),
-        onDismiss = dismissDialog,
+        onDismiss = { if (!isLoading) dismissDialog() },
         optionButton1Properties = WireDialogButtonProperties(
             onClick = dismissDialog,
             text = stringResource(id = R.string.label_ok),
             type = WireDialogButtonType.Primary,
+            loading = isLoading
         ),
         optionButton2Properties = WireDialogButtonProperties(
             onClick = openCertificateDetails,
             text = stringResource(id = R.string.end_to_end_identity_renew_success_dialog_second_button),
             type = WireDialogButtonType.Secondary,
+            state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default
         ),
         buttonsHorizontalAlignment = false,
         centerContent = true,

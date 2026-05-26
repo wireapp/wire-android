@@ -201,7 +201,8 @@ private fun E2EIEnrollmentScreenContent(
         if (state.isCertificateEnrollSuccess) {
             E2EISuccessDialog(
                 openCertificateDetails = openCertificateDetails,
-                dismissDialog = dismissSuccess
+                dismissDialog = dismissSuccess,
+                isLoading = state.isFinalizing
             )
         }
 

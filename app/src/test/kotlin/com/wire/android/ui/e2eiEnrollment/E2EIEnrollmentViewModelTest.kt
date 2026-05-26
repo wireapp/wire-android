@@ -51,10 +51,12 @@ class E2EIEnrollmentViewModelTest {
         advanceUntilIdle()
 
         assertFalse(onCompleteCalled)
+        assertTrue(viewModel.state.isFinalizing)
 
         finalizationCompleted.complete(Unit)
         advanceUntilIdle()
 
         assertTrue(onCompleteCalled)
+        assertFalse(viewModel.state.isFinalizing)
     }
 }

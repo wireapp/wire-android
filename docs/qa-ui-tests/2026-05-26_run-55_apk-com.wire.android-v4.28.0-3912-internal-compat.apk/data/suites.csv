@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"failed","Tue May 26 15:48:51 CEST 2026","Tue May 26 15:49:49 CEST 2026","58133","","com.wire.android.tests.core.e2eTests.UpgradeVersion","","com.wire.android.tests.core.e2eTests.UpgradeVersion","givenTeamUserWithConversationHistory_whenUpdatingFromPreviousWireVersion_thenHistoryIsPreserved","givenTeamUserWithConversationHistory_whenUpdatingFromPreviousWireVersion_thenHistoryIsPreserved",""

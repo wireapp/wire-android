@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"failed","Tue May 26 15:38:09 CEST 2026","Tue May 26 15:39:07 CEST 2026","58128","","com.wire.android.tests.core.criticalFlows.AccountManagement","","com.wire.android.tests.core.criticalFlows.AccountManagement","givenMember_whenEnablingLoggingAndAppLockAndChangingEmailAndResettingPassword_thenAllSettingsUpdateSuccessfully","givenMember_whenEnablingLoggingAndAppLockAndChangingEmailAndResettingPassword_thenAllSettingsUpdateSuccessfully",""

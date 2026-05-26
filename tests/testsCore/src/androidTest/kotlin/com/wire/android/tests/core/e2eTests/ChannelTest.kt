@@ -68,8 +68,8 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8716") // TC-8717, TC-8723
-    @Category("channels", "regression")
+    @TestCaseId("TC-8716", "TC-8717", "TC-8723")
+    @Category("channels", "regression", "RC")
     @Test
     fun givenTeamMemberWithChannelFeatureEnabled_whenCreatingChannelWithTeammateAndDeletingCreatedChannel_thenChannelConversationIsCreatedAndDeleted() {
         step("There is TeamOwner with team ChannelCreation on Staging backend") {
@@ -302,6 +302,254 @@ class ChannelTest : BaseUiTest() {
         step("Then I do not see conversation TestChannel in conversation list") {
             pages.conversationListPage.apply {
                 assertConversationNotVisible("TestChannel")
+            }
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-8719", "TC-8720", "TC-8721")
+    @Category("channels", "regression", "RC")
+    @Test
+    fun givenTeamMemberWithChannelFeatureEnabled_whenLeavingChannel_thenChannelHistoryRemainsVisibleAndNewMessagesAreNotVisible() {
+        step("There is TeamOwner with team LeaveChannel on Staging backend") {
+            teamHelper.usersManager.createTeamOwnerByAlias(
+                "user1Name",
+                "LeaveChannel",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+        }
+
+        step("User TeamOwner configures MLS for team LeaveChannel") {
+            teamHelper.userConfiguresMLSForTeam("user1Name", "LeaveChannel", backendClient)
+        }
+
+        step("TeamOwner enables channel feature for team LeaveChannel via backdoor") {
+            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "LeaveChannel", backendClient)
+        }
+
+        step("User TeamOwner adds users Member1,Member2 to team ChannelCreation with role Member") {
+            teamHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name,user3Name",
+                "LeaveChannel",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+        }
+
+        step("Register sender device and send connection request to receiver via backend") {
+            testServiceHelper.apply {
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device2")
+            }
+        }
+        step("TeamOwner has channel conversation LeavingChannel in team LeaveChannel") {
+            testServiceHelper.userHasChannelConversationInTeam(
+                "user1Name",
+                "LeavingChannel",
+                "LeaveChannel"
+            )
+        }
+
+        step("User TeamOwner is me") {
+            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+        }
+
+        step("User Member1 and Member2 are available for channel participant selection") {
+            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
+            member2 = teamHelper.usersManager.findUserByNameOrNameAlias("user3Name")
+        }
+
+        step("And I see welcome screen before login") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+        }
+
+        step("And I open staging deep link login flow") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+            }
+        }
+
+        step("And I login as TeamOwner") {
+            pages.loginPage.apply {
+                enterTeamOwnerLoggingEmail(teamOwner.email ?: "")
+                clickLoginButton()
+                enterTeamOwnerLoggingPassword(teamOwner.password ?: "")
+                clickLoginButton()
+            }
+        }
+
+        step("And I complete post-login permission and privacy prompts") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+
+        step("And I see conversation LeavingChannel in conversation list") {
+            pages.conversationListPage.apply {
+                assertChannelConversationVisible("LeavingChannel")
+            }
+        }
+
+        step("When I tap on conversation name LeavingChannel in conversation list") {
+            pages.conversationListPage.apply {
+                clickChannelConversation("LeavingChannel")
+            }
+        }
+
+        step("Then I see channel conversation LeavingChannel is in foreground") {
+            pages.conversationViewPage.apply {
+                assertChannelConversationInForeground("LeavingChannel")
+            }
+        }
+
+        step("And I tap on channel conversation title LeavingChannel to open group details") {
+            pages.conversationViewPage.apply {
+                UiWaitUtils.waitFor(1.seconds)
+                clickOnChannelConversationDetails("LeavingChannel")
+            }
+        }
+
+        step("And I open participants tab and start add participant flow") {
+            pages.groupConversationDetailsPage.apply {
+                tapOnParticipantsTab()
+                tapAddParticipantsButton()
+            }
+        }
+
+        step("And I select Member1 and Member2 from participant suggestions") {
+            pages.groupConversationDetailsPage.apply {
+                assertUsernameInSuggestionsListIs(member1.name ?: "")
+                selectUserInSuggestionList(member1.name ?: "")
+                assertUsernameInSuggestionsListIs(member2.name ?: "")
+                selectUserInSuggestionList(member2.name ?: "")
+                tapContinueButton()
+            }
+        }
+
+        step("And I verify Member1 and Member2 are added to participants list and click close button") {
+            pages.groupConversationDetailsPage.apply {
+                assertUsernameIsAddedToParticipantsList(member1.name ?: "")
+                assertUsernameIsAddedToParticipantsList(member2.name ?: "")
+                tapCloseButtonOnGroupConversationDetailsPage()
+            }
+        }
+
+        step("Then I see channel conversation LeavingChannel is in foreground") {
+            pages.conversationViewPage.apply {
+                assertChannelConversationInForeground("LeavingChannel")
+            }
+        }
+
+        step("When I type the message Hello Leaving Channel Members into text input field and tap send button") {
+            pages.conversationViewPage.apply {
+                typeMessageInInputField("Hello Leaving Channel Members")
+                clickSendButton()
+            }
+        }
+
+        step("Then I see the message Hello Leaving Channel Members in current conversation") {
+            pages.conversationViewPage.apply {
+                assertSentMessageIsVisibleInCurrentConversation("Hello Leaving Channel Members")
+            }
+        }
+
+        step("And User Member2 sends message Hello from Member2 to channel conversation LeavingChannel") {
+            testServiceHelper.userSendMessageToConversation(
+                "user3Name",
+                "Hello from Member2",
+                "Device2",
+                "LeavingChannel",
+                false
+            )
+        }
+
+        step("And I see the message Hello from Member2 in current conversation") {
+            pages.conversationViewPage.apply {
+                assertReceivedMessageIsVisibleInCurrentConversation("Hello from Member2")
+            }
+        }
+
+        step("And I tap back button on conversationViewPage back to conversation list page") {
+            pages.conversationViewPage.apply {
+                tapBackButtonToCloseConversationViewPage()
+            }
+        }
+
+        step("Then I see conversation LeavingChannel in conversation list") {
+            pages.conversationListPage.apply {
+                assertChannelConversationVisible("LeavingChannel")
+            }
+        }
+
+        step("And I long press on conversation name LeavingChannel in conversation list") {
+            pages.conversationListPage.apply {
+                longPressConversation("LeavingChannel")
+            }
+        }
+
+        step("And I see Leave Conversation button and tap it") {
+            pages.conversationListPage.apply {
+                assertLeaveConversationButtonVisibleInConversationActions()
+                tapLeaveConversationButtonInConversationActions()
+            }
+        }
+
+        step("And I see leave conversation confirmation modal for LeavingChannel") {
+            pages.conversationListPage.apply {
+                assertLeaveConversationConfirmationModalVisible("LeavingChannel")
+            }
+        }
+
+        step("And I tap Leave Conversation button in leave conversation confirmation modal") {
+            pages.conversationListPage.apply {
+                tapLeaveConversationButtonOnModal()
+            }
+        }
+
+        step("Then I see leave toast message for LeavingChannel") {
+            waitUntilToastIsDisplayed("You left the conversation.")
+        }
+
+        // TC-8720 - I want to be able to see channel conversation history after I left the conversation
+
+        step("When I tap on conversation name LeavingChannel in conversation list") {
+            pages.conversationListPage.apply {
+                clickChannelConversation("LeavingChannel")
+            }
+        }
+
+        step("Then I see the message Hello Leaving Channel Members in current conversation") {
+            pages.conversationViewPage.apply {
+                assertSentMessageIsVisibleInCurrentConversation("Hello Leaving Channel Members")
+            }
+        }
+
+        step("And User Member2 sends message Hello Again to channel conversation LeavingChannel") {
+            testServiceHelper.userSendMessageToConversation(
+                "user3Name",
+                "Hello Again",
+                "Device2",
+                "LeavingChannel",
+                false
+            )
+        }
+
+        // TC-8721- I should not be able to see new messages after I left the channel conversation
+
+        step("And I do not see the message Hello Again in current conversation") {
+            pages.conversationViewPage.apply {
+                assertMessageNotVisible("Hello Again")
             }
         }
     }

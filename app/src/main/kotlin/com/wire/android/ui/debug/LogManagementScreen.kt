@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.debug
 
+import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,11 +28,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.sharing.ImportMediaNavArgs
 
 @WireRootDestination
 @Composable
@@ -64,7 +67,16 @@ fun LogManagementScreen(
                 isLoggingEnabled = state.isLoggingEnabled,
                 onLoggingEnabledChange = viewModel::setLoggingEnabledState,
                 onDeleteLogs = viewModel::deleteLogs,
-                onShareLogs = { contentState.shareLogs(viewModel::flushLogs) },
+                onShareLogsExternally = { contentState.shareLogsExternally(viewModel::flushLogs) },
+                onShareLogsViaWire = {
+                    contentState.shareLogsViaWire(viewModel::flushLogs) { uri ->
+                        navigator.navigate(
+                            NavigationCommand(
+                                ImportMediaScreenDestination(ImportMediaNavArgs(arrayListOf(uri)))
+                            )
+                        )
+                    }
+                },
                 isDBLoggerEnabled = false,
                 onDBLoggerEnabledChange = {},
                 isPrivateBuild = false

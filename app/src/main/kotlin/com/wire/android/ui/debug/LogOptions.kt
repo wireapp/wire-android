@@ -34,6 +34,13 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
+import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
+import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -53,10 +60,13 @@ fun LogOptions(
     isDBLoggerEnabled: Boolean,
     onDBLoggerEnabledChange: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
-    onShareLogs: () -> Unit,
+    onShareLogsExternally: () -> Unit,
+    onShareLogsViaWire: () -> Unit,
     isPrivateBuild: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val shareLogsSheetState = rememberWireModalSheetState<Unit>()
+
     Column(modifier = modifier) {
         SectionHeader(stringResource(R.string.label_logs_option_title))
         EnableLoggingSwitch(
@@ -74,9 +84,13 @@ fun LogOptions(
             SettingsItem(
                 text = stringResource(R.string.label_share_logs),
                 trailingIcon = R.drawable.ic_entypo_share,
+                onRowPressed = Clickable(
+                    enabled = true,
+                    onClick = { shareLogsSheetState.show() }
+                ),
                 onIconPressed = Clickable(
                     enabled = true,
-                    onClick = onShareLogs
+                    onClick = { shareLogsSheetState.show() }
                 )
             )
 
@@ -90,6 +104,57 @@ fun LogOptions(
             )
         }
     }
+
+    WireModalSheetLayout(
+        sheetState = shareLogsSheetState,
+        sheetContent = {
+            WireMenuModalSheetContent(
+                header = MenuModalSheetHeader.Visible(
+                    title = stringResource(R.string.label_share_logs)
+                ),
+                menuItems = listOf(
+                    {
+                        ShareLogsInWireOption {
+                            shareLogsSheetState.hide { onShareLogsViaWire() }
+                        }
+                    },
+                    {
+                        ShareLogsExternallyOption {
+                            shareLogsSheetState.hide { onShareLogsExternally() }
+                        }
+                    }
+                )
+            )
+        }
+    )
+}
+
+@Composable
+private fun ShareLogsInWireOption(onClick: () -> Unit) {
+    MenuBottomSheetItem(
+        leading = {
+            MenuItemIcon(
+                id = R.drawable.ic_share_file,
+                contentDescription = stringResource(R.string.content_description_share_the_file),
+            )
+        },
+        title = stringResource(R.string.label_share_logs_via_wire),
+        onItemClick = onClick
+    )
+}
+
+@Composable
+private fun ShareLogsExternallyOption(onClick: () -> Unit) {
+    MenuBottomSheetItem(
+        leading = {
+            MenuItemIcon(
+                id = R.drawable.ic_entypo_share,
+                contentDescription = stringResource(R.string.content_description_share_the_file),
+            )
+        },
+        title = stringResource(R.string.label_share_logs_externally),
+        onItemClick = onClick
+    )
 }
 
 @Composable
@@ -172,7 +237,8 @@ fun PreviewLoggingOptionsPublicBuild() {
         isDBLoggerEnabled = true,
         onDBLoggerEnabledChange = {},
         onDeleteLogs = {},
-        onShareLogs = {},
+        onShareLogsExternally = {},
+        onShareLogsViaWire = {},
         isPrivateBuild = false,
     )
 }
@@ -186,7 +252,8 @@ fun PreviewLoggingOptionsPrivateBuild() {
         isDBLoggerEnabled = true,
         onDBLoggerEnabledChange = {},
         onDeleteLogs = {},
-        onShareLogs = {},
+        onShareLogsExternally = {},
+        onShareLogsViaWire = {},
         isPrivateBuild = true,
     )
 }

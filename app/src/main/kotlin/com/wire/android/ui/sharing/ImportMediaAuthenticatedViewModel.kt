@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.sharing
 
+import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
@@ -43,7 +45,9 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.EMPTY
+import com.wire.android.util.FILE_PROVIDER_SHARED_FILES_ROOT
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.getProviderAuthority
 import com.wire.android.util.parcelableArrayList
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
@@ -51,6 +55,7 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTim
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.FlowPreview
@@ -72,6 +77,7 @@ import javax.inject.Inject
 @OptIn(FlowPreview::class)
 @Suppress("LongParameterList", "TooManyFunctions")
 class ImportMediaAuthenticatedViewModel @Inject constructor(
+    @param:ApplicationContext private val context: Context,
     private val getSelf: ObserveSelfUserUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val handleUriAsset: HandleUriAssetUseCase,
@@ -156,7 +162,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         } else {
             if (incomingIntent.isSingleShare) {
                 // ACTION_SEND
-                handleSingleIntent(incomingIntent)
+                handleSingleIntent(activity, incomingIntent)
             } else {
                 // ACTION_SEND_MULTIPLE
                 handleMultipleActionIntent(activity)
@@ -165,15 +171,36 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         importMediaState = importMediaState.copy(isImporting = false)
     }
 
+    suspend fun handleReceivedDataFromInternalShare(uris: List<Uri>) {
+        appLogger.i("Received data from internal share ${uris.size}")
+        importMediaState = importMediaState.copy(isImporting = true)
+        val providerAuthority = context.getProviderAuthority()
+        val importedMediaAssets = uris.mapNotNull { uri ->
+            if (uri.isWireInternalShareUri(providerAuthority)) {
+                handleImportedAsset(uri, rejectOwnFileProviderUri = false)
+            } else {
+                appLogger.w("$TAG: Ignoring internal share URI outside Wire's share provider root")
+                null
+            }
+        }
+        importMediaState = importMediaState.copy(
+            importedAssets = importedMediaAssets.toPersistentList(),
+            isImporting = false
+        )
+        importedMediaAssets.firstOrNull { it.assetSizeExceeded != null }?.let {
+            onSnackbarMessage(SendMessagesSnackbarMessages.MaxAssetSizeExceeded(it.assetSizeExceeded!!))
+        }
+    }
+
     private fun handleSharedText(text: String) {
         appLogger.d("$TAG: handleSharedText")
         importMediaState = importMediaState.copy(importedText = text)
     }
 
-    private suspend fun handleSingleIntent(incomingIntent: ShareCompat.IntentReader) {
+    private suspend fun handleSingleIntent(activity: AppCompatActivity, incomingIntent: ShareCompat.IntentReader) {
         incomingIntent.stream?.let { uri ->
             appLogger.d("$TAG: handleSingleIntent")
-            handleImportedAsset(uri)?.let { importedAsset ->
+            handleImportedAsset(activity, uri)?.let { importedAsset ->
                 if (importedAsset.assetSizeExceeded != null) {
                     onSnackbarMessage(
                         SendMessagesSnackbarMessages.MaxAssetSizeExceeded(importedAsset.assetSizeExceeded)
@@ -188,7 +215,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         appLogger.d("$TAG: handleMultipleActionIntent")
         val importedMediaAssets = activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.mapNotNull {
             val fileUri = it.toString().toUri()
-            handleImportedAsset(fileUri)
+            handleImportedAsset(activity, fileUri)
         } ?: listOf()
 
         importMediaState = importMediaState.copy(importedAssets = importedMediaAssets.toPersistentList())
@@ -215,19 +242,28 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             }
         }
 
-    private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? = withContext(dispatchers.io()) {
-        when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
-            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
-                appLogger.w("$TAG: Failed to import asset message: Asset too large")
-                ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)
-            }
+    private suspend fun handleImportedAsset(activity: AppCompatActivity, uri: Uri): ImportedMediaAsset? =
+        handleImportedAsset(uri, rejectOwnFileProviderUri = uri.isWireFileProviderUri(activity.getProviderAuthority()))
 
-            HandleUriAssetUseCase.Result.Failure.Unknown -> {
-                appLogger.e("$TAG: Failed to import asset message: Unknown error")
-                null
-            }
+    private suspend fun handleImportedAsset(uri: Uri, rejectOwnFileProviderUri: Boolean): ImportedMediaAsset? {
+        if (rejectOwnFileProviderUri) {
+            appLogger.w("$TAG: Ignoring shared URI from Wire's own file provider")
+            return null
+        }
+        return withContext(dispatchers.io()) {
+            when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
+                is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
+                    appLogger.w("$TAG: Failed to import asset message: Asset too large")
+                    ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)
+                }
 
-            is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
+                HandleUriAssetUseCase.Result.Failure.Unknown -> {
+                    appLogger.e("$TAG: Failed to import asset message: Unknown error")
+                    null
+                }
+
+                is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
+            }
         }
     }
 
@@ -239,3 +275,14 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         private const val TAG = "[ImportMediaAuthenticatedViewModel]"
     }
 }
+
+internal fun Uri.isWireFileProviderUri(providerAuthority: String): Boolean =
+    scheme.equals(ContentResolver.SCHEME_CONTENT, ignoreCase = true) && authority == providerAuthority
+
+internal fun Uri.isWireInternalShareUri(providerAuthority: String): Boolean =
+    isWireFileProviderUri(providerAuthority) &&
+        pathSegments.let { segments ->
+            segments.size > 1 &&
+                segments.firstOrNull() == FILE_PROVIDER_SHARED_FILES_ROOT &&
+                segments.none { it == ".." }
+        }

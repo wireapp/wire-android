@@ -148,8 +148,8 @@ fun E2EISnoozeDialog(
 fun E2EISuccessDialog(
     openCertificateDetails: () -> Unit,
     dismissDialog: () -> Unit,
-    isLoading: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isLoading: Boolean = false
 ) {
     WireDialog(
         modifier = modifier,

@@ -24,7 +24,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
-import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
+import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollmentUseCase
 import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
@@ -131,7 +131,7 @@ class UserModule {
 
     @ViewModelScoped
     @Provides
-    fun provideFinalizeMLSClientAfterE2EIEnrollmentUseCase(userScope: UserScope): FinalizeMLSClientAfterE2EIEnrollment =
+    fun provideFinalizeMLSClientAfterE2EIEnrollmentUseCase(userScope: UserScope): FinalizeMLSClientAfterE2EIEnrollmentUseCase =
         userScope.finalizeMLSClientAfterE2EIEnrollment
 
     @ViewModelScoped

@@ -79,10 +79,12 @@ download_apks() {
   : "${GITHUB_ENV:?GITHUB_ENV not set}"
   : "${GITHUB_OUTPUT:?GITHUB_OUTPUT not set}"
 
+  # Keep LastModified in the payload so latest/previous selection does not
+  # depend on the wrapped 5-digit APK suffix in the filename.
   aws s3api list-objects-v2 \
     --bucket "${S3_BUCKET}" \
     --prefix "${S3_FOLDER}" \
-    --query "Contents[?ends_with(Key, '.apk')].Key" \
+    --query "Contents[?ends_with(Key, '.apk')]" \
     --output json > "${RUNNER_TEMP}/apk_keys.json"
 
   local apk_env_file="${RUNNER_TEMP}/apk_env.txt"

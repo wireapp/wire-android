@@ -5,6 +5,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime, timezone
 
 runner_temp = os.environ.get("RUNNER_TEMP")
 if not runner_temp:
@@ -21,8 +22,35 @@ except Exception:
 if not isinstance(data, list):
     data = []
 
-apks = [k for k in data if isinstance(k, str) and k.lower().endswith(".apk")]
-if not apks:
+
+def parse_last_modified(value: str):
+    if not value:
+        return None
+    try:
+        normalized = value.replace("Z", "+00:00")
+        return datetime.fromisoformat(normalized).astimezone(timezone.utc)
+    except ValueError:
+        return None
+
+
+apk_entries = []
+for item in data:
+    if isinstance(item, str) and item.lower().endswith(".apk"):
+        apk_entries.append({
+            "key": item,
+            "name": item.split("/")[-1],
+            "last_modified": None,
+        })
+    elif isinstance(item, dict):
+        key = item.get("Key")
+        if isinstance(key, str) and key.lower().endswith(".apk"):
+            apk_entries.append({
+                "key": key,
+                "name": key.split("/")[-1],
+                "last_modified": parse_last_modified(str(item.get("LastModified") or "")),
+            })
+
+if not apk_entries:
     print("ERROR: No .apk files found in this prefix.", file=sys.stderr)
     sys.exit(1)
 
@@ -63,31 +91,49 @@ def pick_by_substring(substr: str):
     # Keep current behavior: return the first filename that contains the token.
     if not substr:
         return None
-    for key in apks:
-        if substr in key.split("/")[-1]:
-            return key
+    for entry in apk_entries:
+        if substr in entry["name"]:
+            return entry["key"]
     return None
 
 
 def pick_by_filename(filename: str):
     if not filename:
         return None
-    for key in apks:
-        if key.split("/")[-1] == filename:
-            return key
+    for entry in apk_entries:
+        if entry["name"] == filename:
+            return entry["key"]
     return None
 
 
 parsed = []
-for key in apks:
-    parsed_version = parse_version(key.split("/")[-1])
+for entry in apk_entries:
+    parsed_version = parse_version(entry["name"])
     if parsed_version is not None:
-        parsed.append((parsed_version, key))
-# Sort ascending; latest is the last entry.
+        parsed.append((parsed_version, entry["key"]))
+# Sort ascending; fallback latest is the last entry.
 parsed.sort(key=lambda x: x[0])
 
-latest_key = parsed[-1][1] if parsed else apks[-1]
-second_latest_key = parsed[-2][1] if len(parsed) >= 2 else None
+by_recency = [entry for entry in apk_entries if entry["last_modified"] is not None]
+# S3 upload time is the only stable "latest" signal after the 5-digit APK
+# suffix wraps, so use recency whenever the metadata is available.
+by_recency.sort(key=lambda entry: entry["last_modified"])
+
+ordered_keys = (
+    [entry["key"] for entry in by_recency]
+    if by_recency
+    else ([item[1] for item in parsed] if parsed else [entry["key"] for entry in apk_entries])
+)
+
+latest_key = ordered_keys[-1]
+
+
+def previous_key(current_key: str):
+    try:
+        index = ordered_keys.index(current_key)
+    except ValueError:
+        return None
+    return ordered_keys[index - 1] if index > 0 else None
 
 
 def normalize_direct(value: str):
@@ -119,15 +165,15 @@ if app_build.lower().endswith(".apk"):
                 pick_by_filename(normalized_old) or pick_by_substring(normalized_old)
             )
         else:
-            old_key = pick_by_substring(old_input) if old_input else second_latest_key
+            old_key = pick_by_substring(old_input) if old_input else previous_key(new_key)
 elif app_build == "latest":
     new_key = latest_key
     if is_upgrade:
-        old_key = pick_by_substring(old_input) if old_input else second_latest_key
+        old_key = pick_by_substring(old_input) if old_input else previous_key(new_key)
 else:
     new_key = pick_by_substring(app_build)
     if is_upgrade:
-        old_key = pick_by_substring(old_input) if old_input else second_latest_key
+        old_key = pick_by_substring(old_input) if old_input else previous_key(new_key)
 
 if not new_key:
     print(f"ERROR: Could not resolve NEW apk for appBuildNumber='{app_build}'", file=sys.stderr)

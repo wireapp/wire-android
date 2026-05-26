@@ -69,6 +69,7 @@ class DebugFeatureFlagsViewModel @Inject constructor(
                             addFeature("Allowed Global Operations", allowedGlobalOperationsModel?.status, allowedGlobalOperationsModel)
                             addFeature("Wire Cells", cellsModel?.status)
                             addFeature("User Profile QR code", enableUserProfileQRCodeConfigModel?.status)
+                            addFeature("Prevent Adminless Groups", preventAdminlessGroupsModel?.status)
                             add(
                                 Feature(
                                     name = "Channels",

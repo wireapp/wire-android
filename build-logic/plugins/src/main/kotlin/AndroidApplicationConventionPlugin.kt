@@ -29,6 +29,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         with(pluginManager) {
             apply("com.android.application")
+            apply("dev.zacsweers.metro")
         }
 
         extensions.configure<ApplicationExtension> {

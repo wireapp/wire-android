@@ -160,6 +160,16 @@ internal fun VideoCallIcon(tint: Color, modifier: Modifier = Modifier) {
 }
 
 @Composable
+internal fun CalendarIcon(tint: Color, modifier: Modifier = Modifier) {
+    Icon(
+        painter = painterResource(id = UICommonR.drawable.ic_calendar),
+        contentDescription = stringResource(R.string.content_description_meeting_icon),
+        tint = tint,
+        modifier = modifier.size(dimensions().spacing16x)
+    )
+}
+
+@Composable
 internal fun MeetingLeadingIcon() {
     val (cornerRadius, borderWidth) = dimensions().groupAvatarCornerRadius to dimensions().avatarBorderWidth
     Box(
@@ -170,7 +180,7 @@ internal fun MeetingLeadingIcon() {
             .background(color = colorsScheme().surface, shape = RoundedCornerShape(cornerRadius + borderWidth))
             .border(color = colorsScheme().outline, width = borderWidth, shape = RoundedCornerShape(cornerRadius + borderWidth))
     ) {
-        VideoCallIcon(tint = colorsScheme().onSurface)
+        CalendarIcon(tint = colorsScheme().onSurface)
     }
 }
 

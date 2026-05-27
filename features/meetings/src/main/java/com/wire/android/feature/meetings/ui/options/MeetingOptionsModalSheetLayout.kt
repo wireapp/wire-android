@@ -29,8 +29,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingItem
+import com.wire.android.feature.meetings.ui.list.CalendarIcon
 import com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon
-import com.wire.android.feature.meetings.ui.list.VideoCallIcon
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
 import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
@@ -99,7 +99,7 @@ private fun MeetingOptionsModalContent(
             add {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_start_meeting),
-                    leading = { VideoCallIcon(tint = colorsScheme().onSurface) },
+                    leading = { CalendarIcon(tint = colorsScheme().onSurface) },
                     onItemClick = onStartMeeting,
                 )
             }

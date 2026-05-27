@@ -23,11 +23,12 @@ import com.wire.android.model.ImageAssetViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import javax.inject.Provider
 
 @HiltViewModel
 class ImageAssetViewModelGraphProvider @Inject constructor(
-    imageLoader: WireSessionImageLoader,
+    imageLoader: Provider<WireSessionImageLoader>,
 ) : ViewModel(), ImageAssetViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
-        ImageAssetViewModelFactory(imageLoader = imageLoader)
+        ImageAssetViewModelFactory(imageLoader = imageLoader::get)
 }

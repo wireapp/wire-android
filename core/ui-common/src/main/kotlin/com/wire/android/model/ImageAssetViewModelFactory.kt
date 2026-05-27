@@ -18,12 +18,9 @@
 package com.wire.android.model
 
 import com.wire.android.util.ui.WireSessionImageLoader
-import dev.zacsweers.metro.Inject
-
-@Inject
 class ImageAssetViewModelFactory(
-    private val imageLoader: WireSessionImageLoader,
+    private val imageLoader: () -> WireSessionImageLoader,
 ) {
     fun create(): RemoteAssetImageViewModel =
-        RemoteAssetImageViewModel(imageLoader = imageLoader)
+        RemoteAssetImageViewModel(imageLoader = imageLoader())
 }

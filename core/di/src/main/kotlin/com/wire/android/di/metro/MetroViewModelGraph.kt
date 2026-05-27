@@ -29,6 +29,13 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 
 interface MetroViewModelGraph
 
+/**
+ * Temporary Android Compose bridge used while moving ViewModel creation from Hilt to Metro.
+ *
+ * Reusable UI should not treat this as a general DI entry point. The target direction is to keep
+ * common UI components UI-only and pass state, callbacks, or narrow models from screen/container
+ * code.
+ */
 val LocalMetroViewModelGraph = staticCompositionLocalOf<MetroViewModelGraph?> {
     null
 }

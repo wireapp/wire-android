@@ -40,7 +40,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import com.wire.android.appLogger
 import com.wire.android.di.assistedViewModels
-import com.wire.android.di.metro.ImageAssetViewModelGraphProvider
+import com.wire.android.di.metro.ImageAssetViewModelGraphBridgeViewModel
 import com.wire.android.di.metro.LocalMetroViewModelGraph
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
@@ -103,7 +103,7 @@ abstract class CallActivity : BaseActivity() {
 
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
-            val imageAssetViewModelGraph = hiltViewModel<ImageAssetViewModelGraphProvider>()
+            val imageAssetViewModelGraph = hiltViewModel<ImageAssetViewModelGraphBridgeViewModel>()
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
                 LocalMetroViewModelGraph provides imageAssetViewModelGraph,

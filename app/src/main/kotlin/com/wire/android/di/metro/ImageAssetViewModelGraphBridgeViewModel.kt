@@ -25,8 +25,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Provider
 
+/**
+ * Android-only bridge that exposes the image asset graph while ui-common is being decoupled from Hilt.
+ */
 @HiltViewModel
-class ImageAssetViewModelGraphProvider @Inject constructor(
+class ImageAssetViewModelGraphBridgeViewModel @Inject constructor(
     imageLoader: Provider<WireSessionImageLoader>,
 ) : ViewModel(), ImageAssetViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =

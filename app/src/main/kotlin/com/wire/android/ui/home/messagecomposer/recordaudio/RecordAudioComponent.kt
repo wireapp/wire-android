@@ -34,7 +34,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.sebaslogen.resaca.hilt.hiltViewModelScoped
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -52,7 +52,7 @@ fun RecordAudioComponent(
     modifier: Modifier = Modifier,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
-    val viewModel: RecordAudioViewModel = hiltViewModelScoped<RecordAudioViewModel>()
+    val viewModel: RecordAudioViewModel = wireViewModelScoped<RecordAudioViewModel>()
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
 

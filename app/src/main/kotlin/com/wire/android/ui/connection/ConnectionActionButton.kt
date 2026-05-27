@@ -33,7 +33,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
@@ -73,7 +73,7 @@ fun ConnectionActionButton(
     onConnectionRequestIgnored: (String) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit = {},
     viewModel: ConnectionActionButtonViewModel =
-        hiltViewModelScoped<
+        wireViewModelScoped<
                 ConnectionActionButtonViewModelImpl,
                 ConnectionActionButtonViewModel,
                 ConnectionActionButtonArgs,

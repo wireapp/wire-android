@@ -55,7 +55,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil3.compose.SubcomposeAsyncImage
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.StatusBox
@@ -622,7 +622,7 @@ private fun QuotedImageThumbnail(
     val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
     val viewModel: AssetLocalPathViewModel =
         if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
-            hiltViewModelScoped<
+            wireViewModelScoped<
                     AssetLocalPathViewModelImpl,
                     AssetLocalPathViewModel,
                     AssetLocalPathArgs,
@@ -632,7 +632,7 @@ private fun QuotedImageThumbnail(
                 keyInScopeResolver = keyInScopeResolver,
             )
         } else {
-            hiltViewModelScoped<
+            wireViewModelScoped<
                     AssetLocalPathViewModelImpl,
                     AssetLocalPathViewModel,
                     AssetLocalPathArgs,

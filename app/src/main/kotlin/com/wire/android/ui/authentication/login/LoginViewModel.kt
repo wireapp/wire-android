@@ -18,12 +18,9 @@
 
 package com.wire.android.ui.authentication.login
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.di.KaliumCoreLogic
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.ClientCapability
@@ -32,13 +29,10 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
-@HiltViewModel
 @Suppress("TooManyFunctions")
 open class LoginViewModel(
-    savedStateHandle: SavedStateHandle,
+    loginNavArgs: LoginNavArgs,
     val clientScopeProviderFactory: ClientScopeProvider.Factory,
     val userDataStoreProvider: UserDataStoreProvider,
     val coreLogic: CoreLogic,
@@ -46,23 +40,6 @@ open class LoginViewModel(
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
 
-    @Inject
-    constructor(
-        savedStateHandle: SavedStateHandle,
-        clientScopeProviderFactory: ClientScopeProvider.Factory,
-        userDataStoreProvider: UserDataStoreProvider,
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        defaultServerConfig: ServerConfig.Links
-    ) : this(
-        savedStateHandle,
-        clientScopeProviderFactory,
-        userDataStoreProvider,
-        coreLogic,
-        LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
-        defaultServerConfig
-    )
-
-    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = loginNavArgs.loginPasswordPath?.customServerConfig ?: defaultServerConfig
 
     suspend fun registerClient(

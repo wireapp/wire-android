@@ -16,6 +16,10 @@ concurrency:
 jobs:
   # Build for direct pushes to develop (includes internal store deployment)
   build-develop:
+    permissions:
+      contents: write
+      actions: read
+      security-events: write
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: push

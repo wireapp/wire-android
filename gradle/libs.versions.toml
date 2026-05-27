@@ -3,14 +3,14 @@
 androidJunit5 = "2.0.1"
 
 # Kotlin
-grgitCore = "5.3.2"
-kotlin = "2.3.10"
+grgitCore = "5.3.3"
+kotlin = "2.3.20"
 
 # KotlinX
 coroutines = "1.10.2"
 ktx-dateTime = "0.6.1"
 ktx-immutableCollections = "0.4.0"
-ktx-serialization = "1.10.0"
+ktx-serialization = "1.11.0"
 koin = "3.5.3"
 datafaker = "1.9.0"
 libsodiumBindings = "0.9.5"
@@ -23,7 +23,8 @@ android-gradlePlugin = "9.0.1"
 desugaring = "2.1.5"
 firebaseBOM = "34.7.0"
 fragment = "1.5.6"
-resaca = "5.0.1"
+resaca = "5.0.2"
+metro = "1.1.1"
 bundlizer = "0.8.0"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
@@ -54,7 +55,7 @@ compose-activity = "1.10.0"
 compose-constraint = "1.1.1"
 compose-navigation = "2.9.5" # aligned with compose-destinations 2.3.0
 compose-destinations = "2.3.0"
-screenshot = "0.0.1-alpha13"
+screenshot = "0.0.1-alpha14"
 jetbrains-compose = "1.10.3"
 # TODO(KMP): switch Compose MPP material3 to stable when available for this stack.
 jetbrains-compose-material3 = "1.11.0-alpha07"
@@ -84,7 +85,7 @@ rss-parser = "6.0.7"
 dataDog = "1.19.3"
 
 # Lint
-lint-compose = "1.4.2"
+lint-compose = "1.4.3"
 
 #OAuth
 openIdAppAuth = "0.11.1"
@@ -96,12 +97,13 @@ leakCanary = "2.14"
 ksp = "2.3.4"
 
 # Benchmark
-benchmark-macro-junit4 = "1.3.3"
+benchmark-macro-junit4 = "1.4.1"
+benchmark-baselineprofile-plugin = "1.5.0-alpha05"
 profileinstaller = "1.4.1"
 
 # Testing
 androidx-espresso = "3.7.0"
-androidx-test-core = "1.6.1"
+androidx-test-core = "1.7.0"
 androidx-test-extensions = "1.2.1"
 androidx-test-orchestrator = "1.5.1"
 androidx-test-rules = "1.6.1"
@@ -112,7 +114,7 @@ junit4 = "4.13.2"
 junit5 = "5.11.0"
 mockk = "1.14.9"
 okio = "3.9.0"
-turbine = "1.2.0"
+turbine = "1.2.1"
 robolectric = "4.14.1"
 hamcrest = "3.0"
 rules = "1.7.0"
@@ -132,10 +134,12 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutLibraries" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
 jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
+androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark-baselineprofile-plugin" }
 
 # Home-made convention plugins defined in build-logic
 wire-android-application = { id = "com.wire.android.application" }
@@ -161,6 +165,7 @@ googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.re
 googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
 kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
+metro-gradlePlugin = { module = "dev.zacsweers.metro:dev.zacsweers.metro.gradle.plugin", version.ref = "metro" }
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }
@@ -291,9 +296,9 @@ countly-sdk = { module = "ly.count.android:sdk", version.ref = "countly" }
 compose-qr-code = { module = "com.lightspark:compose-qr-code", version.ref = "compose-qr" }
 
 # Dev tools
-aboutLibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }
-aboutLibraries-compose-core = { module = "com.mikepenz:aboutlibraries-compose-core", version.ref = "aboutLibraries" }
-aboutLibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibraries" }
+aboutLibraries-core = { module = "com.mikepenz:aboutlibraries-core-android", version.ref = "aboutLibraries" }
+aboutLibraries-compose-core = { module = "com.mikepenz:aboutlibraries-compose-core-android", version.ref = "aboutLibraries" }
+aboutLibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3-android", version.ref = "aboutLibraries" }
 leakCanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakCanary" }
 
 # Testing

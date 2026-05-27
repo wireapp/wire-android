@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
@@ -42,11 +43,11 @@ import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.sharing.SendMessagesSnackbarMessages
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
+import com.wire.android.util.getVideoMetaData
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onFailure
@@ -81,7 +82,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -342,48 +342,64 @@ class SendMessageViewModel @Inject constructor(
     }
 
     internal fun sendAttachment(attachmentBundle: AssetBundle?, conversationId: ConversationId) {
-        viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                attachmentBundle?.run {
-                    when (assetType) {
-                        AttachmentType.IMAGE -> {
-                            if (kaliumFileSystem.exists(attachmentBundle.dataPath)) {
-                                val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
-                                    kaliumFileSystem,
-                                    attachmentBundle.dataPath
-                                )
-                                sendAssetMessage(attachmentBundle.uploadParams(imgHeight, imgWidth))
-                                    .handleLegalHoldFailureAfterSendingMessage(conversationId)
-                                    .handleAssetContributionEvent(assetType)
-                            } else {
-                                appLogger.e("There was a FileNotFoundException error while sending image asset")
-                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
-                            }
-                        }
 
-                        AttachmentType.VIDEO,
-                        AttachmentType.GENERIC_FILE,
-                        AttachmentType.AUDIO -> {
-                            try {
-                                sendAssetMessage(
-                                    attachmentBundle.uploadParams(
-                                        audioLengthInMs = getAudioLengthInMs(
-                                            dataPath = dataPath,
-                                            mimeType = mimeType
-                                        )
-                                    )
-                                ).handleLegalHoldFailureAfterSendingMessage(conversationId)
-                                    .handleAssetContributionEvent(assetType)
-                            } catch (e: OutOfMemoryError) {
-                                appLogger.e("There was an OutOfMemory error while uploading the asset")
-                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
-                            }
-                        }
+        val assetType = attachmentBundle?.assetType ?: return
+
+        viewModelScope.launch(dispatchers.io()) {
+            when (assetType) {
+                AttachmentType.IMAGE -> {
+                    if (kaliumFileSystem.exists(attachmentBundle.dataPath)) {
+                        val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
+                            kaliumFileSystem,
+                            attachmentBundle.dataPath
+                        )
+                        sendAssetMessage(attachmentBundle.uploadParams(imgHeight, imgWidth))
+                            .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                            .handleAssetContributionEvent(assetType)
+                    } else {
+                        appLogger.e("There was a FileNotFoundException error while sending image asset")
+                        onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
                     }
                 }
+
+                AttachmentType.VIDEO,
+                AttachmentType.GENERIC_FILE,
+                AttachmentType.AUDIO ->
+                    try {
+                        sendAssetMessage(attachmentBundle.assetUploadParams())
+                            .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                            .handleAssetContributionEvent(assetType)
+                    } catch (e: OutOfMemoryError) {
+                        appLogger.e("There was an OutOfMemory error while uploading the asset")
+                        onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+                    }
             }
         }
     }
+
+    private fun AssetBundle.assetUploadParams(): AssetUploadParams =
+        when (assetType) {
+            AttachmentType.GENERIC_FILE,
+            AttachmentType.AUDIO ->
+                uploadParams(
+                    audioLengthInMs = getAudioLengthInMs(
+                        dataPath = dataPath,
+                        mimeType = mimeType
+                    )
+                )
+
+            AttachmentType.VIDEO -> {
+                getVideoMetaData(dataPath.toString())?.let { metadata ->
+                    uploadParams(
+                        assetWidth = metadata.width,
+                        assetHeight = metadata.height,
+                        audioLengthInMs = metadata.durationMs ?: 0,
+                    )
+                } ?: uploadParams()
+            }
+
+            else -> uploadParams()
+        }
 
     private fun Either<CoreFailure?, Unit>.handleAssetContributionEvent(
         assetType: AttachmentType

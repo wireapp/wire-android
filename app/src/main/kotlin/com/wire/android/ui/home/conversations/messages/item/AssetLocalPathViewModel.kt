@@ -72,13 +72,7 @@ internal class AssetLocalPathViewModelImpl @AssistedInject constructor(
         transferStatus: AssetTransferStatus,
         downloadIfNeeded: Boolean
     ) {
-        val shouldResolve = when {
-            downloadIfNeeded ->
-                transferStatus == AssetTransferStatus.NOT_DOWNLOADED ||
-                transferStatus == AssetTransferStatus.SAVED_INTERNALLY ||
-                transferStatus == AssetTransferStatus.UPLOADED
-            else -> transferStatus == AssetTransferStatus.SAVED_INTERNALLY
-        }
+        val shouldResolve = transferStatus.shouldResolveAsset(downloadIfNeeded)
 
         if (!shouldResolve || localAssetPath != null || resolvingJob?.isActive == true) {
             return

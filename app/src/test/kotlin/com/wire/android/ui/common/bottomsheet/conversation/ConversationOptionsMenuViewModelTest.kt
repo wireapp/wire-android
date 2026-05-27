@@ -23,6 +23,7 @@ import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.ui.home.HomeSnackBarMessage
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
 import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
 import com.wire.kalium.common.error.CoreFailure
@@ -38,6 +39,7 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
+import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
@@ -50,6 +52,7 @@ import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromF
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFolderUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
+import com.wire.kalium.logic.feature.user.IsPreventAdminlessGroupsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -588,6 +591,57 @@ class ConversationOptionsMenuViewModelTest {
         }
     }
 
+    @Test
+    fun `given preventAdminlessGroups disabled, when onLeaveGroup, then show simple leave dialog`() =
+        runTest(dispatcherProvider.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withPreventAdminlessGroupsEnabled(false)
+                .arrange()
+
+            viewModel.onLeaveGroup(LeaveGroupDialogState(conversationId, "name"))
+
+            coVerify(exactly = 0) { arrangement.checkConversationLeaveConditions(any()) }
+            assertEquals(true, viewModel.leaveGroupDialogState.isVisible)
+            assertEquals(false, viewModel.leaveGroupOptionsDialogState.isVisible)
+        }
+
+    @Test
+    fun `given preventAdminlessGroups enabled and conditions allow, when onLeaveGroup, then show simple leave dialog`() =
+        runTest(dispatcherProvider.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withPreventAdminlessGroupsEnabled(true)
+                .withCheckConversationLeaveConditions(CheckConversationLeaveConditionsUseCase.Result.Allow)
+                .arrange()
+
+            viewModel.onLeaveGroup(LeaveGroupDialogState(conversationId, "name"))
+
+            coVerify(exactly = 1) { arrangement.checkConversationLeaveConditions(conversationId) }
+            assertEquals(true, viewModel.leaveGroupDialogState.isVisible)
+            assertEquals(false, viewModel.leaveGroupOptionsDialogState.isVisible)
+        }
+
+    @Test
+    fun `given preventAdminlessGroups enabled and conditions error, when onLeaveGroup, then show snackbar error`() =
+        runTest(dispatcherProvider.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withPreventAdminlessGroupsEnabled(true)
+                .withCheckConversationLeaveConditions(
+                    CheckConversationLeaveConditionsUseCase.Result.Error(CoreFailure.Unknown(null))
+                )
+                .arrange()
+
+            viewModel.actions.test {
+                viewModel.onLeaveGroup(LeaveGroupDialogState(conversationId, "name"))
+
+                coVerify(exactly = 1) { arrangement.checkConversationLeaveConditions(conversationId) }
+                assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
+                    assertIs<HomeSnackBarMessage.LeaveConversationError>(it.message)
+                }
+                assertEquals(false, viewModel.leaveGroupDialogState.isVisible)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
     inner class Arrangement {
         @MockK
         lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
@@ -620,6 +674,12 @@ class ConversationOptionsMenuViewModelTest {
         lateinit var leaveConversation: LeaveConversationUseCase
 
         @MockK
+        lateinit var checkConversationLeaveConditions: CheckConversationLeaveConditionsUseCase
+
+        @MockK
+        lateinit var isPreventAdminlessGroupsEnabled: IsPreventAdminlessGroupsEnabledUseCase
+
+        @MockK
         lateinit var blockUser: BlockUserUseCase
 
         @MockK
@@ -634,6 +694,7 @@ class ConversationOptionsMenuViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkStatic("com.wire.android.workmanager.worker.DeleteConversationLocallyWorkerKt")
+            coEvery { isPreventAdminlessGroupsEnabled() } returns true
         }
 
         fun arrange() = this to ConversationOptionsMenuViewModelImpl(
@@ -648,6 +709,8 @@ class ConversationOptionsMenuViewModelTest {
             deleteTeamConversation = deleteTeamConversation,
             markConversationAsDeletedLocally = markConversationAsDeletedLocally,
             leaveConversation = leaveConversation,
+            checkConversationLeaveConditions = checkConversationLeaveConditions,
+            isPreventAdminlessGroupsEnabled = isPreventAdminlessGroupsEnabled,
             blockUser = blockUser,
             unblockUser = unblockUser,
             clearConversationContent = clearConversationContent,
@@ -702,6 +765,14 @@ class ConversationOptionsMenuViewModelTest {
 
         fun withClearConversationContent(result: ClearConversationContentUseCase.Result) = apply {
             coEvery { clearConversationContent(any(), any()) } returns result
+        }
+
+        fun withPreventAdminlessGroupsEnabled(enabled: Boolean) = apply {
+            coEvery { isPreventAdminlessGroupsEnabled() } returns enabled
+        }
+
+        fun withCheckConversationLeaveConditions(result: CheckConversationLeaveConditionsUseCase.Result) = apply {
+            coEvery { checkConversationLeaveConditions(any()) } returns result
         }
     }
 

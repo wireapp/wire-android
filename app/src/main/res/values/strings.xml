@@ -165,6 +165,11 @@
     <string name="content_description_calling_microphone_on">Microphone on</string>
     <string name="content_description_calling_microphone_off">Microphone off</string>
     <string name="content_description_calling_active_speaker">Active speaker</string>
+    <string name="content_description_calling_participants_list_drag_handle">Expand list of participants</string>
+    <string name="content_description_calling_expand">Expand</string>
+    <string name="content_description_calling_collapse">Collapse</string>
+    <string name="content_description_calling_expanded_participants_list">Expanded list of participants</string>
+    <string name="content_description_calling_collapsed_participants_list">Collapsed list of participants</string>
     <string name="content_description_calling_in_call_reactions_show">Show in call reactions panel</string>
     <string name="content_description_calling_in_call_reactions_hide">Hide in call reactions panel</string>
     <string name="content_description_call_open_calling_details">Open calling details</string>
@@ -270,10 +275,11 @@
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
     <string name="url_android_release_notes_feed" translatable="false">https://medium.com/feed/wire-news/tagged/android</string>
-    <string name="url_maps_location_coordinates_fallback" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
+    <string name="url_maps_location_coordinates_fallback" translatable="false">https://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
     <!-- Wire Urls - Non translatable -->
     <string name="url_wire_website" translatable="false">https://www.wire.com</string>
     <string name="url_support" translatable="false">https://support.wire.com</string>
+    <string name="url_report_misuse" translatable="false">https://support.wire.com/hc/articles/202857164</string>
     <string name="url_terms_of_use_legal" translatable="false">https://wire.com/legal</string>
     <string name="url_privacy_policy" translatable="false">https://wire.com/privacy-policy#:~:text=We%20process%20individual%20data%20about,%C2%A7%201%20a)%20GDPR).</string>
     <string name="url_create_account_learn_more" translatable="false">https://support.wire.com/hc/articles/115004082129</string>
@@ -325,6 +331,7 @@
     <string name="label_copyright_value" translatable="false">© Wire Swiss GmbH</string>
     <string name="item_dependencies_title">Dependencies:</string>
     <string name="support_screen_title">Support</string>
+    <string name="report_misuse_screen_title">Report misuse</string>
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_conversations_hint">Search conversations</string>
     <string name="search_no_results">No matches found</string>
@@ -663,11 +670,23 @@
     <string name="disable_services_dialog_text">Current apps will be removed from the conversation. New apps will not be allowed.</string>
     <string name="leave_conversation_menu_item">Leave Conversation…</string>
     <string name="leave_conversation_dialog_title">Leave “%s”?</string>
+    <string name="cannot_leave_conversation_dialog_title">Cannot leave “%s”.</string>
     <string name="leave_conversation_dialog_description">You will then no longer be able to send or read messages in this conversation on any device.</string>
     <string name="leave_conversation_dialog_delete_fully_check">Delete the conversation and its content for me on all my devices</string>
+    <string name="leave_conversation_admin_options_dialog_description_with_promote">You\'re the only admin.\nPromote another participant before leaving, or delete the group if it is no longer needed.</string>
+    <string name="leave_conversation_admin_options_dialog_description_with_promote_no_delete">You\'re the only admin.\nPromote another participant before leaving.</string>
+    <string name="leave_conversation_admin_options_dialog_description_no_promote">You\'re the only admin. The other participants can\'t be admins.\nAdd at least one team member and promote them as an admin before you leave. Alternatively, delete the group if it is no longer needed.</string>
+    <string name="leave_conversation_admin_options_dialog_description_no_promote_no_delete">There are no other eligible admins in the group and as a personal user you cannot delete the group. However, add another team member and make that user admin to delete the group.</string>
+    <string name="leave_conversation_admin_options_dialog_promote_button">Promote new admin</string>
+    <string name="leave_conversation_admin_options_dialog_delete_button">Delete group</string>
+    <string name="promote_admin_screen_title">Promote new admin</string>
+    <string name="promote_admin_search_placeholder">Enter a name or email</string>
+    <string name="promote_admin_button">Promote as admin and leave group</string>
+    <string name="promote_admin_error_failed_to_promote">Failed to promote user to admin</string>
+    <string name="promote_admin_error_failed_to_leave">Failed to leave conversation</string>
     <string name="delete_conversation_conversation_menu_item">Delete Conversation…</string>
     <string name="delete_conversation_conversation_dialog_title">Remove “%s”?</string>
-    <string name="delete_conversation_conversation_dialog_description">The conversation will be removed from your conversations list on all devices. You will no longer be able to access the conversation and its content.</string>
+    <string name="delete_conversation_conversation_dialog_description">This will delete the group and all content for all participants on all devices. There is no option to restore the content. All participants will be notified.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Delete “%s” conversation for me?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">You won’t be able to access the conversation and its content. There is no option to restore it.</string>
     <string name="delete_conversation_locally_delete_for_me_label">Delete for Me</string>
@@ -1102,7 +1121,9 @@
     <string name="notification_ongoing_call_content">Ongoing call…</string>
     <string name="notification_group_channel_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
-    <string name="notification_call_default_group_name">Incoming group call</string>
+    <string name="notification_incoming_call_default_group_name">Incoming group call</string>
+    <string name="notification_ongoing_call_default_group_name">Ongoing group call</string>
+    <string name="notification_outgoing_call_default_group_name">Outgoing group call</string>
     <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <string name="notification_audio_message_body">Audio message</string>
     <string name="notification_deleting_conversation">Deleting conversation…</string>
@@ -1964,5 +1985,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_system_message_apps_access_enabled_by_other">%1$s enabled **apps** for this conversation</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s disabled **apps** for this conversation</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
+    <string name="label_system_message_admin_role_assigned">You were promoted to group admin</string>
     <string name="more_information_about_this_server">More information about this backend</string>
 </resources>

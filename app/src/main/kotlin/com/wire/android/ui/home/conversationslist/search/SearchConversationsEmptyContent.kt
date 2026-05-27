@@ -39,11 +39,14 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun SearchConversationsEmptyContent(onNewConversationClicked: () -> Unit, modifier: Modifier = Modifier) {
+fun SearchConversationsEmptyContent(
+    onNewConversationClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         VerticalSpace.x8()
         Column(
@@ -72,6 +75,7 @@ fun SearchConversationsEmptyContent(onNewConversationClicked: () -> Unit, modifi
             fillMaxWidth = false,
             minSize = dimensions().buttonSmallMinSize,
             minClickableSize = dimensions().buttonMinClickableSize,
+            modifier = modifier,
             onClick = onNewConversationClicked
         )
     }

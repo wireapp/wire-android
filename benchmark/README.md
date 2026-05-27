@@ -1,22 +1,67 @@
 ## App Benchmarks
 
-This is the benchmark project for the Android App. To run the benchmarks, the following prerequisites must be met:
+This module now uses `com.android.test` and targets `:app` directly. Gradle builds the tested app APK and the benchmark test APK together, installs both on the connected device, and runs the selected benchmark. You do not need to manually assemble and install the app APK first.
 
-- A real Android device is used for testing (emulators are not supported).
-- There is a beta benchmark build of the app installed on the device. 
-- If using the test with login, make sure the max amount of devices registered to the account is not exceeded.
+## Prerequisites
 
-### Building the benchmark APK
-To build the benchmark APK, use the following command:
+- Use a real Android device. Do not use an emulator for macrobenchmarks.
+- Connect exactly one Android device.
+- If running a login benchmark, make sure the benchmark account can still register a device.
+- The current setup is aimed at the `prod` flavor with the `benchmark` build type.
+
+## Run a benchmark
+
+Run the startup benchmark without login:
 
 ```shell
-./gradlew clean assembleBetaBenchmark
+./gradlew :benchmark:connectedProdBenchmarkBenchmarkAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.StartupBenchmark#startUpWithoutBaselineProfiler \
+  -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="com.wire"
 ```
 
-### Running the benchmarks
-To run the benchmarks, use the following command:
+Run the fixture-backed startup benchmark with login:
+
 ```shell
-./gradlew :benchmark:connectedDebugAndroidTest
+./gradlew :benchmark:connectedProdBenchmarkBenchmarkAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.StartupBenchmarkWithLogin#startUpWithoutBaselineProfiler \
+  -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="com.wire" \
+  -Pandroid.testInstrumentationRunnerArguments.BACKEND_NAME="STAGING"
 ```
 
-Alternatively, you can run the benchmarks directly from Android Studio by selecting the `benchmark` module and running the `connectedDebugAndroidTest` configuration.
+Run the fixture-backed baseline profile generator:
+
+```shell
+./gradlew :benchmark:connectedProdBenchmarkBenchmarkAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.BaselineGenerator \
+  -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="com.wire" \
+  -Pandroid.testInstrumentationRunnerArguments.BACKEND_NAME="STAGING"
+```
+
+Run the manual-credentials startup benchmark with login:
+
+```shell
+./gradlew :benchmark:connectedProdBenchmarkBenchmarkAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.ManualStartupBenchmarkWithLogin#startUpWithoutBaselineProfiler \
+  -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="com.wire" \
+  -Pandroid.testInstrumentationRunnerArguments.EMAIL="$EMAIL" \
+  -Pandroid.testInstrumentationRunnerArguments.PASSWORD="$PASSWORD"
+```
+
+Run the manual-credentials baseline profile generator:
+
+```shell
+./gradlew :benchmark:connectedProdBenchmarkBenchmarkAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.ManualBaselineGenerator \
+  -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="com.wire" \
+  -Pandroid.testInstrumentationRunnerArguments.EMAIL="$EMAIL" \
+  -Pandroid.testInstrumentationRunnerArguments.PASSWORD="$PASSWORD" \
+  -Pandroid.testInstrumentationRunnerArguments.CONVERSATION_NAME="Some Conversation"
+```
+
+## Notes
+
+- Fixture-backed classes use `TARGET_PACKAGE`, `BACKEND_NAME`, and optional `CONVERSATION_NAME`.
+- Manual classes use `TARGET_PACKAGE`, `EMAIL`, `PASSWORD`, and optional `CONVERSATION_NAME`.
+- The app APK is produced from `:app` automatically through `targetProjectPath = ":app"`.
+- Benchmark output is written under `benchmark/build/outputs/connected_android_test_additional_output/`.
+- The committed pre-profile reference snapshot lives under `benchmark/baselines/`.

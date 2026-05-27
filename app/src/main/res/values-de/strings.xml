@@ -149,6 +149,11 @@
     <string name="content_description_calling_microphone_on">Mikrofon an</string>
     <string name="content_description_calling_microphone_off">Mikrofon aus</string>
     <string name="content_description_calling_active_speaker">Aktiver Sprecher</string>
+    <string name="content_description_calling_participants_list_drag_handle">Teilnehmerliste anzeigen</string>
+    <string name="content_description_calling_expand">Anzeigen</string>
+    <string name="content_description_calling_collapse">Ausblenden</string>
+    <string name="content_description_calling_expanded_participants_list">Teilnehmerliste anzeigen</string>
+    <string name="content_description_calling_collapsed_participants_list">Teilnehmerliste ausblenden</string>
     <string name="content_description_call_open_calling_details">Anrufdetails öffnen</string>
     <string name="content_description_call_low_network_quality">Geringe Netzwerkqualität</string>
     <string name="content_description_reply_to_messge">Auf die Nachricht antworten</string>
@@ -229,7 +234,7 @@
     <string name="content_description_login_back_btn">Zurück zur Ansicht zur Team-Erstellung und Anmeldung</string>
     <string name="content_description_login_user_identifier_field">Geben Sie Ihre E-Mail-Adresse oder Ihren Benutzernamen ein</string>
     <string name="content_description_login_email_field">Geben Sie Ihre E-Mail-Adresse ein</string>
-    <string name="content_description_enterprise_login_email_field">gib deine E-Mail oder SSO-Code ein</string>
+    <string name="content_description_enterprise_login_email_field">Geben Sie Ihre E-Mail-Adresse oder Ihren SSO-Code ein</string>
     <string name="content_description_login_password_field">Geben Sie Ihr Passwort ein</string>
     <string name="content_description_login_sso_code_field">Geben Sie Ihren SSO-Code oder Wire E-Mail-Adresse ein</string>
     <string name="content_description_whats_new_welcome_item">Willkommen bei der Android-App, Link zur Support-Seite</string>
@@ -255,6 +260,7 @@
     <string name="label_copyright">Urheberrecht</string>
     <string name="item_dependencies_title">Abhängigkeiten:</string>
     <string name="support_screen_title">Hilfe</string>
+    <string name="report_misuse_screen_title">Missbrauch melden</string>
     <string name="backup_and_restore_screen_title">Unterhaltungen sichern &amp; wiederherstellen</string>
     <string name="search_bar_conversations_hint">Unterhaltungen suchen</string>
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
@@ -594,9 +600,11 @@
     <string name="leave_conversation_dialog_title">\"%s\" verlassen?</string>
     <string name="leave_conversation_dialog_description">Sie können dann auf keinem Gerät mehr Nachrichten in dieser Gruppe senden oder lesen.</string>
     <string name="leave_conversation_dialog_delete_fully_check">Die Unterhaltung und ihren Inhalt für mich auf allen meinen Geräten löschen</string>
+    <string name="leave_conversation_admin_options_dialog_description_with_promote">Sie sind der einzige Admin.\nErnennen Sie vor dem Verlassen der Gruppe einen anderen Teilnehmer zum Admin oder löschen Sie die Gruppe, wenn sie nicht mehr benötigt wird.</string>
+    <string name="leave_conversation_admin_options_dialog_delete_button">Gruppe löschen</string>
+    <string name="promote_admin_search_placeholder">Name oder E-Mail-Adresse eingeben</string>
     <string name="delete_conversation_conversation_menu_item">Unterhaltung löschen…</string>
     <string name="delete_conversation_conversation_dialog_title">\"%s\" entfernen?</string>
-    <string name="delete_conversation_conversation_dialog_description">Die Unterhaltung wird auf allen Geräten aus der Liste Ihrer Unterhaltungen entfernt. Sie können dann nicht mehr auf die Unterhaltung und ihren Inhalt zugreifen.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Unterhaltung \"%s\" für mich löschen?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">Sie können dann nicht mehr auf die Unterhaltung und ihren Inhalt zugreifen. Es gibt keine Möglichkeit, sie wiederherzustellen.</string>
     <string name="delete_conversation_locally_delete_for_me_label">Für mich löschen</string>
@@ -918,6 +926,7 @@
     <string name="content_description_see_shared_drive_in_conversation_btn">Geteiltes Drive öffnen</string>
     <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
     <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
+    <string name="conversation_search_files_button">Dateien suchen</string>
     <!-- Search Contact-->
     <string name="label_selected">Ausgewählt (%1$d)</string>
     <string name="label_contacts">Kontakte</string>
@@ -1011,12 +1020,15 @@
     <string name="notification_action_reply">Antworten</string>
     <string name="notification_receiver_name">Sie</string>
     <string name="label_type_a_message">Eine Nachricht schreiben</string>
+    <string name="notification_action_open_call">Anruf öffnen</string>
     <string name="notification_action_decline_call">Ablehnen</string>
     <string name="notification_incoming_call_content">Ruft an…</string>
     <string name="notification_ongoing_call_content">Aktiver Anruf…</string>
     <string name="notification_group_channel_call_content">%s ruft an...</string>
     <string name="notification_call_default_caller_name">Jemand</string>
-    <string name="notification_call_default_group_name">Eingehender Gruppenanruf</string>
+    <string name="notification_incoming_call_default_group_name">Eingehender Gruppenanruf</string>
+    <string name="notification_ongoing_call_default_group_name">Laufender Gruppenanruf</string>
+    <string name="notification_outgoing_call_default_group_name">Ausgehender Gruppenanruf</string>
     <string name="notification_audio_message_body">Audionachricht</string>
     <string name="notification_deleting_conversation">Unterhaltung wird gelöscht…</string>
     <string name="notification_uploading_files">Dateien werden hochgeladen…</string>
@@ -1204,7 +1216,9 @@
     <string name="settings_myaccount_display_name_updated">Ihr Profilname wurde geändert</string>
     <string name="settings_myaccount_handle_updated">Ihr Benutzername wurde geändert</string>
     <string name="settings_myaccount_user_color_title">Profilfarbe</string>
+    <string name="settings_myaccount_user_color_description">Ihre Benutzerfarbe wird verwendet, um Sie durch die Benutzeroberfläche der App zu führen</string>
     <string name="settings_myaccount_user_color_updated">Profilfarbe geändert</string>
+    <string name="content_description_settings_myaccount_user_color">Benutzerfarbe ändern</string>
     <string name="settings_myaccount_user_color_example">BEISPIEL</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Lesebestätigungen senden</string>
@@ -1791,6 +1805,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="enable_wire_cell_switch_description">Ermöglichen Sie den Teilnehmern, ihre Dokumente und Mediendateien in Geteiltes Drive zu verwalten. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
     <string name="failed_attachment_retry_upload">Upload wiederholen</string>
     <string name="failed_attachment_remove">Entfernen</string>
+    <string name="profile_deeplink_feature_unavailable_title_alert">Diese Funktion ist nicht verfügbar. Bitte wenden Sie sich an Ihren Admin.</string>
     <string name="conversation_options_shared_drive_label">Geteiltes Drive</string>
     <string name="conversation_options_shared_drive_description">Dauerhaft aktiv für diese Unterhaltung.</string>
     <plurals name="reply_multiple_files">
@@ -1811,4 +1826,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_system_message_apps_access_enabled_by_other">%1$s hat **Apps** für diese Unterhaltung aktiviert</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s hat **Apps** für diese Unterhaltung deaktiviert</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Hinzugefügte Apps haben Zugriff auf den Inhalt dieser Unterhaltung.</string>
+    <string name="label_system_message_admin_role_assigned">Sie wurden zum Gruppen-Admin ernannt</string>
 </resources>

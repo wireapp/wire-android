@@ -23,6 +23,7 @@ import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import org.junit.Assert
+import java.util.regex.Pattern
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
@@ -49,6 +50,18 @@ data class ConversationListPage(private val device: UiDevice) {
     private val conversationNameSelector: (String) -> UiSelectorParams = { conversationName ->
         UiSelectorParams(text = conversationName)
     }
+    private val deleteConversationButton = UiSelectorParams(text = "Delete Conversation")
+
+    private val leaveConversationButton = UiSelectorParams(text = "Leave Conversation")
+
+    private val removeConversationButton = UiSelectorParams(text = "Remove")
+    private val removeConversationDescription =
+        UiSelectorParams(textContains = "The conversation will be removed from your conversations list")
+
+    private val leaveConversationButtonOnModal = UiSelectorParams(text = "Leave")
+
+    private val leaveConversationDescriptionOnModal =
+        UiSelectorParams(textContains = "You will then no longer be able to send or read messages")
     private val startNewConversation = UiSelectorParams(description = "New. Start a new conversation")
 
     private val userConversationNamePendingLabelSelector =
@@ -135,10 +148,18 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertGroupConversationVisible(conversationName: String): ConversationListPage {
-        val conversation = UiWaitUtils.waitElement(UiSelectorParams(text = conversationName))
+    fun assertConversationVisible(conversationName: String): ConversationListPage {
+        val conversation = UiWaitUtils.waitElement(conversationNameSelector(conversationName))
         assertTrue("Conversation '$conversationName' is not visible", !conversation.visibleBounds.isEmpty)
         return this
+    }
+
+    fun assertGroupConversationVisible(conversationName: String): ConversationListPage {
+        return assertConversationVisible(conversationName)
+    }
+
+    fun assertChannelConversationVisible(conversationName: String): ConversationListPage {
+        return assertConversationVisible(conversationName)
     }
 
     fun clickConnectionRequestOfUser(userName: String): ConversationListPage {
@@ -171,15 +192,99 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickGroupConversation(conversationName: String): ConversationListPage {
-        UiWaitUtils.waitUntilVisibleOrThrow(
-            params = UiSelectorParams(text = conversationName),
-            timeout = 10.seconds,
-            errorMessage = "Group conversation '$conversationName' was not found."
+    fun clickGroupConversation(conversationName: String, timeout: Duration = 10.seconds): ConversationListPage {
+        val clicked = UiWaitUtils.clickWhenClickable(
+            params = conversationNameSelector(conversationName),
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
         )
+        if (!clicked) {
+            throw AssertionError("Group conversation '$conversationName' was not found.")
+        }
+        return this
+    }
 
-        val conversation = UiWaitUtils.waitElement(UiSelectorParams(text = conversationName))
-        conversation.click()
+    fun clickChannelConversation(conversationName: String, timeout: Duration = 10.seconds): ConversationListPage {
+        return clickGroupConversation(conversationName, timeout)
+    }
+
+    fun longPressConversation(conversationName: String): ConversationListPage {
+        val conversation = UiWaitUtils.waitElement(conversationNameSelector(conversationName))
+        val center = conversation.visibleCenter
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            .swipe(center.x, center.y, center.x, center.y, 120)
+        return this
+    }
+
+    fun assertDeleteConversationButtonVisibleInConversationActions(): ConversationListPage {
+        try {
+            UiWaitUtils.waitElement(deleteConversationButton)
+        } catch (e: AssertionError) {
+            throw AssertionError("Delete Conversation button is not visible in conversation actions.", e)
+        }
+        return this
+    }
+
+    fun assertLeaveConversationButtonVisibleInConversationActions(): ConversationListPage {
+        try {
+            UiWaitUtils.waitElement(leaveConversationButton)
+        } catch (e: AssertionError) {
+            throw AssertionError("Leave Conversation button is not visible in conversation actions.", e)
+        }
+        return this
+    }
+
+    fun tapDeleteConversationButtonInConversationActions(): ConversationListPage {
+        UiWaitUtils.waitElement(deleteConversationButton).click()
+        return this
+    }
+
+    fun tapLeaveConversationButtonInConversationActions(): ConversationListPage {
+        UiWaitUtils.waitElement(leaveConversationButton).click()
+        return this
+    }
+
+    fun assertRemoveConversationConfirmationModalVisible(conversationName: String): ConversationListPage {
+        val modalTitle = UiSelectorParams(
+            textMatches = ".*Remove.*${Pattern.quote(conversationName)}.*"
+        )
+        try {
+            UiWaitUtils.waitElement(modalTitle)
+            UiWaitUtils.waitElement(removeConversationDescription)
+            UiWaitUtils.waitElement(removeConversationButton)
+        } catch (e: AssertionError) {
+            throw AssertionError(
+                "Remove conversation confirmation modal for '$conversationName' is not visible.",
+                e
+            )
+        }
+        return this
+    }
+
+    fun assertLeaveConversationConfirmationModalVisible(conversationName: String): ConversationListPage {
+        val modalTitle = UiSelectorParams(
+            textMatches = ".*Leave.*${Pattern.quote(conversationName)}.*"
+        )
+        try {
+            UiWaitUtils.waitElement(modalTitle)
+            UiWaitUtils.waitElement(leaveConversationDescriptionOnModal)
+            UiWaitUtils.waitElement(leaveConversationButtonOnModal)
+        } catch (e: AssertionError) {
+            throw AssertionError(
+                "Leave conversation confirmation modal for '$conversationName' is not visible.",
+                e
+            )
+        }
+        return this
+    }
+
+    fun tapRemoveConversationButton(): ConversationListPage {
+        UiWaitUtils.waitElement(removeConversationButton).click()
+        return this
+    }
+
+    fun tapLeaveConversationButtonOnModal(): ConversationListPage {
+        UiWaitUtils.waitElement(leaveConversationButtonOnModal).click()
         return this
     }
 
@@ -190,6 +295,15 @@ data class ConversationListPage(private val device: UiDevice) {
     fun assertUnreadMessagesCount(expectedCount: String): ConversationListPage {
         val unreadCount = UiWaitUtils.waitElement(unreadCountSelector(expectedCount))
         Assert.assertTrue("Unread message count '$expectedCount' not visible", !unreadCount.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertConversationHasUnreadMessagesCount(
+        conversationName: String,
+        expectedCount: String
+    ): ConversationListPage {
+        assertConversationVisible(conversationName)
+        assertUnreadMessagesCount(expectedCount)
         return this
     }
 

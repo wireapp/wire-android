@@ -14,12 +14,9 @@ trim() {
 }
 
 validate_upgrade_inputs() {
-  # Upgrade mode is only valid when the workflow also knows which old build to
-  # install before the in-test upgrade flow begins.
-  if [[ "${IS_UPGRADE:-}" == "true" && -z "${OLD_BUILD_NUMBER:-}" ]]; then
-    echo "ERROR: oldBuildNumber is REQUIRED when isUpgrade=true"
-    exit 1
-  fi
+  # oldBuildNumber is optional for upgrade runs. When empty, APK selection uses
+  # the previous APK as the old version and the selected appBuildNumber as new.
+  :
 }
 
 validate_rerun_inputs() {
@@ -90,6 +87,7 @@ resolve_selector_from_tags() {
 print_resolved_values() {
   echo "workflowRef=${WORKFLOW_REF:-}"
   echo "flavor=${FLAVOR_INPUT:-}"
+  echo "resolvedIsUpgrade=${IS_UPGRADE:-}"
   echo "resolvedTestCaseId=${RESOLVED_TESTCASE_ID:-}"
   echo "resolvedCategory=${RESOLVED_CATEGORY:-}"
   echo "testinyRunName=${TESTINY_RUN_NAME:-}"

@@ -31,6 +31,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
@@ -49,7 +50,9 @@ import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
+import com.wire.android.di.wireViewModel
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
@@ -94,7 +97,12 @@ fun MainNavHost(
                         val loginPasswordEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
                         }
-                        dependency(hiltViewModel<LoginEmailViewModel>(loginPasswordEntry))
+                        dependency(
+                            wireViewModel<LoginEmailViewModel, LoginEmailViewModel.Factory>(
+                                viewModelStoreOwner = loginPasswordEntry,
+                                creationCallback = { factory -> factory.create(loginPasswordEntry.navArgs<LoginNavArgs>()) }
+                            )
+                        )
                     }
 
                     // 👇 To reuse CellViewModel from the parent screen on SearchScreen

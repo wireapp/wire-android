@@ -46,10 +46,10 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
+import com.wire.android.di.wireViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -105,7 +105,9 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun NewLoginPasswordScreen(
     navigator: Navigator,
     navArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
+    loginEmailViewModel: LoginEmailViewModel = wireViewModel<LoginEmailViewModel, LoginEmailViewModel.Factory>(
+        creationCallback = { factory -> factory.create(navArgs) }
+    )
 ) {
     clearAutofillTree()
     LoginStateNavigationAndDialogs(loginEmailViewModel, navigator)

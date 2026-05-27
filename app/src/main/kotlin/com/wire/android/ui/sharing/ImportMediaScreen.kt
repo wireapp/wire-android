@@ -55,7 +55,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
@@ -124,7 +124,7 @@ import okio.Path.Companion.toPath
 fun ImportMediaScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
-    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
+    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = wireViewModel(),
 ) {
     when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
         FeatureFlagState.FileSharingState.Loading -> {
@@ -192,8 +192,8 @@ private fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
 private fun ImportMediaAuthenticatedContent(
     navigator: Navigator,
     isRestrictedInTeam: Boolean,
-    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel(),
-    importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel(),
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = wireViewModel(),
+    importMediaViewModel: ImportMediaAuthenticatedViewModel = wireViewModel(),
 ) {
     if (isRestrictedInTeam) {
         ImportMediaRestrictedContent(

@@ -42,7 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -71,7 +71,7 @@ import com.wire.android.ui.common.R as commonR
 fun LocationPickerComponent(
     onLocationPicked: (GeoLocatedAddress) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LocationPickerViewModel = hiltViewModel<LocationPickerViewModel>(),
+    viewModel: LocationPickerViewModel = wireViewModel<LocationPickerViewModel>(),
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(),
 ) {
 

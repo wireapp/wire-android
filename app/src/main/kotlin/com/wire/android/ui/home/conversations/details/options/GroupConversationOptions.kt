@@ -37,7 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.times
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -71,7 +71,7 @@ fun GroupConversationOptions(
     onAppsAccessItemClicked: () -> Unit,
     onChannelAccessItemClicked: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
-    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
+    viewModel: GroupConversationDetailsViewModel = wireViewModel(),
     onEditGroupName: () -> Unit
 ) {
     val state by viewModel.groupOptionsState.collectAsStateWithLifecycle()

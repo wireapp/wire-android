@@ -21,18 +21,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
+import com.wire.android.di.ViewModelScopedPreview
+import com.wire.android.model.asSnackBarMessage
+import com.wire.android.ui.common.ActionsManager
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.AppsUtil
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
@@ -53,8 +54,6 @@ import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberResult
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
@@ -65,9 +64,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@ViewModelScopedPreview
+interface ServiceDetailsViewModel : ActionsManager<ServiceDetailsViewActions> {
+    fun serviceDetailsState(): ServiceDetailsState = ServiceDetailsState()
+    fun onAddService() {}
+    fun onRemoveService() {}
+    fun onOpenConversation() {}
+}
+
 @Suppress("LongParameterList")
 @HiltViewModel
-class ServiceDetailsViewModel @Inject constructor(
+class ServiceDetailsViewModelImpl @Inject constructor(
     private val dispatchers: DispatcherProvider,
     @CurrentAccount private val selfUserId: UserId,
     private val getServiceById: GetServiceByIdUseCase,
@@ -83,7 +90,7 @@ class ServiceDetailsViewModel @Inject constructor(
     private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     savedStateHandle: SavedStateHandle
-) : ViewModel() {
+) : ServiceDetailsViewModel, ActionsViewModel<ServiceDetailsViewActions>() {
 
     private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
 
@@ -91,13 +98,8 @@ class ServiceDetailsViewModel @Inject constructor(
     private val userId: UserId = serviceDetailsNavArgs.id.userId
     private val conversationId: QualifiedID? = serviceDetailsNavArgs.conversationId
 
-    var serviceDetailsState by mutableStateOf(ServiceDetailsState())
-
-    private val _infoMessage = MutableSharedFlow<UIText>()
-    val infoMessage = _infoMessage.asSharedFlow()
-
-    private val _openConversationEvent = MutableSharedFlow<ConversationId?>()
-    val openConversationEvent = _openConversationEvent.asSharedFlow()
+    private var state by mutableStateOf(ServiceDetailsState())
+    override fun serviceDetailsState(): ServiceDetailsState = state
 
     init {
         viewModelScope.launch {
@@ -117,7 +119,7 @@ class ServiceDetailsViewModel @Inject constructor(
                 conversationProtocol = conversationProtocolInfo
             )
 
-            serviceDetailsState = serviceDetailsState.copy(
+            state = state.copy(
                 serviceId = serviceId,
                 conversationId = conversationId,
                 isDataLoading = true,
@@ -142,7 +144,7 @@ class ServiceDetailsViewModel @Inject constructor(
         }
     }
 
-    fun onAddService() {
+    override fun onAddService() {
         viewModelScope.launch {
             val responseMessage = when (val id = serviceDetailsNavArgs.id) {
                 is ServiceDetailsNavArgs.Id.AppId -> {
@@ -171,13 +173,13 @@ class ServiceDetailsViewModel @Inject constructor(
                 }
             }
 
-            _infoMessage.emit(responseMessage.uiText)
+            sendAction(ServiceDetailsViewActions.Message(responseMessage.uiText.asSnackBarMessage()))
         }
     }
 
-    fun onRemoveService() {
+    override fun onRemoveService() {
         viewModelScope.launch {
-            serviceDetailsState.serviceMemberId?.let { serviceMemberId ->
+            state.serviceMemberId?.let { serviceMemberId ->
                 val response = withContext(dispatchers.io()) {
                     removeMemberFromConversation(
                         conversationId = requireNotNull(conversationId),
@@ -190,12 +192,12 @@ class ServiceDetailsViewModel @Inject constructor(
                     is RemoveMemberFromConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessRemoveService
                 }
 
-                _infoMessage.emit(responseMessage.uiText)
+                sendAction(ServiceDetailsViewActions.Message(responseMessage.uiText.asSnackBarMessage()))
             }
         }
     }
 
-    fun onOpenConversation() {
+    override fun onOpenConversation() {
         viewModelScope.launch {
             val result = withContext(dispatchers.io()) {
                 getOrCreateOneToOneConversation(userId)
@@ -204,9 +206,18 @@ class ServiceDetailsViewModel @Inject constructor(
             when (result) {
                 is CreateConversationResult.Failure -> {
                     appLogger.d("Couldn't retrieve or create the conversation")
-                    _infoMessage.emit(ServiceDetailsInfoMessageType.ErrorStartOrOpenConversation.uiText)
+
+                    sendAction(
+                        ServiceDetailsViewActions.Message(
+                            ServiceDetailsInfoMessageType
+                                .ErrorStartOrOpenConversation
+                                .uiText
+                                .asSnackBarMessage()
+                        )
+                    )
                 }
-                is CreateConversationResult.Success -> _openConversationEvent.emit(result.conversation.id)
+                is CreateConversationResult.Success ->
+                    sendAction(ServiceDetailsViewActions.OpenConversation(result.conversation.id))
             }
         }
     }
@@ -218,7 +229,7 @@ class ServiceDetailsViewModel @Inject constructor(
                     ImageAsset.UserAvatarAsset(asset)
                 }
 
-                serviceDetailsState = serviceDetailsState.copy(
+                state = state.copy(
                     isDataLoading = false,
                     isAvatarLoading = false,
                     serviceAvatarAsset = serviceAvatarAsset,
@@ -238,7 +249,7 @@ class ServiceDetailsViewModel @Inject constructor(
                     ImageAsset.UserAvatarAsset(asset)
                 }
 
-                serviceDetailsState = serviceDetailsState.copy(
+                state = state.copy(
                     isDataLoading = false,
                     isAvatarLoading = false,
                     serviceAvatarAsset = appAvatarAsset,
@@ -301,15 +312,13 @@ class ServiceDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             if (conversationId == null) {
                 val isOneToOneConversationCreated = isOneToOneConversationCreated(userId)
-                serviceDetailsState = serviceDetailsState.copy(
-                    isConversationStarted = isOneToOneConversationCreated
-                )
+                state = state.copy(isConversationStarted = isOneToOneConversationCreated)
             }
         }
     }
 
     private fun serviceNotFound() {
-        serviceDetailsState = serviceDetailsState.copy(
+        state = state.copy(
             serviceDetails = null,
             buttonState = ServiceDetailsButtonState.HIDDEN
         )
@@ -329,7 +338,7 @@ class ServiceDetailsViewModel @Inject constructor(
             ServiceDetailsButtonState.HIDDEN
         }
 
-        serviceDetailsState = serviceDetailsState.copy(
+        state = state.copy(
             buttonState = buttonState,
             serviceMemberId = serviceMemberId
         )

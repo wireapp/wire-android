@@ -31,17 +31,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -52,6 +52,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -65,6 +66,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.service.ServiceDetails
+import kotlinx.coroutines.launch
 
 @WireRootDestination(
     navArgs = ServiceDetailsNavArgs::class,
@@ -73,29 +75,32 @@ import com.wire.kalium.logic.data.service.ServiceDetails
 @Composable
 fun ServiceDetailsScreen(
     navigator: Navigator,
-    viewModel: ServiceDetailsViewModel = hiltViewModel()
+    viewModel: ServiceDetailsViewModel =
+        hiltViewModelScoped<ServiceDetailsViewModelImpl, ServiceDetailsViewModel>()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
+    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.infoMessage.collect {
-            snackbarHostState.showSnackbar(it.asString(context.resources))
-        }
-    }
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is ServiceDetailsViewActions.Message ->
+                coroutineScope.launch {
+                    snackbarHostState
+                        .showSnackbar(action.message.uiText.asString(context.resources))
+                }
 
-    LaunchedEffect(Unit) {
-        viewModel.openConversationEvent.collect { conversationId ->
-            conversationId?.let {
+            is ServiceDetailsViewActions.OpenConversation ->
                 navigator.navigate(
                     NavigationCommand(
                         ConversationScreenDestination(
-                            navArgs = ConversationNavArgs(conversationId = conversationId)
+                            navArgs = ConversationNavArgs(
+                                conversationId = action.conversationId
+                            )
                         ),
                         BackStackMode.UPDATE_EXISTED
                     )
                 )
-            }
         }
     }
 
@@ -104,7 +109,7 @@ fun ServiceDetailsScreen(
         onAddService = viewModel::onAddService,
         onRemoveService = viewModel::onRemoveService,
         onOpenConversation = viewModel::onOpenConversation,
-        serviceDetailsState = viewModel.serviceDetailsState
+        serviceDetailsState = viewModel.serviceDetailsState()
     )
 }
 

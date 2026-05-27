@@ -54,6 +54,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.UserBadge
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -250,6 +251,7 @@ private fun ServiceDetailsDescription(serviceDetails: ServiceDetails) {
 @Composable
 private fun ServiceDetailsAddOrRemoveButton(
     buttonState: ServiceDetailsButtonState,
+    isActionLoading: Boolean,
     onAddService: () -> Unit,
     onRemoveService: () -> Unit
 ) {
@@ -269,6 +271,8 @@ private fun ServiceDetailsAddOrRemoveButton(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 WirePrimaryButton(
+                    loading = isActionLoading,
+                    state = if (isActionLoading) WireButtonState.Disabled else WireButtonState.Default,
                     text = textString,
                     onClick = if (buttonState == ServiceDetailsButtonState.ADD) onAddService else onRemoveService,
                     clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
@@ -284,6 +288,7 @@ private fun ServiceDetailsAddOrRemoveButton(
 @Composable
 private fun ServiceDetailsStartOrOpenConversation(
     isDataLoading: Boolean,
+    isActionLoading: Boolean,
     isConversationStarted: Boolean,
     onOpenConversation: () -> Unit
 ) {
@@ -298,6 +303,8 @@ private fun ServiceDetailsStartOrOpenConversation(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 WirePrimaryButton(
+                    loading = isActionLoading,
+                    state = if (isActionLoading) WireButtonState.Disabled else WireButtonState.Default,
                     text = stringResource(
                         id = if (isConversationStarted) {
                             R.string.label_open_conversation
@@ -329,11 +336,13 @@ private fun ServiceDetailsButtons(
     when {
         serviceDetailsState.conversationId != null -> ServiceDetailsAddOrRemoveButton(
             buttonState = serviceDetailsState.buttonState,
+            isActionLoading = serviceDetailsState.isActionLoading,
             onAddService = onAddService,
             onRemoveService = onRemoveService
         )
         serviceDetailsState.isAppsEnabled -> ServiceDetailsStartOrOpenConversation(
             isDataLoading = serviceDetailsState.isDataLoading,
+            isActionLoading = serviceDetailsState.isActionLoading,
             isConversationStarted = serviceDetailsState.isConversationStarted,
             onOpenConversation = onOpenConversation
         )

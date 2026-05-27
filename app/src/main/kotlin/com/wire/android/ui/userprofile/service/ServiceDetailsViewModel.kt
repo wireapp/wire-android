@@ -146,6 +146,7 @@ class ServiceDetailsViewModelImpl @Inject constructor(
 
     override fun onAddService() {
         viewModelScope.launch {
+            state = state.copy(isActionLoading = true)
             val responseMessage = when (val id = serviceDetailsNavArgs.id) {
                 is ServiceDetailsNavArgs.Id.AppId -> {
                     val response = addMemberToConversation.invoke(
@@ -174,12 +175,14 @@ class ServiceDetailsViewModelImpl @Inject constructor(
             }
 
             sendAction(ServiceDetailsViewActions.Message(responseMessage.uiText.asSnackBarMessage()))
+            state = state.copy(isActionLoading = false)
         }
     }
 
     override fun onRemoveService() {
         viewModelScope.launch {
             state.serviceMemberId?.let { serviceMemberId ->
+                state = state.copy(isActionLoading = true)
                 val response = withContext(dispatchers.io()) {
                     removeMemberFromConversation(
                         conversationId = requireNotNull(conversationId),
@@ -193,12 +196,14 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                 }
 
                 sendAction(ServiceDetailsViewActions.Message(responseMessage.uiText.asSnackBarMessage()))
+                state = state.copy(isActionLoading = false)
             }
         }
     }
 
     override fun onOpenConversation() {
         viewModelScope.launch {
+            state = state.copy(isActionLoading = true)
             val result = withContext(dispatchers.io()) {
                 getOrCreateOneToOneConversation(userId)
             }
@@ -219,6 +224,7 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                 is CreateConversationResult.Success ->
                     sendAction(ServiceDetailsViewActions.OpenConversation(result.conversation.id))
             }
+            state = state.copy(isActionLoading = false)
         }
     }
 

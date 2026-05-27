@@ -26,6 +26,7 @@ import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,26 +42,38 @@ class StartupBenchmarkWithLogin {
 
     private val args get() = InstrumentationRegistry.getArguments()
     private val targetPackage get() = args.getString("TARGET_PACKAGE", "com.wire")
-    private val email get() = args.getString("EMAIL").orEmpty()
-    private val password get() = args.getString("PASSWORD").orEmpty()
+    private val backendName get() = args.getString("BACKEND_NAME", "STAGING")
+    private val conversationName get() = args.getString("CONVERSATION_NAME").orEmpty()
 
     @Test
     fun startUpWithoutBaselineProfiler() {
-        startup(
+        val fixture = createFixture()
+        try {
+            startup(
             CompilationMode.None()
         ) {
             startActivityAndWait()
-            if (email.isNotEmpty() && password.isNotEmpty()) login(email, password)
+            switchBackend(fixture.backend.deeplink)
+            login(fixture.email, fixture.password)
+        }
+        } finally {
+            fixture.cleanup()
         }
     }
 
     @Test
     fun startUpWithBaselineProfiler() {
-        startup(
+        val fixture = createFixture()
+        try {
+            startup(
             CompilationMode.Partial(BaselineProfileMode.Require)
         ) {
             startActivityAndWait()
-            if (email.isNotEmpty() && password.isNotEmpty()) login(email, password)
+            switchBackend(fixture.backend.deeplink)
+            login(fixture.email, fixture.password)
+        }
+        } finally {
+            fixture.cleanup()
         }
     }
 
@@ -78,6 +91,12 @@ class StartupBenchmarkWithLogin {
         pressHome()
         startActivityAndWait()
     }
+
+    private fun createFixture() = BenchmarkFixtureFactory.create(
+        backendName = backendName,
+        context = getInstrumentation().context,
+        conversationNameOverride = conversationName,
+    )
 
     companion object {
         private const val ITERATIONS = 5

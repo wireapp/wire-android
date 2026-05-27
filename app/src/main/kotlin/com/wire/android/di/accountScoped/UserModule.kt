@@ -24,7 +24,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
-import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
+import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollmentUseCase
 import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
@@ -38,9 +38,11 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
+import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import com.wire.kalium.logic.feature.user.IsPreventAdminlessGroupsEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
@@ -129,7 +131,7 @@ class UserModule {
 
     @ViewModelScoped
     @Provides
-    fun provideFinalizeMLSClientAfterE2EIEnrollmentUseCase(userScope: UserScope): FinalizeMLSClientAfterE2EIEnrollment =
+    fun provideFinalizeMLSClientAfterE2EIEnrollmentUseCase(userScope: UserScope): FinalizeMLSClientAfterE2EIEnrollmentUseCase =
         userScope.finalizeMLSClientAfterE2EIEnrollment
 
     @ViewModelScoped
@@ -159,6 +161,14 @@ class UserModule {
     fun provideIsPasswordRequiredUseCase(
         userScope: UserScope
     ): IsPasswordRequiredUseCase = userScope.isPasswordRequired
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsPreventAdminlessGroupsEnabledUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId,
+    ): IsPreventAdminlessGroupsEnabledUseCase =
+        coreLogic.getSessionScope(currentAccount).isPreventAdminlessGroupsEnabled
 
     @ViewModelScoped
     @Provides
@@ -201,6 +211,11 @@ class UserModule {
     @Provides
     fun provideGetSelfUseCase(userScope: UserScope): GetSelfUserUseCase =
         userScope.getSelfUser
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetSelfTeamIdUseCase(userScope: UserScope): GetSelfTeamIdUseCase =
+        userScope.getSelfTeamId
 
     @ViewModelScoped
     @Provides

@@ -20,6 +20,7 @@ package com.wire.benchmark
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,8 +33,8 @@ class BaselineGenerator {
 
     private val args get() = InstrumentationRegistry.getArguments()
     private val targetPackage get() = args.getString("TARGET_PACKAGE", "com.wire")
-    private val email get() = args.getString("EMAIL").orEmpty()
-    private val password get() = args.getString("PASSWORD").orEmpty()
+    private val backendName get() = args.getString("BACKEND_NAME", "STAGING")
+    private val conversationName get() = args.getString("CONVERSATION_NAME").orEmpty()
 
     @Test
     fun startup() = baselineProfileRule.collect(
@@ -42,6 +43,18 @@ class BaselineGenerator {
     ) {
         pressHome()
         startActivityAndWait()
-        if (email.isNotEmpty() && password.isNotEmpty()) login(email, password)
+        val fixture = BenchmarkFixtureFactory.create(
+            backendName = backendName,
+            context = getInstrumentation().context,
+            conversationNameOverride = conversationName,
+        )
+        try {
+            switchBackend(fixture.backend.deeplink)
+            login(fixture.email, fixture.password)
+            openContactsAndReturn()
+            openConversation(fixture.conversationName)
+        } finally {
+            fixture.cleanup()
+        }
     }
 }

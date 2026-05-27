@@ -76,6 +76,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val pingButton = UiSelectorParams(description = "Ping")
     private val pingButtonOnModal = UiSelectorParams(text = "Ping")
     private val guestsAndAppsBanner = UiSelectorParams(textContains = "Guests and apps are present")
+    private val topOfConversationViewPageMessage = UiSelectorParams(textContains = "You made it to the top")
 
     private val mlsUpgradeMessageSelectors = listOf(
         UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
@@ -511,11 +512,33 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertChannelConversationInForeground(conversationName: String): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(conversationDetailsGroup(conversationName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Channel conversation '$conversationName' is not in foreground.", e)
+        }
+        return this
+    }
+
     fun assertGuestsAndAppsBannerVisible(): ConversationViewPage {
         try {
             UiWaitUtils.waitElement(guestsAndAppsBanner)
         } catch (e: AssertionError) {
             throw AssertionError("'Guests and apps are present' banner is not visible in conversation view", e)
+        }
+
+        return this
+    }
+
+    fun assertTopOfConversationViewPageVisible(): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(topOfConversationViewPageMessage)
+        } catch (e: AssertionError) {
+            throw AssertionError(
+                "Top-of-conversation message is not visible in conversation view.",
+                e
+            )
         }
 
         return this
@@ -541,6 +564,10 @@ data class ConversationViewPage(private val device: UiDevice) {
 
         UiWaitUtils.waitElement(params).click()
         return this
+    }
+
+    fun clickOnChannelConversationDetails(conversationName: String): ConversationViewPage {
+        return clickOnGroupConversationDetails(conversationName)
     }
 
     fun iTapStartCallButton(): ConversationViewPage {

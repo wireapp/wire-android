@@ -55,7 +55,7 @@ import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMet
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -65,6 +65,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -74,6 +75,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions")
@@ -108,7 +110,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
     @CurrentAccount val currentAccount: UserId,
     private val userTypeMapper: UserTypeMapper,
-    private val getSelfUser: GetSelfUserUseCase,
+    private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
 ) : ConversationListViewModel, ViewModel() {
 
@@ -184,6 +186,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         }
         .flowOn(dispatcher.io())
         .cachedIn(viewModelScope)
+        .shareIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(), replay = 1)
 
     override var conversationListState by mutableStateOf(
         when (usePagination) {
@@ -211,6 +214,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     private fun observeNonPaginatedSearchConversationList() {
         viewModelScope.launch {
+            val selfTeamId = getSelfTeamId()
             searchQueryFlow
                 .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
                 .onStart { emit("") }
@@ -229,7 +233,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                                 userTypeMapper = userTypeMapper,
                                 uiTextResolver = uiTextResolver,
                                 searchQuery = searchQuery,
-                                selfUserTeamId = getSelfUser()?.teamId,
+                                selfUserTeamId = selfTeamId,
                                 playingAudioMessage = playingAudioMessage
                             ).hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold)
                         } to searchQuery

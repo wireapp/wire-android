@@ -35,6 +35,7 @@ class TaggedTestRunner : AllureAndroidJUnitRunner() {
         val filterId = arguments.getString("testCaseId")
         val category = arguments.getString("category")
         val excludeCategory = arguments.getString("excludeCategory")
+        val requiredCategory = arguments.getString("requiredCategory")
         val tagKey = arguments.getString("tagKey")
         val tagValue = arguments.getString("tagValue")
         val rerunMode = arguments.getString(RetryContract.ARG_ENABLE_RERUN_MODE)
@@ -50,6 +51,7 @@ class TaggedTestRunner : AllureAndroidJUnitRunner() {
             "TaggedTestRunner",
             "onCreate called. " +
                     "testCaseId=$filterId, category=$category, excludeCategory=$excludeCategory, " +
+                    "requiredCategory=$requiredCategory, " +
                     "tagKey=$tagKey, tagValue=$tagValue, " +
                     "rerunMode=$rerunMode, rerunAttempt=$rerunAttempt, " +
                     "rerunListPath=$rerunListPath, rerunListInlineLength=${rerunListInline?.length ?: 0}, " +

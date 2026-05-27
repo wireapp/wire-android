@@ -45,6 +45,8 @@ import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
+import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
+import com.wire.kalium.logic.feature.debug.SetDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.TargetedRepairParam
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
@@ -79,6 +81,7 @@ interface DebugDataOptionsViewModel {
     val e2eiCertificateExpirationInputState: TextFieldState get() = TextFieldState("6")
     fun currentAccount(): UserId = UserId("value", "domain")
     fun checkCrlRevocationList() {}
+    fun forceCRLExpirationAfterOneMinute(enabled: Boolean) {}
     fun restartSlowSyncForRecovery() {}
     fun enrollE2EICertificate() {}
     fun updateE2EICertificateExpiration(seconds: Long) {}
@@ -113,6 +116,8 @@ class DebugDataOptionsViewModelImpl
     private val repairFaultyRemovalKeys: RepairFaultyRemovalKeysUseCase,
     private val getDebugE2EICertificateExpiration: GetDebugE2EICertificateExpirationUseCase,
     private val setDebugE2EICertificateExpiration: SetDebugE2EICertificateExpirationUseCase,
+    private val observeDebugCRLExpirationAfterOneMinute: ObserveDebugCRLExpirationAfterOneMinuteUseCase,
+    private val setDebugCRLExpirationAfterOneMinute: SetDebugCRLExpirationAfterOneMinuteUseCase,
 ) : ViewModel(), DebugDataOptionsViewModel {
     private companion object {
         val DEFAULT_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS = 90.days.inWholeSeconds
@@ -133,6 +138,7 @@ class DebugDataOptionsViewModelImpl
     init {
         observeAsyncNotificationsEnabledData()
         observeMlsMetadata()
+        observeDebugCRLExpiration()
         observeE2EICertificateExpirationInput()
         setGitHashAndDeviceId()
         setAnalyticsTrackingId()
@@ -202,6 +208,15 @@ class DebugDataOptionsViewModelImpl
             checkCrlRevocationList(
                 forceUpdate = true
             )
+        }
+    }
+
+    override fun forceCRLExpirationAfterOneMinute(enabled: Boolean) {
+        viewModelScope.launch {
+            setDebugCRLExpirationAfterOneMinute(enabled)
+            if (enabled) {
+                checkCrlRevocationList(forceUpdate = true)
+            }
         }
     }
 
@@ -369,6 +384,14 @@ class DebugDataOptionsViewModelImpl
                         state = state.copy(mlsInfoState = state.mlsInfoState.copy(mlsErrorMessage = "Not Enabled!"))
                     }
                 }
+            }
+        }
+    }
+
+    private fun observeDebugCRLExpiration() {
+        viewModelScope.launch {
+            observeDebugCRLExpirationAfterOneMinute().collect { enabled ->
+                state = state.copy(forceCRLExpirationAfterOneMinute = enabled)
             }
         }
     }

@@ -18,6 +18,7 @@
 package com.wire.android.feature.meetings.ui.list
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -48,6 +49,7 @@ import com.wire.android.ui.theme.WireTheme
 fun MeetingList(
     type: MeetingsTabItem,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
     openMeetingOptions: (meetingId: String) -> Unit = {},
     meetingListViewModel: MeetingListViewModel = when {
@@ -79,6 +81,7 @@ fun MeetingList(
                 lazyPagingItems = lazyPagingItems,
                 lazyListState = lazyListState,
                 isShowingAll = isShowingAll,
+                contentPadding = contentPadding,
                 onShowAll = meetingListViewModel::showAll,
                 openMeetingOptions = openMeetingOptions,
                 modifier = modifier,
@@ -95,9 +98,11 @@ private fun MeetingList(
     onShowAll: () -> Unit,
     openMeetingOptions: (meetingId: String) -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
 ) {
     LazyColumn(
         state = lazyListState,
+        contentPadding = contentPadding,
         modifier = modifier,
     ) {
         items(
@@ -105,6 +110,7 @@ private fun MeetingList(
             key = lazyPagingItems.itemKey {
                 when (it) {
                     is MeetingHeader.Ongoing -> "separator_ongoing"
+                    is MeetingHeader.Day -> "separator_day_${it.time.toEpochMilliseconds()}"
                     is MeetingHeader.DayAndHour -> "separator_day_and_hour_${it.time.toEpochMilliseconds()}"
                     is MeetingHeader.Hour -> "separator_hour_${it.time.toEpochMilliseconds()}"
                     is MeetingItem -> it.meetingId
@@ -118,6 +124,7 @@ private fun MeetingList(
                         header = item,
                         modifier = Modifier.animateItem()
                     )
+
                     is MeetingItem -> MeetingItem(
                         meeting = item,
                         modifier = Modifier.animateItem(),
@@ -127,13 +134,12 @@ private fun MeetingList(
             }
         }
         val endOfPaginationReached = (lazyPagingItems.loadState.append as? LoadState.NotLoading)?.endOfPaginationReached ?: false
-        val isLoadingMore = lazyPagingItems.loadState.append == LoadState.Loading
         when {
-            isLoadingMore && !endOfPaginationReached -> item(key = "footer_load_more", contentType = "footer_load_more") {
+            !endOfPaginationReached -> item(key = "footer_load_more", contentType = "footer_load_more") {
                 MeetingLoadMoreFooter()
             }
 
-            endOfPaginationReached && !isShowingAll -> item(key = "footer_show_all", contentType = "footer_show_all") {
+            !isShowingAll -> item(key = "footer_show_all", contentType = "footer_show_all") {
                 MeetingShowAllFooter(onShowAll = onShowAll)
             }
         }

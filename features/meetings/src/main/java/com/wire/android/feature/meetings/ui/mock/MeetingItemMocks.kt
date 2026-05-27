@@ -17,6 +17,11 @@
  */
 package com.wire.android.feature.meetings.ui.mock
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingItem.BelongingType
 import com.wire.android.feature.meetings.model.MeetingItem.Status
@@ -25,11 +30,14 @@ import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import kotlin.math.min
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
@@ -236,6 +244,61 @@ class MeetingMocksProvider(val currentTimeProvider: CurrentTimeProvider) {
             else -> true
         }
     }
+
     fun getItem(meetingId: String): MeetingItem? =
         (currentTimeProvider.pastMeetingMocks + currentTimeProvider.nextMeetingMocks).find { it.meetingId == meetingId }
+
+    fun getPagingSource(type: MeetingsTabItem, showingAll: Boolean) = object : PagingSource<Int, MeetingItem>() {
+        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MeetingItem> {
+            val items = getItems(showingAll = showingAll, type = type)
+            val maxItems = if (!showingAll) items.size else items.size * 10 // if showingAll then generate 10x items by copying them
+            val offset = params.key ?: 0
+            val pageSize = min(params.loadSize, maxItems - offset) // if less items remain than the load size, only load remaining ones
+            val nextOffset = if (offset + pageSize >= maxItems) null else offset + pageSize // null if there are no more items to load
+            val pageItems = List(pageSize) { index ->
+                val multiplier = (offset + index) / items.size // calculate how many times we have looped through the original items list
+                val timeOffset = when (type) {
+                    MeetingsTabItem.PAST -> -(multiplier * 4).days // for past meetings, each loop goes further back in time
+                    MeetingsTabItem.NEXT -> (multiplier * 4).days // for next meetings, each loop goes further forward in time
+                }
+                items[(offset + index) % items.size].let {
+                    it.copy(
+                        meetingId = "${it.meetingId}_$multiplier",
+                        status = when (it.status) {
+                            is Status.Ended -> it.status.copy(
+                                startTime = it.status.startTime.plus(timeOffset),
+                                endTime = it.status.endTime.plus(timeOffset),
+                            )
+                            is Status.Ongoing -> it.status.copy(
+                                startTime = it.status.startTime.plus(timeOffset),
+                            )
+                            is Status.Scheduled -> it.status.copy(
+                                startTime = it.status.startTime.plus(timeOffset),
+                                endTime = it.status.endTime.plus(timeOffset),
+                            )
+                        }
+                    )
+                }
+            }
+            delay(1500) // simulate loading delay
+            return LoadResult.Page(data = pageItems, prevKey = null, nextKey = nextOffset)
+        }
+
+        override fun getRefreshKey(state: PagingState<Int, MeetingItem>): Int? {
+            return state.anchorPosition?.let { anchorPosition ->
+                state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
+                    ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
+            }
+        }
+    }
+
+    fun getPagingDataFlow(type: MeetingsTabItem, showingAll: Boolean): Flow<PagingData<MeetingItem>> {
+        val pageSize = getItems(showingAll = true, type = type).size
+        return Pager(
+            config = PagingConfig(pageSize = pageSize, enablePlaceholders = false),
+            pagingSourceFactory = {
+                getPagingSource(type = type, showingAll = showingAll)
+            }
+        ).flow
+    }
 }

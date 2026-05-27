@@ -35,14 +35,13 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
@@ -62,8 +61,9 @@ class MeetingListViewModelPreview(
 ) : MeetingListViewModel {
     private val meetingMocksProvider = MeetingMocksProvider(currentTimeProvider)
     override val isShowingAll: StateFlow<Boolean> = MutableStateFlow(showingAll)
-    override val meetings: Flow<PagingData<MeetingListItem>> =
-        MutableStateFlow(PagingData.from(meetingMocksProvider.getItems(showingAll, type).insertHeaders(type)))
+    override val meetings: Flow<PagingData<MeetingListItem>> = MutableStateFlow(
+        meetingMocksProvider.getItems(showingAll, type).toPagingDataWithLoadState(isShowingAll.value).insertHeaders(type)
+    )
 }
 
 @HiltViewModel(assistedFactory = MeetingListViewModelImpl.Factory::class)
@@ -79,28 +79,9 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     override val isShowingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
     private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default) // TODO replace with real data source
     override val meetings: Flow<PagingData<MeetingListItem>> = isShowingAll
-        .flatMapLatest { showingAll ->
-            @Suppress("MagicNumber")
-            flow {
-                if (!showingAll) {
-                    delay(1000) // Simulate loading delay
-                    emit(
-                        meetingMocksProvider.getItems(showingAll = false, type = type)
-                            .toPagingDataWithLoadState(type = type, appendLoading = false)
-                    )
-                } else {
-                    if (type == MeetingsTabItem.NEXT) { // For NEXT, first emit a loading state with partial data to simulate loading more
-                        emit(
-                            meetingMocksProvider.getItems(showingAll = false, type = type)
-                                .toPagingDataWithLoadState(type = type, appendLoading = true)
-                        )
-                    }
-                    delay(1000) // Simulate loading delay
-                    emit(
-                        meetingMocksProvider.getItems(showingAll = true, type = type)
-                            .toPagingDataWithLoadState(type = type, appendLoading = false)
-                    )
-                }
+        .flatMapLatest { isShowingAll ->
+            meetingMocksProvider.getPagingDataFlow(type = type, showingAll = isShowingAll).map {
+                it.insertHeaders(type = type)
             }
         }
         .flowOn(dispatcher.io())
@@ -111,26 +92,39 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     }
 }
 
+// Generates a header between two MeetingItems if needed for the given type. The list is assumed to be sorted by start time.
+private fun generateHeaderForType(type: MeetingsTabItem, before: MeetingItem?, after: MeetingItem?): MeetingHeader? = when (type) {
+    MeetingsTabItem.NEXT -> generateHeader(before = before, after = after)
+    MeetingsTabItem.PAST -> null // No headers for past meetings
+}
+
 // Generates a header between two MeetingItems if needed. The list is assumed to be sorted by start time.
-private fun generateHeader(type: MeetingsTabItem, before: MeetingItem?, after: MeetingItem?): MeetingHeader? {
+private fun generateHeader(
+    before: MeetingItem?,
+    after: MeetingItem?,
+    ongoingEnabled: Boolean = false,
+    hoursEnabled: Boolean = false,
+): MeetingHeader? {
     val beforeLocalTime = before?.status?.startTime?.toLocalDateTime(TimeZone.currentSystemDefault())
     val afterLocalTime = after?.status?.startTime?.toLocalDateTime(TimeZone.currentSystemDefault())
+    val beforeStatusOngoing = before?.status is MeetingItem.Status.Ongoing
+    val afterStatusOngoing = after?.status is MeetingItem.Status.Ongoing
     return when {
-        type == MeetingsTabItem.PAST -> null // No headers for past meetings
+        // If the next meeting is ongoing and the previous one is not, start new "Ongoing" section if enabled.
+        ongoingEnabled && !beforeStatusOngoing && afterStatusOngoing -> MeetingHeader.Ongoing
 
-        // If the next meeting is ongoing and the previous one is not, add an "Ongoing" header.
-        before?.status !is MeetingItem.Status.Ongoing && after?.status is MeetingItem.Status.Ongoing -> MeetingHeader.Ongoing
+        // If the previous meeting is ongoing in "Ongoing" section and the next one is not, start new "Day" section, add "Hour" if enabled.
+        ongoingEnabled && afterLocalTime != null && beforeStatusOngoing && !afterStatusOngoing ->
+            if (hoursEnabled) MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime())
+            else MeetingHeader.Day(time = afterLocalTime.headerDayHourTime())
 
-        // If the previous meeting is ongoing and the next one is not, add a "Day and Hour" header for the next meeting.
-        afterLocalTime != null && before?.status is MeetingItem.Status.Ongoing && after.status !is MeetingItem.Status.Ongoing ->
-            MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime())
-
-        // If the next meeting is on a different day than the previous one, add a "Day and Hour" header.
+        // If the next meeting is on a different day than the previous one, start a new "Day" section, add "Hour" if enabled.
         afterLocalTime != null && beforeLocalTime?.date != afterLocalTime.date ->
-            MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime())
+            if (hoursEnabled) MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime())
+            else MeetingHeader.Day(time = afterLocalTime.headerDayHourTime())
 
-        // If the next meeting is on the same day but a different hour than the previous one, add an "Hour" header.
-        afterLocalTime != null && beforeLocalTime?.hour != afterLocalTime.hour ->
+        // If the next meeting is on the same day but a different hour than the previous one, add an "Hour" header if enabled.
+        hoursEnabled && afterLocalTime != null && beforeLocalTime?.hour != afterLocalTime.hour ->
             MeetingHeader.Hour(time = afterLocalTime.headerDayHourTime())
 
         // Otherwise, no header is added.
@@ -141,18 +135,8 @@ private fun generateHeader(type: MeetingsTabItem, before: MeetingItem?, after: M
 // Create a header time at the start of the hour of the meeting's start time.
 private fun LocalDateTime.headerDayHourTime() = date.atTime(hour, 0, 0).toInstant(TimeZone.currentSystemDefault())
 
-// Extension function to insert headers into a list of MeetingItems.
-private fun List<MeetingItem>.insertHeaders(type: MeetingsTabItem) = buildList<MeetingListItem> {
-    for (i in 0..this@insertHeaders.size) {
-        val (previous, current) = this@insertHeaders.getOrNull(i - 1) to this@insertHeaders.getOrNull(i)
-        val header = generateHeader(type = type, before = previous, after = current)
-        if (header != null) add(header)
-        if (current != null) add(current)
-    }
-}
-
-// Extension function to convert a list of MeetingItems to PagingData of MeetingListItems with headers and load states.
-private fun List<MeetingItem>.toPagingDataWithLoadState(type: MeetingsTabItem, appendLoading: Boolean): PagingData<MeetingListItem> =
+// Extension function to convert a list of MeetingItems to PagingData of MeetingItems with load states.
+private fun List<MeetingItem>.toPagingDataWithLoadState(appendLoading: Boolean): PagingData<MeetingItem> =
     PagingData.from(
         data = this,
         sourceLoadStates = LoadStates(
@@ -160,6 +144,13 @@ private fun List<MeetingItem>.toPagingDataWithLoadState(type: MeetingsTabItem, a
             prepend = LoadState.NotLoading(true),
             append = if (appendLoading) LoadState.Loading else LoadState.NotLoading(true),
         )
-    ).insertSeparators { before, after ->
-        generateHeader(type = type, before = before, after = after)
+    )
+
+// Extension function to insert headers into a PagingData stream of MeetingItems based on the given type.
+private fun PagingData<MeetingItem>.insertHeaders(type: MeetingsTabItem): PagingData<MeetingListItem> =
+    insertSeparators { before, after ->
+        when (type) {
+            MeetingsTabItem.NEXT -> generateHeader(before = before as? MeetingItem, after = after as? MeetingItem)
+            MeetingsTabItem.PAST -> null // No headers for past meetings
+        }
     }

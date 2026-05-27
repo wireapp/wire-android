@@ -17,6 +17,7 @@ Main critical-flow workflow.
 - Runs nightly on `schedule` at `04:00 UTC`.
 - Uses built-in defaults for non-manual runs:
   - latest APK
+  - upgrade mode enabled
   - `internal release candidate`
   - `@criticalFlow`
   - auto device selection
@@ -107,6 +108,39 @@ Reporting behavior:
   - `failed_first_attempt`
   - `passed_on_rerun`
   - `failed_after_retries`
+
+## Selector And Upgrade Behavior
+
+The selector decides which tests are in scope. Upgrade mode decides how the
+selected upgrade-tagged subset is executed.
+
+- `@criticalFlow` runs only `criticalFlow` tests.
+- `@regression` runs only `regression` tests.
+- `@TC-1234` runs only that test case.
+
+When `isUpgrade=true` and the selector is a broad category run:
+
+1. the workflow runs the selected category first on the new APK and excludes tests tagged `upgrade`
+2. the workflow then runs only the selected `upgrade` subset last on one device, starting from the old APK
+
+Examples:
+
+- `@criticalFlow` + `isUpgrade=true`:
+  - normal phase: `criticalFlow` tests except `criticalFlow + upgrade`
+  - upgrade phase: only `criticalFlow + upgrade`
+- `@regression` + `isUpgrade=true`:
+  - normal phase: `regression` tests except `regression + upgrade`
+  - upgrade phase: only `regression + upgrade`
+
+When `isUpgrade=false` and the selector is a category run:
+
+- the workflow keeps the selected category scope
+- tests also tagged `upgrade` are skipped instead of running in the normal phase
+
+When the selector is left empty and `isUpgrade=true`:
+
+- the workflow runs all non-upgrade tests first
+- then runs all upgrade-tagged tests last
 
 ## Manual Deflake Flow
 

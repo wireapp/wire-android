@@ -19,7 +19,11 @@ package com.wire.android.di
 
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import dagger.hilt.android.lifecycle.withCreationCallback
 
 inline fun <reified VM : ViewModel, reified VMF> ComponentActivity.assistedViewModels(
@@ -27,3 +31,24 @@ inline fun <reified VM : ViewModel, reified VMF> ComponentActivity.assistedViewM
 ) = viewModels<VM>(extrasProducer = {
     defaultViewModelCreationExtras.withCreationCallback<VMF> { factory -> create(factory) }
 })
+
+@Composable
+inline fun <reified VM : ViewModel> wireViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
+    key: String? = null,
+): VM = hiltViewModel(viewModelStoreOwner = viewModelStoreOwner, key = key)
+
+@Composable
+inline fun <reified VM : ViewModel, reified VMF> wireViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
+    key: String? = null,
+    noinline creationCallback: (VMF) -> VM
+): VM = hiltViewModel(
+    viewModelStoreOwner = viewModelStoreOwner,
+    key = key,
+    creationCallback = creationCallback
+)

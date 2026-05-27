@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2025 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.support.tags
 
-/**
- * Annotation used to assign one or more Test Case IDs to a test.
- * Example: @TestCaseId("TC-4265")
- */
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
-annotation class TestCaseId(vararg val value: String)
+package com.wire.android.ui.authentication.login
+
+interface LoginSavedInputStore {
+    var userIdentifier: String?
+    var ssoCode: String?
+}

@@ -156,6 +156,7 @@ fun SettingsScreenContent(
                 header = UIText.StringResource(R.string.settings_other_group_title),
                 items = buildList {
                     add(SettingsItem.Support)
+                    add(SettingsItem.ReportMisuse)
                     if (BuildConfig.DEBUG_SCREEN_ENABLED) {
                         add(SettingsItem.DebugSettings)
                     }

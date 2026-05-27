@@ -376,7 +376,11 @@ private fun TopBarCollapsing(
             UserProfileInfo(
                 userId = targetState.userId,
                 isLoading = targetState.isAvatarLoading,
-                avatarAsset = targetState.userAvatarAsset,
+                avatarAsset = targetState.userAvatarAsset
+                    .takeUnless {
+                        targetState.connectionState == ConnectionState.PENDING &&
+                                targetState.userId.domain == WIRE_DOMAIN
+                    },
                 fullName = targetState.fullName,
                 userName = targetState.userName,
                 teamName = targetState.teamName,
@@ -546,6 +550,8 @@ fun ContentFooter(
         }
     }
 }
+
+private const val WIRE_DOMAIN = "wire.com"
 
 enum class OtherUserProfileTabItem(@StringRes val titleResId: Int) : TabItem {
     GROUP(R.string.user_profile_conversation_tab),

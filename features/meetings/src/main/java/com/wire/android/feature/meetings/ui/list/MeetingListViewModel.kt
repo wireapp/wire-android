@@ -92,13 +92,14 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     }
 }
 
-// Generates a header between two MeetingItems if needed for the given type. The list is assumed to be sorted by start time.
+/** Generates a header between two MeetingItems if needed for the given type. The list is assumed to be sorted by start time. */
 private fun generateHeaderForType(type: MeetingsTabItem, before: MeetingItem?, after: MeetingItem?): MeetingHeader? = when (type) {
     MeetingsTabItem.NEXT -> generateHeader(before = before, after = after)
     MeetingsTabItem.PAST -> null // No headers for past meetings
 }
 
-// Generates a header between two MeetingItems if needed. The list is assumed to be sorted by start time.
+/** Generates a header between two MeetingItems if needed. The list is assumed to be sorted by start time. */
+@Suppress("CyclomaticComplexMethod")
 private fun generateHeader(
     before: MeetingItem?,
     after: MeetingItem?,
@@ -114,14 +115,16 @@ private fun generateHeader(
         ongoingEnabled && !beforeStatusOngoing && afterStatusOngoing -> MeetingHeader.Ongoing
 
         // If the previous meeting is ongoing in "Ongoing" section and the next one is not, start new "Day" section, add "Hour" if enabled.
-        ongoingEnabled && afterLocalTime != null && beforeStatusOngoing && !afterStatusOngoing ->
-            if (hoursEnabled) MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime())
-            else MeetingHeader.Day(time = afterLocalTime.headerDayHourTime())
+        ongoingEnabled && afterLocalTime != null && beforeStatusOngoing && !afterStatusOngoing -> when {
+            hoursEnabled -> MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime())
+            else -> MeetingHeader.Day(time = afterLocalTime.headerDayHourTime())
+        }
 
         // If the next meeting is on a different day than the previous one, start a new "Day" section, add "Hour" if enabled.
-        afterLocalTime != null && beforeLocalTime?.date != afterLocalTime.date ->
-            if (hoursEnabled) MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime())
-            else MeetingHeader.Day(time = afterLocalTime.headerDayHourTime())
+        afterLocalTime != null && beforeLocalTime?.date != afterLocalTime.date -> when {
+            hoursEnabled -> MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime())
+            else -> MeetingHeader.Day(time = afterLocalTime.headerDayHourTime())
+        }
 
         // If the next meeting is on the same day but a different hour than the previous one, add an "Hour" header if enabled.
         hoursEnabled && afterLocalTime != null && beforeLocalTime?.hour != afterLocalTime.hour ->
@@ -132,10 +135,10 @@ private fun generateHeader(
     }
 }
 
-// Create a header time at the start of the hour of the meeting's start time.
+/** Extension function to create a header time at the start of the hour of the meeting's start time. */
 private fun LocalDateTime.headerDayHourTime() = date.atTime(hour, 0, 0).toInstant(TimeZone.currentSystemDefault())
 
-// Extension function to convert a list of MeetingItems to PagingData of MeetingItems with load states.
+/** Extension function to convert a list of MeetingItems to PagingData of MeetingItems with load states. */
 private fun List<MeetingItem>.toPagingDataWithLoadState(appendLoading: Boolean): PagingData<MeetingItem> =
     PagingData.from(
         data = this,
@@ -146,11 +149,11 @@ private fun List<MeetingItem>.toPagingDataWithLoadState(appendLoading: Boolean):
         )
     )
 
-// Extension function to insert headers into a PagingData stream of MeetingItems based on the given type.
+/** Extension function to insert headers into a PagingData stream of MeetingItems based on the given type. */
 private fun PagingData<MeetingItem>.insertHeaders(type: MeetingsTabItem): PagingData<MeetingListItem> =
     insertSeparators { before, after ->
         when (type) {
-            MeetingsTabItem.NEXT -> generateHeader(before = before as? MeetingItem, after = after as? MeetingItem)
+            MeetingsTabItem.NEXT -> generateHeader(before = before, after = after)
             MeetingsTabItem.PAST -> null // No headers for past meetings
         }
     }

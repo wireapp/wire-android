@@ -248,6 +248,7 @@ class MeetingMocksProvider(val currentTimeProvider: CurrentTimeProvider) {
     fun getItem(meetingId: String): MeetingItem? =
         (currentTimeProvider.pastMeetingMocks + currentTimeProvider.nextMeetingMocks).find { it.meetingId == meetingId }
 
+    @Suppress("MagicNumber")
     fun getPagingSource(type: MeetingsTabItem, showingAll: Boolean) = object : PagingSource<Int, MeetingItem>() {
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MeetingItem> {
             val items = getItems(showingAll = showingAll, type = type)

@@ -56,8 +56,8 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserU
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.team.SyncSelfTeamInfoUseCase
+import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
@@ -83,7 +83,7 @@ import javax.inject.Inject
 class SelfUserProfileViewModel @Inject constructor(
     @CurrentAccount private val selfUserId: UserId,
     private val dataStore: UserDataStore,
-    private val observeSelf: ObserveSelfUserUseCase,
+    private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val observeSelfUserWithTeam: ObserveSelfUserWithTeamUseCase,
     private val syncSelfTeamInfo: SyncSelfTeamInfoUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
@@ -147,7 +147,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private fun markCreateTeamNoticeAsRead() {
         viewModelScope.launch {
-            if (observeSelf().first().teamId == null && !dataStore.isCreateTeamNoticeRead().first()) {
+            if (getSelfTeamId() == null && !dataStore.isCreateTeamNoticeRead().first()) {
                 dataStore.setIsCreateTeamNoticeRead(true)
             }
         }

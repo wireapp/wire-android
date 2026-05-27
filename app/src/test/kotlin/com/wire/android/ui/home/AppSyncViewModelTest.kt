@@ -19,12 +19,15 @@ package com.wire.android.ui.home
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.sync.ForegroundActionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -65,8 +68,12 @@ class AppSyncViewModelTest {
         @MockK
         lateinit var foregroundActionsUseCase: ForegroundActionsUseCase
 
+        @MockK
+        lateinit var observeDebugCRLExpirationAfterOneMinute: ObserveDebugCRLExpirationAfterOneMinuteUseCase
+
         init {
             MockKAnnotations.init(this)
+            every { observeDebugCRLExpirationAfterOneMinute() } returns flowOf(false)
         }
 
         fun withForegroundActionsUseCase(delayMs: Long = 0) {
@@ -78,6 +85,7 @@ class AppSyncViewModelTest {
         fun arrange(testDispatcher: TestDispatcherProvider, block: Arrangement.() -> Unit) = apply(block).let {
             this to AppSyncViewModel(
                 foregroundActionsUseCase = foregroundActionsUseCase,
+                observeDebugCRLExpirationAfterOneMinute = observeDebugCRLExpirationAfterOneMinute,
                 dispatcher = testDispatcher
             )
         }

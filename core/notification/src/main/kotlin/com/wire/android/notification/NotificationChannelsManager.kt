@@ -69,7 +69,7 @@ class NotificationChannelsManager @Inject constructor(
         }
 
         // OngoingCall is not user specific channel, but common for all users.
-        createOngoingNotificationChannel()
+        createOngoingCallNotificationChannel()
 
         createPlayingAudioMessageNotificationChannel()
 
@@ -136,7 +136,7 @@ class NotificationChannelsManager @Inject constructor(
         notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
-    private fun createOngoingNotificationChannel() {
+    fun createOngoingCallNotificationChannel() {
         val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         val notificationChannel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)

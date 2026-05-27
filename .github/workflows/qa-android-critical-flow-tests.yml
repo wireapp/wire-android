@@ -310,7 +310,7 @@ jobs:
               bash scripts/qa_android_ui_tests/run_ui_tests.sh
           elif [[ "${IS_UPGRADE}" == "true" && -z "${RESOLVED_TESTCASE_ID}" ]]; then
             # For broad upgrade runs, run the selected normal tests on the new APK first.
-            # Then run only upgrade tests afterward, starting them from the old APK.
+            # Then run only the selected upgrade subset afterward, starting from the old APK.
             upgrade_device="${DEVICE_LIST%% *}"
             normal_category="${RESOLVED_CATEGORY}"
             normal_status=0
@@ -326,7 +326,8 @@ jobs:
             echo "Running upgrade tests last with old APK installed before each attempt."
             DEVICE_LIST="${upgrade_device}" \
               DEVICE_COUNT="1" \
-              RESOLVED_CATEGORY="upgrade" \
+              RESOLVED_CATEGORY="${normal_category}" \
+              REQUIRED_CATEGORY="upgrade" \
               APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
               RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
               ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/upgrade" \
@@ -343,7 +344,15 @@ jobs:
               exit "${upgrade_status}"
             fi
           else
-            bash scripts/qa_android_ui_tests/run_ui_tests.sh
+            if [[ "${IS_UPGRADE}" != "true" && -n "${RESOLVED_CATEGORY}" ]]; then
+              # When upgrade mode is off, keep category runs in their selected
+              # scope but skip upgrade-tagged tests instead of executing them
+              # in the normal phase.
+              EXCLUDE_CATEGORY="upgrade" \
+                bash scripts/qa_android_ui_tests/run_ui_tests.sh
+            else
+              bash scripts/qa_android_ui_tests/run_ui_tests.sh
+            fi
           fi
 
       # Export one standard artifact so future manual deflake runs can reuse

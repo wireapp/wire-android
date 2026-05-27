@@ -16,6 +16,10 @@ concurrency:
 jobs:
   # Build for direct pushes to release/candidate (includes production deployment)
   build-release-candidate:
+    permissions:
+      contents: write
+      actions: read
+      security-events: write
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: push

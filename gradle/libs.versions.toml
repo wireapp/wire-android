@@ -3,7 +3,7 @@
 androidJunit5 = "2.0.1"
 
 # Kotlin
-grgitCore = "5.3.2"
+grgitCore = "5.3.3"
 kotlin = "2.3.20"
 
 # KotlinX
@@ -24,6 +24,7 @@ desugaring = "2.1.5"
 firebaseBOM = "34.7.0"
 fragment = "1.5.6"
 resaca = "5.0.2"
+metro = "1.1.1"
 bundlizer = "0.8.0"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
@@ -34,7 +35,7 @@ androidx-appcompat = "1.7.1"
 androidx-core = "1.15.0"
 androidx-dataStore = "1.1.7"
 androidx-exif = "1.4.2"
-androidx-emoji = "1.5.0"
+androidx-emoji = "1.6.0"
 androidx-jetpack = "1.1.0"
 androidx-lifecycle = "2.10.0"
 androidx-paging3 = "3.3.6"
@@ -50,7 +51,7 @@ enterprise-feedback = "1.1.0"
 
 # Compose
 composeBom = "2026.01.01"
-compose-activity = "1.10.0"
+compose-activity = "1.13.0"
 compose-constraint = "1.1.1"
 compose-navigation = "2.9.5" # aligned with compose-destinations 2.3.0
 compose-destinations = "2.3.0"
@@ -84,7 +85,7 @@ rss-parser = "6.0.7"
 dataDog = "1.19.3"
 
 # Lint
-lint-compose = "1.4.2"
+lint-compose = "1.4.3"
 
 #OAuth
 openIdAppAuth = "0.11.1"
@@ -113,7 +114,7 @@ junit4 = "4.13.2"
 junit5 = "5.11.0"
 mockk = "1.14.9"
 okio = "3.9.0"
-turbine = "1.2.0"
+turbine = "1.2.1"
 robolectric = "4.14.1"
 hamcrest = "3.0"
 rules = "1.7.0"
@@ -133,6 +134,7 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutLibraries" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
@@ -163,6 +165,7 @@ googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.re
 googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
 kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
+metro-gradlePlugin = { module = "dev.zacsweers.metro:dev.zacsweers.metro.gradle.plugin", version.ref = "metro" }
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }

@@ -51,9 +51,17 @@ data class ConversationListPage(private val device: UiDevice) {
         UiSelectorParams(text = conversationName)
     }
     private val deleteConversationButton = UiSelectorParams(text = "Delete Conversation")
+
+    private val leaveConversationButton = UiSelectorParams(text = "Leave Conversation")
+
     private val removeConversationButton = UiSelectorParams(text = "Remove")
     private val removeConversationDescription =
         UiSelectorParams(textContains = "The conversation will be removed from your conversations list")
+
+    private val leaveConversationButtonOnModal = UiSelectorParams(text = "Leave")
+
+    private val leaveConversationDescriptionOnModal =
+        UiSelectorParams(textContains = "You will then no longer be able to send or read messages")
     private val startNewConversation = UiSelectorParams(description = "New. Start a new conversation")
 
     private val userConversationNamePendingLabelSelector =
@@ -217,8 +225,22 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertLeaveConversationButtonVisibleInConversationActions(): ConversationListPage {
+        try {
+            UiWaitUtils.waitElement(leaveConversationButton)
+        } catch (e: AssertionError) {
+            throw AssertionError("Leave Conversation button is not visible in conversation actions.", e)
+        }
+        return this
+    }
+
     fun tapDeleteConversationButtonInConversationActions(): ConversationListPage {
         UiWaitUtils.waitElement(deleteConversationButton).click()
+        return this
+    }
+
+    fun tapLeaveConversationButtonInConversationActions(): ConversationListPage {
+        UiWaitUtils.waitElement(leaveConversationButton).click()
         return this
     }
 
@@ -239,8 +261,30 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertLeaveConversationConfirmationModalVisible(conversationName: String): ConversationListPage {
+        val modalTitle = UiSelectorParams(
+            textMatches = ".*Leave.*${Pattern.quote(conversationName)}.*"
+        )
+        try {
+            UiWaitUtils.waitElement(modalTitle)
+            UiWaitUtils.waitElement(leaveConversationDescriptionOnModal)
+            UiWaitUtils.waitElement(leaveConversationButtonOnModal)
+        } catch (e: AssertionError) {
+            throw AssertionError(
+                "Leave conversation confirmation modal for '$conversationName' is not visible.",
+                e
+            )
+        }
+        return this
+    }
+
     fun tapRemoveConversationButton(): ConversationListPage {
         UiWaitUtils.waitElement(removeConversationButton).click()
+        return this
+    }
+
+    fun tapLeaveConversationButtonOnModal(): ConversationListPage {
+        UiWaitUtils.waitElement(leaveConversationButtonOnModal).click()
         return this
     }
 

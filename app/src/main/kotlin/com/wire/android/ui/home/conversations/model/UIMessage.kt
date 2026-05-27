@@ -165,11 +165,11 @@ data class MessageHeader(
     val clientId: ClientId? = null,
     val accent: Accent = Accent.Unknown,
     val guestExpiresAt: Instant? = null,
-    val senderId: MessageSenderId
+    val senderId: MessageSenderId? = null
 )
 
 sealed interface MessageSenderId {
-    data class User(val id: String?) : MessageSenderId
+    data class User(val id: String) : MessageSenderId
     data class App(val appId: UserId) : MessageSenderId
     data class Bot(val botService: BotService) : MessageSenderId
 }

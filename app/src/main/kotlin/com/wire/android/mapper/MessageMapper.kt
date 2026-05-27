@@ -171,7 +171,9 @@ class MessageMapper @Inject constructor(
         senderId = when {
             (sender as? OtherUser)?.botService != null -> MessageSenderId.Bot(sender.botService!!)
             sender?.userType == UserTypeInfo.App -> MessageSenderId.App(sender.id)
-            else -> MessageSenderId.User(sender?.id?.toString())
+            else -> sender?.id?.let {
+                MessageSenderId.User(it.toString())
+            }
         }
     )
 

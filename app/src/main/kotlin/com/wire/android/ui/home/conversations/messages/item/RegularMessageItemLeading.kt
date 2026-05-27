@@ -37,7 +37,7 @@ fun RegularMessageItemLeading(
     onOpenProfile: (MessageSenderId) -> Unit
 ) {
     val isProfileRedirectEnabled =
-        header.userId != null && !(header.isSenderDeleted || header.isSenderUnavailable)
+        header.senderId != null && !(header.isSenderDeleted || header.isSenderUnavailable)
     if (showAuthor) {
         val openProfileDescription = stringResource(id = R.string.content_description_open_user_profile_label)
         val avatarClickable = remember(isProfileRedirectEnabled, header.userId, openProfileDescription, onOpenProfile) {
@@ -45,7 +45,9 @@ fun RegularMessageItemLeading(
                 enabled = isProfileRedirectEnabled,
                 onClickDescription = openProfileDescription
             ) {
-                onOpenProfile(header.senderId)
+                header.senderId?.let {
+                    onOpenProfile(it)
+                }
             }
         }
         val avatarContentDescription = listOfNotNull(

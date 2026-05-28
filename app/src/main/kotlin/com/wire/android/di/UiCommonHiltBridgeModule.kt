@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2025 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,20 @@
  */
 package com.wire.android.di
 
-import javax.inject.Qualifier
+import android.content.Context
+import com.wire.android.util.FileSizeFormatter
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class KaliumCoreLogic
+@Module
+@InstallIn(SingletonComponent::class)
+object UiCommonHiltBridgeModule {
 
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class ApplicationContext
+    @Provides
+    fun provideFileSizeFormatter(
+        @ApplicationContext context: Context,
+    ): FileSizeFormatter = FileSizeFormatter(context)
+}

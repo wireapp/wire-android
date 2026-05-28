@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -73,6 +74,8 @@ import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.assistedViewModels
+import com.wire.android.di.metro.ImageAssetViewModelGraphBridgeViewModel
+import com.wire.android.di.metro.LocalMetroViewModelGraph
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
@@ -253,6 +256,7 @@ class WireActivity : BaseActivity() {
     private fun setComposableContent(startDestination: Direction) {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
+            val imageAssetViewModelGraph = hiltViewModel<ImageAssetViewModelGraphBridgeViewModel>()
 
             HandleThemeChanges(viewModel.globalAppState.themeOption)
 
@@ -261,6 +265,7 @@ class WireActivity : BaseActivity() {
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
                 LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
                 LocalSnackbarHostState provides snackbarHostState,
+                LocalMetroViewModelGraph provides imageAssetViewModelGraph,
                 LocalActivity provides this
             ) {
                 WireTheme(accent = viewModel.globalAppState.userAccent) {

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2025 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.di
+package com.wire.android.model
 
-import javax.inject.Qualifier
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class KaliumCoreLogic
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class ApplicationContext
+import com.wire.android.util.ui.WireSessionImageLoader
+class ImageAssetViewModelFactory(
+    private val imageLoader: () -> WireSessionImageLoader,
+) {
+    fun create(): RemoteAssetImageViewModel =
+        RemoteAssetImageViewModel(imageLoader = imageLoader())
+}

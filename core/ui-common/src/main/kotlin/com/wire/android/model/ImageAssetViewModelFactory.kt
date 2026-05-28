@@ -18,6 +18,7 @@
 package com.wire.android.model
 
 import com.wire.android.util.ui.WireSessionImageLoader
+
 class ImageAssetViewModelFactory(
     private val imageLoader: () -> WireSessionImageLoader,
 ) {

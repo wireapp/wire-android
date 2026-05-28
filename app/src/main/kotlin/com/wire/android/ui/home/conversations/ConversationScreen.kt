@@ -79,7 +79,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -258,15 +258,15 @@ fun ConversationScreen(
     imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
-    conversationInfoViewModel: ConversationInfoViewModel = hiltViewModel(),
-    conversationBannerViewModel: ConversationBannerViewModel = hiltViewModel(),
-    conversationCallViewModel: ConversationCallViewModel = hiltViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
-    messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
-    sendMessageViewModel: SendMessageViewModel = hiltViewModel(),
-    conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
-    messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
-    messageAttachmentsViewModel: MessageAttachmentsViewModel = hiltViewModel(),
+    conversationInfoViewModel: ConversationInfoViewModel = wireViewModel(),
+    conversationBannerViewModel: ConversationBannerViewModel = wireViewModel(),
+    conversationCallViewModel: ConversationCallViewModel = wireViewModel(),
+    conversationMessagesViewModel: ConversationMessagesViewModel = wireViewModel(),
+    messageComposerViewModel: MessageComposerViewModel = wireViewModel(),
+    sendMessageViewModel: SendMessageViewModel = wireViewModel(),
+    conversationMigrationViewModel: ConversationMigrationViewModel = wireViewModel(),
+    messageDraftViewModel: MessageDraftViewModel = wireViewModel(),
+    messageAttachmentsViewModel: MessageAttachmentsViewModel = wireViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current

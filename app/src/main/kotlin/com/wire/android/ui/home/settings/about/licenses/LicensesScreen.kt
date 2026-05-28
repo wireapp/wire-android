@@ -28,7 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.mikepenz.aboutlibraries.entity.Library
 import com.mikepenz.aboutlibraries.ui.compose.util.htmlReadyLicenseContent
 import com.wire.android.R
@@ -40,7 +40,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 @Composable
 fun LicensesScreen(
     navigator: Navigator,
-    viewModel: LicensesViewModel = hiltViewModel()
+    viewModel: LicensesViewModel = wireViewModel()
 ) {
     WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(

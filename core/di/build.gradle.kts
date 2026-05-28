@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     implementation(libs.androidx.core)
+    implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.hilt.android)
     implementation(libs.compose.material3)
 }

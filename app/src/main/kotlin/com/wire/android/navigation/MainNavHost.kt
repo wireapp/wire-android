@@ -26,7 +26,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
@@ -89,7 +88,7 @@ fun MainNavHost(
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(NewConversationGraph.route)
                         }
-                        dependency(hiltViewModel<NewConversationViewModel>(parentEntry))
+                        dependency(wireViewModel<NewConversationViewModel>(parentEntry))
                     }
 
                     // 👇 To reuse LoginEmailViewModel from NewLoginPasswordScreen on NewLoginVerificationCodeScreen
@@ -110,7 +109,7 @@ fun MainNavHost(
                         val parentEntry = remember(navBackStackEntry) {
                             navController.previousBackStackEntry
                         }
-                        dependency(hiltViewModel<CellViewModel>(parentEntry ?: navBackStackEntry))
+                        dependency(wireViewModel<CellViewModel>(parentEntry ?: navBackStackEntry))
                     }
 
                     // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph,
@@ -119,7 +118,7 @@ fun MainNavHost(
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(PersonalToTeamMigrationGraph.route)
                         }
-                        dependency(hiltViewModel<TeamMigrationViewModel>(parentEntry))
+                        dependency(wireViewModel<TeamMigrationViewModel>(parentEntry))
                     }
                 },
                 manualComposableCallsBuilder = {

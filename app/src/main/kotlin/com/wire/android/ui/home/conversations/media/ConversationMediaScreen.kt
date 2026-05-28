@@ -42,7 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -87,8 +87,8 @@ import kotlinx.serialization.Serializable
 @Composable
 fun ConversationMediaScreen(
     navigator: Navigator,
-    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = hiltViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel()
+    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = wireViewModel(),
+    conversationMessagesViewModel: ConversationMessagesViewModel = wireViewModel()
 ) {
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val context = LocalContext.current

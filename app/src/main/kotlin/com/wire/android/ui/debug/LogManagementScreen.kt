@@ -25,7 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.dimensions
@@ -38,7 +38,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 fun LogManagementScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    viewModel: LogManagementViewModel = hiltViewModel()
+    viewModel: LogManagementViewModel = wireViewModel()
 ) {
     val state = viewModel.state
     val contentState = rememberDebugContentState(state.logPath)

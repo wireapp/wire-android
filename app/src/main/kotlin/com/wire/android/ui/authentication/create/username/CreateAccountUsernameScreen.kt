@@ -32,7 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -58,7 +58,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun CreateAccountUsernameScreen(
     navigator: Navigator,
-    viewModel: CreateAccountUsernameViewModel = hiltViewModel()
+    viewModel: CreateAccountUsernameViewModel = wireViewModel()
 ) {
     UsernameContent(
         textState = viewModel.textState,

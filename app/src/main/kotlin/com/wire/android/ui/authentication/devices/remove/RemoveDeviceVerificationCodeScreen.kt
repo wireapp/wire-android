@@ -18,12 +18,12 @@
 package com.wire.android.ui.authentication.devices.remove
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeScreenContent
 
 @Composable
 fun RemoveDeviceVerificationCodeScreen(
-    viewModel: RemoveDeviceViewModel = hiltViewModel()
+    viewModel: RemoveDeviceViewModel = wireViewModel()
 ) = VerificationCodeScreenContent(
     viewModel.secondFactorVerificationCodeTextState,
     viewModel.secondFactorVerificationCodeState,

@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.feature.e2ei.OAuthUseCase
 import com.wire.android.util.extension.getActivity
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.onEach
 fun GetE2EICertificateUI(
     enrollmentResultHandler: (FinalizeEnrollmentResult) -> Unit,
     isNewClient: Boolean,
-    viewModel: GetE2EICertificateViewModel = hiltViewModel()
+    viewModel: GetE2EICertificateViewModel = wireViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current

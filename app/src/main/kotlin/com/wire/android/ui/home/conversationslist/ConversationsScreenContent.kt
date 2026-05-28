@@ -32,7 +32,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
@@ -94,7 +94,7 @@ fun ConversationsScreenContent(
     firstConversationFocusRequester: FocusRequester? = null,
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
-        else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
+        else -> wireViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
             key = "list_$conversationsSource",
             creationCallback = { factory ->
                 factory.create(conversationsSource = conversationsSource)
@@ -103,7 +103,7 @@ fun ConversationsScreenContent(
     },
     conversationListCallViewModel: ConversationListCallViewModel = when {
         LocalInspectionMode.current -> ConversationListCallViewModelPreview
-        else -> hiltViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
+        else -> wireViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
     },
 ) {
     val sheetState = rememberWireModalSheetState<ConversationSheetState>()

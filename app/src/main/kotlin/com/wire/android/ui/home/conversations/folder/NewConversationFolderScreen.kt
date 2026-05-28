@@ -36,7 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
@@ -68,7 +68,7 @@ import com.wire.android.util.ui.SnackBarMessageHandler
 fun NewConversationFolderScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<NewConversationFolderNavBackArgs>,
-    viewModel: NewFolderViewModel = hiltViewModel()
+    viewModel: NewFolderViewModel = wireViewModel()
 ) {
 
     LaunchedEffect(viewModel.folderNameState.folderId) {

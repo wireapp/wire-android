@@ -27,7 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
@@ -55,7 +55,7 @@ import com.wire.android.ui.theme.wireTypography
 fun RecycleBinScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    cellViewModel: CellViewModel = hiltViewModel()
+    cellViewModel: CellViewModel = wireViewModel()
 ) {
 
     Box(modifier = modifier) {

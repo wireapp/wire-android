@@ -258,7 +258,7 @@ fun UserProfileAvatar(
                     }
                     .semantics {
                         this.testTag = STATUS_INDICATOR_TEST_TAG
-                        if (statusContentDescription != null) {
+                        if (!isClickable && statusContentDescription != null) {
                             this.contentDescription = statusContentDescription
                         }
                     }

@@ -149,14 +149,16 @@ fun UserProfileAvatar(
         legalHoldIndicatorVisible = false
     ),
 ) {
+    val isClickable = clickable?.enabled == true
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .wrapContentSize()
             .clip(CircleShape)
             .clickable(clickable)
-            .semantics {
-                if (clickable?.enabled == true) {
+            .semantics(mergeDescendants = isClickable) {
+                if (isClickable) {
+                    contentDescription?.let { this.contentDescription = it }
                     role = Role.Button
                 }
             }
@@ -185,7 +187,7 @@ fun UserProfileAvatar(
                 withCrossfadeAnimation = withCrossfadeAnimation,
                 type = type,
                 size = size,
-                contentDescription = contentDescription,
+                contentDescription = if (isClickable) null else contentDescription,
                 modifier = Modifier
                     .padding(padding)
                     .clip(CircleShape)

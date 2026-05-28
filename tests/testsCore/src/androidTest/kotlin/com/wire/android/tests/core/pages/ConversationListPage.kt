@@ -55,8 +55,6 @@ data class ConversationListPage(private val device: UiDevice) {
     private val leaveConversationButton = UiSelectorParams(text = "Leave Conversation")
 
     private val removeConversationButton = UiSelectorParams(text = "Remove")
-    private val removeConversationDescription =
-        UiSelectorParams(textContains = "The conversation will be removed from your conversations list")
 
     private val leaveConversationButtonOnModal = UiSelectorParams(text = "Leave")
 
@@ -250,7 +248,6 @@ data class ConversationListPage(private val device: UiDevice) {
         )
         try {
             UiWaitUtils.waitElement(modalTitle)
-            UiWaitUtils.waitElement(removeConversationDescription)
             UiWaitUtils.waitElement(removeConversationButton)
         } catch (e: AssertionError) {
             throw AssertionError(

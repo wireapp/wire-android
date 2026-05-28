@@ -30,6 +30,8 @@ import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.DateTimeUnit
@@ -70,7 +72,7 @@ val CurrentTimeProvider.ongoingAttendingOneOnOneMeeting
         )
     )
 
-private val avatars = listOf(
+private val avatars = persistentListOf(
     UserAvatarData(nameBasedAvatar = NameBasedAvatar(fullName = "Alice", accentColor = 1)),
     UserAvatarData(),
     UserAvatarData(nameBasedAvatar = NameBasedAvatar(fullName = "Bob", accentColor = 2)),
@@ -179,7 +181,7 @@ val CurrentTimeProvider.pastMeetingMocks
             meetingId = "past6",
             conversationId = ConversationId("cid", "domain"),
             title = "Ended Groupless Meeting",
-            belongingType = BelongingType.Groupless(avatars = avatars.take(2), limit = 5),
+            belongingType = BelongingType.Groupless(avatars = avatars.take(2).toPersistentList(), limit = 5),
             selfRole = MeetingItem.SelfRole.Admin,
             status = Status.Scheduled(
                 startTime = currentTime().minus(3.days).minus(60.minutes),
@@ -222,7 +224,7 @@ val CurrentTimeProvider.nextMeetingMocks
             meetingId = "next4",
             conversationId = ConversationId("cid", "domain"),
             title = "Scheduled Groupless Meeting",
-            belongingType = BelongingType.Groupless(avatars = avatars.take(2), limit = 5),
+            belongingType = BelongingType.Groupless(avatars = avatars.take(2).toPersistentList(), limit = 5),
             selfRole = MeetingItem.SelfRole.Admin,
             status = Status.Scheduled(
                 startTime = currentTime().plus(3.days).minus(60.minutes),

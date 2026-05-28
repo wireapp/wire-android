@@ -22,6 +22,7 @@ import androidx.annotation.StringRes
 import com.wire.android.feature.meetings.R
 import com.wire.android.model.UserAvatarData
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.Instant
 import kotlinx.parcelize.Parcelize
 import kotlin.time.Duration
@@ -49,7 +50,7 @@ data class MeetingItem(
         data class Group(val name: String) : BelongingType
         data class Channel(val name: String, val isPrivateChannel: Boolean) : BelongingType
         data class OneOnOne(val username: String, val avatar: UserAvatarData) : BelongingType
-        data class Groupless(val avatars: List<UserAvatarData>, val limit: Int = GROUPLESS_AVATARS_LIMIT) : BelongingType
+        data class Groupless(val avatars: ImmutableList<UserAvatarData>, val limit: Int = GROUPLESS_AVATARS_LIMIT) : BelongingType
     }
 
     sealed interface Status {

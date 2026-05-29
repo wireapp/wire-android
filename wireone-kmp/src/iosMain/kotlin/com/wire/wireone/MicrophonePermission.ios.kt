@@ -14,4 +14,3 @@ internal actual suspend fun requestMicrophonePermissionIfNeeded(): Boolean {
         }
     }
 }
-

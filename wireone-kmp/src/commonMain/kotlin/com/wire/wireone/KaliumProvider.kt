@@ -169,69 +169,79 @@ internal open class CoreLogicKaliumProvider(
 
     override suspend fun joinCall(): Boolean {
         val state = mutableState.value
-        val activeUserId = state.activeUserId ?: return false
-        val conversationId = state.selectedConversationId ?: return false
-
-        return runCatching {
-            if (!requestMicrophonePermissionIfNeeded()) {
-                mutableState.update { it.copy(errorLine = "Microphone permission denied.") }
-                return false
-            }
-            coreLogic.getSessionScope(activeUserId).calls.startCall(conversationId = conversationId, callType = CallType.AUDIO)
-            mutableState.update { it.copy(runtimeLine = "Kalium: joined call", errorLine = null) }
-            true
-        }.getOrElse { error ->
-            mutableState.update { it.copy(errorLine = "Join call failed: ${error.message ?: error::class.simpleName}") }
+        val activeUserId = state.activeUserId
+        val conversationId = state.selectedConversationId
+        return if (activeUserId == null || conversationId == null) {
             false
+        } else if (!requestMicrophonePermissionIfNeeded()) {
+            mutableState.update { it.copy(errorLine = "Microphone permission denied.") }
+            false
+        } else {
+            runCatching {
+                coreLogic.getSessionScope(activeUserId).calls.startCall(conversationId = conversationId, callType = CallType.AUDIO)
+                mutableState.update { it.copy(runtimeLine = "Kalium: joined call", errorLine = null) }
+                true
+            }.getOrElse { error ->
+                mutableState.update { it.copy(errorLine = "Join call failed: ${error.message ?: error::class.simpleName}") }
+                false
+            }
         }
     }
 
     override suspend fun answerCall(): Boolean {
         val state = mutableState.value
-        val activeUserId = state.activeUserId ?: return false
-        val conversationId = state.selectedConversationId ?: return false
-
-        return runCatching {
-            if (!requestMicrophonePermissionIfNeeded()) {
-                mutableState.update { it.copy(errorLine = "Microphone permission denied.") }
-                return false
-            }
-            coreLogic.getSessionScope(activeUserId).calls.answerCall(conversationId)
-            mutableState.update { it.copy(runtimeLine = "Kalium: answered call", errorLine = null) }
-            true
-        }.getOrElse { error ->
-            mutableState.update { it.copy(errorLine = "Answer call failed: ${error.message ?: error::class.simpleName}") }
+        val activeUserId = state.activeUserId
+        val conversationId = state.selectedConversationId
+        return if (activeUserId == null || conversationId == null) {
             false
+        } else if (!requestMicrophonePermissionIfNeeded()) {
+            mutableState.update { it.copy(errorLine = "Microphone permission denied.") }
+            false
+        } else {
+            runCatching {
+                coreLogic.getSessionScope(activeUserId).calls.answerCall(conversationId)
+                mutableState.update { it.copy(runtimeLine = "Kalium: answered call", errorLine = null) }
+                true
+            }.getOrElse { error ->
+                mutableState.update { it.copy(errorLine = "Answer call failed: ${error.message ?: error::class.simpleName}") }
+                false
+            }
         }
     }
 
     override suspend fun rejectCall(): Boolean {
         val state = mutableState.value
-        val activeUserId = state.activeUserId ?: return false
-        val conversationId = state.selectedConversationId ?: return false
-
-        return runCatching {
-            coreLogic.getSessionScope(activeUserId).calls.rejectCall(conversationId)
-            mutableState.update { it.copy(runtimeLine = "Kalium: rejected call", errorLine = null) }
-            true
-        }.getOrElse { error ->
-            mutableState.update { it.copy(errorLine = "Reject call failed: ${error.message ?: error::class.simpleName}") }
+        val activeUserId = state.activeUserId
+        val conversationId = state.selectedConversationId
+        return if (activeUserId == null || conversationId == null) {
             false
+        } else {
+            runCatching {
+                coreLogic.getSessionScope(activeUserId).calls.rejectCall(conversationId)
+                mutableState.update { it.copy(runtimeLine = "Kalium: rejected call", errorLine = null) }
+                true
+            }.getOrElse { error ->
+                mutableState.update { it.copy(errorLine = "Reject call failed: ${error.message ?: error::class.simpleName}") }
+                false
+            }
         }
     }
 
     override suspend fun endCall(): Boolean {
         val state = mutableState.value
-        val activeUserId = state.activeUserId ?: return false
-        val conversationId = state.selectedConversationId ?: return false
-
-        return runCatching {
-            coreLogic.getSessionScope(activeUserId).calls.endCall(conversationId)
-            mutableState.update { it.copy(runtimeLine = "Kalium: ended call", errorLine = null) }
-            true
-        }.getOrElse { error ->
-            mutableState.update { it.copy(errorLine = "End call failed: ${error.message ?: error::class.simpleName}") }
+        val activeUserId = state.activeUserId
+        val conversationId = state.selectedConversationId
+        return if (activeUserId == null || conversationId == null) {
             false
+        } else {
+            runCatching {
+                coreLogic.getSessionScope(activeUserId).calls.endCall(conversationId)
+                mutableState.update { it.copy(runtimeLine = "Kalium: ended call", errorLine = null) }
+                true
+            }.getOrElse { error ->
+                mutableState.update { it.copy(errorLine = "End call failed: ${error.message ?: error::class.simpleName}") }
+                false
+            }
         }
     }
 

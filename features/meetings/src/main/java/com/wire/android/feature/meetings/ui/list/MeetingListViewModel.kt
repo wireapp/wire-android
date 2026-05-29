@@ -48,6 +48,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
@@ -88,8 +89,7 @@ class MeetingListViewModelImpl @AssistedInject constructor(
         while (currentCoroutineContext().isActive) {
             val currentTime = currentTimeProvider()
             emit(currentTime)
-            // Calculate ms remaining until the next exact minute to align emissions with full minutes
-            delay(60_000 - (currentTime.toEpochMilliseconds() % 60_000))
+            delay(currentTime.millisToNextFullMinute())
         }
     }
 
@@ -149,6 +149,9 @@ private fun generateHeader(
         else -> null
     }
 }
+
+@Suppress("MagicNumber")
+private fun Instant.millisToNextFullMinute(): Long = 60_000L - (this.toEpochMilliseconds() % 60_000L)
 
 /** Extension function to create a header time at the start of the hour of the meeting's start time. */
 private fun LocalDateTime.headerDayHourTime() = date.atTime(hour, 0, 0).toInstant(TimeZone.currentSystemDefault())

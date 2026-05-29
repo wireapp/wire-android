@@ -35,7 +35,6 @@ fun Meeting.toMeetingItem(time: Instant): MeetingItem = MeetingItem(
         startTime > time && endTime != null -> Status.Scheduled(startTime = startTime, endTime = endTime)
         startTime < time && endTime != null && endTime + BUFFER_TIME < time -> Status.Ended(startTime = startTime, endTime = endTime)
         else -> Status.Ongoing(startTime = startTime, scheduledEndTime = endTime, ongoingCallStatus = ongoingCallStatus)
-
     },
     selfRole = selfRole,
 )

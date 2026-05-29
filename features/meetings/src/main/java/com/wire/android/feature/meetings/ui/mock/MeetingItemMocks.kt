@@ -1,3 +1,4 @@
+@file:Suppress("MagicNumber")
 /*
  * Wire
  * Copyright (C) 2025 Wire Swiss GmbH
@@ -38,9 +39,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
@@ -270,7 +269,6 @@ class MeetingMocksProvider(val currentTimeProvider: CurrentTimeProvider) {
     fun getItem(meetingId: String): MeetingItem? =
         (currentTimeProvider.pastMeetingMocks + currentTimeProvider.nextMeetingMocks).find { it.meetingId == meetingId }
 
-    @Suppress("MagicNumber")
     fun getPagingSource(type: MeetingsTabItem, showingAll: Boolean) = object : PagingSource<Int, Meeting>() {
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Meeting> {
             val items = getItems(showingAll = showingAll, type = type).map { it.toMeeting() }
@@ -315,14 +313,14 @@ class MeetingMocksProvider(val currentTimeProvider: CurrentTimeProvider) {
     }
 
     companion object {
-        val Default by lazy { MeetingMocksProvider(CurrentTimeProvider.Default) } // time initialized when accessed for the first time
+        val Default by lazy {
+            MeetingMocksProvider(CurrentTimeProvider.Default) // time initialized when accessed for the first time
+        }
     }
 }
 
 // remove seconds and milliseconds from Instant for better readability in the UI
 private fun Instant.fullMinutes() = this.minus(this.toEpochMilliseconds() % 60_000, DateTimeUnit.MILLISECOND)
-
-private fun LocalDateTime.startOfDay() = this.date.atStartOfDayIn(TimeZone.currentSystemDefault())
 
 // temporary entity class to be used until we have a real data source to fetch meetings from kalium
 data class Meeting(

@@ -30,7 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
+import com.wire.android.feature.cells.ui.renameNodeViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.FILE_NAME_MAX_COUNT
 import com.wire.android.feature.cells.ui.common.FileNameError
@@ -65,7 +65,7 @@ import com.wire.android.ui.theme.wireDimensions
 fun RenameNodeScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    renameNodeViewModel: RenameNodeViewModel = wireViewModel()
+    renameNodeViewModel: RenameNodeViewModel = renameNodeViewModel()
 ) {
     val context = LocalContext.current
 

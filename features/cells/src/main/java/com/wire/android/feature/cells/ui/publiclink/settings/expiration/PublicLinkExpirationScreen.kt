@@ -39,7 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
+import com.wire.android.feature.cells.ui.publicLinkExpirationScreenViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
@@ -72,7 +72,7 @@ import kotlinx.parcelize.Parcelize
 internal fun PublicLinkExpirationScreen(
     resultNavigator: ResultBackNavigator<PublicLinkExpirationResult>,
     modifier: Modifier = Modifier,
-    viewModel: PublicLinkExpirationScreenViewModel = wireViewModel(),
+    viewModel: PublicLinkExpirationScreenViewModel = publicLinkExpirationScreenViewModel(),
 ) {
 
     val state by viewModel.state.collectAsState()

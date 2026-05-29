@@ -20,8 +20,10 @@ package com.wire.android.di.metro
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -55,6 +57,32 @@ inline fun <reified Graph, reified VM> metroViewModel(
         viewModelFactory {
             initializer {
                 graph.create()
+            }
+        }
+    }
+    return viewModel(
+        modelClass = VM::class,
+        viewModelStoreOwner = viewModelStoreOwner,
+        key = key,
+        factory = factory,
+    )
+}
+
+@Composable
+inline fun <reified Graph, reified VM> metroSavedStateViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
+    key: String? = null,
+    crossinline create: Graph.(SavedStateHandle) -> VM,
+): VM where Graph : MetroViewModelGraph, VM : ViewModel {
+    val graph = checkNotNull(LocalMetroViewModelGraph.current as? Graph) {
+        "No Metro graph matching ${Graph::class.qualifiedName} was provided"
+    }
+    val factory = remember(graph) {
+        viewModelFactory {
+            initializer {
+                graph.create(createSavedStateHandle())
             }
         }
     }

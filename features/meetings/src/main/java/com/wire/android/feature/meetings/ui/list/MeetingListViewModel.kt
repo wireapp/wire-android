@@ -31,10 +31,6 @@ import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,16 +62,10 @@ class MeetingListViewModelPreview(
         MutableStateFlow(PagingData.from(meetingMocksProvider.getItems(showingAll, type).insertHeaders(type)))
 }
 
-@HiltViewModel(assistedFactory = MeetingListViewModelImpl.Factory::class)
-class MeetingListViewModelImpl @AssistedInject constructor(
-    @Assisted val type: MeetingsTabItem,
+class MeetingListViewModelImpl(
+    val type: MeetingsTabItem,
     dispatcher: DispatcherProvider,
 ) : ViewModel(), MeetingListViewModel {
-    @AssistedFactory
-    interface Factory {
-        fun create(type: MeetingsTabItem): MeetingListViewModelImpl
-    }
-
     override val isShowingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
     private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default) // TODO replace with real data source
     override val meetings: Flow<PagingData<MeetingListItem>> = isShowingAll

@@ -74,8 +74,8 @@ import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.assistedViewModels
-import com.wire.android.di.metro.ImageAssetViewModelGraphBridgeViewModel
 import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.WireActivityViewModelGraphBridge
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
@@ -256,7 +256,7 @@ class WireActivity : BaseActivity() {
     private fun setComposableContent(startDestination: Direction) {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
-            val imageAssetViewModelGraph = wireViewModel<ImageAssetViewModelGraphBridgeViewModel>()
+            val wireActivityViewModelGraph = wireViewModel<WireActivityViewModelGraphBridge>()
 
             HandleThemeChanges(viewModel.globalAppState.themeOption)
 
@@ -265,7 +265,7 @@ class WireActivity : BaseActivity() {
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
                 LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelGraph provides imageAssetViewModelGraph,
+                LocalMetroViewModelGraph provides wireActivityViewModelGraph,
                 LocalActivity provides this
             ) {
                 WireTheme(accent = viewModel.globalAppState.userAccent) {

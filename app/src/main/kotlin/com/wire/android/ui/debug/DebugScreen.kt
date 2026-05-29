@@ -99,6 +99,8 @@ internal fun UserDebugContent(
     onFlushLogs: () -> Deferred<Unit>,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
+    debugDataOptionsViewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel(),
+    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel(),
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
 
@@ -134,9 +136,10 @@ internal fun UserDebugContent(
                     onCopyText = debugContentState::copyToClipboard,
                     onShowFeatureFlags = onShowFeatureFlags,
                     onShowCryptoStats = onShowCryptoStats,
+                    viewModel = debugDataOptionsViewModel,
                 )
                 if (BuildConfig.PRIVATE_BUILD) {
-                    DangerOptions()
+                    DangerOptions(exportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel)
                 }
             }
         }

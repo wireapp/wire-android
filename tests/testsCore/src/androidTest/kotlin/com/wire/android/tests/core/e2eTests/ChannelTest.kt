@@ -35,12 +35,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.test.inject
 import service.TestServiceHelper
+import service.userSendsGenericMessageToConversation
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.iSeeSystemMessageContainingAll
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
 import user.utils.ClientUser
 import kotlin.time.Duration.Companion.seconds
 
+@Suppress("LargeClass")
 @RunWith(AndroidJUnit4::class)
 class ChannelTest : BaseUiTest() {
     private val pages: AllPages by inject()
@@ -64,7 +66,7 @@ class ChannelTest : BaseUiTest() {
 
     @After
     fun tearDown() {
-         cleanupCreatedUsers(backendClient, teamHelper.usersManager)
+          cleanupCreatedUsers(backendClient, teamHelper.usersManager)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -330,7 +332,7 @@ class ChannelTest : BaseUiTest() {
             teamHelper.userEnablesChannelFeatureForTeam("user1Name", "LeaveChannel", backendClient)
         }
 
-        step("User TeamOwner adds users Member1,Member2 to team ChannelCreation with role Member") {
+        step("User TeamOwner adds users Member1,Member2 to team LeaveChannel with role Member") {
             teamHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -550,6 +552,268 @@ class ChannelTest : BaseUiTest() {
         step("And I do not see the message Hello Again in current conversation") {
             pages.conversationViewPage.apply {
                 assertMessageNotVisible("Hello Again")
+            }
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-8724", "TC-8725", "TC-8727")
+    @Category("channels", "regression", "RC")
+    @Test
+    fun givenChannelConversationDeleted_whenSendingAndReceivingMessages_thenMessagesAreSentAndReceivedSuccessfully() {
+        step("There is TeamOwner with team DeleteChannel on Staging backend") {
+            teamHelper.usersManager.createTeamOwnerByAlias(
+                "user1Name",
+                "DeleteChannel",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+        }
+
+        step("User TeamOwner configures MLS for team DeleteChannel") {
+            teamHelper.userConfiguresMLSForTeam("user1Name", "DeleteChannel", backendClient)
+        }
+
+        step("TeamOwner enables channel feature for team DeleteChannel via backdoor") {
+            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "DeleteChannel", backendClient)
+        }
+
+        step("User TeamOwner adds users Member1,Member2 to team DeleteChannel with role Member") {
+            teamHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name,user3Name",
+                "DeleteChannel",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+        }
+
+        step("Register sender device and send connection request to receiver via backend") {
+            testServiceHelper.apply {
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device2")
+            }
+        }
+        step("TeamOwner has channel conversation Delete in team DeleteChannel") {
+            testServiceHelper.userHasChannelConversationInTeam(
+                "user1Name",
+                "Delete",
+                "DeleteChannel"
+            )
+        }
+
+        step("User TeamOwner is me") {
+            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+        }
+
+        step("User Member1 and Member2 are available for channel participant selection") {
+            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
+            member2 = teamHelper.usersManager.findUserByNameOrNameAlias("user3Name")
+        }
+
+        step("And I see welcome screen before login") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+        }
+
+        step("And I open staging deep link login flow") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+            }
+        }
+
+        step("And I login as TeamOwner") {
+            pages.loginPage.apply {
+                enterTeamOwnerLoggingEmail(teamOwner.email ?: "")
+                clickLoginButton()
+                enterTeamOwnerLoggingPassword(teamOwner.password ?: "")
+                clickLoginButton()
+            }
+        }
+
+        step("And I complete post-login permission and privacy prompts") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+
+        step("And I see conversation Delete in conversation list") {
+            pages.conversationListPage.apply {
+                assertChannelConversationVisible("Delete")
+            }
+        }
+
+        step("When I tap on conversation name Delete in conversation list") {
+            pages.conversationListPage.apply {
+                clickChannelConversation("Delete")
+            }
+        }
+
+        step("And I tap on channel conversation title Delete to open group details") {
+            pages.conversationViewPage.apply {
+                UiWaitUtils.waitFor(1.seconds)
+                clickOnChannelConversationDetails("Delete")
+            }
+        }
+
+        step("And I open participants tab and start add participant flow") {
+            pages.groupConversationDetailsPage.apply {
+                tapOnParticipantsTab()
+                tapAddParticipantsButton()
+            }
+        }
+
+        step("And I select Member1 and Member2 from participant suggestions") {
+            pages.groupConversationDetailsPage.apply {
+                assertUsernameInSuggestionsListIs(member1.name ?: "")
+                selectUserInSuggestionList(member1.name ?: "")
+                assertUsernameInSuggestionsListIs(member2.name ?: "")
+                selectUserInSuggestionList(member2.name ?: "")
+                tapContinueButton()
+            }
+        }
+
+        step("And I verify Member1 and Member2 are added to participants list and click close button") {
+            pages.groupConversationDetailsPage.apply {
+                assertUsernameIsAddedToParticipantsList(member1.name ?: "")
+                assertUsernameIsAddedToParticipantsList(member2.name ?: "")
+                tapCloseButtonOnGroupConversationDetailsPage()
+            }
+        }
+
+        step("And I tap on channel conversation title Delete to open group details") {
+            pages.conversationViewPage.apply {
+                UiWaitUtils.waitFor(1.seconds)
+                clickOnChannelConversationDetails("Delete")
+            }
+        }
+
+        step("And I see Delete as channel name") {
+            pages.groupConversationDetailsPage.apply {
+                assertChannelNameVisible("Delete")
+            }
+        }
+
+        step("And I tap on Delete channel name") {
+            pages.groupConversationDetailsPage.apply {
+                tapOnChannelName("Delete")
+            }
+        }
+
+        // TC-8724- I want to be able to change channel group name as a Team owner
+
+        step("When I change channel name to NewDelete as new channel name") {
+            pages.groupConversationDetailsPage.apply {
+                changeChannelName("NewDelete")
+            }
+        }
+
+        step("Then I see NewDelete as channel name") {
+            pages.groupConversationDetailsPage.apply {
+                assertChannelNameVisible("NewDelete")
+            }
+        }
+
+        step("And I see conversation is renamed toast message") {
+            waitUntilToastIsDisplayed("Conversation renamed")
+        }
+
+        step("When I tap show more options button") {
+            pages.groupConversationDetailsPage.apply {
+                tapShowMoreOptionsButton()
+            }
+        }
+
+        step("And I tap Delete Conversation button") {
+            pages.groupConversationDetailsPage.apply {
+                tapDeleteConversationButton()
+            }
+        }
+
+        step("And I tap Remove Conversation button in remove conversation confirmation modal") {
+            pages.groupConversationDetailsPage.apply {
+                tapRemoveGroupButton()
+            }
+        }
+
+        step("Then I see removed toast message for NewDelete") {
+            waitUntilToastIsDisplayed("“NewDelete” removed")
+        }
+
+        step("Then I do not see conversation NewDelete in conversation list") {
+            pages.conversationListPage.apply {
+                assertConversationNotVisible("NewDelete")
+            }
+        }
+
+        // TC-8727 I want to be able to receive and send messages after I deleted a channel conversation
+
+        step("And I start a new conversation flow") {
+            pages.conversationListPage.apply {
+                tapStartNewConversationButton()
+            }
+        }
+
+        step("And I search for Member1 and start 1:1 conversation") {
+            pages.searchPage.apply {
+                tapSearchPeopleField()
+                typeUniqueUserNameInSearchField(teamHelper, "user2Name")
+                tapUsernameInSearchResult(member1.name ?: "")
+            }
+            pages.connectedUserProfilePage.apply {
+                clickStartConversationButton()
+            }
+        }
+
+        step("And I send message Hello Team member in the new 1:1 conversation") {
+            pages.conversationViewPage.apply {
+                typeMessageInInputField("Hello Team member")
+                clickSendButton()
+                assertSentMessageIsVisibleInCurrentConversation("Hello Team member")
+                tapBackButtonToCloseConversationViewPage()
+            }
+        }
+
+        step("And I close the connected user profile page") {
+            pages.connectedUserProfilePage.apply {
+                tapCloseButtonOnConnectedUserProfilePage()
+            }
+        }
+
+        step("And I close the search input field") {
+            pages.searchPage.apply {
+                clickCloseButtonOnSearchInputField()
+            }
+        }
+
+        step("And I close new conversation flow and return to conversation list") {
+            pages.conversationListPage.apply {
+                clickCloseButtonOnNewConversationScreen()
+            }
+        }
+
+        step("And Member1 sends message Hello team owner to TeamOwner via backend") {
+            testServiceHelper.apply {
+                userSendsGenericMessageToConversation(
+                    "user2Name",
+                    "user1Name",
+                    "Device1",
+                    "Hello team owner"
+                )
+            }
+        }
+
+        step("Then I see conversation with Member1 has 1 unread message in conversation list") {
+            pages.conversationListPage.apply {
+                assertConversationHasUnreadMessagesCount(member1.name ?: "", "1")
             }
         }
     }

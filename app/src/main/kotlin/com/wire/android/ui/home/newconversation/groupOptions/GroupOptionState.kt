@@ -29,5 +29,6 @@ data class GroupOptionState(
     val showAllowGuestsDialog: Boolean = false,
     // feature flag for allowing apps usage for the team
     val isTeamAllowedToUseApps: AppsAllowedResult = AppsAllowedResult.Disabled,
+    val shouldShowNewAppsUi: Boolean = false,
     val isWireCellsEnabled: Boolean? = null,
 )

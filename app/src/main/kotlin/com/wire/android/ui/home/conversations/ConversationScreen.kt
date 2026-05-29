@@ -92,6 +92,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryS
 import com.ramcosta.composedestinations.generated.app.destinations.MessageDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.ramcosta.composedestinations.result.NavResult.Canceled
 import com.ramcosta.composedestinations.result.NavResult.Value
@@ -171,6 +172,7 @@ import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.messages.item.SwipeableMessageConfiguration
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
+import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
@@ -191,6 +193,7 @@ import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialo
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.openDownloadFolder
@@ -206,6 +209,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.data.user.type.isInternal
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
@@ -497,15 +501,37 @@ fun ConversationScreen(
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
         attachments = messageAttachmentsViewModel.attachments,
-        onOpenProfile = {
+        onOpenProfile = { senderId: MessageSenderId ->
             with(conversationInfoViewModel) {
-                val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(it)
-                if (isSelfUser) {
-                    navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-                } else {
-                    (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId.let {
-                        navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(mentionUserId, it)))
+                val route = when (senderId) {
+                    is MessageSenderId.Bot -> ServiceDetailsScreenDestination(
+                        null,
+                        ServiceDetailsNavArgs.Id.BotServiceId(senderId.botService)
+                    )
+
+                    is MessageSenderId.App -> ServiceDetailsScreenDestination(
+                        null,
+                        ServiceDetailsNavArgs.Id.AppId(senderId.appId)
+                    )
+
+                    is MessageSenderId.User -> {
+                        val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(senderId.id.toString())
+                        if (isSelfUser) {
+                            SelfUserProfileScreenDestination
+                        } else {
+                            (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)
+                                ?.conversationId?.let { conversationId ->
+                                    OtherUserProfileScreenDestination(
+                                        mentionUserId,
+                                        conversationId
+                                    )
+                            }
+                        }
                     }
+                }
+
+                route?.let {
+                    navigator.navigate(NavigationCommand(it))
                 }
             }
         },
@@ -601,16 +627,37 @@ fun ConversationScreen(
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = {
             with(conversationInfoViewModel) {
-                when (val data = conversationInfoViewState.conversationDetailsData) {
-                    is ConversationDetailsData.OneOne ->
-                        navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(data.otherUserId)))
+                val route = when (val data = conversationInfoViewState.conversationDetailsData) {
+                    is ConversationDetailsData.OneOne -> {
+                        val botService = data.botService
+                        when {
+                            botService != null ->
+                                ServiceDetailsScreenDestination(
+                                    null,
+                                    ServiceDetailsNavArgs.Id.BotServiceId(botService)
+                                )
+
+                            data.userType == UserTypeInfo.App ->
+                                ServiceDetailsScreenDestination(
+                                    null,
+                                    ServiceDetailsNavArgs.Id.AppId(data.otherUserId)
+                                )
+
+                            else -> OtherUserProfileScreenDestination(data.otherUserId)
+                        }
+                    }
 
                     is ConversationDetailsData.Group ->
-                        navigator.navigate(NavigationCommand(GroupConversationDetailsScreenDestination(conversationId)))
+                        GroupConversationDetailsScreenDestination(conversationId)
 
                     is ConversationDetailsData.None -> {
                         /* do nothing */
+                        null
                     }
+                }
+
+                route?.let {
+                    navigator.navigate(NavigationCommand(it))
                 }
             }
         },
@@ -915,7 +962,7 @@ private fun ConversationScreen(
     conversationMessagesViewState: ConversationMessagesViewState,
     attachments: List<AttachmentDraftUi>,
     bottomSheetVisible: Boolean,
-    onOpenProfile: (String) -> Unit,
+    onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
@@ -1123,7 +1170,7 @@ private fun ConversationScreenContent(
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onOpenProfile: (String) -> Unit,
+    onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onShowEditingOptions: (UIMessage.Regular) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,

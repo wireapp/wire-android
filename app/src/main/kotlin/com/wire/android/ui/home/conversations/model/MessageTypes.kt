@@ -99,7 +99,7 @@ internal fun MessageBody(
     messageBody: MessageBody?,
     isAvailable: Boolean,
     accent: Accent,
-    onOpenProfile: (String) -> Unit,
+    onOpenProfile: (senderId: MessageSenderId) -> Unit,
     buttonList: PersistentList<MessageButton>?,
     onLinkClick: (String) -> Unit,
     searchQuery: String = "",

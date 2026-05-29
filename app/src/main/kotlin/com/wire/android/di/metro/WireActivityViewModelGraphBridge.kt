@@ -22,6 +22,8 @@ import com.wire.android.feature.cells.ui.CellsViewModelFactory
 import com.wire.android.feature.cells.ui.CellsViewModelGraph
 import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
+import com.wire.android.ui.authentication.AuthenticationViewModelFactory
+import com.wire.android.ui.authentication.AuthenticationViewModelGraph
 import com.wire.android.ui.debug.DebugInfoViewModelFactory
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
 import com.wire.android.ui.home.settings.SettingsViewModelFactory
@@ -38,14 +40,23 @@ import javax.inject.Provider
 class WireActivityViewModelGraphBridge @Inject constructor(
     imageLoader: Provider<WireSessionImageLoader>,
     private val cellsViewModelFactoryProvider: Provider<CellsViewModelFactory>,
+    private val authenticationViewModelFactoryProvider: Provider<AuthenticationViewModelFactory>,
     private val debugInfoViewModelFactoryProvider: Provider<DebugInfoViewModelFactory>,
     private val settingsViewModelFactoryProvider: Provider<SettingsViewModelFactory>,
-) : ViewModel(), ImageAssetViewModelGraph, CellsViewModelGraph, DebugInfoViewModelGraph, SettingsViewModelGraph {
+) : ViewModel(),
+    ImageAssetViewModelGraph,
+    CellsViewModelGraph,
+    AuthenticationViewModelGraph,
+    DebugInfoViewModelGraph,
+    SettingsViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
 
     override val cellsViewModelFactory: CellsViewModelFactory
         get() = cellsViewModelFactoryProvider.get()
+
+    override val authenticationViewModelFactory: AuthenticationViewModelFactory
+        get() = authenticationViewModelFactoryProvider.get()
 
     override val debugInfoViewModelFactory: DebugInfoViewModelFactory
         get() = debugInfoViewModelFactoryProvider.get()

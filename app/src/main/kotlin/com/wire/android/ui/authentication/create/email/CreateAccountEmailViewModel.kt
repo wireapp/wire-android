@@ -33,13 +33,11 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // TODO: Cover this viewModel  with unit test
-@HiltViewModel
 class CreateAccountEmailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validateEmail: ValidateEmailUseCase,

@@ -49,7 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -121,7 +121,7 @@ fun OtherUserProfileScreen(
     resultNavigator: ResultBackNavigator<String>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    viewModel: OtherUserProfileScreenViewModel = hiltViewModel()
+    viewModel: OtherUserProfileScreenViewModel = wireViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current
@@ -376,7 +376,11 @@ private fun TopBarCollapsing(
             UserProfileInfo(
                 userId = targetState.userId,
                 isLoading = targetState.isAvatarLoading,
-                avatarAsset = targetState.userAvatarAsset,
+                avatarAsset = targetState.userAvatarAsset
+                    .takeUnless {
+                        targetState.connectionState == ConnectionState.PENDING &&
+                                targetState.userId.domain == WIRE_DOMAIN
+                    },
                 fullName = targetState.fullName,
                 userName = targetState.userName,
                 teamName = targetState.teamName,
@@ -546,6 +550,8 @@ fun ContentFooter(
         }
     }
 }
+
+private const val WIRE_DOMAIN = "wire.com"
 
 enum class OtherUserProfileTabItem(@StringRes val titleResId: Int) : TabItem {
     GROUP(R.string.user_profile_conversation_tab),

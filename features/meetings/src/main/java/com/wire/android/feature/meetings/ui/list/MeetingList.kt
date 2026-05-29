@@ -26,12 +26,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.wire.android.di.wireViewModel
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
@@ -52,7 +52,7 @@ fun MeetingList(
     openMeetingOptions: (meetingId: String) -> Unit = {},
     meetingListViewModel: MeetingListViewModel = when {
         LocalInspectionMode.current -> MeetingListViewModelPreview(CurrentTimeProvider.Preview, type)
-        else -> hiltViewModel<MeetingListViewModelImpl, MeetingListViewModelImpl.Factory>(
+        else -> wireViewModel<MeetingListViewModelImpl, MeetingListViewModelImpl.Factory>(
             key = "meeting_list_${type.name}",
             creationCallback = { factory ->
                 factory.create(type = type)

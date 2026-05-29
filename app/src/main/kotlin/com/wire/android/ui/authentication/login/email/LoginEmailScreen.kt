@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
@@ -284,6 +285,7 @@ fun ForgotPasswordLabel(
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
+                    role = Role.Button,
                     onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
                     onClickLabel = stringResource(R.string.content_description_open_link_label)
                 )

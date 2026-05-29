@@ -60,7 +60,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -115,10 +115,10 @@ fun HomeScreen(
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    homeViewModel: HomeViewModel = hiltViewModel(),
-    appSyncViewModel: AppSyncViewModel = hiltViewModel(),
-    homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
-    analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel(),
+    homeViewModel: HomeViewModel = wireViewModel(),
+    appSyncViewModel: AppSyncViewModel = wireViewModel(),
+    homeDrawerViewModel: HomeDrawerViewModel = wireViewModel(),
+    analyticsUsageViewModel: AnalyticsUsageViewModel = wireViewModel(),
 ) {
     val context = LocalContext.current
 
@@ -394,7 +394,7 @@ fun HomeContent(
                                             homeStateHolder.navigator.navController
                                                 .getBackStackEntry(HomeScreenDestination.route)
                                         }
-                                        dependency(hiltViewModel<CellViewModel>(parentEntry))
+                                        dependency(wireViewModel<CellViewModel>(parentEntry))
                                     }
                                 }
                             )

@@ -161,6 +161,10 @@ class NewMemberMessaging : BaseUiTest() {
                 tapCloseButtonOnConnectedUserProfilePage()
             }
 
+            pages.searchPage.apply {
+                clickCloseButtonOnSearchInputField()
+            }
+
             pages.conversationListPage.apply {
                 UiWaitUtils.waitFor(1.seconds)
                 clickCloseButtonOnNewConversationScreen()

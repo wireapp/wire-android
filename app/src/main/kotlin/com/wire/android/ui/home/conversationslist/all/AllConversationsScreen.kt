@@ -22,7 +22,7 @@ import com.wire.android.navigation.annotation.app.WireHomeDestination
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -45,7 +45,7 @@ import com.wire.kalium.logic.data.conversation.ConversationFilter
 fun AllConversationsScreen(
     homeStateHolder: HomeStateHolder,
     foldersViewModel: ConversationFoldersVM =
-        hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
+        wireViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
             creationCallback = { it.create(ConversationFoldersStateArgs(null)) }
         ),
 ) {
@@ -66,6 +66,8 @@ fun AllConversationsScreen(
                     is ConversationFilter.Channels -> ConversationsSource.CHANNELS
                 },
                 lazyListState = lazyListStateFor(HomeDestination.Conversations, filter),
+                emptySearchResultFocusRequester = emptySearchResultFocusRequester,
+                firstConversationFocusRequester = firstConversationFocusRequester,
                 emptyListContent = { ConversationsEmptyContent(filter = filter, navigator = navigator) }
             )
         }

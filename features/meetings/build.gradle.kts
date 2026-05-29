@@ -13,20 +13,12 @@ plugins {
 dependencies {
     implementation("com.wire.kalium:kalium-common")
     implementation("com.wire.kalium:kalium-logic")
+    implementation(project(":core:di"))
     implementation(project(":core:ui-common"))
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.ktx.immutableCollections)
     implementation(libs.ktx.serialization)
-
-    // hilt
-    implementation(libs.hilt.navigationCompose)
-    implementation(libs.hilt.work)
-
-    // smaller view models
-    implementation(libs.resaca.core)
-    implementation(libs.resaca.hilt)
-    implementation(libs.bundlizer.core)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

@@ -260,6 +260,7 @@
     <string name="label_copyright">Urheberrecht</string>
     <string name="item_dependencies_title">Abhängigkeiten:</string>
     <string name="support_screen_title">Hilfe</string>
+    <string name="report_misuse_screen_title">Missbrauch melden</string>
     <string name="backup_and_restore_screen_title">Unterhaltungen sichern &amp; wiederherstellen</string>
     <string name="search_bar_conversations_hint">Unterhaltungen suchen</string>
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
@@ -1025,7 +1026,9 @@
     <string name="notification_ongoing_call_content">Aktiver Anruf…</string>
     <string name="notification_group_channel_call_content">%s ruft an...</string>
     <string name="notification_call_default_caller_name">Jemand</string>
-    <string name="notification_call_default_group_name">Eingehender Gruppenanruf</string>
+    <string name="notification_incoming_call_default_group_name">Eingehender Gruppenanruf</string>
+    <string name="notification_ongoing_call_default_group_name">Laufender Gruppenanruf</string>
+    <string name="notification_outgoing_call_default_group_name">Ausgehender Gruppenanruf</string>
     <string name="notification_audio_message_body">Audionachricht</string>
     <string name="notification_deleting_conversation">Unterhaltung wird gelöscht…</string>
     <string name="notification_uploading_files">Dateien werden hochgeladen…</string>
@@ -1823,4 +1826,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_system_message_apps_access_enabled_by_other">%1$s hat **Apps** für diese Unterhaltung aktiviert</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s hat **Apps** für diese Unterhaltung deaktiviert</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Hinzugefügte Apps haben Zugriff auf den Inhalt dieser Unterhaltung.</string>
+    <string name="label_system_message_admin_role_assigned">Sie wurden zum Gruppen-Admin ernannt</string>
 </resources>

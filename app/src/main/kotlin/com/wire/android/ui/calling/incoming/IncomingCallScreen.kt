@@ -35,7 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -70,12 +70,12 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun IncomingCallScreen(
     conversationId: ConversationId,
     shouldTryToAnswerCallAutomatically: Boolean,
-    incomingCallViewModel: IncomingCallViewModel = hiltViewModel<IncomingCallViewModel, IncomingCallViewModel.Factory>(
+    incomingCallViewModel: IncomingCallViewModel = wireViewModel<IncomingCallViewModel, IncomingCallViewModel.Factory>(
         key = "incoming_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
     sharedCallingViewModel: SharedCallingViewModel =
-    hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+    wireViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
         key = "shared_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),

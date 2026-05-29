@@ -37,7 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
@@ -70,7 +70,7 @@ fun DebugDataOptions(
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
     viewModel: DebugDataOptionsViewModel =
-        hiltViewModelScoped<DebugDataOptionsViewModelImpl, DebugDataOptionsViewModel>()
+        wireViewModelScoped<DebugDataOptionsViewModelImpl, DebugDataOptionsViewModel>()
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     DebugDataOptionsContent(
@@ -86,6 +86,8 @@ fun DebugDataOptions(
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         dismissCertificateDialog = viewModel::dismissCertificateDialog,
         checkCrlRevocationList = viewModel::checkCrlRevocationList,
+        forceCRLExpirationAfterOneMinute = viewModel.state.forceCRLExpirationAfterOneMinute,
+        onForceCRLExpirationAfterOneMinuteChange = viewModel::forceCRLExpirationAfterOneMinute,
         onResendFCMToken = viewModel::forceSendFCMToken,
         onEnableAsyncNotificationsChange = viewModel::enableAsyncNotifications,
         onShowFeatureFlags = onShowFeatureFlags,
@@ -110,6 +112,8 @@ fun DebugDataOptionsContent(
     handleE2EIEnrollmentResult: (FinalizeEnrollmentResult) -> Unit,
     dismissCertificateDialog: () -> Unit,
     checkCrlRevocationList: () -> Unit,
+    forceCRLExpirationAfterOneMinute: Boolean,
+    onForceCRLExpirationAfterOneMinuteChange: (Boolean) -> Unit,
     onResendFCMToken: () -> Unit,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
@@ -248,6 +252,8 @@ fun DebugDataOptionsContent(
             onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
             onForceUpdateApiVersions = onForceUpdateApiVersions,
             checkCrlRevocationList = checkCrlRevocationList,
+            forceCRLExpirationAfterOneMinute = forceCRLExpirationAfterOneMinute,
+            onForceCRLExpirationAfterOneMinuteChange = onForceCRLExpirationAfterOneMinuteChange,
             onResendFCMToken = onResendFCMToken,
             isAsyncNotificationsEnabled = state.isAsyncNotificationsEnabled,
             onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
@@ -408,6 +414,8 @@ fun PreviewOtherDebugOptions() = WireTheme {
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
         checkCrlRevocationList = {},
+        forceCRLExpirationAfterOneMinute = false,
+        onForceCRLExpirationAfterOneMinuteChange = {},
         onResendFCMToken = {},
         onEnableAsyncNotificationsChange = {},
         onShowFeatureFlags = {},

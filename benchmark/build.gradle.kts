@@ -36,6 +36,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Required because :tests:testsSupport depends on java.time APIs.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     flavorDimensions += FlavorDimensions.DEFAULT
@@ -51,10 +53,20 @@ android {
     experimentalProperties["android.experimental.self-instrumenting"] = true
 
     buildTypes {
-        create("benchmark") {
+        // For baseline profile generation targeting prodCompatrelease.
+        // The benchmark module itself doesn't need minification (it's not shipped).
+        // What matters is that the app it targets is minified correctly.
+        create("compatrelease") {
             isDebuggable = true
+            isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("debug")
-            matchingFallbacks += listOf("release", "compatrelease")
+            matchingFallbacks += listOf("release")
+        }
+    }
+
+    sourceSets {
+        getByName("main") {
+            kotlin.directories.add(project(":tests:testsSupport").file("src/main").path)
         }
     }
 }
@@ -68,5 +80,11 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.test.uiAutomator)
     implementation(libs.androidx.benchmark.macro.junit4)
+    implementation(libs.datafaker)
+    implementation(libs.gson)
     implementation(libs.junit4)
+    implementation(libs.zxing.android.embedded)
+    implementation(libs.zxing.core)
+    implementation(project(":tests:testsSupport"))
+    coreLibraryDesugaring(libs.android.desugarJdkLibs)
 }

@@ -49,7 +49,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
@@ -89,8 +89,8 @@ import okio.Path.Companion.toPath
 fun ImagesPreviewScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<ImagesPreviewNavBackArgs>,
-    imagesPreviewViewModel: ImagesPreviewViewModel = hiltViewModel(),
-    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel()
+    imagesPreviewViewModel: ImagesPreviewViewModel = wireViewModel(),
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = wireViewModel()
 ) {
     LaunchedEffect(checkAssetRestrictionsViewModel.state) {
         with(checkAssetRestrictionsViewModel.state) {

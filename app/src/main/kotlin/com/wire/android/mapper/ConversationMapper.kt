@@ -149,7 +149,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
     is Connection -> {
         ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(
-                asset = conversationDetails.otherUser?.previewPicture?.let { UserAvatarAsset(it) },
+                asset = previewPictureAsset(conversationDetails),
                 availabilityStatus = conversationDetails.otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE,
                 nameBasedAvatar = NameBasedAvatar(conversationDetails.otherUser?.name, conversationDetails.otherUser?.accentId ?: -1)
             ),
@@ -242,4 +242,15 @@ private fun parseConversationEventType(
             else -> BadgeEventType.None
         }
     }
+}
+
+private const val WIRE_DOMAIN = "wire.com"
+
+private fun previewPictureAsset(connection: Connection): UserAvatarAsset? {
+    val otherUser = connection.otherUser ?: return null
+    val hidePicture = connection.connection.status == ConnectionState.PENDING &&
+            otherUser.id.domain == WIRE_DOMAIN
+    return otherUser.previewPicture
+        ?.takeUnless { hidePicture }
+        ?.let { UserAvatarAsset(it) }
 }

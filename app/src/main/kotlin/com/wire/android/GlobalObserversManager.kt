@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -67,8 +68,10 @@ class GlobalObserversManager @Inject constructor(
         scope.launch { setUpNotifications() }
         scope.launch {
             coreLogic.getGlobalScope().observeValidAccounts().distinctUntilChanged().collectLatest {
-                if (it.isNotEmpty()) {
-                    coreLogic.getSessionScope(it.first().first.id).calls.endCallOnConversationChange()
+                coroutineScope {
+                    it.forEach {
+                        launch { coreLogic.getSessionScope(it.first.id).calls.endCallOnConversationChange() }
+                    }
                 }
             }
         }
@@ -107,7 +110,14 @@ class GlobalObserversManager @Inject constructor(
             .distinctUntilChanged()
             .collectLatest {
                 // create notification channels for all valid users
+                appLogger.i("GlobalObserversManager: creating notification channels for users: ${it.map { it.first.id }}")
                 notificationChannelsManager.createUserNotificationChannels(it.map { it.first })
+
+                if (it.isEmpty()) {
+                    appLogger.i("GlobalObserversManager: no valid users, stopping observing notifications")
+                    notificationManager.clearWhenNoUsers()
+                    return@collectLatest
+                }
 
                 // do not observe notifications for users with PersistentWebSocketEnabled, it will be done in PersistentWebSocketService
                 it.filter { (_, isPersistentWebSocketEnabled) -> !isPersistentWebSocketEnabled }

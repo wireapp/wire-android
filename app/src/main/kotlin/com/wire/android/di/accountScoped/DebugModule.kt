@@ -27,7 +27,9 @@ import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseC
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
+import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
+import com.wire.kalium.logic.feature.debug.SetDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import dagger.Module
 import dagger.Provides
@@ -93,6 +95,20 @@ class DebugModule {
     @Provides
     fun provideSetDebugE2EICertificateExpirationUseCase(debugScope: DebugScope): SetDebugE2EICertificateExpirationUseCase =
         debugScope.setDebugE2EICertificateExpiration
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveDebugCRLExpirationAfterOneMinuteUseCase(
+        debugScope: DebugScope
+    ): ObserveDebugCRLExpirationAfterOneMinuteUseCase =
+        debugScope.observeDebugCRLExpirationAfterOneMinute
+
+    @ViewModelScoped
+    @Provides
+    fun provideSetDebugCRLExpirationAfterOneMinuteUseCase(
+        debugScope: DebugScope
+    ): SetDebugCRLExpirationAfterOneMinuteUseCase =
+        debugScope.setDebugCRLExpirationAfterOneMinute
 
     @ViewModelScoped
     @Provides

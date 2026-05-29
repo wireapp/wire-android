@@ -42,6 +42,8 @@ import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
+import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
+import com.wire.kalium.logic.feature.debug.SetDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
@@ -287,6 +289,25 @@ class DebugDataOptionsViewModelTest {
         coVerify(exactly = 1) { arrangement.setDebugE2EICertificateExpiration(420) }
         assertEquals(420, viewModel.state.e2eiCertificateExpirationSeconds)
     }
+
+    @Test
+    fun `given CRL force expiration is observed, then view state contains loaded value`() = runTest {
+        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+            .withDebugCRLExpirationAfterOneMinute(true)
+            .arrange()
+
+        assertEquals(true, viewModel.state.forceCRLExpirationAfterOneMinute)
+    }
+
+    @Test
+    fun `when forcing CRL expiration after one minute, then setting use case is called`() = runTest {
+        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement().arrange()
+
+        viewModel.forceCRLExpirationAfterOneMinute(true)
+
+        coVerify(exactly = 1) { arrangement.setDebugCRLExpirationAfterOneMinute(true) }
+        coVerify(exactly = 1) { arrangement.checkCrlRevocationList(forceUpdate = true) }
+    }
 }
 
 internal class DebugDataOptionsHiltArrangement {
@@ -335,6 +356,12 @@ internal class DebugDataOptionsHiltArrangement {
     @MockK
     lateinit var setDebugE2EICertificateExpiration: SetDebugE2EICertificateExpirationUseCase
 
+    @MockK
+    lateinit var observeDebugCRLExpirationAfterOneMinute: ObserveDebugCRLExpirationAfterOneMinuteUseCase
+
+    @MockK
+    lateinit var setDebugCRLExpirationAfterOneMinute: SetDebugCRLExpirationAfterOneMinuteUseCase
+
     private val viewModel by lazy {
         DebugDataOptionsViewModelImpl(
             context = context,
@@ -352,7 +379,9 @@ internal class DebugDataOptionsHiltArrangement {
             observeAsyncNotificationsEnabled = observeIsConsumableNotificationsEnabled,
             repairFaultyRemovalKeys = repairFaultyRemovalKeysUseCase,
             getDebugE2EICertificateExpiration = getDebugE2EICertificateExpiration,
-            setDebugE2EICertificateExpiration = setDebugE2EICertificateExpiration
+            setDebugE2EICertificateExpiration = setDebugE2EICertificateExpiration,
+            observeDebugCRLExpirationAfterOneMinute = observeDebugCRLExpirationAfterOneMinute,
+            setDebugCRLExpirationAfterOneMinute = setDebugCRLExpirationAfterOneMinute
         )
     }
 
@@ -393,11 +422,17 @@ internal class DebugDataOptionsHiltArrangement {
             withObserveIsConsumableNotificationsEnabled(false)
             coEvery { getDebugE2EICertificateExpiration() } returns 360
             coEvery { setDebugE2EICertificateExpiration(any()) } returns Unit
+            every { observeDebugCRLExpirationAfterOneMinute() } returns flowOf(false)
+            coEvery { setDebugCRLExpirationAfterOneMinute(any()) } returns Unit
         }
     }
 
     fun withDebugE2EICertificateExpiration(expiration: Long) = apply {
         coEvery { getDebugE2EICertificateExpiration() } returns expiration
+    }
+
+    fun withDebugCRLExpirationAfterOneMinute(enabled: Boolean) = apply {
+        every { observeDebugCRLExpirationAfterOneMinute() } returns flowOf(enabled)
     }
 
     suspend fun withObserveIsConsumableNotificationsEnabled(isEnabled: Boolean = false) = apply {

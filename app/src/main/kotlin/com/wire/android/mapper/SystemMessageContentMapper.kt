@@ -52,7 +52,7 @@ class SystemMessageContentMapper @Inject constructor(
     fun mapMessage(
         message: Message.System,
         members: List<User>
-    ): UIMessageContent = when (val content = message.content) {
+    ): UIMessageContent? = when (val content = message.content) {
         is MemberChange -> mapMemberChangeMessage(content, message.senderUserId, members)
         is MessageContent.MissedCall -> mapMissedCallMessage(message.senderUserId, members)
         is MessageContent.ConversationRenamed -> mapConversationRenamedMessage(message.senderUserId, content, members)
@@ -231,7 +231,7 @@ class SystemMessageContentMapper @Inject constructor(
         content: MemberChange,
         senderUserId: UserId,
         userList: List<User>
-    ): UIMessageContent.SystemMessage {
+    ): UIMessageContent.SystemMessage? {
         val sender = userList.findUser(userId = senderUserId)
         val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first()
         val isSelfTriggered = sender is SelfUser
@@ -288,7 +288,12 @@ class SystemMessageContentMapper @Inject constructor(
                 memberNames = memberNameList
             )
 
-            is MemberChange.SelfUserPromotedToAdmin -> UIMessageContent.SystemMessage.SelfUserPromotedToAdmin
+            is MemberChange.UserPromotedToAdmin ->
+                if (content.members.any { userList.findUser(it) is SelfUser }) {
+                    UIMessageContent.SystemMessage.SelfUserPromotedToAdmin
+                } else {
+                    null
+                }
         }
     }
 

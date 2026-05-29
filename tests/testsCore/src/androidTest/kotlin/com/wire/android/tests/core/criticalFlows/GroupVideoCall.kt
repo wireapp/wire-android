@@ -228,10 +228,19 @@ class GroupVideoCall : BaseUiTest() {
             }
         }
 
-        step("And I close unconnected profile and return to conversation list") {
+        step("And I close unconnected profile") {
             pages.unconnectedUserProfilePage.apply {
                 clickCloseButtonOnUnconnectedUserProfilePage()
             }
+        }
+
+        step("And I close the search input field") {
+            pages.searchPage.apply {
+                clickCloseButtonOnSearchInputField()
+            }
+        }
+
+        step("And I close new conversation flow and return to conversation list") {
             pages.conversationListPage.apply {
                 clickCloseButtonOnNewConversationScreen()
             }

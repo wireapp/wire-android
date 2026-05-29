@@ -22,8 +22,10 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.wire.android.feature.meetings.mapper.toMeeting
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingItem.BelongingType
+import com.wire.android.feature.meetings.model.MeetingItem.SelfRole
 import com.wire.android.feature.meetings.model.MeetingItem.Status
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
@@ -35,7 +37,10 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
@@ -49,10 +54,11 @@ val CurrentTimeProvider.endedPrivateChannelMeeting
         conversationId = ConversationId("cid1", "domain"),
         title = "Ended Private Channel Meeting",
         belongingType = BelongingType.Channel(name = "Private Channel Name", isPrivateChannel = true),
+        repeatingInterval = null,
         selfRole = MeetingItem.SelfRole.Admin,
         status = Status.Ended(
-            startTime = currentTime().minus(1.days).minus(120.minutes),
-            endTime = currentTime().minus(1.days).minus(90.minutes),
+            startTime = currentTime().fullMinutes().minus(1.days).minus(120.minutes),
+            endTime = currentTime().fullMinutes().minus(1.days).minus(90.minutes),
         ),
     )
 
@@ -62,11 +68,13 @@ val CurrentTimeProvider.ongoingAttendingOneOnOneMeeting
         conversationId = ConversationId("cid2", "domain"),
         title = "Ongoing Attending 1:1 Meeting",
         belongingType = BelongingType.OneOnOne(username = "John Doe", avatar = UserAvatarData()),
+        repeatingInterval = null,
         selfRole = MeetingItem.SelfRole.Admin,
         status = Status.Ongoing(
-            startTime = currentTime().minus(15.minutes),
+            startTime = currentTime().fullMinutes().minus(15.minutes),
+            scheduledEndTime = currentTime().fullMinutes().plus(45.minutes),
             ongoingCallStatus = MeetingItem.OngoingCallStatus(
-                currentCallStartedTime = currentTime().minus(15.minutes),
+                currentCallStartedTime = currentTime().fullMinutes().minus(15.minutes),
                 isSelfUserAttending = true,
             )
         )
@@ -87,9 +95,13 @@ val CurrentTimeProvider.grouplessOngoingMeeting
         meetingId = "id3",
         conversationId = ConversationId("cid3", "domain"),
         title = "Groupless Ongoing Meeting",
+        repeatingInterval = null,
         belongingType = BelongingType.Groupless(avatars = avatars, limit = 5),
         selfRole = MeetingItem.SelfRole.Admin,
-        status = Status.Ongoing(startTime = currentTime().minus(10.minutes)),
+        status = Status.Ongoing(
+            startTime = currentTime().fullMinutes().minus(10.minutes),
+            scheduledEndTime = currentTime().fullMinutes().plus(1.minutes)
+        ),
     )
 
 val CurrentTimeProvider.scheduledChannelMeetingStartingSoon
@@ -97,11 +109,12 @@ val CurrentTimeProvider.scheduledChannelMeetingStartingSoon
         meetingId = "id4",
         conversationId = ConversationId("cid4", "domain"),
         title = "Scheduled Channel Meeting Starting Soon",
+        repeatingInterval = null,
         belongingType = BelongingType.Channel(name = "Channel Name", isPrivateChannel = false),
         selfRole = MeetingItem.SelfRole.Admin,
         status = Status.Scheduled(
-            startTime = currentTime().plus(5.minutes),
-            endTime = currentTime().plus(65.minutes),
+            startTime = currentTime().fullMinutes().plus(1.minutes),
+            endTime = currentTime().fullMinutes().plus(65.minutes),
         )
     )
 
@@ -110,12 +123,12 @@ val CurrentTimeProvider.scheduledRepeatingGroupMeeting
         meetingId = "id5",
         conversationId = ConversationId("cid5", "domain"),
         title = "Scheduled Group Meeting",
+        repeatingInterval = MeetingItem.RepeatingInterval.Weekly,
         belongingType = BelongingType.Group(name = "Group Name"),
         selfRole = MeetingItem.SelfRole.Admin,
         status = Status.Scheduled(
-            startTime = currentTime().plus(1.days).plus(60.minutes),
-            endTime = currentTime().plus(1.days).plus(90.minutes),
-            repeatingInterval = MeetingItem.RepeatingInterval.Weekly,
+            startTime = currentTime().fullMinutes().plus(1.days).plus(60.minutes),
+            endTime = currentTime().fullMinutes().plus(1.days).plus(90.minutes),
         )
     )
 
@@ -126,66 +139,72 @@ val CurrentTimeProvider.pastMeetingMocks
             meetingId = "past1",
             conversationId = ConversationId("cid", "domain"),
             title = "Ended Groupless Meeting",
+            repeatingInterval = null,
             belongingType = BelongingType.Groupless(avatars = avatars, limit = 5),
             selfRole = MeetingItem.SelfRole.Admin,
             status = Status.Ended(
-                startTime = currentTime().minus(1.days).minus(120.minutes),
-                endTime = currentTime().minus(1.days).minus(60.minutes),
+                startTime = currentTime().fullMinutes().minus(1.days).minus(120.minutes),
+                endTime = currentTime().fullMinutes().minus(1.days).minus(60.minutes),
             ),
         ),
         MeetingItem(
             meetingId = "past2",
             conversationId = ConversationId("cid", "domain"),
             title = "Ended Channel Meeting",
+            repeatingInterval = null,
             belongingType = BelongingType.Channel(name = "Channel Name", isPrivateChannel = false),
             selfRole = MeetingItem.SelfRole.Admin,
             status = Status.Ended(
-                startTime = currentTime().minus(1.days).minus(60.minutes),
-                endTime = currentTime().minus(1.days).minus(30.minutes),
+                startTime = currentTime().fullMinutes().minus(1.days).minus(60.minutes),
+                endTime = currentTime().fullMinutes().minus(1.days).minus(30.minutes),
             ),
         ),
         MeetingItem(
             meetingId = "past3",
             conversationId = ConversationId("cid", "domain"),
             title = "Ended 1:1 Meeting",
+            repeatingInterval = null,
             belongingType = BelongingType.OneOnOne(username = "John Doe", avatar = UserAvatarData()),
             selfRole = MeetingItem.SelfRole.Admin,
             status = Status.Ended(
-                startTime = currentTime().minus(1.days).minus(30.minutes),
-                endTime = currentTime().minus(1.days),
+                startTime = currentTime().fullMinutes().minus(1.days).minus(30.minutes),
+                endTime = currentTime().fullMinutes().minus(1.days),
             ),
         ),
         MeetingItem(
             meetingId = "past4",
             conversationId = ConversationId("cid", "domain"),
             title = "Ended Group Meeting",
+            repeatingInterval = null,
             belongingType = BelongingType.Group(name = "Group Name"),
             selfRole = MeetingItem.SelfRole.Admin,
             status = Status.Ended(
-                startTime = currentTime().minus(2.days).minus(120.minutes),
-                endTime = currentTime().minus(2.days).minus(90.minutes),
+                startTime = currentTime().fullMinutes().minus(2.days).minus(120.minutes),
+                endTime = currentTime().fullMinutes().minus(2.days).minus(90.minutes),
             ),
         ),
         MeetingItem(
             meetingId = "past5",
             conversationId = ConversationId("cid", "domain"),
             title = "Ended Channel Meeting",
+            repeatingInterval = null,
             belongingType = BelongingType.Channel(name = "Channel Name", isPrivateChannel = true),
             selfRole = MeetingItem.SelfRole.Admin,
             status = Status.Ended(
-                startTime = currentTime().minus(2.days).minus(60.minutes),
-                endTime = currentTime().minus(2.days),
+                startTime = currentTime().fullMinutes().minus(2.days).minus(60.minutes),
+                endTime = currentTime().fullMinutes().minus(2.days),
             ),
         ),
         MeetingItem(
             meetingId = "past6",
             conversationId = ConversationId("cid", "domain"),
             title = "Ended Groupless Meeting",
+            repeatingInterval = null,
             belongingType = BelongingType.Groupless(avatars = avatars.take(2).toPersistentList(), limit = 5),
             selfRole = MeetingItem.SelfRole.Admin,
             status = Status.Scheduled(
-                startTime = currentTime().minus(3.days).minus(60.minutes),
-                endTime = currentTime().minus(3.days),
+                startTime = currentTime().fullMinutes().minus(3.days).minus(60.minutes),
+                endTime = currentTime().fullMinutes().minus(3.days),
             ),
         )
     )
@@ -200,35 +219,36 @@ val CurrentTimeProvider.nextMeetingMocks
             meetingId = "next2",
             conversationId = ConversationId("cid", "domain"),
             title = "Scheduled 1:1 Meeting",
+            repeatingInterval = MeetingItem.RepeatingInterval.Monthly,
             belongingType = BelongingType.OneOnOne(username = "John Doe", avatar = UserAvatarData()),
             selfRole = MeetingItem.SelfRole.Admin,
             status = Status.Scheduled(
-                startTime = currentTime().plus(2.days).minus(60.minutes),
-                endTime = currentTime().plus(2.days).minus(30.minutes),
-                repeatingInterval = MeetingItem.RepeatingInterval.Monthly,
+                startTime = currentTime().fullMinutes().plus(2.days).minus(60.minutes),
+                endTime = currentTime().fullMinutes().plus(2.days).minus(30.minutes),
             ),
         ),
         MeetingItem(
             meetingId = "next3",
             conversationId = ConversationId("cid", "domain"),
             title = "Scheduled Private Channel Meeting",
+            repeatingInterval = MeetingItem.RepeatingInterval.Monthly,
             belongingType = BelongingType.Channel(name = "Channel Name", isPrivateChannel = true),
             selfRole = MeetingItem.SelfRole.Admin,
             status = Status.Scheduled(
-                startTime = currentTime().plus(2.days).minus(60.minutes),
-                endTime = currentTime().plus(2.days),
-                repeatingInterval = MeetingItem.RepeatingInterval.Monthly,
+                startTime = currentTime().fullMinutes().plus(2.days).minus(60.minutes),
+                endTime = currentTime().fullMinutes().plus(2.days),
             ),
         ),
         MeetingItem(
             meetingId = "next4",
             conversationId = ConversationId("cid", "domain"),
             title = "Scheduled Groupless Meeting",
+            repeatingInterval = null,
             belongingType = BelongingType.Groupless(avatars = avatars.take(2).toPersistentList(), limit = 5),
             selfRole = MeetingItem.SelfRole.Admin,
             status = Status.Scheduled(
-                startTime = currentTime().plus(3.days).minus(60.minutes),
-                endTime = currentTime().plus(3.days),
+                startTime = currentTime().fullMinutes().plus(3.days).minus(60.minutes),
+                endTime = currentTime().fullMinutes().plus(3.days),
             ),
         )
     )
@@ -238,11 +258,11 @@ class MeetingMocksProvider(val currentTimeProvider: CurrentTimeProvider) {
         MeetingsTabItem.PAST -> currentTimeProvider.pastMeetingMocks
         MeetingsTabItem.NEXT -> currentTimeProvider.nextMeetingMocks
     }.filter { meeting ->
-        val localDate = meeting.status.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val meetingLocalDate = meeting.status.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
         val currentLocalDate = currentTimeProvider.currentTime().toLocalDateTime(TimeZone.currentSystemDefault()).date
         when {
-            !showingAll && type == MeetingsTabItem.PAST -> currentLocalDate.minus(1, DateTimeUnit.DAY) <= localDate
-            !showingAll && type == MeetingsTabItem.NEXT -> currentLocalDate.plus(1, DateTimeUnit.DAY) >= localDate
+            !showingAll && type == MeetingsTabItem.PAST -> currentLocalDate.minus(1, DateTimeUnit.DAY) <= meetingLocalDate
+            !showingAll && type == MeetingsTabItem.NEXT -> currentLocalDate.plus(1, DateTimeUnit.DAY) >= meetingLocalDate
             else -> true
         }
     }
@@ -251,9 +271,9 @@ class MeetingMocksProvider(val currentTimeProvider: CurrentTimeProvider) {
         (currentTimeProvider.pastMeetingMocks + currentTimeProvider.nextMeetingMocks).find { it.meetingId == meetingId }
 
     @Suppress("MagicNumber")
-    fun getPagingSource(type: MeetingsTabItem, showingAll: Boolean) = object : PagingSource<Int, MeetingItem>() {
-        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MeetingItem> {
-            val items = getItems(showingAll = showingAll, type = type)
+    fun getPagingSource(type: MeetingsTabItem, showingAll: Boolean) = object : PagingSource<Int, Meeting>() {
+        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Meeting> {
+            val items = getItems(showingAll = showingAll, type = type).map { it.toMeeting() }
             val maxItems = if (!showingAll) items.size else items.size * 10 // if showingAll then generate 10x items by copying them
             val offset = params.key ?: 0
             val pageSize = min(params.loadSize, maxItems - offset) // if less items remain than the load size, only load remaining ones
@@ -267,19 +287,8 @@ class MeetingMocksProvider(val currentTimeProvider: CurrentTimeProvider) {
                 items[(offset + index) % items.size].let {
                     it.copy(
                         meetingId = "${it.meetingId}_$multiplier",
-                        status = when (it.status) {
-                            is Status.Ended -> it.status.copy(
-                                startTime = it.status.startTime.plus(timeOffset),
-                                endTime = it.status.endTime.plus(timeOffset),
-                            )
-                            is Status.Ongoing -> it.status.copy(
-                                startTime = it.status.startTime.plus(timeOffset),
-                            )
-                            is Status.Scheduled -> it.status.copy(
-                                startTime = it.status.startTime.plus(timeOffset),
-                                endTime = it.status.endTime.plus(timeOffset),
-                            )
-                        }
+                        startTime = it.startTime.plus(timeOffset),
+                        endTime = it.endTime?.plus(timeOffset),
                     )
                 }
             }
@@ -287,7 +296,7 @@ class MeetingMocksProvider(val currentTimeProvider: CurrentTimeProvider) {
             return LoadResult.Page(data = pageItems, prevKey = null, nextKey = nextOffset)
         }
 
-        override fun getRefreshKey(state: PagingState<Int, MeetingItem>): Int? {
+        override fun getRefreshKey(state: PagingState<Int, Meeting>): Int? {
             return state.anchorPosition?.let { anchorPosition ->
                 state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                     ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
@@ -295,7 +304,7 @@ class MeetingMocksProvider(val currentTimeProvider: CurrentTimeProvider) {
         }
     }
 
-    fun getPagingDataFlow(type: MeetingsTabItem, showingAll: Boolean): Flow<PagingData<MeetingItem>> {
+    fun getPagingDataFlow(type: MeetingsTabItem, showingAll: Boolean): Flow<PagingData<Meeting>> {
         val pageSize = getItems(showingAll = true, type = type).size
         return Pager(
             config = PagingConfig(pageSize = pageSize, enablePlaceholders = false),
@@ -304,4 +313,26 @@ class MeetingMocksProvider(val currentTimeProvider: CurrentTimeProvider) {
             }
         ).flow
     }
+
+    companion object {
+        val Default by lazy { MeetingMocksProvider(CurrentTimeProvider.Default) } // time initialized when accessed for the first time
+    }
 }
+
+// remove seconds and milliseconds from Instant for better readability in the UI
+private fun Instant.fullMinutes() = this.minus(this.toEpochMilliseconds() % 60_000, DateTimeUnit.MILLISECOND)
+
+private fun LocalDateTime.startOfDay() = this.date.atStartOfDayIn(TimeZone.currentSystemDefault())
+
+// temporary entity class to be used until we have a real data source to fetch meetings from kalium
+data class Meeting(
+    val meetingId: String,
+    val conversationId: ConversationId,
+    val belongingType: BelongingType,
+    val title: String,
+    val startTime: Instant,
+    val endTime: Instant?,
+    val repeatingInterval: MeetingItem.RepeatingInterval?,
+    val ongoingCallStatus: MeetingItem.OngoingCallStatus?,
+    val selfRole: SelfRole,
+)

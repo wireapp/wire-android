@@ -108,7 +108,7 @@ fun MeetingItem(
         },
         subtitle = {
             Column {
-                MeetingTimeInfoRow(status = meeting.status)
+                MeetingTimeInfoRow(status = meeting.status, repeatingInterval = meeting.repeatingInterval)
                 MeetingBelongingInfoRow(conversationId = meeting.conversationId, type = meeting.belongingType)
                 MeetingOngoingAttendingRow(status = meeting.status, onJoinClick = { /* TODO */ })
             }
@@ -205,7 +205,7 @@ private fun RepeatingIntervalInfoLabel(repeatingInterval: RepeatingInterval?) {
 }
 
 @Composable
-private fun MeetingTimeInfoRow(status: Status) {
+private fun MeetingTimeInfoRow(status: Status, repeatingInterval: RepeatingInterval?) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing3x)
@@ -213,7 +213,6 @@ private fun MeetingTimeInfoRow(status: Status) {
         when (status) {
             is Status.Scheduled -> {
                 SublineText(DateAndTimeParsers.meetingTime(status.startTime) + " - " + DateAndTimeParsers.meetingTime(status.endTime))
-                RepeatingIntervalInfoLabel(status.repeatingInterval)
             }
 
             is Status.Ongoing -> {
@@ -230,6 +229,7 @@ private fun MeetingTimeInfoRow(status: Status) {
                 SublineText(text = "%d:%02d".format(status.duration.inWholeMinutes / 60, status.duration.inWholeMinutes % 60))
             }
         }
+        RepeatingIntervalInfoLabel(repeatingInterval)
     }
 }
 

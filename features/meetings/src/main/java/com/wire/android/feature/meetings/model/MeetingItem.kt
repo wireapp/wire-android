@@ -33,6 +33,7 @@ data class MeetingItem(
     val meetingId: String,
     val conversationId: ConversationId,
     val belongingType: BelongingType,
+    val repeatingInterval: RepeatingInterval?, // null for one-time meetings
     val title: String,
     val status: Status,
     val selfRole: SelfRole,
@@ -58,7 +59,6 @@ data class MeetingItem(
         data class Scheduled(
             override val startTime: Instant, // scheduled start time
             val endTime: Instant, // scheduled end time
-            val repeatingInterval: RepeatingInterval? = null, // null for one-time meetings
         ) : Status
 
         data class Ongoing(

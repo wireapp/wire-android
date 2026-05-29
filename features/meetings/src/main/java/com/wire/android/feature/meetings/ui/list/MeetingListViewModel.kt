@@ -24,6 +24,8 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
+import androidx.paging.map
+import com.wire.android.feature.meetings.mapper.toMeetingItem
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
@@ -35,13 +37,16 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.isActive
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
@@ -49,13 +54,14 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
 interface MeetingListViewModel {
+    val currentTimeProvider: CurrentTimeProvider get() = CurrentTimeProvider.Default
     val meetings: Flow<PagingData<MeetingListItem>> get() = flowOf()
     val isShowingAll: StateFlow<Boolean> get() = MutableStateFlow(false)
     fun showAll() {}
 }
 
 class MeetingListViewModelPreview(
-    currentTimeProvider: CurrentTimeProvider,
+    override val currentTimeProvider: CurrentTimeProvider,
     type: MeetingsTabItem,
     showingAll: Boolean = type == MeetingsTabItem.PAST,
 ) : MeetingListViewModel {
@@ -77,25 +83,29 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     }
 
     override val isShowingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
-    private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default) // TODO replace with real data source
-    override val meetings: Flow<PagingData<MeetingListItem>> = isShowingAll
-        .flatMapLatest { isShowingAll ->
-            meetingMocksProvider.getPagingDataFlow(type = type, showingAll = isShowingAll).map {
-                it.insertHeaders(type = type)
-            }
+    private val alignedTickerFlow = flow {
+        while (currentCoroutineContext().isActive) {
+            val currentTime = currentTimeProvider()
+            emit(currentTime)
+            // Calculate ms remaining until the next exact minute to align emissions with full minutes
+            delay(60_000 - (currentTime.toEpochMilliseconds() % 60_000))
         }
-        .flowOn(dispatcher.io())
-        .cachedIn(viewModelScope)
+    }
+
+    private val pagingDataFlow = isShowingAll.flatMapLatest { isShowingAll ->
+        MeetingMocksProvider.Default.getPagingDataFlow(type = type, showingAll = isShowingAll) // TODO replace with real data source
+    }.cachedIn(viewModelScope)
+
+    override val meetings: Flow<PagingData<MeetingListItem>> =
+        combine(pagingDataFlow, alignedTickerFlow) { pagingData, currentTime ->
+            pagingData.map { rawMeeting ->
+                rawMeeting.toMeetingItem(time = currentTime)
+            }.insertHeaders(type = type)
+        }
 
     override fun showAll() {
         isShowingAll.value = true
     }
-}
-
-/** Generates a header between two MeetingItems if needed for the given type. The list is assumed to be sorted by start time. */
-private fun generateHeaderForType(type: MeetingsTabItem, before: MeetingItem?, after: MeetingItem?): MeetingHeader? = when (type) {
-    MeetingsTabItem.NEXT -> generateHeader(before = before, after = after)
-    MeetingsTabItem.PAST -> null // No headers for past meetings
 }
 
 /** Generates a header between two MeetingItems if needed. The list is assumed to be sorted by start time. */

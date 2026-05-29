@@ -44,9 +44,8 @@ class MeetingOptionsMenuViewModelPreview(currentTimeProvider: CurrentTimeProvide
 
 @HiltViewModel
 class MeetingOptionsMenuViewModelImpl @Inject constructor() : MeetingOptionsMenuViewModel, ViewModel() {
-    private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default) // TODO replace with real data source
     override fun observeMeetingStateFlow(meetingId: String): StateFlow<MeetingOptionsMenuState> = MutableStateFlow(
-        meetingMocksProvider.getItem(meetingId)?.let {
+        MeetingMocksProvider.Default.getItem(meetingId)?.let { // TODO replace with real data source
             MeetingOptionsMenuState.Meeting(it)
         } ?: MeetingOptionsMenuState.NotAvailable
     )

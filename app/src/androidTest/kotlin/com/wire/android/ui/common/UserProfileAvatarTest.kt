@@ -17,10 +17,16 @@
  */
 package com.wire.android.ui.common
 
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.WireTestTheme
 import com.wire.android.ui.common.avatar.LEGAL_HOLD_INDICATOR_TEST_TAG
@@ -116,4 +122,27 @@ class UserProfileAvatarTest {
         shouldLegalHoldIndicatorBeVisible = false,
         shouldTemporaryUserIndicatorBeVisible = true,
     )
+
+    @Test
+    fun givenAvatarIsClickable_whenRendered_thenSemanticsRoleIsButton() {
+        val contentDescription = "Profile Picture"
+        composeTestRule.setContent {
+            WireTestTheme {
+                UserProfileAvatar(
+                    avatarData = UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE),
+                    clickable = Clickable(
+                        enabled = true,
+                        onClickDescription = "Open",
+                        onClick = {}
+                    ),
+                    contentDescription = contentDescription
+                )
+            }
+        }
+
+        composeTestRule
+            .onNodeWithContentDescription(contentDescription)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf(contentDescription)))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+    }
 }

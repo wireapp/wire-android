@@ -26,6 +26,10 @@ private object WasmKaliumProvider : KaliumProvider {
     override fun selectConversation(conversationId: ConversationId) = Unit
 
     override suspend fun sendMessage(text: String): Boolean = false
+    override suspend fun joinCall(): Boolean = false
+    override suspend fun answerCall(): Boolean = false
+    override suspend fun rejectCall(): Boolean = false
+    override suspend fun endCall(): Boolean = false
 }
 
 @Composable

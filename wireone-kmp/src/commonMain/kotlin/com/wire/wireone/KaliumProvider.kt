@@ -7,6 +7,7 @@ import com.wire.kalium.common.logger.kaliumLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.data.call.CallType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
@@ -41,6 +42,7 @@ internal data class ConversationListItemUiState(
     val title: String,
     val subtitle: String,
     val protocolLabel: String,
+    val hasOngoingCall: Boolean,
 )
 
 internal data class MessageItemUiState(
@@ -64,6 +66,8 @@ internal data class KaliumUiState(
     val selectedConversationId: ConversationId? = null,
     val selectedConversationTitle: String? = null,
     val messages: List<MessageItemUiState> = emptyList(),
+    val incomingCallConversationIds: Set<ConversationId> = emptySet(),
+    val ongoingCallConversationIds: Set<ConversationId> = emptySet(),
 )
 
 internal interface KaliumProvider {
@@ -72,6 +76,10 @@ internal interface KaliumProvider {
     suspend fun login(userIdentifier: String, password: String)
     fun selectConversation(conversationId: ConversationId)
     suspend fun sendMessage(text: String): Boolean
+    suspend fun joinCall(): Boolean
+    suspend fun answerCall(): Boolean
+    suspend fun rejectCall(): Boolean
+    suspend fun endCall(): Boolean
 }
 
 @Composable
@@ -87,6 +95,8 @@ internal open class CoreLogicKaliumProvider(
     private var syncForegroundJob: Job? = null
     private var conversationListJob: Job? = null
     private var messagesObservationJob: Job? = null
+    private var incomingCallsObservationJob: Job? = null
+    private var ongoingCallsObservationJob: Job? = null
     internal val coreLogic: CoreLogic by lazy(coreLogicFactory)
 
     internal val mutableState = MutableStateFlow(
@@ -157,6 +167,74 @@ internal open class CoreLogicKaliumProvider(
         }
     }
 
+    override suspend fun joinCall(): Boolean {
+        val state = mutableState.value
+        val activeUserId = state.activeUserId ?: return false
+        val conversationId = state.selectedConversationId ?: return false
+
+        return runCatching {
+            if (!requestMicrophonePermissionIfNeeded()) {
+                mutableState.update { it.copy(errorLine = "Microphone permission denied.") }
+                return false
+            }
+            coreLogic.getSessionScope(activeUserId).calls.startCall(conversationId = conversationId, callType = CallType.AUDIO)
+            mutableState.update { it.copy(runtimeLine = "Kalium: joined call", errorLine = null) }
+            true
+        }.getOrElse { error ->
+            mutableState.update { it.copy(errorLine = "Join call failed: ${error.message ?: error::class.simpleName}") }
+            false
+        }
+    }
+
+    override suspend fun answerCall(): Boolean {
+        val state = mutableState.value
+        val activeUserId = state.activeUserId ?: return false
+        val conversationId = state.selectedConversationId ?: return false
+
+        return runCatching {
+            if (!requestMicrophonePermissionIfNeeded()) {
+                mutableState.update { it.copy(errorLine = "Microphone permission denied.") }
+                return false
+            }
+            coreLogic.getSessionScope(activeUserId).calls.answerCall(conversationId)
+            mutableState.update { it.copy(runtimeLine = "Kalium: answered call", errorLine = null) }
+            true
+        }.getOrElse { error ->
+            mutableState.update { it.copy(errorLine = "Answer call failed: ${error.message ?: error::class.simpleName}") }
+            false
+        }
+    }
+
+    override suspend fun rejectCall(): Boolean {
+        val state = mutableState.value
+        val activeUserId = state.activeUserId ?: return false
+        val conversationId = state.selectedConversationId ?: return false
+
+        return runCatching {
+            coreLogic.getSessionScope(activeUserId).calls.rejectCall(conversationId)
+            mutableState.update { it.copy(runtimeLine = "Kalium: rejected call", errorLine = null) }
+            true
+        }.getOrElse { error ->
+            mutableState.update { it.copy(errorLine = "Reject call failed: ${error.message ?: error::class.simpleName}") }
+            false
+        }
+    }
+
+    override suspend fun endCall(): Boolean {
+        val state = mutableState.value
+        val activeUserId = state.activeUserId ?: return false
+        val conversationId = state.selectedConversationId ?: return false
+
+        return runCatching {
+            coreLogic.getSessionScope(activeUserId).calls.endCall(conversationId)
+            mutableState.update { it.copy(runtimeLine = "Kalium: ended call", errorLine = null) }
+            true
+        }.getOrElse { error ->
+            mutableState.update { it.copy(errorLine = "End call failed: ${error.message ?: error::class.simpleName}") }
+            false
+        }
+    }
+
     override suspend fun login(userIdentifier: String, password: String) {
         awaitRuntimeReady(coreLogic)
         val credentials = sanitizeCredentials(userIdentifier, password)
@@ -199,6 +277,8 @@ internal open class CoreLogicKaliumProvider(
                     syncForegroundJob?.cancel()
                     conversationListJob?.cancel()
                     messagesObservationJob?.cancel()
+                    incomingCallsObservationJob?.cancel()
+                    ongoingCallsObservationJob?.cancel()
                     mutableState.update {
                         it.copy(
                             sessionLine = "Session: none",
@@ -209,7 +289,9 @@ internal open class CoreLogicKaliumProvider(
                             conversations = emptyList(),
                             selectedConversationId = null,
                             selectedConversationTitle = null,
-                            messages = emptyList()
+                            messages = emptyList(),
+                            incomingCallConversationIds = emptySet(),
+                            ongoingCallConversationIds = emptySet(),
                         )
                     }
                 }
@@ -221,6 +303,8 @@ internal open class CoreLogicKaliumProvider(
                             syncForegroundJob?.cancel()
                             conversationListJob?.cancel()
                             messagesObservationJob?.cancel()
+                            incomingCallsObservationJob?.cancel()
+                            ongoingCallsObservationJob?.cancel()
                             mutableState.update {
                                 it.copy(
                                     sessionLine = "Session: invalid (${accountInfo.userId.value})",
@@ -231,7 +315,9 @@ internal open class CoreLogicKaliumProvider(
                                     conversations = emptyList(),
                                     selectedConversationId = null,
                                     selectedConversationTitle = null,
-                                    messages = emptyList()
+                                    messages = emptyList(),
+                                    incomingCallConversationIds = emptySet(),
+                                    ongoingCallConversationIds = emptySet(),
                                 )
                             }
                         }
@@ -274,6 +360,8 @@ internal open class CoreLogicKaliumProvider(
             }
         }
         observeConversations(userId)
+        observeIncomingCalls(userId)
+        observeOngoingCalls(userId)
     }
 
     private fun observeConversations(userId: UserId) {
@@ -301,6 +389,34 @@ internal open class CoreLogicKaliumProvider(
                     } else {
                         messagesObservationJob?.cancel()
                         mutableState.update { it.copy(messages = emptyList()) }
+                    }
+                }
+        }
+    }
+
+    private fun observeIncomingCalls(userId: UserId) {
+        incomingCallsObservationJob?.cancel()
+        incomingCallsObservationJob = scope.launch {
+            coreLogic.getSessionScope(userId)
+                .calls
+                .getIncomingCalls()
+                .collectLatest { incomingCalls ->
+                    mutableState.update {
+                        it.copy(incomingCallConversationIds = incomingCalls.map { call -> call.conversationId }.toSet())
+                    }
+                }
+        }
+    }
+
+    private fun observeOngoingCalls(userId: UserId) {
+        ongoingCallsObservationJob?.cancel()
+        ongoingCallsObservationJob = scope.launch {
+            coreLogic.getSessionScope(userId)
+                .calls
+                .observeOngoingCalls()
+                .collectLatest { ongoingCalls ->
+                    mutableState.update {
+                        it.copy(ongoingCallConversationIds = ongoingCalls.map { call -> call.conversationId }.toSet())
                     }
                 }
         }
@@ -638,6 +754,7 @@ private fun ConversationDetails.toConversationListItem(): ConversationListItemUi
         title = conversationTitle(),
         subtitle = conversation.type.toSubtitle(),
         protocolLabel = conversation.protocol.name(),
+        hasOngoingCall = (this as? ConversationDetails.Group)?.hasOngoingCall == true,
     )
 }
 

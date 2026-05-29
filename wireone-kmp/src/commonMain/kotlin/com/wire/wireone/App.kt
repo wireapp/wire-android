@@ -114,6 +114,18 @@ fun App() {
                             }
                         }
                     },
+                    onJoinCall = {
+                        coroutineScope.launch { kaliumProvider.joinCall() }
+                    },
+                    onAnswerCall = {
+                        coroutineScope.launch { kaliumProvider.answerCall() }
+                    },
+                    onRejectCall = {
+                        coroutineScope.launch { kaliumProvider.rejectCall() }
+                    },
+                    onEndCall = {
+                        coroutineScope.launch { kaliumProvider.endCall() }
+                    },
                 )
             }
         }
@@ -225,6 +237,10 @@ private fun WorkspaceScreen(
     isSendingMessage: Boolean,
     onDraftMessageChange: (String) -> Unit,
     onSendMessage: () -> Unit,
+    onJoinCall: () -> Unit,
+    onAnswerCall: () -> Unit,
+    onRejectCall: () -> Unit,
+    onEndCall: () -> Unit,
 ) {
     val colors = MaterialTheme.wireColorScheme
     val spacing = dimensions()
@@ -258,6 +274,10 @@ private fun WorkspaceScreen(
                     isSendingMessage = isSendingMessage,
                     onDraftMessageChange = onDraftMessageChange,
                     onSendMessage = onSendMessage,
+                    onJoinCall = onJoinCall,
+                    onAnswerCall = onAnswerCall,
+                    onRejectCall = onRejectCall,
+                    onEndCall = onEndCall,
                 )
             }
         } else if (isCompactConversationListVisible) {
@@ -281,6 +301,10 @@ private fun WorkspaceScreen(
                 isSendingMessage = isSendingMessage,
                 onDraftMessageChange = onDraftMessageChange,
                 onSendMessage = onSendMessage,
+                onJoinCall = onJoinCall,
+                onAnswerCall = onAnswerCall,
+                onRejectCall = onRejectCall,
+                onEndCall = onEndCall,
                 modifier = Modifier.fillMaxSize(),
                 navigationAction = {
                     TextButton(onClick = { isCompactConversationListVisible = true }) {
@@ -356,6 +380,10 @@ private fun WorkspaceDetailPane(
     isSendingMessage: Boolean,
     onDraftMessageChange: (String) -> Unit,
     onSendMessage: () -> Unit,
+    onJoinCall: () -> Unit,
+    onAnswerCall: () -> Unit,
+    onRejectCall: () -> Unit,
+    onEndCall: () -> Unit,
     modifier: Modifier = Modifier,
     navigationAction: @Composable (() -> Unit)? = null,
 ) {
@@ -381,11 +409,21 @@ private fun WorkspaceDetailPane(
         } else {
             MessagePane(
                 title = uiState.selectedConversationTitle,
+                selectedConversationId = uiState.selectedConversationId,
+                hasOngoingCall = uiState.selectedConversationId?.let { selectedId ->
+                    (uiState.conversations.firstOrNull { it.id == selectedId }?.hasOngoingCall == true) ||
+                        (selectedId in uiState.ongoingCallConversationIds)
+                } == true,
+                isIncomingCall = uiState.selectedConversationId?.let { it in uiState.incomingCallConversationIds } == true,
                 messages = uiState.messages,
                 draftMessage = draftMessage,
                 isSendingMessage = isSendingMessage,
                 onDraftMessageChange = onDraftMessageChange,
                 onSendMessage = onSendMessage,
+                onJoinCall = onJoinCall,
+                onAnswerCall = onAnswerCall,
+                onRejectCall = onRejectCall,
+                onEndCall = onEndCall,
             )
         }
     }
@@ -423,6 +461,14 @@ private fun ConversationRow(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+        if (conversation.hasOngoingCall) {
+            Spacer(modifier = Modifier.height(spacing.spacing4x))
+            Text(
+                text = "Call in progress",
+                style = MaterialTheme.wireTypography.body03,
+                color = colors.primary
+            )
+        }
     }
     HorizontalDivider(color = colors.divider.copy(alpha = 0.5f))
 }
@@ -430,11 +476,18 @@ private fun ConversationRow(
 @Composable
 private fun MessagePane(
     title: String?,
+    selectedConversationId: ConversationId?,
+    hasOngoingCall: Boolean,
+    isIncomingCall: Boolean,
     messages: List<MessageItemUiState>,
     draftMessage: String,
     isSendingMessage: Boolean,
     onDraftMessageChange: (String) -> Unit,
     onSendMessage: () -> Unit,
+    onJoinCall: () -> Unit,
+    onAnswerCall: () -> Unit,
+    onRejectCall: () -> Unit,
+    onEndCall: () -> Unit,
 ) {
     val colors = MaterialTheme.wireColorScheme
     val spacing = dimensions()
@@ -448,6 +501,19 @@ private fun MessagePane(
             style = MaterialTheme.wireTypography.title02,
             color = colors.onBackground
         )
+        if (selectedConversationId != null) {
+            Row(horizontalArrangement = Arrangement.spacedBy(spacing.spacing8x)) {
+                if (isIncomingCall) {
+                    Button(onClick = onAnswerCall) { Text("Answer") }
+                    TextButton(onClick = onRejectCall) { Text("Reject") }
+                } else if (hasOngoingCall) {
+                    Button(onClick = onJoinCall) { Text("Join call") }
+                    TextButton(onClick = onEndCall) { Text("End") }
+                } else {
+                    Button(onClick = onJoinCall) { Text("Call") }
+                }
+            }
+        }
         Surface(
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(spacing.spacing16x),

@@ -25,5 +25,9 @@
 	</dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>WireOne needs microphone access for audio calls.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>WireOne needs camera access for video calls.</string>
 </dict>
 </plist>

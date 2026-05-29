@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -92,16 +93,20 @@ class MeetingListViewModelImpl @AssistedInject constructor(
         }
     }
 
-    private val pagingDataFlow = isShowingAll.flatMapLatest { isShowingAll ->
-        MeetingMocksProvider.Default.getPagingDataFlow(type = type, showingAll = isShowingAll) // TODO replace with real data source
-    }.cachedIn(viewModelScope)
-
-    override val meetings: Flow<PagingData<MeetingListItem>> =
-        combine(pagingDataFlow, alignedTickerFlow) { pagingData, currentTime ->
-            pagingData.map { rawMeeting ->
-                rawMeeting.toMeetingItem(time = currentTime)
-            }.insertHeaders(type = type)
+    private val pagingDataFlow = isShowingAll
+        .flatMapLatest { isShowingAll ->
+            MeetingMocksProvider.Default.getPagingDataFlow(type = type, showingAll = isShowingAll) // TODO replace with real data source
         }
+        .flowOn(dispatcher.io())
+        .cachedIn(viewModelScope)
+
+    override val meetings: Flow<PagingData<MeetingListItem>> = combine(pagingDataFlow, alignedTickerFlow) { pagingData, currentTime ->
+        pagingData
+            .map { rawMeeting ->
+                rawMeeting.toMeetingItem(time = currentTime)
+            }
+            .insertHeaders(type = type)
+    }.flowOn(dispatcher.io())
 
     override fun showAll() {
         isShowingAll.value = true

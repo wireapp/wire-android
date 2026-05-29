@@ -162,6 +162,7 @@ class MeetingListViewModelTest {
         var currentTimeProvider = CurrentTimeProvider {
             Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime)
         }
+
         @MockK
         lateinit var getMeetingsPaginated: GetMeetingsPaginatedUseCase
 

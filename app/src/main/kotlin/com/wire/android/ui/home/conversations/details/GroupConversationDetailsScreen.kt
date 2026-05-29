@@ -392,6 +392,7 @@ private fun GroupConversationDetailsContent(
     )
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
+    val isLoading by isScreenLoading.collectAsState()
 
     CollapsingTopBarScaffold(
         topBarHeader = {
@@ -428,7 +429,7 @@ private fun GroupConversationDetailsContent(
             }
 
             AnimatedContent(
-                targetState = isScreenLoading.collectAsState().value,
+                targetState = isLoading,
                 transitionSpec = {
                     val enter = fadeIn(tween(durationMillis = 500, delayMillis = 100))
                     val exit = fadeOut()
@@ -456,8 +457,8 @@ private fun GroupConversationDetailsContent(
             }
         },
         topBarFooter = {
-            Crossfade(isScreenLoading.collectAsState().value) {
-                if (it) {
+            Crossfade(isLoading) { loading ->
+                if (loading) {
                     LoadingWireTabRow()
                 } else {
                     WireTabRow(
@@ -508,7 +509,7 @@ private fun GroupConversationDetailsContent(
         contentLazyListState = lazyListStates[currentTabState],
     ) {
         AnimatedVisibility(
-            visible = isScreenLoading.collectAsState().value,
+            visible = isLoading,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
@@ -520,7 +521,7 @@ private fun GroupConversationDetailsContent(
         val focusManager = LocalFocusManager.current
 
         AnimatedVisibility(
-            visible = !isScreenLoading.collectAsState().value,
+            visible = !isLoading,
             enter = fadeIn(
                 animationSpec = tween(durationMillis = 500, delayMillis = 100)
             ),

@@ -30,6 +30,8 @@ import com.wire.android.ui.calling.CallingViewModelFactory
 import com.wire.android.ui.calling.CallingViewModelGraph
 import com.wire.android.ui.debug.DebugInfoViewModelFactory
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
+import com.wire.android.ui.home.HomeViewModelFactory
+import com.wire.android.ui.home.HomeViewModelGraph
 import com.wire.android.ui.home.conversations.ConversationCoreViewModelFactory
 import com.wire.android.ui.home.conversations.ConversationCoreViewModelGraph
 import com.wire.android.ui.home.settings.SettingsViewModelFactory
@@ -49,6 +51,7 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     private val authenticationViewModelFactoryProvider: Provider<AuthenticationViewModelFactory>,
     private val callingViewModelFactoryProvider: Provider<CallingViewModelFactory>,
     private val debugInfoViewModelFactoryProvider: Provider<DebugInfoViewModelFactory>,
+    private val homeViewModelFactoryProvider: Provider<HomeViewModelFactory>,
     private val settingsViewModelFactoryProvider: Provider<SettingsViewModelFactory>,
     private val conversationCoreViewModelFactoryProvider: Provider<ConversationCoreViewModelFactory>,
     private val meetingsViewModelFactoryProvider: Provider<MeetingsViewModelFactory>,
@@ -58,6 +61,7 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     AuthenticationViewModelGraph,
     CallingViewModelGraph,
     DebugInfoViewModelGraph,
+    HomeViewModelGraph,
     SettingsViewModelGraph,
     ConversationCoreViewModelGraph,
     MeetingsViewModelGraph {
@@ -75,6 +79,9 @@ class WireActivityViewModelGraphBridge @Inject constructor(
 
     override val debugInfoViewModelFactory: DebugInfoViewModelFactory
         get() = debugInfoViewModelFactoryProvider.get()
+
+    override val homeViewModelFactory: HomeViewModelFactory
+        get() = homeViewModelFactoryProvider.get()
 
     override val settingsViewModelFactory: SettingsViewModelFactory
         get() = settingsViewModelFactoryProvider.get()

@@ -1,7 +1,6 @@
 plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
     id(libs.plugins.wire.kover.get().pluginId)
-    id(libs.plugins.wire.hilt.get().pluginId)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
     alias(libs.plugins.ksp)
@@ -13,7 +12,6 @@ plugins {
 dependencies {
     implementation("com.wire.kalium:kalium-common")
     implementation("com.wire.kalium:kalium-logic")
-    implementation(project(":core:di"))
     implementation(project(":core:ui-common"))
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)

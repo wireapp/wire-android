@@ -41,7 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.wire.android.di.wireViewModel
+import com.wire.android.feature.cells.ui.moveToFolderViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.feature.cells.R
@@ -79,7 +79,7 @@ fun MoveToFolderScreen(
     navigator: WireNavigator,
     createFolderResultRecipient: ResultRecipient<CreateFolderScreenDestination, Boolean>,
     modifier: Modifier = Modifier,
-    moveToFolderViewModel: MoveToFolderViewModel = wireViewModel()
+    moveToFolderViewModel: MoveToFolderViewModel = moveToFolderViewModel()
 ) {
     val context = LocalContext.current
     val viewState by moveToFolderViewModel.state.collectAsState()

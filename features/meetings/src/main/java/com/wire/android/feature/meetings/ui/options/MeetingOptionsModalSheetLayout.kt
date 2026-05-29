@@ -26,7 +26,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wire.android.di.wireViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon
@@ -53,7 +53,7 @@ fun MeetingOptionsModalSheetLayout(
     sheetState: WireModalSheetState<String>,
     viewModel: MeetingOptionsMenuViewModel = when {
         LocalInspectionMode.current -> MeetingOptionsMenuViewModelPreview(CurrentTimeProvider.Preview)
-        else -> wireViewModel<MeetingOptionsMenuViewModelImpl>()
+        else -> viewModel<MeetingOptionsMenuViewModelImpl>()
     }
 ) {
     val deletedMeetingOptionsClosedMessage = stringResource(R.string.deleted_meeting_options_closed)

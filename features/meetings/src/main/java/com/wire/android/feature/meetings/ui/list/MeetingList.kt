@@ -26,12 +26,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.wire.android.di.wireViewModel
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
@@ -43,6 +45,7 @@ import com.wire.android.ui.common.rowitem.EmptyListArrowFooter
 import com.wire.android.ui.common.rowitem.EmptyListContent
 import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 
 @Composable
 fun MeetingList(
@@ -52,11 +55,16 @@ fun MeetingList(
     openMeetingOptions: (meetingId: String) -> Unit = {},
     meetingListViewModel: MeetingListViewModel = when {
         LocalInspectionMode.current -> MeetingListViewModelPreview(CurrentTimeProvider.Preview, type)
-        else -> wireViewModel<MeetingListViewModelImpl, MeetingListViewModelImpl.Factory>(
+        else -> viewModel<MeetingListViewModelImpl>(
             key = "meeting_list_${type.name}",
-            creationCallback = { factory ->
-                factory.create(type = type)
-            }
+            factory = viewModelFactory {
+                initializer {
+                    MeetingListViewModelImpl(
+                        type = type,
+                        dispatcher = DefaultDispatcherProvider(),
+                    )
+                }
+            },
         )
     },
 ) {

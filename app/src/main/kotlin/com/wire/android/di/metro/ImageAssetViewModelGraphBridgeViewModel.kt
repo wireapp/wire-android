@@ -20,6 +20,8 @@ package com.wire.android.di.metro
 import androidx.lifecycle.ViewModel
 import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
+import com.wire.android.ui.home.settings.SettingsViewModelFactory
+import com.wire.android.ui.home.settings.SettingsViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -31,7 +33,11 @@ import javax.inject.Provider
 @HiltViewModel
 class ImageAssetViewModelGraphBridgeViewModel @Inject constructor(
     imageLoader: Provider<WireSessionImageLoader>,
-) : ViewModel(), ImageAssetViewModelGraph {
+    private val settingsViewModelFactoryProvider: Provider<SettingsViewModelFactory>,
+) : ViewModel(), ImageAssetViewModelGraph, SettingsViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
+
+    override val settingsViewModelFactory: SettingsViewModelFactory
+        get() = settingsViewModelFactoryProvider.get()
 }

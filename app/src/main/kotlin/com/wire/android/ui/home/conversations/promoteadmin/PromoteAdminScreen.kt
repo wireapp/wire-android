@@ -39,7 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -74,7 +74,7 @@ import com.wire.android.ui.common.R as commonR
 @Composable
 fun PromoteAdminScreen(
     navigator: Navigator,
-    viewModel: PromoteAdminViewModel = hiltViewModel(),
+    viewModel: PromoteAdminViewModel = wireViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = LocalSnackbarHostState.current

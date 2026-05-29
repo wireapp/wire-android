@@ -41,7 +41,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
@@ -56,7 +56,7 @@ fun SecurityClassificationBannerForConversation(
     conversationId: ConversationId,
     modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
-        hiltViewModelScoped<
+        wireViewModelScoped<
                 SecurityClassificationViewModelImpl,
                 SecurityClassificationViewModel,
                 SecurityClassificationArgs,
@@ -74,7 +74,7 @@ fun SecurityClassificationBannerForUser(
     userId: UserId,
     modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
-        hiltViewModelScoped<
+        wireViewModelScoped<
                 SecurityClassificationViewModelImpl,
                 SecurityClassificationViewModel,
                 SecurityClassificationArgs,

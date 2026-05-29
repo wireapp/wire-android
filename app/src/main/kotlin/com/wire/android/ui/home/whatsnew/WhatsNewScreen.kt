@@ -30,7 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -45,7 +45,7 @@ import com.wire.android.util.ui.UIText
 @Composable
 fun WhatsNewScreen(
     homeStateHolder: HomeStateHolder,
-    whatsNewViewModel: WhatsNewViewModel = hiltViewModel()
+    whatsNewViewModel: WhatsNewViewModel = wireViewModel()
 ) {
     val context = LocalContext.current
     WhatsNewScreenContent(

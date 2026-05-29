@@ -35,7 +35,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -66,7 +66,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun DebugConversationScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    viewModel: DebugConversationViewModel = hiltViewModel(),
+    viewModel: DebugConversationViewModel = wireViewModel(),
 ) {
 
     val context = LocalContext.current

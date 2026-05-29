@@ -38,7 +38,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.SearchBarInput
@@ -58,7 +58,7 @@ import com.wire.android.ui.theme.wireTypography
 fun ConversationCryptoStatsScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    viewModel: ConversationCryptoStatsViewModel = hiltViewModel(),
+    viewModel: ConversationCryptoStatsViewModel = wireViewModel(),
 ) {
     val scrollState = rememberScrollState()
     val state by viewModel.state.collectAsState()

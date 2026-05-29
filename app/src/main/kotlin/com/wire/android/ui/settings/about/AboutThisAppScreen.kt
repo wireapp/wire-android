@@ -34,7 +34,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
@@ -52,7 +52,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun AboutThisAppScreen(
     navigator: Navigator,
-    viewModel: AboutThisAppViewModel = hiltViewModel()
+    viewModel: AboutThisAppViewModel = wireViewModel()
 ) {
     val context = LocalContext.current
     AboutThisAppContent(

@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -70,7 +70,7 @@ import com.wire.android.util.shareViaIntent
 fun EditGuestAccessScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    editGuestAccessViewModel: EditGuestAccessViewModel = hiltViewModel()
+    editGuestAccessViewModel: EditGuestAccessViewModel = wireViewModel()
 ) {
     val scrollState = rememberScrollState()
     val snackbarHostState = LocalSnackbarHostState.current

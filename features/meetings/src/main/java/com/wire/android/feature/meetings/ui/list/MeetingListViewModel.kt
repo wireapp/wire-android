@@ -31,7 +31,8 @@ import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
-import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
+import com.wire.android.feature.meetings.ui.usecase.GetMeetingsPaginatedUseCase
+import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -56,17 +57,17 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
 interface MeetingListViewModel {
-    val currentTimeProvider: CurrentTimeProvider get() = CurrentTimeProvider.Default
+    val currentTimeProvider: CurrentTimeProvider
     val meetings: Flow<PagingData<MeetingListItem>> get() = flowOf()
     val isShowingAll: StateFlow<Boolean> get() = MutableStateFlow(false)
     fun showAll() {}
 }
 
 class MeetingListViewModelPreview(
-    override val currentTimeProvider: CurrentTimeProvider,
     type: MeetingsTabItem,
     showingAll: Boolean = type == MeetingsTabItem.PAST,
 ) : MeetingListViewModel {
+    override val currentTimeProvider: CurrentTimeProvider = CurrentTimeProvider.Preview
     private val meetingMocksProvider = MeetingMocksProvider(currentTimeProvider)
     override val isShowingAll: StateFlow<Boolean> = MutableStateFlow(showingAll)
     override val meetings: Flow<PagingData<MeetingListItem>> = MutableStateFlow(
@@ -77,6 +78,8 @@ class MeetingListViewModelPreview(
 @HiltViewModel(assistedFactory = MeetingListViewModelImpl.Factory::class)
 class MeetingListViewModelImpl @AssistedInject constructor(
     @Assisted val type: MeetingsTabItem,
+    override val currentTimeProvider: CurrentTimeProvider,
+    getMeetingsPaginated: GetMeetingsPaginatedUseCase,
     dispatcher: DispatcherProvider,
 ) : ViewModel(), MeetingListViewModel {
     @AssistedFactory
@@ -95,7 +98,7 @@ class MeetingListViewModelImpl @AssistedInject constructor(
 
     private val pagingDataFlow = isShowingAll
         .flatMapLatest { isShowingAll ->
-            MeetingMocksProvider.Default.getPagingDataFlow(type = type, showingAll = isShowingAll) // TODO replace with real data source
+            getMeetingsPaginated(type = type, showingAll = isShowingAll)
         }
         .flowOn(dispatcher.io())
         .cachedIn(viewModelScope)

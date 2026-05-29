@@ -29,9 +29,9 @@ import com.wire.android.feature.meetings.model.MeetingItem.BelongingType
 import com.wire.android.feature.meetings.model.MeetingItem.SelfRole
 import com.wire.android.feature.meetings.model.MeetingItem.Status
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
-import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
+import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList

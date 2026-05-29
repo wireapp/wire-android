@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingHeader
-import com.wire.android.feature.meetings.ui.util.rememberCurrentTimeProvider
+import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.BigSectionHeader
 import com.wire.android.ui.common.rowitem.SectionHeader

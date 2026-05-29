@@ -33,9 +33,10 @@ import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper.SelfDeleti
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable.Companion.LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.util.CurrentTimeProvider
+import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.kalium.logic.data.message.Message
 import kotlinx.coroutines.delay
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
@@ -49,7 +50,7 @@ import kotlin.time.toDuration
 @Composable
 fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionTimerHelper.SelfDeletionTimerState {
     val stringResourceProvider: StringResourceProvider = stringResourceProvider()
-    val currentTimeProvider: CurrentTimeProvider = { Clock.System.now() }
+    val currentTimeProvider = rememberCurrentTimeProvider()
 
     return remember((expirationStatus as? ExpirationStatus.Expirable)?.selfDeletionStatus ?: true) {
         SelfDeletionTimerHelper(stringResourceProvider, currentTimeProvider)
@@ -323,8 +324,6 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
         data object NotExpirable : SelfDeletionTimerState()
     }
 }
-
-typealias CurrentTimeProvider = () -> Instant
 
 enum class StringResourceType { WEEKS, DAYS, HOURS, MINUTES, SECONDS; }
 interface StringResourceProvider {

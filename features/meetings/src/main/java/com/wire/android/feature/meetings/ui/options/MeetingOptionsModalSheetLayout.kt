@@ -32,7 +32,7 @@ import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.list.CalendarIcon
 import com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
-import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
+import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader

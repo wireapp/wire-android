@@ -59,7 +59,7 @@ import com.wire.android.feature.meetings.ui.mock.ongoingAttendingOneOnOneMeeting
 import com.wire.android.feature.meetings.ui.mock.scheduledChannelMeetingStartingSoon
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
-import com.wire.android.feature.meetings.ui.util.rememberCurrentTimeProvider
+import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarsRow
 import com.wire.android.ui.common.button.WireItemLabel

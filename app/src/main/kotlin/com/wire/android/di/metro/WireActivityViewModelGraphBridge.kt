@@ -26,6 +26,8 @@ import com.wire.android.ui.authentication.AuthenticationViewModelFactory
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
 import com.wire.android.ui.debug.DebugInfoViewModelFactory
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
+import com.wire.android.ui.home.conversations.ConversationCoreViewModelFactory
+import com.wire.android.ui.home.conversations.ConversationCoreViewModelGraph
 import com.wire.android.ui.home.settings.SettingsViewModelFactory
 import com.wire.android.ui.home.settings.SettingsViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -43,12 +45,14 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     private val authenticationViewModelFactoryProvider: Provider<AuthenticationViewModelFactory>,
     private val debugInfoViewModelFactoryProvider: Provider<DebugInfoViewModelFactory>,
     private val settingsViewModelFactoryProvider: Provider<SettingsViewModelFactory>,
+    private val conversationCoreViewModelFactoryProvider: Provider<ConversationCoreViewModelFactory>,
 ) : ViewModel(),
     ImageAssetViewModelGraph,
     CellsViewModelGraph,
     AuthenticationViewModelGraph,
     DebugInfoViewModelGraph,
-    SettingsViewModelGraph {
+    SettingsViewModelGraph,
+    ConversationCoreViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
 
@@ -63,4 +67,7 @@ class WireActivityViewModelGraphBridge @Inject constructor(
 
     override val settingsViewModelFactory: SettingsViewModelFactory
         get() = settingsViewModelFactoryProvider.get()
+
+    override val conversationCoreViewModelFactory: ConversationCoreViewModelFactory
+        get() = conversationCoreViewModelFactoryProvider.get()
 }

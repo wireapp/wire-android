@@ -34,6 +34,8 @@ import com.wire.android.ui.home.HomeViewModelFactory
 import com.wire.android.ui.home.HomeViewModelGraph
 import com.wire.android.ui.home.conversations.ConversationCoreViewModelFactory
 import com.wire.android.ui.home.conversations.ConversationCoreViewModelGraph
+import com.wire.android.ui.home.conversations.ConversationDetailsViewModelFactory
+import com.wire.android.ui.home.conversations.ConversationDetailsViewModelGraph
 import com.wire.android.ui.home.conversations.ScopedMessageViewModelFactory
 import com.wire.android.ui.home.conversations.ScopedMessageViewModelGraph
 import com.wire.android.ui.home.settings.SettingsViewModelFactory
@@ -57,6 +59,7 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     private val homeViewModelFactoryProvider: Provider<HomeViewModelFactory>,
     private val settingsViewModelFactoryProvider: Provider<SettingsViewModelFactory>,
     private val conversationCoreViewModelFactoryProvider: Provider<ConversationCoreViewModelFactory>,
+    private val conversationDetailsViewModelFactoryProvider: Provider<ConversationDetailsViewModelFactory>,
     private val meetingsViewModelFactoryProvider: Provider<MeetingsViewModelFactory>,
     private val scopedMessageViewModelFactoryProvider: Provider<ScopedMessageViewModelFactory>,
 ) : ViewModel(),
@@ -68,6 +71,7 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     HomeViewModelGraph,
     SettingsViewModelGraph,
     ConversationCoreViewModelGraph,
+    ConversationDetailsViewModelGraph,
     MeetingsViewModelGraph,
     ScopedMessageViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
@@ -93,6 +97,9 @@ class WireActivityViewModelGraphBridge @Inject constructor(
 
     override val conversationCoreViewModelFactory: ConversationCoreViewModelFactory
         get() = conversationCoreViewModelFactoryProvider.get()
+
+    override val conversationDetailsViewModelFactory: ConversationDetailsViewModelFactory
+        get() = conversationDetailsViewModelFactoryProvider.get()
 
     override val meetingsViewModelFactory: MeetingsViewModelFactory
         get() = meetingsViewModelFactoryProvider.get()

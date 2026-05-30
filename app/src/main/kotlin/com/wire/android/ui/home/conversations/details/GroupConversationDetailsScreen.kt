@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.details
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -60,16 +59,16 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wire.android.di.wireViewModel
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.LoadingWireTabRow
@@ -117,6 +116,7 @@ import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateApp
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
+import com.wire.android.ui.home.conversations.groupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
@@ -147,7 +147,7 @@ fun GroupConversationDetailsScreen(
     editChannelAccessResultRecipient: ResultRecipient<ChannelAccessOnUpdateScreenDestination, UpdateChannelAccessArgs>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    viewModel: GroupConversationDetailsViewModel = wireViewModel(),
+    viewModel: GroupConversationDetailsViewModel = groupConversationDetailsViewModel(),
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources

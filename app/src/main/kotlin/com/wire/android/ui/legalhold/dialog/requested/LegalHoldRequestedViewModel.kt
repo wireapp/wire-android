@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
@@ -36,7 +35,6 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -46,12 +44,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class LegalHoldRequestedViewModel @Inject constructor(
+class LegalHoldRequestedViewModel(
     private val validatePassword: ValidatePasswordUseCase,
-    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>
+    private val coreLogic: Lazy<CoreLogic>
 ) : ViewModel() {
 
     val passwordTextState: TextFieldState = TextFieldState()

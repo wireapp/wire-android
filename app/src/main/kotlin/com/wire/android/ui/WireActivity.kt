@@ -181,8 +181,20 @@ class WireActivity : BaseActivity() {
     private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
         factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true))
     }
-    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
-    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
+    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireActivityViewModelGraph.miscViewModelFactory.legalHoldRequestedViewModel()
+            }
+        }
+    }
+    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireActivityViewModelGraph.miscViewModelFactory.legalHoldDeactivatedViewModel()
+            }
+        }
+    }
 
     private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
     private lateinit var shakeDetector: ShakeDetector

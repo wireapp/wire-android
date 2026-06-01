@@ -6,6 +6,7 @@ plugins {
     id(BuildPlugins.junit5)
     id(libs.plugins.wire.hilt.get().pluginId)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.compose.stability.analyzer)
 }
 
 android {

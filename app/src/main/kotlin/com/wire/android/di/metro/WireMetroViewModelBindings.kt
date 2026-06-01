@@ -117,6 +117,7 @@ import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewMode
 import com.wire.android.ui.home.settings.about.licenses.LicensesViewModel
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.home.threads.GlobalThreadsViewModel
 import com.wire.android.ui.home.whatsnew.WhatsNewViewModel
 import com.wire.android.ui.initialsync.InitialSyncViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
@@ -178,6 +179,11 @@ object WireMetroViewModelBindings {
     @IntoMap
     @ViewModelKey(FeatureFlagNotificationViewModel::class)
     fun featureFlagNotificationViewModel(viewModel: FeatureFlagNotificationViewModel): ViewModel = viewModel
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(GlobalThreadsViewModel::class)
+    fun globalThreadsViewModel(viewModel: GlobalThreadsViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap

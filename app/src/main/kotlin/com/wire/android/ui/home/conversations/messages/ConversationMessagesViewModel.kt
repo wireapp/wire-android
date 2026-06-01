@@ -193,38 +193,40 @@ class ConversationMessagesViewModel @AssistedInject constructor(
 
     fun observeThreadSummariesForVisibleRoots(rootMessageIds: List<String>) {
         val normalizedRootMessageIds = rootMessageIds.distinct()
-        if (isThreadMode) {
-            if (conversationViewState.threadSummaryByRootMessageId.isNotEmpty()) {
-                conversationViewState = conversationViewState.copy(threadSummaryByRootMessageId = persistentMapOf())
+        when {
+            isThreadMode -> {
+                if (conversationViewState.threadSummaryByRootMessageId.isNotEmpty()) {
+                    conversationViewState = conversationViewState.copy(threadSummaryByRootMessageId = persistentMapOf())
+                }
             }
-            return
-        }
-        if (normalizedRootMessageIds == observedRootMessageIds) return
-        observedRootMessageIds = normalizedRootMessageIds
-        observeThreadSummariesJob?.cancel()
-        if (normalizedRootMessageIds.isEmpty()) {
-            conversationViewState = conversationViewState.copy(threadSummaryByRootMessageId = persistentMapOf())
-            return
-        }
 
-        observeThreadSummariesJob = viewModelScope.launch {
-            observeThreadSummariesForRoots(conversationId, normalizedRootMessageIds).collectLatest { result ->
-                when (result) {
-                    is ObserveThreadSummariesForRootsResult.Success -> {
-                        conversationViewState = conversationViewState.copy(
-                            threadSummaryByRootMessageId = result.summaries.associate { summary ->
-                                summary.rootMessageId to ThreadSummaryUi(
-                                    threadId = summary.threadId,
-                                    visibleReplyCount = summary.visibleReplyCount
-                                )
-                            }.toPersistentMap()
-                        )
-                    }
+            normalizedRootMessageIds != observedRootMessageIds -> {
+                observedRootMessageIds = normalizedRootMessageIds
+                observeThreadSummariesJob?.cancel()
+                if (normalizedRootMessageIds.isEmpty()) {
+                    conversationViewState = conversationViewState.copy(threadSummaryByRootMessageId = persistentMapOf())
+                } else {
+                    observeThreadSummariesJob = viewModelScope.launch {
+                        observeThreadSummariesForRoots(conversationId, normalizedRootMessageIds).collectLatest { result ->
+                            when (result) {
+                                is ObserveThreadSummariesForRootsResult.Success -> {
+                                    conversationViewState = conversationViewState.copy(
+                                        threadSummaryByRootMessageId = result.summaries.associate { summary ->
+                                            summary.rootMessageId to ThreadSummaryUi(
+                                                threadId = summary.threadId,
+                                                visibleReplyCount = summary.visibleReplyCount
+                                            )
+                                        }.toPersistentMap()
+                                    )
+                                }
 
-                    ObserveThreadSummariesForRootsResult.Failure -> {
-                        conversationViewState = conversationViewState.copy(
-                            threadSummaryByRootMessageId = persistentMapOf()
-                        )
+                                ObserveThreadSummariesForRootsResult.Failure -> {
+                                    conversationViewState = conversationViewState.copy(
+                                        threadSummaryByRootMessageId = persistentMapOf()
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -593,7 +595,6 @@ class ConversationMessagesViewModel @AssistedInject constructor(
     private companion object {
         const val DEFAULT_ASSET_NAME = "Wire File"
         const val CURRENT_TIME_REFRESH_WINDOW_IN_MILLIS: Long = 60_000
-        const val REMOTE_PAGE_SIZE = 20
     }
 }
 
@@ -602,13 +603,6 @@ data class OpenThreadData(
     val rootMessageId: String,
     val rootMessageSelfDeletionDurationMillis: Long? = null,
 )
-
-private fun GetMessageByIdUseCase.Result.getAssetContent(): MessageContent.Asset? = when (this) {
-    is GetMessageByIdUseCase.Result.Success -> this.message.content as? MessageContent.Asset
-    else -> null
-}
-
-private fun MessageContent.Asset.localAssetPath(): String? = value.localData?.assetDataPath
 
 private fun ConversationDetails.isWireCellEnabled() = (this as? ConversationDetails.Group)?.wireCell != null
 

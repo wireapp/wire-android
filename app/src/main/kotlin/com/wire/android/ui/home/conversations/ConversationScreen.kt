@@ -592,9 +592,9 @@ internal fun ConversationScreenHost(
         onDownloadAssetClick = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset,
         onReplyInThreadClick = if (REPLY_AS_THREAD_ENABLED) {
-            conversationMessagesViewModel::startThreadFromMessage
+            { message -> conversationMessagesViewModel.startThreadFromMessage(message) }
         } else {
-            messageComposerStateHolder::toReply
+            { message -> messageComposerStateHolder.toReply(message) }
         },
         onOpenThreadClick = { threadId, rootMessageId, rootMessageSelfDeletionDurationMillis ->
             navigator.navigate(

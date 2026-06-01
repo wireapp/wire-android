@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.ThreadConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
+import com.wire.android.ui.home.conversations.usecase.ObserveMessageForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.asset.AttachmentType
@@ -97,6 +98,9 @@ class ConversationMessagesViewModelArrangement {
     lateinit var fetchOlderNomadMessagesByConversationUseCase: FetchOlderNomadMessagesByConversationUseCase
 
     @MockK
+    lateinit var observeMessageForConversationUseCase: ObserveMessageForConversationUseCase
+
+    @MockK
     lateinit var getMessageById: GetMessageByIdUseCase
 
     @MockK
@@ -159,6 +163,7 @@ class ConversationMessagesViewModelArrangement {
             TestDispatcherProvider(),
             getMessagesForConversationUseCase,
             fetchOlderNomadMessagesByConversationUseCase,
+            observeMessageForConversationUseCase,
             toggleReaction,
             resetSession,
             conversationAudioMessagePlayer,
@@ -191,8 +196,14 @@ class ConversationMessagesViewModelArrangement {
 
         coEvery { observeAssetStatuses(any()) } returns flowOf(mapOf())
         every { networkStateObserver.observeNetworkState() } returns networkState
-        coEvery { startThreadFromMessageUseCase(any(), any()) } returns StartThreadFromMessageResult.Success("threadId", "rootMessageId")
-        coEvery { observeThreadSummariesForRootsUseCase(any(), any()) } returns flowOf(ObserveThreadSummariesForRootsResult.Success(emptyList()))
+        coEvery { startThreadFromMessageUseCase(any(), any()) } returns StartThreadFromMessageResult.Success(
+            "threadId",
+            "rootMessageId"
+        )
+        coEvery { observeThreadSummariesForRootsUseCase(any(), any()) } returns flowOf(
+            ObserveThreadSummariesForRootsResult.Success(emptyList())
+        )
+        coEvery { observeMessageForConversationUseCase(any(), any()) } returns flowOf(null)
 
         coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)
         coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)

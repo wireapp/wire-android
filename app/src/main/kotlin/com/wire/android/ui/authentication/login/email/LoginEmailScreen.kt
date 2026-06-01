@@ -183,6 +183,17 @@ private fun LoginEmailContent(
                     .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
                 passwordState = passwordTextState,
             )
+            if (loginEmailState.showInvalidCredentialsError) {
+                Text(
+                    text = stringResource(R.string.login_error_invalid_credentials_message),
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.error,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = MaterialTheme.wireDimensions.spacing16x)
+                        .testTag("invalidCredentialsError")
+                )
+            }
             ForgotPasswordLabel(
                 modifier = Modifier
                     .fillMaxWidth()

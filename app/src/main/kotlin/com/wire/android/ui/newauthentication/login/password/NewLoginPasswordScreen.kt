@@ -215,6 +215,17 @@ internal fun LoginPasswordContent(
                         .testTag("PasswordInput"),
                     passwordState = passwordTextState,
                 )
+                if (loginEmailState.showInvalidCredentialsError) {
+                    Text(
+                        text = stringResource(R.string.login_error_invalid_credentials_message),
+                        style = typography().body01,
+                        color = colorsScheme().error,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = dimensions().spacing16x)
+                            .testTag("invalidCredentialsError")
+                    )
+                }
                 if (serverConfig.isProxyAuthRequired) {
                     ForgotPasswordLabel(
                         forgotPasswordUrl = serverConfig.forgotPassword,

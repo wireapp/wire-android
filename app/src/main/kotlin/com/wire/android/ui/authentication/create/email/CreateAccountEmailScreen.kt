@@ -50,7 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -85,7 +85,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun CreateAccountEmailScreen(
     navigator: Navigator,
-    createAccountEmailViewModel: CreateAccountEmailViewModel = hiltViewModel()
+    createAccountEmailViewModel: CreateAccountEmailViewModel = wireViewModel()
 ) {
     with(createAccountEmailViewModel) {
         fun navigateToDetailsScreen() = navigator.navigate(

@@ -43,6 +43,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.data.user.AssetId
+import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
@@ -163,8 +164,15 @@ data class MessageHeader(
     val isSenderUnavailable: Boolean,
     val clientId: ClientId? = null,
     val accent: Accent = Accent.Unknown,
-    val guestExpiresAt: Instant? = null
+    val guestExpiresAt: Instant? = null,
+    val senderId: MessageSenderId? = null
 )
+
+sealed interface MessageSenderId {
+    data class User(val id: String) : MessageSenderId
+    data class App(val appId: UserId) : MessageSenderId
+    data class Bot(val botService: BotService) : MessageSenderId
+}
 
 @Stable
 @Serializable

@@ -25,7 +25,15 @@ import user.usermanager.ClientUserManager
 
 data class SearchPage(private val device: UiDevice) {
     private val searchFieldSearchPeople = UiSelectorParams(description = "Search people by name or username")
+    private val closeSearchInputFieldButton = UiSelectorParams(
+        className = "android.view.View",
+        description = "Go back to add participants view"
+    )
 
+    private val closeSearchInputFieldButton = UiSelectorParams(
+        className = "android.view.View",
+        description = "Go back to add participants view"
+    )
     fun assertUsernameInSearchResultIs(expectedHandle: String): SearchPage {
         val handleSelector = UiSelectorParams(
             className = "android.widget.TextView",
@@ -51,6 +59,11 @@ data class SearchPage(private val device: UiDevice) {
     fun tapUsernameInSearchResult(userName: String): SearchPage {
         val userName = UiWaitUtils.waitElement(UiSelectorParams(text = userName))
         userName.click()
+        return this
+    }
+
+    fun clickCloseButtonOnSearchInputField(): SearchPage {
+        UiWaitUtils.waitElement(closeSearchInputFieldButton).click()
         return this
     }
 

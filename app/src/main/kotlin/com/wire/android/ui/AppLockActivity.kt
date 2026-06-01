@@ -28,6 +28,9 @@ import com.ramcosta.composedestinations.generated.app.destinations.AppUnlockWith
 import com.ramcosta.composedestinations.generated.app.destinations.EnterLockCodeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.appLogger
+import com.wire.android.di.metro.ImageAssetViewModelGraphBridgeViewModel
+import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.wireViewModel
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.rememberNavigator
@@ -49,8 +52,10 @@ class AppLockActivity : BaseActivity() {
         enableEdgeToEdge()
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
+            val imageAssetViewModelGraph = wireViewModel<ImageAssetViewModelGraphBridgeViewModel>()
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
+                LocalMetroViewModelGraph provides imageAssetViewModelGraph,
                 LocalActivity provides this
             ) {
                 WireTheme {

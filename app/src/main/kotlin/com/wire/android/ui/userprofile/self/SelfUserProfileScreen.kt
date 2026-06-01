@@ -46,7 +46,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
@@ -113,8 +113,8 @@ fun SelfUserProfileScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
     avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>,
-    viewModelSelf: SelfUserProfileViewModel = hiltViewModel(),
-    legalHoldRequestedViewModel: LegalHoldRequestedViewModel = hiltViewModel()
+    viewModelSelf: SelfUserProfileViewModel = wireViewModel(),
+    legalHoldRequestedViewModel: LegalHoldRequestedViewModel = wireViewModel()
 ) {
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
 

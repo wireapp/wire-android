@@ -166,6 +166,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
             pages.connectedUserProfilePage.assertToastMessageIsDisplayed("Connection request sent")
 
             pages.unconnectedUserProfilePage.clickCloseButtonOnUnconnectedUserProfilePage()
+            pages.searchPage.clickCloseButtonOnSearchInputField()
             pages.conversationListPage.clickCloseButtonOnNewConversationScreen()
             pages.conversationListPage
                 .assertConversationNameWithPendingStatusVisibleInConversationList(teamOwner?.name ?: "")

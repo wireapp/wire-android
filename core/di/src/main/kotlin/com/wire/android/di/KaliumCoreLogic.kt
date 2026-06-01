@@ -22,3 +22,7 @@ import javax.inject.Qualifier
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class KaliumCoreLogic
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ApplicationContext

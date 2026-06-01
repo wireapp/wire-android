@@ -73,7 +73,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -154,12 +154,12 @@ import java.util.Locale
 @Composable
 fun OngoingCallScreen(
     conversationId: ConversationId,
-    ongoingCallViewModel: OngoingCallViewModel = hiltViewModel<OngoingCallViewModel, OngoingCallViewModel.Factory>(
+    ongoingCallViewModel: OngoingCallViewModel = wireViewModel<OngoingCallViewModel, OngoingCallViewModel.Factory>(
         key = "ongoing_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
     sharedCallingViewModel: SharedCallingViewModel =
-        hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+        wireViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
             key = "shared_$conversationId",
             creationCallback = { factory -> factory.create(conversationId = conversationId) }
         )

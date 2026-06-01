@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
-    id(libs.plugins.wire.hilt.get().pluginId)
     alias(libs.plugins.compose.compiler)
 }
 
@@ -14,6 +13,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:di"))
+
     implementation("com.wire.kalium:kalium-logic")
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
@@ -35,13 +36,8 @@ dependencies {
     implementation(libs.androidx.paging3)
     implementation(libs.androidx.paging3Compose)
 
-    // hilt
-    implementation(libs.hilt.navigationCompose)
-    implementation(libs.hilt.work)
-
     // smaller view models
     implementation(libs.resaca.core)
-    implementation(libs.resaca.hilt)
     implementation(libs.bundlizer.core)
 
     // Compose Preview

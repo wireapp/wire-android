@@ -55,7 +55,6 @@ import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -74,11 +73,9 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
-import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel
-class CellViewModel @Inject constructor(
+class CellViewModel(
     val savedStateHandle: SavedStateHandle,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,

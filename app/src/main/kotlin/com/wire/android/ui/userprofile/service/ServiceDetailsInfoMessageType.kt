@@ -30,4 +30,9 @@ sealed class ServiceDetailsInfoMessageType(override val uiText: UIText) : SnackB
     // Add Service
     object SuccessAddService : ServiceDetailsInfoMessageType(UIText.StringResource(R.string.service_add_success))
     object ErrorAddService : ServiceDetailsInfoMessageType(UIText.StringResource(R.string.service_add_error))
+
+    // Start or Open Conversation
+    object ErrorStartOrOpenConversation : ServiceDetailsInfoMessageType(
+        UIText.StringResource(R.string.service_conversation_creation_or_retrieval_error)
+    )
 }

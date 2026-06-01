@@ -34,10 +34,6 @@ import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.usecase.GetMeetingsPaginatedUseCase
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -75,18 +71,12 @@ class MeetingListViewModelPreview(
     )
 }
 
-@HiltViewModel(assistedFactory = MeetingListViewModelImpl.Factory::class)
-class MeetingListViewModelImpl @AssistedInject constructor(
-    @Assisted val type: MeetingsTabItem,
+class MeetingListViewModelImpl(
+    val type: MeetingsTabItem,
     override val currentTimeProvider: CurrentTimeProvider,
     getMeetingsPaginated: GetMeetingsPaginatedUseCase,
     dispatcher: DispatcherProvider,
 ) : ViewModel(), MeetingListViewModel {
-    @AssistedFactory
-    interface Factory {
-        fun create(type: MeetingsTabItem): MeetingListViewModelImpl
-    }
-
     override val isShowingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
     private val alignedTickerFlow = flow {
         while (currentCoroutineContext().isActive) {

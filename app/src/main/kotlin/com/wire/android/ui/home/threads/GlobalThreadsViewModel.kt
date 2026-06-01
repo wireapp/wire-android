@@ -36,13 +36,10 @@ import com.wire.android.R
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsResult
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsUseCase
 import com.wire.kalium.logic.feature.message.GlobalThreadSummary
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import javax.inject.Inject
 
-@HiltViewModel
-class GlobalThreadsViewModel @Inject constructor(
+class GlobalThreadsViewModel(
     private val observeGlobalThreads: ObserveGlobalThreadsUseCase,
     private val uiTextResolver: UiTextResolver,
 ) : ViewModel() {
@@ -78,7 +75,7 @@ class GlobalThreadsViewModel @Inject constructor(
                 Conversation.Type.Group.Regular -> UiGlobalThread.ConversationType.GROUP
                 else -> UiGlobalThread.ConversationType.ONE_ON_ONE
             },
-            avatarData = if (thread.conversationType == Conversation.Type.OneOnOne || thread.conversationType == Conversation.Type.ConnectionPending) {
+            avatarData = if (thread.conversationType in oneOnOneConversationTypes) {
                 UserAvatarData(
                     asset = thread.otherUserPreviewAssetId?.let(::UserAvatarAsset),
                     availabilityStatus = thread.otherUserAvailabilityStatus,
@@ -144,3 +141,8 @@ private fun UILastMessageContent.toPlainText(uiTextResolver: UiTextResolver): St
     is UILastMessageContent.TextMessage -> uiTextResolver.resolve(messageBody.message)
     is UILastMessageContent.VerificationChanged -> uiTextResolver.resolve(UIText.StringResource(textResId))
 }
+
+private val oneOnOneConversationTypes = setOf(
+    Conversation.Type.OneOnOne,
+    Conversation.Type.ConnectionPending
+)

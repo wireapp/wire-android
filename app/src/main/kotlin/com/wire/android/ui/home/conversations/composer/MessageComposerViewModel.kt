@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.conversations.InvalidLinkDialogState

@@ -19,16 +19,15 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
-import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.ramcosta.composedestinations.result.OpenResultRecipient
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
+import com.wire.android.ui.calling.conversationCallViewModel
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
@@ -55,15 +54,15 @@ fun ThreadConversationScreen(
     imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
-    conversationInfoViewModel: ConversationInfoViewModel = hiltViewModel(),
-    conversationBannerViewModel: ConversationBannerViewModel = hiltViewModel(),
-    conversationCallViewModel: ConversationCallViewModel = hiltViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
-    messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
-    sendMessageViewModel: SendMessageViewModel = hiltViewModel(),
-    conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
-    messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
-    messageAttachmentsViewModel: MessageAttachmentsViewModel = hiltViewModel(),
+    conversationInfoViewModel: ConversationInfoViewModel = conversationInfoViewModel(),
+    conversationBannerViewModel: ConversationBannerViewModel = conversationBannerViewModel(),
+    conversationCallViewModel: ConversationCallViewModel = conversationCallViewModel(),
+    conversationMessagesViewModel: ConversationMessagesViewModel = conversationMessagesViewModel(),
+    messageComposerViewModel: MessageComposerViewModel = messageComposerViewModel(),
+    sendMessageViewModel: SendMessageViewModel = sendMessageViewModel(),
+    conversationMigrationViewModel: ConversationMigrationViewModel = conversationMigrationViewModel(),
+    messageDraftViewModel: MessageDraftViewModel = messageDraftViewModel(),
+    messageAttachmentsViewModel: MessageAttachmentsViewModel = messageAttachmentsViewModel(),
 ) {
     ConversationScreenHost(
         screenMode = ConversationScreenMode.Thread,

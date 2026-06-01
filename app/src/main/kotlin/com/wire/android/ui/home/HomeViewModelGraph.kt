@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.home.threads.GlobalThreadsViewModel
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
 interface HomeManualViewModelFactory : ManualViewModelAssistedFactory {
@@ -53,6 +54,10 @@ fun appSyncViewModel(): AppSyncViewModel =
 
 @Composable
 fun homeDrawerViewModel(): HomeDrawerViewModel =
+    sessionKeyedMetroViewModel()
+
+@Composable
+fun globalThreadsViewModel(): GlobalThreadsViewModel =
     sessionKeyedMetroViewModel()
 
 @Composable

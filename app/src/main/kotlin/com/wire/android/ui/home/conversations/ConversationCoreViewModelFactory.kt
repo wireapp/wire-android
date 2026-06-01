@@ -48,6 +48,7 @@ import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversa
 import com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesFromConversationUseCase
+import com.wire.android.ui.home.conversations.usecase.ObserveMessageForConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.ObserveQuoteMessageForConversationUseCase
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerHelperFlavor
@@ -96,6 +97,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
+import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
@@ -103,6 +105,7 @@ import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.StartThreadFromMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
@@ -128,6 +131,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val getMessagesForConversation: GetMessagesForConversationUseCase,
     private val fetchOlderNomadMessages: FetchOlderNomadMessagesByConversationUseCase,
+    private val observeMessageForConversation: ObserveMessageForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
@@ -135,6 +139,8 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase,
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
     private val deleteMessage: DeleteMessageUseCase,
+    private val startThreadFromMessage: StartThreadFromMessageUseCase,
+    private val observeThreadSummariesForRoots: ObserveThreadSummariesForRootsUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
@@ -211,6 +217,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
         dispatchers = dispatchers,
         getMessageForConversation = getMessagesForConversation,
         fetchOlderNomadMessages = fetchOlderNomadMessages,
+        observeMessageForConversation = observeMessageForConversation,
         toggleReaction = toggleReaction,
         resetSession = resetSession,
         audioMessagePlayer = audioMessagePlayer,
@@ -218,6 +225,8 @@ class ConversationCoreViewModelFactory @Inject constructor(
         clearUsersTypingEvents = clearUsersTypingEvents,
         getSearchedConversationMessagePosition = getSearchedConversationMessagePosition,
         deleteMessage = deleteMessage,
+        startThreadFromMessageUseCase = startThreadFromMessage,
+        observeThreadSummariesForRoots = observeThreadSummariesForRoots,
         isWireCellFeatureEnabled = isWireCellsEnabled,
         networkStateObserver = networkStateObserver,
     )

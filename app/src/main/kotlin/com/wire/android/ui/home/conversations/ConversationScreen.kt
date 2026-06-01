@@ -72,6 +72,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -232,7 +233,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import java.util.Date
@@ -766,11 +769,11 @@ internal fun ConversationScreenHost(
         shareAsset = conversationMessagesViewModel::shareAsset,
         onDownloadAssetClick = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset,
-        onReplyInThreadClick = (if (REPLY_AS_THREAD_ENABLED) {
-            conversationMessagesViewModel::startThreadFromMessage
+        onReplyInThreadClick = if (REPLY_AS_THREAD_ENABLED) {
+            { message -> conversationMessagesViewModel.startThreadFromMessage(message) }
         } else {
-            messageComposerStateHolder::toReply
-        }) as (UIMessage.Regular) -> Unit,
+            { message -> messageComposerStateHolder.toReply(message) }
+        },
         onOpenThreadClick = { threadId, rootMessageId, rootMessageSelfDeletionDurationMillis ->
             navigator.navigate(
                 threadNavigationCommand(
@@ -1522,24 +1525,25 @@ private fun ThreadContextHeader(
 }
 
 private fun UIMessage.Regular.toThreadRootQuotedMessage(): UIQuotedMessage.UIQuotedData? {
-    val senderId = header.userId ?: return null
     val quotedContent = when {
         isDeleted -> UIQuotedMessage.UIQuotedData.Deleted
-        else -> mapToQuotedContent() ?: return null
-    }
+        else -> mapToQuotedContent()
+    } ?: return null
 
-    return UIQuotedMessage.UIQuotedData(
-        messageId = header.messageId,
-        senderId = senderId,
-        senderName = header.username,
-        senderAccent = header.accent,
-        originalMessageDateDescription = UIText.DynamicString(header.messageTime.formattedDate),
-        editedTimeDescription = when (val editStatus = header.messageStatus.editStatus) {
-            is MessageEditStatus.Edited -> UIText.DynamicString(editStatus.formattedEditTimeStamp)
-            MessageEditStatus.NonEdited -> null
-        },
-        quotedContent = quotedContent
-    )
+    return header.userId?.let { senderId ->
+        UIQuotedMessage.UIQuotedData(
+            messageId = header.messageId,
+            senderId = senderId,
+            senderName = header.username,
+            senderAccent = header.accent,
+            originalMessageDateDescription = UIText.DynamicString(header.messageTime.formattedDate),
+            editedTimeDescription = when (val editStatus = header.messageStatus.editStatus) {
+                is MessageEditStatus.Edited -> UIText.DynamicString(editStatus.formattedEditTimeStamp)
+                MessageEditStatus.NonEdited -> null
+            },
+            quotedContent = quotedContent
+        )
+    }
 }
 
 @Composable
@@ -1673,6 +1677,22 @@ fun MessageList(
         derivedStateOf {
             lazyPagingMessages.peekVisibleWindowItems(lazyListState, SCOPED_VIEW_MODEL_PREFETCH_WINDOW)
         }
+    }
+
+    LaunchedEffect(isThreadMode, lazyPagingMessages) {
+        if (isThreadMode) {
+            onVisibleRootMessageIdsChanged(emptyList())
+            return@LaunchedEffect
+        }
+
+        snapshotFlow {
+            lazyListState.layoutInfo.visibleItemsInfo
+                .mapNotNull { itemInfo -> lazyPagingMessages.peekOrNull(itemInfo.index) as? UIMessage.Regular }
+                .map { message -> message.header.messageId }
+                .distinct()
+        }
+            .distinctUntilChanged()
+            .collect(onVisibleRootMessageIdsChanged)
     }
     val playingAudioMessageKey = (playingAudioMessage as? PlayingAudioMessage.Some)?.let {
         AudioMessageArgs(it.conversationId, it.messageId).key

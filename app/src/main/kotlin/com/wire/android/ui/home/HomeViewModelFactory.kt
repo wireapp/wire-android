@@ -32,6 +32,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.home.threads.GlobalThreadsViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.cells.domain.usecase.ObserveIsAtLeastOneCellAvailableUseCase
@@ -49,6 +50,7 @@ import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegul
 import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
@@ -89,6 +91,7 @@ class HomeViewModelFactory @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
+    private val observeGlobalThreads: ObserveGlobalThreadsUseCase,
     private val createRegularGroup: CreateRegularGroupUseCase,
     private val createChannel: CreateChannelUseCase,
     private val isUserAllowedToCreateChannels: ObserveChannelsCreationPermissionUseCase,
@@ -126,6 +129,11 @@ class HomeViewModelFactory @Inject constructor(
         currentSessionFlow = currentSessionFlow,
         globalDataStore = globalDataStore,
         disableAppLockUseCase = disableAppLockUseCase,
+    )
+
+    fun globalThreadsViewModel() = GlobalThreadsViewModel(
+        observeGlobalThreads = observeGlobalThreads,
+        uiTextResolver = uiTextResolver,
     )
 
     fun conversationListViewModel(

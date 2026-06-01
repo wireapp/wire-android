@@ -46,12 +46,12 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.ThreadConversationScreenDestination
 import com.wire.android.R
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.annotation.app.WireHomeDestination
+import com.wire.android.ui.home.globalThreadsViewModel
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -67,7 +67,7 @@ import com.wire.android.ui.common.R as commonR
 @Composable
 fun GlobalThreadsScreen(
     homeStateHolder: HomeStateHolder,
-    viewModel: GlobalThreadsViewModel = hiltViewModel(),
+    viewModel: GlobalThreadsViewModel = globalThreadsViewModel(),
 ) {
     val query = homeStateHolder.searchBarState.searchQueryTextState.text.toString().trim()
     val allThreads = viewModel.state.threads
@@ -84,7 +84,7 @@ fun GlobalThreadsScreen(
     )
 
     when {
-        viewModel.state.isLoading -> LoadingListContent(homeStateHolder.lazyListStateFor(HomeDestination.Threads))
+        viewModel.state.isLoading -> LoadingListContent(lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Threads))
         filteredThreads.isEmpty() -> ThreadsEmptyContent(
             isSearching = query.isNotBlank(),
             modifier = Modifier.fillMaxSize()

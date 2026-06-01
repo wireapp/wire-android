@@ -588,10 +588,13 @@ class ConversationMessagesViewModelTest {
             .withSuccessfulViewModelInit()
             .arrange()
 
-        advanceUntilIdle()
-
         assertTrue(viewModel.isThreadMode)
-        coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 0, threadId) }
+        viewModel.conversationViewState.messages.test {
+            arrangement.withPaginatedMessagesReturning(PagingData.from(emptyList<UIMessage>()))
+            awaitItem()
+
+            coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 0, threadId) }
+        }
     }
 
     @Test

@@ -98,7 +98,6 @@ class MessageModule {
     fun provideStartThreadFromMessageUseCase(messageScope: MessageScope): StartThreadFromMessageUseCase =
         messageScope.startThreadFromMessage
 
-    @ViewModelScoped
     @Provides
     fun provideMarkMessagesAsNotifiedUseCase(messageScope: MessageScope): MarkMessagesAsNotifiedUseCase =
         messageScope.markMessagesAsNotified
@@ -107,12 +106,10 @@ class MessageModule {
     fun provideObserveThreadSummariesForRootsUseCase(messageScope: MessageScope): ObserveThreadSummariesForRootsUseCase =
         messageScope.observeThreadSummariesForRoots
 
-    @ViewModelScoped
     @Provides
     fun provideObserveGlobalThreadsUseCase(messageScope: MessageScope): ObserveGlobalThreadsUseCase =
         messageScope.observeGlobalThreads
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateAssetMessageTransferStatusUseCase(messageScope: MessageScope): UpdateAssetMessageTransferStatusUseCase =
         messageScope.updateAssetMessageTransferStatus

@@ -20,6 +20,8 @@ package com.wire.android.di.metro
 import androidx.lifecycle.ViewModel
 import com.wire.android.feature.cells.ui.CellsViewModelFactory
 import com.wire.android.feature.cells.ui.CellsViewModelGraph
+import com.wire.android.feature.meetings.ui.MeetingsViewModelFactory
+import com.wire.android.feature.meetings.ui.MeetingsViewModelGraph
 import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -34,10 +36,14 @@ import javax.inject.Provider
 class WireActivityViewModelGraphBridge @Inject constructor(
     imageLoader: Provider<WireSessionImageLoader>,
     private val cellsViewModelFactoryProvider: Provider<CellsViewModelFactory>,
-) : ViewModel(), ImageAssetViewModelGraph, CellsViewModelGraph {
+    private val meetingsViewModelFactoryProvider: Provider<MeetingsViewModelFactory>,
+) : ViewModel(), ImageAssetViewModelGraph, CellsViewModelGraph, MeetingsViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
 
     override val cellsViewModelFactory: CellsViewModelFactory
         get() = cellsViewModelFactoryProvider.get()
+
+    override val meetingsViewModelFactory: MeetingsViewModelFactory
+        get() = meetingsViewModelFactoryProvider.get()
 }

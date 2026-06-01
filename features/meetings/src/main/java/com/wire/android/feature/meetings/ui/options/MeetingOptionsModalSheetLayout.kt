@@ -26,13 +26,12 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.list.CalendarIcon
 import com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon
+import com.wire.android.feature.meetings.ui.meetingOptionsMenuListViewModel
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
-import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -45,6 +44,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.ui.common.R as UICommonR
 
 @Composable
@@ -53,7 +53,7 @@ fun MeetingOptionsModalSheetLayout(
     sheetState: WireModalSheetState<String>,
     viewModel: MeetingOptionsMenuViewModel = when {
         LocalInspectionMode.current -> MeetingOptionsMenuViewModelPreview(CurrentTimeProvider.Preview)
-        else -> viewModel<MeetingOptionsMenuViewModelImpl>()
+        else -> meetingOptionsMenuListViewModel()
     }
 ) {
     val deletedMeetingOptionsClosedMessage = stringResource(R.string.deleted_meeting_options_closed)

@@ -72,6 +72,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -232,7 +233,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import java.util.Date
@@ -1664,6 +1667,22 @@ fun MessageList(
                 shouldTriggerOldestMessageFetch.value = true
             }
         }
+    }
+
+    LaunchedEffect(isThreadMode, lazyPagingMessages) {
+        if (isThreadMode) {
+            onVisibleRootMessageIdsChanged(emptyList())
+            return@LaunchedEffect
+        }
+
+        snapshotFlow {
+            lazyListState.layoutInfo.visibleItemsInfo
+                .mapNotNull { itemInfo -> lazyPagingMessages.peekOrNull(itemInfo.index) as? UIMessage.Regular }
+                .map { message -> message.header.messageId }
+                .distinct()
+        }
+            .distinctUntilChanged()
+            .collect(onVisibleRootMessageIdsChanged)
     }
 
     val audioMessageKeysInScope = remember(lazyPagingMessages.itemSnapshotList.items) {

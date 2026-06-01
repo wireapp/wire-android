@@ -372,9 +372,18 @@ class SendMessageViewModel @Inject constructor(
         }
     }
 
-    internal fun sendAttachment(attachmentBundle: AssetBundle?, conversationId: ConversationId) {
+    internal fun sendAttachment(
+        attachmentBundle: AssetBundle?,
+        conversationId: ConversationId,
+        threadId: String? = null,
+        threadMessageSelfDeletionDurationMillis: Long? = null,
+    ) {
 
         val assetType = attachmentBundle?.assetType ?: return
+        val threadMessageSelfDeletionDuration = resolveThreadMessageSelfDeletionDurationMillis(
+            threadId = threadId,
+            threadMessageSelfDeletionDurationMillis = threadMessageSelfDeletionDurationMillis
+        )?.milliseconds
 
         viewModelScope.launch(dispatchers.io()) {
             when (assetType) {
@@ -384,7 +393,14 @@ class SendMessageViewModel @Inject constructor(
                             kaliumFileSystem,
                             attachmentBundle.dataPath
                         )
-                        sendAssetMessage(attachmentBundle.uploadParams(imgHeight, imgWidth))
+                        sendAssetMessage(
+                            attachmentBundle.uploadParams(
+                                assetHeight = imgHeight,
+                                assetWidth = imgWidth,
+                                threadId = threadId,
+                                threadMessageSelfDeletionDuration = threadMessageSelfDeletionDuration
+                            )
+                        )
                             .handleLegalHoldFailureAfterSendingMessage(conversationId)
                             .handleAssetContributionEvent(assetType)
                     } else {
@@ -397,7 +413,12 @@ class SendMessageViewModel @Inject constructor(
                 AttachmentType.GENERIC_FILE,
                 AttachmentType.AUDIO ->
                     try {
-                        sendAssetMessage(attachmentBundle.assetUploadParams())
+                        sendAssetMessage(
+                            attachmentBundle.assetUploadParams(
+                                threadId = threadId,
+                                threadMessageSelfDeletionDuration = threadMessageSelfDeletionDuration
+                            )
+                        )
                             .handleLegalHoldFailureAfterSendingMessage(conversationId)
                             .handleAssetContributionEvent(assetType)
                     } catch (e: OutOfMemoryError) {
@@ -408,7 +429,10 @@ class SendMessageViewModel @Inject constructor(
         }
     }
 
-    private fun AssetBundle.assetUploadParams(): AssetUploadParams =
+    private fun AssetBundle.assetUploadParams(
+        threadId: String? = null,
+        threadMessageSelfDeletionDuration: Duration? = null,
+    ): AssetUploadParams =
         when (assetType) {
             AttachmentType.GENERIC_FILE,
             AttachmentType.AUDIO ->
@@ -416,7 +440,9 @@ class SendMessageViewModel @Inject constructor(
                     audioLengthInMs = getAudioLengthInMs(
                         dataPath = dataPath,
                         mimeType = mimeType
-                    )
+                    ),
+                    threadId = threadId,
+                    threadMessageSelfDeletionDuration = threadMessageSelfDeletionDuration
                 )
 
             AttachmentType.VIDEO -> {
@@ -425,11 +451,19 @@ class SendMessageViewModel @Inject constructor(
                         assetWidth = metadata.width,
                         assetHeight = metadata.height,
                         audioLengthInMs = metadata.durationMs ?: 0,
+                        threadId = threadId,
+                        threadMessageSelfDeletionDuration = threadMessageSelfDeletionDuration
                     )
-                } ?: uploadParams()
+                } ?: uploadParams(
+                    threadId = threadId,
+                    threadMessageSelfDeletionDuration = threadMessageSelfDeletionDuration
+                )
             }
 
-            else -> uploadParams()
+            else -> uploadParams(
+                threadId = threadId,
+                threadMessageSelfDeletionDuration = threadMessageSelfDeletionDuration
+            )
         }
 
     private fun Either<CoreFailure?, Unit>.handleAssetContributionEvent(

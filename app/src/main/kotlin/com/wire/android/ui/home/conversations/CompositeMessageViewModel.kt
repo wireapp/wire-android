@@ -24,12 +24,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.scopedArgs
 import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ViewModelScopedPreview
-import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.wire.kalium.logic.data.id.MessageButtonId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase

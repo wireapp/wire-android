@@ -84,7 +84,7 @@ fun GlobalThreadsScreen(
     )
 
     when {
-        viewModel.state.isLoading -> LoadingListContent(homeStateHolder.lazyListStateFor(HomeDestination.Threads))
+        viewModel.state.isLoading -> LoadingListContent(lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Threads))
         filteredThreads.isEmpty() -> ThreadsEmptyContent(
             isSearching = query.isNotBlank(),
             modifier = Modifier.fillMaxSize()

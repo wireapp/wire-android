@@ -544,7 +544,6 @@ class ConversationMessagesViewModel @Inject constructor(
     private companion object {
         const val DEFAULT_ASSET_NAME = "Wire File"
         const val CURRENT_TIME_REFRESH_WINDOW_IN_MILLIS: Long = 60_000
-        const val REMOTE_PAGE_SIZE = 20
     }
 }
 
@@ -553,13 +552,6 @@ data class OpenThreadData(
     val rootMessageId: String,
     val rootMessageSelfDeletionDurationMillis: Long? = null,
 )
-
-private fun GetMessageByIdUseCase.Result.getAssetContent(): MessageContent.Asset? = when (this) {
-    is GetMessageByIdUseCase.Result.Success -> this.message.content as? MessageContent.Asset
-    else -> null
-}
-
-private fun MessageContent.Asset.localAssetPath(): String? = value.localData?.assetDataPath
 
 private fun ConversationDetails.isWireCellEnabled() = (this as? ConversationDetails.Group)?.wireCell != null
 

@@ -179,6 +179,9 @@ class SSODeviceBackup : BaseUiTest() {
                     pages.connectedUserProfilePage.apply {
                         tapCloseButtonOnConnectedUserProfilePage()
                     }
+                    pages.searchPage.apply {
+                        clickCloseButtonOnSearchInputField()
+                    }
                     pages.conversationListPage.apply {
                         clickCloseButtonOnNewConversationScreen()
                         assertConversationListVisible()

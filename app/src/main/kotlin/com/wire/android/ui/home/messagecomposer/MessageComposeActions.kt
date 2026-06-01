@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
@@ -245,7 +245,7 @@ fun SelfDeletingMessageAction(
     conversationId: ConversationId,
     onButtonClicked: (SelfDeletionTimer) -> Unit,
     viewModel: SelfDeletingMessageActionViewModel =
-        hiltViewModelScoped<
+        wireViewModelScoped<
                 SelfDeletingMessageActionViewModelImpl,
                 SelfDeletingMessageActionViewModel,
                 SelfDeletingMessageActionArgs,

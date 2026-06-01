@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
     id(libs.plugins.wire.android.navigation.get().pluginId)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
+    alias(libs.plugins.compose.stability.analyzer)
     alias(libs.plugins.kotlin.serialization)
 }
 

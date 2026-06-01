@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
     id(libs.plugins.wire.android.navigation.get().pluginId)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
+    alias(libs.plugins.compose.stability.analyzer)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -14,16 +15,13 @@ dependencies {
     implementation("com.wire.kalium:kalium-common")
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-cells")
+    implementation(project(":core:di"))
     implementation(project(":core:ui-common"))
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.browser)
     implementation(libs.ktx.immutableCollections)
     implementation(libs.ktx.serialization)
-
-    // hilt
-    implementation(libs.hilt.navigationCompose)
-    implementation(libs.hilt.work)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

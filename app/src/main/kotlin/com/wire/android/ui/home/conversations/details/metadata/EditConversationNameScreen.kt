@@ -22,7 +22,7 @@ import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.navigation.Navigator
@@ -40,7 +40,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun EditConversationNameScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<Boolean>,
-    viewModel: EditConversationMetadataViewModel = hiltViewModel(),
+    viewModel: EditConversationMetadataViewModel = wireViewModel(),
 ) {
     with(viewModel) {
         LaunchedEffect(editConversationState.completed) {

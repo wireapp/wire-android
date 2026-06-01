@@ -31,14 +31,11 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.cells.domain.usecase.create.CreateFolderUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class CreateFolderViewModel @Inject constructor(
+class CreateFolderViewModel(
     val savedStateHandle: SavedStateHandle,
     private val createFolderUseCase: CreateFolderUseCase,
 ) : ActionsViewModel<CreateFolderViewModelAction>() {

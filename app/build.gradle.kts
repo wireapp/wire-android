@@ -31,6 +31,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
+    alias(libs.plugins.compose.stability.analyzer)
 
     id(libs.plugins.aboutLibraries.get().pluginId)
 

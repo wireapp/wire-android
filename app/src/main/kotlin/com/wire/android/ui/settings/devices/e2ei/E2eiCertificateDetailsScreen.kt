@@ -34,7 +34,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -61,7 +61,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun E2eiCertificateDetailsScreen(
     navigator: Navigator,
-    e2eiCertificateDetailsViewModel: E2eiCertificateDetailsViewModel = hiltViewModel()
+    e2eiCertificateDetailsViewModel: E2eiCertificateDetailsViewModel = wireViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()

@@ -37,7 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
@@ -78,8 +78,8 @@ import com.wire.kalium.logic.data.conversation.ClientId
 fun RemoveDeviceScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
-    viewModel: RemoveDeviceViewModel = hiltViewModel(),
-    clearSessionViewModel: ClearSessionViewModel = hiltViewModel(),
+    viewModel: RemoveDeviceViewModel = wireViewModel(),
+    clearSessionViewModel: ClearSessionViewModel = wireViewModel(),
 ) {
     fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean) = navigator.navigate(
         NavigationCommand(

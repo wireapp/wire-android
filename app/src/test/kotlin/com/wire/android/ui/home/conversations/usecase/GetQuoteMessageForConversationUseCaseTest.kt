@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
+import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
@@ -246,6 +247,7 @@ class GetQuoteMessageForConversationUseCaseTest {
                     connectionState = null,
                     isSenderDeleted = false,
                     isSenderUnavailable = false,
+                    senderId = MessageSenderId.User(USER_ID.toString())
                 ),
                 source = MessageSource.OtherUser,
                 userAvatarData = UserAvatarData(),

@@ -55,6 +55,7 @@ compose-activity = "1.13.0"
 compose-constraint = "1.1.1"
 compose-navigation = "2.9.5" # aligned with compose-destinations 2.3.0
 compose-destinations = "2.3.0"
+compose-stability-analyzer = "0.7.5"
 screenshot = "0.0.1-alpha14"
 jetbrains-compose = "1.10.3"
 # TODO(KMP): switch Compose MPP material3 to stable when available for this stack.
@@ -94,7 +95,7 @@ openIdAppAuth = "0.11.1"
 aboutLibraries = "14.0.0-b03"
 cyclonedx = "3.1.0"
 leakCanary = "2.14"
-ksp = "2.3.4"
+ksp = "2.3.7"
 
 # Benchmark
 benchmark-macro-junit4 = "1.4.1"
@@ -137,6 +138,7 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "compose-stability-analyzer" }
 cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
 jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
 androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark-baselineprofile-plugin" }

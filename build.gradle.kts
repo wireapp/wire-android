@@ -64,6 +64,16 @@ plugins {
     alias(libs.plugins.cyclonedx)
 }
 
+subprojects {
+    plugins.withId("com.github.skydoves.compose.stability.analyzer") {
+        extensions.configure<com.skydoves.compose.stability.gradle.StabilityAnalyzerExtension>("composeStabilityAnalyzer") {
+            stabilityValidation {
+                ignoreNonRegressiveChanges.set(true)
+            }
+        }
+    }
+}
+
 tasks.cyclonedxBom {
     includeBomSerialNumber = true
     includeLicenseText = false

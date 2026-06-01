@@ -161,19 +161,19 @@ class WireActivity : BaseActivity() {
     @Inject
     lateinit var managedConfigurationsManager: ManagedConfigurationsManager
 
-    private val wireActivityViewModelGraph: WireActivityViewModelGraphBridge by viewModels()
+    private val wireActivityViewModelGraphBridge: WireActivityViewModelGraphBridge by viewModels()
     private val viewModel: WireActivityViewModel by viewModels()
     private val callFeedbackViewModel: CallFeedbackViewModel by viewModels {
         viewModelFactory {
             initializer {
-                wireActivityViewModelGraph.callingViewModelFactory.callFeedbackViewModel()
+                wireActivityViewModelGraphBridge.callingViewModelFactory.callFeedbackViewModel()
             }
         }
     }
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels {
         viewModelFactory {
             initializer {
-                wireActivityViewModelGraph.homeViewModelFactory.featureFlagNotificationViewModel()
+                wireActivityViewModelGraphBridge.homeViewModelFactory.featureFlagNotificationViewModel()
             }
         }
     }
@@ -184,14 +184,14 @@ class WireActivity : BaseActivity() {
     private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels {
         viewModelFactory {
             initializer {
-                wireActivityViewModelGraph.miscViewModelFactory.legalHoldRequestedViewModel()
+                wireActivityViewModelGraphBridge.miscViewModelFactory.legalHoldRequestedViewModel()
             }
         }
     }
     private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels {
         viewModelFactory {
             initializer {
-                wireActivityViewModelGraph.miscViewModelFactory.legalHoldDeactivatedViewModel()
+                wireActivityViewModelGraphBridge.miscViewModelFactory.legalHoldDeactivatedViewModel()
             }
         }
     }
@@ -290,7 +290,7 @@ class WireActivity : BaseActivity() {
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
                 LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelGraph provides wireActivityViewModelGraph,
+                LocalMetroViewModelGraph provides wireActivityViewModelGraphBridge,
                 LocalActivity provides this
             ) {
                 WireTheme(accent = viewModel.globalAppState.userAccent) {

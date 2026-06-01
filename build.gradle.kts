@@ -60,6 +60,7 @@ plugins {
     alias(libs.plugins.ksp) apply false // https://github.com/google/dagger/issues/3965
     alias(libs.plugins.metro) apply false
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.compose.stability.analyzer) apply false
     alias(libs.plugins.cyclonedx)
 }
 

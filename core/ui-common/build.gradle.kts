@@ -5,6 +5,7 @@ plugins {
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.compose.stability.analyzer)
 }
 
 android {

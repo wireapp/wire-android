@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.DpSize
+import com.wire.android.appLogger
 import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
@@ -88,6 +89,7 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_FOUND
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOAD_IN_PROGRESS
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import kotlinx.collections.immutable.PersistentList
 import okio.Path
 
@@ -104,7 +106,8 @@ internal fun MessageBody(
     onLinkClick: (String) -> Unit,
     searchQuery: String = "",
     clickable: Boolean = true,
-    messageStyle: MessageStyle = MessageStyle.NORMAL
+    messageStyle: MessageStyle = MessageStyle.NORMAL,
+    linkPreviews: List<MessageLinkPreview> = emptyList()
 ) {
     val (displayMentions, text) = messageBody?.message?.let {
         mapToDisplayMentions(it, LocalContext.current.resources)
@@ -150,6 +153,12 @@ internal fun MessageBody(
             nodeData,
             clickable
         )
+    }
+
+    appLogger.d("ym. linkpreview is : $linkPreviews")
+    linkPreviews.firstOrNull()?.let { preview ->
+        VerticalSpace.x4()
+        com.wire.android.ui.home.messagecomposer.LinkPreviewCard(preview = preview)
     }
     buttonList?.also {
         VerticalSpace.x4()

@@ -52,6 +52,7 @@ import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -159,6 +160,9 @@ internal class SendMessageViewModelArrangement {
     @MockK
     lateinit var sharedState: MessageSharedState
 
+    @MockK
+    lateinit var generateLinkPreview: GenerateLinkPreviewUseCase
+
     private val viewModel by lazy {
         SendMessageViewModel(
             sendTextMessage = sendTextMessage,
@@ -183,7 +187,8 @@ internal class SendMessageViewModelArrangement {
             analyticsManager = analyticsManager,
             sendMultipartMessage = sendMultipartMessage,
             isWireCellsEnabledForConversation = isWireCellsEnabledForConversation,
-            sharedState = sharedState
+            sharedState = sharedState,
+            generateLinkPreview = generateLinkPreview
         )
     }
 

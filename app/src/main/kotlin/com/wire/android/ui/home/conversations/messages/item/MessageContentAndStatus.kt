@@ -248,7 +248,8 @@ private fun MessageContent(
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
                     messageStyle = messageStyle,
-                    accent = accent
+                    accent = accent,
+                    linkPreviews = message.linkPreviews
                 )
             }
         }
@@ -289,7 +290,8 @@ private fun MessageContent(
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
                     messageStyle = messageStyle,
-                    accent = accent
+                    accent = accent,
+                    linkPreviews = message.linkPreviews
                 )
             }
         }
@@ -412,7 +414,8 @@ private fun MessageContent(
                         messageId = message.header.messageId,
                         onLinkClick = onLinkClick,
                         messageStyle = messageStyle,
-                        accent = accent
+                        accent = accent,
+                        linkPreviews = message.linkPreviews
                     )
                     Spacer(modifier = Modifier.height(dimensions().spacing8x))
                 }

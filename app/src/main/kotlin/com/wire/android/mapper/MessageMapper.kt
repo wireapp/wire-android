@@ -108,7 +108,8 @@ class MessageMapper @Inject constructor(
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     header = provideMessageHeader(sender, message),
                     messageFooter = footer,
-                    userAvatarData = getUserAvatarData(sender)
+                    userAvatarData = getUserAvatarData(sender),
+                    linkPreviews = if (message is Message.Regular) message.linkPreviews else emptyList()
                 )
 
             is UIMessageContent.SystemMessage ->

@@ -77,6 +77,8 @@ import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
+import com.wire.kalium.logic.data.message.mention.MessageMention
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -128,6 +130,9 @@ class SendMessageViewModel @Inject constructor(
     var sureAboutMessagingDialogState: SureAboutMessagingDialogState by mutableStateOf(
         SureAboutMessagingDialogState.Hidden
     )
+
+    var currentLinkPreview: MessageLinkPreview? by mutableStateOf(null)
+        private set
 
     init {
         conversationNavArgs.pendingTextBundle?.let { text ->
@@ -536,6 +541,17 @@ class SendMessageViewModel @Inject constructor(
             }
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
+    }
+
+    fun updateLinkPreview(text: String, mentions: List<MessageMention>) {
+        viewModelScope.launch(dispatchers.io()) {
+            val result = generateLinkPreview(text = text, mentions = mentions)
+            result.onSuccess { preview ->
+                currentLinkPreview = preview
+            }.onFailure {
+                currentLinkPreview = null
+            }
+        }
     }
 
     private fun AssetBundle.uploadParams(

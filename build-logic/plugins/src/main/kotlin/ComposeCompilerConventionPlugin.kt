@@ -20,35 +20,18 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 
-private const val COMPOSE_COMPILER_PLUGIN_ID = "org.jetbrains.kotlin.plugin.compose"
-private const val COMPOSE_STABILITY_CONFIGURATION_FILE = "config/compose-stability.conf"
-private const val ENABLE_COMPOSE_COMPILER_REPORTS = "wire.composeCompiler.reports"
-
 /**
  * A convention plugin to apply and configure the JetBrains Compose Compiler Gradle plugin across all modules that use Compose.
- * Compose compiler reports are opt-in to avoid slowing down regular local builds.
  */
 class ComposeCompilerConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
-        pluginManager.apply(COMPOSE_COMPILER_PLUGIN_ID)
-        configureComposeCompiler()
-    }
+        pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
-    private fun Project.configureComposeCompiler() {
+        // Configure the compose stability configuration file for all modules using the compose compiler plugin
         extensions.configure<ComposeCompilerGradlePluginExtension> {
             stabilityConfigurationFiles.add(
-                rootProject.layout.projectDirectory.file(COMPOSE_STABILITY_CONFIGURATION_FILE)
+                rootProject.layout.projectDirectory.file("config/compose-stability.conf")
             )
-
-            val reportsEnabled = providers
-                .gradleProperty(ENABLE_COMPOSE_COMPILER_REPORTS)
-                .map(String::toBoolean)
-                .getOrElse(false)
-
-            if (reportsEnabled) {
-                metricsDestination.set(layout.buildDirectory.dir("composeCompiler/metrics"))
-                reportsDestination.set(layout.buildDirectory.dir("composeCompiler/reports"))
-            }
         }
     }
 }

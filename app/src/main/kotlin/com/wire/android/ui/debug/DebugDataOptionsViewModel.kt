@@ -28,6 +28,9 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR
 import com.wire.android.appLogger
 import com.wire.android.di.ViewModelScopedPreview
+import com.wire.android.feature.aiassistant.AiModelManager
+import com.wire.android.feature.aiassistant.model.AiModelStatus
+import com.wire.android.ui.debug.DebugDataOptionsViewModelImpl.Companion.PERCENT_MULTIPLIER
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
@@ -120,6 +123,7 @@ class DebugDataOptionsViewModelImpl(
         const val MINUTES_ROUNDING_OFFSET_SECONDS = SECONDS_PER_MINUTE - 1
         val MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_MINUTES =
             MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS / SECONDS_PER_MINUTE
+        const val PERCENT_MULTIPLIER = 100
     }
 
     override var state by mutableStateOf(
@@ -250,6 +254,7 @@ class DebugDataOptionsViewModelImpl(
                     startGettingE2EICertificate = false
                 )
             }
+
             is FinalizeEnrollmentResult.Failure -> {
                 state.copy(
                     certificate = result.toString(),
@@ -257,6 +262,7 @@ class DebugDataOptionsViewModelImpl(
                     startGettingE2EICertificate = false
                 )
             }
+
             is FinalizeEnrollmentResult.Success -> {
                 state.copy(
                     certificate = result.certificate,
@@ -439,6 +445,7 @@ class DebugDataOptionsViewModelImpl(
         }
     }
 
+
     private fun observeAiModelStatus() {
         viewModelScope.launch {
             aiModelManager.observeModelStatus().collect { modelStatus ->
@@ -450,27 +457,21 @@ class DebugDataOptionsViewModelImpl(
     private fun AiModelStatus.toUiState(): AiModelOptionState =
         when (this) {
             AiModelStatus.NotDownloaded -> AiModelOptionState(
-                statusText = "Not downloaded",
+                status = AiModelUiStatus.NotDownloaded,
                 showDownloadButton = true,
                 isDownloading = false
             )
 
             is AiModelStatus.Downloading -> AiModelOptionState(
-                statusText = progress?.let { "Downloading ${(it * PERCENT_MULTIPLIER).toInt()}%" } ?: "Downloading",
+                status = AiModelUiStatus.Downloading(progress),
                 showDownloadButton = true,
                 isDownloading = true
             )
 
             is AiModelStatus.Ready -> AiModelOptionState(
-                statusText = "Downloaded",
+                status = AiModelUiStatus.Downloaded,
                 showDownloadButton = false,
                 isDownloading = false
             )
         }
-
-    private companion object {
-        const val PERCENT_MULTIPLIER = 100
-    }
-    //endregion
 }
-//endregion

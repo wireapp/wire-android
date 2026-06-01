@@ -19,9 +19,13 @@ package com.wire.android.di
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.MetroViewModelGraph
 import com.sebaslogen.resaca.KeyInScopeResolver
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped as resacaHiltViewModelScoped
+import com.sebaslogen.resaca.viewModelScoped as resacaViewModelScoped
 import kotlin.time.Duration
 
 /**
@@ -42,25 +46,23 @@ interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
  *
  * @param arguments The arguments that will be provided to the [ViewModel].
  */
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        wireViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S = when {
+        wireViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> resacaHiltViewModelScoped<T, F>(key = arguments.key?.toString(), clearDelay = clearDelay) { factory ->
         factory.create(arguments)
-    }
+    } as S
 }
 
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
         wireViewModelScoped(
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
     clearDelay: Duration? = null,
-): S where T : ViewModel, T : S = when {
+): S where T : ViewModel = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> {
@@ -73,7 +75,7 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
             clearDelay = clearDelay
         ) { factory ->
             factory.create(arguments)
-        }
+        } as S
     }
 }
 
@@ -85,12 +87,11 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
  * [ViewModel] needs to implement an interface annotated with [ViewModelScopedPreview] and with default
  * implementations.
  */
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
-inline fun <reified T, reified S> wireViewModelScoped(): S where T : ViewModel, T : S = when {
+inline fun <reified T, reified S> wireViewModelScoped(): S where T : ViewModel = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> resacaHiltViewModelScoped<T>()
+    else -> resacaHiltViewModelScoped<T>() as S
 }
 
 @Composable
@@ -100,22 +101,99 @@ inline fun <reified T : ViewModel> wireViewModelScoped(): T = when {
     else -> resacaHiltViewModelScoped<T>()
 }
 
+@Composable
+inline fun <reified Graph, reified T, reified S, reified R : ScopedArgs> wireMetroViewModelScoped(
+    arguments: R,
+    clearDelay: Duration? = null,
+    noinline create: Graph.(SavedStateHandle, R) -> T,
+): S where Graph : MetroViewModelGraph, T : ViewModel = when {
+    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
+    espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
+    else -> {
+        val graph = currentMetroViewModelGraph<Graph>()
+        resacaViewModelScoped<T>(
+            key = arguments.key?.toString(),
+            clearDelay = clearDelay,
+        ) { savedStateHandle ->
+            graph.create(savedStateHandle, arguments)
+        } as S
+    }
+}
+
+@Composable
+inline fun <reified Graph, reified T, reified S, reified R : ScopedArgs> wireMetroViewModelScoped(
+    arguments: R,
+    noinline keyInScopeResolver: KeyInScopeResolver<String>,
+    clearDelay: Duration? = null,
+    noinline create: Graph.(SavedStateHandle, R) -> T,
+): S where Graph : MetroViewModelGraph, T : ViewModel = when {
+    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
+    espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
+    else -> {
+        val graph = currentMetroViewModelGraph<Graph>()
+        val scopedKey = requireNotNull(arguments.key?.toString()) {
+            "Scoped key must not be null for ${T::class.qualifiedName}"
+        }
+        resacaViewModelScoped<T, String>(
+            key = scopedKey,
+            keyInScopeResolver = keyInScopeResolver,
+            clearDelay = clearDelay,
+        ) { savedStateHandle ->
+            graph.create(savedStateHandle, arguments)
+        } as S
+    }
+}
+
+@Composable
+inline fun <reified Graph, reified T, reified S> wireMetroViewModelScoped(
+    clearDelay: Duration? = null,
+    noinline create: Graph.(SavedStateHandle) -> T,
+): S where Graph : MetroViewModelGraph, T : ViewModel = when {
+    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
+    espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
+    else -> {
+        val graph = currentMetroViewModelGraph<Graph>()
+        resacaViewModelScoped<T>(clearDelay = clearDelay) { savedStateHandle ->
+            graph.create(savedStateHandle)
+        } as S
+    }
+}
+
+@Composable
+inline fun <reified Graph, reified T> wireMetroViewModelScoped(
+    clearDelay: Duration? = null,
+    noinline create: Graph.(SavedStateHandle) -> T,
+): T where Graph : MetroViewModelGraph, T : ViewModel = when {
+    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? T }
+    espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? T }
+    else -> {
+        val graph = currentMetroViewModelGraph<Graph>()
+        resacaViewModelScoped<T>(clearDelay = clearDelay) { savedStateHandle ->
+            graph.create(savedStateHandle)
+        }
+    }
+}
+
+@Composable
+inline fun <reified Graph : MetroViewModelGraph> currentMetroViewModelGraph(): Graph =
+    checkNotNull(LocalMetroViewModelGraph.current as? Graph) {
+        "No Metro graph matching ${Graph::class.qualifiedName} was provided"
+    }
+
 @Deprecated("Use wireViewModelScoped so call sites do not depend on the Hilt-backed implementation.")
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        hiltViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S =
+        hiltViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel =
     wireViewModelScoped<T, S, R, F>(arguments = arguments, clearDelay = clearDelay)
 
 @Deprecated("Use wireViewModelScoped so call sites do not depend on the Hilt-backed implementation.")
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
         hiltViewModelScoped(
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
     clearDelay: Duration? = null,
-): S where T : ViewModel, T : S =
+): S where T : ViewModel =
     wireViewModelScoped<T, S, R, F>(
         arguments = arguments,
         keyInScopeResolver = keyInScopeResolver,
@@ -123,9 +201,8 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
     )
 
 @Deprecated("Use wireViewModelScoped so call sites do not depend on the Hilt-backed implementation.")
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
-inline fun <reified T, reified S> hiltViewModelScoped(): S where T : ViewModel, T : S =
+inline fun <reified T, reified S> hiltViewModelScoped(): S where T : ViewModel =
     wireViewModelScoped<T, S>()
 
 @Deprecated("Use wireViewModelScoped so call sites do not depend on the Hilt-backed implementation.")

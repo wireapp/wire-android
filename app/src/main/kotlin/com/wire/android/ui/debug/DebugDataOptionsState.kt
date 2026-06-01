@@ -32,6 +32,7 @@ data class DebugDataOptionsState(
     val currentApiVersion: String = "null",
     val defaultProtocol: String = "null",
     val mlsInfoState: MLSInfoState = MLSInfoState(),
+    val aiModelOptionState: AiModelOptionState = AiModelOptionState()
 )
 
 data class MLSInfoState(

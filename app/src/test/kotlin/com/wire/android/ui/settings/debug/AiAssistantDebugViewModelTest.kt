@@ -22,6 +22,7 @@ package com.wire.android.ui.settings.debug
 import app.cash.turbine.test
 import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.feature.aiassistant.AiEmbeddingModelManager
 import com.wire.android.feature.aiassistant.AiModelManager
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
@@ -91,6 +92,43 @@ class AiAssistantDebugViewModelTest {
         assertEquals(AiModelUiStatus.Downloaded, viewModel.state.aiModelOptionState.status)
         assertEquals(false, viewModel.state.aiModelOptionState.showDownloadButton)
         assertEquals(false, viewModel.state.aiModelOptionState.isDownloading)
+    }
+
+    @Test
+    fun `given embedding model is not downloaded, then embedding model option shows download button`() = runTest {
+        // given
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withEmbeddingModelStatus(AiModelStatus.NotDownloaded)
+            .arrange()
+
+        assertEquals(AiModelUiStatus.NotDownloaded, viewModel.state.embeddingModelOptionState.status)
+        assertEquals(true, viewModel.state.embeddingModelOptionState.showDownloadButton)
+        assertEquals(false, viewModel.state.embeddingModelOptionState.isDownloading)
+    }
+
+    @Test
+    fun `given embedding model is downloading with progress, then embedding model option shows loading button`() = runTest {
+        // given
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withEmbeddingModelStatus(AiModelStatus.Downloading(0.5F))
+            .arrange()
+
+        assertEquals(AiModelUiStatus.Downloading(0.5F), viewModel.state.embeddingModelOptionState.status)
+        assertEquals(true, viewModel.state.embeddingModelOptionState.showDownloadButton)
+        assertEquals(true, viewModel.state.embeddingModelOptionState.isDownloading)
+    }
+
+    @Test
+    fun `given embedding model is ready, then embedding model option hides download button`() = runTest {
+        // given
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withEmbeddingModelStatus(AiModelStatus.Ready("embeddingPath"))
+            .arrange()
+
+        assertEquals(AiModelUiStatus.Downloaded, viewModel.state.embeddingModelOptionState.status)
+        assertEquals(false, viewModel.state.embeddingModelOptionState.showDownloadButton)
+        assertEquals(false, viewModel.state.embeddingModelOptionState.isDownloading)
+        coVerify(exactly = 0) { arrangement.aiModelTestEngine.runHealthCheck("embeddingPath") }
     }
 
     @Test
@@ -207,6 +245,22 @@ class AiAssistantDebugViewModelTest {
     }
 
     @Test
+    fun `given embedding model is not downloaded, when downloading, then embedding model download is started`() = runTest {
+        // given
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withEmbeddingModelStatus(AiModelStatus.NotDownloaded)
+            .withEmbeddingModelDownloadState(AiModelDownloadState.Ready("embeddingPath"))
+            .arrange()
+
+        // when
+        viewModel.downloadEmbeddingModel()
+
+        // then
+        verify(exactly = 1) { arrangement.aiEmbeddingModelManager.downloadModel() }
+        verify(exactly = 0) { arrangement.aiModelManager.downloadModel() }
+    }
+
+    @Test
     fun `given ai model is downloading, when downloading, then model download is not started again`() = runTest {
         // given
         val (arrangement, viewModel) = AiAssistantDebugArrangement()
@@ -218,6 +272,20 @@ class AiAssistantDebugViewModelTest {
 
         // then
         verify(exactly = 0) { arrangement.aiModelManager.downloadModel() }
+    }
+
+    @Test
+    fun `given embedding model is downloading, when downloading, then embedding model download is not started again`() = runTest {
+        // given
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withEmbeddingModelStatus(AiModelStatus.Downloading(0.5F))
+            .arrange()
+
+        // when
+        viewModel.downloadEmbeddingModel()
+
+        // then
+        verify(exactly = 0) { arrangement.aiEmbeddingModelManager.downloadModel() }
     }
 
     @Test
@@ -296,6 +364,25 @@ class AiAssistantDebugViewModelTest {
     }
 
     @Test
+    fun `given embedding model authorization is required with message, when downloading, then authorization dialog is shown`() = runTest {
+        // given
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withEmbeddingModelStatus(AiModelStatus.NotDownloaded)
+            .withEmbeddingModelDownloadState(AiModelDownloadState.AuthRequired(AUTH_REQUIRED_MESSAGE))
+            .arrange()
+
+        // when
+        viewModel.downloadEmbeddingModel()
+
+        // then
+        assertEquals(UIText.DynamicString(AUTH_REQUIRED_MESSAGE), viewModel.state.authorizationDialogState?.message)
+        assertEquals(
+            "https://huggingface.co/litert-community/gemma-3-270m-it",
+            viewModel.state.authorizationDialogState?.authorizeUrl
+        )
+    }
+
+    @Test
     fun `given authorization dialog is shown, when dismissed, then dialog is cleared`() = runTest {
         val (_, viewModel) = AiAssistantDebugArrangement()
             .withAiModelStatus(AiModelStatus.NotDownloaded)
@@ -347,6 +434,26 @@ class AiAssistantDebugViewModelTest {
             assertEquals(UIText.StringResource(R.string.debug_settings_ai_model_download_failed, "Network"), awaitItem())
         }
     }
+
+    @Test
+    fun `given embedding model download fails, when downloading, then info message emits failure`() = runTest {
+        // given
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withEmbeddingModelStatus(AiModelStatus.NotDownloaded)
+            .withEmbeddingModelDownloadState(AiModelDownloadState.Failed(FailureReason.Network))
+            .arrange()
+
+        viewModel.infoMessage.test {
+            // when
+            viewModel.downloadEmbeddingModel()
+
+            // then
+            assertEquals(
+                UIText.StringResource(R.string.debug_settings_ai_embedding_model_download_failed, "Network"),
+                awaitItem()
+            )
+        }
+    }
 }
 
 private val testDescriptor = AiModelDescriptor(
@@ -371,11 +478,15 @@ private class AiAssistantDebugArrangement {
     lateinit var aiModelManager: AiModelManager
 
     @MockK
+    lateinit var aiEmbeddingModelManager: AiEmbeddingModelManager
+
+    @MockK
     lateinit var aiModelTestEngine: AiModelTestEngine
 
     private val viewModel by lazy {
         AiAssistantDebugViewModelImpl(
             aiModelManager = aiModelManager,
+            aiEmbeddingModelManager = aiEmbeddingModelManager,
             aiModelTestEngine = aiModelTestEngine
         )
     }
@@ -386,7 +497,9 @@ private class AiAssistantDebugArrangement {
         every { aiModelManager.availableModels } returns listOf(testDescriptor)
         every { aiModelManager.selectedModel } returns MutableStateFlow(testDescriptor)
         withAiModelStatus(AiModelStatus.NotDownloaded)
+        withEmbeddingModelStatus(AiModelStatus.NotDownloaded)
         withAiModelDownloadState()
+        withEmbeddingModelDownloadState()
         withAiModelHealthCheckResult(AiModelHealthCheckResult.Healthy)
     }
 
@@ -408,9 +521,25 @@ private class AiAssistantDebugArrangement {
         } returns flowOf(*statuses)
     }
 
+    fun withEmbeddingModelStatus(status: AiModelStatus) = apply {
+        withEmbeddingModelStatuses(status)
+    }
+
+    fun withEmbeddingModelStatuses(vararg statuses: AiModelStatus) = apply {
+        every {
+            aiEmbeddingModelManager.observeModelStatus()
+        } returns flowOf(*statuses)
+    }
+
     fun withAiModelDownloadState(state: AiModelDownloadState? = null) = apply {
         every {
             aiModelManager.downloadModel()
+        } returns if (state == null) emptyFlow() else flowOf(state)
+    }
+
+    fun withEmbeddingModelDownloadState(state: AiModelDownloadState? = null) = apply {
+        every {
+            aiEmbeddingModelManager.downloadModel()
         } returns if (state == null) emptyFlow() else flowOf(state)
     }
 

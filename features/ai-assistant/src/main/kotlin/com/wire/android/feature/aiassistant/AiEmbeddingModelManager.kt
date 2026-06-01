@@ -14,15 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.aiassistant.storage
+package com.wire.android.feature.aiassistant
 
-import com.wire.android.feature.aiassistant.model.AiModelDescriptor
-import java.io.File
+import com.wire.android.feature.aiassistant.model.AiModelDownloadState
+import com.wire.android.feature.aiassistant.model.AiModelStatus
+import kotlinx.coroutines.flow.Flow
 
-interface AiModelStorage {
-    fun getModelFile(descriptor: AiModelDescriptor): File
-    fun getTempModelFile(descriptor: AiModelDescriptor): File
-    fun ensureModelDirectoryExists(descriptor: AiModelDescriptor)
-    fun promoteTempFile(descriptor: AiModelDescriptor)
-    fun deleteModelFile(descriptor: AiModelDescriptor)
+interface AiEmbeddingModelManager {
+    fun observeModelStatus(): Flow<AiModelStatus>
+    fun downloadModel(): Flow<AiModelDownloadState>
 }

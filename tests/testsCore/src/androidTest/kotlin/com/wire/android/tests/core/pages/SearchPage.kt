@@ -30,10 +30,6 @@ data class SearchPage(private val device: UiDevice) {
         description = "Go back to add participants view"
     )
 
-    private val closeSearchInputFieldButton = UiSelectorParams(
-        className = "android.view.View",
-        description = "Go back to add participants view"
-    )
     fun assertUsernameInSearchResultIs(expectedHandle: String): SearchPage {
         val handleSelector = UiSelectorParams(
             className = "android.widget.TextView",

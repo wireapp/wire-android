@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase
@@ -113,6 +114,11 @@ class MessageModule {
     @ViewModelScoped
     @Provides
     fun provideSendTextMessageUseCase(messageScope: MessageScope): SendTextMessageUseCase = messageScope.sendTextMessage
+
+    @ViewModelScoped
+    @Provides
+    fun provideGenerateLinkPreviewUseCase(messageScope: MessageScope): GenerateLinkPreviewUseCase =
+        messageScope.generateLinkPreview
 
     @ViewModelScoped
     @Provides

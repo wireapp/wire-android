@@ -50,6 +50,7 @@ import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.getVideoMetaData
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AttachmentType
@@ -75,6 +76,7 @@ import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -109,7 +111,8 @@ class SendMessageViewModel @Inject constructor(
     private val removeMessageDraft: RemoveMessageDraftUseCase,
     private val analyticsManager: AnonymousAnalyticsManager,
     private val isWireCellsEnabledForConversation: IsWireCellsEnabledForConversationUseCase,
-    private val sharedState: MessageSharedState
+    private val sharedState: MessageSharedState,
+    private val generateLinkPreview: GenerateLinkPreviewUseCase
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -266,9 +269,17 @@ class SendMessageViewModel @Inject constructor(
                 removeMessageDraft(messageBundle.conversationId)
                 sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
                 with(messageBundle) {
+                    // Generate link preview if present
+                    val linkPreviewResult = generateLinkPreview(
+                        text = message,
+                        mentions = mentions.map { it.intoMessageMention() }
+                    )
+                    val linkPreviews = linkPreviewResult.getOrNull()?.let { listOf(it) } ?: emptyList()
+
                     sendTextMessage(
                         conversationId = conversationId,
                         text = message,
+                        linkPreviews = linkPreviews,
                         mentions = mentions.map { it.intoMessageMention() },
                         quotedMessageId = quotedMessageId
                     ).toEither()

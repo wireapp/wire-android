@@ -30,7 +30,7 @@ plugins {
     alias(libs.plugins.androidx.baselineprofile)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.compose.compiler)
+    id(libs.plugins.wire.compose.compiler.get().pluginId)
 
     id(libs.plugins.aboutLibraries.get().pluginId)
 

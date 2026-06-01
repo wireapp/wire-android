@@ -65,10 +65,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class MessageComposerViewModel(
-    val savedStateHandle: SavedStateHandle,
+class MessageComposerViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
@@ -115,6 +118,11 @@ class MessageComposerViewModel(
         setFileSharingStatus()
         getEnterToSendState()
         observeCallState()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): MessageComposerViewModel
     }
 
     private fun getEnterToSendState() {

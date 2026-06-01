@@ -17,8 +17,10 @@
  */
 package com.wire.android.ui.debug
 
-import androidx.compose.ui.test.assertDoesNotExist
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.wire.android.extensions.waitUntilExists
@@ -70,11 +72,15 @@ class DebugScreenComposeTest {
                     onRestartSlowSyncForRecovery = {},
                     onForceUpdateApiVersions = {},
                     enrollE2EICertificate = {},
+                    e2eiCertificateExpirationInputState = TextFieldState(),
                     handleE2EIEnrollmentResult = {},
                     dismissCertificateDialog = {},
                     checkCrlRevocationList = {},
+                    forceCRLExpirationAfterOneMinute = false,
+                    onForceCRLExpirationAfterOneMinuteChange = {},
                     onResendFCMToken = {},
                     onShowFeatureFlags = {},
+                    onShowCryptoStats = {},
                     onRepairFaultyRemovalKeys = {},
                     onShowAiAssistantDebugOptions = {}
                 )
@@ -82,7 +88,7 @@ class DebugScreenComposeTest {
         }
 
         composeTestRule.waitUntilExists("AI assistant model")
-        composeTestRule.onNodeWithText("Download").assertDoesNotExist()
+        composeTestRule.onAllNodesWithText("Download").assertCountEquals(0)
     }
 
     @Test
@@ -99,14 +105,19 @@ class DebugScreenComposeTest {
                         healthCheckState = AiModelHealthCheckState.Unavailable
                     ),
                     onNavigationPressed = {},
-                    onDownloadAiModel = {}
+                    onDownloadAiModel = {},
+                    onDownloadEmbeddingModel = {},
+                    onModelSelected = {},
+                    onDismissAuthorizationDialog = {},
+                    onAuthorizeModelAccess = {}
                 )
             }
         }
 
         composeTestRule.waitUntilExists("AI assistant model")
+        composeTestRule.waitUntilExists("Embedding model")
         composeTestRule.waitUntilExists("Not downloaded")
-        composeTestRule.waitUntilExists("Download")
+        composeTestRule.onAllNodesWithText("Download").assertCountEquals(2)
         composeTestRule.waitUntilExists("Model health check")
         composeTestRule.waitUntilExists("Waiting for downloaded model")
     }
@@ -125,14 +136,18 @@ class DebugScreenComposeTest {
                         healthCheckState = AiModelHealthCheckState.Running
                     ),
                     onNavigationPressed = {},
-                    onDownloadAiModel = {}
+                    onDownloadAiModel = {},
+                    onDownloadEmbeddingModel = {},
+                    onModelSelected = {},
+                    onDismissAuthorizationDialog = {},
+                    onAuthorizeModelAccess = {}
                 )
             }
         }
 
         composeTestRule.waitUntilExists("Downloading 50%")
         composeTestRule.waitUntilExists("Checking")
-        composeTestRule.onNodeWithText("Download").assertIsNotEnabled()
+        composeTestRule.onAllNodesWithText("Download")[0].assertIsNotEnabled()
     }
 
     @Test
@@ -149,14 +164,117 @@ class DebugScreenComposeTest {
                         healthCheckState = AiModelHealthCheckState.Healthy
                     ),
                     onNavigationPressed = {},
-                    onDownloadAiModel = {}
+                    onDownloadAiModel = {},
+                    onDownloadEmbeddingModel = {},
+                    onModelSelected = {},
+                    onDismissAuthorizationDialog = {},
+                    onAuthorizeModelAccess = {}
                 )
             }
         }
 
         composeTestRule.waitUntilExists("Downloaded")
         composeTestRule.waitUntilExists("Healthy")
-        composeTestRule.onNodeWithText("Download").assertDoesNotExist()
+        composeTestRule.onAllNodesWithText("Download").assertCountEquals(1)
+    }
+
+    @Test
+    fun givenEmbeddingModelIsNotDownloaded_AiAssistantDebugScreenShouldShowDownloadButton() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                AiAssistantDebugScreenContent(
+                    state = AiAssistantDebugState(
+                        aiModelOptionState = AiModelOptionState(
+                            status = AiModelUiStatus.Downloaded,
+                            showDownloadButton = false,
+                            isDownloading = false
+                        ),
+                        embeddingModelOptionState = AiModelOptionState(
+                            status = AiModelUiStatus.NotDownloaded,
+                            showDownloadButton = true,
+                            isDownloading = false
+                        ),
+                        healthCheckState = AiModelHealthCheckState.Healthy
+                    ),
+                    onNavigationPressed = {},
+                    onDownloadAiModel = {},
+                    onDownloadEmbeddingModel = {},
+                    onModelSelected = {},
+                    onDismissAuthorizationDialog = {},
+                    onAuthorizeModelAccess = {}
+                )
+            }
+        }
+
+        composeTestRule.waitUntilExists("Embedding model")
+        composeTestRule.waitUntilExists("Not downloaded")
+        composeTestRule.onAllNodesWithText("Download").assertCountEquals(1)
+    }
+
+    @Test
+    fun givenEmbeddingModelIsDownloading_AiAssistantDebugScreenShouldShowProgressAndDisabledButton() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                AiAssistantDebugScreenContent(
+                    state = AiAssistantDebugState(
+                        aiModelOptionState = AiModelOptionState(
+                            status = AiModelUiStatus.Downloaded,
+                            showDownloadButton = false,
+                            isDownloading = false
+                        ),
+                        embeddingModelOptionState = AiModelOptionState(
+                            status = AiModelUiStatus.Downloading(0.5F),
+                            showDownloadButton = true,
+                            isDownloading = true
+                        ),
+                        healthCheckState = AiModelHealthCheckState.Healthy
+                    ),
+                    onNavigationPressed = {},
+                    onDownloadAiModel = {},
+                    onDownloadEmbeddingModel = {},
+                    onModelSelected = {},
+                    onDismissAuthorizationDialog = {},
+                    onAuthorizeModelAccess = {}
+                )
+            }
+        }
+
+        composeTestRule.waitUntilExists("Embedding model")
+        composeTestRule.waitUntilExists("Downloading 50%")
+        composeTestRule.onAllNodesWithText("Download")[0].assertIsNotEnabled()
+    }
+
+    @Test
+    fun givenEmbeddingModelIsDownloaded_AiAssistantDebugScreenShouldHideDownloadButton() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                AiAssistantDebugScreenContent(
+                    state = AiAssistantDebugState(
+                        aiModelOptionState = AiModelOptionState(
+                            status = AiModelUiStatus.Downloaded,
+                            showDownloadButton = false,
+                            isDownloading = false
+                        ),
+                        embeddingModelOptionState = AiModelOptionState(
+                            status = AiModelUiStatus.Downloaded,
+                            showDownloadButton = false,
+                            isDownloading = false
+                        ),
+                        healthCheckState = AiModelHealthCheckState.Healthy
+                    ),
+                    onNavigationPressed = {},
+                    onDownloadAiModel = {},
+                    onDownloadEmbeddingModel = {},
+                    onModelSelected = {},
+                    onDismissAuthorizationDialog = {},
+                    onAuthorizeModelAccess = {}
+                )
+            }
+        }
+
+        composeTestRule.waitUntilExists("Embedding model")
+        composeTestRule.waitUntilExists("Downloaded")
+        composeTestRule.onAllNodesWithText("Download").assertCountEquals(0)
     }
 
     @Test
@@ -173,7 +291,11 @@ class DebugScreenComposeTest {
                         healthCheckState = AiModelHealthCheckState.Failed("Model returned an empty response")
                     ),
                     onNavigationPressed = {},
-                    onDownloadAiModel = {}
+                    onDownloadAiModel = {},
+                    onDownloadEmbeddingModel = {},
+                    onModelSelected = {},
+                    onDismissAuthorizationDialog = {},
+                    onAuthorizeModelAccess = {}
                 )
             }
         }

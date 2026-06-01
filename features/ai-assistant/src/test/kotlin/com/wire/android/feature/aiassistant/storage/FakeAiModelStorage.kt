@@ -57,4 +57,10 @@ class FakeAiModelStorage(
             StandardCopyOption.REPLACE_EXISTING
         )
     }
+
+    override fun deleteModelFile(descriptor: AiModelDescriptor) {
+        check(descriptor == this.descriptor)
+        modelFile.delete()
+        tempModelFile.delete()
+    }
 }

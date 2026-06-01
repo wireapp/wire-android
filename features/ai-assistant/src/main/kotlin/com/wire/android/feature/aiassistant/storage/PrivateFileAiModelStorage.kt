@@ -46,6 +46,11 @@ class PrivateFileAiModelStorage @Inject constructor(
         )
     }
 
+    override fun deleteModelFile(descriptor: AiModelDescriptor) {
+        getModelFile(descriptor).delete()
+        getTempModelFile(descriptor).delete()
+    }
+
     private fun getModelDirectory(descriptor: AiModelDescriptor): File =
         File(File(context.filesDir, MODELS_DIRECTORY), descriptor.localDirectoryName)
 

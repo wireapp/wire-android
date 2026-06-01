@@ -18,6 +18,8 @@ package com.wire.android.feature.aiassistant.di
 
 import com.wire.android.feature.aiassistant.AiModelManager
 import com.wire.android.feature.aiassistant.AiMessageComposerAgent
+import com.wire.android.feature.aiassistant.AiEmbeddingModelManager
+import com.wire.android.feature.aiassistant.DefaultAiEmbeddingModelManager
 import com.wire.android.feature.aiassistant.DefaultAiModelManager
 import com.wire.android.feature.aiassistant.DefaultAiMessageComposerAgent
 import com.wire.android.feature.aiassistant.download.AiModelDownloader
@@ -50,6 +52,10 @@ abstract class AiAssistantModule {
     @Binds
     @Singleton
     abstract fun bindAiModelManager(implementation: DefaultAiModelManager): AiModelManager
+
+    @Binds
+    @Singleton
+    abstract fun bindAiEmbeddingModelManager(implementation: DefaultAiEmbeddingModelManager): AiEmbeddingModelManager
 
     @Binds
     @Singleton

@@ -1899,6 +1899,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_conversation_crypto_stats" translatable="false">Conversation Crypto Stats</string>
     <string name="debug_settings_ai_assistant" translatable="false">AI assistant</string>
     <string name="debug_settings_ai_assistant_model" translatable="false">AI assistant model</string>
+    <string name="debug_settings_ai_embedding_model" translatable="false">Embedding model</string>
     <string name="debug_settings_ai_model_select" translatable="false">Select model</string>
     <string name="debug_settings_ai_model_not_downloaded" translatable="false">Not downloaded</string>
     <string name="debug_settings_ai_model_downloading" translatable="false">Downloading</string>
@@ -1909,6 +1910,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_ai_model_auth_required_title" translatable="false">AI model authorization required</string>
     <string name="debug_settings_ai_model_authorize" translatable="false">Authorize</string>
     <string name="debug_settings_ai_model_download_failed" translatable="false">AI model download failed: %1$s</string>
+    <string name="debug_settings_ai_embedding_model_download_failed" translatable="false">Embedding model download failed: %1$s</string>
     <string name="debug_settings_ai_model_health_check" translatable="false">Model health check</string>
     <string name="debug_settings_ai_model_health_check_unavailable" translatable="false">Waiting for downloaded model</string>
     <string name="debug_settings_ai_model_health_check_running" translatable="false">Checking</string>

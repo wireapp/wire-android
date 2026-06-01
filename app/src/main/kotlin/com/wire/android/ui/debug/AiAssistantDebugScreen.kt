@@ -39,6 +39,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.feature.aiassistant.AiEmbeddingModelManager
 import com.wire.android.feature.aiassistant.AiModelManager
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
@@ -95,6 +96,7 @@ fun AiAssistantDebugScreen(
         state = viewModel.state,
         onNavigationPressed = navigator::navigateBack,
         onDownloadAiModel = viewModel::downloadAiModel,
+        onDownloadEmbeddingModel = viewModel::downloadEmbeddingModel,
         onModelSelected = viewModel::selectModel,
         onDismissAuthorizationDialog = viewModel::dismissAuthorizationDialog,
         onAuthorizeModelAccess = viewModel::authorizeModelAccess,
@@ -113,6 +115,7 @@ fun AiAssistantDebugScreenContent(
     state: AiAssistantDebugState,
     onNavigationPressed: () -> Unit,
     onDownloadAiModel: () -> Unit,
+    onDownloadEmbeddingModel: () -> Unit,
     onModelSelected: (AiModelDescriptor) -> Unit,
     onDismissAuthorizationDialog: () -> Unit,
     onAuthorizeModelAccess: (String) -> Unit,
@@ -159,8 +162,14 @@ fun AiAssistantDebugScreenContent(
                     )
                 }
                 AiModelOption(
+                    title = stringResource(R.string.debug_settings_ai_assistant_model),
                     state = state.aiModelOptionState,
                     onDownloadAiModel = onDownloadAiModel
+                )
+                AiModelOption(
+                    title = stringResource(R.string.debug_settings_ai_embedding_model),
+                    state = state.embeddingModelOptionState,
+                    onDownloadAiModel = onDownloadEmbeddingModel
                 )
                 AiModelHealthCheckOption(state = state.healthCheckState)
             }
@@ -229,6 +238,7 @@ private fun AiModelSelectorOption(
 
 @Composable
 private fun AiModelOption(
+    title: String,
     state: AiModelOptionState,
     onDownloadAiModel: () -> Unit,
 ) {
@@ -239,7 +249,7 @@ private fun AiModelOption(
                 Text(
                     style = MaterialTheme.wireTypography.body01,
                     color = MaterialTheme.wireColorScheme.onBackground,
-                    text = stringResource(R.string.debug_settings_ai_assistant_model)
+                    text = title
                 )
                 Text(
                     style = MaterialTheme.wireTypography.body02,
@@ -310,6 +320,7 @@ interface AiAssistantDebugViewModel {
     val authorizationUrl: SharedFlow<String> get() = MutableSharedFlow()
     val state: AiAssistantDebugState get() = AiAssistantDebugState()
     fun downloadAiModel() {}
+    fun downloadEmbeddingModel() {}
     fun selectModel(descriptor: AiModelDescriptor) {}
     fun dismissAuthorizationDialog() {}
     fun authorizeModelAccess(url: String) {}
@@ -318,6 +329,7 @@ interface AiAssistantDebugViewModel {
 @HiltViewModel
 class AiAssistantDebugViewModelImpl @Inject constructor(
     private val aiModelManager: AiModelManager,
+    private val aiEmbeddingModelManager: AiEmbeddingModelManager,
     private val aiModelTestEngine: AiModelTestEngine,
 ) : ViewModel(), AiAssistantDebugViewModel {
 
@@ -337,6 +349,7 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
         )
         observeSelectedModel()
         observeAiModelStatus()
+        observeEmbeddingModelStatus()
     }
 
     override fun downloadAiModel() {
@@ -362,6 +375,35 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
                     is AiModelDownloadState.Ready,
                     AiModelDownloadState.Starting -> {
                         // Status is exposed through observeModelStatus.
+                    }
+                }
+            }
+        }
+    }
+
+    override fun downloadEmbeddingModel() {
+        if (state.embeddingModelOptionState.isDownloading) return
+
+        viewModelScope.launch {
+            aiEmbeddingModelManager.downloadModel().collect { downloadState ->
+                when (downloadState) {
+                    is AiModelDownloadState.AuthRequired ->
+                        state = state.copy(
+                            authorizationDialogState = downloadState.toAuthorizationDialogState()
+                        )
+
+                    is AiModelDownloadState.Failed ->
+                        _infoMessage.emit(
+                            UIText.StringResource(
+                                R.string.debug_settings_ai_embedding_model_download_failed,
+                                downloadState.reason.toString()
+                            )
+                        )
+
+                    is AiModelDownloadState.Downloading,
+                    is AiModelDownloadState.Ready,
+                    AiModelDownloadState.Starting -> {
+                        // Status is exposed through observeEmbeddingModelStatus.
                     }
                 }
             }
@@ -396,6 +438,14 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
             aiModelManager.observeModelStatus().collect { modelStatus ->
                 state = state.copy(aiModelOptionState = modelStatus.toUiState())
                 updateHealthCheck(modelStatus)
+            }
+        }
+    }
+
+    private fun observeEmbeddingModelStatus() {
+        viewModelScope.launch {
+            aiEmbeddingModelManager.observeModelStatus().collect { modelStatus ->
+                state = state.copy(embeddingModelOptionState = modelStatus.toUiState())
             }
         }
     }
@@ -473,6 +523,7 @@ data class AiAssistantDebugState(
     val availableModels: List<AiModelDescriptor> = emptyList(),
     val selectedModel: AiModelDescriptor? = null,
     val aiModelOptionState: AiModelOptionState = AiModelOptionState(),
+    val embeddingModelOptionState: AiModelOptionState = AiModelOptionState(),
     val healthCheckState: AiModelHealthCheckState = AiModelHealthCheckState.Unavailable,
     val authorizationDialogState: AiModelAuthorizationDialogState? = null
 )
@@ -516,6 +567,7 @@ fun PreviewAiAssistantDebugScreen() = WireTheme {
         state = AiAssistantDebugState(),
         onNavigationPressed = {},
         onDownloadAiModel = {},
+        onDownloadEmbeddingModel = {},
         onModelSelected = {},
         onDismissAuthorizationDialog = {},
         onAuthorizeModelAccess = {}

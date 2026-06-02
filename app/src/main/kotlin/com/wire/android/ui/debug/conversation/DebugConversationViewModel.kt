@@ -33,15 +33,12 @@ import com.wire.kalium.logic.feature.debug.DebugFeedConversationUseCase
 import com.wire.kalium.logic.feature.debug.DebugFeedResult
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCResult
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class DebugConversationViewModel @Inject constructor(
+class DebugConversationViewModel(
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,
     private val fetchConversation: FetchConversationUseCase,

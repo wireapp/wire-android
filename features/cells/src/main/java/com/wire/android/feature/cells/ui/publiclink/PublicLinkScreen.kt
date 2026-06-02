@@ -44,7 +44,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import com.wire.android.di.wireViewModel
+import com.wire.android.feature.cells.ui.publicLinkViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.TypedDestinationSpec
@@ -82,7 +82,7 @@ fun PublicLinkScreen(
     onPasswordChange: ResultRecipient<PublicLinkPasswordScreenDestination, Boolean>,
     onExpirationChange: ResultRecipient<PublicLinkExpirationScreenDestination, PublicLinkExpirationResult>,
     modifier: Modifier = Modifier,
-    viewModel: PublicLinkViewModel = wireViewModel(),
+    viewModel: PublicLinkViewModel = publicLinkViewModel(),
 ) {
 
     val context = LocalContext.current

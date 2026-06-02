@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -36,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -45,7 +47,6 @@ import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
@@ -168,11 +169,15 @@ fun ThemeOptionItem(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = dimensions().spacing1x)
-            .selectableBackground(isSelected, onClick = { onItemClicked(themeOption) })
+            .selectable(
+                selected = isSelected,
+                role = Role.RadioButton,
+                onClick = { onItemClicked(themeOption) }
+            )
             .background(color = MaterialTheme.wireColorScheme.surface),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(selected = isSelected, onClick = { onItemClicked(themeOption) })
+        RadioButton(selected = isSelected, onClick = null)
         Text(
             text = when (themeOption) {
                 ThemeOption.LIGHT -> buildAnnotatedString { append(stringResource(R.string.settings_appearance_theme_option_light)) }

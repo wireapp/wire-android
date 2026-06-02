@@ -24,6 +24,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.DOWNLOAD_IN_PROGRESS
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_DOWNLOADED
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.SAVED_INTERNALLY
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOADED
@@ -108,7 +109,7 @@ class ConversationAssetPathsViewModelImpl @Inject constructor(
 
 internal fun AssetTransferStatus.shouldResolveAsset(downloadIfNeeded: Boolean) =
     if (downloadIfNeeded) {
-        this in setOf(NOT_DOWNLOADED, DOWNLOAD_IN_PROGRESS, SAVED_INTERNALLY, UPLOADED)
+        this in setOf(NOT_DOWNLOADED, DOWNLOAD_IN_PROGRESS, SAVED_INTERNALLY, UPLOADED, FAILED_UPLOAD)
     } else {
-        this in setOf(SAVED_INTERNALLY, UPLOADED)
+        this in setOf(SAVED_INTERNALLY, UPLOADED, FAILED_UPLOAD)
     }

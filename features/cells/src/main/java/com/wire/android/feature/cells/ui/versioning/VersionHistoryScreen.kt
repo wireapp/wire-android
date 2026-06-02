@@ -38,7 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
+import com.wire.android.feature.cells.ui.versionHistoryViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.ErrorScreen
 import com.wire.android.feature.cells.ui.common.LoadingScreen
@@ -72,7 +72,7 @@ import kotlinx.coroutines.launch
 fun VersionHistoryScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    versionHistoryViewModel: VersionHistoryViewModel = wireViewModel()
+    versionHistoryViewModel: VersionHistoryViewModel = versionHistoryViewModel()
 ) {
     val optionsBottomSheetState = rememberWireModalSheetState<Pair<String, CellVersion>>()
     val snackbarHostState = LocalSnackbarHostState.current

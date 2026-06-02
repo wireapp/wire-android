@@ -99,7 +99,7 @@ internal fun MessageBody(
     messageBody: MessageBody?,
     isAvailable: Boolean,
     accent: Accent,
-    onOpenProfile: (String) -> Unit,
+    onOpenProfile: (senderId: MessageSenderId) -> Unit,
     buttonList: PersistentList<MessageButton>?,
     onLinkClick: (String) -> Unit,
     searchQuery: String = "",
@@ -347,13 +347,16 @@ private fun MessageImageOverlay(
             )
         }
 
-        FAILED_UPLOAD, FAILED_DOWNLOAD -> {
+        FAILED_DOWNLOAD -> {
             ImageMessageFailed(
                 size = size,
-                isDownloadFailure = transferStatus == FAILED_DOWNLOAD,
+                isDownloadFailure = true,
                 errorColor = messageStyle.error()
             )
         }
+
+        // Keep showing the image preview from local image
+        FAILED_UPLOAD -> Unit
 
         else -> Unit
     }

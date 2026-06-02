@@ -134,6 +134,44 @@ jobs:
           rm -f ~/.gradle/caches/modules-2/modules-2.lock
           rm -f ~/.gradle/caches/modules-2/gc.properties
 
+  compose-stability:
+    name: Compose Stability
+    needs: [workflow-security]
+    runs-on: warp-ubuntu-2404-x64-8x
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          submodules: recursive # Needed in order to fetch Kalium sources for building
+          fetch-depth: 0
+      - name: Set up JDK 21
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - uses: WarpBuilds/cache@6ab98e7fdd65255995acec1de229a0bf2a40fe37 # v1
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6
+      - name: Run Compose stability check
+        env:
+          GRADLE_OPTS: "-Xmx6G -XX:+UseParallelGC -XX:MaxMetaspaceSize=2g"
+        run: |
+          ./gradlew compileApp :app:devDebugStabilityCheck debugStabilityCheck --no-daemon --no-configuration-cache -Pskip.aboutlibraries=true
+      - name: Cleanup Gradle Cache
+        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties
+
   # Keep complex workflows as reusable but call them directly
   ui-tests:
     name: "UI Tests"
@@ -154,7 +192,7 @@ jobs:
   # Build matrix job - only runs if all quality checks pass
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
-    needs: [ workflow-security, lint, style, ui-tests, unit-tests ]
+    needs: [ workflow-security, lint, style, compose-stability, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false  # Continue building other flavors even if one fails

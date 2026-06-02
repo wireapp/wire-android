@@ -47,8 +47,9 @@ interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
  * @param arguments The arguments that will be provided to the [ViewModel].
  */
 @Composable
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        wireViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel = when {
+        wireViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> resacaHiltViewModelScoped<T, F>(key = arguments.key?.toString(), clearDelay = clearDelay) { factory ->
@@ -57,12 +58,13 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
 }
 
 @Composable
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
         wireViewModelScoped(
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
     clearDelay: Duration? = null,
-): S where T : ViewModel = when {
+): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> {
@@ -88,7 +90,8 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
  * implementations.
  */
 @Composable
-inline fun <reified T, reified S> wireViewModelScoped(): S where T : ViewModel = when {
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
+inline fun <reified T, reified S> wireViewModelScoped(): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> resacaHiltViewModelScoped<T>() as S
@@ -102,11 +105,12 @@ inline fun <reified T : ViewModel> wireViewModelScoped(): T = when {
 }
 
 @Composable
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 inline fun <reified Graph, reified T, reified S, reified R : ScopedArgs> wireMetroViewModelScoped(
     arguments: R,
     clearDelay: Duration? = null,
     noinline create: Graph.(SavedStateHandle, R) -> T,
-): S where Graph : MetroViewModelGraph, T : ViewModel = when {
+): S where Graph : MetroViewModelGraph, T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> {
@@ -121,12 +125,13 @@ inline fun <reified Graph, reified T, reified S, reified R : ScopedArgs> wireMet
 }
 
 @Composable
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 inline fun <reified Graph, reified T, reified S, reified R : ScopedArgs> wireMetroViewModelScoped(
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
     clearDelay: Duration? = null,
     noinline create: Graph.(SavedStateHandle, R) -> T,
-): S where Graph : MetroViewModelGraph, T : ViewModel = when {
+): S where Graph : MetroViewModelGraph, T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> {
@@ -145,10 +150,11 @@ inline fun <reified Graph, reified T, reified S, reified R : ScopedArgs> wireMet
 }
 
 @Composable
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 inline fun <reified Graph, reified T, reified S> wireMetroViewModelScoped(
     clearDelay: Duration? = null,
     noinline create: Graph.(SavedStateHandle) -> T,
-): S where Graph : MetroViewModelGraph, T : ViewModel = when {
+): S where Graph : MetroViewModelGraph, T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> {
@@ -182,18 +188,20 @@ inline fun <reified Graph : MetroViewModelGraph> currentMetroViewModelGraph(): G
 
 @Deprecated("Use wireViewModelScoped so call sites do not depend on the Hilt-backed implementation.")
 @Composable
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        hiltViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel =
+        hiltViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S =
     wireViewModelScoped<T, S, R, F>(arguments = arguments, clearDelay = clearDelay)
 
 @Deprecated("Use wireViewModelScoped so call sites do not depend on the Hilt-backed implementation.")
 @Composable
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
         hiltViewModelScoped(
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
     clearDelay: Duration? = null,
-): S where T : ViewModel =
+): S where T : ViewModel, T : S =
     wireViewModelScoped<T, S, R, F>(
         arguments = arguments,
         keyInScopeResolver = keyInScopeResolver,
@@ -202,7 +210,8 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedVi
 
 @Deprecated("Use wireViewModelScoped so call sites do not depend on the Hilt-backed implementation.")
 @Composable
-inline fun <reified T, reified S> hiltViewModelScoped(): S where T : ViewModel =
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
+inline fun <reified T, reified S> hiltViewModelScoped(): S where T : ViewModel, T : S =
     wireViewModelScoped<T, S>()
 
 @Deprecated("Use wireViewModelScoped so call sites do not depend on the Hilt-backed implementation.")

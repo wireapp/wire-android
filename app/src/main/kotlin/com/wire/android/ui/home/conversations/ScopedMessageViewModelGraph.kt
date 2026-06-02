@@ -50,11 +50,12 @@ interface ScopedMessageViewModelGraph : MetroViewModelGraph {
 }
 
 @Composable
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 private inline fun <reified VM, reified S, reified R : ScopedArgs> scopedMessageViewModel(
     arguments: R,
     clearDelay: Duration? = null,
     noinline create: ScopedMessageViewModelFactory.(SavedStateHandle, R) -> VM,
-): S where VM : ViewModel =
+): S where VM : ViewModel, VM : S =
     wireMetroViewModelScoped<ScopedMessageViewModelGraph, VM, S, R>(
         arguments = arguments,
         clearDelay = clearDelay,
@@ -63,12 +64,13 @@ private inline fun <reified VM, reified S, reified R : ScopedArgs> scopedMessage
     }
 
 @Composable
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 private inline fun <reified VM, reified S, reified R : ScopedArgs> scopedMessageViewModel(
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
     clearDelay: Duration? = null,
     noinline create: ScopedMessageViewModelFactory.(SavedStateHandle, R) -> VM,
-): S where VM : ViewModel =
+): S where VM : ViewModel, VM : S =
     wireMetroViewModelScoped<ScopedMessageViewModelGraph, VM, S, R>(
         arguments = arguments,
         keyInScopeResolver = keyInScopeResolver,
@@ -78,10 +80,11 @@ private inline fun <reified VM, reified S, reified R : ScopedArgs> scopedMessage
     }
 
 @Composable
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 private inline fun <reified VM, reified S> scopedMessageViewModel(
     clearDelay: Duration? = null,
     noinline create: ScopedMessageViewModelFactory.(SavedStateHandle) -> VM,
-): S where VM : ViewModel =
+): S where VM : ViewModel, VM : S =
     wireMetroViewModelScoped<ScopedMessageViewModelGraph, VM, S>(
         clearDelay = clearDelay,
     ) { savedStateHandle ->

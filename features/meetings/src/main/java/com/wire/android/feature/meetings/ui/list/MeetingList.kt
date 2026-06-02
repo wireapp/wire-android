@@ -42,6 +42,7 @@ import com.wire.android.ui.common.rowitem.EmptyListContent
 import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.theme.WireTheme
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun MeetingList(
     type: MeetingsTabItem,

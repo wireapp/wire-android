@@ -5,10 +5,14 @@
 //   ./gradlew :meetings:stabilityDump
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.AllMeetingsScreen(): kotlin.Unit
+public fun com.wire.android.feature.meetings.ui.AllMeetingsScreen(lazyListState: androidx.compose.foundation.lazy.LazyListState, contentPadding: androidx.compose.foundation.layout.PaddingValues, tabs: kotlinx.collections.immutable.ImmutableList<com.wire.android.feature.meetings.ui.MeetingsTabItem>, initialTab: com.wire.android.feature.meetings.ui.MeetingsTabItem): kotlin.Unit
   skippable: true
   restartable: true
   params:
+    - lazyListState: STABLE (marked @Stable or @Immutable)
+    - contentPadding: STABLE (marked @Stable or @Immutable)
+    - tabs: STABLE (known stable type)
+    - initialTab: STABLE (class with no mutable properties)
 
 @Composable
 public fun com.wire.android.feature.meetings.ui.NewMeetingBottomSheet(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.Unit>, onMeetNowClick: kotlin.Function0<kotlin.Unit>, onScheduleClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -18,6 +22,14 @@ public fun com.wire.android.feature.meetings.ui.NewMeetingBottomSheet(sheetState
     - sheetState: UNSTABLE (has mutable properties or unstable members)
     - onMeetNowClick: STABLE (function type)
     - onScheduleClick: STABLE (function type)
+
+@Composable
+internal fun com.wire.android.feature.meetings.ui.list.CalendarIcon(tint: androidx.compose.ui.graphics.Color, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - tint: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.EmptyMeetingListContent(type: com.wire.android.feature.meetings.ui.MeetingsTabItem, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -78,27 +90,15 @@ internal fun com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon(): kot
   params:
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.list.MeetingList(type: com.wire.android.feature.meetings.ui.MeetingsTabItem, modifier: androidx.compose.ui.Modifier, lazyListState: androidx.compose.foundation.lazy.LazyListState, openMeetingOptions: kotlin.Function1<@[ParameterName(name = \, meetingListViewModel: com.wire.android.feature.meetings.ui.list.MeetingListViewModel): kotlin.Unit
-  skippable: false
+public fun com.wire.android.feature.meetings.ui.list.MeetingList(type: com.wire.android.feature.meetings.ui.MeetingsTabItem, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, lazyListState: androidx.compose.foundation.lazy.LazyListState, openMeetingOptions: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+  skippable: true
   restartable: true
   params:
     - type: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - contentPadding: STABLE (marked @Stable or @Immutable)
     - lazyListState: STABLE (marked @Stable or @Immutable)
     - openMeetingOptions: STABLE (function type)
-    - meetingListViewModel: RUNTIME (requires runtime check)
-
-@Composable
-private fun com.wire.android.feature.meetings.ui.list.MeetingList(lazyListState: androidx.compose.foundation.lazy.LazyListState, lazyPagingItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.meetings.model.MeetingListItem>, isShowingAll: kotlin.Boolean, onShowAll: kotlin.Function0<kotlin.Unit>, openMeetingOptions: kotlin.Function1<@[ParameterName(name = \, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - lazyListState: STABLE (marked @Stable or @Immutable)
-    - lazyPagingItems: UNSTABLE (has mutable properties or unstable members)
-    - isShowingAll: STABLE (primitive type)
-    - onShowAll: STABLE (function type)
-    - openMeetingOptions: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.feature.meetings.ui.list.MeetingLoadMoreFooter(modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -145,11 +145,12 @@ private fun com.wire.android.feature.meetings.ui.list.MeetingStartingInPrimaryBo
     - startTime: STABLE (matched by stability configuration)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.MeetingTimeInfoRow(status: com.wire.android.feature.meetings.model.MeetingItem.Status): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.list.MeetingTimeInfoRow(status: com.wire.android.feature.meetings.model.MeetingItem.Status, repeatingInterval: com.wire.android.feature.meetings.model.MeetingItem.RepeatingInterval?): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - status: UNSTABLE (has mutable properties or unstable members)
+    - repeatingInterval: STABLE (class with no mutable properties)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.PrimaryBodyText(text: kotlin.String): kotlin.Unit
@@ -188,6 +189,19 @@ private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: 
     - time: STABLE (matched by stability configuration)
 
 @Composable
+public fun com.wire.android.feature.meetings.ui.meetingListViewModel(type: com.wire.android.feature.meetings.ui.MeetingsTabItem): com.wire.android.feature.meetings.ui.list.MeetingListViewModel
+  skippable: true
+  restartable: true
+  params:
+    - type: STABLE (class with no mutable properties)
+
+@Composable
+public fun com.wire.android.feature.meetings.ui.meetingOptionsMenuListViewModel(): com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 private fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalContent(meeting: com.wire.android.feature.meetings.model.MeetingItem, onStartMeeting: kotlin.Function0<kotlin.Unit>, onCreateConversation: kotlin.Function0<kotlin.Unit>, onCopyLink: kotlin.Function0<kotlin.Unit>, onEditMeeting: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForMe: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForEveryone: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
@@ -207,10 +221,4 @@ public fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalSheet
   params:
     - sheetState: UNSTABLE (has mutable properties or unstable members)
     - viewModel: RUNTIME (requires runtime check)
-
-@Composable
-public fun com.wire.android.feature.meetings.ui.util.rememberCurrentTimeProvider(): com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
-  skippable: true
-  restartable: true
-  params:
 

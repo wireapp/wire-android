@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2025 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.meetings.model
+package com.wire.android.feature.meetings.ui.usecase
 
-import kotlinx.datetime.Instant
+import com.wire.android.feature.meetings.model.MeetingItem
+import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
+import dagger.hilt.android.scopes.ViewModelScoped
+import javax.inject.Inject
 
-sealed interface MeetingHeader : MeetingListItem {
-    data class Day(val time: Instant) : MeetingHeader
-    data class DayAndHour(val time: Instant) : MeetingHeader
-    data class Hour(val time: Instant) : MeetingHeader
-    data object Ongoing : MeetingHeader
+@ViewModelScoped
+class GetMeetingUseCase @Inject constructor() {
+    private val meetingMocksProvider = MeetingMocksProvider.Default // TODO replace with real data source
+    operator fun invoke(meetingId: String): MeetingItem? = meetingMocksProvider.getItem(meetingId)
 }

@@ -20,6 +20,8 @@ package com.wire.android.di.metro
 import androidx.lifecycle.ViewModel
 import com.wire.android.feature.cells.ui.CellsViewModelFactory
 import com.wire.android.feature.cells.ui.CellsViewModelGraph
+import com.wire.android.feature.meetings.ui.MeetingsViewModelFactory
+import com.wire.android.feature.meetings.ui.MeetingsViewModelGraph
 import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
 import com.wire.android.ui.authentication.AuthenticationViewModelFactory
@@ -49,6 +51,7 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     private val debugInfoViewModelFactoryProvider: Provider<DebugInfoViewModelFactory>,
     private val settingsViewModelFactoryProvider: Provider<SettingsViewModelFactory>,
     private val conversationCoreViewModelFactoryProvider: Provider<ConversationCoreViewModelFactory>,
+    private val meetingsViewModelFactoryProvider: Provider<MeetingsViewModelFactory>,
 ) : ViewModel(),
     ImageAssetViewModelGraph,
     CellsViewModelGraph,
@@ -56,7 +59,8 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     CallingViewModelGraph,
     DebugInfoViewModelGraph,
     SettingsViewModelGraph,
-    ConversationCoreViewModelGraph {
+    ConversationCoreViewModelGraph,
+    MeetingsViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
 
@@ -77,4 +81,7 @@ class WireActivityViewModelGraphBridge @Inject constructor(
 
     override val conversationCoreViewModelFactory: ConversationCoreViewModelFactory
         get() = conversationCoreViewModelFactoryProvider.get()
+
+    override val meetingsViewModelFactory: MeetingsViewModelFactory
+        get() = meetingsViewModelFactoryProvider.get()
 }

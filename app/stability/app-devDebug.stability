@@ -1860,6 +1860,19 @@ public fun com.wire.android.ui.calling.controlbuttons.WireCallControlButton(isSe
     - iconSize: STABLE (marked @Stable or @Immutable)
 
 @Composable
+public fun com.wire.android.ui.calling.conversationCallViewModel(): com.wire.android.ui.home.conversations.call.ConversationCallViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.calling.conversationListCallViewModel(conversationsSource: com.wire.android.ui.home.conversationslist.model.ConversationsSource): com.wire.android.ui.home.conversationslist.ConversationListCallViewModel
+  skippable: true
+  restartable: true
+  params:
+    - conversationsSource: STABLE (class with no mutable properties)
+
+@Composable
 public fun com.wire.android.ui.calling.incoming.AudioPermissionCheckFlow(onAcceptCall: kotlin.Function0<kotlin.Unit>, onPermanentPermissionDecline: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
   skippable: true
   restartable: true
@@ -1892,6 +1905,13 @@ public fun com.wire.android.ui.calling.incoming.IncomingCallScreen(conversationI
     - incomingCallViewModel: UNSTABLE (has mutable properties or unstable members)
     - sharedCallingViewModel: UNSTABLE (has mutable properties or unstable members)
     - onCallAccepted: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.calling.incomingCallViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID): com.wire.android.ui.calling.incoming.IncomingCallViewModel
+  skippable: false
+  restartable: true
+  params:
+    - conversationId: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
 private fun com.wire.android.ui.calling.ongoing.CallingControls(conversationId: com.wire.kalium.logic.data.id.QualifiedID, isMuted: kotlin.Boolean, isCameraOn: kotlin.Boolean, isSpeakerOn: kotlin.Boolean, isShowingCallReactions: kotlin.Boolean, isConnecting: kotlin.Boolean, inCallReactionsEnabled: kotlin.Boolean, toggleSpeaker: kotlin.Function0<kotlin.Unit>, toggleMute: kotlin.Function0<kotlin.Unit>, onHangUpCall: kotlin.Function0<kotlin.Unit>, onToggleVideo: kotlin.Function0<kotlin.Unit>, onCallReactionsClick: kotlin.Function0<kotlin.Unit>, onCameraPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -2514,6 +2534,13 @@ private fun com.wire.android.ui.calling.ongoing.toast.styledText(stringResId: ko
     - formatArgs: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
+public fun com.wire.android.ui.calling.ongoingCallViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID): com.wire.android.ui.calling.ongoing.OngoingCallViewModel
+  skippable: false
+  restartable: true
+  params:
+    - conversationId: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
 private fun com.wire.android.ui.calling.outgoing.OutgoingCallContent(callState: com.wire.android.ui.calling.model.CallState, toggleMute: kotlin.Function0<kotlin.Unit>, toggleSpeaker: kotlin.Function0<kotlin.Unit>, toggleVideo: kotlin.Function0<kotlin.Unit>, onHangUpCall: kotlin.Function0<kotlin.Unit>, onVideoPreviewCreated: kotlin.Function1<@[ParameterName(name = \, onSelfClearVideoPreview: kotlin.Function0<kotlin.Unit>, onCameraPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onMinimiseScreen: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -2537,6 +2564,20 @@ public fun com.wire.android.ui.calling.outgoing.OutgoingCallScreen(conversationI
     - sharedCallingViewModel: UNSTABLE (has mutable properties or unstable members)
     - outgoingCallViewModel: UNSTABLE (has mutable properties or unstable members)
     - onCallAccepted: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.calling.outgoingCallViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID): com.wire.android.ui.calling.outgoing.OutgoingCallViewModel
+  skippable: false
+  restartable: true
+  params:
+    - conversationId: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+public fun com.wire.android.ui.calling.sharedCallingViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID): com.wire.android.ui.calling.common.SharedCallingViewModel
+  skippable: false
+  restartable: true
+  params:
+    - conversationId: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
 public fun com.wire.android.ui.common.AddContactButton(userId: com.wire.kalium.logic.data.id.QualifiedID, userName: kotlin.String, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.ui.connection.ConnectionActionButtonViewModel): kotlin.Unit

@@ -49,6 +49,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.calling.conversationListCallViewModel
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
@@ -101,10 +102,7 @@ fun ConversationsScreenContent(
             }
         )
     },
-    conversationListCallViewModel: ConversationListCallViewModel = when {
-        LocalInspectionMode.current -> ConversationListCallViewModelPreview
-        else -> wireViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
-    },
+    conversationListCallViewModel: ConversationListCallViewModel = conversationListCallViewModel(conversationsSource),
 ) {
     val sheetState = rememberWireModalSheetState<ConversationSheetState>()
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()

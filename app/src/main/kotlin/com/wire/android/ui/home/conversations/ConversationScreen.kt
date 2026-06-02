@@ -117,6 +117,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.calling.getOutgoingCallIntent
+import com.wire.android.ui.calling.conversationCallViewModel
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.PageLoadingIndicator
@@ -260,7 +261,7 @@ fun ConversationScreen(
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     conversationInfoViewModel: ConversationInfoViewModel = wireViewModel(),
     conversationBannerViewModel: ConversationBannerViewModel = wireViewModel(),
-    conversationCallViewModel: ConversationCallViewModel = wireViewModel(),
+    conversationCallViewModel: ConversationCallViewModel = conversationCallViewModel(),
     conversationMessagesViewModel: ConversationMessagesViewModel = conversationMessagesViewModel(),
     messageComposerViewModel: MessageComposerViewModel = messageComposerViewModel(),
     sendMessageViewModel: SendMessageViewModel = sendMessageViewModel(),

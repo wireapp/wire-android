@@ -37,11 +37,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.appLogger
 import com.wire.android.di.assistedViewModels
 import com.wire.android.di.metro.ImageAssetViewModelGraphBridgeViewModel
 import com.wire.android.di.metro.LocalMetroViewModelGraph
-import com.wire.android.di.wireViewModel
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.LocalActivity
@@ -79,7 +80,14 @@ abstract class CallActivity : BaseActivity() {
         const val TAG = "CallActivity"
     }
 
-    private val callActivityViewModel: CallActivityViewModel by viewModels()
+    private val imageAssetViewModelGraph: ImageAssetViewModelGraphBridgeViewModel by viewModels()
+    private val callActivityViewModel: CallActivityViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                imageAssetViewModelGraph.callingViewModelFactory.callActivityViewModel()
+            }
+        }
+    }
     protected val qualifiedIdMapper = QualifiedIdMapper(null)
 
     override fun onNewIntent(intent: Intent) {
@@ -103,7 +111,6 @@ abstract class CallActivity : BaseActivity() {
 
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
-            val imageAssetViewModelGraph = wireViewModel<ImageAssetViewModelGraphBridgeViewModel>()
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
                 LocalMetroViewModelGraph provides imageAssetViewModelGraph,

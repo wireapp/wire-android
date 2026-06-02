@@ -18,21 +18,37 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.di.CurrentAccount
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
+import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
+import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
+import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModelImpl
+import com.wire.android.ui.home.conversations.messages.QuotedMultipartMessageViewModel
+import com.wire.android.ui.home.conversations.media.ConversationAssetMessagesViewModel
+import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewViewModel
+import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsViewModel
+import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase
+import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
+import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellAssetRefreshHelper
+import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelImpl
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
+import com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
+import com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesFromConversationUseCase
+import com.wire.android.ui.home.conversations.usecase.ObserveQuoteMessageForConversationUseCase
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerHelperFlavor
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
@@ -40,14 +56,19 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
+import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
@@ -59,6 +80,7 @@ import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
+import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
@@ -86,7 +108,9 @@ import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletio
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
@@ -142,6 +166,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val messageSharedState: MessageSharedState,
     private val getMessageDraft: GetMessageDraftUseCase,
     private val getQuotedMessage: GetQuoteMessageForConversationUseCase,
+    private val observeQuotedMessage: ObserveQuoteMessageForConversationUseCase,
     private val saveMessageDraft: SaveMessageDraftUseCase,
     private val observeAttachments: ObserveAttachmentDraftsUseCase,
     private val addAttachment: AddAttachmentDraftUseCase,
@@ -152,6 +177,21 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val getAttachment: GetMessageAttachmentUseCase,
     private val getCellNode: GetCellFileUseCase,
     private val locationPickerHelper: LocationPickerHelperFlavor,
+    private val getImageMessages: ObserveImageAssetMessagesFromConversationUseCase,
+    private val getAssetMessages: GetAssetMessagesFromConversationUseCase,
+    private val observeConversationMembersByTypes: ObserveConversationMembersByTypesUseCase,
+    private val notifyConversationIsOpen: NotifyConversationIsOpenUseCase,
+    private val qualifiedIdMapper: QualifiedIdMapper,
+    private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
+    private val observeReactionsForMessage: ObserveReactionsForMessageUseCase,
+    private val observeReceiptsForMessage: ObserveReceiptsForMessageUseCase,
+    private val refreshHelper: CellAssetRefreshHelper,
+    private val downloadCellFile: DownloadCellFileUseCase,
+    private val getEditorUrl: GetEditorUrlUseCase,
+    private val onlineEditor: OnlineEditor,
+    private val featureFlags: KaliumConfigs,
+    private val getWireCellsConfig: GetWireCellConfigurationUseCase,
+    @CurrentAccount private val selfUserId: UserId,
 ) {
     fun conversationMessagesViewModel(savedStateHandle: SavedStateHandle) = ConversationMessagesViewModel(
         savedStateHandle = savedStateHandle,
@@ -262,5 +302,55 @@ class ConversationCoreViewModelFactory @Inject constructor(
 
     fun locationPickerViewModel() = LocationPickerViewModel(
         locationPickerHelper = locationPickerHelper,
+    )
+
+    fun conversationAssetMessagesViewModel(savedStateHandle: SavedStateHandle) = ConversationAssetMessagesViewModel(
+        savedStateHandle = savedStateHandle,
+        getImageMessages = getImageMessages,
+        getAssetMessages = getAssetMessages,
+        observeAssetStatuses = observeAssetStatuses,
+    )
+
+    fun imagesPreviewViewModel(savedStateHandle: SavedStateHandle) = ImagesPreviewViewModel(
+        savedStateHandle = savedStateHandle,
+        handleUriAsset = handleUriAsset,
+        dispatchers = dispatchers,
+    )
+
+    fun messageDetailsViewModel(savedStateHandle: SavedStateHandle) = MessageDetailsViewModel(
+        savedStateHandle = savedStateHandle,
+        observeReactionsForMessage = observeReactionsForMessage,
+        observeReceiptsForMessage = observeReceiptsForMessage,
+    )
+
+    fun quotedMultipartMessageViewModel() = QuotedMultipartMessageViewModel(
+        observeQuotedMessage = observeQuotedMessage,
+    )
+
+    fun conversationBannerViewModel(savedStateHandle: SavedStateHandle) = ConversationBannerViewModel(
+        savedStateHandle = savedStateHandle,
+        observeConversationMembersByTypes = observeConversationMembersByTypes,
+        observeConversationDetails = observeConversationDetails,
+        notifyConversationIsOpen = notifyConversationIsOpen,
+    )
+
+    fun conversationInfoViewModel(savedStateHandle: SavedStateHandle) = ConversationInfoViewModel(
+        qualifiedIdMapper = qualifiedIdMapper,
+        savedStateHandle = savedStateHandle,
+        observeConversationDetails = observeConversationDetails,
+        fetchConversationMLSVerificationStatus = fetchConversationMLSVerificationStatus,
+        isWireCellFeatureEnabled = isWireCellsEnabled,
+        selfUserId = selfUserId,
+    )
+
+    fun multipartAttachmentsViewModel() = MultipartAttachmentsViewModelImpl(
+        refreshHelper = refreshHelper,
+        download = downloadCellFile,
+        getEditorUrl = getEditorUrl,
+        onlineEditor = onlineEditor,
+        fileManager = fileManager,
+        kaliumFileSystem = kaliumFileSystem,
+        featureFlags = featureFlags,
+        getWireCellsConfig = getWireCellsConfig,
     )
 }

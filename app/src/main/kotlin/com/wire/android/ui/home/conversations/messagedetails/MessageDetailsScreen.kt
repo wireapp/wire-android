@@ -44,8 +44,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
+import com.wire.android.ui.home.conversations.messageDetailsViewModel
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.TabItem
@@ -67,7 +67,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MessageDetailsScreen(
     navigator: Navigator,
-    viewModel: MessageDetailsViewModel = wireViewModel()
+    viewModel: MessageDetailsViewModel = messageDetailsViewModel()
 ) {
     val context = LocalContext.current
 

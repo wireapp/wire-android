@@ -23,13 +23,21 @@ import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.metro.metroSavedStateViewModel
 import com.wire.android.di.metro.metroViewModel
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
+import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
+import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
+import com.wire.android.ui.home.conversations.media.ConversationAssetMessagesViewModel
+import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewViewModel
+import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
+import com.wire.android.ui.home.conversations.messages.QuotedMultipartMessageViewModel
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModel
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModelImpl
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModelPreview
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
+import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModel
+import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelImpl
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
@@ -92,4 +100,46 @@ fun mediaGalleryViewModel(): MediaGalleryViewModel =
 fun locationPickerViewModel(): LocationPickerViewModel =
     metroViewModel<ConversationCoreViewModelGraph, LocationPickerViewModel> {
         conversationCoreViewModelFactory.locationPickerViewModel()
+    }
+
+@Composable
+fun conversationAssetMessagesViewModel(): ConversationAssetMessagesViewModel =
+    metroSavedStateViewModel<ConversationCoreViewModelGraph, ConversationAssetMessagesViewModel> {
+        conversationCoreViewModelFactory.conversationAssetMessagesViewModel(it)
+    }
+
+@Composable
+fun imagesPreviewViewModel(): ImagesPreviewViewModel =
+    metroSavedStateViewModel<ConversationCoreViewModelGraph, ImagesPreviewViewModel> {
+        conversationCoreViewModelFactory.imagesPreviewViewModel(it)
+    }
+
+@Composable
+fun messageDetailsViewModel(): MessageDetailsViewModel =
+    metroSavedStateViewModel<ConversationCoreViewModelGraph, MessageDetailsViewModel> {
+        conversationCoreViewModelFactory.messageDetailsViewModel(it)
+    }
+
+@Composable
+fun quotedMultipartMessageViewModel(conversationKey: String): QuotedMultipartMessageViewModel =
+    metroViewModel<ConversationCoreViewModelGraph, QuotedMultipartMessageViewModel>(key = conversationKey) {
+        conversationCoreViewModelFactory.quotedMultipartMessageViewModel()
+    }
+
+@Composable
+fun conversationBannerViewModel(): ConversationBannerViewModel =
+    metroSavedStateViewModel<ConversationCoreViewModelGraph, ConversationBannerViewModel> {
+        conversationCoreViewModelFactory.conversationBannerViewModel(it)
+    }
+
+@Composable
+fun conversationInfoViewModel(): ConversationInfoViewModel =
+    metroSavedStateViewModel<ConversationCoreViewModelGraph, ConversationInfoViewModel> {
+        conversationCoreViewModelFactory.conversationInfoViewModel(it)
+    }
+
+@Composable
+fun multipartAttachmentsViewModel(conversationKey: String): MultipartAttachmentsViewModel =
+    metroViewModel<ConversationCoreViewModelGraph, MultipartAttachmentsViewModelImpl>(key = conversationKey) {
+        conversationCoreViewModelFactory.multipartAttachmentsViewModel()
     }

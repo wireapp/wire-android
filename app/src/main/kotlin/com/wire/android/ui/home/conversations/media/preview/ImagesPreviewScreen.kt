@@ -17,8 +17,8 @@
  */
 package com.wire.android.ui.home.conversations.media.preview
 
-import com.wire.android.di.wireViewModel
 import com.wire.android.ui.home.conversations.checkAssetRestrictionsViewModel
+import com.wire.android.ui.home.conversations.imagesPreviewViewModel
 
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -91,7 +91,7 @@ import okio.Path.Companion.toPath
 fun ImagesPreviewScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<ImagesPreviewNavBackArgs>,
-    imagesPreviewViewModel: ImagesPreviewViewModel = wireViewModel(),
+    imagesPreviewViewModel: ImagesPreviewViewModel = imagesPreviewViewModel(),
     checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = checkAssetRestrictionsViewModel()
 ) {
     LaunchedEffect(checkAssetRestrictionsViewModel.state) {

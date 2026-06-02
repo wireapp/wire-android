@@ -24,6 +24,8 @@ import com.wire.android.feature.meetings.ui.MeetingsViewModelFactory
 import com.wire.android.feature.meetings.ui.MeetingsViewModelGraph
 import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
+import com.wire.android.ui.MiscViewModelFactory
+import com.wire.android.ui.MiscViewModelGraph
 import com.wire.android.ui.authentication.AuthenticationViewModelFactory
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
 import com.wire.android.ui.calling.CallingViewModelFactory
@@ -65,6 +67,7 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     private val conversationSearchFolderViewModelFactoryProvider: Provider<ConversationSearchFolderViewModelFactory>,
     private val meetingsViewModelFactoryProvider: Provider<MeetingsViewModelFactory>,
     private val scopedMessageViewModelFactoryProvider: Provider<ScopedMessageViewModelFactory>,
+    private val miscViewModelFactoryProvider: Provider<MiscViewModelFactory>,
 ) : ViewModel(),
     ImageAssetViewModelGraph,
     CellsViewModelGraph,
@@ -77,7 +80,8 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     ConversationDetailsViewModelGraph,
     ConversationSearchFolderViewModelGraph,
     MeetingsViewModelGraph,
-    ScopedMessageViewModelGraph {
+    ScopedMessageViewModelGraph,
+    MiscViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
 
@@ -113,4 +117,7 @@ class WireActivityViewModelGraphBridge @Inject constructor(
 
     override val scopedMessageViewModelFactory: ScopedMessageViewModelFactory
         get() = scopedMessageViewModelFactoryProvider.get()
+
+    override val miscViewModelFactory: MiscViewModelFactory
+        get() = miscViewModelFactoryProvider.get()
 }

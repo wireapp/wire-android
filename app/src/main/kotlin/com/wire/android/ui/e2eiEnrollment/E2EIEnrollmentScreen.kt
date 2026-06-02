@@ -31,7 +31,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
@@ -53,6 +52,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.e2EIEnrollmentViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.home.E2EIEnrollmentErrorWithDismissDialog
@@ -71,7 +71,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 fun E2EIEnrollmentScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
-    viewModel: E2EIEnrollmentViewModel = wireViewModel(),
+    viewModel: E2EIEnrollmentViewModel = e2EIEnrollmentViewModel(),
     clearSessionViewModel: ClearSessionViewModel = clearSessionViewModel(),
 ) {
     val state = viewModel.state

@@ -161,19 +161,19 @@ class WireActivity : BaseActivity() {
     @Inject
     lateinit var managedConfigurationsManager: ManagedConfigurationsManager
 
-    private val wireActivityViewModelGraph: WireActivityViewModelGraphBridge by viewModels()
+    private val wireActivityViewModelGraphBridge: WireActivityViewModelGraphBridge by viewModels()
     private val viewModel: WireActivityViewModel by viewModels()
     private val callFeedbackViewModel: CallFeedbackViewModel by viewModels {
         viewModelFactory {
             initializer {
-                wireActivityViewModelGraph.callingViewModelFactory.callFeedbackViewModel()
+                wireActivityViewModelGraphBridge.callingViewModelFactory.callFeedbackViewModel()
             }
         }
     }
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels {
         viewModelFactory {
             initializer {
-                wireActivityViewModelGraph.homeViewModelFactory.featureFlagNotificationViewModel()
+                wireActivityViewModelGraphBridge.homeViewModelFactory.featureFlagNotificationViewModel()
             }
         }
     }
@@ -181,8 +181,20 @@ class WireActivity : BaseActivity() {
     private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
         factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true))
     }
-    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
-    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
+    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireActivityViewModelGraphBridge.miscViewModelFactory.legalHoldRequestedViewModel()
+            }
+        }
+    }
+    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireActivityViewModelGraphBridge.miscViewModelFactory.legalHoldDeactivatedViewModel()
+            }
+        }
+    }
 
     private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
     private lateinit var shakeDetector: ShakeDetector
@@ -278,7 +290,7 @@ class WireActivity : BaseActivity() {
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
                 LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelGraph provides wireActivityViewModelGraph,
+                LocalMetroViewModelGraph provides wireActivityViewModelGraphBridge,
                 LocalActivity provides this
             ) {
                 WireTheme(accent = viewModel.globalAppState.userAccent) {

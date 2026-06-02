@@ -24,6 +24,7 @@ import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
+import com.wire.android.model.asSnackBarMessage
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
@@ -44,6 +45,9 @@ import com.wire.kalium.logic.feature.app.ObserveIsAppMemberResult
 import com.wire.kalium.logic.feature.app.ObserveIsAppMemberUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.CreateConversationResult
+import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
@@ -84,10 +88,10 @@ class ServiceDetailsViewModelTest {
             // view model is initialized
 
             // then
-            assertEquals(null, viewModel.serviceDetailsState.serviceAvatarAsset)
-            assertEquals(SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
-            assertEquals(MEMBER_ID, viewModel.serviceDetailsState.serviceMemberId)
-            assertEquals(ServiceDetailsButtonState.REMOVE, viewModel.serviceDetailsState.buttonState)
+            assertEquals(null, viewModel.serviceDetailsState().serviceAvatarAsset)
+            assertEquals(SERVICE_DETAILS, viewModel.serviceDetailsState().serviceDetails)
+            assertEquals(MEMBER_ID, viewModel.serviceDetailsState().serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.REMOVE, viewModel.serviceDetailsState().buttonState)
         }
 
     @Test
@@ -106,10 +110,10 @@ class ServiceDetailsViewModelTest {
             // view model is initialized
 
             // then
-            assertEquals(null, viewModel.serviceDetailsState.serviceAvatarAsset)
-            assertEquals(SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
-            assertEquals(MEMBER_ID, viewModel.serviceDetailsState.serviceMemberId)
-            assertEquals(ServiceDetailsButtonState.REMOVE, viewModel.serviceDetailsState.buttonState)
+            assertEquals(null, viewModel.serviceDetailsState().serviceAvatarAsset)
+            assertEquals(SERVICE_DETAILS, viewModel.serviceDetailsState().serviceDetails)
+            assertEquals(MEMBER_ID, viewModel.serviceDetailsState().serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.REMOVE, viewModel.serviceDetailsState().buttonState)
         }
 
     @Test
@@ -128,10 +132,10 @@ class ServiceDetailsViewModelTest {
             // view model is initialized
 
             // then
-            assertEquals(null, viewModel.serviceDetailsState.serviceAvatarAsset)
-            assertEquals(SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
-            assertEquals(MEMBER_ID, viewModel.serviceDetailsState.serviceMemberId)
-            assertEquals(ServiceDetailsButtonState.REMOVE, viewModel.serviceDetailsState.buttonState)
+            assertEquals(null, viewModel.serviceDetailsState().serviceAvatarAsset)
+            assertEquals(SERVICE_DETAILS, viewModel.serviceDetailsState().serviceDetails)
+            assertEquals(MEMBER_ID, viewModel.serviceDetailsState().serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.REMOVE, viewModel.serviceDetailsState().buttonState)
         }
 
     @Test
@@ -149,9 +153,9 @@ class ServiceDetailsViewModelTest {
             // view model is initialized
 
             // then
-            assertEquals(SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
-            assertEquals(null, viewModel.serviceDetailsState.serviceMemberId)
-            assertEquals(ServiceDetailsButtonState.ADD, viewModel.serviceDetailsState.buttonState)
+            assertEquals(SERVICE_DETAILS, viewModel.serviceDetailsState().serviceDetails)
+            assertEquals(null, viewModel.serviceDetailsState().serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.ADD, viewModel.serviceDetailsState().buttonState)
         }
 
     @Test
@@ -174,9 +178,9 @@ class ServiceDetailsViewModelTest {
             // view model is initialized
 
             // then
-            assertEquals(SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
-            assertEquals(MEMBER_ID, viewModel.serviceDetailsState.serviceMemberId)
-            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState.buttonState)
+            assertEquals(SERVICE_DETAILS, viewModel.serviceDetailsState().serviceDetails)
+            assertEquals(MEMBER_ID, viewModel.serviceDetailsState().serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState().buttonState)
         }
 
     @Test
@@ -194,9 +198,9 @@ class ServiceDetailsViewModelTest {
             // view model is initialized
 
             // then
-            assertEquals(null, viewModel.serviceDetailsState.serviceDetails)
-            assertEquals(null, viewModel.serviceDetailsState.serviceMemberId)
-            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState.buttonState)
+            assertEquals(null, viewModel.serviceDetailsState().serviceDetails)
+            assertEquals(null, viewModel.serviceDetailsState().serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState().buttonState)
         }
 
     @Test
@@ -212,8 +216,8 @@ class ServiceDetailsViewModelTest {
                 .arrange()
 
             // when
-            viewModel.infoMessage.test {
-                viewModel.removeService()
+            viewModel.actions.test {
+                viewModel.onRemoveService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -222,7 +226,12 @@ class ServiceDetailsViewModelTest {
                         userIdToRemove = MEMBER_ID
                     )
                 }
-                assertEquals(ServiceDetailsInfoMessageType.SuccessRemoveService.uiText, awaitItem())
+                assertEquals(
+                    ServiceDetailsViewActions.Message(
+                        ServiceDetailsInfoMessageType.SuccessRemoveService.uiText.asSnackBarMessage()
+                    ),
+                    awaitItem()
+                )
             }
         }
 
@@ -239,8 +248,8 @@ class ServiceDetailsViewModelTest {
                 .arrange()
 
             // when
-            viewModel.infoMessage.test {
-                viewModel.removeService()
+            viewModel.actions.test {
+                viewModel.onRemoveService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -249,7 +258,12 @@ class ServiceDetailsViewModelTest {
                         userIdToRemove = MEMBER_ID
                     )
                 }
-                assertEquals(ServiceDetailsInfoMessageType.ErrorRemoveService.uiText, awaitItem())
+                assertEquals(
+                    ServiceDetailsViewActions.Message(
+                        ServiceDetailsInfoMessageType.ErrorRemoveService.uiText.asSnackBarMessage()
+                    ),
+                    awaitItem()
+                )
             }
         }
 
@@ -266,8 +280,8 @@ class ServiceDetailsViewModelTest {
                 .arrange()
 
             // when
-            viewModel.infoMessage.test {
-                viewModel.addService()
+            viewModel.actions.test {
+                viewModel.onAddService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -276,7 +290,12 @@ class ServiceDetailsViewModelTest {
                         serviceId = SERVICE_ID
                     )
                 }
-                assertEquals(ServiceDetailsInfoMessageType.SuccessAddService.uiText, awaitItem())
+                assertEquals(
+                    ServiceDetailsViewActions.Message(
+                        ServiceDetailsInfoMessageType.SuccessAddService.uiText.asSnackBarMessage()
+                    ),
+                    awaitItem()
+                )
             }
         }
 
@@ -293,8 +312,8 @@ class ServiceDetailsViewModelTest {
                 .arrange()
 
             // when
-            viewModel.infoMessage.test {
-                viewModel.addService()
+            viewModel.actions.test {
+                viewModel.onAddService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -303,7 +322,12 @@ class ServiceDetailsViewModelTest {
                         serviceId = SERVICE_ID
                     )
                 }
-                assertEquals(ServiceDetailsInfoMessageType.ErrorAddService.uiText, awaitItem())
+                assertEquals(
+                    ServiceDetailsViewActions.Message(
+                        ServiceDetailsInfoMessageType.ErrorAddService.uiText.asSnackBarMessage()
+                    ),
+                    awaitItem()
+                )
             }
         }
 
@@ -324,10 +348,10 @@ class ServiceDetailsViewModelTest {
             // view model is initialized
 
             // then
-            assertEquals(null, viewModel.serviceDetailsState.serviceAvatarAsset)
-            assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
-            assertEquals(APP_ID, viewModel.serviceDetailsState.serviceMemberId)
-            assertEquals(ServiceDetailsButtonState.REMOVE, viewModel.serviceDetailsState.buttonState)
+            assertEquals(null, viewModel.serviceDetailsState().serviceAvatarAsset)
+            assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState().serviceDetails)
+            assertEquals(APP_ID, viewModel.serviceDetailsState().serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.REMOVE, viewModel.serviceDetailsState().buttonState)
         }
 
     @Test
@@ -347,9 +371,9 @@ class ServiceDetailsViewModelTest {
             // view model is initialized
 
             // then
-            assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
-            assertEquals(null, viewModel.serviceDetailsState.serviceMemberId)
-            assertEquals(ServiceDetailsButtonState.ADD, viewModel.serviceDetailsState.buttonState)
+            assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState().serviceDetails)
+            assertEquals(null, viewModel.serviceDetailsState().serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.ADD, viewModel.serviceDetailsState().buttonState)
         }
 
     @Test
@@ -370,9 +394,11 @@ class ServiceDetailsViewModelTest {
             // view model is initialized
 
             // then
-            assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
-            assertEquals(null, viewModel.serviceDetailsState.serviceMemberId)
-            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState.buttonState)
+            assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState().serviceDetails)
+            assertEquals(null, viewModel.serviceDetailsState().serviceMemberId)
+            assertEquals(true, viewModel.serviceDetailsState().isAppsEnabled)
+            assertEquals(false, viewModel.serviceDetailsState().isConversationStarted)
+            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState().buttonState)
         }
 
     @Test
@@ -397,9 +423,9 @@ class ServiceDetailsViewModelTest {
             // view model is initialized
 
             // then
-            assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState.serviceDetails)
-            assertEquals(APP_ID, viewModel.serviceDetailsState.serviceMemberId)
-            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState.buttonState)
+            assertEquals(APP_SERVICE_DETAILS, viewModel.serviceDetailsState().serviceDetails)
+            assertEquals(APP_ID, viewModel.serviceDetailsState().serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState().buttonState)
         }
 
     @Test
@@ -419,9 +445,9 @@ class ServiceDetailsViewModelTest {
             // view model is initialized
 
             // then
-            assertEquals(null, viewModel.serviceDetailsState.serviceDetails)
-            assertEquals(null, viewModel.serviceDetailsState.serviceMemberId)
-            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState.buttonState)
+            assertEquals(null, viewModel.serviceDetailsState().serviceDetails)
+            assertEquals(null, viewModel.serviceDetailsState().serviceMemberId)
+            assertEquals(ServiceDetailsButtonState.HIDDEN, viewModel.serviceDetailsState().buttonState)
         }
 
     @Test
@@ -439,8 +465,8 @@ class ServiceDetailsViewModelTest {
                 .arrange()
 
             // when
-            viewModel.infoMessage.test {
-                viewModel.removeService()
+            viewModel.actions.test {
+                viewModel.onRemoveService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -450,7 +476,12 @@ class ServiceDetailsViewModelTest {
                     )
                 }
 
-                assertEquals(ServiceDetailsInfoMessageType.SuccessRemoveService.uiText, awaitItem())
+                assertEquals(
+                    ServiceDetailsViewActions.Message(
+                        ServiceDetailsInfoMessageType.SuccessRemoveService.uiText.asSnackBarMessage()
+                    ),
+                    awaitItem()
+                )
             }
         }
 
@@ -469,8 +500,8 @@ class ServiceDetailsViewModelTest {
                 .arrange()
 
             // when
-            viewModel.infoMessage.test {
-                viewModel.removeService()
+            viewModel.actions.test {
+                viewModel.onRemoveService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -480,7 +511,12 @@ class ServiceDetailsViewModelTest {
                     )
                 }
 
-                assertEquals(ServiceDetailsInfoMessageType.ErrorRemoveService.uiText, awaitItem())
+                assertEquals(
+                    ServiceDetailsViewActions.Message(
+                        ServiceDetailsInfoMessageType.ErrorRemoveService.uiText.asSnackBarMessage()
+                    ),
+                    awaitItem()
+                )
             }
         }
 
@@ -499,8 +535,8 @@ class ServiceDetailsViewModelTest {
                 .arrange()
 
             // when
-            viewModel.infoMessage.test {
-                viewModel.addService()
+            viewModel.actions.test {
+                viewModel.onAddService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -510,7 +546,12 @@ class ServiceDetailsViewModelTest {
                     )
                 }
 
-                assertEquals(ServiceDetailsInfoMessageType.SuccessAddService.uiText, awaitItem())
+                assertEquals(
+                    ServiceDetailsViewActions.Message(
+                        ServiceDetailsInfoMessageType.SuccessAddService.uiText.asSnackBarMessage()
+                    ),
+                    awaitItem()
+                )
             }
         }
 
@@ -529,8 +570,8 @@ class ServiceDetailsViewModelTest {
                 .arrange()
 
             // when
-            viewModel.infoMessage.test {
-                viewModel.addService()
+            viewModel.actions.test {
+                viewModel.onAddService()
 
                 // then
                 coVerify(exactly = 1) {
@@ -540,7 +581,96 @@ class ServiceDetailsViewModelTest {
                     )
                 }
 
-                assertEquals(ServiceDetailsInfoMessageType.ErrorAddService.uiText, awaitItem())
+                assertEquals(
+                    ServiceDetailsViewActions.Message(
+                        ServiceDetailsInfoMessageType.ErrorAddService.uiText.asSnackBarMessage()
+                    ),
+                    awaitItem()
+                )
+            }
+        }
+
+    @Test
+    fun `given user opens service details screen from create conversation flow, when one to one conversation already exists, then conversation started state is shown`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withServiceApp(
+                    service = APP_ID,
+                    conversationId = null
+                )
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.MLS)))
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withOneToOneConversationCreated(isCreated = true)
+                .arrange()
+
+            // when
+            // view model is initialized
+
+            // then
+            assertEquals(true, viewModel.serviceDetailsState().isConversationStarted)
+        }
+
+    @Test
+    fun `given user opens service details screen, when opening conversation succeeds, then conversation event is emitted`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withServiceApp(
+                    service = APP_ID,
+                    conversationId = null
+                )
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.MLS)))
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withGetOrCreateOneToOneConversation(
+                    CreateConversationResult.Success(
+                        conversation = TestConversation.ONE_ON_ONE.copy(id = CONVERSATION_ID)
+                    )
+                )
+                .arrange()
+
+            // when
+            viewModel.actions.test {
+                viewModel.onOpenConversation()
+
+                // then
+                coVerify(exactly = 1) {
+                    arrangement.getOrCreateOneToOneConversation(APP_ID)
+                }
+                assertEquals(ServiceDetailsViewActions.OpenConversation(CONVERSATION_ID), awaitItem())
+            }
+        }
+
+    @Test
+    fun `given user opens service details screen, when opening conversation fails, then error message is emitted`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withServiceApp(
+                    service = APP_ID,
+                    conversationId = null
+                )
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.MLS)))
+                .withAppDetails(APP_ID, APP_SERVICE_DETAILS)
+                .withGetOrCreateOneToOneConversation(
+                    CreateConversationResult.Failure(CoreFailure.Unknown(null))
+                )
+                .arrange()
+
+            // when
+            viewModel.actions.test {
+                viewModel.onOpenConversation()
+
+                // then
+                coVerify(exactly = 1) {
+                    arrangement.getOrCreateOneToOneConversation(APP_ID)
+                }
+                assertEquals(
+                    ServiceDetailsViewActions.Message(
+                        ServiceDetailsInfoMessageType.ErrorStartOrOpenConversation.uiText.asSnackBarMessage()
+                    ),
+                    awaitItem()
+                )
             }
         }
 
@@ -622,12 +752,18 @@ class ServiceDetailsViewModelTest {
         lateinit var addMemberToConversation: AddMemberToConversationUseCase
 
         @MockK
+        lateinit var isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase
+
+        @MockK
+        lateinit var getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase
+
+        @MockK
         lateinit var savedStateHandle: SavedStateHandle
 
         private val selfUser = TestUser.SELF_USER
 
         private val viewModel by lazy {
-            ServiceDetailsViewModel(
+            ServiceDetailsViewModelImpl(
                 TestDispatcherProvider(),
                 selfUserId = selfUser.id,
                 getServiceById,
@@ -640,6 +776,8 @@ class ServiceDetailsViewModelTest {
                 removeMemberFromConversation,
                 addServiceToConversation,
                 addMemberToConversation,
+                isOneToOneConversationCreated,
+                getOrCreateOneToOneConversation,
                 savedStateHandle
             )
         }
@@ -656,6 +794,9 @@ class ServiceDetailsViewModelTest {
             coEvery {
                 observeConversationDetails(any())
             } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(CONVERSATION_GROUP))
+            coEvery {
+                isOneToOneConversationCreated(any())
+            } returns false
         }
 
         fun withServiceBot(service: BotService, conversationId: ConversationId? = CONVERSATION_ID) = apply {
@@ -720,6 +861,14 @@ class ServiceDetailsViewModelTest {
 
         fun withAddService(result: AddServiceToConversationUseCase.Result) = apply {
             coEvery { addServiceToConversation(any(), any()) } returns result
+        }
+
+        fun withOneToOneConversationCreated(isCreated: Boolean) = apply {
+            coEvery { isOneToOneConversationCreated(any()) } returns isCreated
+        }
+
+        fun withGetOrCreateOneToOneConversation(result: CreateConversationResult) = apply {
+            coEvery { getOrCreateOneToOneConversation(any()) } returns result
         }
 
         fun arrange() = this to viewModel

@@ -917,7 +917,6 @@
     <string name="notification_ongoing_call_content">Folyamatban lévő hívás…</string>
     <string name="notification_group_channel_call_content">%s hívja...</string>
     <string name="notification_call_default_caller_name">Valaki</string>
-    <string name="notification_call_default_group_name">Bejövő csoportos hívás</string>
     <string name="notification_outgoing_call_tap_to_return">Koppintásra visszatér a híváshoz - Hívás...</string>
     <string name="notification_audio_message_body">Hangüzenet</string>
     <string name="notification_deleting_conversation">Beszélgetés törlése…</string>

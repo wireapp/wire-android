@@ -24,6 +24,7 @@ import android.app.Notification
 import android.content.Context
 import android.os.Build
 import android.service.notification.StatusBarNotification
+import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.CallStyle
 import androidx.core.app.NotificationManagerCompat
@@ -127,13 +128,16 @@ class CallNotificationManager @Inject constructor(
         }
     }
 
-    fun hideAllIncomingCallNotifications() = hideIncomingCallNotifications { _, _ -> true }
-
     fun hideAllIncomingCallNotificationsForUser(userId: UserId) =
         hideIncomingCallNotifications { tag, _ -> tag == NotificationConstants.getIncomingCallTag(userId.toString()) }
 
     fun hideIncomingCallNotification(userIdString: String, conversationIdString: String) =
         hideIncomingCallNotifications { _, id -> id == NotificationConstants.getIncomingCallId(userIdString, conversationIdString) }
+
+    fun hideAllCallNotifications() {
+        hideIncomingCallNotifications { _, _ -> true }
+        notificationManager.cancel(NotificationIds.CALL_OUTGOING_ONGOING_NOTIFICATION_ID.ordinal)
+    }
 
     fun bringBackIncomingCallNotification(userIdString: String, conversationIdString: String) {
         scope.launch {
@@ -213,14 +217,15 @@ class CallNotificationBuilder @Inject constructor(
         val userIdString = data.userId.toString()
         val conversationIdString = data.conversationId.toString()
         val channelId = NotificationConstants.getOutgoingChannelId(data.userId)
-        val person = Person.Builder().setName(data.conversationName ?: "").build()
+        val title = getNotificationTitle(data = data, defaultGroupName = R.string.notification_outgoing_call_default_group_name)
+        val person = Person.Builder().setName(title).build()
 
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
         return notificationBuilder
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setSmallIcon(NR.drawable.notification_icon_small)
-            .setContentTitle(data.conversationName)
+            .setContentTitle(title)
             .setContentText(context.getString(R.string.notification_outgoing_call_tap_to_return))
             .setSubText(data.userName)
             .setAutoCancel(false)
@@ -241,7 +246,7 @@ class CallNotificationBuilder @Inject constructor(
     fun getIncomingCallNotification(data: CallNotificationData, asFullScreenIntent: Boolean): Notification {
         val conversationIdString = data.conversationId.toString()
         val userIdString = data.userId.toString()
-        val title = getNotificationTitle(data)
+        val title = getNotificationTitle(data = data, defaultGroupName = R.string.notification_incoming_call_default_group_name)
         val content = getNotificationBody(data)
         val channelId = NotificationConstants.getIncomingChannelId(data.userId)
         val person = Person.Builder().setName(title).build()
@@ -287,7 +292,7 @@ class CallNotificationBuilder @Inject constructor(
         val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         val conversationIdString = data.conversationId.toString()
         val userIdString = data.userId.toString()
-        val title = getNotificationTitle(data)
+        val title = getNotificationTitle(data = data, defaultGroupName = R.string.notification_ongoing_call_default_group_name)
         val person = Person.Builder().setName(title).build()
 
         return NotificationCompat.Builder(context, channelId)
@@ -315,41 +320,55 @@ class CallNotificationBuilder @Inject constructor(
     /**
      * @return placeholder Notification for CallService, that can be shown immediately after starting the Service
      * (e.g. in [android.app.Service.onCreate]). It has no any [NotificationCompat.Action], on click - just opens the app.
-     * This notification should be replace by the user-specific notification (with corresponding [NotificationCompat.Action],
+     * This notification should be replaced by the user-specific notification (with corresponding [NotificationCompat.Action],
      * [android.content.Intent] and title) once it's possible (e.g. in [android.app.Service.onStartCommand])
      */
     fun getCallServicePlaceholderNotification(): Notification {
         val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         return NotificationCompat.Builder(context, channelId)
+            .setContentTitle(context.getString(R.string.app_name))
             .setContentText(context.getString(R.string.notification_outgoing_call_tap_to_return))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setSmallIcon(NR.drawable.notification_icon_small)
-            .setAutoCancel(true)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setAutoCancel(false)
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setSilent(true)
             .setContentIntent(openAppPendingIntent(context))
             .build()
     }
 
     // Notifications content
-    private fun getNotificationBody(data: CallNotificationData) =
+    private fun getNotificationBody(
+        data: CallNotificationData,
+        @StringRes defaultCallerName: Int = R.string.notification_call_default_caller_name
+    ) =
         when (data.conversationType) {
             is Conversation.Type.Group -> {
-                val name = data.callerName ?: context.getString(R.string.notification_call_default_caller_name)
-                (data.callerTeamName?.let { "$name @$it" } ?: name)
+                val name = data.callerName.orIfNullOrBlank(context.getString(defaultCallerName))
+                (data.callerTeamName.takeUnless { it.isNullOrBlank() }?.let { "$name @$it" } ?: name)
                     .let { context.getString(R.string.notification_group_channel_call_content, it) }
             }
 
             else -> context.getString(R.string.notification_incoming_call_content)
         }
 
-    fun getNotificationTitle(data: CallNotificationData): String =
+    fun getNotificationTitle(
+        data: CallNotificationData,
+        @StringRes defaultGroupName: Int = R.string.notification_incoming_call_default_group_name,
+        @StringRes defaultCallerName: Int = R.string.notification_call_default_caller_name
+    ): String =
         when (data.conversationType) {
-            is Conversation.Type.Group -> data.conversationName ?: context.getString(R.string.notification_call_default_group_name)
+            is Conversation.Type.Group -> {
+                data.conversationName.orIfNullOrBlank(context.getString(defaultGroupName))
+            }
+
             else -> {
-                val name = data.callerName ?: context.getString(R.string.notification_call_default_caller_name)
-                data.callerTeamName?.let { "$name @$it" } ?: name
+                val name = data.callerName.orIfNullOrBlank(context.getString(defaultCallerName))
+                data.callerTeamName.takeUnless { it.isNullOrBlank() }?.let { "$name @$it" } ?: name
             }
         }
 
@@ -357,6 +376,8 @@ class CallNotificationBuilder @Inject constructor(
         private val VIBRATE_PATTERN = longArrayOf(0, 1000, 1000)
     }
 }
+
+private fun String?.orIfNullOrBlank(defaultValue: String): String = takeUnless { it.isNullOrBlank() } ?: defaultValue
 
 data class IncomingCallsForUser(val userId: UserId, val userName: String, val incomingCalls: List<Call>)
 

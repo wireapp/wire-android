@@ -17,10 +17,14 @@ CONFIGURATION="${CONFIGURATION:-Debug}"
 SDK_NAME="${SDK_NAME:-iphonesimulator}"
 
 if [[ -z "${JAVA_HOME:-}" ]]; then
-  if JAVA_HOME_CANDIDATE="$(/usr/libexec/java_home -v 17 2>/dev/null)"; then
+  if JAVA_HOME_CANDIDATE="$(/usr/libexec/java_home -v 21 2>/dev/null)"; then
     export JAVA_HOME="${JAVA_HOME_CANDIDATE}"
     export PATH="${JAVA_HOME}/bin:${PATH}"
   fi
+fi
+
+if [[ -n "${JAVA_HOME:-}" ]]; then
+  export PATH="${JAVA_HOME}/bin:${PATH}"
 fi
 
 if [[ "${SDK_NAME}" == *"iphoneos"* ]]; then

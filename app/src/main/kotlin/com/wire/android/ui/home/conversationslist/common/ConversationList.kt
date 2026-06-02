@@ -35,6 +35,8 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -92,8 +94,14 @@ fun ConversationList(
     onAudioPermissionPermanentlyDenied: () -> Unit = {},
     onPlayPauseCurrentAudio: () -> Unit = { },
     onStopCurrentAudio: () -> Unit = {},
-    onBrowsePublicChannels: () -> Unit = {}
+    onBrowsePublicChannels: () -> Unit = {},
+    firstConversationFocusRequester: FocusRequester? = null,
 ) {
+    val firstConversationId = lazyPagingConversations.itemSnapshotList.items
+        .filterIsInstance<ConversationItem>()
+        .firstOrNull()
+        ?.conversationId
+
     LazyColumn(
         state = lazyListState,
         modifier = modifier.fillMaxSize()
@@ -138,9 +146,18 @@ fun ConversationList(
                         is ConversationSection.WithoutHeader -> {}
                     }
 
-                    is ConversationItem ->
+                    is ConversationItem -> {
+                        val conversationModifier = if (
+                            item.conversationId == firstConversationId &&
+                            firstConversationFocusRequester != null
+                        ) {
+                            Modifier.focusRequester(firstConversationFocusRequester)
+                        } else {
+                            Modifier
+                        }
                         ConversationItemFactory(
                             conversation = item,
+                            modifier = conversationModifier,
                             isSelectableItem = isSelectableList,
                             isChecked = selectedConversations.contains(item.conversationId),
                             onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(item) },
@@ -152,6 +169,7 @@ fun ConversationList(
                             onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
                             onStopCurrentAudio = onStopCurrentAudio
                         )
+                    }
 
                     else -> {}
                 }
@@ -216,8 +234,14 @@ fun ConversationList(
     onConversationSelectedOnRadioGroup: (ConversationId) -> Unit = {},
     onAudioPermissionPermanentlyDenied: () -> Unit = {},
     onPlayPauseCurrentAudio: () -> Unit = { },
-    onStopCurrentAudio: () -> Unit = {}
+    onStopCurrentAudio: () -> Unit = {},
+    firstConversationFocusRequester: FocusRequester? = null,
 ) {
+    val firstConversationId = conversationListItems.values
+        .firstOrNull { it.isNotEmpty() }
+        ?.firstOrNull()
+        ?.conversationId
+
     LazyColumn(
         state = lazyListState,
         modifier = modifier.fillMaxSize()
@@ -233,8 +257,17 @@ fun ConversationList(
                     it.conversationId.toString()
                 }
             ) { generalConversation ->
+                val conversationModifier = if (
+                    generalConversation.conversationId == firstConversationId &&
+                    firstConversationFocusRequester != null
+                ) {
+                    Modifier.focusRequester(firstConversationFocusRequester)
+                } else {
+                    Modifier
+                }
                 ConversationItemFactory(
                     conversation = generalConversation,
+                    modifier = conversationModifier,
                     isSelectableItem = isSelectableList,
                     isChecked = selectedConversations.contains(generalConversation),
                     onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(generalConversation.conversationId) },

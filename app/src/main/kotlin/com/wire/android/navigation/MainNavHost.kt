@@ -26,11 +26,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
@@ -49,11 +49,13 @@ import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
+import com.wire.android.di.wireViewModel
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
-import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
+import com.wire.android.ui.home.settings.teamMigrationViewModel
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -86,7 +88,7 @@ fun MainNavHost(
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(NewConversationGraph.route)
                         }
-                        dependency(hiltViewModel<NewConversationViewModel>(parentEntry))
+                        dependency(wireViewModel<NewConversationViewModel>(parentEntry))
                     }
 
                     // 👇 To reuse LoginEmailViewModel from NewLoginPasswordScreen on NewLoginVerificationCodeScreen
@@ -94,7 +96,12 @@ fun MainNavHost(
                         val loginPasswordEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
                         }
-                        dependency(hiltViewModel<LoginEmailViewModel>(loginPasswordEntry))
+                        dependency(
+                            wireViewModel<LoginEmailViewModel, LoginEmailViewModel.Factory>(
+                                viewModelStoreOwner = loginPasswordEntry,
+                                creationCallback = { factory -> factory.create(loginPasswordEntry.navArgs<LoginNavArgs>()) }
+                            )
+                        )
                     }
 
                     // 👇 To reuse CellViewModel from the parent screen on SearchScreen
@@ -102,7 +109,7 @@ fun MainNavHost(
                         val parentEntry = remember(navBackStackEntry) {
                             navController.previousBackStackEntry
                         }
-                        dependency(hiltViewModel<CellViewModel>(parentEntry ?: navBackStackEntry))
+                        dependency(wireViewModel<CellViewModel>(parentEntry ?: navBackStackEntry))
                     }
 
                     // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph,
@@ -111,7 +118,7 @@ fun MainNavHost(
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(PersonalToTeamMigrationGraph.route)
                         }
-                        dependency(hiltViewModel<TeamMigrationViewModel>(parentEntry))
+                        dependency(teamMigrationViewModel(parentEntry))
                     }
                 },
                 manualComposableCallsBuilder = {

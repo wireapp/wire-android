@@ -61,7 +61,7 @@ fun MultipartAttachmentsView(
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
-        else -> hiltViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value)
+        else -> wireViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value)
     }
 ) {
     // Collect to trigger recomposition when offline availability changes.

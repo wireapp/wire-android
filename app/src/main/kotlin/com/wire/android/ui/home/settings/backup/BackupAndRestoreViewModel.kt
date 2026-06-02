@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.home.settings.backup
-
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
@@ -52,7 +50,6 @@ import com.wire.kalium.logic.feature.backup.RestoreMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.VerifyBackupResult
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
 import com.wire.kalium.util.DateTimeUtil
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -60,9 +57,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
-
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
 class BackupAndRestoreViewModel @Inject constructor(
     private val importBackup: RestoreBackupUseCase,
     private val importMpBackup: RestoreMPBackupUseCase,
@@ -76,7 +71,6 @@ class BackupAndRestoreViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val mpBackupSettings: MPBackupSettings,
 ) : ViewModel() {
-
     val createBackupPasswordState: TextFieldState = TextFieldState()
     val restoreBackupPasswordState: TextFieldState = TextFieldState()
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
@@ -93,7 +87,6 @@ class BackupAndRestoreViewModel @Inject constructor(
         observeLastBackupDate()
         observeCreateBackupPasswordChanges()
     }
-
     private fun observeCreateBackupPasswordChanges() {
         viewModelScope.launch {
             createBackupPasswordState.textAsFlow().collectLatest {
@@ -101,7 +94,6 @@ class BackupAndRestoreViewModel @Inject constructor(
             }
         }
     }
-
     private fun observeLastBackupDate() {
         viewModelScope.launch {
             userDataStore.lastBackupDateSeconds().collect {
@@ -109,14 +101,10 @@ class BackupAndRestoreViewModel @Inject constructor(
             }
         }
     }
-
     fun createBackup() {
-
         createRestoreJob?.cancel()
         createRestoreJob = viewModelScope.launch {
-
             val password = createBackupPasswordState.text.toString()
-
             val result = if (mpBackupSettings is MPBackupSettings.Enabled) {
                 createMpBackupFile(password) { progress ->
                     updateCreationProgress(progress)
@@ -124,7 +112,6 @@ class BackupAndRestoreViewModel @Inject constructor(
             } else {
                 createBackupFile(password)
             }
-
             when (result) {
                 is CreateBackupResult.Success -> {
                     state = state.copy(backupCreationProgress = BackupCreationProgress.Finished(result.backupFileName))
@@ -135,7 +122,6 @@ class BackupAndRestoreViewModel @Inject constructor(
                     )
                     createBackupPasswordState.clearText()
                 }
-
                 is CreateBackupResult.Failure -> {
                     state = state.copy(backupCreationProgress = BackupCreationProgress.Failed)
                     appLogger.e("Failed to create backup: ${result.coreFailure}")
@@ -144,13 +130,11 @@ class BackupAndRestoreViewModel @Inject constructor(
             }
         }
     }
-
     private suspend fun updateLastBackupDate() {
         DateTimeUtil.currentInstant().epochSeconds.also { currentTime ->
             userDataStore.setLastBackupDateSeconds(currentTime)
         }
     }
-
     fun shareBackup() = viewModelScope.launch {
         updateLastBackupDate()
         latestCreatedBackup?.let { backupData ->
@@ -166,7 +150,6 @@ class BackupAndRestoreViewModel @Inject constructor(
             passwordValidation = ValidatePasswordResult.Valid,
         )
     }
-
     fun saveBackup(uri: Uri) = viewModelScope.launch {
         updateLastBackupDate()
         latestCreatedBackup?.let { backupData ->
@@ -180,17 +163,14 @@ class BackupAndRestoreViewModel @Inject constructor(
             passwordValidation = ValidatePasswordResult.Valid,
         )
     }
-
     fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
         latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
         fileManager.copyToPath(uri, latestImportedBackupTempPath)
         verifyBackupFile(latestImportedBackupTempPath)
     }
-
     private fun showPasswordDialog() {
         state = state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired)
     }
-
     private suspend fun verifyBackupFile(importedBackupPath: Path) = withContext(dispatcher.main()) {
         when (val result = verifyBackup(importedBackupPath)) {
             is VerifyBackupResult.Success -> {
@@ -204,7 +184,6 @@ class BackupAndRestoreViewModel @Inject constructor(
                     restoreBackup(importedBackupPath, null)
                 }
             }
-
             is VerifyBackupResult.Failure -> {
                 state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
                 val errorMessage = when (result) {
@@ -220,13 +199,11 @@ class BackupAndRestoreViewModel @Inject constructor(
                         "Invalid user ID"
                     }
                 }
-
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreFailed)
                 appLogger.e("Failed to extract backup files: $errorMessage")
             }
         }
     }
-
     fun restorePasswordProtectedBackup() = viewModelScope.launch(dispatcher.main()) {
         state = state.copy(
             restorePasswordValidation = PasswordValidation.NotVerified
@@ -235,40 +212,34 @@ class BackupAndRestoreViewModel @Inject constructor(
         val fileValidationState = state.restoreFileValidation
         if (fileValidationState is RestoreFileValidation.PasswordRequired) {
             state = state.copy(restorePasswordValidation = PasswordValidation.Entered)
-
             restoreBackup(latestImportedBackupTempPath, restoreBackupPasswordState.text.toString())
         } else {
             state = state.copy(backupRestoreProgress = BackupRestoreProgress.Failed)
             AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreFailed)
         }
     }
-
     private fun mapBackupRestoreFailure(failure: RestoreBackupResult.BackupRestoreFailure) = when (failure) {
         InvalidPassword -> state = state.copy(
             backupRestoreProgress = BackupRestoreProgress.Failed,
             restoreFileValidation = RestoreFileValidation.PasswordRequired,
             restorePasswordValidation = PasswordValidation.NotValid,
         )
-
         InvalidUserId -> state = state.copy(
             backupRestoreProgress = BackupRestoreProgress.Failed,
             restoreFileValidation = RestoreFileValidation.WrongBackup,
             restorePasswordValidation = PasswordValidation.Valid
         )
-
         is IncompatibleBackup -> state = state.copy(
             backupRestoreProgress = BackupRestoreProgress.Failed,
             restoreFileValidation = RestoreFileValidation.IncompatibleBackup,
             restorePasswordValidation = PasswordValidation.Valid
         )
-
         is BackupIOFailure, is DecryptionFailure -> state = state.copy(
             backupRestoreProgress = BackupRestoreProgress.Failed,
             restoreFileValidation = RestoreFileValidation.GeneralFailure,
             restorePasswordValidation = PasswordValidation.Valid
         )
     }
-
     fun validateBackupCreationPassword(backupPassword: String) {
         state = state.copy(
             passwordValidation = if (backupPassword.isEmpty()) {
@@ -278,13 +249,11 @@ class BackupAndRestoreViewModel @Inject constructor(
             }
         )
     }
-
     fun cancelBackupCreation() = viewModelScope.launch(dispatcher.main()) {
         createRestoreJob?.cancel()
         createBackupPasswordState.clearText()
         updateCreationProgress(0f)
     }
-
     fun cancelBackupRestore() = viewModelScope.launch {
         createRestoreJob?.cancel()
         restoreBackupPasswordState.clearText()
@@ -302,7 +271,6 @@ class BackupAndRestoreViewModel @Inject constructor(
             }
         }
     }
-
     private fun restoreBackup(backupFilePath: Path, password: String?) {
         createRestoreJob?.cancel()
         createRestoreJob = viewModelScope.launch {
@@ -321,7 +289,6 @@ class BackupAndRestoreViewModel @Inject constructor(
                     restoreBackupPasswordState.clearText()
                     AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreSucceeded)
                 }
-
                 is RestoreBackupResult.Failure -> {
                     mapBackupRestoreFailure(result.failure)
                     AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreFailed)
@@ -329,15 +296,12 @@ class BackupAndRestoreViewModel @Inject constructor(
             }
         }
     }
-
     private fun updateCreationProgress(progress: Float) = viewModelScope.launch {
         state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(progress))
     }
-
     private fun updateRestoreProgress(progress: Float) = viewModelScope.launch {
         state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(progress))
     }
-
     internal companion object {
         const val TEMP_IMPORTED_BACKUP_FILE_NAME = "tempImportedBackup.zip"
         const val SMALL_DELAY = 300L

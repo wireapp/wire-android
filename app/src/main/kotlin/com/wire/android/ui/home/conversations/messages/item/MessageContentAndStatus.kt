@@ -25,8 +25,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -38,6 +36,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.conversationAssetPathsViewModel
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
 import com.wire.android.ui.home.conversations.messages.QuotedStyle
@@ -45,6 +44,7 @@ import com.wire.android.ui.home.conversations.messages.QuotedUnavailable
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageImage
+import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -70,17 +70,14 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     messageStyle: MessageStyle,
     onAssetClicked: (String) -> Unit,
     onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit,
-    onProfileClicked: (String) -> Unit,
+    onProfileClicked: (senderId: MessageSenderId) -> Unit,
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
     shouldDisplayMessageStatus: Boolean,
     conversationDetailsData: ConversationDetailsData,
     accent: Accent = Accent.Unknown,
 ) {
-    val conversationAssetPathsViewModel: ConversationAssetPathsViewModel = when {
-        LocalInspectionMode.current -> ConversationAssetPathsViewModelPreview
-        else -> hiltViewModel<ConversationAssetPathsViewModelImpl>(key = message.conversationId.toString())
-    }
+    val conversationAssetPathsViewModel = conversationAssetPathsViewModel(message.conversationId.toString())
 
     val onAssetClickable = remember(message) {
         Clickable(enabled = isAvailable, onClick = {
@@ -163,7 +160,7 @@ private fun MessageContent(
     onAssetClick: Clickable,
     onImageClick: Clickable,
     onMultipartImageClick: (String) -> Unit,
-    onOpenProfile: (String) -> Unit,
+    onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
     accent: Accent,

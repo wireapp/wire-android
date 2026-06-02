@@ -205,7 +205,7 @@ class ChannelTest : BaseUiTest() {
             pages.groupConversationDetailsPage.apply {
                 assertUsernameIsAddedToParticipantsList(member1.name ?: "")
                 assertUsernameIsAddedToParticipantsList(member2.name ?: "")
-                tapCloseButtonOnGroupConversationDetailsPage()
+                tapCloseButtonOnChannelConversationDetailsPage()
             }
         }
 
@@ -443,7 +443,7 @@ class ChannelTest : BaseUiTest() {
             pages.groupConversationDetailsPage.apply {
                 assertUsernameIsAddedToParticipantsList(member1.name ?: "")
                 assertUsernameIsAddedToParticipantsList(member2.name ?: "")
-                tapCloseButtonOnGroupConversationDetailsPage()
+                tapCloseButtonOnChannelConversationDetailsPage()
             }
         }
 
@@ -685,7 +685,7 @@ class ChannelTest : BaseUiTest() {
             pages.groupConversationDetailsPage.apply {
                 assertUsernameIsAddedToParticipantsList(member1.name ?: "")
                 assertUsernameIsAddedToParticipantsList(member2.name ?: "")
-                tapCloseButtonOnGroupConversationDetailsPage()
+                tapCloseButtonOnChannelConversationDetailsPage()
             }
         }
 
@@ -815,6 +815,219 @@ class ChannelTest : BaseUiTest() {
             pages.conversationListPage.apply {
                 assertConversationHasUnreadMessagesCount(member1.name ?: "", "1")
             }
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-8722", "TC-8726", "TC-8729")
+    @Category("channels", "regression", "RC")
+    @Test
+    fun givenChannelConversationMembersAreRemovedAndAdded_whenViewingParticipantList_thenParticipantListIsUpdatedCorrectly() {
+        step("Given there is TeamOwner with team UpdateParticipantList on Staging backend") {
+            teamHelper.usersManager.createTeamOwnerByAlias(
+                "user1Name",
+                "UpdateParticipantList",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+        }
+
+        step("And User TeamOwner configures MLS for team UpdateParticipantList") {
+            teamHelper.userConfiguresMLSForTeam("user1Name", "UpdateParticipantList", backendClient)
+        }
+
+        step("And TeamOwner enables channel feature for team UpdateParticipantList via backdoor") {
+            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "UpdateParticipantList", backendClient)
+        }
+
+        step("And User TeamOwner adds users Member1,Member2 to team UpdateParticipantList with role Member") {
+            teamHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name,user3Name",
+                "UpdateParticipantList",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+        }
+
+        step("And TeamOwner adds a new device Device1 with label Device1") {
+            testServiceHelper.addDevice("user1Name", null, "Device1")
+        }
+
+        step("And Member1 adds a new device Device2 with label Device2") {
+            testServiceHelper.apply {
+                addDevice("user2Name", null, "Device2")
+            }
+        }
+
+        step("And TeamOwner has channel conversation UpdateList in team UpdateParticipantList") {
+            testServiceHelper.userHasChannelConversationInTeam(
+                "user1Name",
+                "UpdateList",
+                "UpdateParticipantList"
+            )
+        }
+
+        step("And User TeamOwner is me") {
+            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+        }
+
+        step("And User Member1 and Member2 are available for channel participant selection") {
+            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
+            member2 = teamHelper.usersManager.findUserByNameOrNameAlias("user3Name")
+        }
+
+        step("And I see welcome screen before login") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+        }
+
+        step("And I open staging deep link login flow") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+            }
+        }
+
+        step("And I login as TeamOwner") {
+            pages.loginPage.apply {
+                enterTeamOwnerLoggingEmail(teamOwner.email ?: "")
+                clickLoginButton()
+                enterTeamOwnerLoggingPassword(teamOwner.password ?: "")
+                clickLoginButton()
+            }
+        }
+
+        step("And I complete post-login permission and privacy prompts") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+
+        step("Then I see conversation UpdateList in conversation list") {
+            pages.conversationListPage.apply {
+                assertChannelConversationVisible("UpdateList")
+            }
+        }
+
+        step("When I tap on conversation name UpdateList in conversation list") {
+            pages.conversationListPage.apply {
+                clickChannelConversation("UpdateList")
+            }
+        }
+
+        step("And I tap on channel conversation title UpdateList to open group details") {
+            pages.conversationViewPage.apply {
+                UiWaitUtils.waitFor(1.seconds)
+                clickOnChannelConversationDetails("UpdateList")
+            }
+        }
+
+        step("And I open participants tab") {
+            pages.groupConversationDetailsPage.apply {
+                tapOnParticipantsTab()
+            }
+        }
+
+        step("Then I do not see Member1 in the participants list") {
+            pages.groupConversationDetailsPage.apply {
+                assertUserIsNotInParticipantsList(member1.name ?: "")
+            }
+        }
+
+        step("When I start add participant flow") {
+            pages.groupConversationDetailsPage.apply {
+                tapAddParticipantsButton()
+            }
+        }
+
+        step("And I select Member1 from participant suggestions") {
+            pages.groupConversationDetailsPage.apply {
+                assertUsernameInSuggestionsListIs(member1.name ?: "")
+                selectUserInSuggestionList(member1.name ?: "")
+                tapContinueButton()
+            }
+        }
+
+        step("Then I verify Member1 is added to participants list") {
+            pages.groupConversationDetailsPage.apply {
+                assertUsernameIsAddedToParticipantsList(member1.name ?: "")
+            }
+        }
+
+        step("And I tap on Member1 in participants list") {
+            pages.groupConversationDetailsPage.apply {
+                tapUserInParticipantsList(member1.name ?: "")
+            }
+        }
+
+        // TC-8722 I want to remove a participant from a channel conversation
+
+        step("And I tap Remove from conversation button") {
+            pages.connectedUserProfilePage.apply {
+                assertRemoveFromConversationButtonForParticipant()
+                tapRemoveFromConversationButtonForParticipant()
+            }
+        }
+
+        step("And I see alert asking if I want to remove Member1 and I tap Remove button on the modal") {
+            pages.connectedUserProfilePage.apply {
+                assetRemoveConversationButtonOnModal()
+                tapRemoveConversationButtonOnModal()
+            }
+        }
+
+        step("Then I see toast message that ${member1.uniqueUsername} was removed from the conversation") {
+            waitUntilToastIsDisplayed("${member1.uniqueUsername} was removed from the conversation")
+        }
+
+        step("And I close the connected user profile page") {
+            pages.connectedUserProfilePage.apply {
+                tapCloseButtonOnConnectedUserProfilePage()
+            }
+        }
+
+        step("Then I do not see Member1 in the participants list") {
+            pages.groupConversationDetailsPage.apply {
+                assertUserIsNotInParticipantsList(member1.name ?: "")
+            }
+        }
+
+        // TC-8726 I want to be able to leave a channel conversation from the channel details page
+
+        step("When I tap show more options button") {
+            pages.groupConversationDetailsPage.apply {
+                tapShowMoreOptionsButton()
+            }
+        }
+        step("And I see Leave Conversation button and tap it") {
+            pages.conversationListPage.apply {
+                assertLeaveConversationButtonVisibleInConversationActions()
+                tapLeaveConversationButtonInConversationActions()
+            }
+        }
+
+        step("And I see leave conversation confirmation modal for UpdateList") {
+            pages.conversationListPage.apply {
+                assertLeaveConversationConfirmationModalVisible("UpdateList")
+            }
+        }
+
+        step("And I tap Leave Conversation button in leave conversation confirmation modal") {
+            pages.conversationListPage.apply {
+                tapLeaveConversationButtonOnModal()
+            }
+        }
+
+        step("Then I see leave toast message for UpdateList") {
+            waitUntilToastIsDisplayed("You left the conversation.")
         }
     }
 }

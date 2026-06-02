@@ -44,7 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.authentication.createAccountDetailsViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -74,7 +74,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun CreateAccountDetailsScreen(
     navigator: Navigator,
-    createAccountDetailsViewModel: CreateAccountDetailsViewModel = wireViewModel()
+    createAccountDetailsViewModel: CreateAccountDetailsViewModel = createAccountDetailsViewModel()
 ) {
     with(createAccountDetailsViewModel) {
         fun navigateToCodeScreen() = navigator.navigate(

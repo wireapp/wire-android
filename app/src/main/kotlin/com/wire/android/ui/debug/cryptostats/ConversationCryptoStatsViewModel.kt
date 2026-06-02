@@ -26,12 +26,10 @@ import com.wire.kalium.logic.feature.debug.ConversationCryptoStats
 import com.wire.kalium.logic.feature.debug.DetailGroupState
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsResult
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 enum class ProtocolFilter(val label: String) {
     ALL("All"),
@@ -49,8 +47,7 @@ enum class EstablishmentFilter(val label: String) {
     NOT_APPLICABLE("N/A (Proteus)"),
 }
 
-@HiltViewModel
-class ConversationCryptoStatsViewModel @Inject constructor(
+class ConversationCryptoStatsViewModel(
     private val getConversationCryptoStats: GetConversationCryptoStatsUseCase,
 ) : ViewModel() {
 

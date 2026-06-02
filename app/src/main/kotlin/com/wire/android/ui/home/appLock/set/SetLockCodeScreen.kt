@@ -49,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
@@ -65,6 +64,7 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.settings.setLockScreenViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -78,7 +78,7 @@ import java.util.Locale
 @Composable
 fun SetLockCodeScreen(
     navigator: Navigator,
-    viewModel: SetLockScreenViewModel = wireViewModel(),
+    viewModel: SetLockScreenViewModel = setLockScreenViewModel(),
 ) {
     SetLockCodeScreenContent(
         navigator = navigator,

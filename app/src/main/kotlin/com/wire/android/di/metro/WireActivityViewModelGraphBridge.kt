@@ -20,8 +20,22 @@ package com.wire.android.di.metro
 import androidx.lifecycle.ViewModel
 import com.wire.android.feature.cells.ui.CellsViewModelFactory
 import com.wire.android.feature.cells.ui.CellsViewModelGraph
+import com.wire.android.feature.meetings.ui.MeetingsViewModelFactory
+import com.wire.android.feature.meetings.ui.MeetingsViewModelGraph
 import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
+import com.wire.android.ui.authentication.AuthenticationViewModelFactory
+import com.wire.android.ui.authentication.AuthenticationViewModelGraph
+import com.wire.android.ui.calling.CallingViewModelFactory
+import com.wire.android.ui.calling.CallingViewModelGraph
+import com.wire.android.ui.debug.DebugInfoViewModelFactory
+import com.wire.android.ui.debug.DebugInfoViewModelGraph
+import com.wire.android.ui.home.HomeViewModelFactory
+import com.wire.android.ui.home.HomeViewModelGraph
+import com.wire.android.ui.home.conversations.ConversationCoreViewModelFactory
+import com.wire.android.ui.home.conversations.ConversationCoreViewModelGraph
+import com.wire.android.ui.home.settings.SettingsViewModelFactory
+import com.wire.android.ui.home.settings.SettingsViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -34,10 +48,47 @@ import javax.inject.Provider
 class WireActivityViewModelGraphBridge @Inject constructor(
     imageLoader: Provider<WireSessionImageLoader>,
     private val cellsViewModelFactoryProvider: Provider<CellsViewModelFactory>,
-) : ViewModel(), ImageAssetViewModelGraph, CellsViewModelGraph {
+    private val authenticationViewModelFactoryProvider: Provider<AuthenticationViewModelFactory>,
+    private val callingViewModelFactoryProvider: Provider<CallingViewModelFactory>,
+    private val debugInfoViewModelFactoryProvider: Provider<DebugInfoViewModelFactory>,
+    private val homeViewModelFactoryProvider: Provider<HomeViewModelFactory>,
+    private val settingsViewModelFactoryProvider: Provider<SettingsViewModelFactory>,
+    private val conversationCoreViewModelFactoryProvider: Provider<ConversationCoreViewModelFactory>,
+    private val meetingsViewModelFactoryProvider: Provider<MeetingsViewModelFactory>,
+) : ViewModel(),
+    ImageAssetViewModelGraph,
+    CellsViewModelGraph,
+    AuthenticationViewModelGraph,
+    CallingViewModelGraph,
+    DebugInfoViewModelGraph,
+    HomeViewModelGraph,
+    SettingsViewModelGraph,
+    ConversationCoreViewModelGraph,
+    MeetingsViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
 
     override val cellsViewModelFactory: CellsViewModelFactory
         get() = cellsViewModelFactoryProvider.get()
+
+    override val authenticationViewModelFactory: AuthenticationViewModelFactory
+        get() = authenticationViewModelFactoryProvider.get()
+
+    override val callingViewModelFactory: CallingViewModelFactory
+        get() = callingViewModelFactoryProvider.get()
+
+    override val debugInfoViewModelFactory: DebugInfoViewModelFactory
+        get() = debugInfoViewModelFactoryProvider.get()
+
+    override val homeViewModelFactory: HomeViewModelFactory
+        get() = homeViewModelFactoryProvider.get()
+
+    override val settingsViewModelFactory: SettingsViewModelFactory
+        get() = settingsViewModelFactoryProvider.get()
+
+    override val conversationCoreViewModelFactory: ConversationCoreViewModelFactory
+        get() = conversationCoreViewModelFactoryProvider.get()
+
+    override val meetingsViewModelFactory: MeetingsViewModelFactory
+        get() = meetingsViewModelFactoryProvider.get()
 }

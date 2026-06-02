@@ -33,7 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.home.settings.selfDevicesViewModel
 import androidx.lifecycle.Lifecycle
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -56,7 +56,7 @@ import com.wire.kalium.logic.data.conversation.ClientId
 @Composable
 fun SelfDevicesScreen(
     navigator: Navigator,
-    viewModel: SelfDevicesViewModel = wireViewModel()
+    viewModel: SelfDevicesViewModel = selfDevicesViewModel()
 ) {
     val lifecycleEvent = rememberLifecycleEvent()
     LaunchedEffect(lifecycleEvent) {

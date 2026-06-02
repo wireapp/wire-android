@@ -23,19 +23,16 @@ import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.sync.ForegroundActionsUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import javax.inject.Inject
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-@HiltViewModel
-class AppSyncViewModel @Inject constructor(
+class AppSyncViewModel(
     private val foregroundActionsUseCase: ForegroundActionsUseCase,
     observeDebugCRLExpirationAfterOneMinute: ObserveDebugCRLExpirationAfterOneMinuteUseCase,
     private val dispatcher: DispatcherProvider,

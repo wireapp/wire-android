@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.userprofile.service
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -52,7 +51,6 @@ import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageU
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberResult
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
@@ -63,7 +61,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-
 @ViewModelScopedPreview
 interface ServiceDetailsViewModel : ActionsManager<ServiceDetailsViewActions> {
     fun serviceDetailsState(): ServiceDetailsState = ServiceDetailsState()
@@ -73,7 +70,6 @@ interface ServiceDetailsViewModel : ActionsManager<ServiceDetailsViewActions> {
 }
 
 @Suppress("LongParameterList")
-@HiltViewModel
 class ServiceDetailsViewModelImpl @Inject constructor(
     private val dispatchers: DispatcherProvider,
     @CurrentAccount private val selfUserId: UserId,
@@ -91,34 +87,26 @@ class ServiceDetailsViewModelImpl @Inject constructor(
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     savedStateHandle: SavedStateHandle
 ) : ServiceDetailsViewModel, ActionsViewModel<ServiceDetailsViewActions>() {
-
     private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
-
     private val serviceId: ServiceId = serviceDetailsNavArgs.id.serviceId
     private val userId: UserId = serviceDetailsNavArgs.id.userId
     private val conversationId: QualifiedID? = serviceDetailsNavArgs.conversationId
-
     private var state by mutableStateOf(ServiceDetailsState())
     override fun serviceDetailsState(): ServiceDetailsState = state
-
     init {
         viewModelScope.launch {
             getIfConversationExist()
-
             val appsAllowedResult = observeIsAppsAllowedForUsage().firstOrNull()
-
             val conversationProtocolInfo = conversationId?.let {
                 observeConversationDetails(it)
                     .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
                     .map { result -> result.conversationDetails.conversation.protocol }
                     .firstOrNull()
             }
-
             val isAppsEnabled = AppsUtil.isAppsAllowed(
                 appsAllowedResult = appsAllowedResult,
                 conversationProtocol = conversationProtocolInfo
             )
-
             state = state.copy(
                 serviceId = serviceId,
                 conversationId = conversationId,
@@ -126,7 +114,6 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                 isAvatarLoading = true,
                 isAppsEnabled = isAppsEnabled
             )
-
             when (val id = serviceDetailsNavArgs.id) {
                 is ServiceDetailsNavArgs.Id.AppId -> {
                     val details = getAppDetailsAndUpdateViewState(id.appId)
@@ -134,7 +121,6 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                         observeIsAppConversationMember(id.appId)
                     }
                 }
-
                 is ServiceDetailsNavArgs.Id.BotServiceId -> {
                     getServiceDetailsAndUpdateViewState()?.let {
                         observeIsServiceConversationMember()
@@ -143,7 +129,6 @@ class ServiceDetailsViewModelImpl @Inject constructor(
             }
         }
     }
-
     override fun onAddService() {
         viewModelScope.launch {
             state = state.copy(isActionLoading = true)
@@ -153,7 +138,6 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                         conversationId = requireNotNull(conversationId),
                         userIdList = listOf(id.appId)
                     )
-
                     when (response) {
                         is AddMemberToConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorAddService
                         is AddMemberToConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessAddService
@@ -166,19 +150,16 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                             serviceId = id.serviceId
                         )
                     }
-
                     when (response) {
                         is AddServiceToConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorAddService
                         is AddServiceToConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessAddService
                     }
                 }
             }
-
             sendAction(ServiceDetailsViewActions.Message(responseMessage.uiText.asSnackBarMessage()))
             state = state.copy(isActionLoading = false)
         }
     }
-
     override fun onRemoveService() {
         viewModelScope.launch {
             state.serviceMemberId?.let { serviceMemberId ->
@@ -189,29 +170,24 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                         userIdToRemove = serviceMemberId
                     )
                 }
-
                 val responseMessage = when (response) {
                     is RemoveMemberFromConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorRemoveService
                     is RemoveMemberFromConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessRemoveService
                 }
-
                 sendAction(ServiceDetailsViewActions.Message(responseMessage.uiText.asSnackBarMessage()))
                 state = state.copy(isActionLoading = false)
             }
         }
     }
-
     override fun onOpenConversation() {
         viewModelScope.launch {
             state = state.copy(isActionLoading = true)
             val result = withContext(dispatchers.io()) {
                 getOrCreateOneToOneConversation(userId)
             }
-
             when (result) {
                 is CreateConversationResult.Failure -> {
                     appLogger.d("Couldn't retrieve or create the conversation")
-
                     sendAction(
                         ServiceDetailsViewActions.Message(
                             ServiceDetailsInfoMessageType
@@ -227,14 +203,12 @@ class ServiceDetailsViewModelImpl @Inject constructor(
             state = state.copy(isActionLoading = false)
         }
     }
-
     private suspend fun getServiceDetailsAndUpdateViewState(): ServiceDetails? =
         getServiceById(serviceId = serviceId).also { service ->
             if (service != null) {
                 val serviceAvatarAsset = service.completeAssetId?.let { asset ->
                     ImageAsset.UserAvatarAsset(asset)
                 }
-
                 state = state.copy(
                     isDataLoading = false,
                     isAvatarLoading = false,
@@ -245,7 +219,6 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                 serviceNotFound()
             }
         }
-
     private suspend fun getAppDetailsAndUpdateViewState(appId: UserId): ServiceDetails? =
         getAppById(appId = appId).also { app ->
             if (app != null) {
@@ -254,7 +227,6 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                 } ?: app.previewAssetId?.let { asset ->
                     ImageAsset.UserAvatarAsset(asset)
                 }
-
                 state = state.copy(
                     isDataLoading = false,
                     isAvatarLoading = false,
@@ -265,7 +237,6 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                 serviceNotFound()
             }
         }
-
     private suspend fun observeGroupInfo(): Flow<ServiceDetailsGroupState> =
         conversationId?.let {
             observeConversationRoleForUser(conversationId, selfUserId)
@@ -276,7 +247,6 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                     )
                 }
         } ?: flowOf()
-
     private suspend fun observeIsServiceConversationMember() {
         conversationId?.let {
             observeIsServiceMember(
@@ -295,7 +265,6 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                 }
         }
     }
-
     private suspend fun observeIsAppConversationMember(appId: UserId) {
         conversationId?.let {
             observeIsAppMember(
@@ -313,7 +282,6 @@ class ServiceDetailsViewModelImpl @Inject constructor(
                 }
         }
     }
-
     private fun getIfConversationExist() {
         viewModelScope.launch {
             if (conversationId == null) {
@@ -322,14 +290,12 @@ class ServiceDetailsViewModelImpl @Inject constructor(
             }
         }
     }
-
     private fun serviceNotFound() {
         state = state.copy(
             serviceDetails = null,
             buttonState = ServiceDetailsButtonState.HIDDEN
         )
     }
-
     private fun updateViewStateButton(
         serviceMemberId: UserId?,
         groupInfo: ServiceDetailsGroupState
@@ -343,13 +309,11 @@ class ServiceDetailsViewModelImpl @Inject constructor(
         } else {
             ServiceDetailsButtonState.HIDDEN
         }
-
         state = state.copy(
             buttonState = buttonState,
             serviceMemberId = serviceMemberId
         )
     }
-
     private companion object {
         const val TAG = "ServiceDetailsViewModel"
     }

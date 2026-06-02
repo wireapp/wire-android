@@ -61,6 +61,7 @@ data class ConversationListPage(private val device: UiDevice) {
     private val leaveConversationDescriptionOnModal =
         UiSelectorParams(textContains = "You will then no longer be able to send or read messages")
     private val startNewConversation = UiSelectorParams(description = "New. Start a new conversation")
+    private val createNewChannelButton = UiSelectorParams(text = "New Channel")
 
     private val userConversationNamePendingLabelSelector =
         UiSelector().description("pending approval of connection request")
@@ -315,6 +316,15 @@ data class ConversationListPage(private val device: UiDevice) {
 
     fun tapStartNewConversationButton(): ConversationListPage {
         UiWaitUtils.waitElement(startNewConversation).click()
+        return this
+    }
+
+    fun assertCreateNewChannelButtonNotVisible(): ConversationListPage {
+        val createNewChannel = findElementOrNull(createNewChannelButton)
+        Assert.assertTrue(
+            "Create new channel button is visible.",
+            createNewChannel == null || createNewChannel.visibleBounds.isEmpty
+        )
         return this
     }
 

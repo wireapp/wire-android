@@ -4940,6 +4940,25 @@ private fun com.wire.android.ui.home.conversations.channels.Content(searchQueryT
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
+public fun com.wire.android.ui.home.conversations.conversationAssetPathsViewModel(conversationKey: kotlin.String): com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModel
+  skippable: true
+  restartable: true
+  params:
+    - conversationKey: STABLE (String is immutable)
+
+@Composable
+public fun com.wire.android.ui.home.conversations.conversationMessagesViewModel(): com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.conversations.conversationMigrationViewModel(): com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 internal fun com.wire.android.ui.home.conversations.delete.DeleteMessageDialog(dialogState: com.wire.android.ui.common.visbility.VisibilityState<com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState>, deleteMessage: kotlin.Function2<@[ParameterName(name = \): kotlin.Unit
   skippable: false
   restartable: true
@@ -5904,6 +5923,24 @@ public fun com.wire.android.ui.home.conversations.mention.MemberItemToMention(av
     - searchQuery: STABLE (String is immutable)
     - clickable: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.home.conversations.messageAttachmentsViewModel(): com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.conversations.messageComposerViewModel(): com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.conversations.messageDraftViewModel(): com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
+  skippable: true
+  restartable: true
+  params:
 
 @Composable
 public fun com.wire.android.ui.home.conversations.messagedetails.MessageDetailsEmptyScreenText(onClick: kotlin.Function0<kotlin.Unit>, text: kotlin.String, learnMoreText: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -7599,6 +7636,12 @@ public fun com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuI
   params:
     - currentlySelected: STABLE (class with no mutable properties)
     - onSelfDeletionDurationChanged: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.home.conversations.sendMessageViewModel(): com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
+  skippable: true
+  restartable: true
+  params:
 
 @Composable
 private fun com.wire.android.ui.home.conversations.stringResourceProvider(): com.wire.android.ui.home.conversations.StringResourceProvider

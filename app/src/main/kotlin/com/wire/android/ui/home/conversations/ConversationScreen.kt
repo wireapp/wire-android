@@ -261,12 +261,12 @@ fun ConversationScreen(
     conversationInfoViewModel: ConversationInfoViewModel = wireViewModel(),
     conversationBannerViewModel: ConversationBannerViewModel = wireViewModel(),
     conversationCallViewModel: ConversationCallViewModel = wireViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = wireViewModel(),
-    messageComposerViewModel: MessageComposerViewModel = wireViewModel(),
-    sendMessageViewModel: SendMessageViewModel = wireViewModel(),
-    conversationMigrationViewModel: ConversationMigrationViewModel = wireViewModel(),
-    messageDraftViewModel: MessageDraftViewModel = wireViewModel(),
-    messageAttachmentsViewModel: MessageAttachmentsViewModel = wireViewModel(),
+    conversationMessagesViewModel: ConversationMessagesViewModel = conversationMessagesViewModel(),
+    messageComposerViewModel: MessageComposerViewModel = messageComposerViewModel(),
+    sendMessageViewModel: SendMessageViewModel = sendMessageViewModel(),
+    conversationMigrationViewModel: ConversationMigrationViewModel = conversationMigrationViewModel(),
+    messageDraftViewModel: MessageDraftViewModel = messageDraftViewModel(),
+    messageAttachmentsViewModel: MessageAttachmentsViewModel = messageAttachmentsViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current

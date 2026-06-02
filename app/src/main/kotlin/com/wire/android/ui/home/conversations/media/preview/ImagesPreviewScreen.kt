@@ -17,6 +17,9 @@
  */
 package com.wire.android.ui.home.conversations.media.preview
 
+import com.wire.android.di.wireViewModel
+import com.wire.android.ui.home.conversations.checkAssetRestrictionsViewModel
+
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -49,7 +52,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.wire.android.di.wireViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
@@ -90,7 +92,7 @@ fun ImagesPreviewScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<ImagesPreviewNavBackArgs>,
     imagesPreviewViewModel: ImagesPreviewViewModel = wireViewModel(),
-    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = wireViewModel()
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = checkAssetRestrictionsViewModel()
 ) {
     LaunchedEffect(checkAssetRestrictionsViewModel.state) {
         with(checkAssetRestrictionsViewModel.state) {

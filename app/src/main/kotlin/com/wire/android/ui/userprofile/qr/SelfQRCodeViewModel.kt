@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.userprofile.qr
-
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
@@ -36,7 +35,6 @@ import com.wire.android.util.getTempWritableAttachmentUri
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,8 +42,6 @@ import okio.Path
 import okio.Path.Companion.toPath
 import java.io.FileOutputStream
 import javax.inject.Inject
-
-@HiltViewModel
 class SelfQRCodeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val context: Context,
@@ -66,13 +62,11 @@ class SelfQRCodeViewModel @Inject constructor(
         private set
     private val cachePath: Path
         get() = kaliumFileSystem.rootCachePath
-
     init {
         viewModelScope.launch {
             getServerLinks()
         }
     }
-
     suspend fun shareQRAsset(bitmap: Bitmap): Uri {
         val job = viewModelScope.async {
             val qrImageFile = getTempWritableQRUri(cachePath)
@@ -91,16 +85,13 @@ class SelfQRCodeViewModel @Inject constructor(
         }
         return job.await()
     }
-
     fun trackAnalyticsEvent(event: AnalyticsEvent.QrCode.Modal) {
         analyticsManager.sendEvent(event)
     }
-
     private suspend fun getTempWritableQRUri(tempCachePath: Path): Uri = withContext(dispatchers.io()) {
         val tempImagePath = "$tempCachePath/$TEMP_SELF_QR_FILENAME".toPath()
         return@withContext getTempWritableAttachmentUri(context, tempImagePath)
     }
-
     private suspend fun getServerLinks() {
         selfQRCodeState =
             when (val result = selfServerLinks()) {
@@ -108,17 +99,14 @@ class SelfQRCodeViewModel @Inject constructor(
                 is SelfServerConfigUseCase.Result.Success -> generateSelfUserUrls(result.serverLinks.links.accounts)
             }
     }
-
     private fun generateSelfUserUrls(accountsUrl: String): SelfQRCodeState =
         selfQRCodeState.copy(
             userAccountProfileLink = String.format(BASE_USER_PROFILE_URL, accountsUrl, selfUserId),
             userProfileLink = String.format(DIRECT_BASE_USER_PROFILE_URL, selfUserId.domain, selfUserId.value)
         )
-
     companion object {
         const val TEMP_SELF_QR_FILENAME = "temp_self_qr.jpg"
         const val BASE_USER_PROFILE_URL = "%s/user-profile/?id=%s"
-
         const val DIRECT_BASE_USER_PROFILE_URL = "wire://user/%s/%s"
         const val QR_QUALITY_COMPRESSION = 80
     }

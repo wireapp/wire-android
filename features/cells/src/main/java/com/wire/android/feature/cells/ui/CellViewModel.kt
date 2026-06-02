@@ -89,8 +89,7 @@ import java.io.File
 import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel
-class CellViewModel @Inject constructor(
+class CellViewModel(
     val savedStateHandle: SavedStateHandle,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,

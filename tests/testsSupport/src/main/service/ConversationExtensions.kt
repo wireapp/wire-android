@@ -53,7 +53,7 @@ suspend fun BackendClient.createTeamConversation(
     team: Team
 ): String {
     val token = getAuthToken(user)
-    val url = URL("conversations".composeCompleteUrl())
+    val url = URI("conversations".composeCompleteUrl()).toURL()
 
     val (ids, qids) = contacts?.partition { it.backendName == user.backendName }
         ?: (emptyList<ClientUser>() to emptyList<ClientUser>())

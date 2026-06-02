@@ -26,7 +26,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
@@ -47,7 +46,7 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 fun AllFilesScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    viewModel: CellViewModel = hiltViewModel(),
+    viewModel: CellViewModel = cellViewModel(),
 ) {
 
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()

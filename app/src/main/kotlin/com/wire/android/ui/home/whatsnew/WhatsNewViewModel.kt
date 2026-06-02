@@ -26,14 +26,11 @@ import androidx.lifecycle.viewModelScope
 import com.prof18.rssparser.RssParser
 import com.wire.android.R
 import com.wire.android.util.toMediumOnlyDateTime
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
-import javax.inject.Inject
 
-@HiltViewModel
-class WhatsNewViewModel @Inject constructor(context: Context) : ViewModel() {
+class WhatsNewViewModel(context: Context) : ViewModel() {
     private val rssParser = RssParser()
     private val publishDateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", Locale.ENGLISH)
 

@@ -17,6 +17,10 @@ concurrency:
 jobs:
   # Validation for PRs to main (no deployment)
   build-validation:
+    permissions:
+      contents: write
+      actions: read
+      security-events: write
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: pr

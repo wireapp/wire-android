@@ -34,15 +34,22 @@ data class ServiceDetailsNavArgs(
 ) {
     sealed interface Id {
         val serviceId: ServiceId
+        val userId: UserId
 
         data class BotServiceId(val botService: BotService) : Id {
             override val serviceId: ServiceId
                 get() = ServiceId(botService.id, botService.provider)
+
+            override val userId: UserId
+                get() = UserId(botService.id, botService.provider)
         }
 
         data class AppId(val appId: UserId) : Id {
             override val serviceId: ServiceId
                 get() = ServiceId(appId.value, appId.domain)
+
+            override val userId: UserId
+                get() = appId
         }
     }
 }

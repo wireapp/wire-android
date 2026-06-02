@@ -30,7 +30,7 @@ import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.di.wireViewModel
 import coil3.decode.Decoder
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -59,7 +59,7 @@ fun MultipartAttachmentsView(
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
-        else -> hiltViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value)
+        else -> wireViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value)
     }
 ) {
 

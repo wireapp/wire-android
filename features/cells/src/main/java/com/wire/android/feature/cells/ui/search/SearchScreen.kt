@@ -37,7 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.feature.cells.ui.searchScreenViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
@@ -80,7 +80,7 @@ fun SearchScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     cellViewModel: CellViewModel,
     modifier: Modifier = Modifier,
-    searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
+    searchScreenViewModel: SearchScreenViewModel = searchScreenViewModel(),
 ) {
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
     val isOnline by cellViewModel.isOnline.collectAsState()

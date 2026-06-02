@@ -15,15 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.di
+package com.wire.android.model
 
-import androidx.activity.ComponentActivity
-import androidx.activity.viewModels
-import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.withCreationCallback
+import com.wire.android.util.ui.WireSessionImageLoader
 
-inline fun <reified VM : ViewModel, reified VMF> ComponentActivity.assistedViewModels(
-    crossinline create: (VMF) -> VM
-) = viewModels<VM>(extrasProducer = {
-    defaultViewModelCreationExtras.withCreationCallback<VMF> { factory -> create(factory) }
-})
+class ImageAssetViewModelFactory(
+    private val imageLoader: () -> WireSessionImageLoader,
+) {
+    fun create(): RemoteAssetImageViewModel =
+        RemoteAssetImageViewModel(imageLoader = imageLoader())
+}

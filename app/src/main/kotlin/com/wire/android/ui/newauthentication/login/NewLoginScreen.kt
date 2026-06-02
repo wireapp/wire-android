@@ -47,7 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.authentication.newLoginViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
@@ -97,7 +97,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun NewLoginScreen(
     navigator: Navigator,
     navArgs: LoginNavArgs,
-    viewModel: NewLoginViewModel = hiltViewModel()
+    viewModel: NewLoginViewModel = newLoginViewModel()
 ) {
     val context = LocalContext.current
     val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)

@@ -37,6 +37,7 @@ import com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryTyp
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.AppsUtil
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.user.UserId
@@ -101,6 +102,10 @@ class NewConversationViewModel @Inject constructor(
                 .collectLatest { isAppsAllowedResult ->
                     groupOptionsState = groupOptionsState.copy(
                         isTeamAllowedToUseApps = isAppsAllowedResult,
+                        shouldShowNewAppsUi = AppsUtil.isAppsAllowed(
+                            appsAllowedResult = isAppsAllowedResult,
+                            conversationProtocol = null
+                        ),
                         isAllowAppsEnabled = isAppsAllowedResult is AppsAllowedResult.Enabled
                     )
                 }

@@ -51,6 +51,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
@@ -73,6 +75,8 @@ import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.assistedViewModels
+import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.WireActivityViewModelGraphBridge
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
@@ -157,9 +161,16 @@ class WireActivity : BaseActivity() {
     @Inject
     lateinit var managedConfigurationsManager: ManagedConfigurationsManager
 
+    private val wireActivityViewModelGraph: WireActivityViewModelGraphBridge by viewModels()
     private val viewModel: WireActivityViewModel by viewModels()
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
-    private val callFeedbackViewModel: CallFeedbackViewModel by viewModels()
+    private val callFeedbackViewModel: CallFeedbackViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireActivityViewModelGraph.callingViewModelFactory.callFeedbackViewModel()
+            }
+        }
+    }
 
     private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
         factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true))
@@ -261,6 +272,7 @@ class WireActivity : BaseActivity() {
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
                 LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
                 LocalSnackbarHostState provides snackbarHostState,
+                LocalMetroViewModelGraph provides wireActivityViewModelGraph,
                 LocalActivity provides this
             ) {
                 WireTheme(accent = viewModel.globalAppState.userAccent) {

@@ -163,11 +163,17 @@ class WireActivity : BaseActivity() {
 
     private val wireActivityViewModelGraph: WireActivityViewModelGraphBridge by viewModels()
     private val viewModel: WireActivityViewModel by viewModels()
-    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
     private val callFeedbackViewModel: CallFeedbackViewModel by viewModels {
         viewModelFactory {
             initializer {
                 wireActivityViewModelGraph.callingViewModelFactory.callFeedbackViewModel()
+            }
+        }
+    }
+    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireActivityViewModelGraph.homeViewModelFactory.featureFlagNotificationViewModel()
             }
         }
     }

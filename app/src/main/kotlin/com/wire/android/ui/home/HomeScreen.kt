@@ -115,9 +115,9 @@ fun HomeScreen(
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    homeViewModel: HomeViewModel = wireViewModel(),
-    appSyncViewModel: AppSyncViewModel = wireViewModel(),
-    homeDrawerViewModel: HomeDrawerViewModel = wireViewModel(),
+    homeViewModel: HomeViewModel = homeViewModel(),
+    appSyncViewModel: AppSyncViewModel = appSyncViewModel(),
+    homeDrawerViewModel: HomeDrawerViewModel = homeDrawerViewModel(),
     analyticsUsageViewModel: AnalyticsUsageViewModel = wireViewModel(),
 ) {
     val context = LocalContext.current

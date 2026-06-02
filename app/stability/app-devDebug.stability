@@ -1685,7 +1685,7 @@ public fun com.wire.android.ui.calling.common.CallerDetails(conversationId: com.
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - conversationName: STABLE (class with no mutable properties)
     - accentId: STABLE (primitive type)
     - isCameraOn: STABLE (primitive type)
@@ -1900,7 +1900,7 @@ public fun com.wire.android.ui.calling.incoming.IncomingCallScreen(conversationI
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - shouldTryToAnswerCallAutomatically: STABLE (primitive type)
     - incomingCallViewModel: UNSTABLE (has mutable properties or unstable members)
     - sharedCallingViewModel: UNSTABLE (has mutable properties or unstable members)
@@ -1915,10 +1915,10 @@ public fun com.wire.android.ui.calling.incomingCallViewModel(conversationId: com
 
 @Composable
 private fun com.wire.android.ui.calling.ongoing.CallingControls(conversationId: com.wire.kalium.logic.data.id.QualifiedID, isMuted: kotlin.Boolean, isCameraOn: kotlin.Boolean, isSpeakerOn: kotlin.Boolean, isShowingCallReactions: kotlin.Boolean, isConnecting: kotlin.Boolean, inCallReactionsEnabled: kotlin.Boolean, toggleSpeaker: kotlin.Function0<kotlin.Unit>, toggleMute: kotlin.Function0<kotlin.Unit>, onHangUpCall: kotlin.Function0<kotlin.Unit>, onToggleVideo: kotlin.Function0<kotlin.Unit>, onCallReactionsClick: kotlin.Function0<kotlin.Unit>, onCameraPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - isMuted: STABLE (primitive type)
     - isCameraOn: STABLE (primitive type)
     - isSpeakerOn: STABLE (primitive type)
@@ -1995,7 +1995,7 @@ public fun com.wire.android.ui.calling.ongoing.OngoingCallScreen(conversationId:
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - ongoingCallViewModel: UNSTABLE (has mutable properties or unstable members)
     - sharedCallingViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -2560,7 +2560,7 @@ public fun com.wire.android.ui.calling.outgoing.OutgoingCallScreen(conversationI
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - sharedCallingViewModel: UNSTABLE (has mutable properties or unstable members)
     - outgoingCallViewModel: UNSTABLE (has mutable properties or unstable members)
     - onCallAccepted: STABLE (function type)
@@ -2584,7 +2584,7 @@ public fun com.wire.android.ui.common.AddContactButton(userId: com.wire.kalium.l
   skippable: false
   restartable: true
   params:
-    - userId: UNSTABLE (has mutable properties or unstable members)
+    - userId: STABLE (matched by stability configuration)
     - userName: STABLE (String is immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
     - viewModel: RUNTIME (requires runtime check)
@@ -3017,7 +3017,7 @@ public fun com.wire.android.ui.common.banner.SecurityClassificationBannerForConv
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - modifier: STABLE (marked @Stable or @Immutable)
     - viewModel: RUNTIME (requires runtime check)
 
@@ -3026,7 +3026,7 @@ public fun com.wire.android.ui.common.banner.SecurityClassificationBannerForUser
   skippable: false
   restartable: true
   params:
-    - userId: UNSTABLE (has mutable properties or unstable members)
+    - userId: STABLE (matched by stability configuration)
     - modifier: STABLE (marked @Stable or @Immutable)
     - viewModel: RUNTIME (requires runtime check)
 
@@ -3680,7 +3680,7 @@ public fun com.wire.android.ui.connection.ConnectionActionButton(userId: com.wir
   skippable: false
   restartable: true
   params:
-    - userId: UNSTABLE (has mutable properties or unstable members)
+    - userId: STABLE (matched by stability configuration)
     - userName: STABLE (String is immutable)
     - fullName: STABLE (String is immutable)
     - connectionStatus: STABLE (class with no mutable properties)
@@ -4714,7 +4714,7 @@ private fun com.wire.android.ui.home.conversations.ConversationScreenContent(con
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - bottomSheetVisible: STABLE (primitive type)
     - lastUnreadMessageInstant: UNSTABLE (has mutable properties or unstable members)
     - unreadEventCount: STABLE (primitive type)
@@ -4937,7 +4937,7 @@ public fun com.wire.android.ui.home.conversations.UsersTypingIndicatorForConvers
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - viewModel: RUNTIME (requires runtime check)
 
 @Composable
@@ -5641,7 +5641,7 @@ public fun com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetL
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - sheetState: UNSTABLE (has mutable properties or unstable members)
     - onCopyClick: STABLE (function type)
     - onDeleteClick: STABLE (function type)
@@ -6168,7 +6168,7 @@ internal fun com.wire.android.ui.home.conversations.messages.QuotedMessage(conve
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - messageData: UNSTABLE (has mutable properties or unstable members)
     - clickable: STABLE (class with no mutable properties)
     - style: STABLE (class with no mutable properties)
@@ -6202,7 +6202,7 @@ public fun com.wire.android.ui.home.conversations.messages.QuotedMessagePreview(
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - quotedMessageData: UNSTABLE (has mutable properties or unstable members)
     - onCancelReply: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
@@ -6221,7 +6221,7 @@ public fun com.wire.android.ui.home.conversations.messages.QuotedMultipartMessag
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - quotedMessageId: STABLE (String is immutable)
     - senderName: STABLE (class with no mutable properties)
     - originalDateTimeText: STABLE (class with no mutable properties)
@@ -7143,7 +7143,7 @@ public fun com.wire.android.ui.home.conversations.model.messagetypes.multipart.M
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - attachments: RUNTIME (requires runtime check)
     - messageStyle: STABLE (class with no mutable properties)
     - onImageAttachmentClick: STABLE (function type)
@@ -7354,11 +7354,11 @@ public fun com.wire.android.ui.home.conversations.search.EmptySearchQueryScreen(
 
 @Composable
 public fun com.wire.android.ui.home.conversations.search.ExternalContactSearchResultItem(avatarData: com.wire.android.model.UserAvatarData, userId: com.wire.kalium.logic.data.id.QualifiedID, name: kotlin.String, label: kotlin.String, membership: com.wire.android.ui.home.conversationslist.model.Membership, searchQuery: kotlin.String, connectionState: com.wire.kalium.logic.data.user.ConnectionState, clickable: com.wire.android.model.Clickable, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
     - avatarData: STABLE (marked @Stable or @Immutable)
-    - userId: UNSTABLE (has mutable properties or unstable members)
+    - userId: STABLE (matched by stability configuration)
     - name: STABLE (String is immutable)
     - label: STABLE (String is immutable)
     - membership: STABLE (class with no mutable properties)
@@ -8154,7 +8154,7 @@ public fun com.wire.android.ui.home.messagecomposer.ActiveMessageComposerInput(c
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - messageComposition: UNSTABLE (has mutable properties or unstable members)
     - messageTextState: STABLE (marked @Stable or @Immutable)
     - isTextExpanded: STABLE (primitive type)
@@ -8220,10 +8220,10 @@ public fun com.wire.android.ui.home.messagecomposer.AdditionalOptionSubMenu(isFi
 
 @Composable
 public fun com.wire.android.ui.home.messagecomposer.AdditionalOptionsMenu(conversationId: com.wire.kalium.logic.data.id.QualifiedID, additionalOptionsState: com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState, selectedOption: com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem, attachmentsVisible: kotlin.Boolean, isEditing: kotlin.Boolean, isMentionActive: kotlin.Boolean, isFileSharingEnabled: kotlin.Boolean, onAdditionalOptionsMenuClicked: kotlin.Function0<kotlin.Unit>, onMentionButtonClicked: kotlin.Function0<kotlin.Unit>, onPingOptionClicked: kotlin.Function0<kotlin.Unit>, onRichEditingButtonClicked: kotlin.Function0<kotlin.Unit>, onCloseRichEditingButtonClicked: kotlin.Function0<kotlin.Unit>, onRichOptionButtonClicked: kotlin.Function1<com.wire.android.ui.home.messagecomposer.state.RichTextMarkdown, kotlin.Unit>, onDrawingModeClicked: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, onOnSelfDeletingOptionClicked: kotlin.Function1<com.wire.kalium.logic.data.message.SelfDeletionTimer, kotlin.Unit>?, onGifOptionClicked: kotlin.Function0<kotlin.Unit>?): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - additionalOptionsState: STABLE (class with no mutable properties)
     - selectedOption: STABLE (class with no mutable properties)
     - attachmentsVisible: STABLE (primitive type)
@@ -8243,10 +8243,10 @@ public fun com.wire.android.ui.home.messagecomposer.AdditionalOptionsMenu(conver
 
 @Composable
 public fun com.wire.android.ui.home.messagecomposer.AttachmentAndAdditionalOptionsMenuItems(conversationId: com.wire.kalium.logic.data.id.QualifiedID, isEditing: kotlin.Boolean, selectedOption: com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem, attachmentsVisible: kotlin.Boolean, isMentionActive: kotlin.Boolean, isFileSharingEnabled: kotlin.Boolean, onMentionButtonClicked: kotlin.Function0<kotlin.Unit>, onSelfDeletionOptionButtonClicked: kotlin.Function1<com.wire.kalium.logic.data.message.SelfDeletionTimer, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, onAdditionalOptionsMenuClicked: kotlin.Function0<kotlin.Unit>, onPingClicked: kotlin.Function0<kotlin.Unit>, onGifButtonClicked: kotlin.Function0<kotlin.Unit>, onRichEditingButtonClicked: kotlin.Function0<kotlin.Unit>, onDrawingModeClicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - isEditing: STABLE (primitive type)
     - selectedOption: STABLE (class with no mutable properties)
     - attachmentsVisible: STABLE (primitive type)
@@ -8310,10 +8310,10 @@ public fun com.wire.android.ui.home.messagecomposer.CollapseButton(isCollapsed: 
 
 @Composable
 private fun com.wire.android.ui.home.messagecomposer.ComposingActions(conversationId: com.wire.kalium.logic.data.id.QualifiedID, selectedOption: com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem, isFileSharingEnabled: kotlin.Boolean, attachmentsVisible: kotlin.Boolean, isMentionActive: kotlin.Boolean, onAdditionalOptionButtonClicked: kotlin.Function0<kotlin.Unit>, onRichEditingButtonClicked: kotlin.Function0<kotlin.Unit>, onGifButtonClicked: kotlin.Function0<kotlin.Unit>, onSelfDeletionOptionButtonClicked: kotlin.Function1<com.wire.kalium.logic.data.message.SelfDeletionTimer, kotlin.Unit>, onPingButtonClicked: kotlin.Function0<kotlin.Unit>, onMentionButtonClicked: kotlin.Function0<kotlin.Unit>, onDrawingModeClicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - selectedOption: STABLE (class with no mutable properties)
     - isFileSharingEnabled: STABLE (primitive type)
     - attachmentsVisible: STABLE (primitive type)
@@ -8328,10 +8328,10 @@ private fun com.wire.android.ui.home.messagecomposer.ComposingActions(conversati
 
 @Composable
 private fun com.wire.android.ui.home.messagecomposer.DisabledInteractionMessageComposer(conversationId: com.wire.kalium.logic.data.id.QualifiedID, warningText: androidx.compose.ui.text.AnnotatedString?, learnMoreLink: kotlin.String?, messageListContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - warningText: STABLE (marked @Stable or @Immutable)
     - learnMoreLink: STABLE (class with no mutable properties)
     - messageListContent: STABLE (composable function type)
@@ -8371,7 +8371,7 @@ public fun com.wire.android.ui.home.messagecomposer.EnabledMessageComposer(conve
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - bottomSheetVisible: STABLE (primitive type)
     - messageComposerStateHolder: UNSTABLE (has mutable properties or unstable members)
     - attachments: RUNTIME (requires runtime check)
@@ -8405,7 +8405,7 @@ private fun com.wire.android.ui.home.messagecomposer.InputContent(conversationId
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - messageTextState: STABLE (marked @Stable or @Immutable)
     - isTextExpanded: STABLE (primitive type)
     - inputType: STABLE (class with no mutable properties)
@@ -8454,10 +8454,10 @@ public fun com.wire.android.ui.home.messagecomposer.MessageAttachments(attachmen
 
 @Composable
 public fun com.wire.android.ui.home.messagecomposer.MessageComposeActions(conversationId: com.wire.kalium.logic.data.id.QualifiedID, isEditing: kotlin.Boolean, attachmentsVisible: kotlin.Boolean, selectedOption: com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem, onMentionButtonClicked: kotlin.Function0<kotlin.Unit>, onAdditionalOptionButtonClicked: kotlin.Function0<kotlin.Unit>, onPingButtonClicked: kotlin.Function0<kotlin.Unit>, onSelfDeletionOptionButtonClicked: kotlin.Function1<com.wire.kalium.logic.data.message.SelfDeletionTimer, kotlin.Unit>, onGifButtonClicked: kotlin.Function0<kotlin.Unit>, onRichEditingButtonClicked: kotlin.Function0<kotlin.Unit>, isFileSharingEnabled: kotlin.Boolean, isMentionActive: kotlin.Boolean, onDrawingModeClicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - isEditing: STABLE (primitive type)
     - attachmentsVisible: STABLE (primitive type)
     - selectedOption: STABLE (class with no mutable properties)
@@ -8476,7 +8476,7 @@ public fun com.wire.android.ui.home.messagecomposer.MessageComposer(conversation
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - bottomSheetVisible: STABLE (primitive type)
     - messageComposerStateHolder: UNSTABLE (has mutable properties or unstable members)
     - attachments: RUNTIME (requires runtime check)
@@ -8572,7 +8572,7 @@ public fun com.wire.android.ui.home.messagecomposer.SelfDeletingMessageAction(co
   skippable: false
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - onButtonClicked: STABLE (function type)
     - viewModel: RUNTIME (requires runtime check)
 

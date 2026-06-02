@@ -30,13 +30,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.di.wireViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.handleNavigation
+import com.wire.android.ui.debug.whatsNewViewModel
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.UIText
@@ -45,7 +45,7 @@ import com.wire.android.util.ui.UIText
 @Composable
 fun WhatsNewScreen(
     homeStateHolder: HomeStateHolder,
-    whatsNewViewModel: WhatsNewViewModel = wireViewModel()
+    whatsNewViewModel: WhatsNewViewModel = whatsNewViewModel()
 ) {
     val context = LocalContext.current
     WhatsNewScreenContent(

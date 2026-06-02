@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
@@ -44,6 +43,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.debug.aboutThisAppViewModel
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -52,7 +52,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun AboutThisAppScreen(
     navigator: Navigator,
-    viewModel: AboutThisAppViewModel = wireViewModel()
+    viewModel: AboutThisAppViewModel = aboutThisAppViewModel()
 ) {
     val context = LocalContext.current
     AboutThisAppContent(

@@ -28,9 +28,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.debug.debugFeatureFlagsViewModel
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -43,7 +43,7 @@ import com.wire.android.ui.common.typography
 fun DebugFeatureFlagsScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    viewModel: DebugFeatureFlagsViewModel = wireViewModel(),
+    viewModel: DebugFeatureFlagsViewModel = debugFeatureFlagsViewModel(),
 ) {
     val scrollState = rememberScrollState()
 

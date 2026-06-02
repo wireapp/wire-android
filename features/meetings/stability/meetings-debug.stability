@@ -42,10 +42,10 @@ private fun com.wire.android.feature.meetings.ui.list.MeetingAttendingPrimaryBod
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.MeetingBelongingInfoRow(conversationId: com.wire.kalium.logic.data.id.QualifiedID, type: com.wire.android.feature.meetings.model.MeetingItem.BelongingType): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - type: STABLE (class with no mutable properties)
 
 @Composable
@@ -124,10 +124,10 @@ private fun com.wire.android.feature.meetings.ui.list.MeetingOngoingAttendingRow
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.MeetingOngoingDurationTimeSublineText(startedTime: kotlinx.datetime.Instant): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - startedTime: UNSTABLE (has mutable properties or unstable members)
+    - startedTime: STABLE (matched by stability configuration)
 
 @Composable
 public fun com.wire.android.feature.meetings.ui.list.MeetingShowAllFooter(onShowAll: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -139,10 +139,10 @@ public fun com.wire.android.feature.meetings.ui.list.MeetingShowAllFooter(onShow
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.MeetingStartingInPrimaryBodyText(startTime: kotlinx.datetime.Instant): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - startTime: UNSTABLE (has mutable properties or unstable members)
+    - startTime: STABLE (matched by stability configuration)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.MeetingTimeInfoRow(status: com.wire.android.feature.meetings.model.MeetingItem.Status): kotlin.Unit
@@ -182,10 +182,10 @@ internal fun com.wire.android.feature.meetings.ui.list.VideoCallIcon(tint: andro
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: kotlinx.datetime.Instant): kotlin.String
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - time: UNSTABLE (has mutable properties or unstable members)
+    - time: STABLE (matched by stability configuration)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalContent(meeting: com.wire.android.feature.meetings.model.MeetingItem, onStartMeeting: kotlin.Function0<kotlin.Unit>, onCreateConversation: kotlin.Function0<kotlin.Unit>, onCopyLink: kotlin.Function0<kotlin.Unit>, onEditMeeting: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForMe: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForEveryone: kotlin.Function0<kotlin.Unit>): kotlin.Unit

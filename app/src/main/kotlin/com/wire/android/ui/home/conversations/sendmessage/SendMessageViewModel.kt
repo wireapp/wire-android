@@ -81,13 +81,10 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class SendMessageViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+class SendMessageViewModel(
+    val savedStateHandle: SavedStateHandle,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendMultipartMessage: SendMultipartMessageUseCase,
@@ -133,11 +130,6 @@ class SendMessageViewModel @AssistedInject constructor(
         conversationNavArgs.pendingBundles?.let {
             handlePendingBundles(it)
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): SendMessageViewModel
     }
 
     // for cells conversations we need to add the items to attachments list

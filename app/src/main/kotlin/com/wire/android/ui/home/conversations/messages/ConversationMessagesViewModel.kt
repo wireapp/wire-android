@@ -83,15 +83,12 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationMessagesViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+class ConversationMessagesViewModel(
+    val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
@@ -136,11 +133,6 @@ class ConversationMessagesViewModel @AssistedInject constructor(
         loadLastMessageInstant()
         observeAudioPlayerState()
         observeAssetStatuses()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): ConversationMessagesViewModel
     }
 
     val currentTimeInMillisFlow: Flow<Long> = flow {

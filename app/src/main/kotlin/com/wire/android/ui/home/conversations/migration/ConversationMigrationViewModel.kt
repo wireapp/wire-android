@@ -33,12 +33,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 
-class ConversationMigrationViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+class ConversationMigrationViewModel(
+    val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase
 ) : ViewModel() {
 
@@ -53,11 +50,6 @@ class ConversationMigrationViewModel @AssistedInject constructor(
 
     private val conversationNavArgs = savedStateHandle.navArgs<ConversationNavArgs>()
     private val conversationId: QualifiedID = conversationNavArgs.conversationId
-
-    @AssistedFactory
-    interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): ConversationMigrationViewModel
-    }
 
     init {
         viewModelScope.launch {

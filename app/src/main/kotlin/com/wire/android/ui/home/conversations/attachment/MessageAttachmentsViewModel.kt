@@ -61,13 +61,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import java.io.File
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 
 @Suppress("TooManyFunctions", "LongParameterList")
-class MessageAttachmentsViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+class MessageAttachmentsViewModel(
+    val savedStateHandle: SavedStateHandle,
     private val handleUriAsset: HandleUriAssetUseCase,
     private val observeAttachments: ObserveAttachmentDraftsUseCase,
     private val addAttachment: AddAttachmentDraftUseCase,
@@ -111,11 +108,6 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
                 }
             }
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): MessageAttachmentsViewModel
     }
 
     fun onAudioRecorded(uri: Uri, wavesMask: List<Int>?) = viewModelScope.launch {

@@ -35,12 +35,9 @@ import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import kotlinx.coroutines.launch
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 
-class MessageDraftViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+class MessageDraftViewModel(
+    val savedStateHandle: SavedStateHandle,
     private val getMessageDraft: GetMessageDraftUseCase,
     private val getQuotedMessage: GetQuoteMessageForConversationUseCase,
     private val saveMessageDraft: SaveMessageDraftUseCase,
@@ -54,11 +51,6 @@ class MessageDraftViewModel @AssistedInject constructor(
 
     init {
         loadMessageDraft()
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): MessageDraftViewModel
     }
 
     fun clearDraft() {

@@ -31,6 +31,8 @@ import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPat
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModelPreview
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
+import com.wire.android.ui.home.gallery.MediaGalleryViewModel
+import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
 
 interface ConversationCoreViewModelGraph : MetroViewModelGraph {
     val conversationCoreViewModelFactory: ConversationCoreViewModelFactory
@@ -79,3 +81,15 @@ fun conversationAssetPathsViewModel(conversationKey: String): ConversationAssetP
         conversationCoreViewModelFactory.conversationAssetPathsViewModel()
     }
 }
+
+@Composable
+fun mediaGalleryViewModel(): MediaGalleryViewModel =
+    metroSavedStateViewModel<ConversationCoreViewModelGraph, MediaGalleryViewModel> {
+        conversationCoreViewModelFactory.mediaGalleryViewModel(it)
+    }
+
+@Composable
+fun locationPickerViewModel(): LocationPickerViewModel =
+    metroViewModel<ConversationCoreViewModelGraph, LocationPickerViewModel> {
+        conversationCoreViewModelFactory.locationPickerViewModel()
+    }

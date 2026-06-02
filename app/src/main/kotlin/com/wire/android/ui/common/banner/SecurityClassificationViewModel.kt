@@ -24,17 +24,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
@@ -44,10 +39,9 @@ interface SecurityClassificationViewModel {
     fun state(): SecurityClassificationType = SecurityClassificationType.NONE
 }
 
-@HiltViewModel(assistedFactory = SecurityClassificationViewModelImpl.Factory::class)
-class SecurityClassificationViewModelImpl @AssistedInject constructor(
+class SecurityClassificationViewModelImpl(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    @Assisted private val args: SecurityClassificationArgs
+    private val args: SecurityClassificationArgs
 ) : SecurityClassificationViewModel, ViewModel() {
 
     private var state by mutableStateOf(SecurityClassificationType.NONE)
@@ -86,8 +80,4 @@ class SecurityClassificationViewModelImpl @AssistedInject constructor(
     private suspend fun observeUserClassificationType(currentUserId: UserId, userId: UserId) =
         coreLogic.getSessionScope(currentUserId).getOtherUserSecurityClassificationLabel(userId)
 
-    @AssistedFactory
-    interface Factory : AssistedViewModelFactory<SecurityClassificationViewModelImpl, SecurityClassificationArgs> {
-        override fun create(args: SecurityClassificationArgs): SecurityClassificationViewModelImpl
-    }
 }

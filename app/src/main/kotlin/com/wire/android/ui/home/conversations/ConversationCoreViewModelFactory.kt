@@ -33,12 +33,17 @@ import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
+import com.wire.android.ui.home.gallery.MediaGalleryViewModel
+import com.wire.android.ui.home.messagecomposer.location.LocationPickerHelperFlavor
+import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
 import com.wire.android.util.FileManager
 import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
@@ -144,6 +149,9 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val retryAttachmentUpload: RetryAttachmentUploadUseCase,
     private val cellUploadManager: CellUploadManager,
     private val getMediaMetadata: GetMediaMetadataUseCase,
+    private val getAttachment: GetMessageAttachmentUseCase,
+    private val getCellNode: GetCellFileUseCase,
+    private val locationPickerHelper: LocationPickerHelperFlavor,
 ) {
     fun conversationMessagesViewModel(savedStateHandle: SavedStateHandle) = ConversationMessagesViewModel(
         savedStateHandle = savedStateHandle,
@@ -239,5 +247,20 @@ class ConversationCoreViewModelFactory @Inject constructor(
     fun conversationAssetPathsViewModel() = ConversationAssetPathsViewModelImpl(
         getMessageAsset = getMessageAsset,
         dispatchers = dispatchers,
+    )
+
+    fun mediaGalleryViewModel(savedStateHandle: SavedStateHandle) = MediaGalleryViewModel(
+        savedStateHandle = savedStateHandle,
+        getConversationDetails = observeConversationDetails,
+        dispatchers = dispatchers,
+        getImageData = getMessageAsset,
+        fileManager = fileManager,
+        deleteMessage = deleteMessage,
+        getAttachment = getAttachment,
+        getCellNode = getCellNode,
+    )
+
+    fun locationPickerViewModel() = LocationPickerViewModel(
+        locationPickerHelper = locationPickerHelper,
     )
 }

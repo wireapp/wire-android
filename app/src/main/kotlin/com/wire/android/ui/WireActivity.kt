@@ -74,7 +74,6 @@ import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.di.assistedViewModels
 import com.wire.android.di.metro.LocalMetroViewModelGraph
 import com.wire.android.di.metro.WireActivityViewModelGraphBridge
 import com.wire.android.emm.ManagedConfigurationsManager
@@ -178,8 +177,14 @@ class WireActivity : BaseActivity() {
         }
     }
 
-    private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
-        factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true))
+    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireActivityViewModelGraph.commonViewModelFactory.commonTopAppBarViewModel(
+                    CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true)
+                )
+            }
+        }
     }
     private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels {
         viewModelFactory {
@@ -290,7 +295,7 @@ class WireActivity : BaseActivity() {
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
                 LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelGraph provides wireActivityViewModelGraphBridge,
+                LocalMetroViewModelGraph provides wireActivityViewModelGraph,
                 LocalActivity provides this
             ) {
                 WireTheme(accent = viewModel.globalAppState.userAccent) {

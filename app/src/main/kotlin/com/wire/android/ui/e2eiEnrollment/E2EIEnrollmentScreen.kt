@@ -39,6 +39,7 @@ import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.authentication.clearSessionViewModel
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.common.TextWithLearnMore
@@ -71,7 +72,7 @@ fun E2EIEnrollmentScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
     viewModel: E2EIEnrollmentViewModel = wireViewModel(),
-    clearSessionViewModel: ClearSessionViewModel = wireViewModel(),
+    clearSessionViewModel: ClearSessionViewModel = clearSessionViewModel(),
 ) {
     val state = viewModel.state
 

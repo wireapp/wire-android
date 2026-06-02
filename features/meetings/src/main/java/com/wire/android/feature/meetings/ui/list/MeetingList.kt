@@ -28,14 +28,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
-import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.meetingListViewModel
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
@@ -51,11 +49,11 @@ fun MeetingList(
     contentPadding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
     openMeetingOptions: (meetingId: String) -> Unit = {},
-    meetingListViewModel: MeetingListViewModel = when {
+) {
+    val meetingListViewModel: MeetingListViewModel = when {
         LocalInspectionMode.current -> MeetingListViewModelPreview(type = type)
         else -> meetingListViewModel(type)
-    },
-) {
+    }
     val lazyPagingItems = meetingListViewModel.meetings.collectAsLazyPagingItems()
     val isShowingAll = meetingListViewModel.isShowingAll.collectAsState().value
     val showLoading = lazyPagingItems.loadState.refresh == LoadState.Loading && lazyPagingItems.itemCount == 0
@@ -71,70 +69,49 @@ fun MeetingList(
                 modifier = modifier
             )
 
-            else -> MeetingList(
-                lazyPagingItems = lazyPagingItems,
-                lazyListState = lazyListState,
-                isShowingAll = isShowingAll,
+            else -> LazyColumn(
+                state = lazyListState,
                 contentPadding = contentPadding,
-                onShowAll = meetingListViewModel::showAll,
-                openMeetingOptions = openMeetingOptions,
                 modifier = modifier,
-            )
-        }
-    }
-}
+            ) {
+                items(
+                    count = lazyPagingItems.itemCount,
+                    key = lazyPagingItems.itemKey {
+                        when (it) {
+                            is MeetingHeader.Ongoing -> "separator_ongoing"
+                            is MeetingHeader.Day -> "separator_day_${it.time.toEpochMilliseconds()}"
+                            is MeetingHeader.DayAndHour -> "separator_day_and_hour_${it.time.toEpochMilliseconds()}"
+                            is MeetingHeader.Hour -> "separator_hour_${it.time.toEpochMilliseconds()}"
+                            is MeetingItem -> it.meetingId
+                        }
+                    },
+                    contentType = lazyPagingItems.itemContentType { it::class.simpleName },
+                ) { index ->
+                    lazyPagingItems[index]?.let { item ->
+                        when (item) {
+                            is MeetingHeader -> MeetingHeader(
+                                header = item,
+                                modifier = Modifier.animateItem()
+                            )
 
-@Composable
-private fun MeetingList(
-    lazyListState: LazyListState,
-    lazyPagingItems: LazyPagingItems<MeetingListItem>,
-    isShowingAll: Boolean,
-    onShowAll: () -> Unit,
-    openMeetingOptions: (meetingId: String) -> Unit,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(),
-) {
-    LazyColumn(
-        state = lazyListState,
-        contentPadding = contentPadding,
-        modifier = modifier,
-    ) {
-        items(
-            count = lazyPagingItems.itemCount,
-            key = lazyPagingItems.itemKey {
-                when (it) {
-                    is MeetingHeader.Ongoing -> "separator_ongoing"
-                    is MeetingHeader.Day -> "separator_day_${it.time.toEpochMilliseconds()}"
-                    is MeetingHeader.DayAndHour -> "separator_day_and_hour_${it.time.toEpochMilliseconds()}"
-                    is MeetingHeader.Hour -> "separator_hour_${it.time.toEpochMilliseconds()}"
-                    is MeetingItem -> it.meetingId
+                            is MeetingItem -> MeetingItem(
+                                meeting = item,
+                                modifier = Modifier.animateItem(),
+                                openMeetingOptions = openMeetingOptions
+                            )
+                        }
+                    }
                 }
-            },
-            contentType = lazyPagingItems.itemContentType { it::class.simpleName },
-        ) { index ->
-            lazyPagingItems[index]?.let { item ->
-                when (item) {
-                    is MeetingHeader -> MeetingHeader(
-                        header = item,
-                        modifier = Modifier.animateItem()
-                    )
+                val endOfPaginationReached = (lazyPagingItems.loadState.append as? LoadState.NotLoading)?.endOfPaginationReached ?: false
+                when {
+                    !endOfPaginationReached -> item(key = "footer_load_more", contentType = "footer_load_more") {
+                        MeetingLoadMoreFooter()
+                    }
 
-                    is MeetingItem -> MeetingItem(
-                        meeting = item,
-                        modifier = Modifier.animateItem(),
-                        openMeetingOptions = openMeetingOptions
-                    )
+                    !isShowingAll -> item(key = "footer_show_all", contentType = "footer_show_all") {
+                        MeetingShowAllFooter(onShowAll = meetingListViewModel::showAll)
+                    }
                 }
-            }
-        }
-        val endOfPaginationReached = (lazyPagingItems.loadState.append as? LoadState.NotLoading)?.endOfPaginationReached ?: false
-        when {
-            !endOfPaginationReached -> item(key = "footer_load_more", contentType = "footer_load_more") {
-                MeetingLoadMoreFooter()
-            }
-
-            !isShowingAll -> item(key = "footer_show_all", contentType = "footer_show_all") {
-                MeetingShowAllFooter(onShowAll = onShowAll)
             }
         }
     }

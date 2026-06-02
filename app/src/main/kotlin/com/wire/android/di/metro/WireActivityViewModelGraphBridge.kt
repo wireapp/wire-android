@@ -46,6 +46,7 @@ import javax.inject.Provider
 /**
  * Android-only bridge for feature ViewModel factories while feature UI is being decoupled from Hilt call sites.
  */
+@Suppress("LongParameterList")
 @HiltViewModel
 class WireActivityViewModelGraphBridge @Inject constructor(
     imageLoader: Provider<WireSessionImageLoader>,

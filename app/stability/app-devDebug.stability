@@ -823,6 +823,30 @@ private fun com.wire.android.ui.WireActivity.SetUpNavigation(navigator: com.wire
     - navigator: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
+public fun com.wire.android.ui.authentication.authenticationSavedStateViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner, key: kotlin.String?, create: @[ExtensionFunctionType] kotlin.Function2<com.wire.android.ui.authentication.AuthenticationViewModelFactory, androidx.lifecycle.SavedStateHandle, VM of com.wire.android.ui.authentication.authenticationSavedStateViewModel>): VM of com.wire.android.ui.authentication.authenticationSavedStateViewModel
+  skippable: false
+  restartable: true
+  params:
+    - viewModelStoreOwner: RUNTIME (requires runtime check)
+    - key: STABLE (class with no mutable properties)
+    - create: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.authentication.authenticationViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner, key: kotlin.String?, create: @[ExtensionFunctionType] kotlin.Function1<com.wire.android.ui.authentication.AuthenticationViewModelFactory, VM of com.wire.android.ui.authentication.authenticationViewModel>): VM of com.wire.android.ui.authentication.authenticationViewModel
+  skippable: false
+  restartable: true
+  params:
+    - viewModelStoreOwner: RUNTIME (requires runtime check)
+    - key: STABLE (class with no mutable properties)
+    - create: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.authentication.clearSessionViewModel(): com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 private fun com.wire.android.ui.authentication.create.code.CodeContent(state: com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState, textState: androidx.compose.foundation.text.input.TextFieldState, onResendCodePressed: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links): kotlin.Unit
   skippable: false
   restartable: true
@@ -1029,6 +1053,60 @@ private fun com.wire.android.ui.authentication.create.username.UsernameContent(t
     - state: STABLE (class with no mutable properties)
     - onContinuePressed: STABLE (function type)
     - onErrorDismiss: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.authentication.createAccountCodeViewModel(): com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.authentication.createAccountDataDetailViewModel(): com.wire.android.ui.registration.details.CreateAccountDataDetailViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.authentication.createAccountDetailsViewModel(): com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.authentication.createAccountEmailViewModel(): com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.authentication.createAccountOverviewViewModel(): com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.authentication.createAccountSelectorViewModel(): com.wire.android.ui.registration.selector.CreateAccountSelectorViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.authentication.createAccountSummaryViewModel(): com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.authentication.createAccountUsernameViewModel(): com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.authentication.createAccountVerificationCodeViewModel(): com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewModel
+  skippable: true
+  restartable: true
+  params:
 
 @Composable
 public fun com.wire.android.ui.authentication.devices.DeviceItem(device: com.wire.android.ui.authentication.devices.model.Device, placeholder: kotlin.Boolean, shouldShowVerifyLabel: kotlin.Boolean, icon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isCurrentClient: kotlin.Boolean, shouldShowE2EIInfo: kotlin.Boolean, isWholeItemClickable: kotlin.Boolean, onClickAction: kotlin.Function1<com.wire.android.ui.authentication.devices.model.Device, kotlin.Unit>?): kotlin.Unit
@@ -1415,6 +1493,38 @@ public fun com.wire.android.ui.authentication.login.toLoginDialogErrorData(): co
   params:
 
 @Composable
+public fun com.wire.android.ui.authentication.loginEmailViewModel(loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs): com.wire.android.ui.authentication.login.email.LoginEmailViewModel
+  skippable: false
+  restartable: true
+  params:
+    - loginNavArgs: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+public fun com.wire.android.ui.authentication.loginSSOViewModel(loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs): com.wire.android.ui.authentication.login.sso.LoginSSOViewModel
+  skippable: false
+  restartable: true
+  params:
+    - loginNavArgs: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+public fun com.wire.android.ui.authentication.newLoginViewModel(): com.wire.android.ui.newauthentication.login.NewLoginViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.authentication.registerDeviceViewModel(): com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.authentication.removeDeviceViewModel(): com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 private fun com.wire.android.ui.authentication.verificationcode.MainContent(codeTextState: androidx.compose.foundation.text.input.TextFieldState, codeState: com.wire.android.ui.authentication.verificationcode.VerificationCodeState, isLoading: kotlin.Boolean, onResendCode: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -1541,6 +1651,12 @@ private fun com.wire.android.ui.authentication.welcome.typedArrayResource(id: ko
   restartable: true
   params:
     - id: STABLE (primitive type)
+
+@Composable
+public fun com.wire.android.ui.authentication.welcomeViewModel(): com.wire.android.ui.authentication.welcome.WelcomeViewModel
+  skippable: true
+  restartable: true
+  params:
 
 @Composable
 public fun com.wire.android.ui.calling.CallActivity.Content(): kotlin.Unit

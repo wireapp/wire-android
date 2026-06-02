@@ -208,16 +208,22 @@ internal fun LoginPasswordContent(
                     },
                     isEnabled = loginEmailState.userIdentifierEnabled,
                 )
+                val invalidCredentialsErrorText = if (loginEmailState.showInvalidCredentialsError) {
+                    stringResource(R.string.login_error_invalid_credentials_message)
+                } else {
+                    null
+                }
                 PasswordInput(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = dimensions().spacing8x)
                         .testTag("PasswordInput"),
                     passwordState = passwordTextState,
+                    isError = loginEmailState.showInvalidCredentialsError,
                 )
                 if (loginEmailState.showInvalidCredentialsError) {
                     Text(
-                        text = stringResource(R.string.login_error_invalid_credentials_message),
+                        text = invalidCredentialsErrorText.orEmpty(),
                         style = typography().body01,
                         color = colorsScheme().error,
                         modifier = Modifier
@@ -301,10 +307,11 @@ fun EmailInput(
 }
 
 @Composable
-fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
+fun PasswordInput(passwordState: TextFieldState, isError: Boolean, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = passwordState,
+        state = if (isError) WireTextFieldState.Error() else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
         onKeyboardAction = { keyboardController?.hide() },
         semanticDescription = stringResource(R.string.content_description_login_password_field),

@@ -5,7 +5,7 @@ plugins {
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
     id(libs.plugins.wire.hilt.get().pluginId)
-    alias(libs.plugins.compose.compiler)
+    id(libs.plugins.wire.compose.compiler.get().pluginId)
     alias(libs.plugins.compose.stability.analyzer)
 }
 

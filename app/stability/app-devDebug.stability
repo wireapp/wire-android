@@ -3767,8 +3767,8 @@ private fun com.wire.android.ui.debug.UserDataBaseProfileSwitch(isEnabled: kotli
     - onCheckedChange: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.ui.debug.UserDebugContent(state: com.wire.android.ui.debug.UserDebugState, onNavigationPressed: kotlin.Function0<kotlin.Unit>, onLoggingEnabledChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onDatabaseLoggerEnabledChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onDeleteLogs: kotlin.Function0<kotlin.Unit>, onFlushLogs: kotlin.Function0<kotlinx.coroutines.Deferred<kotlin.Unit>>, onShowFeatureFlags: kotlin.Function0<kotlin.Unit>, onShowCryptoStats: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
+internal fun com.wire.android.ui.debug.UserDebugContent(state: com.wire.android.ui.debug.UserDebugState, onNavigationPressed: kotlin.Function0<kotlin.Unit>, onLoggingEnabledChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onDatabaseLoggerEnabledChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onDeleteLogs: kotlin.Function0<kotlin.Unit>, onFlushLogs: kotlin.Function0<kotlinx.coroutines.Deferred<kotlin.Unit>>, onShowFeatureFlags: kotlin.Function0<kotlin.Unit>, onShowCryptoStats: kotlin.Function0<kotlin.Unit>, debugDataOptionsViewModel: com.wire.android.ui.debug.DebugDataOptionsViewModel, exportObfuscatedCopyViewModel: com.wire.android.ui.debug.ExportObfuscatedCopyViewModel): kotlin.Unit
+  skippable: false
   restartable: true
   params:
     - state: STABLE (class with no mutable properties)
@@ -3779,6 +3779,14 @@ internal fun com.wire.android.ui.debug.UserDebugContent(state: com.wire.android.
     - onFlushLogs: STABLE (function type)
     - onShowFeatureFlags: STABLE (function type)
     - onShowCryptoStats: STABLE (function type)
+    - debugDataOptionsViewModel: RUNTIME (requires runtime check)
+    - exportObfuscatedCopyViewModel: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.ui.debug.aboutThisAppViewModel(): com.wire.android.ui.settings.about.AboutThisAppViewModel
+  skippable: true
+  restartable: true
+  params:
 
 @Composable
 private fun com.wire.android.ui.debug.conversation.ConversationActionsView(state: com.wire.android.ui.debug.conversation.DebugConversationViewState, onUpdate: kotlin.Function0<kotlin.Unit>, onReset: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -3828,6 +3836,12 @@ private fun com.wire.android.ui.debug.conversation.MlsDetailsView(state: com.wir
     - onRefreshCcEpoch: STABLE (function type)
 
 @Composable
+public fun com.wire.android.ui.debug.conversationCryptoStatsViewModel(): com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsScreen(navigator: com.wire.android.navigation.Navigator, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel): kotlin.Unit
   skippable: false
   restartable: true
@@ -3868,6 +3882,54 @@ private fun com.wire.android.ui.debug.cryptostats.StatsSummary(uiModel: com.wire
     - uiModel: RUNTIME (requires runtime check)
 
 @Composable
+public fun com.wire.android.ui.debug.debugConversationViewModel(): com.wire.android.ui.debug.conversation.DebugConversationViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.debug.debugDataOptionsViewModel(): com.wire.android.ui.debug.DebugDataOptionsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.debug.debugFeatureFlagsViewModel(): com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.debug.debugInfoSavedStateViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner, key: kotlin.String?, create: @[ExtensionFunctionType] kotlin.Function2<com.wire.android.ui.debug.DebugInfoViewModelFactory, androidx.lifecycle.SavedStateHandle, VM of com.wire.android.ui.debug.debugInfoSavedStateViewModel>): VM of com.wire.android.ui.debug.debugInfoSavedStateViewModel
+  skippable: false
+  restartable: true
+  params:
+    - viewModelStoreOwner: RUNTIME (requires runtime check)
+    - key: STABLE (class with no mutable properties)
+    - create: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.debug.debugInfoViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner, key: kotlin.String?, create: @[ExtensionFunctionType] kotlin.Function1<com.wire.android.ui.debug.DebugInfoViewModelFactory, VM of com.wire.android.ui.debug.debugInfoViewModel>): VM of com.wire.android.ui.debug.debugInfoViewModel
+  skippable: false
+  restartable: true
+  params:
+    - viewModelStoreOwner: RUNTIME (requires runtime check)
+    - key: STABLE (class with no mutable properties)
+    - create: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.debug.dependenciesViewModel(): com.wire.android.ui.home.settings.about.dependencies.DependenciesViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.debug.exportObfuscatedCopyViewModel(): com.wire.android.ui.debug.ExportObfuscatedCopyViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.wire.android.ui.debug.featureflags.DebugFeatureFlagsScreen(navigator: com.wire.android.navigation.Navigator, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel): kotlin.Unit
   skippable: false
   restartable: true
@@ -3885,11 +3947,35 @@ public fun com.wire.android.ui.debug.featureflags.FeatureListItem(feature: com.w
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
+public fun com.wire.android.ui.debug.licensesViewModel(): com.wire.android.ui.home.settings.about.licenses.LicensesViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.debug.logManagementViewModel(): com.wire.android.ui.debug.LogManagementViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.wire.android.ui.debug.rememberDebugContentState(logPath: kotlin.String): com.wire.android.ui.debug.DebugContentState
   skippable: true
   restartable: true
   params:
     - logPath: STABLE (String is immutable)
+
+@Composable
+public fun com.wire.android.ui.debug.userDebugViewModel(): com.wire.android.ui.debug.UserDebugViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.debug.whatsNewViewModel(): com.wire.android.ui.home.whatsnew.WhatsNewViewModel
+  skippable: true
+  restartable: true
+  params:
 
 @Composable
 public fun com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentScreen(navigator: com.wire.android.navigation.Navigator, loginTypeSelector: com.wire.android.navigation.LoginTypeSelector, viewModel: com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel, clearSessionViewModel: com.wire.android.ui.authentication.devices.common.ClearSessionViewModel): kotlin.Unit
@@ -9220,6 +9306,12 @@ public fun com.wire.android.ui.home.settings.account.handle.ChangeHandleScreen(n
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
+public fun com.wire.android.ui.home.settings.appUnlockWithBiometricsViewModel(): com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.wire.android.ui.home.settings.appearance.CustomizationOptionsContent(enterToSendState: kotlin.Boolean, enterToSendClicked: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -9283,6 +9375,12 @@ public fun com.wire.android.ui.home.settings.appsettings.networkSettings.Network
     - isWebSocketEnforcedByDefault: STABLE (primitive type)
     - setWebSocketState: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.home.settings.avatarPickerViewModel(): com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
+  skippable: true
+  restartable: true
+  params:
 
 @Composable
 public fun com.wire.android.ui.home.settings.backup.BackupAndRestoreContent(backUpAndRestoreState: com.wire.android.ui.home.settings.backup.BackupAndRestoreState, createBackupPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, restoreBackupPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, onCreateBackup: kotlin.Function0<kotlin.Unit>, onSaveBackup: kotlin.Function1<android.net.Uri, kotlin.Unit>, onShareBackup: kotlin.Function0<kotlin.Unit>, onCancelBackupCreation: kotlin.Function0<kotlin.Unit>, onCancelBackupRestore: kotlin.Function0<kotlin.Unit>, onChooseBackupFile: kotlin.Function1<android.net.Uri, kotlin.Unit>, onRestoreBackup: kotlin.Function0<kotlin.Unit>, onOpenConversations: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -9475,6 +9573,90 @@ public fun com.wire.android.ui.home.settings.backup.rememberBackUpAndRestoreStat
   params:
 
 @Composable
+public fun com.wire.android.ui.home.settings.backupAndRestoreViewModel(): com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.changeDisplayNameViewModel(): com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.changeEmailViewModel(): com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.changeHandleViewModel(): com.wire.android.ui.home.settings.account.handle.ChangeHandleViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.changeUserColorViewModel(): com.wire.android.ui.home.settings.account.color.ChangeUserColorViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.customizationViewModel(): com.wire.android.ui.home.settings.appearance.CustomizationViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.deleteAccountViewModel(): com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.deviceDetailsViewModel(): com.wire.android.ui.settings.devices.DeviceDetailsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.e2eiCertificateDetailsViewModel(): com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.enterLockScreenViewModel(): com.wire.android.ui.home.appLock.unlock.EnterLockScreenViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.forgotLockScreenViewModel(): com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.myAccountViewModel(): com.wire.android.ui.home.settings.account.MyAccountViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.networkSettingsViewModel(): com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.otherUserProfileScreenViewModel(): com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen(navigator: com.wire.android.navigation.Navigator, viewModel: com.wire.android.ui.home.settings.privacy.PrivacySettingsViewModel): kotlin.Unit
   skippable: false
   restartable: true
@@ -9498,6 +9680,79 @@ public fun com.wire.android.ui.home.settings.privacy.PrivacySettingsScreenConten
     - setAnonymousUsageDataEnabled: STABLE (function type)
     - onBackPressed: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.home.settings.privacySettingsViewModel(): com.wire.android.ui.home.settings.privacy.PrivacySettingsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.selfDevicesViewModel(): com.wire.android.ui.settings.devices.SelfDevicesViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.selfQRCodeViewModel(): com.wire.android.ui.userprofile.qr.SelfQRCodeViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.selfUserProfileViewModel(): com.wire.android.ui.userprofile.self.SelfUserProfileViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.serviceDetailsViewModel(): com.wire.android.ui.userprofile.service.ServiceDetailsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.setLockScreenViewModel(): com.wire.android.ui.home.appLock.set.SetLockScreenViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.settingsSavedStateViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner, key: kotlin.String?, create: @[ExtensionFunctionType] kotlin.Function2<com.wire.android.ui.home.settings.SettingsViewModelFactory, androidx.lifecycle.SavedStateHandle, VM of com.wire.android.ui.home.settings.settingsSavedStateViewModel>): VM of com.wire.android.ui.home.settings.settingsSavedStateViewModel
+  skippable: false
+  restartable: true
+  params:
+    - viewModelStoreOwner: RUNTIME (requires runtime check)
+    - key: STABLE (class with no mutable properties)
+    - create: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.home.settings.settingsScreenViewModel(): com.wire.android.ui.home.settings.SettingsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.home.settings.settingsViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner, key: kotlin.String?, create: @[ExtensionFunctionType] kotlin.Function1<com.wire.android.ui.home.settings.SettingsViewModelFactory, VM of com.wire.android.ui.home.settings.settingsViewModel>): VM of com.wire.android.ui.home.settings.settingsViewModel
+  skippable: false
+  restartable: true
+  params:
+    - viewModelStoreOwner: RUNTIME (requires runtime check)
+    - key: STABLE (class with no mutable properties)
+    - create: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.home.settings.teamMigrationViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
+  skippable: false
+  restartable: true
+  params:
+    - viewModelStoreOwner: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.ui.home.settings.verifyEmailViewModel(): com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailViewModel
+  skippable: true
+  restartable: true
+  params:
 
 @Composable
 public fun com.wire.android.ui.home.vault.VaultScreen(): kotlin.Unit

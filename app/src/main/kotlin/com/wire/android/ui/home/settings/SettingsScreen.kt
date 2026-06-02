@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.wire.android.di.wireViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -50,7 +49,7 @@ import com.wire.android.util.ui.UIText
 @Composable
 fun SettingsScreen(
     homeStateHolder: HomeStateHolder,
-    viewModel: SettingsViewModel = wireViewModel()
+    viewModel: SettingsViewModel = settingsScreenViewModel()
 ) {
     val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
     val onAppLockSwitchClicked: (Boolean) -> Unit = remember {

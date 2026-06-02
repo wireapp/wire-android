@@ -24,6 +24,8 @@ import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
 import com.wire.android.ui.debug.DebugInfoViewModelFactory
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
+import com.wire.android.ui.home.settings.SettingsViewModelFactory
+import com.wire.android.ui.home.settings.SettingsViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -37,7 +39,8 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     imageLoader: Provider<WireSessionImageLoader>,
     private val cellsViewModelFactoryProvider: Provider<CellsViewModelFactory>,
     private val debugInfoViewModelFactoryProvider: Provider<DebugInfoViewModelFactory>,
-) : ViewModel(), ImageAssetViewModelGraph, CellsViewModelGraph, DebugInfoViewModelGraph {
+    private val settingsViewModelFactoryProvider: Provider<SettingsViewModelFactory>,
+) : ViewModel(), ImageAssetViewModelGraph, CellsViewModelGraph, DebugInfoViewModelGraph, SettingsViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
 
@@ -46,4 +49,7 @@ class WireActivityViewModelGraphBridge @Inject constructor(
 
     override val debugInfoViewModelFactory: DebugInfoViewModelFactory
         get() = debugInfoViewModelFactoryProvider.get()
+
+    override val settingsViewModelFactory: SettingsViewModelFactory
+        get() = settingsViewModelFactoryProvider.get()
 }

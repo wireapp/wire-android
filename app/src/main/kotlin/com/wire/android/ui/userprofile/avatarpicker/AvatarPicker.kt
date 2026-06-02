@@ -35,7 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.home.settings.avatarPickerViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
@@ -72,7 +72,7 @@ import com.wire.android.util.ui.PreviewMultipleThemesForSquare
 fun AvatarPickerScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<String?>,
-    viewModel: AvatarPickerViewModel = wireViewModel()
+    viewModel: AvatarPickerViewModel = avatarPickerViewModel()
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()

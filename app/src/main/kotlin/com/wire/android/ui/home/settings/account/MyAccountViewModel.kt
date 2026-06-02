@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.home.settings.account
-
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +33,6 @@ import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
@@ -46,9 +43,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.properties.Delegates
-
 @Suppress("LongParameterList")
-@HiltViewModel
 class MyAccountViewModel @Inject constructor(
     private val getSelf: ObserveSelfUserUseCase,
     private val observeSelfUserWithTeam: ObserveSelfUserWithTeamUseCase,
@@ -59,7 +54,6 @@ class MyAccountViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : ViewModel() {
-
     var myAccountState by mutableStateOf(MyAccountState())
         private set
 
@@ -74,7 +68,6 @@ class MyAccountViewModel @Inject constructor(
 
     init {
         initScreenState()
-
         runBlocking {
             hasSAMLCred = when (val result = isPasswordRequired()) {
                 is IsPasswordRequiredUseCase.Result.Failure -> false
@@ -82,7 +75,6 @@ class MyAccountViewModel @Inject constructor(
                     !result.value
                 }
             }
-
             // is the account is read only it means it is not maneged by wire
             managedByWire = !isReadOnlyAccount()
             isE2EIEnabled = isE2EIEnabledUseCase()
@@ -92,14 +84,12 @@ class MyAccountViewModel @Inject constructor(
             isEditNameAllowed = managedByWire && !isE2EIEnabled,
             isEditHandleAllowed = managedByWire && !isE2EIEnabled
         )
-
         viewModelScope.launch {
             if (!hasSAMLCred) {
                 loadChangePasswordUrl()
             }
         }
     }
-
     private fun initScreenState() {
         viewModelScope.launch {
             initCanDeleteAccountValue()
@@ -109,22 +99,18 @@ class MyAccountViewModel @Inject constructor(
         }
         fetchSelfUserTeam()
     }
-
     private suspend fun loadChangePasswordUrl() {
         when (val result = withContext(dispatchers.io()) { serverConfig() }) {
             is SelfServerConfigUseCase.Result.Failure -> appLogger.e(
                 "Error when fetching the accounts url for change password"
             )
-
             is SelfServerConfigUseCase.Result.Success ->
                 myAccountState = myAccountState.copy(changePasswordUrl = result.serverLinks.links.forgotPassword)
         }
     }
-
     private fun fetchSelfUser() {
         viewModelScope.launch {
             val self = getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
-
             self.collect { user ->
                 myAccountState = myAccountState.copy(
                     fullName = user.name.orEmpty(),
@@ -136,14 +122,12 @@ class MyAccountViewModel @Inject constructor(
             }
         }
     }
-
     private suspend fun initCanDeleteAccountValue() {
         val canDeleteAccount = !isSelfATeamMember()
         myAccountState = myAccountState.copy(
             canDeleteAccount = canDeleteAccount,
         )
     }
-
     private fun fetchSelfUserTeam() {
         viewModelScope.launch {
             observeSelfUserWithTeam()
@@ -157,7 +141,6 @@ class MyAccountViewModel @Inject constructor(
                 }
         }
     }
-
     companion object {
         /**
          * This is a build time flag that allows to enable/disable the change email feature.

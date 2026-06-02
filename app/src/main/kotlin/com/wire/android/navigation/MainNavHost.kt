@@ -55,7 +55,7 @@ import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
-import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
+import com.wire.android.ui.home.settings.teamMigrationViewModel
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -118,7 +118,7 @@ fun MainNavHost(
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(PersonalToTeamMigrationGraph.route)
                         }
-                        dependency(wireViewModel<TeamMigrationViewModel>(parentEntry))
+                        dependency(teamMigrationViewModel(parentEntry))
                     }
                 },
                 manualComposableCallsBuilder = {

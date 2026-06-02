@@ -24,85 +24,8 @@ import androidx.lifecycle.ViewModel
 import com.wire.android.di.metro.LocalMetroViewModelGraph
 import com.wire.android.di.metro.MetroViewModelGraph
 import com.sebaslogen.resaca.KeyInScopeResolver
-import com.sebaslogen.resaca.hilt.hiltViewModelScoped as resacaHiltViewModelScoped
 import com.sebaslogen.resaca.viewModelScoped as resacaViewModelScoped
 import kotlin.time.Duration
-
-/**
- * Common assisted factory contract for scoped ViewModels that receive [ScopedArgs].
- */
-interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
-    fun create(args: R): VM
-}
-
-/**
- * Repo-local scoped ViewModel accessor that uses our generated previews for scoped ViewModels
- * and creates assisted injected scoped [ViewModel] instances using [ScopedArgs].
- *
- * [ViewModel] needs to implement an interface annotated with [ViewModelScopedPreview] and with default
- * implementations.
- *
- * Proper key will be taken from the [ScopedArgs.key] property.
- *
- * @param arguments The arguments that will be provided to the [ViewModel].
- */
-@Composable
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        wireViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S = when {
-    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> resacaHiltViewModelScoped<T, F>(key = arguments.key?.toString(), clearDelay = clearDelay) { factory ->
-        factory.create(arguments)
-    } as S
-}
-
-@Composable
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        wireViewModelScoped(
-    arguments: R,
-    noinline keyInScopeResolver: KeyInScopeResolver<String>,
-    clearDelay: Duration? = null,
-): S where T : ViewModel, T : S = when {
-    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> {
-        val scopedKey = requireNotNull(arguments.key?.toString()) {
-            "Scoped key must not be null for ${T::class.qualifiedName}"
-        }
-        resacaHiltViewModelScoped<T, F, String>(
-            key = scopedKey,
-            keyInScopeResolver = keyInScopeResolver,
-            clearDelay = clearDelay
-        ) { factory ->
-            factory.create(arguments)
-        } as S
-    }
-}
-
-/**
- * Repo-local scoped ViewModel accessor that uses our generated previews for scoped ViewModels.
- * This is version that does not take and pass any arguments, it does not use any key to generate a new
- * version when it changes, so it basically keeps the same instance.
- *
- * [ViewModel] needs to implement an interface annotated with [ViewModelScopedPreview] and with default
- * implementations.
- */
-@Composable
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-inline fun <reified T, reified S> wireViewModelScoped(): S where T : ViewModel, T : S = when {
-    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> resacaHiltViewModelScoped<T>() as S
-}
-
-@Composable
-inline fun <reified T : ViewModel> wireViewModelScoped(): T = when {
-    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? T }
-    espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? T }
-    else -> resacaHiltViewModelScoped<T>()
-}
 
 @Composable
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
@@ -185,38 +108,6 @@ inline fun <reified Graph : MetroViewModelGraph> currentMetroViewModelGraph(): G
     checkNotNull(LocalMetroViewModelGraph.current as? Graph) {
         "No Metro graph matching ${Graph::class.qualifiedName} was provided"
     }
-
-@Deprecated("Use wireViewModelScoped so call sites do not depend on the Hilt-backed implementation.")
-@Composable
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        hiltViewModelScoped(arguments: R, clearDelay: Duration? = null): S where T : ViewModel, T : S =
-    wireViewModelScoped<T, S, R, F>(arguments = arguments, clearDelay = clearDelay)
-
-@Deprecated("Use wireViewModelScoped so call sites do not depend on the Hilt-backed implementation.")
-@Composable
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-inline fun <reified T, reified S, reified R : ScopedArgs, reified F : AssistedViewModelFactory<T, R>>
-        hiltViewModelScoped(
-    arguments: R,
-    noinline keyInScopeResolver: KeyInScopeResolver<String>,
-    clearDelay: Duration? = null,
-): S where T : ViewModel, T : S =
-    wireViewModelScoped<T, S, R, F>(
-        arguments = arguments,
-        keyInScopeResolver = keyInScopeResolver,
-        clearDelay = clearDelay
-    )
-
-@Deprecated("Use wireViewModelScoped so call sites do not depend on the Hilt-backed implementation.")
-@Composable
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-inline fun <reified T, reified S> hiltViewModelScoped(): S where T : ViewModel, T : S =
-    wireViewModelScoped<T, S>()
-
-@Deprecated("Use wireViewModelScoped so call sites do not depend on the Hilt-backed implementation.")
-@Composable
-inline fun <reified T : ViewModel> hiltViewModelScoped(): T = wireViewModelScoped<T>()
 
 val espresso
     get() = try {

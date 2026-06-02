@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
@@ -45,6 +44,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.searchConversationMessagesViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -59,7 +59,7 @@ import com.wire.android.ui.common.R as commonR
 @Composable
 fun SearchConversationMessagesScreen(
     navigator: Navigator,
-    searchConversationMessagesViewModel: SearchConversationMessagesViewModel = wireViewModel()
+    searchConversationMessagesViewModel: SearchConversationMessagesViewModel = searchConversationMessagesViewModel()
 ) {
     SearchConversationMessagesResultContent(
         isCellsConversation = searchConversationMessagesViewModel.isCellsConversation,

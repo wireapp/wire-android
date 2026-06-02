@@ -35,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -56,6 +55,8 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.conversationFoldersViewModel
+import com.wire.android.ui.home.conversations.moveConversationToFolderViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.NewConversationFolderScreenDestination
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.FolderType
@@ -71,14 +72,10 @@ fun ConversationFoldersScreen(
     resultNavigator: ResultBackNavigator<ConversationFoldersNavBackArgs>,
     resultRecipient: ResultRecipient<NewConversationFolderScreenDestination, NewConversationFolderNavBackArgs>,
     foldersViewModel: ConversationFoldersVM =
-        wireViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
-            creationCallback = { it.create(ConversationFoldersStateArgs(args.currentFolderId)) }
-        ),
+        conversationFoldersViewModel(ConversationFoldersStateArgs(args.currentFolderId)),
     moveToFolderVM: MoveConversationToFolderVM =
-        wireViewModel<MoveConversationToFolderVMImpl, MoveConversationToFolderVMImpl.Factory>(
-            creationCallback = {
-                it.create(MoveConversationToFolderArgs(args.conversationId, args.conversationName, args.currentFolderId))
-            }
+        moveConversationToFolderViewModel(
+            MoveConversationToFolderArgs(args.conversationId, args.conversationName, args.currentFolderId)
         )
 ) {
     val resources = LocalContext.current.resources

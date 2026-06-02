@@ -36,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
@@ -54,6 +53,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.maxLengthWithCallback
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversations.newFolderViewModel
 import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameViewModel.Companion.NAME_MAX_COUNT
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -68,7 +68,7 @@ import com.wire.android.util.ui.SnackBarMessageHandler
 fun NewConversationFolderScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<NewConversationFolderNavBackArgs>,
-    viewModel: NewFolderViewModel = wireViewModel()
+    viewModel: NewFolderViewModel = newFolderViewModel()
 ) {
 
     LaunchedEffect(viewModel.folderNameState.folderId) {

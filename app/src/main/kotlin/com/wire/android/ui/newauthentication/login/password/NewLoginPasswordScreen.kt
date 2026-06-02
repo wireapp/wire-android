@@ -219,7 +219,11 @@ internal fun LoginPasswordContent(
                         .padding(bottom = dimensions().spacing8x)
                         .testTag("PasswordInput"),
                     passwordState = passwordTextState,
-                    isError = loginEmailState.showInvalidCredentialsError,
+                    state = if (loginEmailState.showInvalidCredentialsError) {
+                        WireTextFieldState.Error()
+                    } else {
+                        WireTextFieldState.Default
+                    },
                 )
                 if (loginEmailState.showInvalidCredentialsError) {
                     Text(
@@ -307,11 +311,11 @@ fun EmailInput(
 }
 
 @Composable
-fun PasswordInput(passwordState: TextFieldState, isError: Boolean, modifier: Modifier = Modifier) {
+fun PasswordInput(passwordState: TextFieldState, state: WireTextFieldState, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = passwordState,
-        state = if (isError) WireTextFieldState.Error() else WireTextFieldState.Default,
+        state = state,
         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
         onKeyboardAction = { keyboardController?.hide() },
         semanticDescription = stringResource(R.string.content_description_login_password_field),

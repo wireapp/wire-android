@@ -176,19 +176,18 @@ private fun LoginEmailContent(
                     .fillMaxWidth()
                     .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
                 userIdentifierState = userIdentifierTextState,
-                error = when (loginEmailState.flowState) {
-                    is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
-                    else -> null
-                },
-                isError = loginEmailState.showInvalidCredentialsError,
-                isEnabled = loginEmailState.userIdentifierEnabled,
+                state = userIdentifierInputState(loginEmailState),
             )
             PasswordInput(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
                 passwordState = passwordTextState,
-                isError = loginEmailState.showInvalidCredentialsError,
+                state = if (loginEmailState.showInvalidCredentialsError) {
+                    WireTextFieldState.Error()
+                } else {
+                    WireTextFieldState.Default
+                },
             )
             if (loginEmailState.showInvalidCredentialsError) {
                 Text(
@@ -247,11 +246,18 @@ private fun LoginEmailContent(
 }
 
 @Composable
+private fun userIdentifierInputState(loginEmailState: LoginEmailState): WireTextFieldState = when {
+    !loginEmailState.userIdentifierEnabled -> WireTextFieldState.Disabled
+    loginEmailState.flowState is LoginState.Error.TextFieldError.InvalidValue ->
+        WireTextFieldState.Error(stringResource(R.string.login_error_invalid_user_identifier))
+    loginEmailState.showInvalidCredentialsError -> WireTextFieldState.Error()
+    else -> WireTextFieldState.Default
+}
+
+@Composable
 private fun UserIdentifierInput(
     userIdentifierState: TextFieldState,
-    error: String?,
-    isError: Boolean = false,
-    isEnabled: Boolean,
+    state: WireTextFieldState,
     modifier: Modifier = Modifier,
 ) {
     WireTextField(
@@ -259,12 +265,7 @@ private fun UserIdentifierInput(
         textState = userIdentifierState,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
         labelText = stringResource(R.string.login_user_identifier_label),
-        state = when {
-            !isEnabled -> WireTextFieldState.Disabled
-            error != null -> WireTextFieldState.Error(error)
-            isError -> WireTextFieldState.Error()
-            else -> WireTextFieldState.Default
-        },
+        state = state,
         semanticDescription = stringResource(R.string.content_description_login_user_identifier_field),
         keyboardOptions = KeyboardOptions.DefaultEmailNext,
         modifier = modifier.testTag("emailField"),
@@ -273,11 +274,11 @@ private fun UserIdentifierInput(
 }
 
 @Composable
-private fun PasswordInput(passwordState: TextFieldState, isError: Boolean, modifier: Modifier = Modifier) {
+private fun PasswordInput(passwordState: TextFieldState, state: WireTextFieldState, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = passwordState,
-        state = if (isError) WireTextFieldState.Error() else WireTextFieldState.Default,
+        state = state,
         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
         onKeyboardAction = { keyboardController?.hide() },
         semanticDescription = stringResource(R.string.content_description_login_password_field),

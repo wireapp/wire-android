@@ -136,3 +136,45 @@ private inline fun <reified VM> conversationViewModel(
     metroViewModel<ConversationCoreViewModelGraph, VM>(key = key) {
         conversationCoreViewModelFactory.create()
     }
+
+@Composable
+fun conversationAssetMessagesViewModel(): ConversationAssetMessagesViewModel =
+    metroSavedStateViewModel<ConversationCoreViewModelGraph, ConversationAssetMessagesViewModel> {
+        conversationCoreViewModelFactory.conversationAssetMessagesViewModel(it)
+    }
+
+@Composable
+fun imagesPreviewViewModel(): ImagesPreviewViewModel =
+    metroSavedStateViewModel<ConversationCoreViewModelGraph, ImagesPreviewViewModel> {
+        conversationCoreViewModelFactory.imagesPreviewViewModel(it)
+    }
+
+@Composable
+fun messageDetailsViewModel(): MessageDetailsViewModel =
+    metroSavedStateViewModel<ConversationCoreViewModelGraph, MessageDetailsViewModel> {
+        conversationCoreViewModelFactory.messageDetailsViewModel(it)
+    }
+
+@Composable
+fun quotedMultipartMessageViewModel(conversationKey: String): QuotedMultipartMessageViewModel =
+    metroViewModel<ConversationCoreViewModelGraph, QuotedMultipartMessageViewModel>(key = conversationKey) {
+        conversationCoreViewModelFactory.quotedMultipartMessageViewModel()
+    }
+
+@Composable
+fun conversationBannerViewModel(): ConversationBannerViewModel =
+    metroSavedStateViewModel<ConversationCoreViewModelGraph, ConversationBannerViewModel> {
+        conversationCoreViewModelFactory.conversationBannerViewModel(it)
+    }
+
+@Composable
+fun conversationInfoViewModel(): ConversationInfoViewModel =
+    metroSavedStateViewModel<ConversationCoreViewModelGraph, ConversationInfoViewModel> {
+        conversationCoreViewModelFactory.conversationInfoViewModel(it)
+    }
+
+@Composable
+fun multipartAttachmentsViewModel(conversationKey: String): MultipartAttachmentsViewModel =
+    metroViewModel<ConversationCoreViewModelGraph, MultipartAttachmentsViewModelImpl>(key = conversationKey) {
+        conversationCoreViewModelFactory.multipartAttachmentsViewModel()
+    }

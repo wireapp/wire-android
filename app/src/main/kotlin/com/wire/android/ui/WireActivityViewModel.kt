@@ -178,6 +178,7 @@ class WireActivityViewModel @Inject constructor(
         observeUpdateAppState()
         observeNewClientState()
         observeScreenshotCensoringConfigState()
+        observeCurrentValidUserState()
         observeAppThemeState()
         observeSelectedAccent()
         observeLogoutState()
@@ -229,6 +230,14 @@ class WireActivityViewModel @Inject constructor(
                 .collect {
                     _observeSyncFlowState.emit(it)
                 }
+        }
+    }
+
+    private fun observeCurrentValidUserState() {
+        viewModelScope.launch(dispatchers.io()) {
+            observeCurrentValidUserId.collectLatest {
+                globalAppState = globalAppState.copy(currentUserId = it)
+            }
         }
     }
 
@@ -775,6 +784,7 @@ data class NewClientInfo(val date: String, val deviceInfo: UIText) {
 }
 
 data class GlobalAppState(
+    val currentUserId: UserId? = null,
     val customBackendDialog: CustomServerDialogState? = null,
     val maxAccountDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,

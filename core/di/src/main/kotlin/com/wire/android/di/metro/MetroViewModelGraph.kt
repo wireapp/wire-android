@@ -29,7 +29,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 
-interface MetroViewModelGraph
+interface MetroViewModelGraph {
+    val viewModelScopeKey: String?
+        get() = null
+}
 
 /**
  * Temporary Android Compose bridge used while moving ViewModel creation from Hilt to Metro.
@@ -53,6 +56,11 @@ inline fun <reified Graph, reified VM> metroViewModel(
     val graph = checkNotNull(LocalMetroViewModelGraph.current as? Graph) {
         "No Metro graph matching ${Graph::class.qualifiedName} was provided"
     }
+    val scopedKey = scopedMetroViewModelKey(
+        defaultKey = VM::class.qualifiedName,
+        key = key,
+        scopeKey = graph.viewModelScopeKey,
+    )
     val factory = remember(graph) {
         viewModelFactory {
             initializer {
@@ -63,7 +71,7 @@ inline fun <reified Graph, reified VM> metroViewModel(
     return viewModel(
         modelClass = VM::class,
         viewModelStoreOwner = viewModelStoreOwner,
-        key = key,
+        key = scopedKey,
         factory = factory,
     )
 }
@@ -79,6 +87,11 @@ inline fun <reified Graph, reified VM> metroSavedStateViewModel(
     val graph = checkNotNull(LocalMetroViewModelGraph.current as? Graph) {
         "No Metro graph matching ${Graph::class.qualifiedName} was provided"
     }
+    val scopedKey = scopedMetroViewModelKey(
+        defaultKey = VM::class.qualifiedName,
+        key = key,
+        scopeKey = graph.viewModelScopeKey,
+    )
     val factory = remember(graph) {
         viewModelFactory {
             initializer {
@@ -89,7 +102,12 @@ inline fun <reified Graph, reified VM> metroSavedStateViewModel(
     return viewModel(
         modelClass = VM::class,
         viewModelStoreOwner = viewModelStoreOwner,
-        key = key,
+        key = scopedKey,
         factory = factory,
     )
+}
+
+fun scopedMetroViewModelKey(defaultKey: String?, key: String?, scopeKey: String?): String? {
+    if (scopeKey == null) return key
+    return "${key ?: defaultKey}:$scopeKey"
 }

@@ -48,9 +48,11 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
@@ -96,6 +98,7 @@ import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
+import com.wire.android.ui.common.topappbar.CommonTopAppBarState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.WireTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -160,46 +163,7 @@ class WireActivity : BaseActivity() {
     @Inject
     lateinit var managedConfigurationsManager: ManagedConfigurationsManager
 
-    private val wireActivityViewModelGraphBridge: WireActivityViewModelGraphBridge by viewModels()
     private val viewModel: WireActivityViewModel by viewModels()
-    private val callFeedbackViewModel: CallFeedbackViewModel by viewModels {
-        viewModelFactory {
-            initializer {
-                wireActivityViewModelGraphBridge.callingViewModelFactory.callFeedbackViewModel()
-            }
-        }
-    }
-    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels {
-        viewModelFactory {
-            initializer {
-                wireActivityViewModelGraphBridge.homeViewModelFactory.featureFlagNotificationViewModel()
-            }
-        }
-    }
-
-    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels {
-        viewModelFactory {
-            initializer {
-                wireActivityViewModelGraphBridge.commonViewModelFactory.commonTopAppBarViewModel(
-                    CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true)
-                )
-            }
-        }
-    }
-    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels {
-        viewModelFactory {
-            initializer {
-                wireActivityViewModelGraphBridge.miscViewModelFactory.legalHoldRequestedViewModel()
-            }
-        }
-    }
-    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels {
-        viewModelFactory {
-            initializer {
-                wireActivityViewModelGraphBridge.miscViewModelFactory.legalHoldDeactivatedViewModel()
-            }
-        }
-    }
 
     private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
     private lateinit var shakeDetector: ShakeDetector
@@ -226,11 +190,7 @@ class WireActivity : BaseActivity() {
             appLogger.i("$TAG persistent connection status")
             viewModel.observePersistentConnectionStatus()
 
-            appLogger.i("$TAG legal hold requested status")
-            legalHoldRequestedViewModel.observeLegalHoldRequest()
-
             appLogger.i("$TAG init login type selector")
-
             appLogger.i("$TAG start destination")
             val startDestination = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_LOGGED_IN -> when (loginTypeSelector.canUseNewLogin()) {
@@ -287,6 +247,24 @@ class WireActivity : BaseActivity() {
     private fun setComposableContent(startDestination: Direction) {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
+            val currentUserId = viewModel.globalAppState.currentUserId
+            val wireActivityViewModelGraph = currentUserId?.let {
+                hiltViewModel<WireActivityViewModelGraphBridge>(
+                    key = "WireActivityViewModelGraphBridge:$it"
+                )
+            }
+            val requiresSessionGraph = startDestination.baseRoute !in listOf(
+                WelcomeScreenDestination.baseRoute,
+                NewWelcomeEmptyStartScreenDestination.baseRoute,
+                LoginScreenDestination.baseRoute,
+                NewLoginScreenDestination.baseRoute,
+            )
+            if (requiresSessionGraph && wireActivityViewModelGraph == null) {
+                return@setContent
+            }
+            val activityViewModels = wireActivityViewModelGraph?.let {
+                wireActivityScopedViewModels(it)
+            }
 
             HandleThemeChanges(viewModel.globalAppState.themeOption)
 
@@ -295,9 +273,14 @@ class WireActivity : BaseActivity() {
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
                 LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelGraph provides wireActivityViewModelGraphBridge,
+                LocalMetroViewModelGraph provides wireActivityViewModelGraph,
                 LocalActivity provides this
             ) {
+                activityViewModels?.let {
+                    LaunchedEffect(it.legalHoldRequestedViewModel) {
+                        it.legalHoldRequestedViewModel.observeLegalHoldRequest()
+                    }
+                }
                 WireTheme(accent = viewModel.globalAppState.userAccent) {
                     val navigator = rememberNavigator(
                         finish = this@WireActivity::finish,
@@ -331,7 +314,7 @@ class WireActivity : BaseActivity() {
                             .semantics { testTagsAsResourceId = true }
                     ) {
                         WireTopAppBar(
-                            commonTopAppBarState = commonTopAppBarViewModel.state,
+                            commonTopAppBarState = activityViewModels?.commonTopAppBarViewModel?.state ?: CommonTopAppBarState(),
                             backgroundType = backgroundType,
                         )
                         MainNavHost(
@@ -345,12 +328,61 @@ class WireActivity : BaseActivity() {
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
                         SetUpNavigation(navigator)
                         HandleScreenshotCensoring()
-                        HandleDialogs(navigator)
+                        HandleDialogs(navigator, activityViewModels)
                         HandleViewActions(viewModel.actions, navigator, loginTypeSelector)
                     }
                 }
             }
         }
+    }
+
+    @Composable
+    private fun wireActivityScopedViewModels(graph: WireActivityViewModelGraphBridge): WireActivityScopedViewModels {
+        val scopeKey = graph.viewModelScopeKey
+        return WireActivityScopedViewModels(
+            callFeedbackViewModel = viewModel(
+                key = "CallFeedbackViewModel:$scopeKey",
+                factory = viewModelFactory {
+                    initializer {
+                        graph.callingViewModelFactory.callFeedbackViewModel()
+                    }
+                }
+            ),
+            featureFlagNotificationViewModel = viewModel(
+                key = "FeatureFlagNotificationViewModel:$scopeKey",
+                factory = viewModelFactory {
+                    initializer {
+                        graph.homeViewModelFactory.featureFlagNotificationViewModel()
+                    }
+                }
+            ),
+            commonTopAppBarViewModel = viewModel(
+                key = "CommonTopAppBarViewModel:$scopeKey",
+                factory = viewModelFactory {
+                    initializer {
+                        graph.commonViewModelFactory.commonTopAppBarViewModel(
+                            CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true)
+                        )
+                    }
+                }
+            ),
+            legalHoldRequestedViewModel = viewModel(
+                key = "LegalHoldRequestedViewModel:$scopeKey",
+                factory = viewModelFactory {
+                    initializer {
+                        graph.miscViewModelFactory.legalHoldRequestedViewModel()
+                    }
+                }
+            ),
+            legalHoldDeactivatedViewModel = viewModel(
+                key = "LegalHoldDeactivatedViewModel:$scopeKey",
+                factory = viewModelFactory {
+                    initializer {
+                        graph.miscViewModelFactory.legalHoldDeactivatedViewModel()
+                    }
+                }
+            ),
+        )
     }
 
     @Composable
@@ -440,9 +472,36 @@ class WireActivity : BaseActivity() {
 
     @Suppress("ComplexMethod")
     @Composable
-    private fun HandleDialogs(navigator: Navigator) {
+    private fun HandleDialogs(navigator: Navigator, activityViewModels: WireActivityScopedViewModels?) {
         val navigate: (NavigationCommand) -> Unit = { navigator.navigate(it) }
         val context = LocalContext.current
+        if (activityViewModels == null) {
+            UpdateAppDialog(viewModel.globalAppState.updateAppDialog, ::updateTheApp)
+            CustomBackendDialog(
+                state = viewModel.globalAppState.customBackendDialog,
+                onDismiss = {
+                    viewModel.dismissCustomBackendDialog()
+                    if (navigator.isEmptyWelcomeStartDestination()) {
+                        navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+                    }
+                },
+                onConfirm = viewModel::customBackendDialogProceedButtonClicked,
+                onTryAgain = viewModel::onCustomServerConfig
+            )
+            MaxAccountDialog(
+                shouldShow = viewModel.globalAppState.maxAccountDialog,
+                onConfirm = {
+                    viewModel.dismissMaxAccountDialog()
+                    navigate(NavigationCommand(SelfUserProfileScreenDestination))
+                },
+                onDismiss = viewModel::dismissMaxAccountDialog
+            )
+            return
+        }
+        val callFeedbackViewModel = activityViewModels.callFeedbackViewModel
+        val featureFlagNotificationViewModel = activityViewModels.featureFlagNotificationViewModel
+        val legalHoldRequestedViewModel = activityViewModels.legalHoldRequestedViewModel
+        val legalHoldDeactivatedViewModel = activityViewModels.legalHoldDeactivatedViewModel
         val callFeedbackSheetState =
             rememberWireModalSheetState<Unit>(onDismissAction = {
                 callFeedbackViewModel.skipCallFeedback(false)
@@ -765,6 +824,14 @@ class WireActivity : BaseActivity() {
         private const val TAG = "WireActivity"
     }
 }
+
+private data class WireActivityScopedViewModels(
+    val callFeedbackViewModel: CallFeedbackViewModel,
+    val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel,
+    val commonTopAppBarViewModel: CommonTopAppBarViewModel,
+    val legalHoldRequestedViewModel: LegalHoldRequestedViewModel,
+    val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel,
+)
 
 internal fun Navigator.shouldReplaceWelcomeLoginStartDestination(): Boolean {
     val firstDestinationBaseRoute = navController.startDestination()?.route()?.baseRoute

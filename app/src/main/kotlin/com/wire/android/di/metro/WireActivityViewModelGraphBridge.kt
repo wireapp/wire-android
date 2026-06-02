@@ -57,6 +57,7 @@ import javax.inject.Provider
 class WireActivityViewModelGraphBridge @Inject constructor(
     imageLoader: Provider<WireSessionImageLoader>,
     private val cellsViewModelFactoryProvider: Provider<CellsViewModelFactory>,
+<<<<<<< HEAD
     private val authenticationViewModelFactoryProvider: Provider<AuthenticationViewModelFactory>,
     private val callingViewModelFactoryProvider: Provider<CallingViewModelFactory>,
     private val debugInfoViewModelFactoryProvider: Provider<DebugInfoViewModelFactory>,
@@ -88,6 +89,7 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     override val cellsViewModelFactory: CellsViewModelFactory
         get() = cellsViewModelFactoryProvider.get()
 
+<<<<<<< HEAD
     override val authenticationViewModelFactory: AuthenticationViewModelFactory
         get() = authenticationViewModelFactoryProvider.get()
 

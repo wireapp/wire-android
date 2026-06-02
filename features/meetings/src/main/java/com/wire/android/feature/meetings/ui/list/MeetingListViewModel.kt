@@ -99,7 +99,7 @@ class MeetingListViewModelImpl(
                 rawMeeting.toMeetingItem(time = currentTime)
             }
             .insertHeaders(type = type)
-    }.flowOn(dispatcher.io())
+    }
 
     override fun showAll() {
         isShowingAll.value = true

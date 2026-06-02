@@ -41,10 +41,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.di.wireViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -73,7 +71,7 @@ import java.io.File
 @Composable
 fun DebugScreen(
     navigator: Navigator,
-    userDebugViewModel: UserDebugViewModel = wireViewModel(),
+    userDebugViewModel: UserDebugViewModel = userDebugViewModel(),
 ) {
     UserDebugContent(
         onNavigationPressed = navigator::navigateBack,
@@ -101,6 +99,8 @@ internal fun UserDebugContent(
     onFlushLogs: () -> Deferred<Unit>,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
+    debugDataOptionsViewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel(),
+    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel(),
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
 
@@ -136,9 +136,10 @@ internal fun UserDebugContent(
                     onCopyText = debugContentState::copyToClipboard,
                     onShowFeatureFlags = onShowFeatureFlags,
                     onShowCryptoStats = onShowCryptoStats,
+                    viewModel = debugDataOptionsViewModel,
                 )
                 if (BuildConfig.PRIVATE_BUILD) {
-                    DangerOptions()
+                    DangerOptions(exportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel)
                 }
             }
         }
@@ -148,8 +149,7 @@ internal fun UserDebugContent(
 @Composable
 fun DangerOptions(
     modifier: Modifier = Modifier,
-    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel =
-        wireViewModelScoped<ExportObfuscatedCopyViewModelImpl, ExportObfuscatedCopyViewModel>()
+    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel()
 ) {
 
     Column(modifier = modifier) {

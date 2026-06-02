@@ -41,7 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.authentication.createAccountVerificationCodeViewModel
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -80,7 +80,8 @@ import kotlinx.coroutines.job
 @Composable
 fun CreateAccountVerificationCodeScreen(
     navigator: Navigator,
-    createAccountCodeVerificationViewModel: CreateAccountVerificationCodeViewModel = wireViewModel()
+    createAccountCodeVerificationViewModel: CreateAccountVerificationCodeViewModel =
+        createAccountVerificationCodeViewModel()
 ) {
     with(createAccountCodeVerificationViewModel) {
         fun navigateToUsernameScreen() = navigator.navigate(

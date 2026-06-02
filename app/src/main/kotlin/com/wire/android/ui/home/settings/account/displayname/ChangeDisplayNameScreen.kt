@@ -41,7 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.home.settings.changeDisplayNameViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
@@ -74,7 +74,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun ChangeDisplayNameScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<Boolean>,
-    viewModel: ChangeDisplayNameViewModel = wireViewModel()
+    viewModel: ChangeDisplayNameViewModel = changeDisplayNameViewModel()
 ) {
     with(viewModel) {
         LaunchedEffect(viewModel.displayNameState.completed) {

@@ -66,6 +66,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryS
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialog
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
+import com.wire.android.ui.home.conversations.conversationMessagesViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
@@ -88,7 +89,7 @@ import kotlinx.serialization.Serializable
 fun ConversationMediaScreen(
     navigator: Navigator,
     conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = wireViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = wireViewModel()
+    conversationMessagesViewModel: ConversationMessagesViewModel = conversationMessagesViewModel()
 ) {
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val context = LocalContext.current

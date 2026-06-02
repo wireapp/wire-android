@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.ui.home.settings.serviceDetailsViewModel
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -77,7 +77,7 @@ import kotlinx.coroutines.launch
 fun ServiceDetailsScreen(
     navigator: Navigator,
     viewModel: ServiceDetailsViewModel =
-        hiltViewModelScoped<ServiceDetailsViewModelImpl, ServiceDetailsViewModel>()
+        serviceDetailsViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()

@@ -49,7 +49,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDes
 import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.wire.android.R
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -86,9 +86,7 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navigator: Navigator,
     loginNavArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel = wireViewModel<LoginEmailViewModel, LoginEmailViewModel.Factory>(
-        creationCallback = { factory -> factory.create(loginNavArgs) }
-    )
+    loginEmailViewModel: LoginEmailViewModel = loginEmailViewModel(loginNavArgs)
 ) {
 
     LoginContent(
@@ -272,9 +270,7 @@ private fun PreviewLoginScreen() = WireTheme {
             onSuccess = { _, _ -> },
             onRemoveDeviceNeeded = {},
             loginNavArgs = LoginNavArgs(),
-            loginEmailViewModel = wireViewModel<LoginEmailViewModel, LoginEmailViewModel.Factory>(
-                creationCallback = { factory -> factory.create(LoginNavArgs()) }
-            ),
+            loginEmailViewModel = loginEmailViewModel(LoginNavArgs()),
             ssoLoginResult = null,
             ssoCodeAutoLogin = null
         )

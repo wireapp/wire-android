@@ -19,10 +19,8 @@ package com.wire.android.ui.home.appLock.unlock
 
 import androidx.lifecycle.ViewModel
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-@HiltViewModel
 class AppUnlockWithBiometricsViewModel @Inject constructor(
     private val lockCodeTimeManager: LockCodeTimeManager
 ) : ViewModel() {

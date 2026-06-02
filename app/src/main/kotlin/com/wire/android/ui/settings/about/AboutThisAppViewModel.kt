@@ -25,14 +25,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.getGitBuildId
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class AboutThisAppViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+class AboutThisAppViewModel(
+    private val context: Context
 ) : ViewModel() {
 
     var state by mutableStateOf(

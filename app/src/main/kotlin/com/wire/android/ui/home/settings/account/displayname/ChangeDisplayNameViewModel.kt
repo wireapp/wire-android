@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.home.settings.account.displayname
-
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
@@ -30,21 +28,16 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-@HiltViewModel
 class ChangeDisplayNameViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val updateDisplayName: UpdateDisplayNameUseCase,
 ) : ViewModel() {
-
     val textState: TextFieldState = TextFieldState()
     var displayNameState: DisplayNameState by mutableStateOf(DisplayNameState())
         private set
-
     init {
         viewModelScope.launch {
             getSelf()?.name.orEmpty().let { currentDisplayName ->
@@ -62,7 +55,6 @@ class ChangeDisplayNameViewModel @Inject constructor(
             }
         }
     }
-
     fun saveDisplayName() {
         displayNameState = displayNameState.copy(loading = true)
         viewModelScope.launch {
@@ -78,7 +70,6 @@ class ChangeDisplayNameViewModel @Inject constructor(
                 }
         }
     }
-
     companion object {
         const val NAME_MAX_COUNT = 64
     }

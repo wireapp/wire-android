@@ -24,6 +24,14 @@ import com.wire.android.feature.meetings.ui.MeetingsViewModelFactory
 import com.wire.android.feature.meetings.ui.MeetingsViewModelGraph
 import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
+import com.wire.android.ui.authentication.AuthenticationViewModelFactory
+import com.wire.android.ui.authentication.AuthenticationViewModelGraph
+import com.wire.android.ui.debug.DebugInfoViewModelFactory
+import com.wire.android.ui.debug.DebugInfoViewModelGraph
+import com.wire.android.ui.home.conversations.ConversationCoreViewModelFactory
+import com.wire.android.ui.home.conversations.ConversationCoreViewModelGraph
+import com.wire.android.ui.home.settings.SettingsViewModelFactory
+import com.wire.android.ui.home.settings.SettingsViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -36,13 +44,36 @@ import javax.inject.Provider
 class WireActivityViewModelGraphBridge @Inject constructor(
     imageLoader: Provider<WireSessionImageLoader>,
     private val cellsViewModelFactoryProvider: Provider<CellsViewModelFactory>,
+    private val authenticationViewModelFactoryProvider: Provider<AuthenticationViewModelFactory>,
+    private val debugInfoViewModelFactoryProvider: Provider<DebugInfoViewModelFactory>,
+    private val settingsViewModelFactoryProvider: Provider<SettingsViewModelFactory>,
+    private val conversationCoreViewModelFactoryProvider: Provider<ConversationCoreViewModelFactory>,
     private val meetingsViewModelFactoryProvider: Provider<MeetingsViewModelFactory>,
-) : ViewModel(), ImageAssetViewModelGraph, CellsViewModelGraph, MeetingsViewModelGraph {
+) : ViewModel(),
+    ImageAssetViewModelGraph,
+    CellsViewModelGraph,
+    AuthenticationViewModelGraph,
+    DebugInfoViewModelGraph,
+    SettingsViewModelGraph,
+    ConversationCoreViewModelGraph,
+    MeetingsViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
 
     override val cellsViewModelFactory: CellsViewModelFactory
         get() = cellsViewModelFactoryProvider.get()
+
+    override val authenticationViewModelFactory: AuthenticationViewModelFactory
+        get() = authenticationViewModelFactoryProvider.get()
+
+    override val debugInfoViewModelFactory: DebugInfoViewModelFactory
+        get() = debugInfoViewModelFactoryProvider.get()
+
+    override val settingsViewModelFactory: SettingsViewModelFactory
+        get() = settingsViewModelFactoryProvider.get()
+
+    override val conversationCoreViewModelFactory: ConversationCoreViewModelFactory
+        get() = conversationCoreViewModelFactoryProvider.get()
 
     override val meetingsViewModelFactory: MeetingsViewModelFactory
         get() = meetingsViewModelFactoryProvider.get()

@@ -1030,4 +1030,93 @@ class ChannelTest : BaseUiTest() {
             waitUntilToastIsDisplayed("You left the conversation.")
         }
     }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-26060")
+    @Category("channels", "regression", "RC")
+    @Test
+    fun givenExternalUserInTeam_whenAttemptingToCreateChannelConversation_thenChannelConversationCannotBeCreated() {
+        step("There is TeamOwner with team CreateChannel on Staging backend") {
+            teamHelper.usersManager.createTeamOwnerByAlias(
+                "user1Name",
+                "CreateChannel",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+        }
+
+        step("User TeamOwner configures MLS for team CreateChannel") {
+            teamHelper.userConfiguresMLSForTeam("user1Name", "CreateChannel", backendClient)
+        }
+
+        step("TeamOwner enables channel feature for team CreateChannel via backdoor") {
+            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "CreateChannel", backendClient)
+        }
+
+        step("User TeamOwner adds user Member1 to team CreateChannel with role External") {
+            teamHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name",
+                "CreateChannel",
+                TeamRoles.External,
+                backendClient,
+                context,
+                true
+            )
+        }
+
+        step("Member1 adds a new device Device1 via backend") {
+            testServiceHelper.apply {
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("User Member1 is available for login") {
+            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
+        }
+
+        step("And I see welcome screen before login") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+        }
+
+        step("And I open staging deep link login flow") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+            }
+        }
+
+        step("And I login as Member1") {
+            pages.loginPage.apply {
+                enterTeamOwnerLoggingEmail(member1.email ?: "")
+                clickLoginButton()
+                enterTeamOwnerLoggingPassword(member1.password ?: "")
+                clickLoginButton()
+            }
+        }
+
+        step("And I complete post-login permission and privacy prompts") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+
+        step("And I tap Start new conversation flow from conversation list") {
+            pages.conversationListPage.apply {
+                tapStartNewConversationButton()
+            }
+        }
+
+        step("Then I do not see create new channel button") {
+            pages.conversationListPage.apply {
+                assertCreateNewChannelButtonNotVisible()
+            }
+        }
+    }
 }

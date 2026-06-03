@@ -26,9 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.wire.android.R
-import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
+import com.wire.android.ui.home.conversations.isFileSharingEnabledViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.delay
@@ -52,7 +52,7 @@ fun AdditionalOptionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: IsFileSharingEnabledViewModel =
-        wireViewModelScoped<IsFileSharingEnabledViewModelImpl, IsFileSharingEnabledViewModel>()
+        isFileSharingEnabledViewModel()
 ) {
     var enableAgain by remember { mutableStateOf(true) }
     LaunchedEffect(enableAgain, block = {

@@ -39,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -56,6 +55,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversations.promoteAdminViewModel
 import com.wire.android.ui.home.conversations.search.InternalContactSearchResultItem
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
@@ -74,7 +74,7 @@ import com.wire.android.ui.common.R as commonR
 @Composable
 fun PromoteAdminScreen(
     navigator: Navigator,
-    viewModel: PromoteAdminViewModel = wireViewModel(),
+    viewModel: PromoteAdminViewModel = promoteAdminViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = LocalSnackbarHostState.current

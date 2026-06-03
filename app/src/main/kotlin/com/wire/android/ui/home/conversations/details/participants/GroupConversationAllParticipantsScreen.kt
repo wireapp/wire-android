@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.home.conversations.details.participants
 
+import com.wire.android.ui.home.conversations.groupConversationParticipantsViewModel
+
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -34,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -57,7 +58,7 @@ import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 fun GroupConversationAllParticipantsScreen(
     navigator: Navigator,
     navArgs: GroupConversationAllParticipantsNavArgs,
-    viewModel: GroupConversationParticipantsViewModel = wireViewModel()
+    viewModel: GroupConversationParticipantsViewModel = groupConversationParticipantsViewModel()
 ) {
     GroupConversationAllParticipantsContent(
         onBackPressed = navigator::navigateBack,

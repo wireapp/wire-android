@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink
 
+import com.wire.android.ui.home.conversations.createPasswordGuestLinkViewModel
+
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -46,7 +48,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.GeneratePasswordButton
@@ -73,7 +74,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CreatePasswordProtectedGuestLinkScreen(
     navigator: Navigator,
-    viewModel: CreatePasswordGuestLinkViewModel = wireViewModel(),
+    viewModel: CreatePasswordGuestLinkViewModel = createPasswordGuestLinkViewModel(),
 ) {
     CreatePasswordProtectedGuestLinkScreenContent(
         state = viewModel.state,

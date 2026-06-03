@@ -42,7 +42,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.zIndex
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -56,6 +55,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.home.conversations.locationPickerViewModel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.orDefault
@@ -71,7 +71,7 @@ import com.wire.android.ui.common.R as commonR
 fun LocationPickerComponent(
     onLocationPicked: (GeoLocatedAddress) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LocationPickerViewModel = wireViewModel<LocationPickerViewModel>(),
+    viewModel: LocationPickerViewModel = locationPickerViewModel(),
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(),
 ) {
 

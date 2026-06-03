@@ -40,7 +40,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.appLogger
-import com.wire.android.di.assistedViewModels
 import com.wire.android.di.metro.ImageAssetViewModelGraphBridgeViewModel
 import com.wire.android.di.metro.LocalMetroViewModelGraph
 import com.wire.android.ui.AppLockActivity
@@ -68,10 +67,6 @@ abstract class CallActivity : BaseActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
 
-    private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
-        factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false))
-    }
-
     companion object {
         const val EXTRA_CONVERSATION_ID = "conversation_id"
         const val EXTRA_USER_ID = "user_id"
@@ -81,6 +76,15 @@ abstract class CallActivity : BaseActivity() {
     }
 
     private val imageAssetViewModelGraph: ImageAssetViewModelGraphBridgeViewModel by viewModels()
+    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                imageAssetViewModelGraph.commonViewModelFactory.commonTopAppBarViewModel(
+                    CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false)
+                )
+            }
+        }
+    }
     private val callActivityViewModel: CallActivityViewModel by viewModels {
         viewModelFactory {
             initializer {

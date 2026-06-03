@@ -34,7 +34,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.newconversation.sharedNewConversationViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -44,8 +44,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun ChannelAccessOnCreateScreen(
     navigator: Navigator,
-    newConversationViewModel: NewConversationViewModel
 ) {
+    val newConversationViewModel = sharedNewConversationViewModel(navigator)
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(

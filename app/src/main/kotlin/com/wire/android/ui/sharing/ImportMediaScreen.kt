@@ -338,6 +338,7 @@ fun ImportMediaRegularContent(
                 ImportMediaContent(
                     state = this,
                     internalPadding = internalPadding,
+                    searchQuery = searchQueryTextState.text.toString(),
                     onConversationClicked = onConversationClicked,
                     lazyListState = lazyListState,
                 )
@@ -544,6 +545,7 @@ fun ImportMediaTopBarContent(
 private fun ImportMediaContent(
     state: ImportMediaAuthenticatedState,
     internalPadding: PaddingValues,
+    searchQuery: String,
     onConversationClicked: (conversationItem: ConversationItem) -> Unit,
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
@@ -559,6 +561,7 @@ private fun ImportMediaContent(
             lazyPagingConversations = lazyPagingConversations,
             selectedConversations = state.selectedConversationItem,
             isSelectableList = true,
+            searchQuery = searchQuery,
             onConversationSelectedOnRadioGroup = onConversationClicked,
             onOpenConversation = onConversationClicked,
             onEditConversation = {},

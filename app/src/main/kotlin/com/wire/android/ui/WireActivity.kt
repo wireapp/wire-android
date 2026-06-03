@@ -38,10 +38,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -365,20 +363,12 @@ class WireActivity : BaseActivity() {
         authenticationViewModelGraph: WireAppGraph,
     ): MetroViewModelGraph? {
         val effectiveBaseRoute = currentBaseRoute ?: startDestinationBaseRoute
+        val usesNoSessionAuthenticationGraph = effectiveBaseRoute in noSessionAuthenticationGraphRoutes
         val usesAuthenticationGraph = effectiveBaseRoute in authenticationGraphRoutes
-        var useStandaloneAuthenticationGraph by remember {
-            mutableStateOf(false)
-        }
-        if (usesAuthenticationGraph && wireActivityViewModelGraph == null) {
-            useStandaloneAuthenticationGraph = true
-        }
-        if (!usesAuthenticationGraph && wireActivityViewModelGraph != null) {
-            useStandaloneAuthenticationGraph = false
-        }
         return selectMetroViewModelGraph(
             currentBaseRoute = effectiveBaseRoute,
+            usesNoSessionAuthenticationGraph = usesNoSessionAuthenticationGraph,
             usesAuthenticationGraph = usesAuthenticationGraph,
-            useStandaloneAuthenticationGraph = useStandaloneAuthenticationGraph,
             wireActivityViewModelGraph = wireActivityViewModelGraph,
             authenticationViewModelGraph = authenticationViewModelGraph
         )
@@ -386,13 +376,14 @@ class WireActivity : BaseActivity() {
 
     private fun selectMetroViewModelGraph(
         currentBaseRoute: String?,
+        usesNoSessionAuthenticationGraph: Boolean,
         usesAuthenticationGraph: Boolean,
-        useStandaloneAuthenticationGraph: Boolean,
         wireActivityViewModelGraph: WireSessionGraph?,
         authenticationViewModelGraph: WireAppGraph,
     ): MetroViewModelGraph? = when {
-        useStandaloneAuthenticationGraph && usesAuthenticationGraph -> authenticationViewModelGraph
+        usesNoSessionAuthenticationGraph -> authenticationViewModelGraph
         wireActivityViewModelGraph != null -> wireActivityViewModelGraph
+        usesAuthenticationGraph -> authenticationViewModelGraph
         currentBaseRoute == null -> authenticationViewModelGraph
         else -> null
     }
@@ -892,6 +883,11 @@ private data class WireActivityScopedViewModels(
     val commonTopAppBarViewModel: CommonTopAppBarViewModel,
     val legalHoldRequestedViewModel: LegalHoldRequestedViewModel,
     val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel,
+)
+
+private val noSessionAuthenticationGraphRoutes = setOf(
+    NewLoginPasswordScreenDestination.baseRoute,
+    NewLoginVerificationCodeScreenDestination.baseRoute,
 )
 
 private val authenticationGraphRoutes = setOf(

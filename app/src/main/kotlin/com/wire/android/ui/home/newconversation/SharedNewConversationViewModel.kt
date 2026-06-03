@@ -18,6 +18,8 @@
 package com.wire.android.ui.home.newconversation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
 import com.wire.android.navigation.Navigator
@@ -30,7 +32,13 @@ fun sharedNewConversationViewModel(navigator: Navigator): NewConversationViewMod
         checkNotNull(navController.currentBackStackEntry)
     }
     val parentEntry = remember(currentEntry) {
-        navController.getBackStackEntry(NewConversationGraph.route)
+        runCatching { navController.getBackStackEntry(NewConversationGraph.route) }.getOrNull()
     }
-    return newConversationViewModel(parentEntry)
+    val rememberedParentEntry = remember { mutableStateOf(parentEntry) }
+    SideEffect {
+        parentEntry?.let { rememberedParentEntry.value = it }
+    }
+    return newConversationViewModel(checkNotNull(parentEntry ?: rememberedParentEntry.value) {
+        "NewConversationGraph back stack entry is missing"
+    })
 }

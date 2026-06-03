@@ -379,18 +379,22 @@ class WireActivity : BaseActivity() {
         var graphContext: WireActivityGraphContext? = null
         if (!isUserUiBlocked) {
             val effectiveBaseRoute = currentBaseRoute ?: startDestinationBaseRoute
+            val usesNoSessionAuthenticationGraph = effectiveBaseRoute in noSessionAuthenticationGraphRoutes
             val sessionGraph = remember(
                 appGraph,
                 currentUserId,
                 currentBaseRoute,
+                usesNoSessionAuthenticationGraph,
             ) {
                 when {
+                    usesNoSessionAuthenticationGraph -> null
                     currentUserId != null -> appGraph.createSessionViewModelGraph(currentUserId)
                     currentBaseRoute in sessionBackedAuthenticationGraphRoutes -> appGraph.createCurrentSessionViewModelGraphOrNull()
                     else -> null
                 }
             }
             val graph = when {
+                usesNoSessionAuthenticationGraph -> authenticationViewModelGraph
                 sessionGraph != null -> sessionGraph
                 effectiveBaseRoute in authenticationGraphRoutes -> authenticationViewModelGraph
                 currentBaseRoute == null -> authenticationViewModelGraph
@@ -925,6 +929,11 @@ private data class WireActivityGraphContext(
     val viewModelFactory: MetroViewModelFactory,
     val sessionGraph: AppSessionViewModelGraph?,
     val activityViewModels: WireActivityScopedViewModels?,
+)
+
+private val noSessionAuthenticationGraphRoutes = setOf(
+    NewLoginPasswordScreenDestination.baseRoute,
+    NewLoginVerificationCodeScreenDestination.baseRoute,
 )
 
 private val sessionBackedAuthenticationGraphRoutes = setOf(

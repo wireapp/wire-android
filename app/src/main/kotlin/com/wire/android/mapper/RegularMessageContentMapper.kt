@@ -28,8 +28,6 @@ import com.wire.android.ui.home.conversations.model.MessageButton
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
-import com.wire.android.ui.markdown.toMarkdownDocument
-import com.wire.android.ui.markdown.toMarkdownTextWithMentions
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
@@ -110,11 +108,7 @@ class RegularMessageMapper @Inject constructor(
 
                 MessageBody(
                     message = UIText.DynamicString(textContent.value, content.textContent?.mentions.orEmpty()),
-                    quotedMessage = quotedMessage,
-                    markdownDocument = UIText.DynamicString(
-                        textContent.value,
-                        content.textContent?.mentions.orEmpty()
-                    ).toMarkdownTextWithMentions().second.toMarkdownDocument()
+                    quotedMessage = quotedMessage
                 )
             }
 
@@ -199,16 +193,9 @@ class RegularMessageMapper @Inject constructor(
                 else -> UIText.StringResource(R.string.sent_a_message_with_unknown_content)
         }
 
-        val markdownDocument = if (uiText is UIText.DynamicString) {
-            uiText.toMarkdownTextWithMentions().second.toMarkdownDocument()
-        } else {
-            null
-        }
-
         return MessageBody(
             message = uiText,
-            quotedMessage = quotedMessage,
-            markdownDocument = markdownDocument
+            quotedMessage = quotedMessage
         ).let { messageBody ->
             UIMessageContent.TextMessage(
                 messageBody = messageBody,

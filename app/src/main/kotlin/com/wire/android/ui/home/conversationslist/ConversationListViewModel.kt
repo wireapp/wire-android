@@ -31,7 +31,9 @@ import com.wire.android.BuildConfig
 import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
+import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
@@ -43,6 +45,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationSection
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
+import com.wire.android.ui.home.conversationslist.model.PlayingAudioInConversation
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -63,7 +66,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
@@ -78,6 +80,8 @@ import kotlinx.coroutines.launch
 interface ConversationListViewModel {
     val infoMessage: SharedFlow<SnackBarMessage> get() = MutableSharedFlow()
     val requestInProgress: Boolean get() = false
+    val isSelfUserUnderLegalHold: Flow<Boolean> get() = emptyFlow()
+    val playingAudio: Flow<PlayingAudioInConversation?> get() = emptyFlow()
     val conversationListState: ConversationListState get() = ConversationListState.Paginated(emptyFlow())
     suspend fun refreshMissingMetadata() {}
     fun searchQueryChanged(searchQuery: String) {}
@@ -116,7 +120,12 @@ class ConversationListViewModelImpl(
     override val requestInProgress: Boolean get() = _requestInProgress
 
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
-    private val isSelfUserUnderLegalHoldFlow = MutableSharedFlow<Boolean>(replay = 1)
+    private val isSelfUserUnderLegalHoldFlow = MutableStateFlow(false)
+    override val isSelfUserUnderLegalHold: Flow<Boolean> = isSelfUserUnderLegalHoldFlow
+    override val playingAudio: Flow<PlayingAudioInConversation?> = audioMessagePlayer.playingAudioMessageFlow
+        .map { it.toPlayingAudioInConversation() }
+        .distinctUntilChanged()
+        .flowOn(dispatcher.io())
 
     private val containsNewActivitiesSection = when (conversationsSource) {
         ConversationsSource.MAIN,
@@ -132,23 +141,17 @@ class ConversationListViewModelImpl(
     private val conversationsPaginatedFlow: Flow<PagingData<ConversationItemType>> = searchQueryFlow
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
         .onStart { emit("") }
-        .combine(isSelfUserUnderLegalHoldFlow.onStart { emit(false) }, ::Pair)
         .distinctUntilChanged()
-        .combine(audioMessagePlayer.playingAudioMessageFlow) { (searchQuery, isSelfUserUnderLegalHold), playingAudioMessage ->
-            Triple(searchQuery, isSelfUserUnderLegalHold, playingAudioMessage)
-        }
-        .flatMapLatest { (searchQuery, isSelfUserUnderLegalHold, playingAudioMessage) ->
+        .flatMapLatest { searchQuery ->
             getConversationsPaginated(
                 searchQuery = searchQuery,
                 fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
                 conversationFilter = conversationsSource.toFilter(),
                 onlyInteractionEnabled = false,
                 newActivitiesOnTop = containsNewActivitiesSection,
-                playingAudioMessage = playingAudioMessage,
                 useStrictMlsFilter = BuildConfig.USE_STRICT_MLS_FILTER,
             ).map { pagingData ->
                 pagingData
-                    .map { it.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold) }
                     .insertSeparators { before, after ->
                         when {
                             // do not add separators if the list shouldn't show conversations grouped into different folders
@@ -195,7 +198,7 @@ class ConversationListViewModelImpl(
             observeLegalHoldStateForSelfUser()
                 .map { it is LegalHoldStateForSelfUser.Enabled }
                 .flowOn(dispatcher.io())
-                .collect { isSelfUserUnderLegalHoldFlow.emit(it) }
+                .collect { isSelfUserUnderLegalHoldFlow.value = it }
         }
     }
 
@@ -207,22 +210,16 @@ class ConversationListViewModelImpl(
                 .onStart { emit("") }
                 .distinctUntilChanged()
                 .flatMapLatest { searchQuery: String ->
-                    combine(
-                        observeConversationListDetailsWithEvents(
-                            fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
-                            conversationFilter = conversationsSource.toFilter()
-                        ),
-                        isSelfUserUnderLegalHoldFlow,
-                        audioMessagePlayer.playingAudioMessageFlow
-                    ) { conversations, isSelfUserUnderLegalHold, playingAudioMessage ->
+                    observeConversationListDetailsWithEvents(
+                        fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
+                        conversationFilter = conversationsSource.toFilter()
+                    ).map { conversations ->
                         conversations.map { conversationDetails ->
                             conversationDetails.toConversationItem(
                                 userTypeMapper = userTypeMapper,
                                 uiTextResolver = uiTextResolver,
-                                searchQuery = searchQuery,
-                                selfUserTeamId = selfTeamId,
-                                playingAudioMessage = playingAudioMessage
-                            ).hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold)
+                                selfUserTeamId = selfTeamId
+                            )
                         } to searchQuery
                     }
                 }
@@ -302,22 +299,6 @@ private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
     ConversationsSource.ONE_ON_ONE -> ConversationFilter.OneOnOne
     is ConversationsSource.FOLDER -> ConversationFilter.Folder(folderId = folderId, folderName = folderName)
 }
-
-/**
- * If self user is under legal hold then we shouldn't show legal hold indicator next to every conversation as in that case
- * the legal hold indication is shown in the header of the conversation list for self user in that case and it's enough.
- */
-private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold: Boolean) =
-    when (isSelfUserUnderLegalHold) {
-        true -> when (this) {
-            is ConversationItem.ConnectionConversation -> this.copy(showLegalHoldIndicator = false)
-            is ConversationItem.Group.Regular -> this.copy(showLegalHoldIndicator = false)
-            is ConversationItem.Group.Channel -> this.copy(showLegalHoldIndicator = false)
-            is ConversationItem.PrivateConversation -> this.copy(showLegalHoldIndicator = false)
-        }
-
-        else -> this
-    }
 
 @Suppress("ComplexMethod")
 private fun List<ConversationItem>.withSections(source: ConversationsSource): Map<ConversationSection, List<ConversationItem>> {
@@ -402,4 +383,17 @@ private fun searchConversation(conversationDetails: List<ConversationItem>, sear
             is ConversationItem.Group -> details.groupName.contains(searchQuery, true)
             is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(searchQuery, true)
         }
+    }
+
+private fun PlayingAudioMessage.toPlayingAudioInConversation(): PlayingAudioInConversation? =
+    if (this is PlayingAudioMessage.Some) {
+        when {
+            state.isPlaying() -> PlayingAudioInConversation(conversationId, messageId, isPaused = false)
+            state.audioMediaPlayingState is AudioMediaPlayingState.Paused ->
+                PlayingAudioInConversation(conversationId, messageId, isPaused = true)
+
+            else -> null
+        }
+    } else {
+        null
     }

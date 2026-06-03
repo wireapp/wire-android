@@ -224,6 +224,15 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertDeleteConversationButtonNotVisibleInConversationActions(): ConversationListPage {
+        val deleteConversation = findElementOrNull(deleteConversationButton)
+        Assert.assertTrue(
+            "Delete Conversation button is visible in conversation actions.",
+            deleteConversation == null || deleteConversation.visibleBounds.isEmpty
+        )
+        return this
+    }
+
     fun assertLeaveConversationButtonVisibleInConversationActions(): ConversationListPage {
         try {
             UiWaitUtils.waitElement(leaveConversationButton)

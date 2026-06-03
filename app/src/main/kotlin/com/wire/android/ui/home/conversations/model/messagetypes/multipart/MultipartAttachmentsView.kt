@@ -32,11 +32,11 @@ import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.decode.Decoder
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.wire.android.di.wireViewModel
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi

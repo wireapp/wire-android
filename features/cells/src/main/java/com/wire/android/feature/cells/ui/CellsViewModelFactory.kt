@@ -34,11 +34,13 @@ import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
+import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedCellConversationsFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
@@ -51,6 +53,9 @@ import com.wire.kalium.cells.domain.usecase.create.CreateFolderUseCase
 import com.wire.kalium.cells.domain.usecase.create.CreatePresentationFileUseCase
 import com.wire.kalium.cells.domain.usecase.create.CreateSpreadsheetFileUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellVersionUseCase
+import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
@@ -61,6 +66,7 @@ import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordU
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.logic.util.RandomPassword
+import com.wire.kalium.network.NetworkStateObserver
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
@@ -76,6 +82,13 @@ class CellsViewModelFactory @Inject constructor(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
     private val openFileDownloadController: OpenFileDownloadController,
+    private val offlineFileDownloadController: OfflineFileDownloadController,
+    private val observeOfflineFilesUseCase: ObserveOfflineFilesUseCase,
+    private val deleteOfflineFileUseCase: DeleteOfflineFileUseCase,
+    private val getOfflineFileUseCase: GetOfflineFileUseCase,
+    private val networkStateObserver: NetworkStateObserver,
+    private val getConversationNameUseCase: GetConversationNameUseCase,
+    private val getUserNameUseCase: GetUserNameUseCase,
     private val createPresentationFileUseCase: CreatePresentationFileUseCase,
     private val createDocumentFileUseCase: CreateDocumentFileUseCase,
     private val createSpreadsheetFileUseCase: CreateSpreadsheetFileUseCase,
@@ -115,6 +128,13 @@ class CellsViewModelFactory @Inject constructor(
         getWireCellsConfig = getWireCellsConfig,
         sharedPathCache = sharedPathCache,
         openFileDownloadController = openFileDownloadController,
+        offlineFileDownloadController = offlineFileDownloadController,
+        observeOfflineFiles = observeOfflineFilesUseCase,
+        deleteOfflineFile = deleteOfflineFileUseCase,
+        getOfflineFile = getOfflineFileUseCase,
+        networkStateObserver = networkStateObserver,
+        getConversationName = getConversationNameUseCase,
+        getUserName = getUserNameUseCase,
     )
 
     internal fun createFileViewModel(savedStateHandle: SavedStateHandle) = CreateFileViewModel(
@@ -168,6 +188,7 @@ class CellsViewModelFactory @Inject constructor(
         getOwners = getOwners,
         getPaginatedConversations = getPaginatedConversations,
         sharedPathCache = sharedPathCache,
+        observeOfflineFiles = observeOfflineFilesUseCase,
     )
 
     internal fun addRemoveTagsViewModel(savedStateHandle: SavedStateHandle) = AddRemoveTagsViewModel(

@@ -36,7 +36,6 @@ import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
-import com.wire.android.feature.meetings.ui.meetingListViewModel
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.rowitem.EmptyListArrowFooter
 import com.wire.android.ui.common.rowitem.EmptyListContent
@@ -52,7 +51,7 @@ fun MeetingList(
     lazyListState: LazyListState = rememberLazyListState(),
     openMeetingOptions: (meetingId: String) -> Unit = {},
     meetingListViewModel: MeetingListViewModel = when {
-        LocalInspectionMode.current -> MeetingListViewModelPreview(CurrentTimeProvider.Preview, type)
+        LocalInspectionMode.current -> MeetingListViewModelPreview(type)
         else -> hiltViewModel<MeetingListViewModelImpl, MeetingListViewModelImpl.Factory>(
             key = "meeting_list_${type.name}",
             creationCallback = { factory ->
@@ -61,10 +60,6 @@ fun MeetingList(
         )
     },
 ) {
-    val meetingListViewModel: MeetingListViewModel = when {
-        LocalInspectionMode.current -> MeetingListViewModelPreview(type = type)
-        else -> meetingListViewModel(type)
-    }
     val lazyPagingItems = meetingListViewModel.meetings.collectAsLazyPagingItems()
     val isShowingAll = meetingListViewModel.isShowingAll.collectAsState().value
     val showLoading = lazyPagingItems.loadState.refresh == LoadState.Loading && lazyPagingItems.itemCount == 0

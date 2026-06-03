@@ -76,7 +76,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ServiceDetailsScreen(
     navigator: Navigator,
-    viewModel: ServiceDetailsViewModel = hiltViewModel()
+    viewModel: ServiceDetailsViewModel = hiltViewModel<ServiceDetailsViewModelImpl>()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()

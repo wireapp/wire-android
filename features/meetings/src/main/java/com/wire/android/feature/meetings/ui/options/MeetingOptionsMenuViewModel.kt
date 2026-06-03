@@ -23,7 +23,6 @@ import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
 import com.wire.android.feature.meetings.ui.usecase.GetMeetingUseCase
 import com.wire.android.util.CurrentTimeProvider
-import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

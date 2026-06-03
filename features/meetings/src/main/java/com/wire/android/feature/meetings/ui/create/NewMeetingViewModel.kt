@@ -21,13 +21,18 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.ViewModel
 
 interface NewMeetingViewModel {
+    val type: NewMeetingType
     val titleTextState: TextFieldState
 }
 
-object NewMeetingViewModelPreview : NewMeetingViewModel {
+class NewMeetingViewModelPreview(
+    override val type: NewMeetingType
+) : NewMeetingViewModel {
     override val titleTextState: TextFieldState = TextFieldState()
 }
 
-class NewMeetingViewModelImpl() : ViewModel(), NewMeetingViewModel {
+class NewMeetingViewModelImpl(
+    override val type: NewMeetingType,
+) : ViewModel(), NewMeetingViewModel {
     override val titleTextState: TextFieldState = TextFieldState()
 }

@@ -29,9 +29,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.meetings.R
+import com.wire.android.feature.meetings.ui.newMeetingViewModel
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.meetings.WireNewMeetingDestination
@@ -58,10 +60,14 @@ fun NewMeetingScreen(
     navigator: WireNavigator,
     navArgs: NewMeetingNavArgs,
 ) {
+    val meetingListViewModel: NewMeetingViewModel = when {
+        LocalInspectionMode.current -> NewMeetingViewModelPreview(navArgs.type)
+        else -> newMeetingViewModel(navArgs.type)
+    }
     NewMeetingContent(
         type = navArgs.type,
         onBackPressed = navigator::navigateBack,
-        titleState = rememberTextFieldState(), // TODO
+        titleState = meetingListViewModel.titleTextState,
     )
 }
 

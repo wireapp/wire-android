@@ -58,7 +58,6 @@ fun NewMeetingScreen(
     navigator: WireNavigator,
     navArgs: NewMeetingNavArgs,
 ) {
-    val viewModel =
     NewMeetingContent(
         type = navArgs.type,
         onBackPressed = navigator::navigateBack,

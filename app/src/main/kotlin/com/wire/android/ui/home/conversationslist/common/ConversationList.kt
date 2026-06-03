@@ -302,21 +302,20 @@ fun ConversationList(
 }
 
 @Suppress("MagicNumber")
-fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = false, searchQuery: String = "") = buildList {
+fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = false) = buildList {
     repeat(count) { index ->
         val currentIndex = startIndex + index
         when (index % 3) {
-            0 -> add(fakeRegularGroup(currentIndex, unread, searchQuery))
-            1 -> add(fakePrivateConversation(currentIndex, unread, searchQuery))
-            2 -> add(fakeChannel(currentIndex, unread, searchQuery))
+            0 -> add(fakeRegularGroup(currentIndex, unread))
+            1 -> add(fakePrivateConversation(currentIndex, unread))
+            2 -> add(fakeChannel(currentIndex, unread))
         }
     }
 }.toImmutableList()
 
 private fun fakeRegularGroup(
     currentIndex: Int,
-    unread: Boolean,
-    searchQuery: String
+    unread: Boolean
 ) = ConversationItem.Group.Regular(
     groupName = "Conversation $currentIndex",
     conversationId = QualifiedID(currentIndex.toString(), "domain"),
@@ -330,16 +329,13 @@ private fun fakeRegularGroup(
     isFromTheSameTeam = false,
     mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
     proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-    searchQuery = searchQuery,
     isFavorite = false,
-    folder = null,
-    playingAudio = null
+    folder = null
 )
 
 private fun fakePrivateConversation(
     currentIndex: Int,
-    unread: Boolean,
-    searchQuery: String
+    unread: Boolean
 ) = ConversationItem.PrivateConversation(
     userAvatarData = UserAvatarData(),
     conversationId = QualifiedID(currentIndex.toString(), "domain"),
@@ -353,17 +349,14 @@ private fun fakePrivateConversation(
     isArchived = false,
     mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
     proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-    searchQuery = searchQuery,
     isFavorite = false,
     isUserDeleted = false,
-    folder = null,
-    playingAudio = null
+    folder = null
 )
 
 private fun fakeChannel(
     currentIndex: Int,
-    unread: Boolean,
-    searchQuery: String
+    unread: Boolean
 ) = ConversationItem.Group.Channel(
     groupName = "Conversation $currentIndex",
     conversationId = QualifiedID(currentIndex.toString(), "domain"),
@@ -377,10 +370,8 @@ private fun fakeChannel(
     isFromTheSameTeam = false,
     mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
     proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-    searchQuery = searchQuery,
     isFavorite = false,
     folder = null,
-    playingAudio = null,
     isPrivate = currentIndex % 2 == 0
 )
 
@@ -398,6 +389,7 @@ fun previewConversationItemsFlow(
     )
 )
 
+@Suppress("UNUSED_PARAMETER")
 fun previewConversationItems(
     isChannels: Boolean = false,
     withSections: Boolean = true,
@@ -408,9 +400,9 @@ fun previewConversationItems(
     buildList {
         if (isChannels) add(ConversationSection.Predefined.BrowseChannels)
         if (withSections) add(ConversationSection.Predefined.NewActivities)
-        addAll(previewConversationList(unreadCount, 0, true, searchQuery))
+        addAll(previewConversationList(unreadCount, 0, true))
         if (withSections) add(ConversationSection.Predefined.Conversations)
-        addAll(previewConversationList(readCount, unreadCount, false, searchQuery))
+        addAll(previewConversationList(readCount, unreadCount, false))
     }
 
 @PreviewMultipleThemes

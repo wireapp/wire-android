@@ -50,6 +50,7 @@ import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
+import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
@@ -83,18 +84,17 @@ fun ConversationItemFactory(
     onAudioPermissionPermanentlyDenied: () -> Unit = {},
     onPlayPauseCurrentAudio: () -> Unit = { },
     onStopCurrentAudio: () -> Unit = {},
-    searchQuery: String = conversation.searchQuery,
+    searchQuery: String = "",
     isSelfUserUnderLegalHold: Boolean = false,
-    playingAudio: PlayingAudioInConversation? = conversation.playingAudio
+    playingAudio: PlayingAudioInConversation? = null
 ) {
     val openConversationOptionDescription = stringResource(R.string.content_description_conversation_details_more_btn)
     val openUserProfileDescription = stringResource(R.string.content_description_open_user_profile_label)
     val acceptOrIgnoreDescription = stringResource(R.string.content_description_accept_or_ignore_connection_label)
     val openConversationDescription = stringResource(R.string.content_description_open_conversation_label)
-    val showLegalHoldIndicator = conversation.showLegalHoldIndicator && !isSelfUserUnderLegalHold
+    val showLegalHoldIndicator = conversation.legalHoldStatus.showLegalHoldIndicator() && !isSelfUserUnderLegalHold
     val playingAudioInConversation = playingAudio
         ?.takeIf { it.conversationId == conversation.conversationId }
-        ?: conversation.playingAudio
     val onConversationItemClick = remember(conversation) {
         when (val lastEvent = conversation.lastMessageContent) {
             is UILastMessageContent.Connection -> {
@@ -175,12 +175,12 @@ private fun GeneralConversationItem(
     onConversationItemClick: Clickable,
     onJoinCallClick: () -> Unit,
     onAudioPermissionPermanentlyDenied: () -> Unit,
+    showLegalHoldIndicator: Boolean,
     modifier: Modifier = Modifier,
     selectOnRadioGroup: () -> Unit = {},
     subTitle: @Composable () -> Unit = {},
-    searchQuery: String = conversation.searchQuery,
-    showLegalHoldIndicator: Boolean = conversation.showLegalHoldIndicator,
-    playingAudio: PlayingAudioInConversation? = conversation.playingAudio,
+    searchQuery: String = "",
+    playingAudio: PlayingAudioInConversation? = null,
     onPlayPauseCurrentAudio: () -> Unit = { },
     onStopCurrentAudio: () -> Unit = {}
 ) {
@@ -401,8 +401,7 @@ fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null,
-            playingAudio = null
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -431,7 +430,6 @@ fun PreviewChannelGroupConversationItemWithUnreadCount() = WireTheme {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
             folder = null,
-            playingAudio = null,
             isPrivate = false
         ),
         modifier = Modifier,
@@ -461,7 +459,6 @@ fun PreviewPrivateChannelGroupConversationItemWithUnreadCount() = WireTheme {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
             folder = null,
-            playingAudio = null,
             isPrivate = true
         ),
         modifier = Modifier,
@@ -490,8 +487,7 @@ fun PreviewGroupConversationItemWithNoBadges() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null,
-            playingAudio = null
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -521,8 +517,7 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null,
-            playingAudio = null
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -550,8 +545,7 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() = WireThem
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null,
-            playingAudio = null
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -580,8 +574,7 @@ fun PreviewGroupConversationItemWithOngoingCall() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null,
-            playingAudio = null
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -666,8 +659,7 @@ fun PreviewPrivateConversationItemWithBlockedBadge() = WireTheme {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
             isUserDeleted = false,
-            folder = null,
-            playingAudio = null
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -695,12 +687,12 @@ fun PreviewPrivateConversationItemWithPlayingAudio() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null,
-            playingAudio = PlayingAudioInConversation(QualifiedID("value", "domain"), "some_id", true)
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {},
+        playingAudio = PlayingAudioInConversation(QualifiedID("value", "domain"), "some_id", true)
     )
 }

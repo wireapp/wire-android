@@ -234,6 +234,8 @@ import com.wire.android.ui.common.R as commonR
  */
 private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 
+private const val SCOPED_VIEW_MODEL_PREFETCH_WINDOW = 3
+
 /**
  * The maximum number of participants to start a call without showing a confirmation dialog.
  */
@@ -1396,11 +1398,22 @@ fun MessageList(
         }
     }
 
-    val audioMessageKeysInScope = remember(lazyPagingMessages.itemSnapshotList.items) {
-        lazyPagingMessages.itemSnapshotList.items.mapNotNull { it.audioMessageScopedKeyOrNull() }.distinct()
+    val scopedMessages by remember(lazyListState, lazyPagingMessages) {
+        derivedStateOf {
+            lazyPagingMessages.peekVisibleWindowItems(lazyListState, SCOPED_VIEW_MODEL_PREFETCH_WINDOW)
+        }
     }
-    val assetLocalPathKeysInScope = remember(lazyPagingMessages.itemSnapshotList.items) {
-        lazyPagingMessages.itemSnapshotList.items
+    val playingAudioMessageKey = (playingAudioMessage as? PlayingAudioMessage.Some)?.let {
+        AudioMessageArgs(it.conversationId, it.messageId).key
+    }
+    val audioMessageKeysInScope = remember(scopedMessages, playingAudioMessageKey) {
+        buildList {
+            scopedMessages.mapNotNullTo(this) { it.audioMessageScopedKeyOrNull() }
+            playingAudioMessageKey?.let(::add)
+        }.distinct()
+    }
+    val assetLocalPathKeysInScope = remember(scopedMessages) {
+        scopedMessages
             .flatMap { it.assetLocalPathScopedKeys() }
             .distinct()
     }
@@ -1697,6 +1710,27 @@ private fun BoxScope.ScrollDateOverlay(
 
 private fun LazyPagingItems<UIMessage>.peekOrNull(index: Int): UIMessage? =
     if (index in 0 until itemCount) peek(index) else null
+
+private fun LazyPagingItems<UIMessage>.peekVisibleWindowItems(
+    lazyListState: LazyListState,
+    prefetchWindow: Int
+): List<UIMessage> {
+    val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
+    return if (itemCount == 0 || visibleItems.isEmpty()) {
+        emptyList()
+    } else {
+        val firstVisibleIndex = visibleItems.minOf { it.index }
+        val lastVisibleIndex = visibleItems.maxOf { it.index }
+        val firstIndex = (firstVisibleIndex - prefetchWindow).coerceAtLeast(0)
+        val lastIndex = (lastVisibleIndex + prefetchWindow).coerceAtMost(itemCount - 1)
+
+        if (firstIndex > lastIndex) {
+            emptyList()
+        } else {
+            (firstIndex..lastIndex).mapNotNull { index -> peekOrNull(index) }
+        }
+    }
+}
 
 @Composable
 private fun MessageGroupDateTime(

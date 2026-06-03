@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.DpSize
@@ -106,9 +107,14 @@ internal fun MessageBody(
     clickable: Boolean = true,
     messageStyle: MessageStyle = MessageStyle.NORMAL
 ) {
-    val (displayMentions, text) = messageBody?.message?.let {
-        mapToDisplayMentions(it, LocalContext.current.resources)
-    } ?: Pair(emptyList(), null)
+    val resources = LocalContext.current.resources
+    val configuration = LocalConfiguration.current
+    val message = messageBody?.message
+    val (displayMentions, text) = remember(message, configuration) {
+        message?.let {
+            mapToDisplayMentions(it, resources)
+        } ?: Pair(emptyList(), null)
+    }
 
     val color = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary

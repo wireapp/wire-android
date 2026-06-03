@@ -17,8 +17,6 @@
  */
 package com.wire.android.mapper
 
-import com.wire.android.media.audiomessage.AudioMediaPlayingState
-import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -27,8 +25,10 @@ import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.PlayingAudioInConversation
-import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
+import com.wire.android.ui.home.conversationslist.model.ConversationItem.ConnectionConversation
+import com.wire.android.ui.home.conversationslist.model.ConversationItem.Group.Channel
+import com.wire.android.ui.home.conversationslist.model.ConversationItem.Group.Regular
+import com.wire.android.ui.home.conversationslist.model.ConversationItem.PrivateConversation
 import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
@@ -47,16 +47,14 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 fun ConversationDetailsWithEvents.toConversationItem(
     userTypeMapper: UserTypeMapper,
     uiTextResolver: UiTextResolver,
-    searchQuery: String,
-    selfUserTeamId: TeamId?,
-    playingAudioMessage: PlayingAudioMessage
+    selfUserTeamId: TeamId?
 ): ConversationItem = when (val conversationDetails = this.conversationDetails) {
     is Group.Regular -> {
-        ConversationItem.Group.Regular(
+        Regular(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
             badgeEventType = parseConversationEventType(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
@@ -71,19 +69,17 @@ fun ConversationDetailsWithEvents.toConversationItem(
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
-            searchQuery = searchQuery,
             isFavorite = conversationDetails.isFavorite,
-            folder = conversationDetails.folder,
-            playingAudio = getPlayingAudioInConversation(playingAudioMessage, conversationDetails)
+            folder = conversationDetails.folder
         )
     }
 
     is Group.Channel -> {
-        ConversationItem.Group.Channel(
+        Channel(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
             badgeEventType = parseConversationEventType(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
@@ -98,16 +94,14 @@ fun ConversationDetailsWithEvents.toConversationItem(
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
-            searchQuery = searchQuery,
             isFavorite = conversationDetails.isFavorite,
             folder = conversationDetails.folder,
-            playingAudio = getPlayingAudioInConversation(playingAudioMessage, conversationDetails),
             isPrivate = conversationDetails.access == Group.Channel.ChannelAccess.PRIVATE
         )
     }
 
     is OneOne -> {
-        ConversationItem.PrivateConversation(
+        PrivateConversation(
             userAvatarData = UserAvatarData(
                 asset = conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(it) },
                 availabilityStatus = conversationDetails.otherUser.availabilityStatus,
@@ -121,7 +115,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             ),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
             badgeEventType = parsePrivateConversationEventType(
                 conversationDetails.otherUser.connectionStatus,
@@ -139,15 +133,13 @@ fun ConversationDetailsWithEvents.toConversationItem(
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
-            searchQuery = searchQuery,
             isFavorite = conversationDetails.isFavorite,
-            folder = conversationDetails.folder,
-            playingAudio = getPlayingAudioInConversation(playingAudioMessage, conversationDetails)
+            folder = conversationDetails.folder
         )
     }
 
     is Connection -> {
-        ConversationItem.ConnectionConversation(
+        ConnectionConversation(
             userAvatarData = UserAvatarData(
                 asset = previewPictureAsset(conversationDetails),
                 availabilityStatus = conversationDetails.otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE,
@@ -165,8 +157,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             badgeEventType = parseConnectionEventType(conversationDetails.connection.status),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            hasNewActivitiesToShow = hasNewActivitiesToShow,
-            searchQuery = searchQuery,
+            hasNewActivitiesToShow = hasNewActivitiesToShow
         )
     }
 
@@ -174,29 +165,10 @@ fun ConversationDetailsWithEvents.toConversationItem(
         throw IllegalArgumentException("Self conversations should not be visible to the user.")
     }
 
-    else -> {
-        throw IllegalArgumentException("$this conversations should not be visible to the user.")
+    is ConversationDetails.Team -> {
+        throw IllegalArgumentException("Team conversations should not be visible to the user.")
     }
 }
-
-private fun getPlayingAudioInConversation(
-    playingAudioMessage: PlayingAudioMessage,
-    conversationDetails: ConversationDetails
-): PlayingAudioInConversation? =
-    if (playingAudioMessage is PlayingAudioMessage.Some
-        && playingAudioMessage.conversationId == conversationDetails.conversation.id
-    ) {
-        if (playingAudioMessage.state.isPlaying()) {
-            PlayingAudioInConversation(playingAudioMessage.messageId, false)
-        } else if (playingAudioMessage.state.audioMediaPlayingState is AudioMediaPlayingState.Paused) {
-            PlayingAudioInConversation(playingAudioMessage.messageId, true)
-        } else {
-            // states Fetching, Completed, Stopped, etc. should not be shown in ConversationItem
-            null
-        }
-    } else {
-        null
-    }
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) {

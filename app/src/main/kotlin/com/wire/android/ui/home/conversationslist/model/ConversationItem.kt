@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversationslist.model
 
+import androidx.compose.runtime.Immutable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
@@ -150,6 +151,7 @@ data class ConversationInfo(
 )
 
 @Serializable
+@Immutable
 data class PlayingAudioInConversation(
     val conversationId: ConversationId,
     val messageId: String,

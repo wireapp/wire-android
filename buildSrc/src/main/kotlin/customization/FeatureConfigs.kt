@@ -145,5 +145,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN),
 
-    CALL_REACTIONS_ENABLED("call_reactions_enabled", ConfigType.BOOLEAN)
+    CALL_REACTIONS_ENABLED("call_reactions_enabled", ConfigType.BOOLEAN),
+
+    SHOW_DEBUG_TOOLS("show_debug_tools", ConfigType.BOOLEAN),
 }

@@ -438,6 +438,9 @@ sealed interface UIMessageContent {
     sealed interface SystemMessage : UIMessageContent {
 
         @Serializable
+        data object Offline : SystemMessage
+
+        @Serializable
         data class Knock(
             val author: UIText,
             val isSelfTriggered: Boolean

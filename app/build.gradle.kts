@@ -34,7 +34,7 @@ plugins {
 
     id(libs.plugins.aboutLibraries.get().pluginId)
 
-    // Internal Script plugins
+    // Project script plugins
     id(ScriptPlugins.variants)
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
@@ -50,9 +50,9 @@ repositories {
     google()
 }
 
-val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
+val nonFreeFlavors = setOf("prod", "alpha", "staging", "beta", "dev")
 val fossFlavors = setOf("fdroid")
-val internalFlavors = setOf("internal", "staging", "beta", "dev")
+val internalFlavors = setOf("alpha", "staging", "beta", "dev")
 val allFlavors = nonFreeFlavors + fossFlavors
 
 private fun getFlavorsSettings(): NormalizedFlavorSettings =
@@ -139,7 +139,7 @@ android {
             getByName(flavor) {
                 if (flavor in internalFlavors) {
                     kotlin.directories.add("src/private/kotlin")
-                    println("Adding external datadog logger internal sourceSets to '$flavor' flavor")
+                    println("Adding external datadog logger private sourceSets to '$flavor' flavor")
                 } else {
                     kotlin.directories.add("src/public/kotlin")
                     println("Adding external datadog logger sourceSets to '$flavor' flavor")
@@ -359,14 +359,14 @@ dependencies {
     // oauth dependencies
     implementation(libs.openIdAppOauth)
 
-    // Internal, dev, beta and staging only tracking & logging
+    // Alpha, dev, beta and staging only tracking & logging
     devImplementation(libs.dataDog.core)
-    internalImplementation(libs.dataDog.core)
+    alphaImplementation(libs.dataDog.core)
     betaImplementation(libs.dataDog.core)
     stagingImplementation(libs.dataDog.core)
 
     devImplementation(libs.dataDog.compose)
-    internalImplementation(libs.dataDog.compose)
+    alphaImplementation(libs.dataDog.compose)
     betaImplementation(libs.dataDog.compose)
     stagingImplementation(libs.dataDog.compose)
 

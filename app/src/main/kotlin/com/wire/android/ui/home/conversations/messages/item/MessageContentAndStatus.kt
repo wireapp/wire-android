@@ -25,12 +25,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalInspectionMode
-import com.wire.android.di.wireViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.di.wireViewModel
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.applyIf
@@ -58,6 +58,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMess
 import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsView
 import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMessage
+import com.wire.android.ui.home.messagecomposer.LinkPreviewCard
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -237,6 +238,11 @@ private fun MessageContent(
                             )
                         )
                     }
+                    VerticalSpace.x4()
+                }
+                message.linkPreviews.takeIf { it.isNotEmpty() }?.let {
+                    val linkPreview = it.first()
+                    LinkPreviewCard(preview = linkPreview)
                     VerticalSpace.x4()
                 }
                 MessageBody(

@@ -43,7 +43,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.DpSize
-import com.wire.android.appLogger
 import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
@@ -155,11 +154,6 @@ internal fun MessageBody(
         )
     }
 
-    appLogger.d("ym. linkpreview is : $linkPreviews")
-    linkPreviews.firstOrNull()?.let { preview ->
-        VerticalSpace.x4()
-        com.wire.android.ui.home.messagecomposer.LinkPreviewCard(preview = preview)
-    }
     buttonList?.also {
         VerticalSpace.x4()
         MessageButtonsContent(

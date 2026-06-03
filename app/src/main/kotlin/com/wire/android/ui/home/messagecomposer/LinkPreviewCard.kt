@@ -21,6 +21,7 @@ package com.wire.android.ui.home.messagecomposer
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,22 +30,42 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.Accent
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
 fun LinkPreviewCard(preview: MessageLinkPreview) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(dimensions().spacing8x),
         color = MaterialTheme.colorScheme.surfaceVariant,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        border = BorderStroke(dimensions().spacing1x, MaterialTheme.colorScheme.outline)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(dimensions().spacing12x)) {
+            preview.image?.assetDataPath?.let { assetDataPath ->
+                val aspectRatio = preview.image
+                    ?.takeIf { it.assetWidth > 0 && it.assetHeight > 0 }
+                    ?.let { it.assetWidth.toFloat() / it.assetHeight.toFloat() }
+                    ?: (16f / 9f)
+
+                com.wire.android.ui.common.image.WireImage(
+                    model = assetDataPath.toFile(),
+                    contentDescription = "null",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(aspectRatio)
+                        .clip(RoundedCornerShape(dimensions().spacing4x))
+                        .padding(bottom = dimensions().spacing8x),
+                    contentScale = ContentScale.Crop
+                )
+            }
             if (!preview.title.isNullOrBlank()) {
                 Text(
                     text = preview.title!!,
@@ -61,9 +82,22 @@ fun LinkPreviewCard(preview: MessageLinkPreview) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier.padding(top = dimensions().spacing4x)
                 )
             }
         }
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun LinkPreviewCardPreview() = WireTheme(accent = Accent.Petrol) {
+    LinkPreviewCard(
+        MessageLinkPreview(
+            title = "Example Link Preview Title",
+            summary = "This is a summary of the link preview. It should be concise and informative.",
+            url = "https://www.example.com",
+            urlOffset = 0,
+        )
+    )
 }

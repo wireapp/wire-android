@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversationslist.ConversationListViewModelPrevi
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 
 interface HomeViewModelGraph : MetroViewModelGraph {
     val homeViewModelFactory: HomeViewModelFactory
@@ -63,4 +64,10 @@ fun newConversationViewModel(
 ): NewConversationViewModel =
     metroViewModel<HomeViewModelGraph, NewConversationViewModel>(viewModelStoreOwner = viewModelStoreOwner) {
         homeViewModelFactory.newConversationViewModel()
+    }
+
+@Composable
+fun featureFlagNotificationViewModel(): FeatureFlagNotificationViewModel =
+    metroViewModel<HomeViewModelGraph, FeatureFlagNotificationViewModel> {
+        homeViewModelFactory.featureFlagNotificationViewModel()
     }

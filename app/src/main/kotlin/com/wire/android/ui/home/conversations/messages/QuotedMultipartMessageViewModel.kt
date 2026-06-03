@@ -25,15 +25,12 @@ import com.wire.android.ui.home.conversations.model.UIMultipartQuotedContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.ObserveQuoteMessageForConversationUseCase
 import com.wire.kalium.logic.data.id.ConversationId
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import javax.inject.Inject
 
-@HiltViewModel
-class QuotedMultipartMessageViewModel @Inject constructor(
+class QuotedMultipartMessageViewModel(
     private val observeQuotedMessage: ObserveQuoteMessageForConversationUseCase,
 ) : ViewModel() {
 

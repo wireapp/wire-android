@@ -30,6 +30,8 @@ import com.wire.android.ui.authentication.AuthenticationViewModelFactory
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
 import com.wire.android.ui.calling.CallingViewModelFactory
 import com.wire.android.ui.calling.CallingViewModelGraph
+import com.wire.android.ui.common.CommonViewModelFactory
+import com.wire.android.ui.common.CommonViewModelGraph
 import com.wire.android.ui.debug.DebugInfoViewModelFactory
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
 import com.wire.android.ui.home.HomeViewModelFactory
@@ -57,6 +59,7 @@ import javax.inject.Provider
 class WireActivityViewModelGraphBridge @Inject constructor(
     imageLoader: Provider<WireSessionImageLoader>,
     private val cellsViewModelFactoryProvider: Provider<CellsViewModelFactory>,
+    private val miscViewModelFactoryProvider: Provider<MiscViewModelFactory>,
     private val authenticationViewModelFactoryProvider: Provider<AuthenticationViewModelFactory>,
     private val callingViewModelFactoryProvider: Provider<CallingViewModelFactory>,
     private val debugInfoViewModelFactoryProvider: Provider<DebugInfoViewModelFactory>,
@@ -67,10 +70,11 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     private val conversationSearchFolderViewModelFactoryProvider: Provider<ConversationSearchFolderViewModelFactory>,
     private val meetingsViewModelFactoryProvider: Provider<MeetingsViewModelFactory>,
     private val scopedMessageViewModelFactoryProvider: Provider<ScopedMessageViewModelFactory>,
-    private val miscViewModelFactoryProvider: Provider<MiscViewModelFactory>,
+    private val commonViewModelFactoryProvider: Provider<CommonViewModelFactory>,
 ) : ViewModel(),
     ImageAssetViewModelGraph,
     CellsViewModelGraph,
+    MiscViewModelGraph,
     AuthenticationViewModelGraph,
     CallingViewModelGraph,
     DebugInfoViewModelGraph,
@@ -81,12 +85,15 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     ConversationSearchFolderViewModelGraph,
     MeetingsViewModelGraph,
     ScopedMessageViewModelGraph,
-    MiscViewModelGraph {
+    CommonViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
 
     override val cellsViewModelFactory: CellsViewModelFactory
         get() = cellsViewModelFactoryProvider.get()
+
+    override val miscViewModelFactory: MiscViewModelFactory
+        get() = miscViewModelFactoryProvider.get()
 
     override val authenticationViewModelFactory: AuthenticationViewModelFactory
         get() = authenticationViewModelFactoryProvider.get()
@@ -118,6 +125,6 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     override val scopedMessageViewModelFactory: ScopedMessageViewModelFactory
         get() = scopedMessageViewModelFactoryProvider.get()
 
-    override val miscViewModelFactory: MiscViewModelFactory
-        get() = miscViewModelFactoryProvider.get()
+    override val commonViewModelFactory: CommonViewModelFactory
+        get() = commonViewModelFactoryProvider.get()
 }

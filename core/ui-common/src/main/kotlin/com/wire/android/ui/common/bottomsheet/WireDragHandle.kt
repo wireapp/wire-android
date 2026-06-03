@@ -27,7 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.util.lerp
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
@@ -35,7 +40,7 @@ import com.wire.android.util.PreviewMultipleThemes
 
 @Composable
 fun WireDragHandle(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = defaultDragHandleModifier(),
     progress: Float = 0f, // 0f: line, 1f: arrow
     color: Color = colorsScheme().secondaryText
 ) {
@@ -71,10 +76,18 @@ fun WireDragHandle(
     }
 }
 
+@Composable
+private fun defaultDragHandleModifier(): Modifier {
+    val defaultContentDescription = stringResource(R.string.content_description_drag_handle)
+    return Modifier.semantics {
+        this.contentDescription = defaultContentDescription
+    }
+}
+
 @PreviewMultipleThemes
 @Composable
 fun WireDragHandlePreview_Line() = WireTheme {
-        WireDragHandle(progress = 0f)
+    WireDragHandle(progress = 0f)
 }
 
 @PreviewMultipleThemes

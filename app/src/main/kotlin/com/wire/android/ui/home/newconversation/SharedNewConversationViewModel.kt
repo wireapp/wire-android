@@ -18,14 +18,17 @@
 package com.wire.android.ui.home.newconversation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.home.newConversationViewModel
 
 @Composable
 fun sharedNewConversationViewModel(navigator: Navigator): NewConversationViewModel {
-    val parentEntry = remember(navigator.navController) {
+    val currentEntry by navigator.navController.currentBackStackEntryAsState()
+    val parentEntry = remember(currentEntry) {
         navigator.navController.getBackStackEntry(NewConversationGraph.route)
     }
     return newConversationViewModel(parentEntry)

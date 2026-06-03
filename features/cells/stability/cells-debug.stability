@@ -279,10 +279,11 @@ public fun com.wire.android.feature.cells.ui.addRemoveTagsViewModel(): com.wire.
   params:
 
 @Composable
-public fun com.wire.android.feature.cells.ui.cellViewModel(): com.wire.android.feature.cells.ui.CellViewModel
-  skippable: true
+public fun com.wire.android.feature.cells.ui.cellViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.feature.cells.ui.CellViewModel
+  skippable: false
   restartable: true
   params:
+    - viewModelStoreOwner: RUNTIME (requires runtime check)
 
 @Composable
 public fun com.wire.android.feature.cells.ui.cellsViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner, key: kotlin.String?, create: @[ExtensionFunctionType] kotlin.Function2<com.wire.android.feature.cells.ui.CellsViewModelFactory, androidx.lifecycle.SavedStateHandle, VM of com.wire.android.feature.cells.ui.cellsViewModel>): VM of com.wire.android.feature.cells.ui.cellsViewModel

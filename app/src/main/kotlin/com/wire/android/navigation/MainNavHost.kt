@@ -46,14 +46,12 @@ import com.ramcosta.composedestinations.navigation.navGraph
 import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Direction
-import com.wire.android.feature.cells.ui.CellViewModel
+import com.wire.android.feature.cells.ui.cellViewModel
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
-import com.wire.android.ui.authentication.login.LoginNavArgs
-import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
+import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.settings.teamMigrationViewModel
-import com.wire.android.di.wireViewModel
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -86,9 +84,9 @@ fun MainNavHost(
                             navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
                         }
                         dependency(
-                            wireViewModel<LoginEmailViewModel, LoginEmailViewModel.Factory>(
+                            loginEmailViewModel(
+                                loginNavArgs = loginPasswordEntry.navArgs(),
                                 viewModelStoreOwner = loginPasswordEntry,
-                                creationCallback = { factory -> factory.create(loginPasswordEntry.navArgs<LoginNavArgs>()) }
                             )
                         )
                     }
@@ -98,7 +96,7 @@ fun MainNavHost(
                         val parentEntry = remember(navBackStackEntry) {
                             navController.previousBackStackEntry
                         }
-                        dependency(wireViewModel<CellViewModel>(parentEntry ?: navBackStackEntry))
+                        dependency(cellViewModel(parentEntry ?: navBackStackEntry))
                     }
 
                     // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph,

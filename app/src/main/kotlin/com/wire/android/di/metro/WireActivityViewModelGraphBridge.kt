@@ -18,6 +18,7 @@
 package com.wire.android.di.metro
 
 import androidx.lifecycle.ViewModel
+import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.cells.ui.CellsViewModelFactory
 import com.wire.android.feature.cells.ui.CellsViewModelGraph
 import com.wire.android.feature.meetings.ui.MeetingsViewModelFactory
@@ -47,6 +48,7 @@ import com.wire.android.ui.home.conversations.ScopedMessageViewModelGraph
 import com.wire.android.ui.home.settings.SettingsViewModelFactory
 import com.wire.android.ui.home.settings.SettingsViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Provider
@@ -57,6 +59,7 @@ import javax.inject.Provider
 @Suppress("LongParameterList")
 @HiltViewModel
 class WireActivityViewModelGraphBridge @Inject constructor(
+    @CurrentAccount currentAccount: UserId,
     imageLoader: Provider<WireSessionImageLoader>,
     private val cellsViewModelFactoryProvider: Provider<CellsViewModelFactory>,
     private val miscViewModelFactoryProvider: Provider<MiscViewModelFactory>,
@@ -86,6 +89,8 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     MeetingsViewModelGraph,
     ScopedMessageViewModelGraph,
     CommonViewModelGraph {
+    override val viewModelScopeKey: String = currentAccount.toString()
+
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
 

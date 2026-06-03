@@ -186,10 +186,9 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) { monitorSyncWorkUseCase() }
     }
 
-    private suspend fun shouldEnrollToE2ei(): Boolean = observeCurrentValidUserId.first()?.let {
-        observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(it)
+    private suspend fun shouldEnrollToE2ei(userId: UserId): Boolean =
+        observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(userId)
             .observeIfE2EIIsRequiredDuringLogin().first() ?: false
-    } ?: false
 
     private fun observeAppThemeState() {
         viewModelScope.launch(dispatchers.io()) {
@@ -315,9 +314,13 @@ class WireActivityViewModel @Inject constructor(
 
     suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
         initValidSessionsFlowIfNeeded()
+        val currentValidUserId = currentValidUserId()
+        withContext(dispatchers.main()) {
+            globalAppState = globalAppState.copy(currentUserId = currentValidUserId)
+        }
         when {
-            shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
-            shouldEnrollToE2ei() -> InitialAppState.ENROLL_E2EI
+            currentValidUserId == null -> InitialAppState.NOT_LOGGED_IN
+            shouldEnrollToE2ei(currentValidUserId) -> InitialAppState.ENROLL_E2EI
             else -> InitialAppState.LOGGED_IN
         }
     }
@@ -653,7 +656,11 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
     }
 
-    private suspend fun shouldLogIn(): Boolean = observeCurrentValidUserId.first() == null
+    private suspend fun currentValidUserId(): UserId? =
+        (coreLogic.get().getGlobalScope().session.currentSession() as? CurrentSessionResult.Success)
+            ?.accountInfo
+            ?.takeIf { it.isValid() }
+            ?.userId
 
     fun dismissMaxAccountDialog() {
         globalAppState = globalAppState.copy(maxAccountDialog = false)

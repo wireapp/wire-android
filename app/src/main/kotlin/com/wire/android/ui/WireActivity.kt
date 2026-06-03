@@ -302,6 +302,7 @@ class WireActivity : BaseActivity() {
                         ?.getBaseRoute()
                     val metroViewModelGraph = rememberMetroViewModelGraph(
                         currentBaseRoute = currentBaseRoute,
+                        startDestinationBaseRoute = startDestination.baseRoute,
                         wireActivityViewModelGraph = wireActivityViewModelGraph,
                         authenticationViewModelGraph = authenticationViewModelGraph
                     )
@@ -351,10 +352,12 @@ class WireActivity : BaseActivity() {
     @Composable
     private fun rememberMetroViewModelGraph(
         currentBaseRoute: String?,
+        startDestinationBaseRoute: String,
         wireActivityViewModelGraph: WireActivityViewModelGraphBridge?,
         authenticationViewModelGraph: AuthenticationViewModelGraphBridge,
     ): MetroViewModelGraph? {
-        val usesAuthenticationGraph = currentBaseRoute in authenticationGraphRoutes
+        val effectiveBaseRoute = currentBaseRoute ?: startDestinationBaseRoute
+        val usesAuthenticationGraph = effectiveBaseRoute in authenticationGraphRoutes
         var useStandaloneAuthenticationGraph by remember {
             mutableStateOf(false)
         }
@@ -365,7 +368,7 @@ class WireActivity : BaseActivity() {
             useStandaloneAuthenticationGraph = false
         }
         return selectMetroViewModelGraph(
-            currentBaseRoute = currentBaseRoute,
+            currentBaseRoute = effectiveBaseRoute,
             usesAuthenticationGraph = usesAuthenticationGraph,
             useStandaloneAuthenticationGraph = useStandaloneAuthenticationGraph,
             wireActivityViewModelGraph = wireActivityViewModelGraph,

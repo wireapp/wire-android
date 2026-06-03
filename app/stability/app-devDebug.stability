@@ -807,11 +807,12 @@ private fun com.wire.android.ui.WireActivity.SetUpNavigation(navigator: com.wire
     - navigator: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.WireActivity.rememberMetroViewModelGraph(currentBaseRoute: kotlin.String?, wireActivityViewModelGraph: com.wire.android.di.metro.WireActivityViewModelGraphBridge?, authenticationViewModelGraph: com.wire.android.di.metro.AuthenticationViewModelGraphBridge): com.wire.android.di.metro.MetroViewModelGraph?
+private fun com.wire.android.ui.WireActivity.rememberMetroViewModelGraph(currentBaseRoute: kotlin.String?, startDestinationBaseRoute: kotlin.String, wireActivityViewModelGraph: com.wire.android.di.metro.WireActivityViewModelGraphBridge?, authenticationViewModelGraph: com.wire.android.di.metro.AuthenticationViewModelGraphBridge): com.wire.android.di.metro.MetroViewModelGraph?
   skippable: false
   restartable: true
   params:
     - currentBaseRoute: STABLE (class with no mutable properties)
+    - startDestinationBaseRoute: STABLE (String is immutable)
     - wireActivityViewModelGraph: UNSTABLE (has mutable properties or unstable members)
     - authenticationViewModelGraph: RUNTIME (requires runtime check)
 

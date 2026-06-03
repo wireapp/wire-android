@@ -9244,7 +9244,7 @@ public fun com.wire.android.ui.home.newconversation.channelhistory.ChannelHistor
   skippable: false
   restartable: true
   params:
-    - navigator: RUNTIME (requires runtime check)
+    - navigator: UNSTABLE (has mutable properties or unstable members)
     - customResultRecipient: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
 

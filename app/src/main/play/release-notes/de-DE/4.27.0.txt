@@ -1,0 +1,17 @@
+Neu
+- Optimierungen für Datenbankleistung
+- Melden von Missbrauch in Einstellungen und Kontaktanfragen
+
+Verbessert
+- Startverhalten der App
+- Barrierefreiheit
+- Zurückblättern der Unterhaltungsliste
+- Ladezeit für integrierte Apps
+- Drive:
+    - Symbol zur Anzeige der Offline-Verfügbarkeit
+    - Videovorschauen und Größenanpassung
+
+Behoben
+- Synchronisierungsproblem beim Teilen
+- Anzeige deaktivierter Apps
+- Abstürze bei Anrufen

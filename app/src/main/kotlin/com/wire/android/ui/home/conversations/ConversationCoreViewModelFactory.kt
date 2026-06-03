@@ -113,7 +113,7 @@ import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class ConversationCoreViewModelFactory @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,

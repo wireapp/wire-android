@@ -79,5 +79,4 @@ class SecurityClassificationViewModelImpl(
 
     private suspend fun observeUserClassificationType(currentUserId: UserId, userId: UserId) =
         coreLogic.getSessionScope(currentUserId).getOtherUserSecurityClassificationLabel(userId)
-
 }

@@ -180,7 +180,7 @@ class WireActivity : BaseActivity() {
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels {
         viewModelFactory {
             initializer {
-                wireActivityViewModelGraph.commonViewModelFactory.commonTopAppBarViewModel(
+                wireActivityViewModelGraphBridge.commonViewModelFactory.commonTopAppBarViewModel(
                     CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true)
                 )
             }
@@ -295,7 +295,7 @@ class WireActivity : BaseActivity() {
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
                 LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelGraph provides wireActivityViewModelGraph,
+                LocalMetroViewModelGraph provides wireActivityViewModelGraphBridge,
                 LocalActivity provides this
             ) {
                 WireTheme(accent = viewModel.globalAppState.userAccent) {

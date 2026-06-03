@@ -72,8 +72,6 @@ import com.ramcosta.composedestinations.generated.app.destinations.SelfDevicesSc
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.ramcosta.composedestinations.spec.Direction
-import com.ramcosta.composedestinations.utils.destination
-import com.ramcosta.composedestinations.utils.route
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
@@ -99,6 +97,8 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.baseRoute
 import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.navigation.safeDestination
+import com.wire.android.navigation.safeRoute
 import com.wire.android.navigation.startDestination
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
@@ -322,9 +322,21 @@ class WireActivity : BaseActivity() {
                             it.legalHoldRequestedViewModel.observeLegalHoldRequest()
                         }
                     }
+                    LaunchedEffect(currentUserId, currentBaseRoute) {
+                        val isAuthenticationRoute = currentBaseRoute in authenticationGraphRoutes
+                        if (!isUserUiBlocked && currentUserId == null && currentBaseRoute != null && !isAuthenticationRoute) {
+                            appLogger.i("$TAG no session left on route=$currentBaseRoute, trying to switch account")
+                            viewModel.tryToSwitchAccount(
+                                NavigationSwitchAccountActions(
+                                    navigate = navigator::navigate,
+                                    canUseNewLogin = loginTypeSelector::canUseNewLogin
+                                )
+                            )
+                        }
+                    }
                     val backgroundType by remember {
                         derivedStateOf {
-                            currentBackStackEntryState.value?.destination()?.style.let {
+                            currentBackStackEntryState.value?.safeDestination()?.style.let {
                                 (it as? BackgroundStyle)?.backgroundType() ?: BackgroundType.Default
                             }
                         }
@@ -587,6 +599,11 @@ class WireActivity : BaseActivity() {
                 },
                 onDismiss = viewModel::dismissMaxAccountDialog
             )
+            AccountLoggedOutDialog(
+                viewModel.globalAppState.blockUserUI
+            ) {
+                viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin))
+            }
             return
         }
         val callFeedbackViewModel = activityViewModels.callFeedbackViewModel
@@ -954,7 +971,7 @@ private val authenticationGraphRoutes = setOf(
 )
 
 internal fun Navigator.shouldReplaceWelcomeLoginStartDestination(): Boolean {
-    val firstDestinationBaseRoute = navController.startDestination()?.route()?.baseRoute
+    val firstDestinationBaseRoute = navController.startDestination()?.safeRoute()?.baseRoute
     val welcomeScreens = listOf(WelcomeScreenDestination, NewWelcomeEmptyStartScreenDestination)
     val loginScreens = listOf(LoginScreenDestination, NewLoginScreenDestination)
     val welcomeAndLoginBaseRoutes = (welcomeScreens + loginScreens).map { it.baseRoute }
@@ -962,7 +979,7 @@ internal fun Navigator.shouldReplaceWelcomeLoginStartDestination(): Boolean {
 }
 
 internal fun Navigator.isEmptyWelcomeStartDestination(): Boolean {
-    val firstDestinationBaseRoute = navController.startDestination()?.route()?.baseRoute
+    val firstDestinationBaseRoute = navController.startDestination()?.safeRoute()?.baseRoute
     return firstDestinationBaseRoute == NewWelcomeEmptyStartScreenDestination.baseRoute
 }
 

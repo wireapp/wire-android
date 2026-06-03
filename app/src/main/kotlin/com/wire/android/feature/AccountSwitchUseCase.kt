@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.feature
-
 import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.navigation.BackStackMode
@@ -42,7 +40,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
-
 @Suppress("LongParameterList")
 @Singleton
 class AccountSwitchUseCase @Inject constructor(
@@ -60,7 +57,6 @@ class AccountSwitchUseCase @Inject constructor(
                 is CurrentSessionResult.Success -> result.accountInfo
             }
         }
-
     suspend operator fun invoke(params: SwitchAccountParam): SwitchAccountResult {
         val current = currentAccount.await()
         appLogger.i("$TAG Switching account invoked: ${params.toLogString()}, current account: ${current?.userId?.toLogString() ?: "-"}")
@@ -70,7 +66,6 @@ class AccountSwitchUseCase @Inject constructor(
             SwitchAccountParam.Clear -> switch(null, current)
         }
     }
-
     private suspend fun checkAccountAndSwitchIfPossible(userId: UserId, current: AccountInfo?): SwitchAccountResult =
         getSessions().let {
             when (it) {
@@ -85,19 +80,16 @@ class AccountSwitchUseCase @Inject constructor(
                         return SwitchAccountResult.GivenAccountIsInvalid
                     }
                 }
-
                 is GetAllSessionsResult.Failure.Generic -> {
                     appLogger.i("$TAG Failure when switching account to: ${userId.toLogString()}")
                     SwitchAccountResult.Failure
                 }
-
                 GetAllSessionsResult.Failure.NoSessionFound -> {
                     appLogger.i("$TAG Given account is not found: ${userId.toLogString()}")
                     SwitchAccountResult.GivenAccountIsInvalid
                 }
             }
         }
-
     private suspend fun getNextAccountIfPossibleAndSwitch(current: AccountInfo?): SwitchAccountResult {
         val nextSessionId: UserId? = getSessions().let {
             when (it) {
@@ -116,7 +108,6 @@ class AccountSwitchUseCase @Inject constructor(
         }
         return switch(nextSessionId, current)
     }
-
     private suspend fun switch(userId: UserId?, current: AccountInfo?): SwitchAccountResult {
         val successResult = (
                 userId?.let { SwitchAccountResult.SwitchedToAnotherAccount }
@@ -128,20 +119,17 @@ class AccountSwitchUseCase @Inject constructor(
                 }
                 successResult
             }
-
             is UpdateCurrentSessionUseCase.Result.Failure -> {
                 appLogger.i("$TAG Failure when switching account to: ${userId?.toLogString() ?: "-"}")
                 SwitchAccountResult.Failure
             }
         }
     }
-
     private fun handleOldSession(oldSession: AccountInfo) {
         when (oldSession) {
             is AccountInfo.Valid -> {
                 // do nothing
             }
-
             is AccountInfo.Invalid -> coroutineScope.launch {
                 withTimeout(DELETE_USER_SESSION_TIMEOUT) {
                     handleInvalidSession(oldSession)
@@ -149,47 +137,39 @@ class AccountSwitchUseCase @Inject constructor(
             }
         }
     }
-
     private suspend fun handleInvalidSession(invalidAccount: AccountInfo.Invalid) {
         appLogger.i("$TAG Handling invalid account: ${invalidAccount.userId.toLogString()}")
         when (invalidAccount.logoutReason) {
             LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
                 deleteSession(invalidAccount.userId)
             }
-
             LogoutReason.MIGRATION_TO_CC_FAILED,
             LogoutReason.DELETED_ACCOUNT,
             LogoutReason.REMOVED_CLIENT,
             LogoutReason.SESSION_EXPIRED -> deleteSession(invalidAccount.userId)
         }
     }
-
     private companion object {
         const val TAG = "AccountSwitch"
         const val DELETE_USER_SESSION_TIMEOUT = 3000L
     }
 }
-
 sealed class SwitchAccountParam {
     data object TryToSwitchToNextAccount : SwitchAccountParam()
     data class SwitchToAccount(val userId: UserId) : SwitchAccountParam()
     data object Clear : SwitchAccountParam()
-
     private fun toLogMap(): Map<String, String> = when (this) {
         is Clear -> mutableMapOf("value" to "CLEAR")
         is SwitchToAccount -> mutableMapOf("value" to "SWITCH_TO_ACCOUNT", "userId" to userId.toLogString())
         is TryToSwitchToNextAccount -> mutableMapOf("value" to "TRY_TO_SWITCH_TO_NEXT_ACCOUNT")
     }
-
     fun toLogString(): String = Json.encodeToString(toLogMap())
 }
-
 sealed class SwitchAccountResult {
     data object Failure : SwitchAccountResult()
     data object SwitchedToAnotherAccount : SwitchAccountResult()
     data object NoOtherAccountToSwitch : SwitchAccountResult()
     data object GivenAccountIsInvalid : SwitchAccountResult()
-
     fun callAction(actions: SwitchAccountActions) = when (this) {
         NoOtherAccountToSwitch -> actions.noOtherAccountToSwitch()
         SwitchedToAnotherAccount -> actions.switchedToAnotherAccount()
@@ -198,12 +178,10 @@ sealed class SwitchAccountResult {
         }
     }
 }
-
 interface SwitchAccountActions {
     fun switchedToAnotherAccount()
     fun noOtherAccountToSwitch()
 }
-
 class NavigationSwitchAccountActions(val navigate: (NavigationCommand) -> Unit, val canUseNewLogin: () -> Boolean) : SwitchAccountActions {
     override fun switchedToAnotherAccount() = navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
     override fun noOtherAccountToSwitch() = navigate(

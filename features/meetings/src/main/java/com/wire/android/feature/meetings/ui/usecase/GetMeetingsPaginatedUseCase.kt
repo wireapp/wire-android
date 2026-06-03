@@ -21,11 +21,9 @@ import androidx.paging.PagingData
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.mock.Meeting
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-@ViewModelScoped
 class GetMeetingsPaginatedUseCase @Inject constructor() {
     private val meetingMocksProvider = MeetingMocksProvider.Default // TODO replace with real data source
     operator fun invoke(showingAll: Boolean, type: MeetingsTabItem): Flow<PagingData<Meeting>> =

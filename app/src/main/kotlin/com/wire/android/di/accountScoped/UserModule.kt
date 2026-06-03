@@ -62,107 +62,87 @@ import com.wire.kalium.logic.feature.user.typingIndicator.PersistTypingIndicator
 import com.wire.kalium.logic.sync.ForegroundActionsUseCase
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(ViewModelComponent::class)
 @Suppress("TooManyFunctions")
 class UserModule {
 
     @Provides
-    @ViewModelScoped
     fun provideUserScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): UserScope = coreLogic.getSessionScope(currentAccount).users
 
-    @ViewModelScoped
     @Provides
     fun provideRefreshUsersWithoutMetadataUseCase(
         userScope: UserScope
     ): RefreshUsersWithoutMetadataUseCase = userScope.refreshUsersWithoutMetadata
 
-    @ViewModelScoped
     @Provides
     fun provideDeleteAccountUseCase(
         userScope: UserScope
     ): DeleteAccountUseCase =
         userScope.deleteAccount
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateEmailUseCase(
         userScope: UserScope
     ): UpdateEmailUseCase =
         userScope.updateEmail
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateDisplayNameUseCase(
         userScope: UserScope
     ): UpdateDisplayNameUseCase =
         userScope.updateDisplayName
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateAccentColorUseCase(
         userScope: UserScope
     ): UpdateAccentColorUseCase =
         userScope.updateAccentColor
 
-    @ViewModelScoped
     @Provides
     fun provideGetAssetSizeLimitUseCase(
         userScope: UserScope
     ): GetAssetSizeLimitUseCase =
         userScope.getAssetSizeLimit
 
-    @ViewModelScoped
     @Provides
     fun provideObserveReadReceiptsEnabled(userScope: UserScope): ObserveReadReceiptsEnabledUseCase =
         userScope.observeReadReceiptsEnabled
 
-    @ViewModelScoped
     @Provides
     fun providePersistReadReceiptsStatusConfig(userScope: UserScope): PersistReadReceiptsStatusConfigUseCase =
         userScope.persistReadReceiptsStatusConfig
 
-    @ViewModelScoped
     @Provides
     fun provideFinalizeMLSClientAfterE2EIEnrollmentUseCase(userScope: UserScope): FinalizeMLSClientAfterE2EIEnrollmentUseCase =
         userScope.finalizeMLSClientAfterE2EIEnrollment
 
-    @ViewModelScoped
     @Provides
     fun provideObserveTypingIndicatorEnabled(userScope: UserScope): ObserveTypingIndicatorEnabledUseCase =
         userScope.observeTypingIndicatorEnabled
 
-    @ViewModelScoped
     @Provides
     fun providePersistTypingIndicatorStatusConfig(userScope: UserScope): PersistTypingIndicatorStatusConfigUseCase =
         userScope.persistTypingIndicatorStatusConfig
 
-    @ViewModelScoped
     @Provides
     fun provideSelfServerConfig(
         userScope: UserScope
     ): SelfServerConfigUseCase = userScope.serverLinks
 
-    @ViewModelScoped
     @Provides
     fun provideObserveUserInfoUseCase(
         userScope: UserScope
     ): ObserveUserInfoUseCase = userScope.observeUserInfo
 
-    @ViewModelScoped
     @Provides
     fun provideIsPasswordRequiredUseCase(
         userScope: UserScope
     ): IsPasswordRequiredUseCase = userScope.isPasswordRequired
 
-    @ViewModelScoped
     @Provides
     fun provideIsPreventAdminlessGroupsEnabledUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
@@ -170,122 +150,99 @@ class UserModule {
     ): IsPreventAdminlessGroupsEnabledUseCase =
         coreLogic.getSessionScope(currentAccount).isPreventAdminlessGroupsEnabled
 
-    @ViewModelScoped
     @Provides
     fun provideIsReadOnlyAccountUseCase(
         userScope: UserScope
     ): IsReadOnlyAccountUseCase = userScope.isReadOnlyAccount
 
-    @ViewModelScoped
     @Provides
     fun provideGetAllContactsNotInTheConversationUseCase(
         userScope: UserScope
     ): GetAllContactsNotInConversationUseCase =
         userScope.getAllContactsNotInConversation
 
-    @ViewModelScoped
     @Provides
     fun provideGetUserInfoUseCase(userScope: UserScope): GetUserInfoUseCase =
         userScope.getUserInfo
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateSelfAvailabilityStatusUseCase(userScope: UserScope): UpdateSelfAvailabilityStatusUseCase =
         userScope.updateSelfAvailabilityStatus
 
-    @ViewModelScoped
     @Provides
     fun provideGetAllContactsUseCase(
         userScope: UserScope
     ): GetAllContactsUseCase =
         userScope.getAllKnownUsers
 
-    @ViewModelScoped
     @Provides
     fun provideGetKnownUserUseCase(
         userScope: UserScope
     ): GetKnownUserUseCase =
         userScope.getKnownUser
 
-    @ViewModelScoped
     @Provides
     fun provideGetSelfUseCase(userScope: UserScope): GetSelfUserUseCase =
         userScope.getSelfUser
 
-    @ViewModelScoped
     @Provides
     fun provideGetSelfTeamIdUseCase(userScope: UserScope): GetSelfTeamIdUseCase =
         userScope.getSelfTeamId
 
-    @ViewModelScoped
     @Provides
     fun provideObserveSelfUseCase(userScope: UserScope): ObserveSelfUserUseCase =
         userScope.observeSelfUser
 
-    @ViewModelScoped
     @Provides
     fun provideObserveSelfUserWithTeamUseCase(userScope: UserScope): ObserveSelfUserWithTeamUseCase =
         userScope.observeSelfUserWithTeam
 
-    @ViewModelScoped
     @Provides
     fun provideGetAvatarAssetUseCase(userScope: UserScope): GetAvatarAssetUseCase =
         userScope.getPublicAsset
 
-    @ViewModelScoped
     @Provides
     fun provideDeleteAssetUseCase(userScope: UserScope): DeleteAssetUseCase =
         userScope.deleteAsset
 
-    @ViewModelScoped
     @Provides
     fun provideUploadUserAvatarUseCase(userScope: UserScope): UploadUserAvatarUseCase =
         userScope.uploadUserAvatar
 
-    @ViewModelScoped
     @Provides
     fun provideSetUserHandleUseCase(userScope: UserScope): SetUserHandleUseCase =
         userScope.setUserHandle
 
-    @ViewModelScoped
     @Provides
     fun provideGetE2EICertificateUseCase(userScope: UserScope): GetMLSClientIdentityUseCase =
         userScope.getE2EICertificate
 
-    @ViewModelScoped
     @Provides
     fun provideGetUserE2eiCertificateStatusUseCase(userScope: UserScope): IsOtherUserE2EIVerifiedUseCase =
         userScope.getUserE2eiCertificateStatus
 
-    @ViewModelScoped
     @Provides
     fun provideGetMembersE2EICertificateStatusesUseCase(userScope: UserScope): GetMembersE2EICertificateStatusesUseCase =
         userScope.getMembersE2EICertificateStatuses
 
-    @ViewModelScoped
     @Provides
     fun provideGetUserMlsClientIdentities(userScope: UserScope): GetUserMlsClientIdentitiesUseCase =
         userScope.getUserMlsClientIdentities
 
-    @ViewModelScoped
     @Provides
     fun provideIsPersonalToTeamAccountSupportedByBackendUseCase(userScope: UserScope): CanMigrateFromPersonalToTeamUseCase =
         userScope.isPersonalToTeamAccountSupportedByBackend
 
-    @ViewModelScoped
     @Provides
     fun provideForegroundActionsUseCase(userScope: UserScope): ForegroundActionsUseCase = userScope.foregroundActions
 
-    @ViewModelScoped
     @Provides
     fun provideCellsConfigUseCase(userScope: UserScope): IsWireCellsEnabledUseCase = userScope.isWireCellsEnabled
 
-    @ViewModelScoped
     @Provides
     fun provideIsWireCellsEnabledForConversationUseCase(userScope: UserScope): IsWireCellsEnabledForConversationUseCase =
         userScope.isWireCellsEnabledForConversation
 
-    @ViewModelScoped
     @Provides
     fun provideProfileQRCodeConfigUseCase(userScope: UserScope): IsProfileQRCodeEnabledUseCase =
         userScope.isProfileQRCodeEnabled

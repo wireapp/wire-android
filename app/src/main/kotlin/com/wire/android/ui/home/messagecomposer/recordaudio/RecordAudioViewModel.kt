@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
-
 import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +51,6 @@ import okio.Path.Companion.toPath
 import java.io.File
 import java.io.IOException
 import kotlin.io.path.deleteIfExists
-
 @Suppress("TooManyFunctions", "LongParameterList")
 class RecordAudioViewModel(
     private val context: Context,
@@ -68,35 +66,26 @@ class RecordAudioViewModel(
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem
 ) : ActionsViewModel<RecordAudioViewActions>() {
-
     var state: RecordAudioState by mutableStateOf(RecordAudioState())
         private set
-
     private var hasOngoingCall: Boolean = false
-
     private val infoMessage = MutableSharedFlow<UIText>()
-
     private val tag = "RecordAudioViewModel"
-
     fun getInfoMessage(): SharedFlow<UIText> = infoMessage.asSharedFlow()
-
     fun setApplyEffectsAndPlayAudio(enabled: Boolean) {
         setShouldApplyEffects(enabled = enabled)
         if (state.audioState.isPlaying()) {
             onPlayAudio()
         }
     }
-
     fun getPlayableAudioFile(): File? = if (state.shouldApplyEffects) {
         state.effectsOutputFile
     } else {
         state.originalOutputFile
     }
-
     init {
         observeAudioPlayerState()
         observeEffectsCheckbox()
-
         viewModelScope.launch {
             launch {
                 observeAudioFileSize()
@@ -109,7 +98,6 @@ class RecordAudioViewModel(
             }
         }
     }
-
     private suspend fun observeAudioFileSize() {
         audioMediaRecorder.getMaxFileSizeReached().collect { recordAudioDialogState ->
             stopRecording()
@@ -118,13 +106,11 @@ class RecordAudioViewModel(
             )
         }
     }
-
     private suspend fun observeUserIsInCall() {
         observeEstablishedCalls().collect {
             hasOngoingCall = it.isNotEmpty()
         }
     }
-
     private suspend fun observeScreenState() {
         currentScreenManager.observeCurrentScreen(viewModelScope).collect { currentScreen ->
             if (state.buttonState == RecordAudioButtonState.RECORDING &&
@@ -134,7 +120,6 @@ class RecordAudioViewModel(
             }
         }
     }
-
     private fun observeAudioPlayerState() {
         viewModelScope.launch {
             recordAudioMessagePlayer.audioMessageStateFlow.collect {
@@ -144,7 +129,6 @@ class RecordAudioViewModel(
             }
         }
     }
-
     private fun observeEffectsCheckbox() {
         viewModelScope.launch {
             globalDataStore.isRecordAudioEffectsCheckboxEnabled().collect {
@@ -152,7 +136,6 @@ class RecordAudioViewModel(
             }
         }
     }
-
     fun startRecording() {
         if (hasOngoingCall) {
             viewModelScope.launch {
@@ -180,7 +163,6 @@ class RecordAudioViewModel(
             }
         }
     }
-
     fun stopRecording() {
         audioFocusHelper.abandonExclusive()
         viewModelScope.launch(dispatchers.default()) {
@@ -190,7 +172,6 @@ class RecordAudioViewModel(
             }
             appLogger.i("[$tag] -> Releasing audioMediaRecorder")
             audioMediaRecorder.release()
-
             if (state.originalOutputFile != null) {
                 state = state.copy(
                     buttonState = RecordAudioButtonState.ENCODING,
@@ -203,7 +184,6 @@ class RecordAudioViewModel(
                         effectsFilePath = state.effectsOutputFile!!.path
                     )
                 }
-
                 val playableAudioFile = getPlayableAudioFile()
                 state = state.copy(
                     buttonState = RecordAudioButtonState.READY_TO_SEND,
@@ -222,7 +202,6 @@ class RecordAudioViewModel(
             }
         }
     }
-
     fun showDiscardRecordingDialog() {
         when (state.buttonState) {
             RecordAudioButtonState.ENABLED -> sendAction(RecordAudioViewActions.Discarded)
@@ -235,31 +214,26 @@ class RecordAudioViewModel(
             }
         }
     }
-
     fun onDismissDiscardDialog() {
         state = state.copy(
             discardDialogState = RecordAudioDialogState.Hidden
         )
     }
-
     fun showPermissionsDeniedDialog() {
         state = state.copy(
             permissionsDeniedDialogState = RecordAudioDialogState.Shown
         )
     }
-
     fun onDismissPermissionsDeniedDialog() {
         state = state.copy(
             permissionsDeniedDialogState = RecordAudioDialogState.Hidden
         )
     }
-
     fun onDismissMaxFileSizeReachedDialog() {
         state = state.copy(
             maxFileSizeReachedDialogState = RecordAudioDialogState.Hidden
         )
     }
-
     fun discardRecording() {
         viewModelScope.launch {
             state.originalOutputFile?.toPath()?.deleteIfExists()
@@ -274,11 +248,9 @@ class RecordAudioViewModel(
             sendAction(RecordAudioViewActions.Discarded)
         }
     }
-
     fun sendRecording() {
         viewModelScope.launch {
             recordAudioMessagePlayer.stop()
-
             val outputFile = state.originalOutputFile
             val effectsFile = state.effectsOutputFile
             val wavesMask = state.wavesMask
@@ -287,24 +259,20 @@ class RecordAudioViewModel(
                 originalOutputFile = null,
                 effectsOutputFile = null
             )
-
             val didSucceed = if (state.shouldApplyEffects) {
                 audioMediaRecorder.convertWavToM4a(effectsFile!!.toString())
             } else {
                 audioMediaRecorder.convertWavToM4a(outputFile!!.toString())
             }
-
             try {
                 when {
                     didSucceed -> {
                         outputFile?.toPath()?.deleteIfExists()
                         effectsFile?.toPath()?.deleteIfExists()
                     }
-
                     state.shouldApplyEffects -> {
                         outputFile?.toPath()?.deleteIfExists()
                     }
-
                     !state.shouldApplyEffects -> {
                         effectsFile?.toPath()?.deleteIfExists()
                     }
@@ -336,7 +304,6 @@ class RecordAudioViewModel(
             )
         }
     }
-
     fun onPlayAudio() {
         getPlayableAudioFile()?.let { audioFile ->
             viewModelScope.launch {
@@ -346,7 +313,6 @@ class RecordAudioViewModel(
             }
         }
     }
-
     fun onSliderPositionChange(position: Int) {
         viewModelScope.launch {
             recordAudioMessagePlayer.setPosition(
@@ -354,7 +320,6 @@ class RecordAudioViewModel(
             )
         }
     }
-
     fun setShouldApplyEffects(enabled: Boolean) {
         viewModelScope.launch {
             globalDataStore.setRecordAudioEffectsCheckboxEnabled(enabled)
@@ -366,13 +331,11 @@ class RecordAudioViewModel(
                         buttonState = RecordAudioButtonState.ENCODING,
                         audioState = state.audioState.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching)
                     )
-
                     generateAudioFileWithEffects(
                         context = context,
                         originalFilePath = state.originalOutputFile!!.path,
                         effectsFilePath = effectsFile.path
                     )
-
                     state = state.copy(
                         effectsOutputFile = effectsFile,
                         buttonState = RecordAudioButtonState.READY_TO_SEND,
@@ -402,17 +365,14 @@ class RecordAudioViewModel(
             }
         }
     }
-
     override fun onCleared() {
         super.onCleared()
         recordAudioMessagePlayer.close()
     }
-
     companion object {
         fun getRecordingAudioEffectsFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}-filter.wav"
     }
 }
-
 sealed interface RecordAudioViewActions {
     data object Discarded : RecordAudioViewActions
     data class Recorded(val uriAsset: UriAsset) : RecordAudioViewActions

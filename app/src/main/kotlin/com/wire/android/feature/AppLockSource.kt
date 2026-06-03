@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.feature
-
 sealed interface AppLockSource {
     val code: Int
         get() = when (this) {
@@ -25,7 +24,6 @@ sealed interface AppLockSource {
         }
     data object Manual : AppLockSource
     data object TeamEnforced : AppLockSource
-
     companion object {
         fun fromInt(value: Int): AppLockSource {
             return when (value) {

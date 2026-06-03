@@ -15,14 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.newauthentication.login
-
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
-
 sealed class NewLoginFlowState {
     data object Default : NewLoginFlowState()
     data object Loading : NewLoginFlowState()
@@ -31,7 +28,6 @@ sealed class NewLoginFlowState {
         sealed class TextFieldError : Error() {
             data object InvalidValue : TextFieldError()
         }
-
         // subset of LoginState.Error.DialogError
         sealed class DialogError : Error() {
             data object ServerVersionNotSupported : DialogError()
@@ -44,7 +40,6 @@ sealed class NewLoginFlowState {
         }
     }
 }
-
 fun NewLoginFlowState.Error.DialogError.toLoginStateDialogError(): LoginState.Error.DialogError = when (this) {
     is NewLoginFlowState.Error.DialogError.ServerVersionNotSupported -> LoginState.Error.DialogError.ServerVersionNotSupported
     is NewLoginFlowState.Error.DialogError.ClientUpdateRequired -> LoginState.Error.DialogError.ClientUpdateRequired

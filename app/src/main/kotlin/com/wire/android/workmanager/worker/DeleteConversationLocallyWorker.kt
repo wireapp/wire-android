@@ -16,10 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.workmanager.worker
-
 import android.content.Context
 import androidx.core.app.NotificationCompat
-import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
@@ -47,7 +45,6 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
-
 /**
  * A worker responsible for performing local deletion of conversations in the background.
  *
@@ -60,7 +57,6 @@ import kotlinx.coroutines.flow.mapNotNull
  * @param coreLogic A utility object that handles core application logic, such as session and conversation management.
  * @param notificationChannelsManager Manages notification channels for the application.
  */
-@HiltWorker
 class DeleteConversationLocallyWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
@@ -70,7 +66,6 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = coroutineScope {
         val userIdString = inputData.getString(USER_ID)
         val conversationIdString = inputData.getString(CONVERSATION_ID)
-
         if (userIdString == null || conversationIdString == null) {
             return@coroutineScope Result.failure() // If either ID is not provided, fail the work
         }
@@ -87,13 +82,11 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
             ClearConversationContentUseCase.Result.Success -> Result.success()
         }
     }
-
     override suspend fun getForegroundInfo(): ForegroundInfo {
         notificationChannelsManager.createRegularChannel(
             NotificationConstants.OTHER_CHANNEL_ID,
             NotificationConstants.OTHER_CHANNEL_NAME
         )
-
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
             .setSmallIcon(com.wire.android.feature.notification.R.drawable.notification_icon_small)
             .setAutoCancel(true)
@@ -103,25 +96,20 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setContentIntent(openAppPendingIntent(applicationContext))
             .build()
-
         return ForegroundInfo(NotificationIds.DELETING_CONVERSATION_NOTIFICATION_ID.ordinal, notification)
     }
-
     companion object {
         private const val NAME = "delete_conversation_locally"
         const val CONVERSATION_ID = "delete_conversation_locally_conversation_id"
         const val USER_ID = "delete_conversation_locally_user_id"
-
         fun createUniqueWorkName(conversationId: ConversationId, userId: UserId): String {
             return listOf(NAME, conversationId, userId).joinToString(separator = "-")
         }
     }
 }
-
 enum class ConversationDeletionLocallyStatus {
     IDLE, RUNNING, SUCCEEDED, FAILED
 }
-
 /**
  * Enqueues a background task to delete a conversation and its associated assets locally.
  *
@@ -158,10 +146,8 @@ fun WorkManager.enqueueConversationDeletionLocally(
         if (isAlreadyRunning) ExistingWorkPolicy.KEEP else ExistingWorkPolicy.REPLACE,
         request
     )
-
     return observeConversationDeletionStatusLocally(conversationId, userId)
 }
-
 /**
  * Observes the status of a conversation deletion task running locally.
  *
@@ -185,7 +171,6 @@ fun WorkManager.observeConversationDeletionStatusLocally(
                 when (workInfo.state) {
                     WorkInfo.State.ENQUEUED,
                     WorkInfo.State.RUNNING -> ConversationDeletionLocallyStatus.RUNNING
-
                     WorkInfo.State.SUCCEEDED -> ConversationDeletionLocallyStatus.SUCCEEDED
                     WorkInfo.State.FAILED,
                     WorkInfo.State.BLOCKED,

@@ -20,8 +20,6 @@ package com.wire.android.di
 
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +47,6 @@ annotation class MainDispatcher
 @Qualifier
 annotation class MainImmediateDispatcher
 
-@InstallIn(SingletonComponent::class)
 @Module
 object CoroutinesScopesModule {
 
@@ -61,7 +58,6 @@ object CoroutinesScopesModule {
     ): CoroutineScope = CoroutineScope(SupervisorJob() + defaultDispatcher)
 }
 
-@InstallIn(SingletonComponent::class)
 @Module
 object CoroutinesDispatchersModule {
 

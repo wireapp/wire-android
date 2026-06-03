@@ -22,6 +22,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
@@ -29,48 +30,37 @@ import com.wire.kalium.logic.feature.service.ServiceScope
 import com.wire.kalium.logic.feature.service.SyncServicesUseCase
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(ViewModelComponent::class)
 class ServicesModule {
 
-    @ViewModelScoped
     @Provides
     fun provideServiceScope(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
     ): ServiceScope = coreLogic.getSessionScope(currentAccount).service
 
-    @ViewModelScoped
     @Provides
     fun provideObserveIsServiceMemberUseCase(serviceScope: ServiceScope): ObserveIsServiceMemberUseCase =
         serviceScope.observeIsServiceMember
 
-    @ViewModelScoped
     @Provides
     fun provideGetServiceByIdUseCase(serviceScope: ServiceScope): GetServiceByIdUseCase =
         serviceScope.getServiceById
 
-    @ViewModelScoped
     @Provides
     fun provideObserveAllServicesUseCase(serviceScope: ServiceScope): ObserveAllServicesUseCase =
         serviceScope.observeAllServices
 
-    @ViewModelScoped
     @Provides
     fun provideSyncServicesUseCase(serviceScope: ServiceScope): SyncServicesUseCase =
         serviceScope.syncServices
 
-    @ViewModelScoped
     @Provides
     fun provideSearchServicesByNameUseCase(serviceScope: ServiceScope): SearchServicesByNameUseCase =
         serviceScope.searchServicesByName
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveIsAppsAllowedForUsage(serviceScope: ServiceScope) =
+    fun provideObserveIsAppsAllowedForUsage(serviceScope: ServiceScope): ObserveIsAppsAllowedForUsageUseCase =
         serviceScope.observeIsAppsAllowedForUsage
 }

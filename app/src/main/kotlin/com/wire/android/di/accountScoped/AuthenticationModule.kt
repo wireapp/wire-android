@@ -25,22 +25,16 @@ import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(ViewModelComponent::class)
 class AuthenticationModule {
 
     @Provides
-    @ViewModelScoped
     fun provideAuthenticationScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): AuthenticationScope = coreLogic.getSessionScope(currentAccount).authenticationScope
 
-    @ViewModelScoped
     @Provides
     fun provideRequest2FACodeUseCase(authenticationScope: AuthenticationScope): RequestSecondFactorVerificationCodeUseCase =
         authenticationScope.requestSecondFactorVerificationCode

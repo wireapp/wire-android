@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.newauthentication.login
-
 data class NewLoginScreenState(
     val isThereActiveSession: Boolean = false,
     val userIdentifierEnabled: Boolean = true,

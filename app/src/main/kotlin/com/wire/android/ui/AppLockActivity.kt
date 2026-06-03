@@ -24,27 +24,33 @@ import androidx.biometric.BiometricManager
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.AppUnlockWithBiometricsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.EnterLockCodeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
+import com.wire.android.WireApplication
 import com.wire.android.appLogger
-import com.wire.android.di.metro.ImageAssetViewModelGraphBridgeViewModel
 import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.WireSessionGraph
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import kotlinx.coroutines.runBlocking
 
-@AndroidEntryPoint
 class AppLockActivity : BaseActivity() {
 
-    @Inject
-    lateinit var loginTypeSelector: LoginTypeSelector
+    private val appGraph
+        get() = (application as WireApplication).appGraph
+
+    private val loginTypeSelector: LoginTypeSelector
+        get() = appGraph.loginTypeSelector
+
+    private val sessionGraph: WireSessionGraph by lazy(LazyThreadSafetyMode.NONE) {
+        appGraph.createSessionGraph(currentUserId())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,10 +58,9 @@ class AppLockActivity : BaseActivity() {
         enableEdgeToEdge()
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
-            val imageAssetViewModelGraph = hiltViewModel<ImageAssetViewModelGraphBridgeViewModel>()
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelGraph provides imageAssetViewModelGraph,
+                LocalMetroViewModelGraph provides sessionGraph,
                 LocalActivity provides this
             ) {
                 WireTheme {
@@ -85,6 +90,13 @@ class AppLockActivity : BaseActivity() {
                     )
                 }
             }
+        }
+    }
+
+    private fun currentUserId() = runBlocking {
+        when (val currentSession = appGraph.coreLogic.getGlobalScope().session.currentSession()) {
+            is CurrentSessionResult.Success -> currentSession.accountInfo.userId
+            else -> error("AppLockActivity requires a valid current session")
         }
     }
 

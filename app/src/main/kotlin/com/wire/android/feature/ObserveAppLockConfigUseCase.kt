@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.feature
-
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
@@ -29,7 +28,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-
 @Singleton
 class ObserveAppLockConfigUseCase @Inject constructor(
     private val globalDataStore: GlobalDataStore,
@@ -42,7 +40,6 @@ class ObserveAppLockConfigUseCase @Inject constructor(
                     val userId = sessionResult.accountInfo.userId
                     val appLockTeamFeatureConfigFlow =
                         coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver
-
                     appLockTeamFeatureConfigFlow().combineTransform(
                         globalDataStore.isAppLockPasscodeSetFlow()
                     ) { teamAppLockConfig, isAppLockConfigured ->
@@ -50,11 +47,9 @@ class ObserveAppLockConfigUseCase @Inject constructor(
                             isAppLockConfigured -> {
                                 emit(AppLockConfig.Enabled(teamAppLockConfig?.timeout ?: DEFAULT_APP_LOCK_TIMEOUT))
                             }
-
                             teamAppLockConfig != null && teamAppLockConfig.isEnforced -> {
                                 emit(AppLockConfig.EnforcedByTeam(teamAppLockConfig.timeout))
                             }
-
                             else -> {
                                 emit(AppLockConfig.Disabled(teamAppLockConfig?.timeout ?: DEFAULT_APP_LOCK_TIMEOUT))
                             }
@@ -63,19 +58,16 @@ class ObserveAppLockConfigUseCase @Inject constructor(
                         send(it)
                     }
                 }
-
                 else -> {
                     send(AppLockConfig.Disabled(DEFAULT_APP_LOCK_TIMEOUT))
                 }
             }
         }
     }
-
     companion object {
         val DEFAULT_APP_LOCK_TIMEOUT = 60.seconds
     }
 }
-
 sealed class AppLockConfig(open val timeout: Duration) {
     data class Disabled(override val timeout: Duration) : AppLockConfig(timeout)
     data class Enabled(override val timeout: Duration) : AppLockConfig(timeout)

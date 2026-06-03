@@ -20,7 +20,7 @@ package com.wire.android.emm
 import android.content.Context
 import androidx.enterprise.feedback.KeyedAppState
 import androidx.enterprise.feedback.KeyedAppStatesReporter
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 

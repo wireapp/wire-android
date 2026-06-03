@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.newauthentication.login
-
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -48,13 +47,10 @@ import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.forceLowercase
-
 @Composable
 internal fun BackendSelectorDropDown() {
-
     val context = LocalContext.current
     var showCustomBackendDialog by remember { mutableStateOf(false) }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -77,7 +73,6 @@ internal fun BackendSelectorDropDown() {
             },
         )
     }
-
     if (showCustomBackendDialog) {
         EnterBackendNameDialog(
             onConfirm = { backendName ->
@@ -92,7 +87,6 @@ internal fun BackendSelectorDropDown() {
         )
     }
 }
-
 @Composable
 private fun EnterBackendNameDialog(
     onConfirm: (String) -> Unit,
@@ -100,7 +94,6 @@ private fun EnterBackendNameDialog(
 ) {
     val focusRequester = remember { FocusRequester() }
     var textState by remember { mutableStateOf(TextFieldState("")) }
-
     WireDialog(
         title = "Enter custom backend name",
         optionButton1Properties = WireDialogButtonProperties(
@@ -123,11 +116,9 @@ private fun EnterBackendNameDialog(
                 .forceLowercase()
                 .replaceSpaces(),
         )
-
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
     }
 }
-
 private fun InputTransformation.replaceSpaces(): InputTransformation =
     this.then({
         val currentText = asCharSequence().toString()
@@ -136,7 +127,6 @@ private fun InputTransformation.replaceSpaces(): InputTransformation =
             replace(0, length, transformedText)
         }
     })
-
 private fun openConfigUrl(context: Context, configUrl: String) {
     context.startActivity(
         Intent(context, WireActivity::class.java).apply {
@@ -144,7 +134,6 @@ private fun openConfigUrl(context: Context, configUrl: String) {
         }
     )
 }
-
 private val backendConfigs = listOf(
     "Production" to "https://prod-nginz-https.wire.com/deeplink.json",
     "Staging" to "https://staging-nginz-https.zinfra.io/deeplink.json",

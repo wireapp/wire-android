@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.newauthentication.login
-
 import android.database.sqlite.SQLiteException
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
@@ -73,7 +71,6 @@ import kotlinx.serialization.json.Json
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
-
 @Suppress("LongParameterList", "TooManyFunctions")
 class NewLoginViewModel(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
@@ -87,7 +84,6 @@ class NewLoginViewModel(
     defaultServerConfig: ServerConfig.Links,
     defaultSSOCodeConfig: String,
 ) : ActionsViewModel<NewLoginAction>() {
-
     @Inject
     constructor(
         validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
@@ -112,18 +108,15 @@ class NewLoginViewModel(
         defaultServerConfig,
         defaultSSOCodeConfig
     )
-
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
     private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
     private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
     var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig ?: defaultServerConfig)
         private set
-
     var state by mutableStateOf(NewLoginScreenState())
         private set
     val userIdentifierTextState: TextFieldState = TextFieldState()
-
     init {
         val isCustomServerDeepLink = loginNavArgs.loginPasswordPath?.customServerConfig != null
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
@@ -144,7 +137,6 @@ class NewLoginViewModel(
                 }
             }
         }
-
         // Fetch default SSO code for the server configuration
         if (userIdentifierTextState.text.isEmpty() && preFilledUserIdentifier is PreFilledUserIdentifierType.None) {
             viewModelScope.launch(dispatchers.io()) {
@@ -172,7 +164,6 @@ class NewLoginViewModel(
             }
         }
     }
-
     /**
      * Starts the login flow, this will check against BE if email or sso code and relay to the corresponding flow afterwards.
      */
@@ -185,18 +176,15 @@ class NewLoginViewModel(
                     updateLoginFlowState(NewLoginFlowState.Error.TextFieldError.InvalidValue)
                     return@launch
                 }
-
                 ValidateEmailOrSSOCodeUseCase.Result.ValidEmail -> {
                     getEnterpriseLoginFlow(sanitizedInput)
                 }
-
                 ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode -> {
                     initiateSSO(serverConfig, sanitizedInput)
                 }
             }
         }
     }
-
     @VisibleForTesting
     internal suspend fun getEnterpriseLoginFlow(email: String) = withContext(dispatchers.io()) {
         ssoExtension.withAuthenticationScope(
@@ -207,22 +195,18 @@ class NewLoginViewModel(
                     is EnterpriseLoginResult.Failure.Generic -> withContext(dispatchers.main()) {
                         updateLoginFlowState(NewLoginFlowState.Error.DialogError.GenericError(loginFlowResult.coreFailure))
                     }
-
                     is EnterpriseLoginResult.Failure.NotSupported -> withContext(dispatchers.main()) {
                         sendAction(NewLoginAction.EnterpriseLoginNotSupported(email))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
-
                     is EnterpriseLoginResult.Success -> {
                         when (val loginRedirectPath = loginFlowResult.loginRedirectPath) {
                             is LoginRedirectPath.SSO -> {
                                 initiateSSO(serverConfig, loginRedirectPath.ssoCode.ssoCodeWithPrefix())
                             }
-
                             is LoginRedirectPath.CustomBackend -> withContext(dispatchers.main()) {
                                 updateLoginFlowState(NewLoginFlowState.CustomConfigDialog(loginRedirectPath.serverLinks))
                             }
-
                             is LoginRedirectPath.Default,
                             is LoginRedirectPath.NoRegistration -> withContext(dispatchers.main()) {
                                 sendAction(
@@ -236,7 +220,6 @@ class NewLoginViewModel(
                                 )
                                 updateLoginFlowState(NewLoginFlowState.Default)
                             }
-
                             is LoginRedirectPath.ExistingAccountWithClaimedDomain -> withContext(dispatchers.main()) {
                                 sendAction(
                                     NewLoginAction.EmailPassword(
@@ -258,11 +241,9 @@ class NewLoginViewModel(
             }
         )
     }
-
     fun onDismissDialog() {
         updateLoginFlowState(NewLoginFlowState.Default)
     }
-
     fun onCustomServerDialogConfirm(customServerConfig: ServerConfig.Links) {
         viewModelScope.launch(dispatchers.io()) {
             ssoExtension.fetchDefaultSSOCode(
@@ -271,12 +252,10 @@ class NewLoginViewModel(
                 onFetchSSOSettingsFailure = { updateLoginFlowState(it.toLoginError()) },
                 onSuccess = { defaultSSOCode ->
                     appLogger.d("$TAG Successfully fetched default SSO code")
-
                     when {
                         defaultSSOCode != null -> {
                             initiateSSO(customServerConfig, defaultSSOCode)
                         }
-
                         else -> withContext(dispatchers.main()) {
                             sendAction(NewLoginAction.CustomConfig(userIdentifierTextState.text.toString(), customServerConfig))
                             updateLoginFlowState(NewLoginFlowState.Default)
@@ -286,7 +265,6 @@ class NewLoginViewModel(
             )
         }
     }
-
     @VisibleForTesting
     internal suspend fun initiateSSO(serverConfig: ServerConfig.Links, ssoCode: String) =
         withContext(dispatchers.io()) {
@@ -305,7 +283,6 @@ class NewLoginViewModel(
                 }
             )
         }
-
     fun observeSSOResult(backStackSavedState: SavedStateHandle) {
         viewModelScope.launch {
             backStackSavedState
@@ -317,7 +294,6 @@ class NewLoginViewModel(
                 }
         }
     }
-
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin) {
         updateLoginFlowState(NewLoginFlowState.Loading)
         when (ssoLoginResult) {
@@ -344,13 +320,11 @@ class NewLoginViewModel(
                     )
                 }
             }
-
             is DeepLinkResult.SSOLogin.Failure -> {
                 updateLoginFlowState(NewLoginFlowState.Error.DialogError.SSOResultFailure(ssoLoginResult.ssoError))
             }
         }
     }
-
     private suspend fun registerClientAndUpdateState(userId: UserId, setLastDeviceId: Boolean = false) {
         loginExtension.registerClient(userId, null).let { result ->
             if (setLastDeviceId && result is RegisterClientResult.Success) {
@@ -365,20 +339,16 @@ class NewLoginViewModel(
                         }
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
-
                     is RegisterClientResult.E2EICertificateRequired -> {
                         sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
-
                     is RegisterClientResult.Failure.TooManyClients -> {
                         sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
-
                     is RegisterClientResult.Failure.Generic ->
                         updateLoginFlowState(NewLoginFlowState.Error.DialogError.GenericError(result.genericFailure))
-
                     is RegisterClientResult.Failure.InvalidCredentials,
                     is RegisterClientResult.Failure.PasswordAuthRequired -> { // for SSO login these should not happen
                         val failure = CoreFailure.Unknown(IllegalStateException(result::class.simpleName ?: "Unknown"))
@@ -388,11 +358,9 @@ class NewLoginViewModel(
             }
         }
     }
-
     private suspend fun isSessionStillValid(userId: UserId): Boolean =
         (coreLogic.getGlobalScope().doesValidSessionExist(userId) as? DoesValidSessionExistResult.Success)
             ?.doesValidSessionExist == true
-
     @Suppress("ThrowsCount", "TooGenericExceptionCaught")
     private suspend fun restoreCryptoStateAndContinue(storedUserId: UserId) {
         val restoreResult = try {
@@ -408,11 +376,9 @@ class NewLoginViewModel(
                     appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${e.message}")
                     return
                 }
-
                 else -> throw e
             }
         }
-
         when (restoreResult) {
             is RestoreCryptoStateResult.Success -> {
                 withContext(dispatchers.main()) {
@@ -423,11 +389,9 @@ class NewLoginViewModel(
                     updateLoginFlowState(NewLoginFlowState.Default)
                 }
             }
-
             is RestoreCryptoStateResult.NoBackupAvailable -> {
                 registerClientAndUpdateState(storedUserId, setLastDeviceId = true)
             }
-
             is RestoreCryptoStateResult.Failure -> {
                 appLogger.e("$TAG Failed to restore crypto state during SSO login")
                 revertSSOSession(storedUserId)
@@ -441,7 +405,6 @@ class NewLoginViewModel(
             }
         }
     }
-
     @Suppress("ThrowsCount", "TooGenericExceptionCaught")
     private suspend fun revertSSOSession(userId: UserId) {
         try {
@@ -455,17 +418,14 @@ class NewLoginViewModel(
                     if (isSessionStillValid(userId)) throw e
                     appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${e.message}")
                 }
-
                 else -> throw e
             }
         }
     }
-
     /**
      * Update the state based on the input.
      */
     private fun updateLoginFlowState(flowState: NewLoginFlowState) = getAndUpdateLoginFlowState { flowState }
-
     /**
      * Update the state based on the current state and input.
      */
@@ -477,29 +437,23 @@ class NewLoginViewModel(
             nextEnabled = newState !is NewLoginFlowState.Loading && currentUserLoginInput.isNotEmpty()
         )
     }
-
     private fun consumePendingNomadServiceUrl(): String? = pendingNomadServiceUrl.also {
         pendingNomadServiceUrl = null
     }
-
     private fun consumePendingCookieLabel(): String? = pendingCookieLabel.also {
         pendingCookieLabel = null
     }
-
     companion object {
         private const val TAG = "[NewLoginViewModel]"
         const val SSO_LOGIN_RESULT_KEY = "sso_login_result_json"
     }
 }
-
 private fun AutoVersionAuthScopeUseCase.Result.Failure.toLoginError() = when (this) {
     is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> NewLoginFlowState.Error.DialogError.GenericError(genericFailure)
     is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> NewLoginFlowState.Error.DialogError.ClientUpdateRequired
     is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> NewLoginFlowState.Error.DialogError.ServerVersionNotSupported
 }
-
 private fun FetchSSOSettingsUseCase.Result.Failure.toLoginError() = NewLoginFlowState.Error.DialogError.GenericError(coreFailure)
-
 private fun SSOInitiateLoginResult.Failure.toLoginError() = when (this) {
     is SSOInitiateLoginResult.Failure.InvalidCodeFormat -> NewLoginFlowState.Error.TextFieldError.InvalidValue
     is SSOInitiateLoginResult.Failure.InvalidCode -> NewLoginFlowState.Error.DialogError.InvalidSSOCode
@@ -507,12 +461,10 @@ private fun SSOInitiateLoginResult.Failure.toLoginError() = when (this) {
     is SSOInitiateLoginResult.Failure.InvalidRedirect ->
         NewLoginFlowState.Error.DialogError.GenericError(CoreFailure.Unknown(IllegalArgumentException("Invalid Redirect")))
 }
-
 private fun SSOLoginSessionResult.Failure.toLoginError() = when (this) {
     is SSOLoginSessionResult.Failure.InvalidCookie -> NewLoginFlowState.Error.DialogError.InvalidSSOCookie
     is SSOLoginSessionResult.Failure.Generic -> NewLoginFlowState.Error.DialogError.GenericError(this.genericFailure)
 }
-
 private fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError() = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> NewLoginFlowState.Error.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> NewLoginFlowState.Error.DialogError.UserAlreadyExists

@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
-
 import android.text.format.DateUtils
 import android.view.WindowManager
 import androidx.activity.compose.LocalActivity
@@ -62,7 +61,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.delay
 import java.io.File
-
 @Composable
 fun RecordAudioButtonClose(
     onClick: () -> Unit,
@@ -78,7 +76,6 @@ fun RecordAudioButtonClose(
         modifier = modifier
     )
 }
-
 @Composable
 fun RecordAudioButtonEnabled(
     applyAudioFilterState: Boolean,
@@ -98,7 +95,6 @@ fun RecordAudioButtonEnabled(
         applyAudioFilterClick = applyAudioFilterClick
     )
 }
-
 @Composable
 fun RecordAudioButtonRecording(
     applyAudioFilterState: Boolean,
@@ -117,7 +113,6 @@ fun RecordAudioButtonRecording(
     }
     if (!LocalInspectionMode.current) {
         val activity = LocalActivity.current
-
         DisposableEffect(Unit) {
             activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             onDispose {
@@ -125,7 +120,6 @@ fun RecordAudioButtonRecording(
             }
         }
     }
-
     RecordAudioButton(
         onClick = onClick,
         modifier = modifier,
@@ -146,7 +140,6 @@ fun RecordAudioButtonRecording(
         applyAudioFilterClick = { }
     )
 }
-
 @Composable
 fun RecordAudioButtonEncoding(
     applyAudioFilterState: Boolean,
@@ -154,7 +147,6 @@ fun RecordAudioButtonEncoding(
 ) {
     if (!LocalInspectionMode.current) {
         val activity = LocalActivity.current
-
         DisposableEffect(Unit) {
             activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             onDispose {
@@ -162,7 +154,6 @@ fun RecordAudioButtonEncoding(
             }
         }
     }
-
     RecordAudioButton(
         onClick = {},
         modifier = modifier,
@@ -178,7 +169,6 @@ fun RecordAudioButtonEncoding(
         applyAudioFilterClick = { }
     )
 }
-
 @Composable
 fun RecordAudioButtonSend(
     applyAudioFilterState: Boolean,
@@ -214,7 +204,6 @@ fun RecordAudioButtonSend(
         applyAudioFilterClick = applyAudioFilterClick
     )
 }
-
 @Composable
 private fun RecordAudioButton(
     onClick: () -> Unit,
@@ -236,7 +225,6 @@ private fun RecordAudioButton(
     ) {
         topContent()
         Spacer(modifier = Modifier.height(dimensions().spacing40x))
-
         WirePrimaryButton(
             modifier = Modifier
                 .width(dimensions().spacing80x)
@@ -262,7 +250,6 @@ private fun RecordAudioButton(
             text = stringResource(id = bottomText),
             style = MaterialTheme.wireTypography.body02
         )
-
         Spacer(modifier = Modifier.height(dimensions().spacing40x))
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -280,7 +267,6 @@ private fun RecordAudioButton(
         }
     }
 }
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewRecordAudioButtonClose() {
@@ -288,7 +274,6 @@ fun PreviewRecordAudioButtonClose() {
         RecordAudioButtonClose(onClick = {}, modifier = Modifier)
     }
 }
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewRecordAudioButtonEnabled() {
@@ -301,7 +286,6 @@ fun PreviewRecordAudioButtonEnabled() {
         )
     }
 }
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewRecordAudioButtonRecording() {
@@ -313,7 +297,6 @@ fun PreviewRecordAudioButtonRecording() {
         )
     }
 }
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewRecordAudioButtonSend() {
@@ -335,7 +318,6 @@ fun PreviewRecordAudioButtonSend() {
         )
     }
 }
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewRecordAudioButtonEncoding() = WireTheme {

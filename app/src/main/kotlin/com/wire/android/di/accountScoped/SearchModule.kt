@@ -28,34 +28,25 @@ import com.wire.kalium.logic.feature.search.SearchScope
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(ViewModelComponent::class)
 class SearchModule {
 
-    @ViewModelScoped
     @Provides
     fun provideSearchScope(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
     ): SearchScope = coreLogic.getSessionScope(currentAccount).search
 
-    @ViewModelScoped
     @Provides
     fun provideSearchUsersUseCase(searchScope: SearchScope): SearchUsersUseCase = searchScope.searchUsers
 
-    @ViewModelScoped
     @Provides
     fun provideSearchByHandleUseCase(searchScope: SearchScope): SearchByHandleUseCase = searchScope.searchByHandle
 
-    @ViewModelScoped
     @Provides
     fun provideFederatedSearchParser(searchScope: SearchScope): FederatedSearchParser = searchScope.federatedSearchParser
 
-    @ViewModelScoped
     @Provides
     fun provideIsFederationSearchAllowedUseCase(searchScope: SearchScope): IsFederationSearchAllowedUseCase =
         searchScope.isFederationSearchAllowedUseCase

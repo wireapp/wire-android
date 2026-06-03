@@ -16,11 +16,9 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.newauthentication.login
-
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
-
 sealed interface NewLoginAction {
     data class EnterpriseLoginNotSupported(val userIdentifier: String) : NewLoginAction
     data class EmailPassword(val userIdentifier: String, val loginPasswordPath: LoginPasswordPath) : NewLoginAction

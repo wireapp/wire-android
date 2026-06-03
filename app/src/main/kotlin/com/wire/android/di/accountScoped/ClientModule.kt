@@ -36,75 +36,58 @@ import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(ViewModelComponent::class)
 class ClientModule {
 
-    @ViewModelScoped
     @Provides
     fun provideClientScopeProvider(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): ClientScope = coreLogic.getSessionScope(currentAccount).client
 
-    @ViewModelScoped
     @Provides
     fun provideMlsKeyPackageCountUseCase(clientScope: ClientScope): MLSKeyPackageCountUseCase =
         clientScope.mlsKeyPackageCountUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideRestartSlowSyncProcessForRecoveryUseCase(clientScope: ClientScope): RestartSlowSyncProcessForRecoveryUseCase =
         clientScope.restartSlowSyncProcessForRecoveryUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideDeleteClientUseCase(clientScope: ClientScope): DeleteClientUseCase = clientScope.deleteClient
 
-    @ViewModelScoped
     @Provides
     fun provideGetOrRegisterClientUseCase(clientScope: ClientScope): GetOrRegisterClientUseCase =
         clientScope.getOrRegister
 
-    @ViewModelScoped
     @Provides
     fun provideFetchUsersClientsFromRemoteUseCase(clientScope: ClientScope): FetchUsersClientsFromRemoteUseCase =
         clientScope.fetchUsersClients
 
-    @ViewModelScoped
     @Provides
     fun provideGetOtherUsersClients(clientScope: ClientScope): ObserveClientsByUserIdUseCase =
         clientScope.getOtherUserClients
 
-    @ViewModelScoped
     @Provides
     fun provideFetchSelfClientsFromRemoteUseCase(clientScope: ClientScope): FetchSelfClientsFromRemoteUseCase =
         clientScope.fetchSelfClients
 
-    @ViewModelScoped
     @Provides
     fun provideClientFingerPrintUseCase(clientScope: ClientScope): ClientFingerprintUseCase =
         clientScope.remoteClientFingerPrint
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateClientVerificationStatusUseCase(clientScope: ClientScope): UpdateClientVerificationStatusUseCase =
         clientScope.updateClientVerificationStatus
 
-    @ViewModelScoped
     @Provides
     fun provideGetClientDetailsUseCase(clientScope: ClientScope): ObserveClientDetailsUseCase = clientScope.observeClientDetailsUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideObserveCurrentClientUseCase(clientScope: ClientScope): ObserveCurrentClientIdUseCase =
         clientScope.observeCurrentClientId
 
-    @ViewModelScoped
     @Provides
     fun provideNeedsToRegisterClientUseCase(clientScope: ClientScope): NeedsToRegisterClientUseCase =
         clientScope.needsToRegisterClient

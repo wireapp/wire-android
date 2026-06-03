@@ -16,16 +16,13 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.newauthentication.login
-
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.kalium.logic.feature.auth.LoginRedirectPath
-
 sealed interface NewLoginDestination {
     data class EmailPassword(val loginPasswordPath: LoginPasswordPath) : NewLoginDestination
     data class SSO(val ssoCode: String) : NewLoginDestination
 }
-
 /**
  * Map the [LoginRedirectPath] to a [NewLoginDestination] -> EmailPassword or SSO.
  * Params are passed down accordingly that the destination needs.
@@ -38,7 +35,6 @@ fun LoginRedirectPath.toPasswordOrSsoDestination(): NewLoginDestination {
                 isCloudAccountCreationPossible = isCloudAccountCreationPossible
             )
         )
-
         is LoginRedirectPath.NoRegistration,
         is LoginRedirectPath.Default -> {
             NewLoginDestination.EmailPassword(
@@ -47,14 +43,12 @@ fun LoginRedirectPath.toPasswordOrSsoDestination(): NewLoginDestination {
                 )
             )
         }
-
         is LoginRedirectPath.ExistingAccountWithClaimedDomain -> NewLoginDestination.EmailPassword(
             LoginPasswordPath(
                 isCloudAccountCreationPossible = isCloudAccountCreationPossible,
                 isDomainClaimedByOrg = DomainClaimedByOrg.Claimed(domain)
             )
         )
-
         is LoginRedirectPath.SSO -> NewLoginDestination.SSO(ssoCode)
     }
 }

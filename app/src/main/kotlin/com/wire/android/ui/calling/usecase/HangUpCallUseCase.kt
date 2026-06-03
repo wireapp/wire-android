@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.calling.usecase
-
 import com.wire.android.di.ApplicationScope
 import com.wire.android.media.CallRinger
 import com.wire.kalium.logic.data.id.ConversationId
@@ -26,13 +25,10 @@ import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-@ViewModelScoped
 class HangUpCallUseCase @Inject constructor(
     @ApplicationScope private val coroutineScope: CoroutineScope,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
@@ -43,7 +39,6 @@ class HangUpCallUseCase @Inject constructor(
     private val flipToFrontCamera: FlipToFrontCameraUseCase,
     private val callRinger: CallRinger,
 ) {
-
     operator fun invoke(conversationId: ConversationId) {
         coroutineScope.launch {
             resetCallConfig(conversationId)
@@ -51,7 +46,6 @@ class HangUpCallUseCase @Inject constructor(
             callRinger.stop()
         }
     }
-
     private suspend fun resetCallConfig(conversationId: ConversationId) {
         // we need to update mute state to false, so if the user re-join the call te mic will will be muted
         muteCall(conversationId, false)

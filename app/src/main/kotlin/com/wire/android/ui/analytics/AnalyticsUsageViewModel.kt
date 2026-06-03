@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.analytics
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,15 +27,12 @@ import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import dagger.Lazy
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-
 class AnalyticsUsageViewModel(
     private val analyticsEnabled: AnalyticsConfiguration,
     private val dataStore: Lazy<UserDataStore>,
     private val selfServerConfig: Lazy<SelfServerConfigUseCase>,
 ) : ViewModel() {
-
     var state by mutableStateOf(AnalyticsUsageState())
-
     init {
         viewModelScope.launch {
             val isDialogSeen = dataStore.get().isAnalyticsDialogSeen().first()
@@ -48,33 +44,26 @@ class AnalyticsUsageViewModel(
                             || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
                 is SelfServerConfigUseCase.Result.Failure -> false
             }
-
             val shouldShowDialog = isValidBackend && !isAnalyticsUsageEnabled && isAnalyticsConfigurationEnabled && !isDialogSeen
-
             state = state.copy(
                 shouldDisplayDialog = shouldShowDialog
             )
         }
     }
-
     fun agreeAnalyticsUsage() {
         viewModelScope.launch {
             dataStore.get().setIsAnonymousAnalyticsEnabled(enabled = true)
             dataStore.get().setIsAnalyticsDialogSeen()
-
             hideDialog()
         }
     }
-
     fun declineAnalyticsUsage() {
         viewModelScope.launch {
             dataStore.get().setIsAnonymousAnalyticsEnabled(enabled = false)
             dataStore.get().setIsAnalyticsDialogSeen()
-
             hideDialog()
         }
     }
-
     private fun hideDialog() {
         state = state.copy(
             shouldDisplayDialog = false

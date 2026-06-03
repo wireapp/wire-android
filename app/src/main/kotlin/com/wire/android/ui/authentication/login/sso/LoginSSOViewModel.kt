@@ -165,7 +165,7 @@ class LoginSSOViewModel : LoginViewModel {
 
     @AssistedFactory
     interface Factory {
-        fun create(args: LoginNavArgs): LoginSSOViewModel
+        fun create(loginNavArgs: LoginNavArgs): LoginSSOViewModel
     }
 
     private fun observeSSOCodeInput() {

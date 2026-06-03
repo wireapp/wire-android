@@ -20,7 +20,7 @@ package com.wire.android.datastore
 
 import android.content.Context
 import com.wire.kalium.logic.data.user.UserId
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import javax.inject.Inject

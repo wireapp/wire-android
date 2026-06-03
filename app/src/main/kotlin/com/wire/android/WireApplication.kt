@@ -32,6 +32,8 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.metro.WireAppGraph
+import com.wire.android.di.metro.metroLazy
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
@@ -53,7 +55,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import dagger.Lazy
-import dagger.hilt.android.HiltAndroidApp
+import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
@@ -65,47 +67,43 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import javax.inject.Inject
 import kotlin.collections.filter
 
 @Suppress("TooManyFunctions")
-@HiltAndroidApp
 class WireApplication : BaseApp() {
 
-    @Inject
+    val appGraph: WireAppGraph by lazy(LazyThreadSafetyMode.NONE) {
+        createGraphFactory<WireAppGraph.Factory>().create(this)
+    }
+
     @KaliumCoreLogic
-    lateinit var coreLogic: Lazy<CoreLogic>
-
-    @Inject
-    lateinit var logFileWriter: Lazy<LogFileWriter>
-
-    @Inject
-    lateinit var syncLifecycleManager: Lazy<SyncLifecycleManager>
-
-    @Inject
-    lateinit var wireWorkerFactory: Lazy<WireWorkerFactory>
-
-    @Inject
-    lateinit var globalObserversManager: Lazy<GlobalObserversManager>
-
-    @Inject
-    lateinit var globalDataStore: Lazy<GlobalDataStore>
-
-    @Inject
-    lateinit var userDataStoreProvider: Lazy<UserDataStoreProvider>
-
-    @Inject
+    private val coreLogic: Lazy<CoreLogic> by lazy(LazyThreadSafetyMode.NONE) { metroLazy { appGraph.coreLogic } }
+    private val logFileWriter: Lazy<LogFileWriter> by lazy(LazyThreadSafetyMode.NONE) { metroLazy { appGraph.logFileWriter } }
+    private val syncLifecycleManager: Lazy<SyncLifecycleManager> by lazy(LazyThreadSafetyMode.NONE) {
+        metroLazy { appGraph.syncLifecycleManager }
+    }
+    private val wireWorkerFactory: Lazy<WireWorkerFactory> by lazy(LazyThreadSafetyMode.NONE) {
+        metroLazy { appGraph.wireWorkerFactory }
+    }
+    private val globalObserversManager: Lazy<GlobalObserversManager> by lazy(LazyThreadSafetyMode.NONE) {
+        metroLazy { appGraph.globalObserversManager }
+    }
+    private val globalDataStore: Lazy<GlobalDataStore> by lazy(LazyThreadSafetyMode.NONE) {
+        metroLazy { appGraph.globalDataStore }
+    }
+    private val userDataStoreProvider: Lazy<UserDataStoreProvider> by lazy(LazyThreadSafetyMode.NONE) {
+        metroLazy { appGraph.userDataStoreProvider }
+    }
     @ApplicationScope
-    lateinit var globalAppScope: CoroutineScope
-
-    @Inject
-    lateinit var currentScreenManager: CurrentScreenManager
-
-    @Inject
-    lateinit var analyticsManager: Lazy<AnonymousAnalyticsManager>
-
-    @Inject
-    lateinit var workManager: WorkManager
+    private val globalAppScope: CoroutineScope
+        get() = appGraph.globalAppScope
+    private val currentScreenManager: CurrentScreenManager
+        get() = appGraph.currentScreenManager
+    private val analyticsManager: Lazy<AnonymousAnalyticsManager> by lazy(LazyThreadSafetyMode.NONE) {
+        metroLazy { appGraph.analyticsManager }
+    }
+    private val workManager: WorkManager
+        get() = appGraph.workManager
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()

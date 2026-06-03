@@ -50,7 +50,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -76,14 +75,15 @@ import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.utils.destination
 import com.ramcosta.composedestinations.utils.route
 import com.wire.android.BuildConfig
+import com.wire.android.WireApplication
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.di.metro.AuthenticationViewModelGraphBridge
 import com.wire.android.di.metro.LocalMetroViewModelGraph
 import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.WireActivityViewModelGraphBridge
+import com.wire.android.di.metro.WireAppGraph
+import com.wire.android.di.metro.WireSessionGraph
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
@@ -136,7 +136,6 @@ import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.launchUpdateTheApp
 import dagger.Lazy
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
@@ -144,32 +143,38 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @OptIn(ExperimentalComposeUiApi::class)
-@AndroidEntryPoint
 @Suppress("TooManyFunctions", "LargeClass")
 class WireActivity : BaseActivity() {
 
-    @Inject
-    lateinit var currentScreenManager: CurrentScreenManager
+    private val appGraph: WireAppGraph
+        get() = (application as WireApplication).appGraph
 
-    @Inject
-    lateinit var lockCodeTimeManager: Lazy<LockCodeTimeManager>
+    private val currentScreenManager: CurrentScreenManager
+        get() = appGraph.currentScreenManager
 
-    @Inject
-    lateinit var switchAccountObserver: SwitchAccountObserver
+    private val lockCodeTimeManager: Lazy<LockCodeTimeManager> = Lazy { appGraph.lockCodeTimeManager }
 
-    @Inject
-    lateinit var loginTypeSelector: LoginTypeSelector
+    private val switchAccountObserver: SwitchAccountObserver
+        get() = appGraph.switchAccountObserver
 
-    @Inject
-    lateinit var dynamicReceiversManager: DynamicReceiversManager
+    private val loginTypeSelector: LoginTypeSelector
+        get() = appGraph.loginTypeSelector
 
-    @Inject
-    lateinit var managedConfigurationsManager: ManagedConfigurationsManager
+    private val dynamicReceiversManager: DynamicReceiversManager
+        get() = appGraph.dynamicReceiversManager
 
-    private val viewModel: WireActivityViewModel by viewModels()
+    private val managedConfigurationsManager: ManagedConfigurationsManager
+        get() = appGraph.managedConfigurationsManager
+
+    private val viewModel: WireActivityViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                appGraph.wireActivityViewModel
+            }
+        }
+    }
 
     private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
     private lateinit var shakeDetector: ShakeDetector
@@ -254,12 +259,15 @@ class WireActivity : BaseActivity() {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
             val currentUserId = viewModel.globalAppState.currentUserId
-            val wireActivityViewModelGraph = currentUserId?.let {
-                hiltViewModel<WireActivityViewModelGraphBridge>(
-                    key = "WireActivityViewModelGraphBridge:$it"
-                )
+            LaunchedEffect(currentUserId) {
+                appLogger.i("$TAG selected Metro session graph user=${currentUserId?.toLogString() ?: "-"}")
             }
-            val authenticationViewModelGraph = hiltViewModel<AuthenticationViewModelGraphBridge>()
+            val wireActivityViewModelGraph = currentUserId?.let {
+                remember(it) {
+                    appGraph.createSessionGraph(it)
+                }
+            }
+            val authenticationViewModelGraph = appGraph
             val activityViewModels = wireActivityViewModelGraph?.let {
                 wireActivityScopedViewModels(it)
             }
@@ -353,8 +361,8 @@ class WireActivity : BaseActivity() {
     private fun rememberMetroViewModelGraph(
         currentBaseRoute: String?,
         startDestinationBaseRoute: String,
-        wireActivityViewModelGraph: WireActivityViewModelGraphBridge?,
-        authenticationViewModelGraph: AuthenticationViewModelGraphBridge,
+        wireActivityViewModelGraph: WireSessionGraph?,
+        authenticationViewModelGraph: WireAppGraph,
     ): MetroViewModelGraph? {
         val effectiveBaseRoute = currentBaseRoute ?: startDestinationBaseRoute
         val usesAuthenticationGraph = effectiveBaseRoute in authenticationGraphRoutes
@@ -380,8 +388,8 @@ class WireActivity : BaseActivity() {
         currentBaseRoute: String?,
         usesAuthenticationGraph: Boolean,
         useStandaloneAuthenticationGraph: Boolean,
-        wireActivityViewModelGraph: WireActivityViewModelGraphBridge?,
-        authenticationViewModelGraph: AuthenticationViewModelGraphBridge,
+        wireActivityViewModelGraph: WireSessionGraph?,
+        authenticationViewModelGraph: WireAppGraph,
     ): MetroViewModelGraph? = when {
         useStandaloneAuthenticationGraph && usesAuthenticationGraph -> authenticationViewModelGraph
         wireActivityViewModelGraph != null -> wireActivityViewModelGraph
@@ -390,7 +398,7 @@ class WireActivity : BaseActivity() {
     }
 
     @Composable
-    private fun wireActivityScopedViewModels(graph: WireActivityViewModelGraphBridge): WireActivityScopedViewModels {
+    private fun wireActivityScopedViewModels(graph: WireSessionGraph): WireActivityScopedViewModels {
         val scopeKey = graph.viewModelScopeKey
         return WireActivityScopedViewModels(
             callFeedbackViewModel = viewModel(

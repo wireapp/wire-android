@@ -23,58 +23,53 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.home.settings.backup.MPBackupSettings
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.backup.BackupAndUploadCryptoStateUseCase
 import com.wire.kalium.logic.feature.backup.BackupScope
+import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
+import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
+import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
+import com.wire.kalium.logic.feature.backup.SetLastDeviceIdUseCase
+import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
 import com.wire.kalium.util.DelicateKaliumApi
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(ViewModelComponent::class)
 class BackupModule {
 
-    @ViewModelScoped
     @Provides
     fun provideBackupScope(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): BackupScope =
         coreLogic.getSessionScope(currentAccount).backup
 
-    @ViewModelScoped
     @Provides
-    fun provideCreateBackupUseCase(backupScope: BackupScope) =
+    fun provideCreateBackupUseCase(backupScope: BackupScope): CreateBackupUseCase =
         backupScope.create
 
-    @ViewModelScoped
     @Provides
-    fun provideVerifyBackupUseCase(backupScope: BackupScope) =
+    fun provideVerifyBackupUseCase(backupScope: BackupScope): VerifyBackupUseCase =
         backupScope.verify
 
-    @ViewModelScoped
     @Provides
-    fun provideRestoreBackupUseCase(backupScope: BackupScope) =
+    fun provideRestoreBackupUseCase(backupScope: BackupScope): RestoreBackupUseCase =
         backupScope.restore
 
     @Provides
-    fun provideMpBackupSettings() = if (BuildConfig.ENABLE_CROSSPLATFORM_BACKUP) {
+    fun provideMpBackupSettings(): MPBackupSettings = if (BuildConfig.ENABLE_CROSSPLATFORM_BACKUP) {
         MPBackupSettings.Enabled
     } else {
         MPBackupSettings.Disabled
     }
 
     @OptIn(DelicateKaliumApi::class)
-    @ViewModelScoped
     @Provides
-    fun provideOnboardingBackupUseCase(backupScope: BackupScope) =
+    fun provideOnboardingBackupUseCase(backupScope: BackupScope): CreateObfuscatedCopyUseCase =
         backupScope.createUnEncryptedCopy
 
-    @ViewModelScoped
     @Provides
-    fun provideBackupAndUploadCryptoState(backupScope: BackupScope) =
+    fun provideBackupAndUploadCryptoState(backupScope: BackupScope): BackupAndUploadCryptoStateUseCase =
         backupScope.backupAndUploadCryptoState
 
-    @ViewModelScoped
     @Provides
-    fun provideSetLastDeviceIdUseCase(backupScope: BackupScope) =
+    fun provideSetLastDeviceIdUseCase(backupScope: BackupScope): SetLastDeviceIdUseCase =
         backupScope.setLastDeviceId
 }

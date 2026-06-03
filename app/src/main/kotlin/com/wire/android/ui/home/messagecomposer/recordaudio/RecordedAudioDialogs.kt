@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
-
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
@@ -24,7 +23,6 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
-
 @Composable
 fun DiscardRecordedAudioDialog(
     dialogState: RecordAudioDialogState,
@@ -50,7 +48,6 @@ fun DiscardRecordedAudioDialog(
         )
     }
 }
-
 @Composable
 fun MicrophonePermissionsDeniedDialog(
     dialogState: RecordAudioDialogState,
@@ -76,7 +73,6 @@ fun MicrophonePermissionsDeniedDialog(
         )
     }
 }
-
 @Composable
 fun RecordedAudioMaxFileSizeReachedDialog(
     dialogState: RecordAudioDialogState,

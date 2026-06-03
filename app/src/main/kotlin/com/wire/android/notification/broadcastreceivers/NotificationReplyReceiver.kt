@@ -23,34 +23,19 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.core.app.RemoteInput
 import com.wire.android.R
-import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.di.NoSession
+import com.wire.android.WireApplication
 import com.wire.android.notification.MessageNotificationManager
 import com.wire.android.notification.NotificationConstants
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.common.functional.fold
-import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.datetime.Clock
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argument constructor
 
-    @Inject
-    @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
-
-    @Inject
-    lateinit var dispatcherProvider: DispatcherProvider
-
-    @Inject
-    @NoSession
-    lateinit var qualifiedIdMapper: QualifiedIdMapper
-
     override suspend fun receive(context: Context, intent: Intent) {
+        val appGraph = (context.applicationContext as WireApplication).appGraph
+        val coreLogic = appGraph.coreLogic
+        val qualifiedIdMapper = appGraph.qualifiedIdMapper
         val remoteInput = RemoteInput.getResultsFromIntent(intent)
         val conversationId: String? = intent.getStringExtra(EXTRA_CONVERSATION_ID)
         val userId: String? = intent.getStringExtra(EXTRA_USER_ID)
@@ -79,6 +64,7 @@ class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argumen
 
     override fun onTimeout(context: Context, intent: Intent, exception: Exception) {
         super.onTimeout(context, intent, exception)
+        val qualifiedIdMapper = (context.applicationContext as WireApplication).appGraph.qualifiedIdMapper
 
         val conversationId: String? = intent.getStringExtra(EXTRA_CONVERSATION_ID)
         val userId: String? = intent.getStringExtra(EXTRA_USER_ID)

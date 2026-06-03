@@ -19,7 +19,7 @@ package com.wire.android.util
 
 import android.content.Context
 import android.os.Build
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 

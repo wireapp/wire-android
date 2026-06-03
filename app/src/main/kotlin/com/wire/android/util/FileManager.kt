@@ -25,7 +25,7 @@ import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.AttachmentType
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath

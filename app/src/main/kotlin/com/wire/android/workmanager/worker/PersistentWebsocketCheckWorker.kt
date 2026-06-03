@@ -16,12 +16,9 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 @file:Suppress("StringTemplate")
-
 package com.wire.android.workmanager.worker
-
 import android.content.Context
 import androidx.core.app.NotificationCompat
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ForegroundInfo
@@ -43,8 +40,6 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.toJavaDuration
-
-@HiltWorker
 class PersistentWebsocketCheckWorker
 @AssistedInject constructor(
     @Assisted private val appContext: Context,
@@ -52,19 +47,16 @@ class PersistentWebsocketCheckWorker
     private val startPersistentWebsocketIfNecessary: StartPersistentWebsocketIfNecessaryUseCase,
     private val notificationChannelsManager: NotificationChannelsManager
 ) : CoroutineWorker(appContext, workerParams) {
-
     override suspend fun doWork(): Result = coroutineScope {
         appLogger.i("${TAG}: Starting periodic work check for persistent websocket connection")
         startPersistentWebsocketIfNecessary()
         Result.success()
     }
-
     override suspend fun getForegroundInfo(): ForegroundInfo {
         notificationChannelsManager.createRegularChannel(
             NotificationConstants.OTHER_CHANNEL_ID,
             NotificationConstants.OTHER_CHANNEL_NAME
         )
-
         val title = "${applicationContext.getString(R.string.app_name)} " +
                 applicationContext.getString(R.string.settings_service_is_running)
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
@@ -76,17 +68,14 @@ class PersistentWebsocketCheckWorker
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setContentIntent(openAppPendingIntent(applicationContext))
             .build()
-
         return ForegroundInfo(NotificationIds.PERSISTENT_CHECK_NOTIFICATION_ID.ordinal, notification)
     }
-
     companion object {
         const val NAME = "wss_check_worker"
         const val TAG = "PersistentWebsocketCheckWorker"
         val WORK_INTERVAL = 24.hours.toJavaDuration()
     }
 }
-
 fun WorkManager.enqueuePeriodicPersistentWebsocketCheckWorker() {
     appLogger.i("${TAG}: Enqueueing periodic work for $TAG")
     enqueueUniquePeriodicWork(
@@ -97,7 +86,6 @@ fun WorkManager.enqueuePeriodicPersistentWebsocketCheckWorker() {
             .build()
     )
 }
-
 fun WorkManager.cancelPeriodicPersistentWebsocketCheckWorker() {
     appLogger.i("${TAG}: Cancelling all periodic scheduled work for the tag $TAG")
     cancelAllWorkByTag(TAG)

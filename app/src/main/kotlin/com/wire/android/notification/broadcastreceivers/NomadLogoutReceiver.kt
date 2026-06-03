@@ -19,44 +19,25 @@ package com.wire.android.notification.broadcastreceivers
 
 import android.content.Context
 import android.content.Intent
+import com.wire.android.WireApplication
 import com.wire.android.appLogger
-import com.wire.android.config.NomadProfilesFeatureConfig
-import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
-import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.lifecycle.AppBackgroundManager
-import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class NomadLogoutReceiver : CoroutineReceiver() {
 
-    @Inject
-    @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
-
-    @Inject
-    lateinit var currentSession: CurrentSessionUseCase
-
-    @Inject
-    lateinit var accountSwitch: AccountSwitchUseCase
-
-    @Inject
-    lateinit var switchAccountObserver: SwitchAccountObserver
-
-    @Inject
-    lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
+    private lateinit var appGraph: com.wire.android.di.metro.WireAppGraph
 
     public override suspend fun receive(context: Context, intent: Intent) {
+        appGraph = (context.applicationContext as WireApplication).appGraph
+        val coreLogic = appGraph.coreLogic
+        val nomadProfilesFeatureConfig = appGraph.nomadProfilesFeatureConfig
         when {
             intent.action != ACTION_LOGOUT -> {
                 appLogger.i("$TAG not a logout intent is passed ignore")
@@ -89,6 +70,10 @@ class NomadLogoutReceiver : CoroutineReceiver() {
     }
 
     private suspend fun performLogout() {
+        val coreLogic = appGraph.coreLogic
+        val currentSession = appGraph.currentSession
+        val accountSwitch = appGraph.accountSwitch
+        val switchAccountObserver = appGraph.switchAccountObserver
         when (val session = currentSession()) {
             is CurrentSessionResult.Success -> {
                 val userId = session.accountInfo.userId

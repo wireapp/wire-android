@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.media.audiomessage
-
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,7 +36,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-
 @ViewModelScopedPreview
 interface AudioMessageViewModel {
     val state: AudioMessageState get() = AudioMessageState()
@@ -45,23 +43,19 @@ interface AudioMessageViewModel {
     fun changeAudioPosition(position: Float) {}
     fun changeAudioSpeed(audioSpeed: AudioSpeed) {}
 }
-
 class AudioMessageViewModelImpl(
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
     private val observeMessageById: ObserveMessageByIdUseCase,
     private val args: AudioMessageArgs,
 ) : ViewModel(), AudioMessageViewModel {
-
     override var state: AudioMessageState by mutableStateOf(AudioMessageState())
         private set
-
     init {
         observeAudioState()
         observeAudioSpeed()
         preloadAudioMessage()
         fetchWavesMask()
     }
-
     private fun observeAudioState() {
         viewModelScope.launch {
             audioMessagePlayer.observableAudioMessagesState
@@ -74,7 +68,6 @@ class AudioMessageViewModelImpl(
                 }
         }
     }
-
     private fun observeAudioSpeed() {
         viewModelScope.launch {
             audioMessagePlayer.audioSpeed
@@ -84,7 +77,6 @@ class AudioMessageViewModelImpl(
                 }
         }
     }
-
     private fun preloadAudioMessage() {
         viewModelScope.launch {
             try {
@@ -97,7 +89,6 @@ class AudioMessageViewModelImpl(
             }
         }
     }
-
     private fun fetchWavesMask() {
         viewModelScope.launch {
             observeMessageById(args.conversationId, args.messageId)
@@ -115,38 +106,32 @@ class AudioMessageViewModelImpl(
                 }
         }
     }
-
     override fun playAudio() {
         viewModelScope.launch {
             audioMessagePlayer.playAudio(args.conversationId, args.messageId)
         }
     }
-
     override fun changeAudioPosition(position: Float) {
         viewModelScope.launch {
             audioMessagePlayer.setPosition(args.conversationId, args.messageId, position.toInt())
         }
     }
-
     override fun changeAudioSpeed(audioSpeed: AudioSpeed) {
         viewModelScope.launch {
             audioMessagePlayer.setSpeed(audioSpeed)
         }
     }
 }
-
 @Serializable
 data class AudioMessageArgs(
     val conversationId: ConversationId,
     val messageId: String
 ) : ScopedArgs {
     override val key = "$ARGS_KEY:$conversationId:$messageId"
-
     companion object {
         const val ARGS_KEY = "AudioMessageArgsKey"
     }
 }
-
 @Stable
 data class AudioMessageState(
     val audioSpeed: AudioSpeed = AudioSpeed.NORMAL,

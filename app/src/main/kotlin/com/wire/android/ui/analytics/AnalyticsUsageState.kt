@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.analytics
-
 data class AnalyticsUsageState(
     val shouldDisplayDialog: Boolean = false
 )

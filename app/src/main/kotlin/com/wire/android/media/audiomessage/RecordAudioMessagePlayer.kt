@@ -16,12 +16,10 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.media.audiomessage
-
 import android.content.Context
 import android.media.MediaPlayer
 import androidx.core.net.toUri
 import com.wire.android.di.ApplicationScope
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -35,8 +33,6 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
-
-@ViewModelScoped
 class RecordAudioMessagePlayer @Inject constructor(
     private val context: Context,
     private val audioMediaPlayer: MediaPlayer,
@@ -45,7 +41,6 @@ class RecordAudioMessagePlayer @Inject constructor(
 ) {
     private var currentAudioFile: File? = null
     private var audioState: AudioState = AudioState.DEFAULT
-
     init {
         audioMediaPlayer.setOnCompletionListener {
             if (currentAudioFile != null) {
@@ -57,18 +52,15 @@ class RecordAudioMessagePlayer @Inject constructor(
                 seekToAudioPosition.tryEmit(0)
             }
         }
-
         audioFocusHelper.setListener(
             onPauseCurrentAudio = { scope.launch { pause() } },
             onResumeCurrentAudio = { scope.launch { resumeAudio() } }
         )
     }
-
     private val audioMessageStateUpdate =
         MutableSharedFlow<RecordAudioMediaPlayerStateUpdate>(
             extraBufferCapacity = 1
         )
-
     // MediaPlayer API does not have any mechanism that would inform us about the currentPosition,
     // in a callback manner, therefore we need to create a timer manually that ticks every 1 second
     // and emits the current position
@@ -80,20 +72,17 @@ class RecordAudioMessagePlayer @Inject constructor(
             }
         }
     }.distinctUntilChanged()
-
     private val seekToAudioPosition =
         MutableSharedFlow<Int>(
             onBufferOverflow = BufferOverflow.DROP_OLDEST,
             extraBufferCapacity = 1
         )
-
     private val positionChangedUpdate = merge(mediaPlayerPosition, seekToAudioPosition)
         .map { position ->
             currentAudioFile?.let {
                 RecordAudioMediaPlayerStateUpdate.PositionChangeUpdate(position)
             }
         }.filterNotNull()
-
     // Flow collecting the audio message state updates as well as the audio position updates.
     // The collected value is updated for our single recorded audio.
     // The audio position can be either updated manually by the user or from the Slider component or
@@ -106,13 +95,11 @@ class RecordAudioMessagePlayer @Inject constructor(
                         audioMediaPlayingState = audioStateUpdate.audioMediaPlayingState
                     )
                 }
-
                 is RecordAudioMediaPlayerStateUpdate.PositionChangeUpdate -> {
                     audioState = audioState.copy(
                         currentPositionInMs = audioStateUpdate.position
                     )
                 }
-
                 is RecordAudioMediaPlayerStateUpdate.TotalTimeUpdate -> {
                     audioState = audioState.copy(
                         totalTimeInMs = AudioState.TotalTimeInMs.Known(
@@ -121,10 +108,8 @@ class RecordAudioMessagePlayer @Inject constructor(
                     )
                 }
             }
-
             audioState
         }
-
     suspend fun playAudio(
         audioFile: File
     ) {
@@ -138,20 +123,17 @@ class RecordAudioMessagePlayer @Inject constructor(
             )
         }
     }
-
     private fun previouslyResumedPosition(): Int =
         if (audioState.audioMediaPlayingState == AudioMediaPlayingState.Completed) {
             0
         } else {
             audioState.currentPositionInMs
         }
-
     private suspend fun stopCurrentlyPlayingAudioMessage() {
         if (currentAudioFile != null) {
             stop()
         }
     }
-
     private suspend fun resumeOrPauseAudio() {
         if (audioMediaPlayer.isPlaying) {
             pause()
@@ -161,13 +143,11 @@ class RecordAudioMessagePlayer @Inject constructor(
             resumeAudio()
         }
     }
-
     private suspend fun playAudioMessage(
         audioFile: File,
         position: Int
     ) {
         currentAudioFile = audioFile
-
         audioMediaPlayer.setDataSource(
             context,
             audioFile.toUri()
@@ -176,27 +156,23 @@ class RecordAudioMessagePlayer @Inject constructor(
         audioMediaPlayer.prepare()
         audioMediaPlayer.seekTo(position)
         audioMediaPlayer.start()
-
         audioMessageStateUpdate.emit(
             RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(
                 audioMediaPlayingState = AudioMediaPlayingState.Playing
             )
         )
-
         audioMessageStateUpdate.emit(
             RecordAudioMediaPlayerStateUpdate.TotalTimeUpdate(
                 totalTimeInMs = audioMediaPlayer.duration
             )
         )
     }
-
     suspend fun setPosition(position: Int) {
         if (currentAudioFile != null) {
             audioMediaPlayer.seekTo(position)
             seekToAudioPosition.emit(position)
         }
     }
-
     private suspend fun resumeAudio() {
         if (currentAudioFile != null) {
             audioMediaPlayer.start()
@@ -207,7 +183,6 @@ class RecordAudioMessagePlayer @Inject constructor(
             )
         }
     }
-
     private suspend fun pause() {
         if (currentAudioFile != null) {
             audioMediaPlayer.pause()
@@ -218,7 +193,6 @@ class RecordAudioMessagePlayer @Inject constructor(
             )
         }
     }
-
     suspend fun stop() {
         currentAudioFile = null
         audioMediaPlayer.reset()
@@ -228,12 +202,10 @@ class RecordAudioMessagePlayer @Inject constructor(
             )
         )
     }
-
     fun close() {
         audioFocusHelper.abandon()
         audioMediaPlayer.release()
     }
-
     private companion object {
         const val UPDATE_POSITION_INTERVAL_IN_MS = 100L
     }

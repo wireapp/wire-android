@@ -26,16 +26,12 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.network.NetworkStateObserver
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
 
 /**
  * Module that holds everything necessary to load images.
  * It's installed in [ViewModelComponent] as it is something that depends on the currently active user session
  */
 @Module
-@InstallIn(ViewModelComponent::class)
 class ImageLoadingModule {
 
     @Provides
@@ -55,5 +51,6 @@ class ImageLoadingModule {
 
     // For better performance/caching. We shouldn't create many of these ImageLoaders.
     @Provides
-    fun provideWireImageLoader(imageLoaderFactory: WireSessionImageLoader.Factory) = imageLoaderFactory.newImageLoader()
+    fun provideWireImageLoader(imageLoaderFactory: WireSessionImageLoader.Factory): WireSessionImageLoader =
+        imageLoaderFactory.newImageLoader()
 }

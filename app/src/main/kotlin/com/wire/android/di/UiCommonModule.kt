@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android
+package com.wire.android.di
 
-import dagger.hilt.android.testing.CustomTestApplication
+import android.content.Context
+import com.wire.android.util.FileSizeFormatter
+import dagger.Module
+import dagger.Provides
 
-@CustomTestApplication(BaseApp::class)
-interface HiltTestApp
+@Module
+object UiCommonModule {
+    @Provides
+    fun provideFileSizeFormatter(
+        @ApplicationContext context: Context,
+    ): FileSizeFormatter = FileSizeFormatter(context)
+}

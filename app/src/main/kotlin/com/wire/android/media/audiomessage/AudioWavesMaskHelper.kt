@@ -16,11 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.media.audiomessage
-
 import kotlin.math.roundToInt
-
 const val WAVE_MAX = 32
-
 fun List<Int>.equalizedWavesMask(
     newMaxValue: Int = WAVE_MAX,
     currentMaxValue: Int = UByte.MAX_VALUE.toInt(), // normalized loudness can be up to 255 (UByte.MAX_VALUE)
@@ -35,7 +32,6 @@ fun List<Int>.equalizedWavesMask(
         map { (it / divider).roundToInt() + adjustedValue }
     }
 }
-
 @Suppress("ReturnCount")
 fun List<Int>.sampledWavesMask(amount: Int): List<Int> {
     if (this.isEmpty() || amount <= 0) return listOf()
@@ -49,6 +45,5 @@ fun List<Int>.sampledWavesMask(amount: Int): List<Int> {
     res[amount - 1] = this[size - 1] // done outside of loop to avoid out of bound access (0 * this[size])
     return res
 }
-
 fun ByteArray.toWavesMask(): List<Int> = this.map { it.toUByte().toInt() }.toList()
 fun List<Int>.toNormalizedLoudness(): ByteArray = this.map { it.toUByte().toByte() }.toByteArray()

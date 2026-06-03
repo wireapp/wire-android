@@ -32,6 +32,7 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.wire.android.R
+import com.wire.android.WireApplication
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.PlayingAudioMessage
@@ -41,27 +42,27 @@ import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.notification.playPauseAudioPendingIntent
 import com.wire.android.notification.stopAudioPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class PlayingAudioMessageService : Service() {
 
-    @Inject
-    lateinit var dispatcherProvider: DispatcherProvider
+    private val appGraph
+        get() = (application as WireApplication).appGraph
+
+    private val dispatcherProvider: DispatcherProvider
+        get() = appGraph.dispatcherProvider
 
     private val scope by lazy {
         CoroutineScope(SupervisorJob() + dispatcherProvider.io())
     }
 
-    @Inject
-    lateinit var audioMessagePlayer: ConversationAudioMessagePlayer
+    private val audioMessagePlayer: ConversationAudioMessagePlayer
+        get() = appGraph.conversationAudioMessagePlayer
 
     override fun onBind(intent: Intent?): IBinder? {
         return null

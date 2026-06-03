@@ -16,20 +16,16 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
-
 import com.wire.android.R
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.util.ui.UIText
-
 sealed class RecordAudioInfoMessageType(override val uiText: UIText) : SnackBarMessage {
-
     // Unable to Record Audio due to being in a call
     data object UnableToRecordAudioCall : RecordAudioInfoMessageType(
         UIText.StringResource(
             R.string.record_audio_unable_due_to_ongoing_call
         )
     )
-
     // Unable to Record Audio due to error
     data object UnableToRecordAudioError : RecordAudioInfoMessageType(
         UIText.StringResource(

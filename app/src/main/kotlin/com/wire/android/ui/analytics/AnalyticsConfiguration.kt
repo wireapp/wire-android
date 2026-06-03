@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.analytics
-
 sealed interface AnalyticsConfiguration {
     data object Enabled : AnalyticsConfiguration
     data object Disabled : AnalyticsConfiguration

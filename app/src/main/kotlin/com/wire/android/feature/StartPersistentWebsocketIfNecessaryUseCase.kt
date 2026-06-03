@@ -16,14 +16,11 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 @file:Suppress("StringTemplate")
-
 package com.wire.android.feature
-
 import com.wire.android.appLogger
 import com.wire.android.services.ServicesManager
 import javax.inject.Inject
 import javax.inject.Singleton
-
 @Singleton
 class StartPersistentWebsocketIfNecessaryUseCase @Inject constructor(
     private val servicesManager: ServicesManager,
@@ -35,7 +32,6 @@ class StartPersistentWebsocketIfNecessaryUseCase @Inject constructor(
                 is ShouldStartPersistentWebSocketServiceUseCase.Result.Failure -> {
                     appLogger.e("${TAG}: Failure while fetching persistent web socket status flow")
                 }
-
                 is ShouldStartPersistentWebSocketServiceUseCase.Result.Success -> {
                     if (it.shouldStartPersistentWebSocketService) {
                         appLogger.i("${TAG}: Starting PersistentWebsocketService")
@@ -48,7 +44,6 @@ class StartPersistentWebsocketIfNecessaryUseCase @Inject constructor(
             }
         }
     }
-
     companion object {
         const val TAG = "StartPersistentWebsocketIfNecessaryUseCase"
     }

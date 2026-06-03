@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
-
 import android.content.Context
 import com.waz.audioeffect.AudioEffect
 import com.wire.android.appLogger
@@ -24,7 +23,6 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
-
 @Singleton
 class GenerateAudioFileWithEffectsUseCase @Inject constructor(
     private val dispatchers: DispatcherProvider,
@@ -41,25 +39,21 @@ class GenerateAudioFileWithEffectsUseCase @Inject constructor(
         effectsFilePath: String
     ) = withContext(dispatchers.io()) {
         appLogger.i("[$TAG] -> Start generating audio file with effects")
-
         val audioEffect = AudioEffect(context)
         val effectType = AudioEffect.AVS_AUDIO_EFFECT_VOCODER_MED
         val reduceNoise = true
-
         val audioEffectsResult = audioEffect.applyEffectWav(
             originalFilePath,
             effectsFilePath,
             effectType,
             reduceNoise
         )
-
         if (audioEffectsResult > -1) {
             appLogger.i("[$TAG] -> Audio file with effects generated successfully.")
         } else {
             appLogger.w("[$TAG] -> There was an issue with generating audio file with effects.")
         }
     }
-
     private companion object {
         const val TAG = "GenerateAudioFileWithEffectsUseCase"
     }

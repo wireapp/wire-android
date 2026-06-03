@@ -23,7 +23,7 @@ import android.content.IntentFilter
 import com.wire.android.BuildConfig.EMM_SUPPORT_ENABLED
 import com.wire.android.appLogger
 import com.wire.android.emm.ManagedConfigurationsReceiver
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 

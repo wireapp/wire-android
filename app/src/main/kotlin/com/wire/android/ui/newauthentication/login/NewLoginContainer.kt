@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.newauthentication.login
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,7 +54,6 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-
 @Composable
 fun NewAuthContainer(
     header: @Composable () -> Unit = {},
@@ -94,7 +92,6 @@ fun NewAuthContainer(
         }
     ) { _ -> }
 }
-
 @Composable
 fun NewAuthHeader(
     title: @Composable ColumnScope.() -> Unit,
@@ -131,7 +128,6 @@ fun NewAuthHeader(
         }
     }
 }
-
 @Composable
 fun NewAuthTitle(
     title: String,
@@ -147,7 +143,6 @@ fun NewAuthTitle(
             .padding(vertical = verticalPadding)
     )
 }
-
 @Composable
 fun NewAuthSubtitle(
     title: String,
@@ -162,7 +157,6 @@ fun NewAuthSubtitle(
             .padding(vertical = verticalPadding)
     )
 }
-
 @Composable
 private fun NavigationBarBackground() = Box(
     contentAlignment = Alignment.BottomCenter,
@@ -175,7 +169,6 @@ private fun NavigationBarBackground() = Box(
             .navigationBarsPadding()
     )
 }
-
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginHeader() = WireTheme {
@@ -186,7 +179,6 @@ private fun PreviewNewLoginHeader() = WireTheme {
         canNavigateBack = true
     )
 }
-
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginHeaderNoNavigateBack() = WireTheme {
@@ -197,7 +189,6 @@ private fun PreviewNewLoginHeaderNoNavigateBack() = WireTheme {
         canNavigateBack = false
     )
 }
-
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginHeaderTwoLines() = WireTheme {
@@ -209,7 +200,6 @@ private fun PreviewNewLoginHeaderTwoLines() = WireTheme {
         canNavigateBack = true
     )
 }
-
 @PreviewMultipleThemes
 @Composable
 private fun PreviewNewLoginContent() = WireTheme {

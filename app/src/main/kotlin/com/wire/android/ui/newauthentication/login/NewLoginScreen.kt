@@ -15,11 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 @file:Suppress("TooManyFunctions")
-
 package com.wire.android.ui.newauthentication.login
-
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -87,7 +84,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
-
 @WireNewLoginDestination(
     start = true,
     style = AuthPopUpNavigationAnimation::class,
@@ -110,7 +106,6 @@ fun NewLoginScreen(
                 )
                 navigator.navigate(NavigationCommand(NewLoginPasswordScreenDestination(loginNavArgs)))
             }
-
             is NewLoginAction.CustomConfig -> {
                 val loginNavArgs = LoginNavArgs(
                     userHandle = PreFilledUserIdentifierType.PreFilled(newLoginAction.userIdentifier),
@@ -118,16 +113,13 @@ fun NewLoginScreen(
                 )
                 navigator.navigate(NavigationCommand(NewLoginScreenDestination(loginNavArgs), BackStackMode.CLEAR_WHOLE))
             }
-
             is NewLoginAction.SSO -> {
                 currentKeyboardController?.hide()
                 CustomTabsHelper.launchUrl(context, newLoginAction.url)
             }
-
             is NewLoginAction.Success -> {
                 navigator.navigate(NavigationCommand(newLoginAction.nextStep.toDestination(), BackStackMode.CLEAR_WHOLE))
             }
-
             is NewLoginAction.EnterpriseLoginNotSupported -> {
                 navigator.navigate(NavigationCommand(WelcomeScreenDestination(viewModel.serverConfig), BackStackMode.CLEAR_WHOLE))
                 val loginNavArgs = LoginNavArgs(
@@ -138,18 +130,15 @@ fun NewLoginScreen(
             }
         }
     }
-
     LaunchedEffect(Unit) {
         navigator.navController.currentBackStackEntry?.savedStateHandle
             ?.let { viewModel.observeSSOResult(it) }
     }
-
     // Handle SSO code auto-login from intent parameter
     LaunchedEffect(navArgs.ssoCodeAutoLogin) {
         navArgs.ssoCodeAutoLogin?.let {
             // Pre-fill the SSO code in the user identifier field
             viewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(it.ssoCode)
-
             // Auto-initiate login if flag is set
             if (it.autoInitiateLogin) {
                 viewModel.onLoginStarted()
@@ -178,17 +167,14 @@ fun NewLoginScreen(
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = navigator::navigateBack,
     )
-
     HandleActions(viewModel.actions, handleNewLoginAction)
 }
-
 private fun NewLoginAction.Success.NextStep.toDestination(): Direction = when (this) {
     NewLoginAction.Success.NextStep.None -> HomeScreenDestination
     NewLoginAction.Success.NextStep.E2EIEnrollment -> E2EIEnrollmentScreenDestination
     NewLoginAction.Success.NextStep.InitialSync -> InitialSyncScreenDestination
     NewLoginAction.Success.NextStep.TooManyDevices -> RemoveDeviceScreenDestination
 }
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoginContent(
@@ -249,7 +235,6 @@ private fun LoginContent(
                 val error = when (loginEmailSSOState.flowState) {
                     is NewLoginFlowState.Error.TextFieldError.InvalidValue ->
                         stringResource(R.string.enterprise_login_error_invalid_user_identifier)
-
                     else -> null
                 }
                 EmailOrSSOCodeInput(userIdentifierState, error)
@@ -263,7 +248,6 @@ private fun LoginContent(
         }
     }
 }
-
 @Composable
 private fun LoginNextButton(
     loading: Boolean,
@@ -285,7 +269,6 @@ private fun LoginNextButton(
         )
     }
 }
-
 @Composable
 private fun EmailOrSSOCodeInput(
     userIdentifierState: TextFieldState,
@@ -306,7 +289,6 @@ private fun EmailOrSSOCodeInput(
         testTag = "userIdentifierInput",
     )
 }
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewNewLoginScreen() = WireTheme {
@@ -323,7 +305,6 @@ fun PreviewNewLoginScreen() = WireTheme {
         }
     }
 }
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewNewLoginScreenCustomConfig() = WireTheme {

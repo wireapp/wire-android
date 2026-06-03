@@ -20,6 +20,7 @@ import com.wire.android.gradle.configureAndroidKotlinTests
 import com.wire.android.gradle.configureCompose
 import com.wire.android.gradle.configureKotlinAndroid
 import com.wire.android.gradle.crowdin.AddEntryToCrowdinTask
+import dev.zacsweers.metro.gradle.MetroPluginExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -29,6 +30,12 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
         with(pluginManager) {
             apply("com.android.library")
             apply("dev.zacsweers.metro")
+        }
+
+        extensions.configure<MetroPluginExtension> {
+            interop {
+                includeDagger()
+            }
         }
 
         extensions.configure<LibraryExtension> {

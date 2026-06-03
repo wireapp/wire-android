@@ -21,29 +21,18 @@ package com.wire.android.notification.broadcastreceivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.wire.android.WireApplication
 import com.wire.android.appLogger
-import com.wire.android.di.ApplicationScope
-import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class PlayPauseAudioMessageReceiver : BroadcastReceiver() {
-
-    @Inject
-    lateinit var audioMessagePlayer: ConversationAudioMessagePlayer
-
-    @Inject
-    @ApplicationScope
-    lateinit var coroutineScope: CoroutineScope
 
     override fun onReceive(context: Context, intent: Intent) {
         appLogger.i("PlayPauseAudioMessageReceiver: onReceive")
+        val appGraph = (context.applicationContext as WireApplication).appGraph
 
-        coroutineScope.launch {
-            audioMessagePlayer.resumeOrPauseCurrentAudioMessage()
+        appGraph.globalAppScope.launch {
+            appGraph.conversationAudioMessagePlayer.resumeOrPauseCurrentAudioMessage()
         }
     }
 

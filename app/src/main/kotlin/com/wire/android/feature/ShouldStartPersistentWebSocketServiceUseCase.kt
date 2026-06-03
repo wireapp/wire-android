@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.feature
-
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.kalium.logic.CoreLogic
@@ -25,7 +24,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
-
 @Singleton
 class ShouldStartPersistentWebSocketServiceUseCase @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
@@ -36,11 +34,9 @@ class ShouldStartPersistentWebSocketServiceUseCase @Inject constructor(
         if (managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value) {
             return Result.Success(true)
         }
-
         return coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
             when (result) {
                 is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> Result.Failure
-
                 is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
                     val statusList = withTimeoutOrNull(TIMEOUT) {
                         val res = result.persistentWebSocketStatusListFlow.firstOrNull()
@@ -55,12 +51,10 @@ class ShouldStartPersistentWebSocketServiceUseCase @Inject constructor(
             }
         }
     }
-
     sealed class Result {
         data object Failure : Result()
         data class Success(val shouldStartPersistentWebSocketService: Boolean) : Result()
     }
-
     companion object {
         const val TIMEOUT = 10_000L
     }

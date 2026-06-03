@@ -39,9 +39,10 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.wire.android.WireApplication
 import com.wire.android.appLogger
-import com.wire.android.di.metro.ImageAssetViewModelGraphBridgeViewModel
 import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.WireSessionGraph
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.LocalActivity
@@ -54,18 +55,22 @@ import com.wire.android.ui.common.topappbar.WireTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 abstract class CallActivity : BaseActivity() {
 
-    @Inject
-    lateinit var switchAccountObserver: SwitchAccountObserver
+    private val appGraph
+        get() = (application as WireApplication).appGraph
 
-    @Inject
-    lateinit var proximitySensorManager: ProximitySensorManager
+    private val sessionGraph: WireSessionGraph by lazy(LazyThreadSafetyMode.NONE) {
+        appGraph.createSessionGraph(callUserId())
+    }
+
+    private val switchAccountObserver: SwitchAccountObserver
+        get() = appGraph.switchAccountObserver
+
+    val proximitySensorManager: ProximitySensorManager
+        get() = appGraph.proximitySensorManager
 
     companion object {
         const val EXTRA_CONVERSATION_ID = "conversation_id"
@@ -75,11 +80,10 @@ abstract class CallActivity : BaseActivity() {
         const val TAG = "CallActivity"
     }
 
-    private val imageAssetViewModelGraph: ImageAssetViewModelGraphBridgeViewModel by viewModels()
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels {
         viewModelFactory {
             initializer {
-                imageAssetViewModelGraph.commonViewModelFactory.commonTopAppBarViewModel(
+                sessionGraph.commonViewModelFactory.commonTopAppBarViewModel(
                     CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false)
                 )
             }
@@ -88,7 +92,7 @@ abstract class CallActivity : BaseActivity() {
     private val callActivityViewModel: CallActivityViewModel by viewModels {
         viewModelFactory {
             initializer {
-                imageAssetViewModelGraph.callingViewModelFactory.callActivityViewModel()
+                sessionGraph.callingViewModelFactory.callActivityViewModel()
             }
         }
     }
@@ -117,7 +121,7 @@ abstract class CallActivity : BaseActivity() {
             val snackbarHostState = remember { SnackbarHostState() }
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelGraph provides imageAssetViewModelGraph,
+                LocalMetroViewModelGraph provides sessionGraph,
                 LocalActivity provides this
             ) {
                 WireTheme {
@@ -204,4 +208,10 @@ abstract class CallActivity : BaseActivity() {
             }
         }
     }
+
+    private fun callUserId() = qualifiedIdMapper.fromStringToQualifiedID(
+        requireNotNull(intent.extras?.getString(EXTRA_USER_ID)) {
+            "$TAG No user ID provided in intent extras"
+        }
+    )
 }

@@ -108,7 +108,7 @@ class LoginEmailViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(args: LoginNavArgs): LoginEmailViewModel
+        fun create(loginNavArgs: LoginNavArgs): LoginEmailViewModel
     }
 
     init {

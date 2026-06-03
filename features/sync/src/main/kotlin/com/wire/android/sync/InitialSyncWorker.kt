@@ -16,11 +16,9 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.sync
-
 import android.content.Context
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ForegroundInfo
@@ -41,17 +39,13 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import com.wire.android.feature.notification.R as NR
-
-@HiltWorker
 class InitialSyncWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted parameters: WorkerParameters,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val notificationChannelsManager: NotificationChannelsManager,
 ) : CoroutineWorker(context, parameters) {
-
     private val workId: WorkId? = parameters.getWorkId()
-
     override suspend fun doWork(): Result = if (workId == null) {
         Log.e("InitialSyncWorker", "WorkId is null, cannot start monitoring work.")
         Result.failure()
@@ -83,13 +77,11 @@ class InitialSyncWorker @AssistedInject constructor(
             Result.success()
         }
     }
-
     override suspend fun getForegroundInfo(): ForegroundInfo {
         notificationChannelsManager.createRegularChannel(
             NotificationConstants.OTHER_CHANNEL_ID,
             NotificationConstants.OTHER_CHANNEL_NAME
         )
-
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
             .setSmallIcon(NR.drawable.notification_icon_small)
             .setAutoCancel(true)
@@ -99,14 +91,11 @@ class InitialSyncWorker @AssistedInject constructor(
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setProgress(0, 0, true)
             .build()
-
         return ForegroundInfo(NotificationIds.UPLOADING_DATA_NOTIFICATION_ID.ordinal, notification)
     }
-
     companion object {
         private const val WORK_ID_KEY = "workId"
         private fun WorkerParameters.getWorkId(): WorkId? = inputData.getString(WORK_ID_KEY)?.let { WorkId(it) }
-
         fun createInputData(workId: WorkId) = Data.Builder()
             .putString(WORK_ID_KEY, workId.id)
             .build()

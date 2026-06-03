@@ -19,10 +19,8 @@ package com.wire.android.feature.meetings.ui.usecase
 
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
-import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
 
-@ViewModelScoped
 class GetMeetingUseCase @Inject constructor() {
     private val meetingMocksProvider = MeetingMocksProvider.Default // TODO replace with real data source
     operator fun invoke(meetingId: String): MeetingItem? = meetingMocksProvider.getItem(meetingId)

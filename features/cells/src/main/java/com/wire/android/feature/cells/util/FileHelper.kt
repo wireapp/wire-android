@@ -26,7 +26,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.os.Build
 import androidx.core.content.FileProvider
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import okio.Path
 import java.io.File
 import java.io.FileOutputStream

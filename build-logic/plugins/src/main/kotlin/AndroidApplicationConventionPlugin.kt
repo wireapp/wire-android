@@ -21,6 +21,7 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.wire.android.gradle.configureAndroidKotlinTests
 import com.wire.android.gradle.configureCompose
 import com.wire.android.gradle.configureKotlinAndroid
+import dev.zacsweers.metro.gradle.MetroPluginExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -30,6 +31,12 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         with(pluginManager) {
             apply("com.android.application")
             apply("dev.zacsweers.metro")
+        }
+
+        extensions.configure<MetroPluginExtension> {
+            interop {
+                includeDagger()
+            }
         }
 
         extensions.configure<ApplicationExtension> {

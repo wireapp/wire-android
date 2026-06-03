@@ -29,8 +29,8 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.wire.android.R
+import com.wire.android.WireApplication
 import com.wire.android.appLogger
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NAME
@@ -41,7 +41,6 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.awaitCancellation
@@ -49,27 +48,27 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class PersistentWebSocketService : Service() {
 
-    @Inject
-    @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
+    private val appGraph
+        get() = (application as WireApplication).appGraph
 
-    @Inject
-    lateinit var dispatcherProvider: DispatcherProvider
+    private val coreLogic: CoreLogic
+        get() = appGraph.coreLogic
+
+    private val dispatcherProvider: DispatcherProvider
+        get() = appGraph.dispatcherProvider
 
     private val scope by lazy {
         CoroutineScope(SupervisorJob() + dispatcherProvider.io())
     }
 
-    @Inject
-    lateinit var notificationManager: WireNotificationManager
+    private val notificationManager: WireNotificationManager
+        get() = appGraph.wireNotificationManager
 
-    @Inject
-    lateinit var notificationChannelsManager: NotificationChannelsManager
+    private val notificationChannelsManager: NotificationChannelsManager
+        get() = appGraph.notificationChannelsManager
 
     override fun onBind(intent: Intent?): IBinder? {
         return null

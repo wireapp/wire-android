@@ -41,9 +41,6 @@ import com.wire.android.util.ui.AndroidUiTextResolver
 import com.wire.android.util.ui.UiTextResolver
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import javax.inject.Named
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -53,7 +50,6 @@ import javax.inject.Singleton
 annotation class CurrentAppVersion
 
 @Module
-@InstallIn(SingletonComponent::class)
 @Suppress("TooManyFunctions")
 object AppModule {
 
@@ -63,7 +59,7 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providesApplicationContext(@ApplicationContext appContext: Context) = appContext
+    fun providesApplicationContext(@ApplicationContext appContext: Context): Context = appContext
 
     @Singleton
     @Provides
@@ -108,7 +104,7 @@ object AppModule {
     fun provideLocationPickerParameters(): LocationPickerParameters = LocationPickerParameters()
 
     @Provides
-    fun provideAnalyticsConfiguration() =
+    fun provideAnalyticsConfiguration(): AnalyticsConfiguration =
         if (BuildConfig.ANALYTICS_ENABLED) AnalyticsConfiguration.Enabled else AnalyticsConfiguration.Disabled
 
     @Provides

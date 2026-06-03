@@ -35,26 +35,27 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.NotificationFetchWorker
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.notificationToken.Result
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.Locale
-import javax.inject.Inject
+import com.wire.android.WireApplication
 
-@AndroidEntryPoint
 class WireFirebaseMessagingService : FirebaseMessagingService() {
 
-    @Inject
+    private val appGraph
+        get() = (application as WireApplication).appGraph
+
     @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
+    private val coreLogic: CoreLogic
+        get() = appGraph.coreLogic
 
-    @Inject
-    lateinit var networkUtil: NetworkUtil
+    private val networkUtil: NetworkUtil
+        get() = appGraph.networkUtil
 
-    @Inject
-    lateinit var dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider
+        get() = appGraph.dispatcherProvider
 
     private val scope by lazy {
         // There's no UI, no need to run anything using the Main/UI Dispatcher

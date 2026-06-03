@@ -28,37 +28,28 @@ import com.wire.kalium.logic.feature.app.ObserveIsAppMemberUseCase
 import com.wire.kalium.logic.feature.app.SearchAppsByNameUseCase
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(ViewModelComponent::class)
 class AppsModule {
 
-    @ViewModelScoped
     @Provides
     fun provideAppScope(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
     ): AppScope = coreLogic.getSessionScope(currentAccount).apps
 
-    @ViewModelScoped
     @Provides
     fun provideGetAppByIdUseCase(appScope: AppScope): GetAppByIdUseCase =
         appScope.getAppById
 
-    @ViewModelScoped
     @Provides
     fun provideObserveIsAppMemberUseCase(appScope: AppScope): ObserveIsAppMemberUseCase =
         appScope.observeIsAppMember
 
-    @ViewModelScoped
     @Provides
     fun provideSearchAppsByNameUseCase(appScope: AppScope): SearchAppsByNameUseCase =
         appScope.searchAppsByName
 
-    @ViewModelScoped
     @Provides
     fun provideObserveAllAppsUseCase(appScope: AppScope): ObserveAllAppsUseCase =
         appScope.observeAllApps

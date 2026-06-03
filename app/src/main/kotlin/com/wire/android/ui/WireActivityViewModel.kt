@@ -92,7 +92,6 @@ import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotC
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -115,10 +114,10 @@ import java.io.InputStreamReader
 import javax.inject.Inject
 
 private const val AUTOMATED_NOMAD_COOKIE_LABEL = "shared-device"
+private const val TAG = "WireActivityViewModel"
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel
 class WireActivityViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     private val dispatchers: DispatcherProvider,
@@ -235,6 +234,7 @@ class WireActivityViewModel @Inject constructor(
     private fun observeCurrentValidUserState() {
         viewModelScope.launch(dispatchers.io()) {
             observeCurrentValidUserId.collectLatest {
+                appLogger.i("$TAG current valid user changed: ${it?.toLogString() ?: "-"}")
                 globalAppState = globalAppState.copy(currentUserId = it)
             }
         }
@@ -315,6 +315,13 @@ class WireActivityViewModel @Inject constructor(
     suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
         initValidSessionsFlowIfNeeded()
         val currentValidUserId = currentValidUserId()
+        val validSessionIds = validSessions.value
+            .filterIsInstance<AccountInfo.Valid>()
+            .map { it.userId.toLogString() }
+        appLogger.i(
+            "$TAG initial app state current=${currentValidUserId?.toLogString() ?: "-"} " +
+                    "validSessions=$validSessionIds"
+        )
         withContext(dispatchers.main()) {
             globalAppState = globalAppState.copy(currentUserId = currentValidUserId)
         }

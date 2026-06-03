@@ -30,7 +30,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.feature.AppLockSource
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.sha256
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull

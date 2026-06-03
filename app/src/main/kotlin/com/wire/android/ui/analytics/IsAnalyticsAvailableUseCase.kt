@@ -16,28 +16,23 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.analytics
-
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
-
 /**
  * UseCase that determines if Analytics is available for current Build and specific [UserId].
  * Use it for checking if Analytics UI (e.x. asking user for some feedback that will be sent to Analytics) should be shown to user or not.
  */
-@ViewModelScoped
 class IsAnalyticsAvailableUseCase @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val analyticsEnabled: AnalyticsConfiguration,
     private val userDataStoreProvider: UserDataStoreProvider
 ) {
-
     suspend operator fun invoke(userId: UserId): Boolean {
         val dataStore = userDataStoreProvider.getOrCreate(userId)
         val isAnalyticsUsageEnabled = dataStore.isAnonymousUsageDataEnabled().first()
@@ -46,10 +41,8 @@ class IsAnalyticsAvailableUseCase @Inject constructor(
             is SelfServerConfigUseCase.Result.Success ->
                 serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
                         || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
-
             is SelfServerConfigUseCase.Result.Failure -> false
         }
-
         return isProdBackend && isAnalyticsUsageEnabled && isAnalyticsConfigurationEnabled
     }
 }

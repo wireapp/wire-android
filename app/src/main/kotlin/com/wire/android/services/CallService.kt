@@ -40,7 +40,6 @@ import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import dagger.hilt.android.AndroidEntryPoint
 import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -50,28 +49,30 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import javax.inject.Inject
+import com.wire.android.WireApplication
 
 /**
  * Service that will be started when we have an outgoing/established call.
  */
-@AndroidEntryPoint
 class CallService : Service() {
 
-    @Inject
-    lateinit var lifecycleManager: CallServiceManager
+    private val appGraph
+        get() = (application as WireApplication).appGraph
 
-    @Inject
-    lateinit var callNotificationManager: CallNotificationManager
+    private val lifecycleManager: CallServiceManager
+        get() = appGraph.callServiceManager
 
-    @Inject
-    lateinit var notificationChannelsManager: NotificationChannelsManager
+    private val callNotificationManager: CallNotificationManager
+        get() = appGraph.callNotificationManager
 
-    @Inject
-    lateinit var currentScreenManager: CurrentScreenManager
+    private val notificationChannelsManager: NotificationChannelsManager
+        get() = appGraph.notificationChannelsManager
 
-    @Inject
-    lateinit var dispatcherProvider: DispatcherProvider
+    private val currentScreenManager: CurrentScreenManager
+        get() = appGraph.currentScreenManager
+
+    private val dispatcherProvider: DispatcherProvider
+        get() = appGraph.dispatcherProvider
 
     private val scope by lazy {
         // There's no UI, no need to run anything using the Main/UI Dispatcher

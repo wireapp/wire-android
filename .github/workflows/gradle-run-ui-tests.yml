@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   ui-tests:
-    runs-on: ghcr.io/cirruslabs/ubuntu-runner-amd64:24.04-lg
+    runs-on: warp-ubuntu-latest-x64-8x
     strategy:
       matrix:
         api-level: [ 29 ]
@@ -40,23 +40,39 @@ jobs:
           df -h
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
+
+      - uses: WarpBuilds/cache@v1
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5
+        uses: gradle/actions/wrapper-validation@v6
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
       - name: AVD cache
-        uses: actions/cache@v4
+        uses: WarpBuilds/cache@v1
         id: avd-cache
         with:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ matrix.api-level }}
+          key: ${{ runner.os }}-avd-${{ matrix.api-level }}
+          restore-keys: |
+            ${{ runner.os }}-avd-
 
       - name: create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'

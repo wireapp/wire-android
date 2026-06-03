@@ -164,5 +164,6 @@
     "is_bubble_ui_enabled": true,
     "collabora_integration": true,
     "db_invalidation_control_enabled": false,
-    "call_reactions_enabled": true
+    "call_reactions_enabled": true,
+    "show_debug_tools": false
 }

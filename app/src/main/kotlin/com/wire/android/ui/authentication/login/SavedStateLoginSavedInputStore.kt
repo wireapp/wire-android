@@ -19,10 +19,6 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
 
 private const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
 private const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
@@ -41,12 +37,4 @@ class SavedStateLoginSavedInputStore(
         set(value) {
             savedStateHandle[SSO_CODE_SAVED_STATE_KEY] = value
         }
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-object LoginSavedInputStoreModule {
-    @Provides
-    fun provideLoginSavedInputStore(savedStateHandle: SavedStateHandle): LoginSavedInputStore =
-        SavedStateLoginSavedInputStore(savedStateHandle)
 }

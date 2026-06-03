@@ -20,6 +20,12 @@ package com.wire.android.di.metro
 import androidx.lifecycle.ViewModel
 import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
+import com.wire.android.ui.calling.CallingViewModelFactory
+import com.wire.android.ui.calling.CallingViewModelGraph
+import com.wire.android.ui.common.CommonViewModelFactory
+import com.wire.android.ui.common.CommonViewModelGraph
+import com.wire.android.ui.home.settings.SettingsViewModelFactory
+import com.wire.android.ui.home.settings.SettingsViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -31,7 +37,19 @@ import javax.inject.Provider
 @HiltViewModel
 class ImageAssetViewModelGraphBridgeViewModel @Inject constructor(
     imageLoader: Provider<WireSessionImageLoader>,
-) : ViewModel(), ImageAssetViewModelGraph {
+    private val callingViewModelFactoryProvider: Provider<CallingViewModelFactory>,
+    private val settingsViewModelFactoryProvider: Provider<SettingsViewModelFactory>,
+    private val commonViewModelFactoryProvider: Provider<CommonViewModelFactory>,
+) : ViewModel(), ImageAssetViewModelGraph, CallingViewModelGraph, SettingsViewModelGraph, CommonViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
+
+    override val callingViewModelFactory: CallingViewModelFactory
+        get() = callingViewModelFactoryProvider.get()
+
+    override val settingsViewModelFactory: SettingsViewModelFactory
+        get() = settingsViewModelFactoryProvider.get()
+
+    override val commonViewModelFactory: CommonViewModelFactory
+        get() = commonViewModelFactoryProvider.get()
 }

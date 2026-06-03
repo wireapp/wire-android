@@ -48,10 +48,11 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.wire.android.di.wireViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
@@ -73,7 +74,6 @@ import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.di.assistedViewModels
 import com.wire.android.di.metro.LocalMetroViewModelGraph
 import com.wire.android.di.metro.WireActivityViewModelGraphBridge
 import com.wire.android.emm.ManagedConfigurationsManager
@@ -160,15 +160,46 @@ class WireActivity : BaseActivity() {
     @Inject
     lateinit var managedConfigurationsManager: ManagedConfigurationsManager
 
+    private val wireActivityViewModelGraphBridge: WireActivityViewModelGraphBridge by viewModels()
     private val viewModel: WireActivityViewModel by viewModels()
-    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
-    private val callFeedbackViewModel: CallFeedbackViewModel by viewModels()
-
-    private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
-        factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true))
+    private val callFeedbackViewModel: CallFeedbackViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireActivityViewModelGraphBridge.callingViewModelFactory.callFeedbackViewModel()
+            }
+        }
     }
-    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
-    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
+    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireActivityViewModelGraphBridge.homeViewModelFactory.featureFlagNotificationViewModel()
+            }
+        }
+    }
+
+    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireActivityViewModelGraphBridge.commonViewModelFactory.commonTopAppBarViewModel(
+                    CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true)
+                )
+            }
+        }
+    }
+    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireActivityViewModelGraphBridge.miscViewModelFactory.legalHoldRequestedViewModel()
+            }
+        }
+    }
+    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireActivityViewModelGraphBridge.miscViewModelFactory.legalHoldDeactivatedViewModel()
+            }
+        }
+    }
 
     private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
     private lateinit var shakeDetector: ShakeDetector
@@ -256,7 +287,6 @@ class WireActivity : BaseActivity() {
     private fun setComposableContent(startDestination: Direction) {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
-            val wireActivityViewModelGraph = wireViewModel<WireActivityViewModelGraphBridge>()
 
             HandleThemeChanges(viewModel.globalAppState.themeOption)
 
@@ -265,7 +295,7 @@ class WireActivity : BaseActivity() {
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
                 LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelGraph provides wireActivityViewModelGraph,
+                LocalMetroViewModelGraph provides wireActivityViewModelGraphBridge,
                 LocalActivity provides this
             ) {
                 WireTheme(accent = viewModel.globalAppState.userAccent) {

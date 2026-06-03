@@ -42,7 +42,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.home.settings.deleteAccountViewModel
+import com.wire.android.ui.home.settings.myAccountViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
@@ -94,8 +95,8 @@ fun MyAccountScreen(
     changeDisplayNameResultRecipient: ResultRecipient<ChangeDisplayNameScreenDestination, Boolean>,
     changeHandleResultRecipient: ResultRecipient<ChangeHandleScreenDestination, Boolean>,
     changeUserColorResultRecipient: ResultRecipient<ChangeUserColorScreenDestination, Boolean>,
-    viewModel: MyAccountViewModel = wireViewModel(),
-    deleteAccountViewModel: DeleteAccountViewModel = wireViewModel()
+    viewModel: MyAccountViewModel = myAccountViewModel(),
+    deleteAccountViewModel: DeleteAccountViewModel = deleteAccountViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()

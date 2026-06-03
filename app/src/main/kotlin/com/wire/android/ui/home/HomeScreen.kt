@@ -103,6 +103,7 @@ import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackA
 import com.wire.android.ui.home.drawer.HomeDrawer
 import com.wire.android.ui.home.drawer.HomeDrawerState
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
+import com.wire.android.ui.analyticsUsageViewModel
 import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
 import kotlinx.coroutines.launch
 
@@ -115,10 +116,10 @@ fun HomeScreen(
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    homeViewModel: HomeViewModel = wireViewModel(),
-    appSyncViewModel: AppSyncViewModel = wireViewModel(),
-    homeDrawerViewModel: HomeDrawerViewModel = wireViewModel(),
-    analyticsUsageViewModel: AnalyticsUsageViewModel = wireViewModel(),
+    homeViewModel: HomeViewModel = homeViewModel(),
+    appSyncViewModel: AppSyncViewModel = appSyncViewModel(),
+    homeDrawerViewModel: HomeDrawerViewModel = homeDrawerViewModel(),
+    analyticsUsageViewModel: AnalyticsUsageViewModel = analyticsUsageViewModel(),
 ) {
     val context = LocalContext.current
 

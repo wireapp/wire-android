@@ -56,10 +56,6 @@ import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -97,10 +93,9 @@ class ConversationListViewModelPreview(
 }
 
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
-@HiltViewModel(assistedFactory = ConversationListViewModelImpl.Factory::class)
-class ConversationListViewModelImpl @AssistedInject constructor(
-    @Assisted val conversationsSource: ConversationsSource,
-    @Assisted private val usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,
+class ConversationListViewModelImpl(
+    val conversationsSource: ConversationsSource,
+    private val usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,
     private val dispatcher: DispatcherProvider,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val observeConversationListDetailsWithEvents: ObserveConversationListDetailsWithEventsUseCase,
@@ -113,14 +108,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
 ) : ConversationListViewModel, ViewModel() {
-
-    @AssistedFactory
-    interface Factory {
-        fun create(
-            conversationsSource: ConversationsSource,
-            usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,
-        ): ConversationListViewModelImpl
-    }
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     override val infoMessage = _infoMessage.asSharedFlow()

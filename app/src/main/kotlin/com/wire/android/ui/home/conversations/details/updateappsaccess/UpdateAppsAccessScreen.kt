@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.home.conversations.details.updateappsaccess
 
+import com.wire.android.ui.home.conversations.updateAppsAccessViewModel
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,7 +31,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
@@ -54,7 +55,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun UpdateAppsAccessScreen(
     navigator: Navigator,
-    updateAppsAccessViewModel: UpdateAppsAccessViewModel = wireViewModel()
+    updateAppsAccessViewModel: UpdateAppsAccessViewModel = updateAppsAccessViewModel()
 ) {
     UpdateAppsAccessContent(
         onNavigateBack = navigator::navigateBack,

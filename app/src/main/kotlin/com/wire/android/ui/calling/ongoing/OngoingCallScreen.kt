@@ -73,7 +73,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.zIndex
-import com.wire.android.di.wireViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -85,6 +84,8 @@ import com.wire.android.ui.calling.common.ObservePictureInPictureMode
 import com.wire.android.ui.calling.common.ObserveRotation
 import com.wire.android.ui.calling.common.SharedCallingViewActions
 import com.wire.android.ui.calling.common.SharedCallingViewModel
+import com.wire.android.ui.calling.ongoingCallViewModel
+import com.wire.android.ui.calling.sharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CameraButton
 import com.wire.android.ui.calling.controlbuttons.HangUpOngoingButton
 import com.wire.android.ui.calling.controlbuttons.InCallReactionsButton
@@ -154,15 +155,8 @@ import java.util.Locale
 @Composable
 fun OngoingCallScreen(
     conversationId: ConversationId,
-    ongoingCallViewModel: OngoingCallViewModel = wireViewModel<OngoingCallViewModel, OngoingCallViewModel.Factory>(
-        key = "ongoing_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
-    sharedCallingViewModel: SharedCallingViewModel =
-        wireViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
-            key = "shared_$conversationId",
-            creationCallback = { factory -> factory.create(conversationId = conversationId) }
-        )
+    ongoingCallViewModel: OngoingCallViewModel = ongoingCallViewModel(conversationId),
+    sharedCallingViewModel: SharedCallingViewModel = sharedCallingViewModel(conversationId)
 ) {
     val scope = rememberCoroutineScope()
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()

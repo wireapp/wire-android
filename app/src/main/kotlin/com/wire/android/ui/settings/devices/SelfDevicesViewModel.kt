@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.settings.devices
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,15 +30,12 @@ import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserMlsClientIdentitiesUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-@HiltViewModel
 class SelfDevicesViewModel @Inject constructor(
     @CurrentAccount val currentAccountId: UserId,
     private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
@@ -49,21 +44,17 @@ class SelfDevicesViewModel @Inject constructor(
     private val getUserMlsClientIdentities: GetUserMlsClientIdentitiesUseCase,
     private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : ViewModel() {
-
     var state: SelfDevicesState by mutableStateOf(
         SelfDevicesState(deviceList = listOf(), isLoadingClientsList = true, currentDevice = null)
     )
         private set
-
     private val refreshE2eiCertificates: MutableSharedFlow<Unit> = MutableSharedFlow<Unit>()
     private val observeMlsClientIdentities = refreshE2eiCertificates.map { getUserMlsClientIdentities(currentAccountId) }
-
     init {
         observeClientList()
         updateSelfClientsListFromRemote()
         getIsE2EIEnabled()
     }
-
     private fun getIsE2EIEnabled() {
         viewModelScope.launch {
             isE2EIEnabledUseCase().let {
@@ -71,13 +62,11 @@ class SelfDevicesViewModel @Inject constructor(
             }
         }
     }
-
     private fun updateSelfClientsListFromRemote() {
         viewModelScope.launch {
             fetchSelfClientsFromRemote()
         }
     }
-
     private fun observeClientList() {
         viewModelScope.launch {
             observeClientList(currentAccountId)
@@ -101,7 +90,6 @@ class SelfDevicesViewModel @Inject constructor(
                 }
         }
     }
-
     fun loadCertificates() {
         viewModelScope.launch {
             refreshE2eiCertificates.emit(Unit)

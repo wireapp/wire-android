@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.userprofile.other
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -53,7 +51,6 @@ import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
@@ -64,9 +61,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
 class OtherUserProfileScreenViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val observeUserInfo: ObserveUserInfoUseCase,
@@ -82,11 +77,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val isE2EIEnabled: IsE2EIEnabledUseCase,
     savedStateHandle: SavedStateHandle
 ) : ActionsViewModel<OtherUserProfileViewAction>(), OtherUserProfileEventsHandler {
-
     private val otherUserProfileNavArgs: OtherUserProfileNavArgs = savedStateHandle.navArgs()
     private val userId: QualifiedID = otherUserProfileNavArgs.userId
     private val groupConversationId: QualifiedID? = otherUserProfileNavArgs.groupConversationId
-
     var state: OtherUserProfileState by mutableStateOf(
         OtherUserProfileState(
             userId = userId,
@@ -96,7 +89,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         )
     )
     val removeConversationMemberDialogState: VisibilityState<RemoveConversationMemberState> by mutableStateOf(VisibilityState())
-
     init {
         observeUserInfoAndUpdateViewState()
         persistClients()
@@ -104,26 +96,22 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         getIfConversationExist()
         getE2EIStatus()
     }
-
     private fun getIfConversationExist() {
         viewModelScope.launch {
             val isOneToOneConversationCreated = isOneToOneConversationCreated(userId)
             state = state.copy(isConversationStarted = isOneToOneConversationCreated)
         }
     }
-
     private fun getMLSVerificationStatus() {
         viewModelScope.launch {
             val isMLSVerified = getUserE2eiCertificateStatus(userId)
             state = state.copy(isMLSVerified = isMLSVerified)
         }
     }
-
     private fun getE2EIStatus() = viewModelScope.launch {
         val isE2EIEnabled = isE2EIEnabled()
         state = state.copy(isE2EIEnabled = isE2EIEnabled)
     }
-
     override fun observeClientList() {
         viewModelScope.launch(dispatchers.io()) {
             observeClientList(userId)
@@ -132,7 +120,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         is ObserveClientsByUserIdUseCase.Result.Failure -> {
                             state = state.copy(otherUserDevices = emptyList())
                         }
-
                         is ObserveClientsByUserIdUseCase.Result.Success -> {
                             val devices = result.clients.map { client ->
                                 async {
@@ -146,20 +133,17 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                                     )
                                 }
                             }.awaitAll()
-
                             state = state.copy(otherUserDevices = devices)
                         }
                     }
                 }
         }
     }
-
     private fun persistClients() {
         viewModelScope.launch(dispatchers.io()) {
             fetchUsersClients(listOf(userId))
         }
     }
-
     private fun observeUserInfoAndUpdateViewState() {
         viewModelScope.launch {
             combine(
@@ -174,7 +158,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                             appLogger.e("Couldn't not find the user with provided id: ${userId.toLogString()}")
                             updateUserInfoStateForError()
                         }
-
                         is GetUserInfoResult.Success -> {
                             updateUserInfoState(userResult, groupInfo)
                         }
@@ -182,7 +165,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
         }
     }
-
     private suspend fun observeGroupInfo(): Flow<OtherUserProfileGroupState?> {
         return groupConversationId?.let {
             observeConversationRoleForUser(it, userId)
@@ -198,7 +180,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
         } ?: flowOf(null)
     }
-
     fun onChangeMemberRole(role: Conversation.Member.Role) {
         viewModelScope.launch {
             if (groupConversationId != null) {
@@ -210,7 +191,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             }
         }
     }
-
     override fun onRemoveConversationMember(state: RemoveConversationMemberState) {
         viewModelScope.launch {
             removeConversationMemberDialogState.update { it.copy(loading = true) }
@@ -227,7 +207,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             removeConversationMemberDialogState.dismiss()
         }
     }
-
     private fun updateUserInfoStateForError() {
         state = state.copy(
             isDataLoading = false,
@@ -235,7 +214,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             errorLoadingUser = ErrorLoadingUser.USER_NOT_FOUND
         )
     }
-
     private fun updateUserInfoState(
         userResult: GetUserInfoResult.Success,
         groupInfo: OtherUserProfileGroupState?,
@@ -243,7 +221,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         val otherUser = userResult.otherUser
         val userAvatarAsset = otherUser.completePicture
             ?.let { pic -> ImageAsset.UserAvatarAsset(pic) }
-
         state = state.copy(
             isDataLoading = false,
             isAvatarLoading = false,
@@ -266,10 +243,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             activeOneOnOneConversationId = otherUser.activeOneOnOneConversationId
         )
     }
-
     private fun onMessage(message: SnackBarMessage) = sendAction(OtherUserProfileViewAction.Message(message))
 }
-
 sealed interface OtherUserProfileViewAction {
     data class Message(val message: SnackBarMessage) : OtherUserProfileViewAction
 }

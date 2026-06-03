@@ -25,15 +25,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.util.withContext
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class LicensesViewModel @Inject constructor(
-    @ApplicationContext context: Context
+class LicensesViewModel(
+    context: Context
 ) : ViewModel() {
 
     var state: LicensesState by mutableStateOf(LicensesState())

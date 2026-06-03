@@ -33,7 +33,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
@@ -51,6 +50,7 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.common.connectionActionButtonViewModel
 import com.wire.android.ui.legalhold.dialog.connectionfailed.LegalHoldSubjectConnectionFailedDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
@@ -73,14 +73,7 @@ fun ConnectionActionButton(
     onConnectionRequestIgnored: (String) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit = {},
     viewModel: ConnectionActionButtonViewModel =
-        wireViewModelScoped<
-                ConnectionActionButtonViewModelImpl,
-                ConnectionActionButtonViewModel,
-                ConnectionActionButtonArgs,
-                ConnectionActionButtonViewModelImpl.Factory
-                >(
-            ConnectionActionButtonArgs(userId, userName)
-        ),
+        connectionActionButtonViewModel(ConnectionActionButtonArgs(userId, userName)),
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()

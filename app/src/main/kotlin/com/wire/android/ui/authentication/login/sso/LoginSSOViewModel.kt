@@ -61,7 +61,6 @@ import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -71,7 +70,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel(assistedFactory = LoginSSOViewModel.Factory::class)
 class LoginSSOViewModel : LoginViewModel {
     private val savedInputStore: LoginSavedInputStore
     val addAuthenticatedUser: AddAuthenticatedUserUseCase

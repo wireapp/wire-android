@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.home.settings.privacy
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -39,14 +37,11 @@ import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotC
 import com.wire.kalium.logic.feature.user.typingIndicator.ObserveTypingIndicatorEnabledUseCase
 import com.wire.kalium.logic.feature.user.typingIndicator.PersistTypingIndicatorStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.typingIndicator.TypingIndicatorConfigResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-
 @Suppress("LongParameterList")
-@HiltViewModel
 class PrivacySettingsViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val persistReadReceiptsStatusConfig: PersistReadReceiptsStatusConfigUseCase,
@@ -59,10 +54,8 @@ class PrivacySettingsViewModel @Inject constructor(
     private val selfServerConfig: SelfServerConfigUseCase,
     private val dataStore: UserDataStore
 ) : ViewModel() {
-
     var state by mutableStateOf(PrivacySettingsState())
         private set
-
     init {
         viewModelScope.launch {
             val shouldShowAnalyticsUsage = shouldShowAnalyticsUsage()
@@ -80,10 +73,8 @@ class PrivacySettingsViewModel @Inject constructor(
                     screenshotCensoringConfig = when (screenshotCensoringConfig) {
                         ObserveScreenshotCensoringConfigResult.Disabled ->
                             ScreenshotCensoringConfig.DISABLED
-
                         ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser ->
                             ScreenshotCensoringConfig.ENABLED_BY_USER
-
                         ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings ->
                             ScreenshotCensoringConfig.ENFORCED_BY_TEAM
                     },
@@ -91,7 +82,6 @@ class PrivacySettingsViewModel @Inject constructor(
             }.collect { state = it }
         }
     }
-
     private suspend fun shouldShowAnalyticsUsage(): Boolean {
         // TODO(Analytics): To be changed with UseCase
         val isAnalyticsConfigurationEnabled = analyticsEnabled is AnalyticsConfiguration.Enabled
@@ -101,10 +91,8 @@ class PrivacySettingsViewModel @Inject constructor(
                         || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
             is SelfServerConfigUseCase.Result.Failure -> false
         }
-
         return isAnalyticsConfigurationEnabled && isValidBackend
     }
-
     fun setReadReceiptsState(isEnabled: Boolean) {
         viewModelScope.launch {
             state =
@@ -113,7 +101,6 @@ class PrivacySettingsViewModel @Inject constructor(
                         appLogger.e("Something went wrong while updating read receipts config")
                         state.copy(areReadReceiptsEnabled = !isEnabled)
                     }
-
                     is ReadReceiptStatusConfigResult.Success -> {
                         appLogger.d("Read receipts config changed")
                         state.copy(areReadReceiptsEnabled = isEnabled)
@@ -121,7 +108,6 @@ class PrivacySettingsViewModel @Inject constructor(
                 }
         }
     }
-
     fun setTypingIndicatorState(isEnabled: Boolean) {
         viewModelScope.launch {
             state =
@@ -130,7 +116,6 @@ class PrivacySettingsViewModel @Inject constructor(
                         appLogger.e("Something went wrong while updating typing indicator config")
                         state.copy(isTypingIndicatorEnabled = !isEnabled)
                     }
-
                     is TypingIndicatorConfigResult.Success -> {
                         appLogger.d("Typing indicator configuration changed successfully")
                         state.copy(isTypingIndicatorEnabled = isEnabled)
@@ -138,21 +123,18 @@ class PrivacySettingsViewModel @Inject constructor(
                 }
         }
     }
-
     fun setScreenshotCensoringConfig(isEnabled: Boolean) {
         viewModelScope.launch {
             when (persistScreenshotCensoringConfig(isEnabled)) {
                 is PersistScreenshotCensoringConfigResult.Failure -> {
                     appLogger.e("Something went wrong while updating screenshot censoring config")
                 }
-
                 is PersistScreenshotCensoringConfigResult.Success -> {
                     appLogger.d("Screenshot censoring config changed")
                 }
             }
         }
     }
-
     fun setAnonymousUsageDataEnabled(enabled: Boolean) {
         viewModelScope.launch {
             dataStore.setIsAnonymousAnalyticsEnabled(enabled)

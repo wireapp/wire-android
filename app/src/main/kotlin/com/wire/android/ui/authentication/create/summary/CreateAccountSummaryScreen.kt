@@ -35,7 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.authentication.createAccountSummaryViewModel
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -52,7 +52,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun CreateAccountSummaryScreen(
     navigator: Navigator,
-    viewModel: CreateAccountSummaryViewModel = wireViewModel()
+    viewModel: CreateAccountSummaryViewModel = createAccountSummaryViewModel()
 ) {
     SummaryContent(
         state = viewModel.summaryState,

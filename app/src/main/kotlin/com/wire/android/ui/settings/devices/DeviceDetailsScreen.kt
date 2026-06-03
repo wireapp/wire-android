@@ -45,7 +45,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.home.settings.deviceDetailsViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -107,7 +107,7 @@ import kotlinx.datetime.Instant
 @Composable
 fun DeviceDetailsScreen(
     navigator: Navigator,
-    viewModel: DeviceDetailsViewModel = wireViewModel()
+    viewModel: DeviceDetailsViewModel = deviceDetailsViewModel()
 ) {
     when {
         viewModel.state.error is RemoveDeviceError.InitError -> navigator.navigateBack()

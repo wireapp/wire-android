@@ -30,9 +30,9 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
-import com.wire.android.ui.home.appLock.CurrentTimestampProvider
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameters
+import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.android.util.GetMediaMetadataUseCaseImpl
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
@@ -99,7 +99,7 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideCurrentTimestampProvider(): CurrentTimestampProvider = { System.currentTimeMillis() }
+    fun provideCurrentTimeProvider(): CurrentTimeProvider = CurrentTimeProvider.Default
 
     @Provides
     fun provideGeocoder(appContext: Context): Geocoder = Geocoder(appContext)

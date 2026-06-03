@@ -38,7 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.home.settings.changeEmailViewModel
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
@@ -69,7 +69,7 @@ import com.wire.android.ui.common.R as commonR
 @Composable
 fun ChangeEmailScreen(
     navigator: Navigator,
-    viewModel: ChangeEmailViewModel = wireViewModel()
+    viewModel: ChangeEmailViewModel = changeEmailViewModel()
 ) {
     when (val flowState = viewModel.state.flowState) {
         is ChangeEmailState.FlowState.NoChange,

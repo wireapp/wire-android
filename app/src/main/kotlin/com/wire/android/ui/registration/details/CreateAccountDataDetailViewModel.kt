@@ -37,14 +37,12 @@ import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel
 class CreateAccountDataDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validatePassword: ValidatePasswordUseCase,

@@ -61,7 +61,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -73,7 +72,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Suppress("LongParameterList", "ComplexMethod", "TooManyFunctions")
-@HiltViewModel(assistedFactory = LoginEmailViewModel.Factory::class)
 class LoginEmailViewModel @AssistedInject constructor(
     @Assisted val loginNavArgs: LoginNavArgs,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,

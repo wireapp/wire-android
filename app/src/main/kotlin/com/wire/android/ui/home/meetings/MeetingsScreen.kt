@@ -17,11 +17,14 @@
  */
 package com.wire.android.ui.home.meetings
 
-import com.wire.android.navigation.annotation.app.WireHomeDestination
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import com.ramcosta.composedestinations.generated.meetings.destinations.NewMeetingScreenDestination
 import com.wire.android.feature.meetings.ui.AllMeetingsScreen
 import com.wire.android.feature.meetings.ui.NewMeetingBottomSheet
+import com.wire.android.navigation.HomeDestination
+import com.wire.android.navigation.annotation.app.WireHomeDestination
+import com.wire.android.ui.common.dimensions
 import com.wire.android.feature.meetings.ui.create.NewMeetingType
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.ui.home.HomeStateHolder
@@ -29,7 +32,10 @@ import com.wire.android.ui.home.HomeStateHolder
 @WireHomeDestination
 @Composable
 fun MeetingsScreen(homeStateHolder: HomeStateHolder) {
-    AllMeetingsScreen()
+    AllMeetingsScreen(
+        lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Meetings),
+        contentPadding = PaddingValues(bottom = dimensions().spacing80x), // to ensure last item is not obscured by FAB
+    )
 
     NewMeetingBottomSheet(
         sheetState = homeStateHolder.newMeetingBottomSheetState,

@@ -18,11 +18,12 @@
 
 package com.wire.android.ui.home.conversations.details.metadata
 
+import com.wire.android.ui.home.conversations.editConversationMetadataViewModel
+
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import com.wire.android.di.wireViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.navigation.Navigator
@@ -40,7 +41,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun EditConversationNameScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<Boolean>,
-    viewModel: EditConversationMetadataViewModel = wireViewModel(),
+    viewModel: EditConversationMetadataViewModel = editConversationMetadataViewModel(),
 ) {
     with(viewModel) {
         LaunchedEffect(editConversationState.completed) {

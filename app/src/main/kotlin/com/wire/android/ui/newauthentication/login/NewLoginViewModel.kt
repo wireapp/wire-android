@@ -62,7 +62,6 @@ import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -76,7 +75,6 @@ import javax.inject.Inject
 import javax.inject.Named
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
 class NewLoginViewModel(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     val coreLogic: CoreLogic,

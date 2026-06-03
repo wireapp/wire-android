@@ -40,10 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.DpSize
-import com.wire.android.di.wireViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.applyIf
@@ -56,7 +56,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
-import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
+import com.wire.android.ui.home.conversations.compositeMessageViewModel
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.error
 import com.wire.android.ui.home.conversations.messages.item.highlighted
@@ -106,9 +106,14 @@ internal fun MessageBody(
     clickable: Boolean = true,
     messageStyle: MessageStyle = MessageStyle.NORMAL
 ) {
-    val (displayMentions, text) = messageBody?.message?.let {
-        mapToDisplayMentions(it, LocalContext.current.resources)
-    } ?: Pair(emptyList(), null)
+    val resources = LocalContext.current.resources
+    val configuration = LocalConfiguration.current
+    val message = messageBody?.message
+    val (displayMentions, text) = remember(message, configuration) {
+        message?.let {
+            mapToDisplayMentions(it, resources)
+        } ?: Pair(emptyList(), null)
+    }
 
     val color = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
@@ -168,14 +173,7 @@ fun MessageButtonsContent(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     viewModel: CompositeMessageViewModel =
-        wireViewModelScoped<
-                CompositeMessageViewModelImpl,
-                CompositeMessageViewModel,
-                CompositeMessageArgs,
-                CompositeMessageViewModelImpl.Factory
-                >(
-            CompositeMessageArgs(messageId)
-        )
+        compositeMessageViewModel(CompositeMessageArgs(messageId))
 ) {
     Column(
         modifier = modifier
@@ -347,13 +345,16 @@ private fun MessageImageOverlay(
             )
         }
 
-        FAILED_UPLOAD, FAILED_DOWNLOAD -> {
+        FAILED_DOWNLOAD -> {
             ImageMessageFailed(
                 size = size,
-                isDownloadFailure = transferStatus == FAILED_DOWNLOAD,
+                isDownloadFailure = true,
                 errorColor = messageStyle.error()
             )
         }
+
+        // Keep showing the image preview from local image
+        FAILED_UPLOAD -> Unit
 
         else -> Unit
     }

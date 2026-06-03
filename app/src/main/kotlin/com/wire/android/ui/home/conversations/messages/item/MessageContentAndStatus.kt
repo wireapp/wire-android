@@ -25,8 +25,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalInspectionMode
-import com.wire.android.di.wireViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -38,6 +36,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.conversationAssetPathsViewModel
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
 import com.wire.android.ui.home.conversations.messages.QuotedStyle
@@ -78,10 +77,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     conversationDetailsData: ConversationDetailsData,
     accent: Accent = Accent.Unknown,
 ) {
-    val conversationAssetPathsViewModel: ConversationAssetPathsViewModel = when {
-        LocalInspectionMode.current -> ConversationAssetPathsViewModelPreview
-        else -> wireViewModel<ConversationAssetPathsViewModelImpl>(key = message.conversationId.toString())
-    }
+    val conversationAssetPathsViewModel = conversationAssetPathsViewModel(message.conversationId.toString())
 
     val onAssetClickable = remember(message) {
         Clickable(enabled = isAvailable, onClick = {

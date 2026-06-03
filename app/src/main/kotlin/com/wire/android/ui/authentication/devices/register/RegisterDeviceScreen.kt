@@ -39,7 +39,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.authentication.clearSessionViewModel
+import com.wire.android.ui.authentication.registerDeviceViewModel
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
@@ -80,8 +81,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun RegisterDeviceScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
-    viewModel: RegisterDeviceViewModel = wireViewModel(),
-    clearSessionViewModel: ClearSessionViewModel = wireViewModel(),
+    viewModel: RegisterDeviceViewModel = registerDeviceViewModel(),
+    clearSessionViewModel: ClearSessionViewModel = clearSessionViewModel(),
 ) {
     clearAutofillTree()
     when (val flowState = viewModel.state.flowState) {

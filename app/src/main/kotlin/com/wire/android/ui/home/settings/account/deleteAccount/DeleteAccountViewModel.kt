@@ -16,33 +16,25 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.settings.account.deleteAccount
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-@HiltViewModel
 class DeleteAccountViewModel @Inject constructor(
     private val deleteAccount: DeleteAccountUseCase,
 ) : ViewModel() {
-
     var state by mutableStateOf(DeleteAccountState())
         private set
-
     fun onDeleteAccountClicked() {
         state = state.copy(startDeleteAccountFlow = true)
     }
-
     fun onDeleteAccountDialogDismissed() {
         state = state.copy(startDeleteAccountFlow = false)
     }
-
     fun onDeleteAccountDialogConfirmed() {
         viewModelScope.launch {
             deleteAccount(null)

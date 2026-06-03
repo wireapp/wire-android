@@ -1255,6 +1255,7 @@
     <string name="service_remove_error">Не удалось удалить приложение из беседы</string>
     <string name="service_add_success">Приложение добавлено в беседу</string>
     <string name="service_add_error">Не удалось добавить приложение в беседу</string>
+    <string name="service_conversation_creation_or_retrieval_error">Не удалось получить или создать беседу</string>
     <string name="service_no_information_available_title">Информация недоступна</string>
     <string name="service_no_information_available_subtitle">Попробуйте еще раз или свяжитесь с администратором группы</string>
     <string name="read_receipts">Отчеты о прочтении</string>

@@ -197,4 +197,8 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         UiWaitUtils.waitElement(closeButtonOnGroupConversationDetailsPage).click()
         return this
     }
+
+    fun tapCloseButtonOnChannelConversationDetailsPage(): GroupConversationDetailsPage {
+        return tapCloseButtonOnGroupConversationDetailsPage()
+    }
 }

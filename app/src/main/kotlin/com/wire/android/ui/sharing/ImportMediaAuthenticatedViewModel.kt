@@ -50,7 +50,6 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELET
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.FlowPreview
@@ -66,12 +65,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
 @OptIn(FlowPreview::class)
 @Suppress("LongParameterList", "TooManyFunctions")
-class ImportMediaAuthenticatedViewModel @Inject constructor(
+class ImportMediaAuthenticatedViewModel(
     private val getSelf: ObserveSelfUserUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val handleUriAsset: HandleUriAssetUseCase,

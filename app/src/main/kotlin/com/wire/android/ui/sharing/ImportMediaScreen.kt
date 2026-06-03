@@ -55,7 +55,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.wire.android.di.wireViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
@@ -87,8 +86,10 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.FeatureFlagState
+import com.wire.android.ui.home.featureFlagNotificationViewModel
 import com.wire.android.ui.home.conversations.AssetTooLargeDialog
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.checkAssetRestrictionsViewModel
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
 import com.wire.android.ui.home.conversations.media.RestrictionCheckState
 import com.wire.android.ui.home.conversations.media.preview.AssetTilePreview
@@ -102,6 +103,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.importMediaAuthenticatedViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -124,7 +126,7 @@ import okio.Path.Companion.toPath
 fun ImportMediaScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
-    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = wireViewModel(),
+    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = featureFlagNotificationViewModel(),
 ) {
     when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
         FeatureFlagState.FileSharingState.Loading -> {
@@ -192,8 +194,8 @@ private fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
 private fun ImportMediaAuthenticatedContent(
     navigator: Navigator,
     isRestrictedInTeam: Boolean,
-    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = wireViewModel(),
-    importMediaViewModel: ImportMediaAuthenticatedViewModel = wireViewModel(),
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = checkAssetRestrictionsViewModel(),
+    importMediaViewModel: ImportMediaAuthenticatedViewModel = importMediaAuthenticatedViewModel(),
 ) {
     if (isRestrictedInTeam) {
         ImportMediaRestrictedContent(
@@ -336,6 +338,7 @@ fun ImportMediaRegularContent(
                 ImportMediaContent(
                     state = this,
                     internalPadding = internalPadding,
+                    searchQuery = searchQueryTextState.text.toString(),
                     onConversationClicked = onConversationClicked,
                     lazyListState = lazyListState,
                 )
@@ -542,6 +545,7 @@ fun ImportMediaTopBarContent(
 private fun ImportMediaContent(
     state: ImportMediaAuthenticatedState,
     internalPadding: PaddingValues,
+    searchQuery: String,
     onConversationClicked: (conversationItem: ConversationItem) -> Unit,
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
@@ -557,6 +561,7 @@ private fun ImportMediaContent(
             lazyPagingConversations = lazyPagingConversations,
             selectedConversations = state.selectedConversationItem,
             isSelectableList = true,
+            searchQuery = searchQuery,
             onConversationSelectedOnRadioGroup = onConversationClicked,
             onOpenConversation = onConversationClicked,
             onEditConversation = {},

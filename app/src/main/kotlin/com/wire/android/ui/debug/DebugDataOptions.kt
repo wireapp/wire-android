@@ -37,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.di.wireViewModelScoped
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
@@ -69,8 +68,7 @@ fun DebugDataOptions(
     onCopyText: (String) -> Unit,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
-    viewModel: DebugDataOptionsViewModel =
-        wireViewModelScoped<DebugDataOptionsViewModelImpl, DebugDataOptionsViewModel>()
+    viewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel()
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     DebugDataOptionsContent(

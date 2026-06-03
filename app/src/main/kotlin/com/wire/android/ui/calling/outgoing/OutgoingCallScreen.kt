@@ -34,13 +34,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.wire.android.di.wireViewModel
 import com.wire.android.R
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.common.ObserveRotation
 import com.wire.android.ui.calling.common.SharedCallingViewModel
+import com.wire.android.ui.calling.outgoingCallViewModel
+import com.wire.android.ui.calling.sharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.calling.model.CallState
@@ -55,15 +56,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun OutgoingCallScreen(
     conversationId: ConversationId,
-    sharedCallingViewModel: SharedCallingViewModel =
-    wireViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
-        key = "shared_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
-    outgoingCallViewModel: OutgoingCallViewModel = wireViewModel<OutgoingCallViewModel, OutgoingCallViewModel.Factory>(
-        key = "outgoing_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
+    sharedCallingViewModel: SharedCallingViewModel = sharedCallingViewModel(conversationId),
+    outgoingCallViewModel: OutgoingCallViewModel = outgoingCallViewModel(conversationId),
     onCallAccepted: () -> Unit
 ) {
     val permissionPermanentlyDeniedDialogState =

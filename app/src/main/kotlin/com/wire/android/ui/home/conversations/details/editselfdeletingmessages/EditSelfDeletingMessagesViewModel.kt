@@ -37,17 +37,14 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
-class EditSelfDeletingMessagesViewModel @Inject constructor(
+class EditSelfDeletingMessagesViewModel(
     private val dispatcher: DispatcherProvider,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,

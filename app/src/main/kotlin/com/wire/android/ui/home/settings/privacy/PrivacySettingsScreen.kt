@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.home.settings.privacySettingsViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.colorsScheme
@@ -43,7 +43,7 @@ import com.wire.android.ui.theme.WireTheme
 @Composable
 fun PrivacySettingsConfigScreen(
     navigator: Navigator,
-    viewModel: PrivacySettingsViewModel = wireViewModel()
+    viewModel: PrivacySettingsViewModel = privacySettingsViewModel()
 ) {
     with(viewModel) {
         PrivacySettingsScreenContent(

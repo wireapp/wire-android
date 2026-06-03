@@ -62,12 +62,12 @@ import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDes
 import com.ramcosta.composedestinations.generated.app.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
-import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryType
 import com.wire.android.ui.home.newconversation.channelhistory.name
 import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
+import com.wire.android.ui.home.newconversation.sharedNewConversationViewModel
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -83,8 +83,8 @@ import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 @Composable
 fun GroupOptionScreen(
     navigator: Navigator,
-    newConversationViewModel: NewConversationViewModel,
 ) {
+    val newConversationViewModel = sharedNewConversationViewModel(navigator)
     fun navigateToGroup(conversationId: ConversationId): Unit =
         navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.REMOVE_CURRENT_NESTED_GRAPH))
 

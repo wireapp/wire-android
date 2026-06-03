@@ -42,7 +42,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.wire.android.di.wireViewModel
+import com.wire.android.ui.home.settings.customizationViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.dimensions
@@ -64,7 +64,7 @@ import com.wire.android.util.ui.UIText
 @Composable
 fun CustomizationScreen(
     navigator: Navigator,
-    viewModel: CustomizationViewModel = wireViewModel()
+    viewModel: CustomizationViewModel = customizationViewModel()
 ) {
     val lazyListState: LazyListState = rememberLazyListState()
     CustomizationScreenContent(

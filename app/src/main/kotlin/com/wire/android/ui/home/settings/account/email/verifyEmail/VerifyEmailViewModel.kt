@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.settings.account.email.verifyEmail
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,22 +24,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-@HiltViewModel
 class VerifyEmailViewModel @Inject constructor(
     private val updateEmail: UpdateEmailUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
     var state: VerifyEmailState by mutableStateOf(VerifyEmailState())
         private set
-
     private val verifyEmailNavArgs: VerifyEmailNavArgs = savedStateHandle.navArgs()
     val newEmail: String = verifyEmailNavArgs.newEmail
-
     fun onResendVerificationEmailClicked() {
         newEmail.let {
             state = state.copy(isResendEmailEnabled = false)
@@ -52,7 +45,6 @@ class VerifyEmailViewModel @Inject constructor(
                     UpdateEmailUseCase.Result.Success.VerificationEmailSent -> {
                         /*no-op*/
                     }
-
                     UpdateEmailUseCase.Result.Success.NoChange -> state = state.copy(noChange = true)
                 }
                 state = state.copy(isResendEmailEnabled = true)

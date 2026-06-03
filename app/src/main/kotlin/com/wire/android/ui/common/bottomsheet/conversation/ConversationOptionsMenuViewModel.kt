@@ -64,7 +64,6 @@ import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.IsPreventAdminlessGroupsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.util.DateTimeUtil
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -80,7 +79,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsMenuViewAction> {
@@ -110,8 +108,7 @@ interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsM
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class ConversationOptionsMenuViewModelImpl @Inject constructor(
+class ConversationOptionsMenuViewModelImpl(
     @CurrentAccount private val currentAccount: UserId,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeSelfUser: ObserveSelfUserUseCase,

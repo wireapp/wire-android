@@ -37,10 +37,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.network.NetworkState
 import dagger.Lazy
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -51,11 +47,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 
-@HiltViewModel(assistedFactory = CommonTopAppBarViewModel.Factory::class)
-class CommonTopAppBarViewModel @AssistedInject constructor(
+class CommonTopAppBarViewModel(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
-    @Assisted private val params: CommonTopAppBarParams,
+    private val params: CommonTopAppBarParams,
 ) : ViewModel() {
 
     var state by mutableStateOf(CommonTopAppBarState())
@@ -192,11 +187,6 @@ class CommonTopAppBarViewModel @AssistedInject constructor(
         } else {
             ConnectivityUIState.None
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(params: CommonTopAppBarParams): CommonTopAppBarViewModel
     }
 
     private companion object {

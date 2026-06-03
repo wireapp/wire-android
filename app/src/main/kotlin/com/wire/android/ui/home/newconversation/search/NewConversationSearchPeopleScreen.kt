@@ -32,7 +32,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProf
 import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
-import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.newconversation.sharedNewConversationViewModel
 import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.BotService
@@ -46,8 +46,8 @@ import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 @Composable
 fun NewConversationSearchPeopleScreen(
     navigator: Navigator,
-    newConversationViewModel: NewConversationViewModel,
 ) {
+    val newConversationViewModel = sharedNewConversationViewModel(navigator)
     val showCreateTeamDialog = remember { mutableStateOf(false) }
     SearchUsersAndAppsScreen(
         searchTitle = stringResource(id = R.string.label_new_conversation),

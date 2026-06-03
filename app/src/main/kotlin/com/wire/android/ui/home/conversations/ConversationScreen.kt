@@ -79,7 +79,6 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import com.wire.android.di.wireViewModel
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -259,8 +258,8 @@ fun ConversationScreen(
     imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
-    conversationInfoViewModel: ConversationInfoViewModel = wireViewModel(),
-    conversationBannerViewModel: ConversationBannerViewModel = wireViewModel(),
+    conversationInfoViewModel: ConversationInfoViewModel = conversationInfoViewModel(),
+    conversationBannerViewModel: ConversationBannerViewModel = conversationBannerViewModel(),
     conversationCallViewModel: ConversationCallViewModel = conversationCallViewModel(),
     conversationMessagesViewModel: ConversationMessagesViewModel = conversationMessagesViewModel(),
     messageComposerViewModel: MessageComposerViewModel = messageComposerViewModel(),

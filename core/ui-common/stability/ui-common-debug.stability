@@ -1031,10 +1031,10 @@ public fun com.wire.android.ui.common.card.WireOutlinedCard(title: kotlin.String
 
 @Composable
 public fun com.wire.android.ui.common.channelConversationColor(id: com.wire.kalium.logic.data.id.QualifiedID): com.wire.android.ui.theme.ChannelAvatarColors
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - id: UNSTABLE (has mutable properties or unstable members)
+    - id: STABLE (matched by stability configuration)
 
 @Composable
 public fun com.wire.android.ui.common.chip.CountBadge(count: kotlin.Int, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -1165,10 +1165,10 @@ private fun com.wire.android.ui.common.getButton(modifier: androidx.compose.ui.M
 
 @Composable
 public fun com.wire.android.ui.common.groupConversationColor(id: com.wire.kalium.logic.data.id.QualifiedID): com.wire.android.ui.theme.GroupAvatarColors
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - id: UNSTABLE (has mutable properties or unstable members)
+    - id: STABLE (matched by stability configuration)
 
 @Composable
 public fun com.wire.android.ui.common.image.WireImage(model: kotlin.Any?, contentDescription: kotlin.String, modifier: androidx.compose.ui.Modifier, contentScale: androidx.compose.ui.layout.ContentScale, placeholder: androidx.compose.ui.graphics.painter.Painter?): kotlin.Unit
@@ -2059,10 +2059,10 @@ public fun com.wire.android.ui.common.wireDialogPropertiesBuilder(dismissOnBackP
 
 @Composable
 public fun com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar(conversationId: com.wire.kalium.logic.data.id.QualifiedID, isPrivateChannel: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, size: androidx.compose.ui.unit.Dp, cornerRadius: androidx.compose.ui.unit.Dp, padding: androidx.compose.ui.unit.Dp, borderWidth: androidx.compose.ui.unit.Dp): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - isPrivateChannel: STABLE (primitive type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - size: STABLE (marked @Stable or @Immutable)
@@ -2091,10 +2091,10 @@ public fun com.wire.android.ui.home.conversationslist.common.CustomGroupAvatarDr
 
 @Composable
 public fun com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar(conversationId: com.wire.kalium.logic.data.id.QualifiedID, modifier: androidx.compose.ui.Modifier, size: androidx.compose.ui.unit.Dp, cornerRadius: androidx.compose.ui.unit.Dp, padding: androidx.compose.ui.unit.Dp, borderWidth: androidx.compose.ui.unit.Dp, borderColor: androidx.compose.ui.graphics.Color): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - conversationId: STABLE (matched by stability configuration)
     - modifier: STABLE (marked @Stable or @Immutable)
     - size: STABLE (marked @Stable or @Immutable)
     - cornerRadius: STABLE (marked @Stable or @Immutable)

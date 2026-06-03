@@ -31,7 +31,6 @@ import com.ramcosta.composedestinations.generated.app.destinations.ConversationS
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
 import com.ramcosta.composedestinations.generated.app.navArgs
-import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
@@ -49,13 +48,12 @@ import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
-import com.wire.android.di.wireViewModel
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.settings.teamMigrationViewModel
+import com.wire.android.di.wireViewModel
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -81,15 +79,6 @@ fun MainNavHost(
 
                     // 👇 To make LoginTypeSelector available to all destinations as a non-navigation parameter if provided
                     if (loginTypeSelector != null) dependency(loginTypeSelector)
-
-                    // 👇 To tie NewConversationViewModel to nested NewConversationNavGraph,
-                    // making it shared between all screens that belong to it
-                    navGraph(NewConversationGraph) {
-                        val parentEntry = remember(navBackStackEntry) {
-                            navController.getBackStackEntry(NewConversationGraph.route)
-                        }
-                        dependency(wireViewModel<NewConversationViewModel>(parentEntry))
-                    }
 
                     // 👇 To reuse LoginEmailViewModel from NewLoginPasswordScreen on NewLoginVerificationCodeScreen
                     destination(NewLoginVerificationCodeScreenDestination) {

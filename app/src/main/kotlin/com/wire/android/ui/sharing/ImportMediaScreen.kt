@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.di.wireViewModel
+import com.wire.android.ui.importMediaAuthenticatedViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
@@ -193,7 +194,7 @@ private fun ImportMediaAuthenticatedContent(
     navigator: Navigator,
     isRestrictedInTeam: Boolean,
     checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = wireViewModel(),
-    importMediaViewModel: ImportMediaAuthenticatedViewModel = wireViewModel(),
+    importMediaViewModel: ImportMediaAuthenticatedViewModel = importMediaAuthenticatedViewModel(),
 ) {
     if (isRestrictedInTeam) {
         ImportMediaRestrictedContent(

@@ -24,7 +24,6 @@ buildscript {
         maven(url = "https://plugins.gradle.org/m2/")
     }
     dependencies {
-        classpath(libs.hilt.gradlePlugin)
         val fdroidBuild = (System.getenv("flavor")
             ?: System.getenv("FLAVOR")
             ?: System.getenv("CUSTOM_FLAVOR")

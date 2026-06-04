@@ -30,7 +30,7 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 class ChangeDisplayNameViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val updateDisplayName: UpdateDisplayNameUseCase,

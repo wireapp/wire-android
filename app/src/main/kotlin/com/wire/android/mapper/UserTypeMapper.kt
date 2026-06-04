@@ -21,7 +21,7 @@ package com.wire.android.mapper
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class UserTypeMapper @Inject constructor() {
 

@@ -27,7 +27,6 @@ import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import kotlinx.coroutines.launch
-
 @ViewModelScopedPreview
 interface IsFileSharingEnabledViewModel {
     fun isFileSharingEnabled(): Boolean = true

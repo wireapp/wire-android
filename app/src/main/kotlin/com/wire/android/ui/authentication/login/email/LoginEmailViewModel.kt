@@ -58,9 +58,9 @@ import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScop
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -108,7 +108,7 @@ class LoginEmailViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(args: LoginNavArgs): LoginEmailViewModel
+        fun create(loginNavArgs: LoginNavArgs): LoginEmailViewModel
     }
 
     init {

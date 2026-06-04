@@ -32,7 +32,6 @@ import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.Lazy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -69,7 +68,7 @@ class HomeDrawerViewModel(
         viewModelScope.launch {
             combine(
                 flowOf(isWireCellsEnabled()),
-                observeArchivedUnreadConversationsCount.get().invoke(),
+                observeArchivedUnreadConversationsCount.value.invoke(),
                 observeTeamManagementUrlForUser()
             ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
                 buildList {

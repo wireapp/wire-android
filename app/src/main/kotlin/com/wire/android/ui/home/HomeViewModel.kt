@@ -38,7 +38,6 @@ import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersona
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.Lazy
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -130,7 +129,7 @@ class HomeViewModel(
     }
 
     private suspend fun isLoggedOut(): Boolean {
-        val accountInfo = (currentSessionFlow.get().invoke().firstOrNull() as? CurrentSessionResult.Success)?.accountInfo
+        val accountInfo = (currentSessionFlow.value.invoke().firstOrNull() as? CurrentSessionResult.Success)?.accountInfo
         return accountInfo !is AccountInfo.Valid
     }
 }

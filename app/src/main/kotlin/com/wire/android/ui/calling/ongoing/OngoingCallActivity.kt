@@ -48,8 +48,7 @@ import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
 import com.wire.android.ui.calling.ongoing.OngoingCallActivity.Companion.TAG
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * Activity that handles ongoing call screen, Ongoing.
@@ -60,7 +59,6 @@ import javax.inject.Inject
  * @see OngoingCallScreen
  */
 @OptIn(ExperimentalComposeUiApi::class)
-@AndroidEntryPoint
 class OngoingCallActivity : CallActivity() {
     @Inject
     lateinit var servicesManager: ServicesManager

@@ -26,7 +26,7 @@ import com.wire.android.AppJsonStyledLogger
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.kalium.logger.KaliumLogLevel
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class LocationPickerHelperFlavor @Inject constructor(
     private val context: Context,

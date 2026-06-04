@@ -20,11 +20,12 @@ package com.wire.android.emm
 import android.content.Context
 import androidx.enterprise.feedback.KeyedAppState
 import androidx.enterprise.feedback.KeyedAppStatesReporter
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 class ManagedConfigurationsReporter @Inject constructor(
     @ApplicationContext context: Context
 ) {

@@ -22,7 +22,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.kalium.logic.data.call.Participant
 import com.wire.kalium.logic.data.conversation.ClientId
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class UICallParticipantMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,

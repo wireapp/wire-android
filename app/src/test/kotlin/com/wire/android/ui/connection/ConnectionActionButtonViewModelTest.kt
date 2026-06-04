@@ -58,7 +58,7 @@ class ConnectionActionButtonViewModelTest {
     @Test
     fun `given success, when sending a connection request, then emit success message`() = runTest {
         // given
-        val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+        val (arrangement, viewModel) = ConnectionActionButtonArrangement()
             .withSendConnectionRequest(SendConnectionRequestResult.Success)
             .arrange()
 
@@ -77,7 +77,7 @@ class ConnectionActionButtonViewModelTest {
     @Test
     fun `given a failure, when sending a connection request, then emit failure message`() = runTest {
         // given
-        val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+        val (arrangement, viewModel) = ConnectionActionButtonArrangement()
             .withSendConnectionRequest(SendConnectionRequestResult.Failure.GenericFailure(failure))
             .arrange()
 
@@ -96,7 +96,7 @@ class ConnectionActionButtonViewModelTest {
     @Test
     fun `given a federation denied failure, when sending a connection request, then emit proper failure message`() = runTest {
         // given
-        val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+        val (arrangement, viewModel) = ConnectionActionButtonArrangement()
             .withSendConnectionRequest(SendConnectionRequestResult.Failure.FederationDenied)
             .arrange()
 
@@ -115,7 +115,7 @@ class ConnectionActionButtonViewModelTest {
     @Test
     fun `given a legal hold failure, when sending a connection request, then edit the state properly`() = runTest {
         // given
-        val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+        val (arrangement, viewModel) = ConnectionActionButtonArrangement()
             .withSendConnectionRequest(SendConnectionRequestResult.Failure.MissingLegalHoldConsent)
             .arrange()
 
@@ -135,7 +135,7 @@ class ConnectionActionButtonViewModelTest {
     fun `given success, when ignoring a connection request, then calls onIgnoreSuccess`() =
         runTest {
             // given
-            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            val (arrangement, viewModel) = ConnectionActionButtonArrangement()
                 .withIgnoreConnectionRequest(IgnoreConnectionRequestUseCaseResult.Success)
                 .arrange()
 
@@ -157,7 +157,7 @@ class ConnectionActionButtonViewModelTest {
     fun `given failure, when ignoring a connection request, then emit error message`() =
         runTest {
             // given
-            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            val (arrangement, viewModel) = ConnectionActionButtonArrangement()
                 .withIgnoreConnectionRequest(IgnoreConnectionRequestUseCaseResult.Failure(failure))
                 .arrange()
 
@@ -177,7 +177,7 @@ class ConnectionActionButtonViewModelTest {
     fun `given success, when canceling a connection request, then emit success message`() =
         runTest {
             // given
-            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            val (arrangement, viewModel) = ConnectionActionButtonArrangement()
                 .withCancelConnectionRequest(CancelConnectionRequestUseCaseResult.Success)
                 .arrange()
 
@@ -197,7 +197,7 @@ class ConnectionActionButtonViewModelTest {
     fun `given failure, when canceling a connection request, then emit failure message`() =
         runTest {
             // given
-            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            val (arrangement, viewModel) = ConnectionActionButtonArrangement()
                 .withCancelConnectionRequest(CancelConnectionRequestUseCaseResult.Failure(failure))
                 .arrange()
 
@@ -217,7 +217,7 @@ class ConnectionActionButtonViewModelTest {
     fun `given success, when accepting a connection request, then emit success message`() =
         runTest {
             // given
-            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            val (arrangement, viewModel) = ConnectionActionButtonArrangement()
                 .withAcceptConnectionRequest(AcceptConnectionRequestUseCaseResult.Success)
                 .arrange()
 
@@ -237,7 +237,7 @@ class ConnectionActionButtonViewModelTest {
     fun `given failure, when accepting a connection request, then emit failure message`() =
         runTest {
             // given
-            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            val (arrangement, viewModel) = ConnectionActionButtonArrangement()
                 .withAcceptConnectionRequest(AcceptConnectionRequestUseCaseResult.Failure(failure))
                 .arrange()
 
@@ -257,7 +257,7 @@ class ConnectionActionButtonViewModelTest {
     fun `given a conversationId, when trying to open the conversation, then returns a Success result with the conversation`() =
         runTest {
             // given
-            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            val (arrangement, viewModel) = ConnectionActionButtonArrangement()
                 .withGetOneToOneConversation(CreateConversationResult.Success(TestConversation.CONVERSATION))
                 .arrange()
 
@@ -282,7 +282,7 @@ class ConnectionActionButtonViewModelTest {
     fun `given a conversationId, when trying to open the conversation and fails, then returns a Failure result and update error state`() =
         runTest {
             // given
-            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            val (arrangement, viewModel) = ConnectionActionButtonArrangement()
                 .withGetOneToOneConversation(CreateConversationResult.Failure(failure))
                 .arrange()
 
@@ -305,7 +305,7 @@ class ConnectionActionButtonViewModelTest {
     fun `given a conversationId, when trying to open the conversation and fails with MissingKeyPackages, then call MissingKeyPackage()`() =
         runTest {
             // given
-            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            val (arrangement, viewModel) = ConnectionActionButtonArrangement()
                 .withGetOneToOneConversation(CreateConversationResult.Failure(CoreFailure.MissingKeyPackages(setOf())))
                 .arrange()
 
@@ -332,7 +332,7 @@ class ConnectionActionButtonViewModelTest {
     }
 }
 
-internal class ConnectionActionButtonHiltArrangement {
+internal class ConnectionActionButtonArrangement {
 
     @MockK
     lateinit var getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase

@@ -41,7 +41,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 import kotlin.properties.Delegates
 @Suppress("LongParameterList")
 class MyAccountViewModel @Inject constructor(

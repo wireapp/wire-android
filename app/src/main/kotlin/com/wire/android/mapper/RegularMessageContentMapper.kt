@@ -48,7 +48,7 @@ import com.wire.kalium.logic.util.fileExtension
 import com.wire.kalium.logic.util.isGreaterThan
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 @Suppress("TooManyFunctions", "CyclomaticComplexMethod")
 class RegularMessageMapper @Inject constructor(

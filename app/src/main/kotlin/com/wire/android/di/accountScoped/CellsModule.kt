@@ -62,6 +62,12 @@ import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUs
 import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
+import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
+import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
+import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
 import com.wire.kalium.cells.paginatedConversationsFlowUseCase
 import com.wire.kalium.cells.paginatedFilesFlowUseCase
 import com.wire.kalium.logic.CoreLogic
@@ -259,4 +265,28 @@ class CellsModule {
     @Provides
     fun provideGetPaginatedConversationsFlowUseCase(cellsScope: CellsScope): GetPaginatedCellConversationsFlowUseCase =
         cellsScope.paginatedConversationsFlowUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideSaveOfflineFileUseCase(cellsScope: CellsScope): SaveOfflineFileUseCase = cellsScope.saveOfflineFile
+
+    @ViewModelScoped
+    @Provides
+    fun provideDeleteOfflineFileUseCase(cellsScope: CellsScope): DeleteOfflineFileUseCase = cellsScope.deleteOfflineFile
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveOfflineFilesUseCase(cellsScope: CellsScope): ObserveOfflineFilesUseCase = cellsScope.observeOfflineFiles
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetOfflineFileUseCase(cellsScope: CellsScope): GetOfflineFileUseCase = cellsScope.getOfflineFile
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetConversationNamesUseCase(cellsScope: CellsScope): GetConversationNameUseCase = cellsScope.getConversationName
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetUserNamesUseCase(cellsScope: CellsScope): GetUserNameUseCase = cellsScope.getUserName
 }

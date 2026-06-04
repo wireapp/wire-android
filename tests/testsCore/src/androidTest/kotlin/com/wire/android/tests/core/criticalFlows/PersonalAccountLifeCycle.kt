@@ -58,7 +58,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
         testServiceHelper = TestServiceHelper(teamHelper.usersManager)
@@ -166,6 +166,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
             pages.connectedUserProfilePage.assertToastMessageIsDisplayed("Connection request sent")
 
             pages.unconnectedUserProfilePage.clickCloseButtonOnUnconnectedUserProfilePage()
+            pages.searchPage.clickCloseButtonOnSearchInputField()
             pages.conversationListPage.clickCloseButtonOnNewConversationScreen()
             pages.conversationListPage
                 .assertConversationNameWithPendingStatusVisibleInConversationList(teamOwner?.name ?: "")

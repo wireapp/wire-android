@@ -25,21 +25,21 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
+import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.CountdownTimer
@@ -58,7 +58,9 @@ import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScop
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -68,14 +70,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "ComplexMethod", "TooManyFunctions")
-@HiltViewModel
-class LoginEmailViewModel @Inject constructor(
+class LoginEmailViewModel @AssistedInject constructor(
+    @Assisted val loginNavArgs: LoginNavArgs,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val savedStateHandle: SavedStateHandle,
+    private val savedInputStore: LoginSavedInputStore,
     userDataStoreProvider: UserDataStoreProvider,
     @KaliumCoreLogic coreLogic: CoreLogic,
     private val resendCodeTimer: CountdownTimer,
@@ -83,13 +84,13 @@ class LoginEmailViewModel @Inject constructor(
     defaultServerConfig: ServerConfig.Links,
     @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean,
 ) : LoginViewModel(
-    savedStateHandle,
+    loginNavArgs,
     clientScopeProviderFactory,
     userDataStoreProvider,
     coreLogic,
+    LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
     defaultServerConfig
 ) {
-    val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
 
     val userIdentifierTextState: TextFieldState = TextFieldState()
@@ -105,18 +106,23 @@ class LoginEmailViewModel @Inject constructor(
     @VisibleForTesting
     internal val loginJobData = MutableStateFlow<LoginJobData?>(null)
 
+    @AssistedFactory
+    interface Factory {
+        fun create(args: LoginNavArgs): LoginEmailViewModel
+    }
+
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
                 preFilledUserIdentifier.userIdentifier
             } else {
-                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+                savedInputStore.userIdentifier ?: String.EMPTY
             }
         )
         viewModelScope.launch {
             combine(
                 userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
-                    savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
+                    savedInputStore.userIdentifier = it.toString()
                 },
                 passwordTextState.textAsFlow(),
                 proxyIdentifierTextState.textAsFlow(),

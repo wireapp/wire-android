@@ -101,7 +101,6 @@ class GetConversationsFromSearchUseCaseTest {
         // Then
         result.forEachIndexed { index, conversationItem ->
             assertEquals(conversationsList[index].conversationDetails.conversation.id, conversationItem.conversationId)
-            assertEquals(arrangement.queryConfig.searchQuery, conversationItem.searchQuery)
         }
     }
 

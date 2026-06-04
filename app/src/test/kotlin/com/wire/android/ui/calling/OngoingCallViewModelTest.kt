@@ -40,6 +40,7 @@ import com.wire.android.ui.calling.ongoing.OngoingCallViewModel.Companion.MODERA
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.toast.InCallToast
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
@@ -90,6 +91,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -735,7 +737,9 @@ class OngoingCallViewModelTest {
                 uiCallParticipantMapper = UICallParticipantMapper(UserTypeMapper()),
                 networkStateObserver = networkStateObserver,
                 dispatchers = TestDispatcherProvider(dispatcher),
-                currentTime = dispatcher.scheduler::currentTime
+                currentTimeProvider = CurrentTimeProvider {
+                    Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime)
+                }
             )
         }
 

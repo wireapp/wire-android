@@ -35,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -47,6 +46,8 @@ import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.common.ObserveRotation
 import com.wire.android.ui.calling.common.SharedCallingViewModel
+import com.wire.android.ui.calling.incomingCallViewModel
+import com.wire.android.ui.calling.sharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
@@ -70,15 +71,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun IncomingCallScreen(
     conversationId: ConversationId,
     shouldTryToAnswerCallAutomatically: Boolean,
-    incomingCallViewModel: IncomingCallViewModel = hiltViewModel<IncomingCallViewModel, IncomingCallViewModel.Factory>(
-        key = "incoming_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
-    sharedCallingViewModel: SharedCallingViewModel =
-    hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
-        key = "shared_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    ),
+    incomingCallViewModel: IncomingCallViewModel = incomingCallViewModel(conversationId),
+    sharedCallingViewModel: SharedCallingViewModel = sharedCallingViewModel(conversationId),
     onCallAccepted: () -> Unit
 ) {
     val activity = LocalActivity.current

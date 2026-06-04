@@ -58,8 +58,23 @@ allprojects {
 plugins {
     id(ScriptPlugins.infrastructure)
     alias(libs.plugins.ksp) apply false // https://github.com/google/dagger/issues/3965
+    alias(libs.plugins.metro) apply false
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.compose.stability.analyzer) apply false
     alias(libs.plugins.cyclonedx)
+}
+
+subprojects {
+    plugins.withId("com.github.skydoves.compose.stability.analyzer") {
+        extensions.configure<com.skydoves.compose.stability.gradle.StabilityAnalyzerExtension>("composeStabilityAnalyzer") {
+            stabilityValidation {
+                ignoreNonRegressiveChanges.set(true)
+                stabilityConfigurationFiles.add(
+                    rootProject.layout.projectDirectory.file("config/compose-stability.conf")
+                )
+            }
+        }
+    }
 }
 
 tasks.cyclonedxBom {

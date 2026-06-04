@@ -51,7 +51,6 @@ import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
-import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -63,7 +62,7 @@ import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveSelfUserHasViewerAccessOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
@@ -72,7 +71,6 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -87,11 +85,6 @@ import kotlinx.datetime.Instant
 internal class MessageComposerViewModelArrangement {
 
     val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-    private var arrangedSelfUser: SelfUser = TestUser.SELF_USER
-    private var arrangedConversationDetails: ConversationDetails = mockConversationDetailsGroup(
-        conversationName = "GROUP Name",
-        mockedConversationId = conversationId,
-    )
 
     init {
         // Tests setup
@@ -109,10 +102,7 @@ internal class MessageComposerViewModelArrangement {
         coEvery {
             currentSessionFlowUseCase()
         } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
-        coEvery { observeSelfUserUseCase() } returns flowOf(arrangedSelfUser)
-        coEvery { observeConversationDetailsUseCase(any()) } returns flowOf(
-            ObserveConversationDetailsUseCase.Result.Success(arrangedConversationDetails)
-        )
+        coEvery { observeSelfUserHasViewerAccessOnConversationUseCase(any()) } returns flowOf(true)
         coEvery { globalDataStore.enterToSendFlow() } returns flowOf(false)
         coEvery { observeEstablishedCalls() } returns emptyFlow()
         coEvery { markConversationAsReadLocallyUseCase(any(), any()) } returns MarkConversationAsReadResult.Success(false)
@@ -134,10 +124,7 @@ internal class MessageComposerViewModelArrangement {
     private lateinit var observeConversationInteractionAvailabilityUseCase: ObserveConversationInteractionAvailabilityUseCase
 
     @MockK
-    private lateinit var observeConversationDetailsUseCase: ObserveConversationDetailsUseCase
-
-    @MockK
-    private lateinit var observeSelfUserUseCase: ObserveSelfUserUseCase
+    private lateinit var observeSelfUserHasViewerAccessOnConversationUseCase: ObserveSelfUserHasViewerAccessOnConversationUseCase
 
     @MockK
     private lateinit var updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
@@ -182,8 +169,6 @@ internal class MessageComposerViewModelArrangement {
             savedStateHandle = savedStateHandle,
             dispatchers = TestDispatcherProvider(),
             isFileSharingEnabled = isFileSharingEnabledUseCase,
-            observeConversationDetails = observeConversationDetailsUseCase,
-            observeSelfUser = observeSelfUserUseCase,
             updateConversationReadDate = updateConversationReadDateUseCase,
             markConversationAsReadLocally = markConversationAsReadLocallyUseCase,
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
@@ -197,7 +182,7 @@ internal class MessageComposerViewModelArrangement {
             currentSessionFlowUseCase = currentSessionFlowUseCase,
             observeEstablishedCalls = observeEstablishedCalls,
             globalDataStore = globalDataStore,
-        )
+            observeSelfUserHasViewerAccess = observeSelfUserHasViewerAccessOnConversationUseCase,        )
     }
 
     fun withSuccessfulViewModelInit(
@@ -218,16 +203,8 @@ internal class MessageComposerViewModelArrangement {
         coEvery { currentSessionFlowUseCase() } returns resultFlow
     }
 
-    fun withSelfUser(selfUser: SelfUser) = apply {
-        arrangedSelfUser = selfUser
-        coEvery { observeSelfUserUseCase() } returns flowOf(arrangedSelfUser)
-    }
-
-    fun withConversationDetails(conversationDetails: ConversationDetails) = apply {
-        arrangedConversationDetails = conversationDetails
-        coEvery { observeConversationDetailsUseCase(any()) } returns flowOf(
-            ObserveConversationDetailsUseCase.Result.Success(arrangedConversationDetails)
-        )
+    fun withAttachmentOptionsAvailability(available: Boolean) = apply {
+        coEvery { observeSelfUserHasViewerAccessOnConversationUseCase(any()) } returns flowOf(available)
     }
 
     fun arrange() = this to viewModel
@@ -250,6 +227,8 @@ internal fun withMockConversationDetailsOneOnOne(
         every { isUnavailableUser } returns unavailable
         every { deleted } returns false
         every { accentId } returns 0
+        every { botService } returns null
+        every { userType } returns UserTypeInfo.Regular(UserType.NONE)
     },
     userType = UserTypeInfo.Regular(UserType.INTERNAL),
 )
@@ -309,3 +288,5 @@ internal fun mockUIAudioMessage(id: String = "someId", userName: String = "mockU
         )
     }
 }
+
+

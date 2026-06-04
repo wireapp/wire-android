@@ -21,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
-import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ViewModelScopedPreview
@@ -62,9 +61,9 @@ import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromF
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFolderUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
+import com.wire.kalium.logic.feature.user.IsPreventAdminlessGroupsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.util.DateTimeUtil
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -80,7 +79,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsMenuViewAction> {
@@ -110,8 +108,7 @@ interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsM
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class ConversationOptionsMenuViewModelImpl @Inject constructor(
+class ConversationOptionsMenuViewModelImpl(
     @CurrentAccount private val currentAccount: UserId,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeSelfUser: ObserveSelfUserUseCase,
@@ -124,6 +121,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     private val markConversationAsDeletedLocally: MarkConversationAsDeletedLocallyUseCase,
     private val leaveConversation: LeaveConversationUseCase,
     private val checkConversationLeaveConditions: CheckConversationLeaveConditionsUseCase,
+    private val isPreventAdminlessGroupsEnabled: IsPreventAdminlessGroupsEnabledUseCase,
     private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
     private val clearConversationContent: ClearConversationContentUseCase,
@@ -253,8 +251,8 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     }
 
     override fun onLeaveGroup(leaveGroupState: LeaveGroupDialogState) {
-        if (BuildConfig.ADMINLESS_GROUP_HANDLING_ENABLED) {
-            viewModelScope.launch {
+        viewModelScope.launch {
+            if (isPreventAdminlessGroupsEnabled()) {
                 when (val result = checkConversationLeaveConditions(leaveGroupState.conversationId)) {
                     CheckConversationLeaveConditionsUseCase.Result.Allow -> leaveGroupDialogState.show(leaveGroupState)
                     is CheckConversationLeaveConditionsUseCase.Result.DoNotAllow -> {
@@ -271,9 +269,9 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
                         onMessage(HomeSnackBarMessage.LeaveConversationError)
                     }
                 }
+            } else {
+                leaveGroupDialogState.show(leaveGroupState)
             }
-        } else {
-            leaveGroupDialogState.show(leaveGroupState)
         }
     }
 

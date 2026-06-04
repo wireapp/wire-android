@@ -24,17 +24,16 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.DOWNLOAD_IN_PROGRESS
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_DOWNLOADED
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.SAVED_INTERNALLY
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOADED
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 interface ConversationAssetPathsViewModel {
     fun localAssetPath(messageId: String): String? = null
@@ -48,8 +47,7 @@ interface ConversationAssetPathsViewModel {
 
 object ConversationAssetPathsViewModelPreview : ConversationAssetPathsViewModel
 
-@HiltViewModel
-class ConversationAssetPathsViewModelImpl @Inject constructor(
+class ConversationAssetPathsViewModelImpl(
     private val getMessageAsset: GetMessageAssetUseCase,
     private val dispatchers: DispatcherProvider,
 ) : ViewModel(), ConversationAssetPathsViewModel {
@@ -108,7 +106,7 @@ class ConversationAssetPathsViewModelImpl @Inject constructor(
 
 internal fun AssetTransferStatus.shouldResolveAsset(downloadIfNeeded: Boolean) =
     if (downloadIfNeeded) {
-        this in setOf(NOT_DOWNLOADED, DOWNLOAD_IN_PROGRESS, SAVED_INTERNALLY, UPLOADED)
+        this in setOf(NOT_DOWNLOADED, DOWNLOAD_IN_PROGRESS, SAVED_INTERNALLY, UPLOADED, FAILED_UPLOAD)
     } else {
-        this in setOf(SAVED_INTERNALLY, UPLOADED)
+        this in setOf(SAVED_INTERNALLY, UPLOADED, FAILED_UPLOAD)
     }

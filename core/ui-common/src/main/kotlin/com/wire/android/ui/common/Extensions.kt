@@ -31,6 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -108,6 +113,23 @@ fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
         this.semantics(mergeDescendants = true) { }
     }
 } ?: this
+
+fun Modifier.onEscapeOrBackKey(
+    enabled: Boolean = true,
+    onKeyPressed: () -> Unit,
+): Modifier = onPreviewKeyEvent { event ->
+    val isEscapeOrBack = event.key == Key.Escape || event.key == Key.Back
+    val isKeyPressOrRelease = event.type == KeyEventType.KeyDown || event.type == KeyEventType.KeyUp
+
+    if (enabled && isKeyPressOrRelease && isEscapeOrBack) {
+        if (event.type == KeyEventType.KeyDown) {
+            onKeyPressed()
+        }
+        true
+    } else {
+        false
+    }
+}
 
 private class SingleClickHandler {
 

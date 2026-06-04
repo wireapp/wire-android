@@ -23,6 +23,9 @@ import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.toBySelector
 
 data class GroupConversationDetailsPage(private val device: UiDevice) {
+    private val groupNameInputField = UiSelectorParams(className = "android.widget.EditText")
+
+    private val okButton = UiSelectorParams(text = "OK")
 
     private val showMoreOptionsButton = UiSelectorParams(description = "Open conversation options")
 
@@ -112,6 +115,28 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         UiWaitUtils.waitElement(continueButton).click()
     }
 
+    fun assertChannelNameVisible(expectedName: String): GroupConversationDetailsPage {
+        try {
+            UiWaitUtils.waitElement(textViewSelector(expectedName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Expected channel name '$expectedName' is not visible.", e)
+        }
+        return this
+    }
+
+    fun tapOnChannelName(expectedName: String): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(textViewSelector(expectedName)).click()
+        return this
+    }
+
+    fun changeChannelName(newName: String): GroupConversationDetailsPage {
+        val channelNameInput = UiWaitUtils.waitElement(groupNameInputField)
+        channelNameInput.text = ""
+        channelNameInput.text = newName
+        UiWaitUtils.waitElement(okButton).click()
+        return this
+    }
+
     fun assertUsernameIsAddedToParticipantsList(expectedHandle: String): GroupConversationDetailsPage {
         val handleSelector = textViewSelector(expectedHandle)
         try {
@@ -171,5 +196,9 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
     fun tapCloseButtonOnGroupConversationDetailsPage(): GroupConversationDetailsPage {
         UiWaitUtils.waitElement(closeButtonOnGroupConversationDetailsPage).click()
         return this
+    }
+
+    fun tapCloseButtonOnChannelConversationDetailsPage(): GroupConversationDetailsPage {
+        return tapCloseButtonOnGroupConversationDetailsPage()
     }
 }

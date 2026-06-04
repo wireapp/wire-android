@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.userprofile.self
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -61,7 +59,6 @@ import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -75,11 +72,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-
 // TODO cover this class with unit test
 // Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel
 class SelfUserProfileViewModel @Inject constructor(
     @CurrentAccount private val selfUserId: UserId,
     private val dataStore: UserDataStore,
@@ -104,12 +99,9 @@ class SelfUserProfileViewModel @Inject constructor(
     private val getTeamUrl: GetTeamUrlUseCase,
     private val isProfileQRCodeEnabled: IsProfileQRCodeEnabledUseCase,
 ) : ViewModel() {
-
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
         private set
-
     private lateinit var establishedCallsList: StateFlow<List<Call>>
-
     init {
         viewModelScope.launch {
             fetchSelfUser()
@@ -120,22 +112,18 @@ class SelfUserProfileViewModel @Inject constructor(
             fetchProfileQRCodeState()
         }
     }
-
     fun fetchProfileQRCodeState() = viewModelScope.launch {
         val isEnabled = isProfileQRCodeEnabled()
         userProfileState = userProfileState.copy(showQrCode = isEnabled)
     }
-
     suspend fun checkIfUserAbleToMigrateToTeamAccount() {
         val canMigrate = canMigrateFromPersonalToTeam()
         userProfileState = userProfileState.copy(isAbleToMigrateToTeamAccount = canMigrate)
     }
-
     private suspend fun fetchIsReadOnlyAccount() {
         val isReadOnlyAccount = isReadOnlyAccount()
         userProfileState = userProfileState.copy(isReadOnlyAccount = isReadOnlyAccount)
     }
-
     private fun observeEstablishedCall() {
         viewModelScope.launch {
             establishedCallsList = observeEstablishedCalls()
@@ -144,7 +132,6 @@ class SelfUserProfileViewModel @Inject constructor(
                 .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
         }
     }
-
     private fun markCreateTeamNoticeAsRead() {
         viewModelScope.launch {
             if (getSelfTeamId() == null && !dataStore.isCreateTeamNoticeRead().first()) {
@@ -152,25 +139,20 @@ class SelfUserProfileViewModel @Inject constructor(
             }
         }
     }
-
     fun isUserInCall(): Boolean = establishedCallsList.value.isNotEmpty()
-
     fun reloadNewPickedAvatar(avatarAssetId: String) {
         updateUserAvatar(avatarAssetId = avatarAssetId.toQualifiedID(qualifiedIdMapper))
     }
-
     private fun fetchSelfUser() {
         viewModelScope.launch {
             viewModelScope.launch(dispatchers.io()) {
                 syncSelfTeamInfo()
             }
-
             val selfWithTeam = observeSelfUserWithTeam()
                 .flowOn(dispatchers.io())
                 .shareIn(this, SharingStarted.WhileSubscribed(1))
             val validAccounts =
                 observeValidAccounts().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
-
             combine(selfWithTeam, validAccounts) { (selfUser, selfTeam), list ->
                 Triple(
                     selfUser,
@@ -184,9 +166,7 @@ class SelfUserProfileViewModel @Inject constructor(
                     with(selfUser) {
                         // Load user avatar raw image data
                         completePicture?.let { updateUserAvatar(it) }
-
                         val teamUrl = getTeamUrl().takeIf { userType.isTeamAdmin() }
-
                         // Update user data state
                         userProfileState = userProfileState.copy(
                             status = availabilityStatus,
@@ -203,7 +183,6 @@ class SelfUserProfileViewModel @Inject constructor(
                 }
         }
     }
-
     private fun observeLegalHoldStatus() {
         viewModelScope.launch {
             observeLegalHoldStatusForSelfUser()
@@ -217,20 +196,16 @@ class SelfUserProfileViewModel @Inject constructor(
                 .collectLatest { userProfileState = userProfileState.copy(legalHoldStatus = it) }
         }
     }
-
     private fun showErrorMessage() {
         userProfileState = userProfileState.copy(errorMessageCode = ErrorCodes.DownloadUserInfoError)
     }
-
     private fun showLoadingAvatar(show: Boolean) {
         userProfileState = userProfileState.copy(isAvatarLoading = show)
     }
-
     private fun updateUserAvatar(avatarAssetId: UserAssetId) {
         if (avatarAssetId == userProfileState.avatarAsset?.userAssetId) {
             return
         }
-
         // We try to download the user avatar on a separate thread so that we don't block the display of the user's info
         viewModelScope.launch {
             showLoadingAvatar(true)
@@ -246,11 +221,9 @@ class SelfUserProfileViewModel @Inject constructor(
                 // Show error snackbar if avatar download fails
                 showErrorMessage()
             }
-
             showLoadingAvatar(false)
         }
     }
-
     fun logout(wipeData: Boolean, switchAccountActions: SwitchAccountActions) {
         viewModelScope.launch {
             userProfileState = userProfileState.copy(isLoggingOut = true)
@@ -260,14 +233,12 @@ class SelfUserProfileViewModel @Inject constructor(
                     endCall(call.conversationId)
                 }
             }.join()
-
             val logoutReason = if (wipeData) LogoutReason.SELF_HARD_LOGOUT else LogoutReason.SELF_SOFT_LOGOUT
             logout(logoutReason, waitUntilCompletes = true)
             if (wipeData) {
                 // TODO this should be moved to some service that will clear all the data in the app
                 dataStore.clear()
             }
-
             notificationManager.stopObservingOnLogout(selfUserId)
             accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount).also {
                 if (it == SwitchAccountResult.NoOtherAccountToSwitch) {
@@ -276,33 +247,27 @@ class SelfUserProfileViewModel @Inject constructor(
             }.callAction(switchAccountActions)
         }
     }
-
     fun switchAccount(userId: UserId, switchAccountActions: SwitchAccountActions) {
         viewModelScope.launch {
             accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
                 .callAction(switchAccountActions)
         }
     }
-
     fun dismissStatusDialog() {
         userProfileState = userProfileState.copy(statusDialogData = null)
     }
-
     fun changeStatus(status: UserAvailabilityStatus) {
         setNotShowStatusRationaleAgainIfNeeded(status)
         viewModelScope.launch { updateStatus(status) }
         dismissStatusDialog()
     }
-
     fun dialogCheckBoxStateChanged(isChecked: Boolean) {
         userProfileState.run {
             userProfileState = copy(statusDialogData = statusDialogData?.changeCheckBoxState(isChecked))
         }
     }
-
     fun changeStatusClick(status: UserAvailabilityStatus) {
         if (userProfileState.status == status) return
-
         viewModelScope.launch {
             if (shouldShowStatusRationaleDialog(status)) {
                 val statusDialogInfo = when (status) {
@@ -317,7 +282,6 @@ class SelfUserProfileViewModel @Inject constructor(
             }
         }
     }
-
     private fun setNotShowStatusRationaleAgainIfNeeded(status: UserAvailabilityStatus) {
         userProfileState.statusDialogData.let { dialogState ->
             if (dialogState?.isCheckBoxChecked == true) {
@@ -325,14 +289,11 @@ class SelfUserProfileViewModel @Inject constructor(
             }
         }
     }
-
     private suspend fun shouldShowStatusRationaleDialog(status: UserAvailabilityStatus): Boolean =
         dataStore.shouldShowStatusRationaleFlow(status).first()
-
     fun clearErrorMessage() {
         userProfileState = userProfileState.copy(errorMessageCode = null)
     }
-
     fun trackQrCodeClick() {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.QrCode.Click(
@@ -340,7 +301,6 @@ class SelfUserProfileViewModel @Inject constructor(
             )
         )
     }
-
     sealed class ErrorCodes {
         data object DownloadUserInfoError : ErrorCodes()
     }

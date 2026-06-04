@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversationslist
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -26,9 +27,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
@@ -45,6 +48,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.calling.conversationListCallViewModel
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
@@ -60,6 +64,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.debug.conversation.DebugConversationScreenNavArgs
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
+import com.wire.android.ui.home.conversationListViewModel
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItemType
@@ -81,28 +86,23 @@ import com.wire.kalium.logic.data.user.UserId
 fun ConversationsScreenContent(
     navigator: Navigator,
     searchBarState: SearchBarState,
+    modifier: Modifier = Modifier,
     emptyListContent: @Composable (domain: String) -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
     loadingListContent: @Composable () -> Unit = { LoadingListContent() },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
-    conversationListViewModel: ConversationListViewModel = when {
-        LocalInspectionMode.current -> ConversationListViewModelPreview()
-        else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
-            key = "list_$conversationsSource",
-            creationCallback = { factory ->
-                factory.create(conversationsSource = conversationsSource)
-            }
-        )
-    },
-    conversationListCallViewModel: ConversationListCallViewModel = when {
-        LocalInspectionMode.current -> ConversationListCallViewModelPreview
-        else -> hiltViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
-    },
+    emptySearchResultFocusRequester: FocusRequester? = null,
+    firstConversationFocusRequester: FocusRequester? = null,
+    conversationListCallViewModel: ConversationListCallViewModel = conversationListCallViewModel(conversationsSource),
+    conversationListViewModel: ConversationListViewModel = conversationListViewModel(conversationsSource),
 ) {
     val sheetState = rememberWireModalSheetState<ConversationSheetState>()
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val context = LocalContext.current
+    val emptySearchResultModifier = emptySearchResultFocusRequester?.let {
+        Modifier.focusRequester(it)
+    } ?: Modifier
 
     LaunchedEffect(searchBarState.isSearchActive) {
         if (searchBarState.isSearchActive) {
@@ -163,70 +163,89 @@ fun ConversationsScreenContent(
             conversationListViewModel.stopCurrentAudio()
         }
     }
+    val isSelfUserUnderLegalHold by conversationListViewModel.isSelfUserUnderLegalHold.collectAsStateWithLifecycle(false)
+    val playingAudio by conversationListViewModel.playingAudio.collectAsStateWithLifecycle(null)
+    val searchQuery = searchBarState.searchQueryTextState.text.toString()
 
-    when (val state = conversationListViewModel.conversationListState) {
-        is ConversationListState.Paginated -> {
-            val lazyPagingItems = state.conversations.collectAsLazyPagingItemsWithLifecycle()
-            searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
-            when {
-                // when conversation list is not yet fetched, show loading indicator
-                lazyPagingItems.isLoading() -> loadingListContent()
-                // when there is at least one conversation
-                lazyPagingItems.itemCount > 0 -> ConversationList(
-                    lazyPagingConversations = lazyPagingItems,
-                    lazyListState = lazyListState,
-                    onOpenConversation = onOpenConversation,
-                    onEditConversation = onEditConversationItem,
-                    onOpenUserProfile = onOpenUserProfile,
-                    onJoinCall = onJoinCall,
-                    onAudioPermissionPermanentlyDenied = {
-                        permissionPermanentlyDeniedDialogState.show(
-                            PermissionPermanentlyDeniedDialogState.Visible(
-                                R.string.app_permission_dialog_title,
-                                R.string.call_permission_dialog_description
+    Box(modifier = modifier) {
+        when (val state = conversationListViewModel.conversationListState) {
+            is ConversationListState.Paginated -> {
+                val lazyPagingItems = state.conversations.collectAsLazyPagingItemsWithLifecycle()
+                searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
+                when {
+                    // when conversation list is not yet fetched, show loading indicator
+                    lazyPagingItems.isLoading() -> loadingListContent()
+                    // when there is at least one conversation
+                    lazyPagingItems.itemCount > 0 -> ConversationList(
+                        lazyPagingConversations = lazyPagingItems,
+                        lazyListState = lazyListState,
+                        searchQuery = searchQuery,
+                        isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
+                        playingAudio = playingAudio,
+                        firstConversationFocusRequester = firstConversationFocusRequester,
+                        onOpenConversation = onOpenConversation,
+                        onEditConversation = onEditConversationItem,
+                        onOpenUserProfile = onOpenUserProfile,
+                        onJoinCall = onJoinCall,
+                        onAudioPermissionPermanentlyDenied = {
+                            permissionPermanentlyDeniedDialogState.show(
+                                PermissionPermanentlyDeniedDialogState.Visible(
+                                    R.string.app_permission_dialog_title,
+                                    R.string.call_permission_dialog_description
+                                )
                             )
-                        )
-                    },
-                    onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
-                    onStopCurrentAudio = onStopCurrentAudio,
-                    onBrowsePublicChannels = {
-                        navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination))
-                    }
-                )
-                // when there is no conversation in any folder
-                searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
-                else -> emptyListContent(state.domain)
+                        },
+                        onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
+                        onStopCurrentAudio = onStopCurrentAudio,
+                        onBrowsePublicChannels = {
+                            navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination))
+                        }
+                    )
+                    // when there is no conversation in any folder
+                    searchBarState.isSearchActive -> SearchConversationsEmptyContent(
+                        onNewConversationClicked = onNewConversationClicked,
+                        modifier = emptySearchResultModifier
+                    )
+                    else -> emptyListContent(state.domain)
+                }
             }
-        }
 
-        is ConversationListState.NotPaginated -> {
-            val hasConversations = state.conversations.isNotEmpty() && state.conversations.any { it.value.isNotEmpty() }
-            searchBarState.searchVisibleChanged(isSearchVisible = hasConversations || searchBarState.isSearchActive)
-            when {
-                // when conversation list is not yet fetched, show loading indicator
-                state.isLoading -> loadingListContent()
-                // when there is at least one conversation in any folder
-                hasConversations -> ConversationList(
-                    lazyListState = lazyListState,
-                    conversationListItems = state.conversations,
-                    onOpenConversation = onOpenConversation,
-                    onEditConversation = onEditConversationItem,
-                    onOpenUserProfile = onOpenUserProfile,
-                    onJoinCall = onJoinCall,
-                    onAudioPermissionPermanentlyDenied = {
-                        permissionPermanentlyDeniedDialogState.show(
-                            PermissionPermanentlyDeniedDialogState.Visible(
-                                R.string.app_permission_dialog_title,
-                                R.string.call_permission_dialog_description
+            is ConversationListState.NotPaginated -> {
+                val hasConversations = state.conversations.isNotEmpty() && state.conversations.any { it.value.isNotEmpty() }
+                searchBarState.searchVisibleChanged(isSearchVisible = hasConversations || searchBarState.isSearchActive)
+                when {
+                    // when conversation list is not yet fetched, show loading indicator
+                    state.isLoading -> loadingListContent()
+                    // when there is at least one conversation in any folder
+                    hasConversations -> ConversationList(
+                        lazyListState = lazyListState,
+                        conversationListItems = state.conversations,
+                        searchQuery = searchQuery,
+                        isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
+                        playingAudio = playingAudio,
+                        firstConversationFocusRequester = firstConversationFocusRequester,
+                        onOpenConversation = onOpenConversation,
+                        onEditConversation = onEditConversationItem,
+                        onOpenUserProfile = onOpenUserProfile,
+                        onJoinCall = onJoinCall,
+                        onAudioPermissionPermanentlyDenied = {
+                            permissionPermanentlyDeniedDialogState.show(
+                                PermissionPermanentlyDeniedDialogState.Visible(
+                                    R.string.app_permission_dialog_title,
+                                    R.string.call_permission_dialog_description
+                                )
                             )
-                        )
-                    },
-                    onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
-                    onStopCurrentAudio = onStopCurrentAudio
-                )
-                // when there is no conversation in any folder
-                searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
-                else -> emptyListContent(state.domain)
+                        },
+                        onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
+                        onStopCurrentAudio = onStopCurrentAudio
+                    )
+                    // when there is no conversation in any folder
+                    searchBarState.isSearchActive -> SearchConversationsEmptyContent(
+                        onNewConversationClicked = onNewConversationClicked,
+                        modifier = emptySearchResultModifier
+                    )
+                    else -> emptyListContent(state.domain)
+                }
             }
         }
     }

@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.settings.account.handle
-
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -32,23 +31,18 @@ import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-@HiltViewModel
 class ChangeHandleViewModel @Inject constructor(
     private val updateHandle: SetUserHandleUseCase,
     private val validateHandle: ValidateUserHandleUseCase,
     private val getSelf: GetSelfUserUseCase
 ) : ViewModel() {
-
     val textState: TextFieldState = TextFieldState()
     var state: ChangeHandleState by mutableStateOf(ChangeHandleState())
         @VisibleForTesting
         set
-
     init {
         viewModelScope.launch {
             getSelf()?.handle.orEmpty().let { currentHandle ->
@@ -68,21 +62,16 @@ class ChangeHandleViewModel @Inject constructor(
             }
         }
     }
-
     fun onSaveClicked() {
         viewModelScope.launch {
             state = when (val result = updateHandle(textState.text.toString().trim())) {
                 is SetUserHandleResult.Failure.Generic -> state.copy(error = HandleUpdateErrorState.DialogError.GenericError(result.error))
-
                 SetUserHandleResult.Failure.HandleExists -> state.copy(error = HandleUpdateErrorState.TextFieldError.UsernameTakenError)
-
                 SetUserHandleResult.Failure.InvalidHandle -> state.copy(error = HandleUpdateErrorState.TextFieldError.UsernameInvalidError)
-
                 SetUserHandleResult.Success -> state.copy(isSuccess = true)
             }
         }
     }
-
     fun onErrorDismiss() {
         state = state.copy(error = HandleUpdateErrorState.None)
     }

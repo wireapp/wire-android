@@ -265,7 +265,6 @@ class MultipartAttachmentsViewModelTest {
             MockKAnnotations.init(this)
         }
 
-
         @MockK
         lateinit var refreshHelper: CellAssetRefreshHelper
 

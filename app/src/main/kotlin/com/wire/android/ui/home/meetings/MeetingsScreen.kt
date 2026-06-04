@@ -43,7 +43,6 @@ fun MeetingsScreen(homeStateHolder: HomeStateHolder) {
             homeStateHolder.newMeetingBottomSheetState.hide {
                 homeStateHolder.navigator.navigate(NavigationCommand(NewMeetingScreenDestination(NewMeetingType.MeetNow)))
             }
-
         },
         onScheduleClick = {
             homeStateHolder.newMeetingBottomSheetState.hide {

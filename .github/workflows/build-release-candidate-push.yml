@@ -38,7 +38,7 @@ jobs:
             ]
           },
           {
-            "flavor": "Internal",
+            "flavor": "Alpha",
             "variant": "Compat",
             "keystore-type": "internal",
             "build-type": "both",

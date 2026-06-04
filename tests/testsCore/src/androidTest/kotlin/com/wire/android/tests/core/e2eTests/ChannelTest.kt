@@ -58,7 +58,7 @@ class ChannelTest : BaseUiTest() {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
         testServiceHelper = TestServiceHelper(teamHelper.usersManager)
@@ -66,7 +66,7 @@ class ChannelTest : BaseUiTest() {
 
     @After
     fun tearDown() {
-          cleanupCreatedUsers(backendClient, teamHelper.usersManager)
+        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -1028,6 +1028,311 @@ class ChannelTest : BaseUiTest() {
 
         step("Then I see leave toast message for UpdateList") {
             waitUntilToastIsDisplayed("You left the conversation.")
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-26060")
+    @Category("channels", "regression", "RC")
+    @Test
+    fun givenExternalUserInTeam_whenAttemptingToCreateChannelConversation_thenChannelConversationCannotBeCreated() {
+        step("There is TeamOwner with team CreateChannel on Staging backend") {
+            teamHelper.usersManager.createTeamOwnerByAlias(
+                "user1Name",
+                "CreateChannel",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+        }
+
+        step("User TeamOwner configures MLS for team CreateChannel") {
+            teamHelper.userConfiguresMLSForTeam("user1Name", "CreateChannel", backendClient)
+        }
+
+        step("TeamOwner enables channel feature for team CreateChannel via backdoor") {
+            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "CreateChannel", backendClient)
+        }
+
+        step("User TeamOwner adds user Member1 to team CreateChannel with role External") {
+            teamHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name",
+                "CreateChannel",
+                TeamRoles.External,
+                backendClient,
+                context,
+                true
+            )
+        }
+
+        step("Member1 adds a new device Device1 via backend") {
+            testServiceHelper.apply {
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("User Member1 is available for login") {
+            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
+        }
+
+        step("And I see welcome screen before login") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+        }
+
+        step("And I open staging deep link login flow") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+            }
+        }
+
+        step("And I login as Member1") {
+            pages.loginPage.apply {
+                enterTeamOwnerLoggingEmail(member1.email ?: "")
+                clickLoginButton()
+                enterTeamOwnerLoggingPassword(member1.password ?: "")
+                clickLoginButton()
+            }
+        }
+
+        step("And I complete post-login permission and privacy prompts") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+
+        step("And I tap Start new conversation flow from conversation list") {
+            pages.conversationListPage.apply {
+                tapStartNewConversationButton()
+            }
+        }
+
+        step("Then I do not see create new channel button") {
+            pages.conversationListPage.apply {
+                assertCreateNewChannelButtonNotVisible()
+            }
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-26086")
+    @Category("channels", "regression", "RC")
+    @Test
+    fun givenUserIsNotCreatorOfChannelConversation_whenViewingChannelConversationOptions_thenDeleteConversationButtonIsNotVisible() {
+        step("There is TeamOwner with team DeleteChannel on Staging backend") {
+            teamHelper.usersManager.createTeamOwnerByAlias(
+                "user1Name",
+                "DeleteChannel",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+        }
+
+        step("User TeamOwner configures MLS for team DeleteChannel") {
+            teamHelper.userConfiguresMLSForTeam("user1Name", "DeleteChannel", backendClient)
+        }
+
+        step("TeamOwner enables channel feature for team DeleteChannel via backdoor") {
+            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "DeleteChannel", backendClient)
+        }
+
+        step("User TeamOwner adds users Member1 to team DeleteChannel with role Member") {
+            teamHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name",
+                "DeleteChannel",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+        }
+
+        step("Member1 adds a new device Device1 via backend") {
+            testServiceHelper.apply {
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("TeamOwner has channel conversation UnableToDelete in team DeleteChannel") {
+            testServiceHelper.userHasChannelConversationInTeam(
+                "user1Name",
+                "UnableToDelete",
+                "DeleteChannel"
+            )
+        }
+
+        step("User TeamOwner is me") {
+            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+        }
+
+        step("User Member1 is available for channel participant selection and login") {
+            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
+        }
+
+        step("And I see welcome screen before login") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+        }
+
+        step("And I open staging deep link login flow") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+            }
+        }
+
+        step("And I login as TeamOwner") {
+            pages.loginPage.apply {
+                enterTeamOwnerLoggingEmail(teamOwner.email ?: "")
+                clickLoginButton()
+                enterTeamOwnerLoggingPassword(teamOwner.password ?: "")
+                clickLoginButton()
+            }
+        }
+
+        step("And I complete post-login permission and privacy prompts") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+
+        step("And I see conversation UnableToDelete in conversation list") {
+            pages.conversationListPage.apply {
+                assertChannelConversationVisible("UnableToDelete")
+            }
+        }
+
+        step("When I tap on conversation name UnableToDelete in conversation list") {
+            pages.conversationListPage.apply {
+                clickChannelConversation("UnableToDelete")
+            }
+        }
+
+        step("And I tap on channel conversation title UnableToDelete to open group details") {
+            pages.conversationViewPage.apply {
+                UiWaitUtils.waitFor(1.seconds)
+                clickOnChannelConversationDetails("UnableToDelete")
+            }
+        }
+
+        step("And I open participants tab and start add participant flow") {
+            pages.groupConversationDetailsPage.apply {
+                tapOnParticipantsTab()
+                tapAddParticipantsButton()
+            }
+        }
+
+        step("And I select Member1 from participant suggestions") {
+            pages.groupConversationDetailsPage.apply {
+                assertUsernameInSuggestionsListIs(member1.name ?: "")
+                selectUserInSuggestionList(member1.name ?: "")
+                tapContinueButton()
+            }
+        }
+
+        step("And I verify Member1 is added to participants list and click close button") {
+            pages.groupConversationDetailsPage.apply {
+                assertUsernameIsAddedToParticipantsList(member1.name ?: "")
+                tapCloseButtonOnChannelConversationDetailsPage()
+            }
+        }
+
+        step("And I verify system message confirms Member1 was added") {
+            iSeeSystemMessageContainingAll(
+                "You added",
+                member1.name ?: "",
+                "to the conversation"
+            )
+        }
+
+        step("Then I see channel conversation UnableToDelete is in foreground") {
+            pages.conversationViewPage.apply {
+                assertChannelConversationInForeground("UnableToDelete")
+            }
+        }
+
+        step("And I tap back button on conversationViewPage back to conversation list page") {
+            pages.conversationViewPage.apply {
+                tapBackButtonToCloseConversationViewPage()
+            }
+        }
+
+        step("And I tap User Profile Button") {
+            pages.conversationListPage.apply {
+                clickUserProfileButton()
+            }
+        }
+
+        step("And I see User Profile Page") {
+            pages.selfUserProfilePage.apply {
+                iSeeUserProfilePage()
+            }
+        }
+
+        step("When I tap New Team or Account button") {
+            pages.selfUserProfilePage.apply {
+                tapNewTeamOrAddAccountButton()
+            }
+        }
+
+        step("And I see welcome screen before login") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+        }
+
+        step("And I open staging deep link login flow") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+            }
+        }
+
+        step("And I login as Member1") {
+            pages.loginPage.apply {
+                enterTeamOwnerLoggingEmail(member1.email ?: "")
+                clickLoginButton()
+                enterTeamOwnerLoggingPassword(member1.password ?: "")
+                clickLoginButton()
+            }
+        }
+
+        step("And I complete post-login permission and privacy prompts") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+
+        step("And I see conversation UnableToDelete in conversation list") {
+            pages.conversationListPage.apply {
+                assertChannelConversationVisible("UnableToDelete")
+            }
+        }
+
+        step("And I long press on conversation name UnableToDelete in conversation list") {
+            pages.conversationListPage.apply {
+                longPressConversation("UnableToDelete")
+            }
+        }
+
+        step("Then I do not see Delete Conversation button") {
+            pages.conversationListPage.apply {
+                assertDeleteConversationButtonNotVisibleInConversationActions()
+            }
         }
     }
 }

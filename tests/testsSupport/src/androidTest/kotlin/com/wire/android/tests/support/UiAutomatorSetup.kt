@@ -41,7 +41,7 @@ object UiAutomatorSetup {
     const val APP_STAGING: String = "com.waz.zclient.dev"
     const val APP_BETA: String = "com.wire.android.internal"
     const val APP_PROD: String = "com.wire"
-    const val APP_INTERNAL: String = "com.wire.internal"
+    const val APP_ALPHA: String = "com.wire.internal"
     lateinit var appPackage: String
 
     fun start(appPackage: String, clearData: Boolean = true): UiDevice {

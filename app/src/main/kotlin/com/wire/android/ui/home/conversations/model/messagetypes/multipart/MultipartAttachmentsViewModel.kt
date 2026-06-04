@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.app.navArgs
@@ -44,7 +45,6 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -53,7 +53,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
-import javax.inject.Inject
 
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
@@ -124,9 +123,7 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
 
-@Suppress("LongParameterList")
-@HiltViewModel
-class MultipartAttachmentsViewModelImpl @Inject constructor(
+class MultipartAttachmentsViewModelImpl(
     savedStateHandle: SavedStateHandle,
     private val refreshHelper: CellAssetRefreshHelper,
     private val download: DownloadCellFileUseCase,

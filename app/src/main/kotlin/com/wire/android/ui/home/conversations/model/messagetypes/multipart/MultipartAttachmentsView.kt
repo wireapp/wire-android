@@ -40,6 +40,8 @@ import com.wire.android.di.wireViewModel
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.common.multipart.toUiModel
+import com.wire.android.ui.home.conversations.multipartAttachmentsViewModel
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid.AssetGridPreview
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone.AssetPreview
@@ -61,7 +63,7 @@ fun MultipartAttachmentsView(
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
-        else -> wireViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value)
+        else -> multipartAttachmentsViewModel(conversationId.value)
     }
 ) {
     // Collect to trigger recomposition when offline availability changes.

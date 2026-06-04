@@ -148,6 +148,17 @@ class WireActivityViewModelTest {
     }
 
     @Test
+    fun `given current session flow starts empty but current session exists, then initialAppState is LOGGED_IN`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withCurrentSessionFlow(flowOf(CurrentSessionResult.Failure.SessionNotFound))
+            .withCurrentSession(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
+            .arrange()
+
+        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+        assertEquals(TEST_ACCOUNT_INFO.userId, viewModel.globalAppState.currentUserId)
+    }
+
+    @Test
     fun `given Intent with SSOLogin, when currentSession is present, then return SSOLogin result`() = runTest {
         val result = DeepLinkResult.SSOLogin.Success("cookie", "config")
         val (arrangement, viewModel) = Arrangement()
@@ -1019,6 +1030,7 @@ class WireActivityViewModelTest {
             mockUri()
             coEvery { monitorSyncWorkUseCase() } returns Unit
             coEvery { currentSessionFlow() } returns flowOf()
+            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Failure.SessionNotFound
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
             coEvery { intentsProcessor(any()) } returns null
@@ -1198,6 +1210,10 @@ class WireActivityViewModelTest {
 
         fun withCurrentSessionFlow(result: Flow<CurrentSessionResult>): Arrangement = apply {
             coEvery { currentSessionFlow() } returns result
+        }
+
+        fun withCurrentSession(result: CurrentSessionResult): Arrangement = apply {
+            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns result
         }
 
         fun withObserveSessionsFlow(result: Flow<GetAllSessionsResult>): Arrangement = apply {

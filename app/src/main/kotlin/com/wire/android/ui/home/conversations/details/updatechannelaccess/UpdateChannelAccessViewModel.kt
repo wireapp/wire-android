@@ -31,12 +31,9 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class UpdateChannelAccessViewModel @Inject constructor(
+class UpdateChannelAccessViewModel(
     savedStateHandle: SavedStateHandle,
     val updateChannelAddPermission: UpdateChannelAddPermissionUseCase,
     private val qualifiedIdMapper: QualifiedIdMapper,

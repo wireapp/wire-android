@@ -34,12 +34,12 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.home.conversations.recordAudioViewModel
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.openAppInfoScreen
@@ -52,7 +52,7 @@ fun RecordAudioComponent(
     modifier: Modifier = Modifier,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
-    val viewModel: RecordAudioViewModel = wireViewModelScoped<RecordAudioViewModel>()
+    val viewModel: RecordAudioViewModel = recordAudioViewModel()
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
 

@@ -86,8 +86,15 @@ fun welcomeViewModel(): WelcomeViewModel = authenticationSavedStateViewModel { w
 fun newLoginViewModel(): NewLoginViewModel = authenticationSavedStateViewModel { newLoginViewModel(it) }
 
 @Composable
-fun loginEmailViewModel(loginNavArgs: LoginNavArgs): LoginEmailViewModel =
-    authenticationSavedStateViewModel { loginEmailViewModel(loginNavArgs, it) }
+fun loginEmailViewModel(
+    loginNavArgs: LoginNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
+): LoginEmailViewModel =
+    authenticationSavedStateViewModel(viewModelStoreOwner = viewModelStoreOwner) {
+        loginEmailViewModel(loginNavArgs, it)
+    }
 
 @Composable
 fun loginSSOViewModel(loginNavArgs: LoginNavArgs): LoginSSOViewModel =

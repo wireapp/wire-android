@@ -32,15 +32,12 @@ import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
 import com.wire.kalium.logic.util.RandomPassword
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class CreatePasswordGuestLinkViewModel @Inject constructor(
+class CreatePasswordGuestLinkViewModel(
     private val generateGuestRoomLink: GenerateGuestRoomLinkUseCase,
     private val validatePassword: ValidatePasswordUseCase,
     private val generatePassword: RandomPassword,

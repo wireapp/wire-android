@@ -18,7 +18,7 @@ Main critical-flow workflow.
 - Uses built-in defaults for non-manual runs:
   - latest APK
   - upgrade mode enabled
-  - `internal release candidate`
+  - `alpha release candidate`
   - `@criticalFlow`
   - auto device selection
   - failed-test rerun enabled with count `1`

@@ -136,6 +136,86 @@ class MarkdownHelperTest {
     }
 
     @Test
+    fun `given plain text, when toLightweightMarkdownPreview is called, then it should return null`() {
+        val result = "plain conversation preview".toLightweightMarkdownPreview()
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `given markdown text, when toLightweightMarkdownPreview is called, then it should use common markdown nodes`() {
+        val result = "hello **wire**".toLightweightMarkdownPreview()
+
+        assertNotNull(result)
+        assertEquals(2, result!!.children.size)
+        assertTrue(result.children[0] is MarkdownNode.Inline.Text)
+        assertTrue(result.children[1] is MarkdownNode.Inline.StrongEmphasis)
+    }
+
+    @Test
+    fun `given inline code, when toLightweightMarkdownPreview is called, then it should keep code formatting`() {
+        val result = "hello `wire`".toLightweightMarkdownPreview()
+
+        assertNotNull(result)
+        assertEquals(2, result!!.children.size)
+        assertTrue(result.children[0] is MarkdownNode.Inline.Text)
+        assertTrue(result.children[1] is MarkdownNode.Inline.Code)
+        assertEquals("wire", (result.children[1] as MarkdownNode.Inline.Code).literal)
+    }
+
+    @Test
+    fun `given markdown across multiple lines, when toLightweightMarkdownPreview is called, then it should parse only first line`() {
+        val result = "first **line**\nsecond **line**".toLightweightMarkdownPreview()
+
+        assertNotNull(result)
+        assertEquals("first ", (result!!.children[0] as MarkdownNode.Inline.Text).literal)
+        assertEquals("line", ((result.children[1] as MarkdownNode.Inline.StrongEmphasis).children[0] as MarkdownNode.Inline.Text).literal)
+    }
+
+    @Test
+    fun `given fenced code with content after first line, when toLightweightMarkdownPreview is called, then it should return null`() {
+        val result = "```kotlin\nval value = 1\n```".toLightweightMarkdownPreview()
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `given tilde fenced code with content after first line, when toLightweightMarkdownPreview is called, then it should return null`() {
+        val result = "~~~kotlin\nval value = 1\n~~~".toLightweightMarkdownPreview()
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `given empty list marker on first line, when toLightweightMarkdownPreview is called, then it should return null`() {
+        val result = "-\nlist item text".toLightweightMarkdownPreview()
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `given empty ordered list marker on first line, when toLightweightMarkdownPreview is called, then it should return null`() {
+        val result = "1.\nlist item text".toLightweightMarkdownPreview()
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `given table markdown, when toLightweightMarkdownPreview is called, then it should keep only first row text`() {
+        val result = "| name | value |\n| --- | --- |\n| Wire | Android |".toLightweightMarkdownPreview()
+
+        assertNotNull(result)
+        assertEquals("| name | value |", (result!!.children[0] as MarkdownNode.Inline.Text).literal)
+    }
+
+    @Test
+    fun `given setext heading marker on second line, when toLightweightMarkdownPreview is called, then it should return null`() {
+        val result = "Heading\n---".toLightweightMarkdownPreview()
+
+        assertNull(result)
+    }
+
+    @Test
     fun `given bullet list node, when toContent is called, then it should return Block BulletList`() {
         val bulletListNode = BulletList()
         bulletListNode.appendChild(ListItem().apply { appendChild(Text("First bullet")) })

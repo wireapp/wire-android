@@ -18,21 +18,37 @@
 package com.wire.android.di.metro
 
 import androidx.lifecycle.ViewModel
+import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.cells.ui.CellsViewModelFactory
 import com.wire.android.feature.cells.ui.CellsViewModelGraph
+import com.wire.android.feature.meetings.ui.MeetingsViewModelFactory
+import com.wire.android.feature.meetings.ui.MeetingsViewModelGraph
 import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
+import com.wire.android.ui.MiscViewModelFactory
+import com.wire.android.ui.MiscViewModelGraph
 import com.wire.android.ui.authentication.AuthenticationViewModelFactory
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
 import com.wire.android.ui.calling.CallingViewModelFactory
 import com.wire.android.ui.calling.CallingViewModelGraph
+import com.wire.android.ui.common.CommonViewModelFactory
+import com.wire.android.ui.common.CommonViewModelGraph
 import com.wire.android.ui.debug.DebugInfoViewModelFactory
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
+import com.wire.android.ui.home.HomeViewModelFactory
+import com.wire.android.ui.home.HomeViewModelGraph
 import com.wire.android.ui.home.conversations.ConversationCoreViewModelFactory
 import com.wire.android.ui.home.conversations.ConversationCoreViewModelGraph
+import com.wire.android.ui.home.conversations.ConversationDetailsViewModelFactory
+import com.wire.android.ui.home.conversations.ConversationDetailsViewModelGraph
+import com.wire.android.ui.home.conversations.ConversationSearchFolderViewModelFactory
+import com.wire.android.ui.home.conversations.ConversationSearchFolderViewModelGraph
+import com.wire.android.ui.home.conversations.ScopedMessageViewModelFactory
+import com.wire.android.ui.home.conversations.ScopedMessageViewModelGraph
 import com.wire.android.ui.home.settings.SettingsViewModelFactory
 import com.wire.android.ui.home.settings.SettingsViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Provider
@@ -40,28 +56,49 @@ import javax.inject.Provider
 /**
  * Android-only bridge for feature ViewModel factories while feature UI is being decoupled from Hilt call sites.
  */
+@Suppress("LongParameterList")
 @HiltViewModel
 class WireActivityViewModelGraphBridge @Inject constructor(
+    @CurrentAccount currentAccount: UserId,
     imageLoader: Provider<WireSessionImageLoader>,
     private val cellsViewModelFactoryProvider: Provider<CellsViewModelFactory>,
+    private val miscViewModelFactoryProvider: Provider<MiscViewModelFactory>,
     private val authenticationViewModelFactoryProvider: Provider<AuthenticationViewModelFactory>,
     private val callingViewModelFactoryProvider: Provider<CallingViewModelFactory>,
     private val debugInfoViewModelFactoryProvider: Provider<DebugInfoViewModelFactory>,
+    private val homeViewModelFactoryProvider: Provider<HomeViewModelFactory>,
     private val settingsViewModelFactoryProvider: Provider<SettingsViewModelFactory>,
     private val conversationCoreViewModelFactoryProvider: Provider<ConversationCoreViewModelFactory>,
+    private val conversationDetailsViewModelFactoryProvider: Provider<ConversationDetailsViewModelFactory>,
+    private val conversationSearchFolderViewModelFactoryProvider: Provider<ConversationSearchFolderViewModelFactory>,
+    private val meetingsViewModelFactoryProvider: Provider<MeetingsViewModelFactory>,
+    private val scopedMessageViewModelFactoryProvider: Provider<ScopedMessageViewModelFactory>,
+    private val commonViewModelFactoryProvider: Provider<CommonViewModelFactory>,
 ) : ViewModel(),
     ImageAssetViewModelGraph,
     CellsViewModelGraph,
+    MiscViewModelGraph,
     AuthenticationViewModelGraph,
     CallingViewModelGraph,
     DebugInfoViewModelGraph,
+    HomeViewModelGraph,
     SettingsViewModelGraph,
-    ConversationCoreViewModelGraph {
+    ConversationCoreViewModelGraph,
+    ConversationDetailsViewModelGraph,
+    ConversationSearchFolderViewModelGraph,
+    MeetingsViewModelGraph,
+    ScopedMessageViewModelGraph,
+    CommonViewModelGraph {
+    override val viewModelScopeKey: String = currentAccount.toString()
+
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
         ImageAssetViewModelFactory(imageLoader = imageLoader::get)
 
     override val cellsViewModelFactory: CellsViewModelFactory
         get() = cellsViewModelFactoryProvider.get()
+
+    override val miscViewModelFactory: MiscViewModelFactory
+        get() = miscViewModelFactoryProvider.get()
 
     override val authenticationViewModelFactory: AuthenticationViewModelFactory
         get() = authenticationViewModelFactoryProvider.get()
@@ -72,9 +109,27 @@ class WireActivityViewModelGraphBridge @Inject constructor(
     override val debugInfoViewModelFactory: DebugInfoViewModelFactory
         get() = debugInfoViewModelFactoryProvider.get()
 
+    override val homeViewModelFactory: HomeViewModelFactory
+        get() = homeViewModelFactoryProvider.get()
+
     override val settingsViewModelFactory: SettingsViewModelFactory
         get() = settingsViewModelFactoryProvider.get()
 
     override val conversationCoreViewModelFactory: ConversationCoreViewModelFactory
         get() = conversationCoreViewModelFactoryProvider.get()
+
+    override val conversationDetailsViewModelFactory: ConversationDetailsViewModelFactory
+        get() = conversationDetailsViewModelFactoryProvider.get()
+
+    override val conversationSearchFolderViewModelFactory: ConversationSearchFolderViewModelFactory
+        get() = conversationSearchFolderViewModelFactoryProvider.get()
+
+    override val meetingsViewModelFactory: MeetingsViewModelFactory
+        get() = meetingsViewModelFactoryProvider.get()
+
+    override val scopedMessageViewModelFactory: ScopedMessageViewModelFactory
+        get() = scopedMessageViewModelFactoryProvider.get()
+
+    override val commonViewModelFactory: CommonViewModelFactory
+        get() = commonViewModelFactoryProvider.get()
 }

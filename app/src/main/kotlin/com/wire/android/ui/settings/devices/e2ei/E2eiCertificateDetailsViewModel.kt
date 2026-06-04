@@ -24,8 +24,8 @@ import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-class E2eiCertificateDetailsViewModel @Inject constructor(
+
+class E2eiCertificateDetailsViewModel(
     savedStateHandle: SavedStateHandle,
     private val getSelfUser: GetSelfUserUseCase,
 ) : ViewModel() {

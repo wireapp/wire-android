@@ -85,6 +85,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveSelfUserHasViewerAccessUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
@@ -192,6 +193,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val onlineEditor: OnlineEditor,
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
+    private val observeSelfUserHasViewerAccess: ObserveSelfUserHasViewerAccessUseCase,
     private val networkStateObserver: NetworkStateObserver,
     @CurrentAccount private val selfUserId: UserId,
 ) {
@@ -234,6 +236,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
         currentSessionFlowUseCase = currentSessionFlowUseCase,
         observeEstablishedCalls = observeEstablishedCalls,
         globalDataStore = globalDataStore,
+        observeSelfUserHasViewerAccess = observeSelfUserHasViewerAccess
     )
 
     fun sendMessageViewModel(savedStateHandle: SavedStateHandle) = SendMessageViewModel(

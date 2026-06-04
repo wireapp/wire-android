@@ -60,6 +60,7 @@ inline fun <reified VM> authenticationViewModel(
     metroViewModel<AuthenticationViewModelGraph, VM>(
         viewModelStoreOwner = viewModelStoreOwner,
         key = key,
+        scopeKeyOverride = AUTHENTICATION_VIEW_MODEL_SCOPE_KEY,
     ) {
         authenticationViewModelFactory.create()
     }
@@ -75,9 +76,12 @@ inline fun <reified VM> authenticationSavedStateViewModel(
     metroSavedStateViewModel<AuthenticationViewModelGraph, VM>(
         viewModelStoreOwner = viewModelStoreOwner,
         key = key,
+        scopeKeyOverride = AUTHENTICATION_VIEW_MODEL_SCOPE_KEY,
     ) { savedStateHandle ->
         authenticationViewModelFactory.create(savedStateHandle)
     }
+
+const val AUTHENTICATION_VIEW_MODEL_SCOPE_KEY = "authentication"
 
 @Composable
 fun welcomeViewModel(): WelcomeViewModel = authenticationSavedStateViewModel { welcomeViewModel(it) }

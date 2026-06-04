@@ -137,6 +137,7 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.launchUpdateTheApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -259,13 +260,21 @@ class WireActivity : BaseActivity() {
             val snackbarHostState = remember { SnackbarHostState() }
             val currentUserId = viewModel.globalAppState.currentUserId
             val appGraph = LocalContext.current.wireApplicationGraph
-            val sessionViewModelGraph = remember(appGraph, currentUserId) {
+            val currentSessionViewModelGraph = remember(appGraph, currentUserId) {
                 currentUserId?.let { appGraph.sessionViewModelGraph }
+            }
+            var retainedSessionViewModelGraph by remember(appGraph) {
+                mutableStateOf<AppSessionViewModelGraph?>(null)
+            }
+            LaunchedEffect(currentSessionViewModelGraph) {
+                currentSessionViewModelGraph?.let {
+                    retainedSessionViewModelGraph = it
+                }
             }
             val authenticationViewModelGraph = remember(appGraph) {
                 appGraph.authenticationViewModelGraph
             }
-            val activityViewModels = sessionViewModelGraph?.let {
+            val activityViewModels = currentSessionViewModelGraph?.let {
                 wireActivityScopedViewModels(it)
             }
 
@@ -305,6 +314,14 @@ class WireActivity : BaseActivity() {
                         ?.destination
                         ?.route
                         ?.getBaseRoute()
+                    val effectiveBaseRoute = currentBaseRoute ?: startDestination.baseRoute
+                    LaunchedEffect(currentUserId, effectiveBaseRoute) {
+                        if (currentUserId == null && effectiveBaseRoute in authenticationGraphRoutes) {
+                            delay(SESSION_GRAPH_RELEASE_DELAY_MILLIS)
+                            retainedSessionViewModelGraph = null
+                        }
+                    }
+                    val sessionViewModelGraph = currentSessionViewModelGraph ?: retainedSessionViewModelGraph
                     val metroViewModelGraph = rememberMetroViewModelGraph(
                         currentBaseRoute = currentBaseRoute,
                         startDestinationBaseRoute = startDestination.baseRoute,
@@ -879,6 +896,7 @@ class WireActivity : BaseActivity() {
     companion object {
         private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
         private const val ORIGINAL_SAVED_INTENT_FLAG = "original_saved_intent"
+        private const val SESSION_GRAPH_RELEASE_DELAY_MILLIS = 500L
         private const val TAG = "WireActivity"
     }
 }

@@ -51,6 +51,7 @@ inline fun <reified Graph, reified VM> metroViewModel(
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
     key: String? = null,
+    scopeKeyOverride: String? = null,
     crossinline create: Graph.() -> VM,
 ): VM where Graph : MetroViewModelGraph, VM : ViewModel {
     val graph = checkNotNull(LocalMetroViewModelGraph.current as? Graph) {
@@ -59,7 +60,7 @@ inline fun <reified Graph, reified VM> metroViewModel(
     val scopedKey = scopedMetroViewModelKey(
         defaultKey = VM::class.qualifiedName,
         key = key,
-        scopeKey = graph.viewModelScopeKey,
+        scopeKey = scopeKeyOverride ?: graph.viewModelScopeKey,
     )
     val factory = remember(graph) {
         viewModelFactory {
@@ -82,6 +83,7 @@ inline fun <reified Graph, reified VM> metroSavedStateViewModel(
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
     key: String? = null,
+    scopeKeyOverride: String? = null,
     crossinline create: Graph.(SavedStateHandle) -> VM,
 ): VM where Graph : MetroViewModelGraph, VM : ViewModel {
     val graph = checkNotNull(LocalMetroViewModelGraph.current as? Graph) {
@@ -90,7 +92,7 @@ inline fun <reified Graph, reified VM> metroSavedStateViewModel(
     val scopedKey = scopedMetroViewModelKey(
         defaultKey = VM::class.qualifiedName,
         key = key,
-        scopeKey = graph.viewModelScopeKey,
+        scopeKey = scopeKeyOverride ?: graph.viewModelScopeKey,
     )
     val factory = remember(graph) {
         viewModelFactory {

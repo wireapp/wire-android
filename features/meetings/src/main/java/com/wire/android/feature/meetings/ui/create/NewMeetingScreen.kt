@@ -153,3 +153,13 @@ fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
         onBackPressed = {},
     )
 }
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewNewMeetingScreen_Schedule() = WireTheme {
+    NewMeetingContent(
+        titleState = rememberTextFieldState(),
+        type = NewMeetingType.Schedule,
+        onBackPressed = {},
+    )
+}

@@ -2203,6 +2203,12 @@ public fun com.wire.android.ui.theme.wireTypography(): com.wire.android.ui.theme
   params:
 
 @Composable
+public fun com.wire.android.util.rememberCurrentTimeProvider(): com.wire.android.util.CurrentTimeProvider
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.wire.android.util.ui.UIText.DynamicString.asString(): kotlin.String
   skippable: true
   restartable: true

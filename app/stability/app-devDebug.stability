@@ -8064,7 +8064,7 @@ public fun com.wire.android.ui.home.conversationslist.common.AudioControlButtons
   skippable: true
   restartable: true
   params:
-    - playingAudio: STABLE (class with no mutable properties)
+    - playingAudio: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
     - onPlayPauseCurrentAudio: STABLE (function type)
     - onStopCurrentAudio: STABLE (function type)
@@ -8099,7 +8099,7 @@ public fun com.wire.android.ui.home.conversationslist.common.ConnectionLabel(con
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.home.conversationslist.common.ConversationItemFactory(conversation: com.wire.android.ui.home.conversationslist.model.ConversationItem, modifier: androidx.compose.ui.Modifier, isSelectableItem: kotlin.Boolean, isChecked: kotlin.Boolean, onConversationSelectedOnRadioGroup: kotlin.Function0<kotlin.Unit>, openConversation: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, openMenu: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, openUserProfile: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, joinCall: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onAudioPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onPlayPauseCurrentAudio: kotlin.Function0<kotlin.Unit>, onStopCurrentAudio: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.home.conversationslist.common.ConversationItemFactory(conversation: com.wire.android.ui.home.conversationslist.model.ConversationItem, modifier: androidx.compose.ui.Modifier, isSelectableItem: kotlin.Boolean, isChecked: kotlin.Boolean, onConversationSelectedOnRadioGroup: kotlin.Function0<kotlin.Unit>, openConversation: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, openMenu: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, openUserProfile: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, joinCall: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onAudioPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onPlayPauseCurrentAudio: kotlin.Function0<kotlin.Unit>, onStopCurrentAudio: kotlin.Function0<kotlin.Unit>, searchQuery: kotlin.String, isSelfUserUnderLegalHold: kotlin.Boolean, playingAudio: com.wire.android.ui.home.conversationslist.model.PlayingAudioInConversation?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -8115,6 +8115,9 @@ public fun com.wire.android.ui.home.conversationslist.common.ConversationItemFac
     - onAudioPermissionPermanentlyDenied: STABLE (function type)
     - onPlayPauseCurrentAudio: STABLE (function type)
     - onStopCurrentAudio: STABLE (function type)
+    - searchQuery: STABLE (String is immutable)
+    - isSelfUserUnderLegalHold: STABLE (primitive type)
+    - playingAudio: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.ui.home.conversationslist.common.ConversationLeadingAvatar(modifier: androidx.compose.ui.Modifier, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
@@ -8125,7 +8128,7 @@ private fun com.wire.android.ui.home.conversationslist.common.ConversationLeadin
     - content: STABLE (composable function type)
 
 @Composable
-public fun com.wire.android.ui.home.conversationslist.common.ConversationList(lazyPagingConversations: androidx.paging.compose.LazyPagingItems<com.wire.android.ui.home.conversationslist.model.ConversationItemType>, modifier: androidx.compose.ui.Modifier, lazyListState: androidx.compose.foundation.lazy.LazyListState, isSelectableList: kotlin.Boolean, selectedConversations: kotlin.collections.List<com.wire.kalium.logic.data.id.QualifiedID>, onOpenConversation: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, onEditConversation: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onJoinCall: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onConversationSelectedOnRadioGroup: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, onAudioPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onPlayPauseCurrentAudio: kotlin.Function0<kotlin.Unit>, onStopCurrentAudio: kotlin.Function0<kotlin.Unit>, onBrowsePublicChannels: kotlin.Function0<kotlin.Unit>, firstConversationFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
+public fun com.wire.android.ui.home.conversationslist.common.ConversationList(lazyPagingConversations: androidx.paging.compose.LazyPagingItems<com.wire.android.ui.home.conversationslist.model.ConversationItemType>, modifier: androidx.compose.ui.Modifier, lazyListState: androidx.compose.foundation.lazy.LazyListState, isSelectableList: kotlin.Boolean, selectedConversations: kotlin.collections.List<com.wire.kalium.logic.data.id.QualifiedID>, searchQuery: kotlin.String, isSelfUserUnderLegalHold: kotlin.Boolean, playingAudio: com.wire.android.ui.home.conversationslist.model.PlayingAudioInConversation?, onOpenConversation: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, onEditConversation: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onJoinCall: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onConversationSelectedOnRadioGroup: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, onAudioPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onPlayPauseCurrentAudio: kotlin.Function0<kotlin.Unit>, onStopCurrentAudio: kotlin.Function0<kotlin.Unit>, onBrowsePublicChannels: kotlin.Function0<kotlin.Unit>, firstConversationFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -8134,6 +8137,9 @@ public fun com.wire.android.ui.home.conversationslist.common.ConversationList(la
     - lazyListState: STABLE (marked @Stable or @Immutable)
     - isSelectableList: STABLE (primitive type)
     - selectedConversations: RUNTIME (requires runtime check)
+    - searchQuery: STABLE (String is immutable)
+    - isSelfUserUnderLegalHold: STABLE (primitive type)
+    - playingAudio: STABLE (marked @Stable or @Immutable)
     - onOpenConversation: STABLE (function type)
     - onEditConversation: STABLE (function type)
     - onOpenUserProfile: STABLE (function type)
@@ -8146,7 +8152,7 @@ public fun com.wire.android.ui.home.conversationslist.common.ConversationList(la
     - firstConversationFocusRequester: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.home.conversationslist.common.ConversationList(conversationListItems: kotlinx.collections.immutable.ImmutableMap<com.wire.android.ui.home.conversationslist.model.ConversationSection, kotlin.collections.List<com.wire.android.ui.home.conversationslist.model.ConversationItem>>, modifier: androidx.compose.ui.Modifier, lazyListState: androidx.compose.foundation.lazy.LazyListState, isSelectableList: kotlin.Boolean, selectedConversations: kotlin.collections.List<com.wire.android.ui.home.conversationslist.model.ConversationItem>, onOpenConversation: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, onEditConversation: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onJoinCall: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onConversationSelectedOnRadioGroup: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onAudioPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onPlayPauseCurrentAudio: kotlin.Function0<kotlin.Unit>, onStopCurrentAudio: kotlin.Function0<kotlin.Unit>, firstConversationFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
+public fun com.wire.android.ui.home.conversationslist.common.ConversationList(conversationListItems: kotlinx.collections.immutable.ImmutableMap<com.wire.android.ui.home.conversationslist.model.ConversationSection, kotlin.collections.List<com.wire.android.ui.home.conversationslist.model.ConversationItem>>, modifier: androidx.compose.ui.Modifier, lazyListState: androidx.compose.foundation.lazy.LazyListState, isSelectableList: kotlin.Boolean, selectedConversations: kotlin.collections.List<com.wire.android.ui.home.conversationslist.model.ConversationItem>, searchQuery: kotlin.String, isSelfUserUnderLegalHold: kotlin.Boolean, playingAudio: com.wire.android.ui.home.conversationslist.model.PlayingAudioInConversation?, onOpenConversation: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, onEditConversation: kotlin.Function1<com.wire.android.ui.home.conversationslist.model.ConversationItem, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onJoinCall: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onConversationSelectedOnRadioGroup: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onAudioPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onPlayPauseCurrentAudio: kotlin.Function0<kotlin.Unit>, onStopCurrentAudio: kotlin.Function0<kotlin.Unit>, firstConversationFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -8155,6 +8161,9 @@ public fun com.wire.android.ui.home.conversationslist.common.ConversationList(co
     - lazyListState: STABLE (marked @Stable or @Immutable)
     - isSelectableList: STABLE (primitive type)
     - selectedConversations: RUNTIME (requires runtime check)
+    - searchQuery: STABLE (String is immutable)
+    - isSelfUserUnderLegalHold: STABLE (primitive type)
+    - playingAudio: STABLE (marked @Stable or @Immutable)
     - onOpenConversation: STABLE (function type)
     - onEditConversation: STABLE (function type)
     - onOpenUserProfile: STABLE (function type)
@@ -8192,7 +8201,7 @@ public fun com.wire.android.ui.home.conversationslist.common.EventBadgeFactory(e
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.home.conversationslist.common.GeneralConversationItem(conversation: com.wire.android.ui.home.conversationslist.model.ConversationItem, isChecked: kotlin.Boolean, isSelectable: kotlin.Boolean, onConversationItemClick: com.wire.android.model.Clickable, onJoinCallClick: kotlin.Function0<kotlin.Unit>, onAudioPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, selectOnRadioGroup: kotlin.Function0<kotlin.Unit>, subTitle: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, onPlayPauseCurrentAudio: kotlin.Function0<kotlin.Unit>, onStopCurrentAudio: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.home.conversationslist.common.GeneralConversationItem(conversation: com.wire.android.ui.home.conversationslist.model.ConversationItem, isChecked: kotlin.Boolean, isSelectable: kotlin.Boolean, onConversationItemClick: com.wire.android.model.Clickable, onJoinCallClick: kotlin.Function0<kotlin.Unit>, onAudioPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, showLegalHoldIndicator: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, selectOnRadioGroup: kotlin.Function0<kotlin.Unit>, subTitle: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, searchQuery: kotlin.String, playingAudio: com.wire.android.ui.home.conversationslist.model.PlayingAudioInConversation?, onPlayPauseCurrentAudio: kotlin.Function0<kotlin.Unit>, onStopCurrentAudio: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -8202,9 +8211,12 @@ private fun com.wire.android.ui.home.conversationslist.common.GeneralConversatio
     - onConversationItemClick: STABLE (class with no mutable properties)
     - onJoinCallClick: STABLE (function type)
     - onAudioPermissionPermanentlyDenied: STABLE (function type)
+    - showLegalHoldIndicator: STABLE (primitive type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - selectOnRadioGroup: STABLE (function type)
     - subTitle: STABLE (composable function type)
+    - searchQuery: STABLE (String is immutable)
+    - playingAudio: STABLE (marked @Stable or @Immutable)
     - onPlayPauseCurrentAudio: STABLE (function type)
     - onStopCurrentAudio: STABLE (function type)
 
@@ -8325,6 +8337,13 @@ public fun com.wire.android.ui.home.conversationslist.common.getConnectionString
   restartable: true
   params:
     - labelId: STABLE (primitive type)
+
+@Composable
+private fun com.wire.android.ui.home.conversationslist.common.rememberLightweightMarkdownPreview(text: kotlin.String): com.wire.android.ui.markdown.MarkdownPreview?
+  skippable: true
+  restartable: true
+  params:
+    - text: STABLE (String is immutable)
 
 @Composable
 public fun com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetContent(currentFilter: com.wire.kalium.logic.data.conversation.ConversationFilter, folders: kotlin.collections.List<com.wire.kalium.logic.data.conversation.ConversationFolder>, onChangeFilter: kotlin.Function1<com.wire.kalium.logic.data.conversation.ConversationFilter, kotlin.Unit>, isBottomSheetVisible: kotlin.Function0<kotlin.Boolean>): kotlin.Unit
@@ -11305,12 +11324,13 @@ private fun com.wire.android.ui.sharing.ImportMediaBottomBar(state: com.wire.and
     - checkRestrictionsAndSendImportedMedia: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.sharing.ImportMediaContent(state: com.wire.android.ui.sharing.ImportMediaAuthenticatedState, internalPadding: androidx.compose.foundation.layout.PaddingValues, onConversationClicked: kotlin.Function1<@[ParameterName(name = \, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
+private fun com.wire.android.ui.sharing.ImportMediaContent(state: com.wire.android.ui.sharing.ImportMediaAuthenticatedState, internalPadding: androidx.compose.foundation.layout.PaddingValues, searchQuery: kotlin.String, onConversationClicked: kotlin.Function1<@[ParameterName(name = \, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - state: STABLE (marked @Stable or @Immutable)
     - internalPadding: STABLE (marked @Stable or @Immutable)
+    - searchQuery: STABLE (String is immutable)
     - onConversationClicked: STABLE (function type)
     - lazyListState: STABLE (marked @Stable or @Immutable)
 

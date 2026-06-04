@@ -24,6 +24,7 @@ enum class NodeBottomSheetAction(
     val icon: Int,
     val isHighlighted: Boolean = false
 ) {
+    OPEN(R.string.open_label, R.drawable.ic_open),
     SHARE(R.string.share_label, R.drawable.ic_share),
     PUBLIC_LINK(R.string.public_link, R.drawable.ic_link),
     ADD_REMOVE_TAGS(R.string.add_remove_tags_label, R.drawable.ic_tags),
@@ -34,5 +35,8 @@ enum class NodeBottomSheetAction(
     DELETE(R.string.delete_label, com.wire.android.ui.common.R.drawable.ic_delete, true),
     DELETE_PERMANENTLY(R.string.delete_permanently, com.wire.android.ui.common.R.drawable.ic_delete, true),
     VERSION_HISTORY(R.string.see_version_history_bottom_sheet, R.drawable.ic_version_history),
-    CANCEL_LOADING(R.string.cancel_loading_label, com.wire.android.ui.common.R.drawable.ic_close, true)
+    CANCEL_LOADING(R.string.cancel_loading_label, com.wire.android.ui.common.R.drawable.ic_close, true),
+    CANCEL_DOWNLOAD(R.string.cancel_download_label, com.wire.android.ui.common.R.drawable.ic_close, true),
+    MAKE_AVAILABLE_OFFLINE(R.string.make_available_offline_label, R.drawable.ic_arrow_down_circle),
+    REMOVE_OFFLINE_ACCESS(R.string.remove_offline_access_label, R.drawable.ic_cross_in_circle, true),
 }

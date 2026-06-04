@@ -111,6 +111,7 @@ import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import com.wire.kalium.network.NetworkStateObserver
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -191,6 +192,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val onlineEditor: OnlineEditor,
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
+    private val networkStateObserver: NetworkStateObserver,
     @CurrentAccount private val selfUserId: UserId,
 ) {
     fun conversationMessagesViewModel(savedStateHandle: SavedStateHandle) = ConversationMessagesViewModel(
@@ -212,6 +214,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
         getSearchedConversationMessagePosition = getSearchedConversationMessagePosition,
         deleteMessage = deleteMessage,
         isWireCellFeatureEnabled = isWireCellsEnabled,
+        networkStateObserver = networkStateObserver,
     )
 
     fun messageComposerViewModel(savedStateHandle: SavedStateHandle) = MessageComposerViewModel(

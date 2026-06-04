@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
@@ -162,6 +163,9 @@ fun ConversationsScreenContent(
             conversationListViewModel.stopCurrentAudio()
         }
     }
+    val isSelfUserUnderLegalHold by conversationListViewModel.isSelfUserUnderLegalHold.collectAsStateWithLifecycle(false)
+    val playingAudio by conversationListViewModel.playingAudio.collectAsStateWithLifecycle(null)
+    val searchQuery = searchBarState.searchQueryTextState.text.toString()
 
     Box(modifier = modifier) {
         when (val state = conversationListViewModel.conversationListState) {
@@ -175,6 +179,9 @@ fun ConversationsScreenContent(
                     lazyPagingItems.itemCount > 0 -> ConversationList(
                         lazyPagingConversations = lazyPagingItems,
                         lazyListState = lazyListState,
+                        searchQuery = searchQuery,
+                        isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
+                        playingAudio = playingAudio,
                         firstConversationFocusRequester = firstConversationFocusRequester,
                         onOpenConversation = onOpenConversation,
                         onEditConversation = onEditConversationItem,
@@ -213,6 +220,9 @@ fun ConversationsScreenContent(
                     hasConversations -> ConversationList(
                         lazyListState = lazyListState,
                         conversationListItems = state.conversations,
+                        searchQuery = searchQuery,
+                        isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
+                        playingAudio = playingAudio,
                         firstConversationFocusRequester = firstConversationFocusRequester,
                         onOpenConversation = onOpenConversation,
                         onEditConversation = onEditConversationItem,

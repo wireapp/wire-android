@@ -52,6 +52,7 @@ import kotlinx.coroutines.test.runTest
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -81,6 +82,18 @@ class RegularMessageContentMapperTest {
                         (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
             )
         }
+    }
+
+    @Test
+    fun givenTextContent_whenMappingToTextMessageContent_thenMarkdownDocumentShouldBeParsedByUi() = runTest {
+        // Given
+        val (_, mapper) = Arrangement().arrange()
+
+        // When
+        val result = mapper.toText(TestConversation.ID, TestMessage.TEXT_MESSAGE.content, userMembers, DeliveryStatus.CompleteDelivery)
+
+        // Then
+        assertNull(result.messageBody.markdownDocument)
     }
 
     @Test

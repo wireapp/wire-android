@@ -4,7 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
-    alias(libs.plugins.compose.compiler)
+    id(libs.plugins.wire.compose.compiler.get().pluginId)
+    alias(libs.plugins.compose.stability.analyzer)
 }
 
 android {

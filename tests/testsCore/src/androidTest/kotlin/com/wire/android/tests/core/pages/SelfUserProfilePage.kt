@@ -26,6 +26,7 @@ data class SelfUserProfilePage(private val device: UiDevice) {
     private val userProfilePageTitle = UiSelectorParams(text = "User Profile")
     private val logoutButton = UiSelectorParams(text = "Log out")
     private val clearDataAlert = UiSelectorParams(text = "Clear Data?")
+    private val newTeamOrAddAccountButton = UiSelectorParams(text = "New Team or Add Account")
 
     private val infoTextCheckbox = UiSelectorParams(className = "android.widget.CheckBox")
 
@@ -64,6 +65,11 @@ data class SelfUserProfilePage(private val device: UiDevice) {
 
     fun tapInfoTextCheckbox(): SelfUserProfilePage {
         UiWaitUtils.waitElement(infoTextCheckbox).click()
+        return this
+    }
+
+    fun tapNewTeamOrAddAccountButton(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(newTeamOrAddAccountButton).click()
         return this
     }
 }

@@ -25,7 +25,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.ui.home.FeatureFlagState
@@ -41,19 +40,16 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("TooManyFunctions")
-@HiltViewModel
-class FeatureFlagNotificationViewModel @Inject constructor(
-    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
+class FeatureFlagNotificationViewModel(
+    private val coreLogic: Lazy<CoreLogic>,
     private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val disableAppLockUseCase: Lazy<DisableAppLockUseCase>,

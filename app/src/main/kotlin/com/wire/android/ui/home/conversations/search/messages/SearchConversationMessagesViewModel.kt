@@ -29,16 +29,13 @@ import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFro
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
-import javax.inject.Inject
 
-@HiltViewModel
-class SearchConversationMessagesViewModel @Inject constructor(
+class SearchConversationMessagesViewModel(
     private val getSearchMessagesForConversation: GetConversationMessagesFromSearchUseCase,
     private val dispatchers: DispatcherProvider,
     savedStateHandle: SavedStateHandle

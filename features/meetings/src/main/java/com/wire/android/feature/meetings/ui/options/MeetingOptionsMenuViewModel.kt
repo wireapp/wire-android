@@ -21,7 +21,8 @@ import androidx.lifecycle.ViewModel
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
-import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
+import com.wire.android.feature.meetings.ui.usecase.GetMeetingUseCase
+import com.wire.android.util.CurrentTimeProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -40,10 +41,11 @@ class MeetingOptionsMenuViewModelPreview(currentTimeProvider: CurrentTimeProvide
     )
 }
 
-class MeetingOptionsMenuViewModelImpl : MeetingOptionsMenuViewModel, ViewModel() {
-    private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default) // TODO replace with real data source
+class MeetingOptionsMenuViewModelImpl(
+    private val getMeeting: GetMeetingUseCase,
+) : MeetingOptionsMenuViewModel, ViewModel() {
     override fun observeMeetingStateFlow(meetingId: String): StateFlow<MeetingOptionsMenuState> = MutableStateFlow(
-        meetingMocksProvider.getItem(meetingId)?.let {
+        getMeeting(meetingId)?.let {
             MeetingOptionsMenuState.Meeting(it)
         } ?: MeetingOptionsMenuState.NotAvailable
     )

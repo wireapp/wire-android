@@ -35,7 +35,6 @@ import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
 import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchUserResult
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
@@ -48,10 +47,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class SearchUserViewModel @Inject constructor(
+class SearchUserViewModel(
     private val searchUserUseCase: SearchUsersUseCase,
     private val searchByHandleUseCase: SearchByHandleUseCase,
     private val contactMapper: ContactMapper,

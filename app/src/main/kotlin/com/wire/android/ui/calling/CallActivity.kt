@@ -37,11 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.appLogger
-import com.wire.android.di.assistedViewModels
 import com.wire.android.di.metro.ImageAssetViewModelGraphBridgeViewModel
 import com.wire.android.di.metro.LocalMetroViewModelGraph
-import com.wire.android.di.wireViewModel
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.LocalActivity
@@ -67,10 +67,6 @@ abstract class CallActivity : BaseActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
 
-    private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
-        factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false))
-    }
-
     companion object {
         const val EXTRA_CONVERSATION_ID = "conversation_id"
         const val EXTRA_USER_ID = "user_id"
@@ -79,7 +75,23 @@ abstract class CallActivity : BaseActivity() {
         const val TAG = "CallActivity"
     }
 
-    private val callActivityViewModel: CallActivityViewModel by viewModels()
+    private val imageAssetViewModelGraph: ImageAssetViewModelGraphBridgeViewModel by viewModels()
+    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                imageAssetViewModelGraph.commonViewModelFactory.commonTopAppBarViewModel(
+                    CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false)
+                )
+            }
+        }
+    }
+    private val callActivityViewModel: CallActivityViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                imageAssetViewModelGraph.callingViewModelFactory.callActivityViewModel()
+            }
+        }
+    }
     protected val qualifiedIdMapper = QualifiedIdMapper(null)
 
     override fun onNewIntent(intent: Intent) {
@@ -103,7 +115,6 @@ abstract class CallActivity : BaseActivity() {
 
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
-            val imageAssetViewModelGraph = wireViewModel<ImageAssetViewModelGraphBridgeViewModel>()
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
                 LocalMetroViewModelGraph provides imageAssetViewModelGraph,

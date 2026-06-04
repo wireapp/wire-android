@@ -55,6 +55,7 @@ compose-activity = "1.13.0"
 compose-constraint = "1.1.1"
 compose-navigation = "2.9.5" # aligned with compose-destinations 2.3.0
 compose-destinations = "2.3.0"
+compose-stability-analyzer = "0.8.0"
 screenshot = "0.0.1-alpha14"
 jetbrains-compose = "1.10.3"
 # TODO(KMP): switch Compose MPP material3 to stable when available for this stack.
@@ -137,6 +138,7 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "compose-stability-analyzer" }
 cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
 jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
 androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark-baselineprofile-plugin" }
@@ -146,6 +148,7 @@ wire-android-application = { id = "com.wire.android.application" }
 wire-android-library = { id = "com.wire.android.library" }
 wire-android-test-library = { id = "com.wire.android.test.library" }
 wire-android-navigation = { id = "com.wire.android.navigation" }
+wire-compose-compiler = { id = "com.wire.android.compose.compiler" }
 wire-kmp-library = { id = "com.wire.android.kmp.library" }
 wire-hilt = { id = "com.wire.android.hilt" }
 wire-kover = { id = "com.wire.android.kover" }
@@ -160,6 +163,7 @@ grgit-core = { module = "org.ajoberstar.grgit:grgit-core", version.ref = "grgitC
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android-gradlePlugin" }
 android-gradleApi = { group = "com.android.tools.build", name = "gradle-api", version.ref = "android-gradlePlugin" }
+compose-compiler-gradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
 hilt-gradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google-gms" }
 googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }

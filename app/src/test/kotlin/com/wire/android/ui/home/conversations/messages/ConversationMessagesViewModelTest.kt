@@ -20,6 +20,8 @@ package com.wire.android.ui.home.conversations.messages
 
 import androidx.paging.PagingData
 import androidx.paging.map
+import androidx.paging.testing.asSnapshot
+import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
@@ -29,27 +31,36 @@ import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.android.media.audiomessage.PlayingAudioMessage
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.composer.mockUITextMessage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
+import com.wire.android.ui.home.conversations.model.MessageFooter
+import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.message.paging.NomadMessagePagingResult
 import com.wire.kalium.common.error.StorageFailure
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.message.paging.NomadMessagePagingResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
+import com.wire.kalium.network.NetworkState
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
-import org.junit.jupiter.api.Assertions.assertEquals
 import com.wire.android.assertions.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -236,6 +247,122 @@ class ConversationMessagesViewModelTest {
     }
 
     @Test
+    fun `given offline state and no pending messages, when adding offline indicator, then indicator is the newest item`() = runTest {
+        val message = regularMessage(id = "sent")
+
+        val snapshot = flowOf(
+            PagingData.from(listOf<UIMessage>(message)).withOfflineIndicator(TEST_CONVERSATION_ID, isOffline = true)
+        ).asSnapshot()
+
+        assertEquals(
+            listOf("offline-message:$TEST_CONVERSATION_ID", "sent"),
+            snapshot.map { it.header.messageId }
+        )
+    }
+
+    @Test
+    fun `given offline state and pending messages, when adding offline indicator, then indicator is before pending block visually`() =
+        runTest {
+            val firstPending = regularMessage(id = "pending-1", flowStatus = MessageFlowStatus.Sending)
+            val secondPending = regularMessage(id = "pending-2", flowStatus = MessageFlowStatus.Sending)
+            val sent = regularMessage(id = "sent")
+
+            val snapshot = flowOf(
+                PagingData.from(listOf<UIMessage>(firstPending, secondPending, sent))
+                    .withOfflineIndicator(TEST_CONVERSATION_ID, isOffline = true)
+            ).asSnapshot()
+
+            assertEquals(
+                listOf("pending-1", "pending-2", "offline-message:$TEST_CONVERSATION_ID", "sent"),
+                snapshot.map { it.header.messageId }
+            )
+        }
+
+    @Test
+    fun `given online state, when adding offline indicator, then indicator is not inserted`() = runTest {
+        val message = regularMessage(id = "sent")
+
+        val snapshot = flowOf(
+            PagingData.from(listOf<UIMessage>(message)).withOfflineIndicator(TEST_CONVERSATION_ID, isOffline = false)
+        ).asSnapshot()
+
+        assertEquals(listOf("sent"), snapshot.map { it.header.messageId })
+    }
+
+    @Test
+    fun `given offline state and empty conversation, when adding offline indicator, then indicator is shown`() = runTest {
+        val snapshot = flowOf(
+            PagingData.from(emptyList<UIMessage>()).withOfflineIndicator(TEST_CONVERSATION_ID, isOffline = true)
+        ).asSnapshot()
+
+        assertEquals(listOf("offline-message:$TEST_CONVERSATION_ID"), snapshot.map { it.header.messageId })
+    }
+
+    @Test
+    fun `given network becomes disconnected, when observing messages, then offline message is shown`() = runTest {
+        val message = regularMessage(id = "sent")
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        viewModel.conversationViewState.messages.test {
+            arrangement.withPaginatedMessagesReturning(PagingData.from(listOf(message)))
+            assertEquals(listOf("sent"), flowOf(awaitItem()).asSnapshot().map { it.header.messageId })
+
+            arrangement.networkState.value = NetworkState.NotConnected
+            arrangement.withPaginatedMessagesReturning(PagingData.from(listOf<UIMessage>(message)))
+            advanceUntilIdle()
+
+            awaitMessageIds(
+                expectedMessageIds = listOf("offline-message:${arrangement.conversationId}", "sent")
+            )
+        }
+    }
+
+    @Test
+    fun `given network is connected without internet, when observing messages, then offline message is shown`() = runTest {
+        val message = regularMessage(id = "sent")
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        arrangement.networkState.value = NetworkState.ConnectedWithoutInternet
+
+        viewModel.conversationViewState.messages.test {
+            arrangement.withPaginatedMessagesReturning(PagingData.from(listOf(message)))
+
+            assertEquals(
+                listOf("offline-message:${arrangement.conversationId}", "sent"),
+                flowOf(awaitItem()).asSnapshot().map { it.header.messageId }
+            )
+        }
+    }
+
+    @Test
+    fun `given network becomes connected, when observing messages, then offline message is hidden`() = runTest {
+        val message = regularMessage(id = "sent")
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        arrangement.networkState.value = NetworkState.NotConnected
+
+        viewModel.conversationViewState.messages.test {
+            arrangement.withPaginatedMessagesReturning(PagingData.from(listOf(message)))
+            assertEquals(
+                listOf("offline-message:${arrangement.conversationId}", "sent"),
+                flowOf(awaitItem()).asSnapshot().map { it.header.messageId }
+            )
+
+            arrangement.networkState.value = NetworkState.ConnectedWithInternet
+            arrangement.withPaginatedMessagesReturning(PagingData.from(listOf<UIMessage>(message)))
+            advanceUntilIdle()
+
+            awaitMessageIds(expectedMessageIds = listOf("sent"))
+        }
+    }
+
+    @Test
     fun `given nomad paging result, when fetching older messages, then view state updates`() = runTest {
         val arrangement = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
@@ -251,6 +378,41 @@ class ConversationMessagesViewModelTest {
 
         assertEquals(false, viewModel.conversationViewState.isFetchingOlderMessages)
         assertEquals(true, viewModel.conversationViewState.hasMoreRemoteMessages)
+    }
+
+    private fun regularMessage(
+        id: String,
+        flowStatus: MessageFlowStatus = MessageFlowStatus.Sent,
+    ): UIMessage.Regular =
+        UIMessage.Regular(
+            conversationId = TEST_CONVERSATION_ID,
+            header = TestMessage.UI_MESSAGE_HEADER.copy(
+                messageId = id,
+                messageStatus = MessageStatus(
+                    flowStatus = flowStatus,
+                    expirationStatus = ExpirationStatus.NotExpirable,
+                )
+            ),
+            source = MessageSource.Self,
+            userAvatarData = UserAvatarData(),
+            messageContent = null,
+            messageFooter = MessageFooter(id),
+        )
+
+    private suspend fun ReceiveTurbine<PagingData<UIMessage>>.awaitMessageIds(
+        expectedMessageIds: List<String>,
+    ) {
+        var latestMessageIds = emptyList<String>()
+        repeat(MAX_PAGING_EMISSIONS_TO_CHECK) {
+            latestMessageIds = flowOf(awaitItem()).asSnapshot().map { it.header.messageId }
+            if (latestMessageIds == expectedMessageIds) return
+        }
+        assertEquals(expectedMessageIds, latestMessageIds)
+    }
+
+    private companion object {
+        val TEST_CONVERSATION_ID = ConversationId("conversation", "domain")
+        const val MAX_PAGING_EMISSIONS_TO_CHECK = 3
     }
 
     @Test
@@ -295,22 +457,32 @@ class ConversationMessagesViewModelTest {
 
     @Test
     fun `given getting UnreadEventsCount failed, then messages requested anyway`() = runTest {
-        val (arrangement, _) = ConversationMessagesViewModelArrangement()
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withConversationUnreadEventsCount(GetConversationUnreadEventsCountUseCase.Result.Failure(StorageFailure.DataNotFound))
             .withSuccessfulViewModelInit()
             .arrange()
 
-        coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 0) }
+        viewModel.conversationViewState.messages.test {
+            arrangement.withPaginatedMessagesReturning(PagingData.from(emptyList<UIMessage>()))
+            awaitItem()
+
+            coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 0) }
+        }
     }
 
     @Test
     fun `given getting UnreadEventsCount succeed, then messages requested with corresponding lastReadIndex`() = runTest {
-        val (arrangement, _) = ConversationMessagesViewModelArrangement()
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withConversationUnreadEventsCount(GetConversationUnreadEventsCountUseCase.Result.Success(12))
             .withSuccessfulViewModelInit()
             .arrange()
 
-        coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 12) }
+        viewModel.conversationViewState.messages.test {
+            arrangement.withPaginatedMessagesReturning(PagingData.from(emptyList<UIMessage>()))
+            awaitItem()
+
+            coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 12) }
+        }
     }
 
     @Test

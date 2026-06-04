@@ -440,6 +440,9 @@ sealed interface UIMessageContent {
     sealed interface SystemMessage : UIMessageContent {
 
         @Serializable
+        data object Offline : SystemMessage
+
+        @Serializable
         data class Knock(
             val author: UIText,
             val isSelfTriggered: Boolean
@@ -654,8 +657,18 @@ enum class MessageSource {
 
 @Serializable
 data class MessageTime(val instant: Instant) {
-    val utcISO: String = instant.toIsoDateTimeString()
-    val formattedDate: String = utcISO.uiMessageDateTime() ?: ""
+    @Transient
+    private val utcISOValue: Lazy<String> = lazy(LazyThreadSafetyMode.PUBLICATION) {
+        instant.toIsoDateTimeString()
+    }
+
+    @Transient
+    private val formattedDateValue: Lazy<String> = lazy(LazyThreadSafetyMode.PUBLICATION) {
+        utcISO.uiMessageDateTime() ?: ""
+    }
+
+    val utcISO: String get() = utcISOValue.value
+    val formattedDate: String get() = formattedDateValue.value
     fun getFormattedDateGroup(now: Long): MessageDateTimeGroup? = utcISO.groupedUIMessageDateTime(now = now)
     fun shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean =
         utcISO.shouldDisplayDatesDifferenceDivider(previousDate = previousDate)

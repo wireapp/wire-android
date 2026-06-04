@@ -62,7 +62,7 @@ import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveSelfUserHasViewerAccessUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveSelfUserHasViewerAccessOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
@@ -102,7 +102,7 @@ internal class MessageComposerViewModelArrangement {
         coEvery {
             currentSessionFlowUseCase()
         } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
-        coEvery { observeSelfUserHasViewerAccessUseCase(any()) } returns flowOf(true)
+        coEvery { observeSelfUserHasViewerAccessOnConversationUseCase(any()) } returns flowOf(true)
         coEvery { globalDataStore.enterToSendFlow() } returns flowOf(false)
         coEvery { observeEstablishedCalls() } returns emptyFlow()
         coEvery { markConversationAsReadLocallyUseCase(any(), any()) } returns MarkConversationAsReadResult.Success(false)
@@ -124,7 +124,7 @@ internal class MessageComposerViewModelArrangement {
     private lateinit var observeConversationInteractionAvailabilityUseCase: ObserveConversationInteractionAvailabilityUseCase
 
     @MockK
-    private lateinit var observeSelfUserHasViewerAccessUseCase: ObserveSelfUserHasViewerAccessUseCase
+    private lateinit var observeSelfUserHasViewerAccessOnConversationUseCase: ObserveSelfUserHasViewerAccessOnConversationUseCase
 
     @MockK
     private lateinit var updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
@@ -182,7 +182,7 @@ internal class MessageComposerViewModelArrangement {
             currentSessionFlowUseCase = currentSessionFlowUseCase,
             observeEstablishedCalls = observeEstablishedCalls,
             globalDataStore = globalDataStore,
-            observeSelfUserHasViewerAccess = observeSelfUserHasViewerAccessUseCase,        )
+            observeSelfUserHasViewerAccess = observeSelfUserHasViewerAccessOnConversationUseCase,        )
     }
 
     fun withSuccessfulViewModelInit(
@@ -204,7 +204,7 @@ internal class MessageComposerViewModelArrangement {
     }
 
     fun withAttachmentOptionsAvailability(available: Boolean) = apply {
-        coEvery { observeSelfUserHasViewerAccessUseCase(any()) } returns flowOf(available)
+        coEvery { observeSelfUserHasViewerAccessOnConversationUseCase(any()) } returns flowOf(available)
     }
 
     fun arrange() = this to viewModel

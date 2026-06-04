@@ -39,7 +39,7 @@ import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
 import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveSelfUserHasViewerAccessUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveSelfUserHasViewerAccessOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
@@ -425,6 +425,6 @@ class ConversationModule {
     @Provides
     fun provideObserveSelfUserHasViewerAccessUseCase(
         conversationScope: ConversationScope
-    ): ObserveSelfUserHasViewerAccessUseCase =
+    ): ObserveSelfUserHasViewerAccessOnConversationUseCase =
         conversationScope.observeSelfUserHasViewerAccess
 }

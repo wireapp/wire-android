@@ -29,7 +29,7 @@ import com.ramcosta.composedestinations.generated.cells.destinations.SearchScree
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
-import com.wire.android.feature.cells.ui.model.withOpenLoadState
+import com.wire.android.feature.cells.ui.model.withSessionState
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
@@ -48,6 +48,7 @@ import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetPaginatedCellConversationsFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -75,6 +76,7 @@ class SearchScreenViewModel(
     private val getOwners: GetOwnersUseCase,
     private val getPaginatedConversations: GetPaginatedCellConversationsFlowUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
+    private val observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel() {
 
     private data class SearchParams(
@@ -175,10 +177,17 @@ class SearchScreenViewModel(
                 }
             }.cachedIn(viewModelScope),
             sharedPathCache.openLoadStates,
-        ) { pagingData, states ->
+            sharedPathCache.downloadProgresses,
+            observeOfflineFiles(),
+        ) { pagingData, openLoadStates, downloadProgresses, offlineFiles ->
+            val offlineUuids = offlineFiles.map { it.id }.toSet()
             pagingData.map { node ->
                 if (node is CellNodeUi.File) {
-                    node.withOpenLoadState(states[node.uuid])
+                    node.withSessionState(
+                        openLoadState = openLoadStates[node.uuid],
+                        downloadProgress = downloadProgresses[node.uuid],
+                        isAvailableOffline = node.uuid in offlineUuids,
+                    )
                 } else {
                     node
                 }

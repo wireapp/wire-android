@@ -26,8 +26,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 /**
  * Singleton shared state for the Cells file-open feature.
@@ -38,7 +39,7 @@ import javax.inject.Singleton
  * - [fileReadyEvents]: emitted when a slow download finishes so the UI can show a snackbar.
  * - [openLoadStates]: per-uuid Loading / Ready / Error state consumed by paging combines.
  */
-@Singleton
+@SingleIn(AppScope::class)
 class CellFileLocalPathCache @Inject constructor() {
 
     private val _fileReadyChannel = Channel<CellNodeUi.File>(Channel.BUFFERED)

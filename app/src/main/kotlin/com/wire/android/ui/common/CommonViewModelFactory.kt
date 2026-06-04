@@ -57,8 +57,7 @@ import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromF
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.user.IsPreventAdminlessGroupsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.Lazy
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 interface CommonViewModelGraph : MetroViewModelGraph {
     val commonViewModelFactory: CommonViewModelFactory
@@ -131,7 +130,7 @@ class CommonViewModelFactory @Inject constructor(
     )
 
     fun securityClassificationViewModel(args: SecurityClassificationArgs) = SecurityClassificationViewModelImpl(
-        coreLogic = coreLogic.get(),
+        coreLogic = coreLogic.value,
         args = args,
     )
 

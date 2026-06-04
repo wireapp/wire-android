@@ -31,7 +31,6 @@ import com.wire.kalium.logic.data.id.MessageButtonId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import kotlinx.coroutines.launch
-
 @ViewModelScopedPreview
 interface CompositeMessageViewModel {
     val pendingButtonId: MessageButtonId?

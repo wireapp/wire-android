@@ -20,7 +20,6 @@ package com.wire.android
 
 import android.content.Context
 import androidx.work.WorkManager
-import com.wire.android.di.CoreLogicModule
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
@@ -39,22 +38,17 @@ import com.wire.kalium.mocks.requests.LoginRequests
 import com.wire.kalium.mocks.requests.NotificationRequests
 import com.wire.kalium.network.NetworkStateObserver
 import com.wire.kalium.network.utils.TestRequestHandler
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import dagger.hilt.testing.TestInstallIn
-import javax.inject.Singleton
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
+import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Module
-@TestInstallIn(
-    components = [SingletonComponent::class],
-    replaces = [CoreLogicModule::class],
-)
+@BindingContainer
 class TestCoreLogicModule {
 
     @KaliumCoreLogic
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
     fun provideCoreLogic(
         @ApplicationContext context: Context,
@@ -80,7 +74,7 @@ class TestCoreLogicModule {
         )
     }
 
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
     fun provideNetworkStateObserver(): NetworkStateObserver = TestNetworkStateObserver()
 
@@ -109,11 +103,11 @@ class TestCoreLogicModule {
         coreLogic.getGlobalScope().serverConfigForAccounts
 
     @NoSession
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
     fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapper(null)
 
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
     fun provideWorkManager(@ApplicationContext applicationContext: Context) = WorkManager.getInstance(applicationContext)
 
@@ -123,5 +117,6 @@ class TestCoreLogicModule {
 
     @DefaultWebSocketEnabledByDefault
     @Provides
+    @Suppress("FunctionOnlyReturningConstant")
     fun provideDefaultWebSocketEnabledByDefault(): Boolean = true
 }

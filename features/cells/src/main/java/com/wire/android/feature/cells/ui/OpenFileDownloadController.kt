@@ -30,7 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toOkioPath
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * Controller responsible for managing the download and open flow for cell files.

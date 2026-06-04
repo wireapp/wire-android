@@ -22,7 +22,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
 import java.text.DateFormat
 import java.util.Date
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class ISOFormatter @Inject constructor() {
 

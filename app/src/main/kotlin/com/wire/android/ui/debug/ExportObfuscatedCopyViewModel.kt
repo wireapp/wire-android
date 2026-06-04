@@ -40,7 +40,6 @@ import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.util.DelicateKaliumApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
 @ViewModelScopedPreview
 interface ExportObfuscatedCopyViewModel {
 

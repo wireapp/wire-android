@@ -61,7 +61,7 @@ import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordU
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.logic.util.RandomPassword
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
 class CellsViewModelFactory @Inject constructor(

@@ -22,7 +22,7 @@ import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.User
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 @Suppress("TooManyFunctions")
 class MessageContentMapper @Inject constructor(

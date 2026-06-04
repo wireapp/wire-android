@@ -26,7 +26,7 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateAccentColorResult
 import com.wire.kalium.logic.feature.user.UpdateAccentColorUseCase
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 class ChangeUserColorViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val updateAccentColor: UpdateAccentColorUseCase,

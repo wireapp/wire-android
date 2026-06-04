@@ -40,8 +40,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.appLogger
-import com.wire.android.di.metro.ImageAssetViewModelGraphBridgeViewModel
 import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.LocalActivity
@@ -54,11 +54,11 @@ import com.wire.android.ui.common.topappbar.WireTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import dagger.hilt.android.AndroidEntryPoint
+import dev.zacsweers.metro.HasMemberInjections
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@AndroidEntryPoint
+@HasMemberInjections
 abstract class CallActivity : BaseActivity() {
 
     @Inject
@@ -75,7 +75,7 @@ abstract class CallActivity : BaseActivity() {
         const val TAG = "CallActivity"
     }
 
-    private val imageAssetViewModelGraph: ImageAssetViewModelGraphBridgeViewModel by viewModels()
+    private val imageAssetViewModelGraph by lazy { wireApplicationGraph.imageAssetViewModelGraph }
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels {
         viewModelFactory {
             initializer {
@@ -101,6 +101,7 @@ abstract class CallActivity : BaseActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
         setupOrientationForDevice()
         setUpScreenshotPreventionFlag()

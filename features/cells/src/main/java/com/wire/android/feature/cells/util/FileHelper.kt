@@ -146,6 +146,12 @@ class FileHelper @Inject constructor(
 
     fun getCacheDir(): File = context.cacheDir
 
+    /**
+     * Returns the app-specific external storage directory.
+     * No permissions needed, deleted when the app is uninstalled.
+     */
+    fun getExternalFilesDir(): File = context.getExternalFilesDir(null) ?: context.filesDir
+
     private fun Context.getProviderAuthority() = "$packageName.provider"
 
     private fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =

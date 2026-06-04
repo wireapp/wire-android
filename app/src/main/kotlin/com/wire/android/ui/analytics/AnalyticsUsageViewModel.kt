@@ -26,13 +26,10 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class AnalyticsUsageViewModel @Inject constructor(
+class AnalyticsUsageViewModel(
     private val analyticsEnabled: AnalyticsConfiguration,
     private val dataStore: Lazy<UserDataStore>,
     private val selfServerConfig: Lazy<SelfServerConfigUseCase>,

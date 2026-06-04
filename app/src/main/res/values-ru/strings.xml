@@ -285,6 +285,7 @@
     <string name="label_copyright">Авторское право</string>
     <string name="item_dependencies_title">Зависимости:</string>
     <string name="support_screen_title">Служба поддержки</string>
+    <string name="report_misuse_screen_title">Сообщить о злоупотреблении</string>
     <string name="backup_and_restore_screen_title">Резервное копирование и восстановление бесед</string>
     <string name="search_bar_conversations_hint">Поиск бесед</string>
     <string name="search_no_results">Совпадений не найдено</string>
@@ -634,8 +635,11 @@
     <string name="promote_admin_screen_title">Назначить нового администратора</string>
     <string name="promote_admin_search_placeholder">Введите имя или email</string>
     <string name="promote_admin_button">Назначить администратором и покинуть группу</string>
+    <string name="promote_admin_error_failed_to_promote">Не удалось назначить пользователя администратором</string>
+    <string name="promote_admin_error_failed_to_leave">Не удалось покинуть беседу</string>
     <string name="delete_conversation_conversation_menu_item">Удалить беседу…</string>
     <string name="delete_conversation_conversation_dialog_title">Удалить “%s”?</string>
+    <string name="delete_conversation_conversation_dialog_description">Это приведет к удалению группы и всего содержимого для всех участников на всех устройствах. Восстановить контент будет невозможно. Все участники будут оповещены.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Удалить беседу «%s» у меня?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">Вы не сможете получить доступ к беседе и ее содержимому. Восстановить ее невозможно.</string>
     <string name="delete_conversation_locally_delete_for_me_label">Удалить у меня</string>
@@ -1112,7 +1116,9 @@
     <string name="notification_ongoing_call_content">Исходящий вызов…</string>
     <string name="notification_group_channel_call_content">%s вызывает...</string>
     <string name="notification_call_default_caller_name">Кто-то</string>
-    <string name="notification_call_default_group_name">Входящий групповой вызов</string>
+    <string name="notification_incoming_call_default_group_name">Входящий групповой вызов</string>
+    <string name="notification_ongoing_call_default_group_name">Текущий групповой вызов</string>
+    <string name="notification_outgoing_call_default_group_name">Исходящий групповой вызов</string>
     <string name="notification_outgoing_call_tap_to_return">Нажмите, чтобы вернуться к вызову - Вызов...</string>
     <string name="notification_audio_message_body">Аудиосообщение</string>
     <string name="notification_deleting_conversation">Удаление беседы…</string>
@@ -1249,6 +1255,7 @@
     <string name="service_remove_error">Не удалось удалить приложение из беседы</string>
     <string name="service_add_success">Приложение добавлено в беседу</string>
     <string name="service_add_error">Не удалось добавить приложение в беседу</string>
+    <string name="service_conversation_creation_or_retrieval_error">Не удалось получить или создать беседу</string>
     <string name="service_no_information_available_title">Информация недоступна</string>
     <string name="service_no_information_available_subtitle">Попробуйте еще раз или свяжитесь с администратором группы</string>
     <string name="read_receipts">Отчеты о прочтении</string>

@@ -933,7 +933,6 @@
     <string name="notification_ongoing_call_content">පවතින ඇමතුම…</string>
     <string name="notification_group_channel_call_content">%s අමතමින්...</string>
     <string name="notification_call_default_caller_name">යමෙක්</string>
-    <string name="notification_call_default_group_name">ලැබෙන සමූහ ඇමතුම</string>
     <string name="notification_outgoing_call_tap_to_return">ඇමතුමට යාමට ඔබන්න - අමතමින්...</string>
     <string name="notification_audio_message_body">ශ්‍රව්‍ය පණිවිඩය</string>
     <string name="notification_deleting_conversation">…සංවාදය මකා දමමින්</string>

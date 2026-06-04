@@ -18,15 +18,14 @@
 
 package com.wire.android.ui.authentication.login.sso
 
+import android.database.sqlite.SQLiteException
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.config.DefaultServerConfig
 import com.wire.android.datastore.UserDataStoreProvider
@@ -34,8 +33,10 @@ import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
+import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -57,43 +58,56 @@ import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import android.database.sqlite.SQLiteException
-import java.io.IOException
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class LoginSSOViewModel(
-    private val savedStateHandle: SavedStateHandle,
-    val addAuthenticatedUser: AddAuthenticatedUserUseCase,
-    private val validateEmailUseCase: ValidateEmailUseCase,
-    coreLogic: CoreLogic,
-    clientScopeProviderFactory: ClientScopeProvider.Factory,
-    userDataStoreProvider: UserDataStoreProvider,
-    private val ssoExtension: LoginSSOViewModelExtension,
-    serverConfig: ServerConfig.Links,
-    private val dispatchers: DispatcherProvider,
-) : LoginViewModel(
-    savedStateHandle,
-    clientScopeProviderFactory,
-    userDataStoreProvider,
-    coreLogic,
-    serverConfig
-) {
-    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
-    private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
-    private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
+class LoginSSOViewModel : LoginViewModel {
+    private val savedInputStore: LoginSavedInputStore
+    val addAuthenticatedUser: AddAuthenticatedUserUseCase
+    private val validateEmailUseCase: ValidateEmailUseCase
+    private val ssoExtension: LoginSSOViewModelExtension
+    private val dispatchers: DispatcherProvider
 
-    @Inject
+    private var pendingNomadServiceUrl: String? = null
+    private var pendingCookieLabel: String? = null
+
     constructor(
-        savedStateHandle: SavedStateHandle,
+        loginNavArgs: LoginNavArgs,
+        savedInputStore: LoginSavedInputStore,
+        addAuthenticatedUser: AddAuthenticatedUserUseCase,
+        validateEmailUseCase: ValidateEmailUseCase,
+        coreLogic: CoreLogic,
+        clientScopeProviderFactory: ClientScopeProvider.Factory,
+        userDataStoreProvider: UserDataStoreProvider,
+        serverConfig: ServerConfig.Links,
+        ssoExtension: LoginSSOViewModelExtension,
+        dispatchers: DispatcherProvider,
+    ) : this(
+        loginNavArgs,
+        savedInputStore,
+        addAuthenticatedUser,
+        validateEmailUseCase,
+        coreLogic,
+        clientScopeProviderFactory,
+        userDataStoreProvider,
+        ssoExtension,
+        serverConfig,
+        dispatchers,
+    )
+
+    @AssistedInject
+    constructor(
+        @Assisted loginNavArgs: LoginNavArgs,
+        savedInputStore: LoginSavedInputStore,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         validateEmailUseCase: ValidateEmailUseCase,
         @KaliumCoreLogic coreLogic: CoreLogic,
@@ -103,30 +117,65 @@ class LoginSSOViewModel(
         @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
         dispatchers: DispatcherProvider,
     ) : this(
-        savedStateHandle,
+        loginNavArgs,
+        savedInputStore,
         addAuthenticatedUser,
         validateEmailUseCase,
         coreLogic,
         clientScopeProviderFactory,
         userDataStoreProvider,
-        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, defaultWebSocketEnabledByDefault),
         serverConfig,
+        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, defaultWebSocketEnabledByDefault),
         dispatchers,
     )
+
+    private constructor(
+        loginNavArgs: LoginNavArgs,
+        savedInputStore: LoginSavedInputStore,
+        addAuthenticatedUser: AddAuthenticatedUserUseCase,
+        validateEmailUseCase: ValidateEmailUseCase,
+        coreLogic: CoreLogic,
+        clientScopeProviderFactory: ClientScopeProvider.Factory,
+        userDataStoreProvider: UserDataStoreProvider,
+        ssoExtension: LoginSSOViewModelExtension,
+        serverConfig: ServerConfig.Links,
+        dispatchers: DispatcherProvider,
+    ) : super(
+        loginNavArgs,
+        clientScopeProviderFactory,
+        userDataStoreProvider,
+        coreLogic,
+        LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
+        serverConfig
+    ) {
+        this.savedInputStore = savedInputStore
+        this.addAuthenticatedUser = addAuthenticatedUser
+        this.validateEmailUseCase = validateEmailUseCase
+        this.ssoExtension = ssoExtension
+        this.dispatchers = dispatchers
+        pendingNomadServiceUrl = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
+        pendingCookieLabel = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
+        observeSSOCodeInput()
+    }
 
     var openWebUrl = MutableSharedFlow<Pair<String, ServerConfig.Links>>()
 
     val ssoTextState: TextFieldState = TextFieldState()
     var loginState: LoginSSOState by mutableStateOf(LoginSSOState())
 
-    init {
-        ssoTextState.setTextAndPlaceCursorAtEnd(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY)
+    @AssistedFactory
+    interface Factory {
+        fun create(args: LoginNavArgs): LoginSSOViewModel
+    }
+
+    private fun observeSSOCodeInput() {
+        ssoTextState.setTextAndPlaceCursorAtEnd(savedInputStore.ssoCode ?: String.EMPTY)
         viewModelScope.launch {
             ssoTextState.textAsFlow().distinctUntilChanged().collectLatest {
                 if (loginState.flowState != LoginState.Loading) {
                     updateSSOFlowState(LoginState.Default)
                 }
-                savedStateHandle[SSO_CODE_SAVED_STATE_KEY] = it.toString()
+                savedInputStore.ssoCode = it.toString()
             }
         }
     }
@@ -181,6 +230,21 @@ class LoginSSOViewModel(
                     }
                 )
             }
+        }
+    }
+
+    fun handleSSOCodeAutoLogin(
+        ssoCode: String,
+        autoInitiateLogin: Boolean,
+        nomadServiceUrl: String?,
+        cookieLabel: String?,
+    ) {
+        pendingNomadServiceUrl = nomadServiceUrl
+        pendingCookieLabel = cookieLabel
+        ssoTextState.setTextAndPlaceCursorAtEnd(ssoCode)
+
+        if (autoInitiateLogin) {
+            login()
         }
     }
 
@@ -374,7 +438,6 @@ class LoginSSOViewModel(
     }
 
     companion object {
-        const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
         private const val TAG = "[LoginSSOViewModel]"
     }
 

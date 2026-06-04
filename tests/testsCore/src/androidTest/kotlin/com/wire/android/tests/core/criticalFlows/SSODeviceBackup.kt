@@ -61,7 +61,7 @@ class SSODeviceBackup : BaseUiTest() {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
         SSOServiceHelper.usersManager = teamHelper.usersManager
@@ -178,6 +178,9 @@ class SSODeviceBackup : BaseUiTest() {
                 step("Exit profile/new conversation flow and return to conversation list") {
                     pages.connectedUserProfilePage.apply {
                         tapCloseButtonOnConnectedUserProfilePage()
+                    }
+                    pages.searchPage.apply {
+                        clickCloseButtonOnSearchInputField()
                     }
                     pages.conversationListPage.apply {
                         clickCloseButtonOnNewConversationScreen()

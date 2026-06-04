@@ -30,16 +30,13 @@ import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class AddMembersToConversationViewModel @Inject constructor(
+class AddMembersToConversationViewModel(
     private val addMemberToConversation: AddMemberToConversationUseCase,
     private val dispatchers: DispatcherProvider,
     savedStateHandle: SavedStateHandle

@@ -41,7 +41,6 @@ import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,10 +49,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import javax.inject.Inject
 
-@HiltViewModel
-class VersionHistoryViewModel @Inject constructor(
+class VersionHistoryViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val getNodeVersionsUseCase: GetNodeVersionsUseCase,
     private val fileSizeFormatter: FileSizeFormatter,

@@ -29,9 +29,9 @@ import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
 import com.wire.android.util.FileManager
-import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -40,11 +40,9 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
-import javax.inject.Inject
 
 interface MultipartAttachmentsViewModel {
     fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit)
@@ -100,8 +98,7 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
 
-@HiltViewModel
-class MultipartAttachmentsViewModelImpl @Inject constructor(
+class MultipartAttachmentsViewModelImpl(
     private val refreshHelper: CellAssetRefreshHelper,
     private val download: DownloadCellFileUseCase,
     private val getEditorUrl: GetEditorUrlUseCase,
@@ -125,7 +122,11 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
             attachment.isEditSupported && isCollaboraEnabled && featureFlags.collaboraIntegration ->
                 openOnlineEditor(attachment.uuid)
-            attachment.fileNotFound() -> { refreshHelper.refresh(attachment.uuid) }
+
+            attachment.fileNotFound() -> {
+                refreshHelper.refresh(attachment.uuid)
+            }
+
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
             else -> downloadAsset(attachment)
@@ -170,6 +171,7 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
 
         download(
             assetId = attachment.uuid,
+            conversationId = null, // TODO to replace with real conversation id in next PR
             outFilePath = path,
             assetSize = attachment.assetSize ?: 0,
         ) { progress ->

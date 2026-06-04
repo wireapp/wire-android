@@ -29,12 +29,9 @@ import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveRece
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.receipt.ReceiptType
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class MessageDetailsViewModel @Inject constructor(
+class MessageDetailsViewModel(
     val savedStateHandle: SavedStateHandle,
     private val observeReactionsForMessage: ObserveReactionsForMessageUseCase,
     private val observeReceiptsForMessage: ObserveReceiptsForMessageUseCase

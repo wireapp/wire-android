@@ -36,11 +36,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.decode.Decoder
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.wire.android.di.wireViewModel
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
-import com.wire.android.ui.common.multipart.toUiModel
 import com.wire.android.ui.home.conversations.multipartAttachmentsViewModel
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid.AssetGridPreview
@@ -63,7 +61,7 @@ fun MultipartAttachmentsView(
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
-        else -> multipartAttachmentsViewModel(conversationId.value)
+        else -> multipartAttachmentsViewModel(conversationId)
     }
 ) {
     // Collect to trigger recomposition when offline availability changes.

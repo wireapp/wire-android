@@ -18,11 +18,8 @@
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
@@ -31,7 +28,6 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
@@ -41,6 +37,7 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
@@ -124,7 +121,7 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
 }
 
 class MultipartAttachmentsViewModelImpl(
-    savedStateHandle: SavedStateHandle,
+    private val conversationId: ConversationId,
     private val refreshHelper: CellAssetRefreshHelper,
     private val download: DownloadCellFileUseCase,
     private val getEditorUrl: GetEditorUrlUseCase,
@@ -135,7 +132,6 @@ class MultipartAttachmentsViewModelImpl(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
-    private val conversationId = savedStateHandle.navArgs<ConversationNavArgs>().conversationId
 
     private val uploadProgress = mutableStateMapOf<String, Float>()
     override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFilesByConversation(conversationId)

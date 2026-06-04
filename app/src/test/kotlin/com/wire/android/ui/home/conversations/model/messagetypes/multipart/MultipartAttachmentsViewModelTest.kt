@@ -17,14 +17,11 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
-import androidx.lifecycle.SavedStateHandle
-import com.ramcosta.composedestinations.generated.app.navargs.toSavedStateHandle
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
@@ -268,9 +265,6 @@ class MultipartAttachmentsViewModelTest {
             MockKAnnotations.init(this)
         }
 
-        private val savedStateHandle: SavedStateHandle = ConversationNavArgs(
-            conversationId = testConversationId,
-        ).toSavedStateHandle()
 
         @MockK
         lateinit var refreshHelper: CellAssetRefreshHelper
@@ -324,7 +318,7 @@ class MultipartAttachmentsViewModelTest {
             every { observeOfflineFilesByConversation(ConversationId("other-conversation", "test-domain")) } returns flowOf(offlineFiles)
 
             return this to MultipartAttachmentsViewModelImpl(
-                savedStateHandle = savedStateHandle,
+                conversationId = testConversationId,
                 refreshHelper = refreshHelper,
                 download = download,
                 fileManager = fileManager,

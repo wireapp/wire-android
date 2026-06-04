@@ -41,6 +41,8 @@ import com.wire.kalium.network.utils.TestRequestHandler
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
 import com.wire.android.di.ApplicationContext
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
 
@@ -79,11 +81,11 @@ class TestCoreLogicModule {
     fun provideNetworkStateObserver(): NetworkStateObserver = TestNetworkStateObserver()
 
     @Provides
-    fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+    fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): CurrentSessionUseCase =
         coreLogic.getGlobalScope().session.currentSession
 
     @Provides
-    fun deleteSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+    fun deleteSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): DeleteSessionUseCase =
         coreLogic.getGlobalScope().deleteSession
 
     @Provides
@@ -109,7 +111,7 @@ class TestCoreLogicModule {
 
     @SingleIn(AppScope::class)
     @Provides
-    fun provideWorkManager(@ApplicationContext applicationContext: Context) = WorkManager.getInstance(applicationContext)
+    fun provideWorkManager(@ApplicationContext applicationContext: Context): WorkManager = WorkManager.getInstance(applicationContext)
 
     @Provides
     fun provideAudioNormalizedLoudnessBuilder(@KaliumCoreLogic coreLogic: CoreLogic): AudioNormalizedLoudnessBuilder =

@@ -44,14 +44,16 @@ sealed class ComposableMessageBundle(override val conversationId: ConversationId
         override val conversationId: ConversationId,
         val message: String,
         val mentions: List<UIMention>,
-        val quotedMessageId: String? = null
+        val quotedMessageId: String? = null,
+        val quotedMessageConversationId: ConversationId? = null
     ) : ComposableMessageBundle(conversationId)
 
     data class SendMultipartMessageBundle(
         override val conversationId: ConversationId,
         val message: String,
         val mentions: List<UIMention>,
-        val quotedMessageId: String? = null
+        val quotedMessageId: String? = null,
+        val quotedMessageConversationId: ConversationId? = null
     ) : ComposableMessageBundle(conversationId)
 
     data class AttachmentPickedBundle(

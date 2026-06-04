@@ -186,7 +186,7 @@ internal fun QuotedMessage(
         )
 
         is UIQuotedMessage.UIQuotedData.Multipart -> QuotedMultipartMessage(
-            conversationId = conversationId,
+            conversationId = messageData.conversationId,
             quotedMessageId = messageData.messageId,
             senderName = messageData.senderName,
             originalDateTimeText = messageData.originalMessageDateDescription,

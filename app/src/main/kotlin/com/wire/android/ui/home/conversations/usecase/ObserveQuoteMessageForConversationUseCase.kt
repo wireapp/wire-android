@@ -52,6 +52,7 @@ class ObserveQuoteMessageForConversationUseCase @Inject constructor(
                                         uiMessage.header.userId?.let { senderId ->
                                             UIQuotedMessage.UIQuotedData(
                                                 messageId = uiMessage.header.messageId,
+                                                conversationId = conversationId,
                                                 senderId = senderId,
                                                 senderName = uiMessage.header.username,
                                                 originalMessageDateDescription = "".toUIText(),

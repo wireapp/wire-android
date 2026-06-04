@@ -35,6 +35,8 @@ fun messageOptionsMenuItems(
     onReactionClick: (reactionEmoji: String) -> Unit,
     onDetailsClick: () -> Unit,
     onReplyClick: () -> Unit,
+    onReplyInPrivateClick: () -> Unit,
+    isReplyInPrivateAllowed: Boolean,
     onEditClick: () -> Unit,
     onShareAssetClick: () -> Unit,
     onDownloadAssetClick: () -> Unit,
@@ -51,6 +53,8 @@ fun messageOptionsMenuItems(
             onShareAsset = onShareAssetClick,
             onDownloadAsset = onDownloadAssetClick,
             onReplyClick = onReplyClick,
+            onReplyInPrivateClick = onReplyInPrivateClick,
+            isReplyInPrivateAllowed = isReplyInPrivateAllowed,
             onReactionClick = onReactionClick,
             onOpenAsset = onOpenAssetClick,
         )
@@ -67,7 +71,9 @@ fun messageOptionsMenuItems(
             onReactionClick = onReactionClick,
             onEditClick = onEditClick,
             onCopyClick = onCopyClick,
-            onReplyClick = onReplyClick
+            onReplyClick = onReplyClick,
+            onReplyInPrivateClick = onReplyInPrivateClick,
+            isReplyInPrivateAllowed = isReplyInPrivateAllowed,
         )
     }
 }

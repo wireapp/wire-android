@@ -132,6 +132,7 @@ class QuotedMultipartMessageViewModelTest {
             } returns flowOf(
                 UIQuotedMessage.UIQuotedData(
                     messageId = "message_id",
+                    conversationId = QualifiedID("conversation", "domain"),
                     senderId = UserId("user", "domain"),
                     senderName = UIText.DynamicString("Sender Name"),
                     senderAccent = Accent.Unknown,

@@ -99,7 +99,12 @@ class RegularMessageMapper @Inject constructor(
 
         is MessageContent.Composite -> {
             val text = content.textContent?.let { textContent ->
-                val quotedMessage = textContent.quotedMessageDetails?.let { mapQuoteData(message.conversationId, it) }
+                val quotedMessage = textContent.quotedMessageDetails?.let {
+                    mapQuoteData(
+                        conversationId = textContent.quotedMessageReference?.quotedMessageConversationId ?: message.conversationId,
+                        details = it
+                    )
+                }
                     ?: if (textContent.quotedMessageReference?.quotedMessageId != null) {
                         UIQuotedMessage.UnavailableData
                     } else {
@@ -169,7 +174,12 @@ class RegularMessageMapper @Inject constructor(
     ): UIMessageContent.TextMessage {
         val messageTextContent = (content as? MessageContent.Text)
 
-        val quotedMessage = messageTextContent?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
+        val quotedMessage = messageTextContent?.quotedMessageDetails?.let {
+            mapQuoteData(
+                conversationId = messageTextContent.quotedMessageReference?.quotedMessageConversationId ?: conversationId,
+                details = it
+            )
+        }
             ?: if (messageTextContent?.quotedMessageReference?.quotedMessageId != null) {
                 UIQuotedMessage.UnavailableData
             } else {
@@ -207,6 +217,7 @@ class RegularMessageMapper @Inject constructor(
     private fun mapQuoteData(conversationId: ConversationId, details: MessageContent.QuotedMessageDetails) =
         UIQuotedMessage.UIQuotedData(
             messageId = details.messageId,
+            conversationId = conversationId,
             senderId = details.senderId,
             senderName = details.senderName.orUnknownName(),
             senderAccent = Accent.fromAccentId(details.accentId),
@@ -330,7 +341,12 @@ class RegularMessageMapper @Inject constructor(
         deliveryStatus: DeliveryStatus
     ): UIMessageContent.Multipart {
 
-        val quotedMessage = content.quotedMessageDetails?.let { mapQuoteData(conversationId = conversationId, details = it) }
+        val quotedMessage = content.quotedMessageDetails?.let {
+            mapQuoteData(
+                conversationId = content.quotedMessageReference?.quotedMessageConversationId ?: conversationId,
+                details = it
+            )
+        }
             ?: if (content.quotedMessageReference?.quotedMessageId != null) {
                 UIQuotedMessage.UnavailableData
             } else {

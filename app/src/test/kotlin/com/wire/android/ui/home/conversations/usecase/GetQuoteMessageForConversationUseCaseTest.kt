@@ -81,6 +81,7 @@ class GetQuoteMessageForConversationUseCaseTest {
         assertEquals(
             UIQuotedMessage.UIQuotedData(
                 messageId = "message_id",
+                conversationId = CONVERSATION_ID,
                 senderId = USER_ID,
                 senderName = "User".toUIText(),
                 senderAccent = Accent.Unknown,

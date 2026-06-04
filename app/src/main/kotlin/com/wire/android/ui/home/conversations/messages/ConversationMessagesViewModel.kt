@@ -169,6 +169,9 @@ class ConversationMessagesViewModel(
             is UIMessageContent.TextMessage ->
                 (content.messageBody.quotedMessage as UIQuotedMessage.UIQuotedData).messageId
 
+            is UIMessageContent.Composite ->
+                (content.messageBody?.quotedMessage as? UIQuotedMessage.UIQuotedData)?.messageId
+
             is UIMessageContent.Multipart ->
                 (content.messageBody?.quotedMessage as? UIQuotedMessage.UIQuotedData)?.messageId
 

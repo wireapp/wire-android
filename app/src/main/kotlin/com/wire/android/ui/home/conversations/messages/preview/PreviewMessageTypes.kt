@@ -111,6 +111,7 @@ fun PreviewMessageWithReply() {
                         message = UIText.DynamicString("Sure, go ahead!"),
                         quotedMessage = UIQuotedMessage.UIQuotedData(
                             messageId = "asdoij",
+                            conversationId = mockMessageWithText.conversationId,
                             senderId = previewUserId,
                             senderName = UIText.DynamicString("John Doe"),
                             originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),

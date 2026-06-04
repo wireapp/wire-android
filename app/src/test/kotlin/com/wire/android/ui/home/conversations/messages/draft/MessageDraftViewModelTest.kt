@@ -103,6 +103,7 @@ class MessageDraftViewModelTest {
         )
         val quotedData = UIQuotedMessage.UIQuotedData(
             messageId = "quoted_message_id",
+            conversationId = TestConversation.ID,
             senderId = UserId("user_id", "domain"),
             senderName = UIText.DynamicString("John"),
             originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),

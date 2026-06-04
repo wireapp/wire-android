@@ -51,7 +51,7 @@ fun rememberMessageComposerStateHolder(
 ): MessageComposerStateHolder {
     val density = LocalDensity.current
 
-    val messageComposition = remember(draftMessageComposition) {
+    val messageComposition = remember {
         mutableStateOf(draftMessageComposition)
     }
 
@@ -72,7 +72,9 @@ fun rememberMessageComposerStateHolder(
         )
     }
 
-    LaunchedEffect(draftMessageComposition.draftText) {
+    LaunchedEffect(draftMessageComposition) {
+        messageComposition.value = draftMessageComposition
+
         if (draftMessageComposition.draftText.isNotBlank()) {
             messageTextState.setTextAndPlaceCursorAtEnd(draftMessageComposition.draftText)
         }

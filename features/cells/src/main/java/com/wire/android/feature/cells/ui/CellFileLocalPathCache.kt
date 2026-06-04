@@ -38,6 +38,7 @@ import dev.zacsweers.metro.SingleIn
  *
  * - [fileReadyEvents]: emitted when a slow download finishes so the UI can show a snackbar.
  * - [openLoadStates]: per-uuid Loading / Ready / Error state consumed by paging combines.
+ * - [downloadProgresses]: per-uuid offline-download progress
  */
 @SingleIn(AppScope::class)
 class CellFileLocalPathCache @Inject constructor() {
@@ -47,6 +48,9 @@ class CellFileLocalPathCache @Inject constructor() {
 
     private val _openLoadStates = MutableStateFlow<Map<String, OpenLoadState>>(emptyMap())
     internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = _openLoadStates.asStateFlow()
+
+    private val _downloadProgresses = MutableStateFlow<Map<String, Float?>>(emptyMap())
+    internal val downloadProgresses: StateFlow<Map<String, Float?>> = _downloadProgresses.asStateFlow()
 
     // Session-level guard: records the local path once a download completes so that a
     // subsequent tap opens the file immediately, even if the paging source hasn't refreshed
@@ -58,6 +62,10 @@ class CellFileLocalPathCache @Inject constructor() {
 
     internal fun getCompletedPath(uuid: String): String? = completedPaths[uuid]
 
+    internal fun clearCompletedPath(uuid: String) {
+        completedPaths.remove(uuid)
+    }
+
     fun emitFileReady(file: CellNodeUi.File) {
         _fileReadyChannel.trySend(file)
     }
@@ -66,4 +74,10 @@ class CellFileLocalPathCache @Inject constructor() {
         _openLoadStates.update { it + (uuid to state) }
 
     internal fun clearOpenLoadState(uuid: String) = _openLoadStates.update { it - uuid }
+
+    internal fun setDownloadProgress(uuid: String, progress: Float?) =
+        _downloadProgresses.update { it + (uuid to progress) }
+
+    internal fun clearDownloadProgress(uuid: String) =
+        _downloadProgresses.update { it - uuid }
 }

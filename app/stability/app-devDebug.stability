@@ -583,41 +583,6 @@ public fun com.wire.android.di.hiltViewModelScoped(): S of com.wire.android.di.h
   params:
 
 @Composable
-public fun com.wire.android.di.hiltViewModelScoped(): T of com.wire.android.di.hiltViewModelScoped
-  skippable: true
-  restartable: true
-  params:
-
-@Composable
-public fun com.wire.android.di.wireViewModelScoped(arguments: R of com.wire.android.di.wireViewModelScoped, clearDelay: kotlin.time.Duration?): S of com.wire.android.di.wireViewModelScoped
-  skippable: false
-  restartable: true
-  params:
-    - arguments: RUNTIME (requires runtime check)
-    - clearDelay: STABLE (known stable type)
-
-@Composable
-public fun com.wire.android.di.wireViewModelScoped(arguments: R of com.wire.android.di.wireViewModelScoped, keyInScopeResolver: kotlin.Function1<@[ParameterName(name = \, clearDelay: kotlin.time.Duration?): S of com.wire.android.di.wireViewModelScoped
-  skippable: false
-  restartable: true
-  params:
-    - arguments: RUNTIME (requires runtime check)
-    - keyInScopeResolver: STABLE (function type)
-    - clearDelay: STABLE (known stable type)
-
-@Composable
-public fun com.wire.android.di.wireViewModelScoped(): S of com.wire.android.di.wireViewModelScoped
-  skippable: true
-  restartable: true
-  params:
-
-@Composable
-public fun com.wire.android.di.wireViewModelScoped(): T of com.wire.android.di.wireViewModelScoped
-  skippable: true
-  restartable: true
-  params:
-
-@Composable
 public fun com.wire.android.navigation.AdjustDestinationStylesForTablets(): kotlin.Unit
   skippable: true
   restartable: true
@@ -1201,14 +1166,13 @@ public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceVerific
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.LoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function2<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function0<kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.LoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function2<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function0<kotlin.Unit>, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - onBackPressed: STABLE (function type)
     - onSuccess: STABLE (function type)
     - onRemoveDeviceNeeded: STABLE (function type)
-    - loginNavArgs: UNSTABLE (has mutable properties or unstable members)
     - loginEmailViewModel: UNSTABLE (has mutable properties or unstable members)
     - ssoLoginResult: STABLE (class with no mutable properties)
     - ssoCodeAutoLogin: STABLE (class with no mutable properties)
@@ -1231,14 +1195,13 @@ public fun com.wire.android.ui.authentication.login.LoginScreen(navigator: com.w
     - loginEmailViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.MainLoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function2<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function0<kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.MainLoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function2<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function0<kotlin.Unit>, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - onBackPressed: STABLE (function type)
     - onSuccess: STABLE (function type)
     - onRemoveDeviceNeeded: STABLE (function type)
-    - loginNavArgs: UNSTABLE (has mutable properties or unstable members)
     - loginEmailViewModel: UNSTABLE (has mutable properties or unstable members)
     - ssoLoginResult: STABLE (class with no mutable properties)
     - ssoCodeAutoLogin: STABLE (class with no mutable properties)
@@ -1381,13 +1344,12 @@ private fun com.wire.android.ui.authentication.login.sso.LoginSSOContent(scrollS
     - onCustomServerDialogConfirm: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.sso.LoginSSOScreen(onSuccess: kotlin.Function2<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function0<kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?, loginSSOViewModel: com.wire.android.ui.authentication.login.sso.LoginSSOViewModel, scrollState: androidx.compose.foundation.ScrollState): kotlin.Unit
+public fun com.wire.android.ui.authentication.login.sso.LoginSSOScreen(onSuccess: kotlin.Function2<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function0<kotlin.Unit>, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?, loginSSOViewModel: com.wire.android.ui.authentication.login.sso.LoginSSOViewModel, scrollState: androidx.compose.foundation.ScrollState): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - onSuccess: STABLE (function type)
     - onRemoveDeviceNeeded: STABLE (function type)
-    - loginNavArgs: UNSTABLE (has mutable properties or unstable members)
     - ssoLoginResult: STABLE (class with no mutable properties)
     - ssoCodeAutoLogin: STABLE (class with no mutable properties)
     - loginSSOViewModel: UNSTABLE (has mutable properties or unstable members)
@@ -6479,7 +6441,7 @@ public fun com.wire.android.ui.home.conversations.messages.item.remainingColor()
   params:
 
 @Composable
-private fun com.wire.android.ui.home.conversations.messages.item.shouldShowBottomLabels(messageStyle: com.wire.android.ui.home.conversations.messages.item.MessageStyle, messageStatus: com.wire.android.ui.home.conversations.model.MessageStatus, useSmallBottomPadding: kotlin.Boolean, selfDeletionTimerState: com.wire.android.ui.home.conversations.SelfDeletionTimerHelper.SelfDeletionTimerState, decryptionFailed: kotlin.Boolean): kotlin.Boolean
+private fun com.wire.android.ui.home.conversations.messages.item.shouldShowBottomLabels(messageStyle: com.wire.android.ui.home.conversations.messages.item.MessageStyle, messageStatus: com.wire.android.ui.home.conversations.model.MessageStatus, useSmallBottomPadding: kotlin.Boolean, selfDeletionTimerState: com.wire.android.ui.home.conversations.SelfDeletionTimerHelper.SelfDeletionTimerState, decryptionFailed: kotlin.Boolean, isPending: kotlin.Boolean): kotlin.Boolean
   skippable: true
   restartable: true
   params:
@@ -6488,6 +6450,7 @@ private fun com.wire.android.ui.home.conversations.messages.item.shouldShowBotto
     - useSmallBottomPadding: STABLE (primitive type)
     - selfDeletionTimerState: STABLE (class with no mutable properties)
     - decryptionFailed: STABLE (primitive type)
+    - isPending: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.ui.home.conversations.messages.item.surface(): androidx.compose.ui.graphics.Color

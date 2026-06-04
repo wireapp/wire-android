@@ -15,7 +15,7 @@ concurrency:
 
 env:
   GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
-  BASE_BRANCH: develop
+  BASE_BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.ref_name || 'develop' }}
   REFRESH_BRANCH: chore/baseline-profile-refresh
   OP_VAULT: "Test Automation"
   TARGET_PACKAGE: com.wire
@@ -111,7 +111,7 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
-          branch: ${{ env.REFRESH_BRANCH }}
+          branch: ${{ env.REFRESH_BRANCH }}-${{ env.BASE_BRANCH }}
           base: ${{ env.BASE_BRANCH }}
           title: "chore(perf): refresh baseline and startup profiles (WPB-8645)"
           commit-message: "chore: refresh baseline profile"

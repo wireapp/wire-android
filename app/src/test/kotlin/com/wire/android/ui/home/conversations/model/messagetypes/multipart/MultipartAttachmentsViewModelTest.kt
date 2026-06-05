@@ -314,7 +314,9 @@ class MultipartAttachmentsViewModelTest {
             coEvery { download(any(), any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()
             coEvery { getWireCellsConfig() } returns null
             every { observeOfflineFilesByConversation(testConversationId) } returns flowOf(offlineFiles)
-            every { observeOfflineFilesByConversation(ConversationId("other-conversation", "test-domain")) } returns flowOf(offlineFiles)
+            every {
+                observeOfflineFilesByConversation(ConversationId("other-conversation", "test-domain"))
+            } returns flowOf(offlineFiles)
 
             return this to MultipartAttachmentsViewModelImpl(
                 conversationId = testConversationId,

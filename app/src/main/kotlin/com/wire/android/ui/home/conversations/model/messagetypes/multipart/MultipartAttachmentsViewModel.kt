@@ -120,6 +120,7 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
 
+@Suppress("LongParameterList")
 class MultipartAttachmentsViewModelImpl(
     private val conversationId: ConversationId,
     private val refreshHelper: CellAssetRefreshHelper,

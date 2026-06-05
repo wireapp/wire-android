@@ -40,18 +40,19 @@ data class MultipartAttachmentUi(
     val transferStatus: AssetTransferStatus,
     val progress: Float? = null,
     val isEditSupported: Boolean = false,
+    val isAvailableOffline: Boolean = false,
 )
 
 enum class AssetSource {
     CELL, ASSET_STORAGE
 }
 
-fun MessageAttachment.toUiModel(progress: Float? = null) = when (this) {
-    is AssetContent -> this.toUiModel(progress)
-    is CellAssetContent -> this.toUiModel(progress)
+fun MessageAttachment.toUiModel(progress: Float? = null, isAvailableOffline: Boolean = false) = when (this) {
+    is AssetContent -> this.toUiModel(progress, isAvailableOffline)
+    is CellAssetContent -> this.toUiModel(progress, isAvailableOffline)
 }
 
-fun CellAssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
+fun CellAssetContent.toUiModel(progress: Float?, isAvailableOffline: Boolean = false) = MultipartAttachmentUi(
     uuid = this.id,
     source = AssetSource.CELL,
     fileName = this.assetPath?.substringAfterLast("/"),
@@ -67,9 +68,10 @@ fun CellAssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
     progress = progress,
     contentHash = contentHash,
     isEditSupported = isEditSupported,
+    isAvailableOffline = isAvailableOffline,
 )
 
-fun AssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
+fun AssetContent.toUiModel(progress: Float?, isAvailableOffline: Boolean = false) = MultipartAttachmentUi(
     uuid = this.remoteData.assetId,
     source = AssetSource.ASSET_STORAGE,
     fileName = this.name,
@@ -84,4 +86,5 @@ fun AssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
     contentHash = null,
     contentUrl = null,
     isEditSupported = false,
+    isAvailableOffline = isAvailableOffline,
 )

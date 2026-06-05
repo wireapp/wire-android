@@ -149,6 +149,8 @@ class MultipartAttachmentsViewModelTest {
             .withOfflineAttachmentId("asset_1")
             .arrange()
 
+        advanceUntilIdle()
+
         val result = viewModel.mapAttachments(
             listOf(testAssetContent.copy(id = "asset_1", mimeType = "application/pdf")),
         )

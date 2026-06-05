@@ -33,7 +33,7 @@ import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 class ChangeHandleViewModel @Inject constructor(
     private val updateHandle: SetUserHandleUseCase,
     private val validateHandle: ValidateUserHandleUseCase,

@@ -36,7 +36,6 @@ import com.wire.kalium.logic.data.sync.SyncState.Waiting
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.network.NetworkState
-import dagger.Lazy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -60,8 +59,8 @@ class CommonTopAppBarViewModel(
         currentScreenManager.observeCurrentScreen(viewModelScope)
 
     private fun connectivityFlow(userId: UserId): Flow<Connectivity> =
-        coreLogic.get().sessionScope(userId) {
-            combine(observeSyncState(), coreLogic.get().networkStateObserver.observeNetworkState()) { syncState, networkState ->
+        coreLogic.value.sessionScope(userId) {
+            combine(observeSyncState(), coreLogic.value.networkStateObserver.observeNetworkState()) { syncState, networkState ->
                 when {
                     // Waiting is a pure pre-initialization state: the sync worker has not been
                     // scheduled yet. It carries no information about network health, so map it
@@ -92,7 +91,7 @@ class CommonTopAppBarViewModel(
     @VisibleForTesting
     internal suspend fun activeCallsFlow(userId: UserId): Flow<List<Call>> = when {
         !params.showActiveCalls -> flowOf(emptyList()) // assume list is always empty to not show it on the bar
-        else -> coreLogic.get().sessionScope(userId) { // otherwise observe real calls to show them on the bar
+        else -> coreLogic.value.sessionScope(userId) { // otherwise observe real calls to show them on the bar
             combine(
                 calls.establishedCall(),
                 calls.getIncomingCalls(),
@@ -105,7 +104,7 @@ class CommonTopAppBarViewModel(
 
     init {
         viewModelScope.launch {
-            coreLogic.get().globalScope {
+            coreLogic.value.globalScope {
                 session.currentSessionFlow()
                     .flatMapLatest {
                         when (it) {
@@ -144,7 +143,7 @@ class CommonTopAppBarViewModel(
                         state = state.copy(connectivityState = connectivityUIState)
                     }
             }
-            coreLogic.get().networkStateObserver.observeNetworkState().collectLatest {
+            coreLogic.value.networkStateObserver.observeNetworkState().collectLatest {
                 state = state.copy(networkState = it)
             }
         }

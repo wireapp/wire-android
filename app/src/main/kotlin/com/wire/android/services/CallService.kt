@@ -33,6 +33,7 @@ import com.wire.android.notification.CallNotificationData
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationIds
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.services.CallService.Action
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -40,7 +41,6 @@ import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import dagger.hilt.android.AndroidEntryPoint
 import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -50,12 +50,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * Service that will be started when we have an outgoing/established call.
  */
-@AndroidEntryPoint
 class CallService : Service() {
 
     @Inject
@@ -79,6 +78,7 @@ class CallService : Service() {
     }
 
     override fun onCreate() {
+        wireApplicationGraph.inject(this)
         _serviceState.value = ServiceState.STARTED
         super.onCreate()
         handleActions()

@@ -32,6 +32,8 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.metro.WireApplicationGraph
+import com.wire.android.di.metro.createWireApplicationGraph
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
@@ -52,8 +54,6 @@ import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
-import dagger.Lazy
-import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
@@ -65,12 +65,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 import kotlin.collections.filter
 
 @Suppress("TooManyFunctions")
-@HiltAndroidApp
 class WireApplication : BaseApp() {
+
+    val appGraph: WireApplicationGraph by lazy {
+        createWireApplicationGraph(this)
+    }
 
     @Inject
     @KaliumCoreLogic
@@ -109,11 +112,12 @@ class WireApplication : BaseApp() {
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
-            .setWorkerFactory(wireWorkerFactory.get())
+            .setWorkerFactory(appGraph.wireWorkerFactory)
             .setMinimumLoggingLevel(android.util.Log.DEBUG)
             .build()
 
     override fun onCreate() {
+        appGraph.inject(this)
         super.onCreate()
 
         enableStrictMode()
@@ -130,11 +134,11 @@ class WireApplication : BaseApp() {
                 ProcessLifecycleOwner.get().lifecycle.addObserver(currentScreenManager)
             }
             launch {
-                syncLifecycleManager.get().observeAppLifecycle()
+                syncLifecycleManager.value.observeAppLifecycle()
             }
 
             appLogger.i("$TAG global observers")
-            globalObserversManager.get().observe()
+            globalObserversManager.value.observe()
 
             launch { observeAssetUploadState() }
 
@@ -147,34 +151,34 @@ class WireApplication : BaseApp() {
     private suspend fun observeCallBackgroundState() {
         combine(
             currentScreenManager.isAppVisibleFlow(),
-            coreLogic.get().getGlobalScope().session.allSessionsFlow()
+            coreLogic.value.getGlobalScope().session.allSessionsFlow()
                 .filterIsInstance<GetAllSessionsResult.Success>()
                 .map { it.sessions.filter { it.isValid() } },
             ::Pair
         ).collect { (isAppVisible, validSessions) ->
             validSessions.forEach {
-                coreLogic.get().getSessionScope(it.userId).calls.setBackground(!isAppVisible)
+                coreLogic.value.getSessionScope(it.userId).calls.setBackground(!isAppVisible)
             }
         }
     }
 
     private suspend fun observeRecentlyEndedCall() {
-        coreLogic.get().getGlobalScope().session.currentSessionFlow().filterIsInstance(CurrentSessionResult.Success::class)
+        coreLogic.value.getGlobalScope().session.currentSessionFlow().filterIsInstance(CurrentSessionResult.Success::class)
             .filter { session -> session.accountInfo.isValid() }
             .flatMapLatest { session ->
-                coreLogic.get().getSessionScope(session.accountInfo.userId).calls.observeRecentlyEndedCallMetadata()
+                coreLogic.value.getSessionScope(session.accountInfo.userId).calls.observeRecentlyEndedCallMetadata()
             }
             .collect { metadata ->
-                analyticsManager.get().sendEvent(AnalyticsEvent.RecentlyEndedCallEvent(metadata))
+                analyticsManager.value.sendEvent(AnalyticsEvent.RecentlyEndedCallEvent(metadata))
             }
     }
 
     private suspend fun observeAssetUploadState() {
-        coreLogic.get().getGlobalScope().session.currentSessionFlow()
+        coreLogic.value.getGlobalScope().session.currentSessionFlow()
             .filterIsInstance<CurrentSessionResult.Success>()
             .map { it.accountInfo.userId }
             .flatMapLatest {
-                coreLogic.get().getSessionScope(it).messages.observeAssetUploadState()
+                coreLogic.value.getSessionScope(it).messages.observeAssetUploadState()
             }
             .collect { uploadInProgress ->
                 if (uploadInProgress) {
@@ -228,7 +232,7 @@ class WireApplication : BaseApp() {
                 try {
                     // Use a very short timeout to avoid delaying the crash
                     withTimeout(CRASH_FLUSH_TIMEOUT_MS) {
-                        logFileWriter.get().forceFlush()
+                        logFileWriter.value.forceFlush()
                     }
                     appLogger.i("Logs flushed before crash")
                 } catch (e: Exception) {
@@ -304,7 +308,7 @@ class WireApplication : BaseApp() {
         // 1. Datadog should be initialized first
         ExternalLoggerManager.initDatadogLogger(applicationContext)
         // 2. Initialize our internal logging framework
-        val isLoggingEnabled = globalDataStore.get().isLoggingEnabled().first()
+        val isLoggingEnabled = globalDataStore.value.isLoggingEnabled().first()
         val config = if (isLoggingEnabled) {
             KaliumLogger.Config(
                 KaliumLogLevel.VERBOSE,
@@ -317,7 +321,7 @@ class WireApplication : BaseApp() {
         AppLogger.init(config)
         CoreLogger.init(config)
         // 3. Initialize our internal FILE logging framework
-        logFileWriter.get().start()
+        logFileWriter.value.start()
         // 4. Everything ready, now we can log device info
         appLogger.i("Logger enabled")
         logDeviceInformation()
@@ -336,20 +340,20 @@ class WireApplication : BaseApp() {
         )
 
         val analyticsResultFlow = ObserveCurrentSessionAnalyticsUseCase(
-            currentSessionFlow = coreLogic.get().getGlobalScope().session.currentSessionFlow(),
+            currentSessionFlow = coreLogic.value.getGlobalScope().session.currentSessionFlow(),
             getAnalyticsContactsData = { userId ->
-                coreLogic.get().getSessionScope(userId).getAnalyticsContactsData()
+                coreLogic.value.getSessionScope(userId).getAnalyticsContactsData()
             },
             observeAnalyticsTrackingIdentifierStatusFlow = { userId ->
-                coreLogic.get().getSessionScope(userId).observeAnalyticsTrackingIdentifierStatus()
+                coreLogic.value.getSessionScope(userId).observeAnalyticsTrackingIdentifierStatus()
             },
             analyticsIdentifierManagerProvider = { userId ->
-                coreLogic.get().getSessionScope(userId).analyticsIdentifierManager
+                coreLogic.value.getSessionScope(userId).analyticsIdentifierManager
             },
-            userDataStoreProvider = userDataStoreProvider.get(),
-            globalDataStore = globalDataStore.get(),
+            userDataStoreProvider = userDataStoreProvider.value,
+            globalDataStore = globalDataStore.value,
             currentBackend = { userId ->
-                coreLogic.get().getSessionScope(userId).users.serverLinks()
+                coreLogic.value.getSessionScope(userId).users.serverLinks()
             }
         ).invoke()
 
@@ -374,9 +378,9 @@ class WireApplication : BaseApp() {
                 .isAppVisibleFlow()
                 .filter { isVisible -> isVisible }
                 .collect {
-                    val currentSessionResult = coreLogic.get().getGlobalScope().session.currentSessionFlow().first()
+                    val currentSessionResult = coreLogic.value.getGlobalScope().session.currentSessionFlow().first()
                     val isTeamMember = if (currentSessionResult is CurrentSessionResult.Success) {
-                        coreLogic.get().getSessionScope(currentSessionResult.accountInfo.userId).team.isSelfATeamMember()
+                        coreLogic.value.getSessionScope(currentSessionResult.accountInfo.userId).team.isSelfATeamMember()
                     } else {
                         null
                     }
@@ -412,7 +416,7 @@ class WireApplication : BaseApp() {
         super.onLowMemory()
         appLogger.w("onLowMemory called - Stopping logging, buckling the seatbelt and hoping for the best!")
         globalAppScope.launch {
-            logFileWriter.get().stop()
+            logFileWriter.value.stop()
         }
     }
 

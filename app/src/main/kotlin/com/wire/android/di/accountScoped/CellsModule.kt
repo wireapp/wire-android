@@ -74,140 +74,106 @@ import com.wire.kalium.cells.paginatedFilesFlowUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
 
 @Suppress("TooManyFunctions")
-@Module
-@InstallIn(ViewModelComponent::class)
+@BindingContainer
 class CellsModule {
 
-    @ViewModelScoped
     @Provides
     fun provideCellsScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount accountId: UserId,
     ): CellsScope = coreLogic.getSessionScope(accountId).cells
 
-    @ViewModelScoped
     @Provides
     fun provideAddAttachmentUseCase(cellsScope: CellsScope): AddAttachmentDraftUseCase = cellsScope.addAttachment
 
-    @ViewModelScoped
     @Provides
     fun provideRemoveAttachmentUseCase(cellsScope: CellsScope): RemoveAttachmentDraftUseCase = cellsScope.removeAttachment
 
-    @ViewModelScoped
     @Provides
     fun provideRemoveAttachmentsUseCase(cellsScope: CellsScope): RemoveAttachmentDraftsUseCase = cellsScope.removeAttachments
 
-    @ViewModelScoped
     @Provides
     fun provideObserveAttachmentsUseCase(cellsScope: CellsScope): ObserveAttachmentDraftsUseCase = cellsScope.observeAttachments
 
-    @ViewModelScoped
     @Provides
     fun providePublishAttachmentsUseCase(cellsScope: CellsScope): PublishAttachmentsUseCase = cellsScope.publishAttachments
 
-    @ViewModelScoped
     @Provides
     fun provideCellUploadManager(cellsScope: CellsScope): CellUploadManager = cellsScope.uploadManager
 
-    @ViewModelScoped
     @Provides
     fun provideObserveFilesUseCase(cellsScope: CellsScope): GetPaginatedNodesUseCase = cellsScope.observeFiles
 
-    @ViewModelScoped
     @Provides
     fun provideObservePagedFilesUseCase(cellsScope: CellsScope): GetPaginatedFilesFlowUseCase = cellsScope.paginatedFilesFlowUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideDownloadUseCase(cellsScope: CellsScope): DownloadCellFileUseCase = cellsScope.downloadCellFile
 
-    @ViewModelScoped
     @Provides
     fun provideRefreshAssetUseCase(cellsScope: CellsScope): RefreshCellAssetStateUseCase = cellsScope.refreshAsset
 
-    @ViewModelScoped
     @Provides
     fun provideDeleteCellAssetUseCase(cellsScope: CellsScope): DeleteCellAssetUseCase = cellsScope.deleteCellAssetUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideCreatePublicUrlUseCase(cellsScope: CellsScope): CreatePublicLinkUseCase = cellsScope.createPublicLinkUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideGetPublicUrlUseCase(cellsScope: CellsScope): GetPublicLinkUseCase = cellsScope.getPublicLinkUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideDeletePublicUrlUseCase(cellsScope: CellsScope): DeletePublicLinkUseCase = cellsScope.deletePublicLinkUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideRetryAttachmentUploadUseCase(cellsScope: CellsScope): RetryAttachmentUploadUseCase = cellsScope.retryAttachmentUpload
 
-    @ViewModelScoped
     @Provides
     fun provideCreateFolderUseCase(cellsScope: CellsScope): CreateFolderUseCase = cellsScope.createFolderUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideCreateSpreadsheetFileUseCase(cellsScope: CellsScope): CreateSpreadsheetFileUseCase = cellsScope.createSpreadsheetFileUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideCreateDocumentFileUseCase(cellsScope: CellsScope): CreateDocumentFileUseCase = cellsScope.createDocumentFileUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideCreatePresentationFileUseCase(cellsScope: CellsScope): CreatePresentationFileUseCase =
         cellsScope.createPresentationFileUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideMoveNodeUseCase(cellsScope: CellsScope): MoveNodeUseCase = cellsScope.moveNodeUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideGetFoldersUseCase(cellsScope: CellsScope): GetFoldersUseCase = cellsScope.getFoldersUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideRestoreNodeFromRecycleBinUseCase(cellsScope: CellsScope): RestoreNodeFromRecycleBinUseCase =
         cellsScope.restoreNodeFromRecycleBin
 
-    @ViewModelScoped
     @Provides
     fun provideRenameNodeUseCase(cellsScope: CellsScope): RenameNodeUseCase =
         cellsScope.renameNodeUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideGetAllTagsUseCase(cellsScope: CellsScope): GetAllTagsUseCase = cellsScope.getAllTags
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateNodeTagsUseCase(cellsScope: CellsScope): UpdateNodeTagsUseCase = cellsScope.updateNodeTagsUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideRemoveNodeTagsUseCase(cellsScope: CellsScope): RemoveNodeTagsUseCase = cellsScope.removeNodeTagsUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideCellAvailableUseCase(cellsScope: CellsScope): IsAtLeastOneCellAvailableUseCase = cellsScope.isCellAvailable
 
-    @ViewModelScoped
     @Provides
     fun provideGetAttachmentUseCase(cellsScope: CellsScope): GetMessageAttachmentUseCase = cellsScope.getMessageAttachmentUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideGetOwnersUseCase(cellsScope: CellsScope): GetOwnersUseCase = cellsScope.getOwnersUseCase
 
@@ -236,50 +202,40 @@ class CellsModule {
     @Provides
     fun provideEditorUrlUseCase(cellsScope: CellsScope): GetEditorUrlUseCase = cellsScope.getEditorUrl
 
-    @ViewModelScoped
     @Provides
     fun provideGetNodeVersionsUseCase(cellsScope: CellsScope): GetNodeVersionsUseCase =
         cellsScope.getNodeVersions
 
-    @ViewModelScoped
     @Provides
     fun provideRestoreNodeVersionUseCase(cellsScope: CellsScope): RestoreNodeVersionUseCase =
         cellsScope.restoreNodeVersion
 
-    @ViewModelScoped
     @Provides
     fun provideDownloadCellVersionUseCase(cellsScope: CellsScope): DownloadCellVersionUseCase =
         cellsScope.downloadCellVersion
 
-    @ViewModelScoped
     @Provides
     fun provideRefreshHelper(cellsScope: CellsScope, kaliumConfigs: KaliumConfigs): CellAssetRefreshHelper = CellAssetRefreshHelper(
         refreshAsset = cellsScope.refreshAsset,
         featureFlags = kaliumConfigs
     )
 
-    @ViewModelScoped
     @Provides
     fun provideGetCellsConfigUseCase(cellsScope: CellsScope): GetWireCellConfigurationUseCase = cellsScope.getCellConfig
 
-    @ViewModelScoped
     @Provides
     fun provideGetPaginatedConversationsFlowUseCase(cellsScope: CellsScope): GetPaginatedCellConversationsFlowUseCase =
         cellsScope.paginatedConversationsFlowUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideSaveOfflineFileUseCase(cellsScope: CellsScope): SaveOfflineFileUseCase = cellsScope.saveOfflineFile
 
-    @ViewModelScoped
     @Provides
     fun provideDeleteOfflineFileUseCase(cellsScope: CellsScope): DeleteOfflineFileUseCase = cellsScope.deleteOfflineFile
 
-    @ViewModelScoped
     @Provides
     fun provideObserveOfflineFilesUseCase(cellsScope: CellsScope): ObserveOfflineFilesUseCase = cellsScope.observeOfflineFiles
 
-    @ViewModelScoped
     @Provides
     fun provideObserveOfflineFilesByConversationUseCase(cellsScope: CellsScope): ObserveOfflineFilesByConversationUseCase =
         cellsScope.observeOfflineFilesByConversation
@@ -288,11 +244,9 @@ class CellsModule {
     @Provides
     fun provideGetOfflineFileUseCase(cellsScope: CellsScope): GetOfflineFileUseCase = cellsScope.getOfflineFile
 
-    @ViewModelScoped
     @Provides
     fun provideGetConversationNamesUseCase(cellsScope: CellsScope): GetConversationNameUseCase = cellsScope.getConversationName
 
-    @ViewModelScoped
     @Provides
     fun provideGetUserNamesUseCase(cellsScope: CellsScope): GetUserNameUseCase = cellsScope.getUserName
 }

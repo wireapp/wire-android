@@ -60,7 +60,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 class OtherUserProfileScreenViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,

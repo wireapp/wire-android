@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class EnterLockScreenViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,

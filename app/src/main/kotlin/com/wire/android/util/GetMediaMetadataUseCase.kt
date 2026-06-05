@@ -19,7 +19,7 @@ package com.wire.android.util
 
 import com.wire.kalium.logic.data.message.AssetContent
 import okio.Path
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * Thin wrapper around [MediaMetadata.getMediaMetadata] that allows it to be injected

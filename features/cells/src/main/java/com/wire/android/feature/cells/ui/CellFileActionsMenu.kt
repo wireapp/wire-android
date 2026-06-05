@@ -22,7 +22,7 @@ import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.isEditSupported
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 @Suppress("CyclomaticComplexMethod", "LongParameterList")
 class CellFileActionsMenu @Inject constructor(

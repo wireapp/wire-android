@@ -60,6 +60,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import com.wire.android.assertions.shouldBeEqualTo
+import com.wire.android.ui.home.conversations.messages.item.withOfflineIndicator
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -255,7 +256,7 @@ class ConversationMessagesViewModelTest {
         ).asSnapshot()
 
         assertEquals(
-            listOf("offline-message:$TEST_CONVERSATION_ID", "sent"),
+            listOf("offline-message:$TEST_CONVERSATION_ID:before:sent", "sent"),
             snapshot.map { it.header.messageId }
         )
     }
@@ -273,7 +274,7 @@ class ConversationMessagesViewModelTest {
             ).asSnapshot()
 
             assertEquals(
-                listOf("pending-1", "pending-2", "offline-message:$TEST_CONVERSATION_ID", "sent"),
+                listOf("pending-1", "pending-2", "offline-message:$TEST_CONVERSATION_ID:after:pending-2", "sent"),
                 snapshot.map { it.header.messageId }
             )
         }
@@ -295,11 +296,11 @@ class ConversationMessagesViewModelTest {
             PagingData.from(emptyList<UIMessage>()).withOfflineIndicator(TEST_CONVERSATION_ID, isOffline = true)
         ).asSnapshot()
 
-        assertEquals(listOf("offline-message:$TEST_CONVERSATION_ID"), snapshot.map { it.header.messageId })
+        assertEquals(listOf("offline-message:$TEST_CONVERSATION_ID:empty"), snapshot.map { it.header.messageId })
     }
 
     @Test
-    fun `given network becomes disconnected, when observing messages, then offline message is shown`() = runTest {
+    fun `given network becomes disconnected with no pending messages, when observing messages, then offline message is shown`() = runTest {
         val message = regularMessage(id = "sent")
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
@@ -314,13 +315,13 @@ class ConversationMessagesViewModelTest {
             advanceUntilIdle()
 
             awaitMessageIds(
-                expectedMessageIds = listOf("offline-message:${arrangement.conversationId}", "sent")
+                expectedMessageIds = listOf("offline-message:${arrangement.conversationId}:before:sent", "sent")
             )
         }
     }
 
     @Test
-    fun `given network is connected without internet, when observing messages, then offline message is shown`() = runTest {
+    fun `given network is connected without internet with no pending messages, when observing messages, then offline message is shown`() = runTest {
         val message = regularMessage(id = "sent")
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
@@ -332,7 +333,7 @@ class ConversationMessagesViewModelTest {
             arrangement.withPaginatedMessagesReturning(PagingData.from(listOf(message)))
 
             assertEquals(
-                listOf("offline-message:${arrangement.conversationId}", "sent"),
+                listOf("offline-message:${arrangement.conversationId}:before:sent", "sent"),
                 flowOf(awaitItem()).asSnapshot().map { it.header.messageId }
             )
         }
@@ -350,7 +351,7 @@ class ConversationMessagesViewModelTest {
         viewModel.conversationViewState.messages.test {
             arrangement.withPaginatedMessagesReturning(PagingData.from(listOf(message)))
             assertEquals(
-                listOf("offline-message:${arrangement.conversationId}", "sent"),
+                listOf("offline-message:${arrangement.conversationId}:before:sent", "sent"),
                 flowOf(awaitItem()).asSnapshot().map { it.header.messageId }
             )
 

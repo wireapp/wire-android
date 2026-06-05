@@ -71,7 +71,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 // TODO cover this class with unit test
 // Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "LongParameterList")

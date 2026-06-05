@@ -25,7 +25,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapLatest
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class GetUsersForMessageUseCase @Inject constructor(
     private val observeMemberDetailsByIds: ObserveUserListByIdUseCase,

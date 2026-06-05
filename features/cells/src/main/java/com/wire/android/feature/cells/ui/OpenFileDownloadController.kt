@@ -33,8 +33,8 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import okio.Path
 import okio.Path.Companion.toOkioPath
+import dev.zacsweers.metro.Inject
 import java.io.File
-import javax.inject.Inject
 
 /**
  * Controller responsible for managing the download and open flow for cell files.

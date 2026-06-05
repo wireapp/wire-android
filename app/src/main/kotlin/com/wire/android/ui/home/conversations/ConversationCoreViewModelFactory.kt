@@ -114,7 +114,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificati
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.network.NetworkStateObserver
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationCoreViewModelFactory @Inject constructor(

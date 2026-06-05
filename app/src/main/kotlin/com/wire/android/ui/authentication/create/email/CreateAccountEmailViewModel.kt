@@ -35,7 +35,7 @@ import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScop
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 // TODO: Cover this viewModel  with unit test
 class CreateAccountEmailViewModel @Inject constructor(

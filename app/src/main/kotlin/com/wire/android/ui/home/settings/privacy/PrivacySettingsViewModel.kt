@@ -40,7 +40,7 @@ import com.wire.kalium.logic.feature.user.typingIndicator.TypingIndicatorConfigR
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 @Suppress("LongParameterList")
 class PrivacySettingsViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,

@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
 @ViewModelScopedPreview
 interface SelfDeletingMessageActionViewModel {
     fun state(): SelfDeletionTimer = SelfDeletionTimer.Disabled

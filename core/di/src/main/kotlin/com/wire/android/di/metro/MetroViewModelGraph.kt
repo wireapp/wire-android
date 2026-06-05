@@ -35,7 +35,7 @@ interface MetroViewModelGraph {
 }
 
 /**
- * Temporary Android Compose bridge used while moving ViewModel creation from Hilt to Metro.
+ * Temporary Android Compose bridge used while moving ViewModel creation to Metro.
  *
  * Reusable UI should not treat this as a general DI entry point. The target direction is to keep
  * common UI components UI-only and pass state, callbacks, or narrow models from screen/container

@@ -28,7 +28,6 @@ import com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConver
 import com.wire.kalium.logic.data.id.QualifiedID
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-
 @ViewModelScopedPreview
 interface TypingIndicatorViewModel {
     fun state(): UsersTypingViewState = UsersTypingViewState()

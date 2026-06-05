@@ -45,6 +45,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runCurrent
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 typealias OpenImageCallback = (s: String) -> Unit
@@ -151,7 +152,9 @@ class MultipartAttachmentsViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        runCurrent()
+        assertTrue(
+            viewModel.offlineAttachmentIds.value.contains("asset_1")
+        )
 
         val result = viewModel.mapAttachments(
             listOf(testAssetContent.copy(id = "asset_1", mimeType = "application/pdf")),

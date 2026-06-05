@@ -18,8 +18,10 @@
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
@@ -28,6 +30,7 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
@@ -125,7 +128,7 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
 @HiltViewModel
 @Suppress("LongParameterList")
 class MultipartAttachmentsViewModelImpl @Inject constructor(
-    private val conversationId: ConversationId,
+    savedStateHandle: SavedStateHandle,
     private val refreshHelper: CellAssetRefreshHelper,
     private val download: DownloadCellFileUseCase,
     private val getEditorUrl: GetEditorUrlUseCase,
@@ -136,6 +139,8 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
+
+    private val conversationId = savedStateHandle.navArgs<ConversationNavArgs>().conversationId
 
     private val uploadProgress = mutableStateMapOf<String, Float>()
     override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFilesByConversation(conversationId)

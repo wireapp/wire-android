@@ -129,7 +129,7 @@ object AppModule {
     @Provides
     fun provideGetMediaMetadataUseCase(): GetMediaMetadataUseCase = GetMediaMetadataUseCaseImpl()
 
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
     fun provideAiModelSelectionStore(store: GlobalDataStore): AiModelSelectionStore = GlobalDataStoreAiModelSelectionStore(store)
 }

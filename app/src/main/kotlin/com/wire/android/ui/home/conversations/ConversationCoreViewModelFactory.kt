@@ -20,6 +20,8 @@ package com.wire.android.ui.home.conversations
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.di.CurrentAccount
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.aiassistant.AiMessageComposerAgent
+import com.wire.android.ui.home.messagecomposer.AiMessageComposerViewModel
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.mapper.ContactMapper
@@ -194,7 +196,10 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     private val networkStateObserver: NetworkStateObserver,
     @CurrentAccount private val selfUserId: UserId,
+    private val aiMessageComposerAgent: AiMessageComposerAgent,
 ) {
+    fun aiMessageComposerViewModel() = AiMessageComposerViewModel(aiMessageComposerAgent)
+
     fun conversationMessagesViewModel(savedStateHandle: SavedStateHandle) = ConversationMessagesViewModel(
         savedStateHandle = savedStateHandle,
         observeConversationDetails = observeConversationDetails,

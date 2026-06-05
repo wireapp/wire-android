@@ -21,7 +21,7 @@ import com.google.ai.edge.litertlm.ConversationConfig
 import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
 import com.google.ai.edge.litertlm.Message
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 interface LiteRtLmInferenceFactory {
     fun create(modelPath: String, initialExchanges: List<Pair<String, String>> = emptyList()): LiteRtLmInference

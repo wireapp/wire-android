@@ -17,12 +17,12 @@
 package com.wire.android.feature.aiassistant.storage
 
 import android.content.Context
+import com.wire.android.di.ApplicationContext
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.zacsweers.metro.Inject
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
-import javax.inject.Inject
 
 class PrivateFileAiModelStorage @Inject constructor(
     @param:ApplicationContext private val context: Context

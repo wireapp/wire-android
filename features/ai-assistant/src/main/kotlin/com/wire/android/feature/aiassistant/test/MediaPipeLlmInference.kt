@@ -18,8 +18,8 @@ package com.wire.android.feature.aiassistant.test
 
 import android.content.Context
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
+import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Inject
 
 interface MediaPipeLlmInferenceFactory {
     fun create(modelPath: String): MediaPipeLlmInference

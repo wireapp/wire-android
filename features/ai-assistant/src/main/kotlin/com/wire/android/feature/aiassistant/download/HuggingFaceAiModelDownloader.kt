@@ -21,11 +21,11 @@ import com.wire.android.feature.aiassistant.model.AiModelDownloadState
 import com.wire.android.feature.aiassistant.model.FailureReason
 import com.wire.android.feature.aiassistant.storage.AiModelStorage
 import com.wire.android.util.dispatchers.DispatcherProvider
+import dev.zacsweers.metro.Inject
 import java.io.File
 import java.io.IOException
 import java.security.MessageDigest
 import java.util.Locale
-import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

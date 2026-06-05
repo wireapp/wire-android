@@ -45,6 +45,7 @@ import com.wire.android.di.accountScoped.SearchModule
 import com.wire.android.di.accountScoped.ServicesModule
 import com.wire.android.di.accountScoped.TeamModule
 import com.wire.android.di.accountScoped.UserModule
+import com.wire.android.feature.aiassistant.di.AiAssistantModule
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.IncomingCallActionReceiver
 import com.wire.android.notification.broadcastreceivers.NomadLogoutReceiver
@@ -96,6 +97,7 @@ import dev.zacsweers.metro.createGraphFactory
         ServicesModule::class,
         TeamModule::class,
         UserModule::class,
+        AiAssistantModule::class,
     ]
 )
 @Suppress("TooManyFunctions")

@@ -25,6 +25,8 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.ScopedArgsTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
+import com.wire.android.feature.aiassistant.AiModelManager
+import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.ui.debug.DebugDataOptionsViewModelImpl
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
@@ -309,104 +311,6 @@ class DebugDataOptionsViewModelTest {
         coVerify(exactly = 1) { arrangement.checkCrlRevocationList(forceUpdate = true) }
     }
 
-    @Test
-    fun `given ai model is not downloaded, then ai model option shows download button`() = runTest {
-        // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
-            .withAiModelStatus(AiModelStatus.NotDownloaded)
-            .arrange()
-
-        assertEquals("Not downloaded", viewModel.state.aiModelOptionState.statusText)
-        assertEquals(true, viewModel.state.aiModelOptionState.showDownloadButton)
-        assertEquals(false, viewModel.state.aiModelOptionState.isDownloading)
-    }
-
-    @Test
-    fun `given ai model is downloading with progress, then ai model option shows progress and loading button`() = runTest {
-        // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
-            .withAiModelStatus(AiModelStatus.Downloading(0.5F))
-            .arrange()
-
-        assertEquals("Downloading 50%", viewModel.state.aiModelOptionState.statusText)
-        assertEquals(true, viewModel.state.aiModelOptionState.showDownloadButton)
-        assertEquals(true, viewModel.state.aiModelOptionState.isDownloading)
-    }
-
-    @Test
-    fun `given ai model is ready, then ai model option shows downloaded and hides download button`() = runTest {
-        // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
-            .withAiModelStatus(AiModelStatus.Ready("localPath"))
-            .arrange()
-
-        assertEquals("Downloaded", viewModel.state.aiModelOptionState.statusText)
-        assertEquals(false, viewModel.state.aiModelOptionState.showDownloadButton)
-        assertEquals(false, viewModel.state.aiModelOptionState.isDownloading)
-    }
-
-    @Test
-    fun `given ai model is not downloaded, when downloading, then model download is started`() = runTest {
-        // given
-        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
-            .withAiModelStatus(AiModelStatus.NotDownloaded)
-            .withAiModelDownloadState(AiModelDownloadState.Ready("localPath"))
-            .arrange()
-
-        // when
-        viewModel.downloadAiModel()
-
-        // then
-        verify(exactly = 1) { arrangement.aiModelManager.downloadModel() }
-    }
-
-    @Test
-    fun `given ai model is downloading, when downloading, then model download is not started again`() = runTest {
-        // given
-        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
-            .withAiModelStatus(AiModelStatus.Downloading(0.5F))
-            .arrange()
-
-        // when
-        viewModel.downloadAiModel()
-
-        // then
-        verify(exactly = 0) { arrangement.aiModelManager.downloadModel() }
-    }
-
-    @Test
-    fun `given ai model authorization is required, when downloading, then info message emits authorization error`() = runTest {
-        // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
-            .withAiModelStatus(AiModelStatus.NotDownloaded)
-            .withAiModelDownloadState(AiModelDownloadState.AuthRequired)
-            .arrange()
-
-        viewModel.infoMessage.test {
-            // when
-            viewModel.downloadAiModel()
-
-            // then
-            assertEquals(UIText.DynamicString("AI model download requires Hugging Face authorization"), awaitItem())
-        }
-    }
-
-    @Test
-    fun `given ai model download fails, when downloading, then info message emits failure`() = runTest {
-        // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
-            .withAiModelStatus(AiModelStatus.NotDownloaded)
-            .withAiModelDownloadState(AiModelDownloadState.Failed(FailureReason.Network))
-            .arrange()
-
-        viewModel.infoMessage.test {
-            // when
-            viewModel.downloadAiModel()
-
-            // then
-            assertEquals(UIText.DynamicString("AI model download failed: Network"), awaitItem())
-        }
-    }
 }
 
 internal class DebugDataOptionsArrangement {
@@ -527,8 +431,7 @@ internal class DebugDataOptionsArrangement {
             coEvery { setDebugE2EICertificateExpiration(any()) } returns Unit
             every { observeDebugCRLExpirationAfterOneMinute() } returns flowOf(false)
             coEvery { setDebugCRLExpirationAfterOneMinute(any()) } returns Unit
-            withAiModelStatus(AiModelStatus.NotDownloaded)
-            withAiModelDownloadState()
+            every { aiModelManager.observeModelStatus() } returns flowOf(AiModelStatus.NotDownloaded)
         }
     }
 

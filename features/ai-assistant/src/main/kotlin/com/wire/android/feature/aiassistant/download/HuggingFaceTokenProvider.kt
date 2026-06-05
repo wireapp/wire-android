@@ -18,7 +18,7 @@ package com.wire.android.feature.aiassistant.download
 
 import com.wire.android.feature.ai_assistant.BuildConfig
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 data class HuggingFaceDownloadAuthorization(
     val token: String,

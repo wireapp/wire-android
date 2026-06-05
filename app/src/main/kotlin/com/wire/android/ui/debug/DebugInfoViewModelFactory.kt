@@ -21,6 +21,9 @@ import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
+import com.wire.android.feature.aiassistant.AiEmbeddingModelManager
+import com.wire.android.feature.aiassistant.AiModelManager
+import com.wire.android.feature.aiassistant.test.AiModelTestEngine
 import com.wire.android.ui.debug.conversation.DebugConversationViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
@@ -95,6 +98,9 @@ class DebugInfoViewModelFactory @Inject constructor(
     private val getConversationEpochFromCC: GetConversationEpochFromCCUseCase,
     private val getConversationCryptoStats: GetConversationCryptoStatsUseCase,
     private val getFeatureConfig: GetFeatureConfigUseCase,
+    private val aiModelManager: AiModelManager,
+    private val aiEmbeddingModelManager: AiEmbeddingModelManager,
+    private val aiModelTestEngine: AiModelTestEngine,
 ) {
     fun userDebugViewModel() = UserDebugViewModel(
         currentAccount = currentAccount,
@@ -129,6 +135,13 @@ class DebugInfoViewModelFactory @Inject constructor(
         setDebugE2EICertificateExpiration = setDebugE2EICertificateExpiration,
         observeDebugCRLExpirationAfterOneMinute = observeDebugCRLExpirationAfterOneMinute,
         setDebugCRLExpirationAfterOneMinute = setDebugCRLExpirationAfterOneMinute,
+        aiModelManager = aiModelManager,
+    )
+
+    fun aiAssistantDebugViewModel() = AiAssistantDebugViewModelImpl(
+        aiModelManager = aiModelManager,
+        aiEmbeddingModelManager = aiEmbeddingModelManager,
+        aiModelTestEngine = aiModelTestEngine,
     )
 
     fun exportObfuscatedCopyViewModel() = ExportObfuscatedCopyViewModelImpl(

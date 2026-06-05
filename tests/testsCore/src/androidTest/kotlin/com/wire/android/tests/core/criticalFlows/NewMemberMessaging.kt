@@ -56,7 +56,7 @@ class NewMemberMessaging : BaseUiTest() {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
         testServiceHelper = TestServiceHelper(teamHelper.usersManager)

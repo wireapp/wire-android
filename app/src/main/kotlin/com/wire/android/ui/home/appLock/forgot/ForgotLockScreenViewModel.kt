@@ -39,7 +39,7 @@ import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
 class ForgotLockScreenViewModel @Inject constructor(

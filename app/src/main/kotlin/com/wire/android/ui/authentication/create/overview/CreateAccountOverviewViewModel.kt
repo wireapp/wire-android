@@ -21,7 +21,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class CreateAccountOverviewViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

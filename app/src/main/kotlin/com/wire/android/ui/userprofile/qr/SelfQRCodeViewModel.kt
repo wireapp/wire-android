@@ -41,7 +41,7 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.FileOutputStream
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 class SelfQRCodeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val context: Context,

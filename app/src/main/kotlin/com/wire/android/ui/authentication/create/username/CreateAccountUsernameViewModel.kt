@@ -36,7 +36,7 @@ import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class CreateAccountUsernameViewModel @Inject constructor(
     private val validateUserHandleUseCase: ValidateUserHandleUseCase,

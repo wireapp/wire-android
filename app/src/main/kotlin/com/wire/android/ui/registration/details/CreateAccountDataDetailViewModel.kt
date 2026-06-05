@@ -40,7 +40,7 @@ import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 import kotlin.time.Duration.Companion.seconds
 
 class CreateAccountDataDetailViewModel @Inject constructor(

@@ -34,21 +34,15 @@ import com.wire.android.util.DataDogLogger
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.common.logger.CoreLogger
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-@HiltAndroidTest
 class WireActivityTest {
 
-    @get:Rule(order = 0)
-    var hiltRule = HiltAndroidRule(this)
-
-    @get:Rule(order = 1)
+    @get:Rule
     val composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<WireActivity>, WireActivity> =
         createAndroidComposeRule<WireActivity>()
 
@@ -58,7 +52,6 @@ class WireActivityTest {
         context.deleteDatabase("global-db") // GLOBAL_DB_NAME in FileNameUtil
         WorkManagerTestInitHelper.initializeTestWorkManager(context)
         initializeApplicationLoggingFrameworks()
-        hiltRule.inject()
     }
 
     @Ignore // TODO add other api mocks to not have flaky test

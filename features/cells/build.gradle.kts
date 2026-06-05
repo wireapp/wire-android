@@ -1,7 +1,6 @@
 plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
     id(libs.plugins.wire.kover.get().pluginId)
-    id(libs.plugins.wire.hilt.get().pluginId)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
     alias(libs.plugins.ksp)

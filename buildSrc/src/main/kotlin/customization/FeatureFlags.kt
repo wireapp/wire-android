@@ -41,7 +41,7 @@ object FeatureFlags {
         ),
 
         //Enabled Features for INTERNAL Product Flavor
-        ProductFlavors.Internal to setOf(
+        ProductFlavors.Alpha to setOf(
             Features.FEATURE_CONVERSATIONS
         )
     )

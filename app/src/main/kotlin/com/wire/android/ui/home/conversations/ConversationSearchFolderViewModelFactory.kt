@@ -50,7 +50,7 @@ import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import com.wire.kalium.logic.feature.service.SyncServicesUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
 class ConversationSearchFolderViewModelFactory @Inject constructor(

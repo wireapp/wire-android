@@ -9,7 +9,5 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.compose.activity)
     implementation(libs.androidx.lifecycle.viewModelCompose)
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigationCompose)
     implementation(libs.compose.material3)
 }

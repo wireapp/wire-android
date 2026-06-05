@@ -40,7 +40,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import kotlinx.datetime.Instant
 import java.util.Locale
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("TooManyFunctions")

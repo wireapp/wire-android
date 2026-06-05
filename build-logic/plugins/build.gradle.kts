@@ -57,10 +57,6 @@ gradlePlugin {
             id = libs.plugins.wire.android.application.get().pluginId
             implementationClass = "AndroidApplicationConventionPlugin"
         }
-        register("wireHiltConventionPlugin") {
-            id = libs.plugins.wire.hilt.get().pluginId
-            implementationClass = "HiltConventionPlugin"
-        }
         register("wireKoverConventionPlugin") {
             id = libs.plugins.wire.kover.get().pluginId
             implementationClass = "KoverConventionPlugin"

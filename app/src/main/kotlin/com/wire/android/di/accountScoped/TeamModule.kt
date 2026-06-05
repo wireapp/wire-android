@@ -24,29 +24,22 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.team.SyncSelfTeamInfoUseCase
 import com.wire.kalium.logic.feature.team.TeamScope
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
 
-@Module
-@InstallIn(ViewModelComponent::class)
+@BindingContainer
 class TeamModule {
 
-    @ViewModelScoped
     @Provides
     fun provideTeamScope(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
     ): TeamScope = coreLogic.getSessionScope(currentAccount).team
 
-    @ViewModelScoped
     @Provides
     fun provideSyncSelfTeamInfoUseCase(teamScope: TeamScope): SyncSelfTeamInfoUseCase =
         teamScope.syncSelfTeamInfoUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideIsSelfATeamMemberUseCase(teamScope: TeamScope): IsSelfATeamMemberUseCase =
         teamScope.isSelfATeamMember

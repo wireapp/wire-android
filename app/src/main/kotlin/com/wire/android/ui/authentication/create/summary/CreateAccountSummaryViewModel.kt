@@ -25,7 +25,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.ramcosta.composedestinations.generated.app.navArgs
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class CreateAccountSummaryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle

@@ -124,8 +124,8 @@ class AnalyticsUsageViewModelTest {
 
         fun arrange(analyticsConfiguration: AnalyticsConfiguration) = this to AnalyticsUsageViewModel(
             analyticsEnabled = analyticsConfiguration,
-            dataStore = { dataStore },
-            selfServerConfig = { selfServerConfig },
+            dataStore = lazyOf(dataStore),
+            selfServerConfig = lazyOf(selfServerConfig),
         )
     }
 

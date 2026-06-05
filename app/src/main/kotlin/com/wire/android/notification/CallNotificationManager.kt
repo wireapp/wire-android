@@ -56,10 +56,11 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 @Suppress("TooManyFunctions")
 class CallNotificationManager @Inject constructor(
     context: Context,
@@ -208,7 +209,7 @@ class CallNotificationManager @Inject constructor(
     }
 }
 
-@Singleton
+@SingleIn(AppScope::class)
 class CallNotificationBuilder @Inject constructor(
     private val context: Context,
 ) {

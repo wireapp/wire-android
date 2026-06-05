@@ -77,9 +77,9 @@ import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Provider
+import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Provider
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class SettingsViewModelFactory @Inject constructor(
@@ -137,91 +137,93 @@ class SettingsViewModelFactory @Inject constructor(
     private val addMemberToConversation: Provider<AddMemberToConversationUseCase>,
     private val getOrCreateOneToOneConversation: Provider<GetOrCreateOneToOneConversationUseCase>,
 ) {
-    fun settingsViewModel() = settingsViewModel.get()
-    fun myAccountViewModel() = myAccountViewModel.get()
-    fun deleteAccountViewModel() = deleteAccountViewModel.get()
-    fun changeDisplayNameViewModel() = changeDisplayNameViewModel.get()
-    fun changeUserColorViewModel() = changeUserColorViewModel.get()
-    fun changeEmailViewModel() = changeEmailViewModel.get()
-    fun changeHandleViewModel() = changeHandleViewModel.get()
-    fun customizationViewModel() = customizationViewModel.get()
-    fun networkSettingsViewModel() = networkSettingsViewModel.get()
-    fun privacySettingsViewModel() = privacySettingsViewModel.get()
-    fun backupAndRestoreViewModel() = backupAndRestoreViewModel.get()
-    fun setLockScreenViewModel() = setLockScreenViewModel.get()
-    fun forgotLockScreenViewModel() = forgotLockScreenViewModel.get()
-    fun appUnlockWithBiometricsViewModel() = appUnlockWithBiometricsViewModel.get()
-    fun enterLockScreenViewModel() = enterLockScreenViewModel.get()
-    fun selfDevicesViewModel() = selfDevicesViewModel.get()
-    fun avatarPickerViewModel() = avatarPickerViewModel.get()
-    fun selfUserProfileViewModel() = selfUserProfileViewModel.get()
-    fun teamMigrationViewModel() = teamMigrationViewModel.get()
+    fun settingsViewModel(): SettingsViewModel = settingsViewModel.invoke()
+    fun myAccountViewModel(): MyAccountViewModel = myAccountViewModel.invoke()
+    fun deleteAccountViewModel(): DeleteAccountViewModel = deleteAccountViewModel.invoke()
+    fun changeDisplayNameViewModel(): ChangeDisplayNameViewModel = changeDisplayNameViewModel.invoke()
+    fun changeUserColorViewModel(): ChangeUserColorViewModel = changeUserColorViewModel.invoke()
+    fun changeEmailViewModel(): ChangeEmailViewModel = changeEmailViewModel.invoke()
+    fun changeHandleViewModel(): ChangeHandleViewModel = changeHandleViewModel.invoke()
+    fun customizationViewModel(): CustomizationViewModel = customizationViewModel.invoke()
+    fun networkSettingsViewModel(): NetworkSettingsViewModel = networkSettingsViewModel.invoke()
+    fun privacySettingsViewModel(): PrivacySettingsViewModel = privacySettingsViewModel.invoke()
+    fun backupAndRestoreViewModel(): BackupAndRestoreViewModel = backupAndRestoreViewModel.invoke()
+    fun setLockScreenViewModel(): SetLockScreenViewModel = setLockScreenViewModel.invoke()
+    fun forgotLockScreenViewModel(): ForgotLockScreenViewModel = forgotLockScreenViewModel.invoke()
+    fun appUnlockWithBiometricsViewModel(): AppUnlockWithBiometricsViewModel = appUnlockWithBiometricsViewModel.invoke()
+    fun enterLockScreenViewModel(): EnterLockScreenViewModel = enterLockScreenViewModel.invoke()
+    fun selfDevicesViewModel(): SelfDevicesViewModel = selfDevicesViewModel.invoke()
+    fun avatarPickerViewModel(): AvatarPickerViewModel = avatarPickerViewModel.invoke()
+    fun selfUserProfileViewModel(): SelfUserProfileViewModel = selfUserProfileViewModel.invoke()
+    fun teamMigrationViewModel(): TeamMigrationViewModel = teamMigrationViewModel.invoke()
 
-    fun verifyEmailViewModel(savedStateHandle: SavedStateHandle) = VerifyEmailViewModel(
-        updateEmail = updateEmail.get(),
+    fun verifyEmailViewModel(savedStateHandle: SavedStateHandle): VerifyEmailViewModel = VerifyEmailViewModel(
+        updateEmail = updateEmail(),
         savedStateHandle = savedStateHandle,
     )
 
-    fun e2eiCertificateDetailsViewModel(savedStateHandle: SavedStateHandle) = E2eiCertificateDetailsViewModel(
+    fun e2eiCertificateDetailsViewModel(savedStateHandle: SavedStateHandle): E2eiCertificateDetailsViewModel =
+        E2eiCertificateDetailsViewModel(
+            savedStateHandle = savedStateHandle,
+            getSelfUser = getSelfUser(),
+        )
+
+    fun deviceDetailsViewModel(savedStateHandle: SavedStateHandle): DeviceDetailsViewModel = DeviceDetailsViewModel(
         savedStateHandle = savedStateHandle,
-        getSelfUser = getSelfUser.get(),
+        currentUserId = currentUserId(),
+        deleteClient = deleteClient(),
+        observeClientDetails = observeClientDetails(),
+        isPasswordRequired = isPasswordRequired(),
+        fingerprintUseCase = fingerprintUseCase(),
+        updateClientVerificationStatus = updateClientVerificationStatus(),
+        observeUserInfo = observeUserInfo(),
+        mlsClientIdentity = mlsClientIdentity(),
+        breakSession = breakSession(),
+        isE2EIEnabledUseCase = isE2EIEnabledUseCase(),
     )
 
-    fun deviceDetailsViewModel(savedStateHandle: SavedStateHandle) = DeviceDetailsViewModel(
+    fun selfQRCodeViewModel(savedStateHandle: SavedStateHandle): SelfQRCodeViewModel = SelfQRCodeViewModel(
         savedStateHandle = savedStateHandle,
-        currentUserId = currentUserId.get(),
-        deleteClient = deleteClient.get(),
-        observeClientDetails = observeClientDetails.get(),
-        isPasswordRequired = isPasswordRequired.get(),
-        fingerprintUseCase = fingerprintUseCase.get(),
-        updateClientVerificationStatus = updateClientVerificationStatus.get(),
-        observeUserInfo = observeUserInfo.get(),
-        mlsClientIdentity = mlsClientIdentity.get(),
-        breakSession = breakSession.get(),
-        isE2EIEnabledUseCase = isE2EIEnabledUseCase.get(),
+        context = context(),
+        selfUserId = currentUserId(),
+        selfServerLinks = selfServerLinks(),
+        kaliumFileSystem = kaliumFileSystem(),
+        dispatchers = dispatchers(),
+        analyticsManager = analyticsManager(),
     )
 
-    fun selfQRCodeViewModel(savedStateHandle: SavedStateHandle) = SelfQRCodeViewModel(
-        savedStateHandle = savedStateHandle,
-        context = context.get(),
-        selfUserId = currentUserId.get(),
-        selfServerLinks = selfServerLinks.get(),
-        kaliumFileSystem = kaliumFileSystem.get(),
-        dispatchers = dispatchers.get(),
-        analyticsManager = analyticsManager.get(),
-    )
+    fun otherUserProfileScreenViewModel(savedStateHandle: SavedStateHandle): OtherUserProfileScreenViewModel =
+        OtherUserProfileScreenViewModel(
+            dispatchers = dispatchers(),
+            observeUserInfo = observeUserInfo(),
+            userTypeMapper = userTypeMapper(),
+            observeConversationRoleForUser = observeConversationRoleForUser(),
+            removeMemberFromConversation = removeMemberFromConversation(),
+            updateMemberRole = updateMemberRole(),
+            observeClientList = observeClientList(),
+            fetchUsersClients = fetchUsersClients(),
+            getUserE2eiCertificateStatus = getUserE2eiCertificateStatus(),
+            isOneToOneConversationCreated = isOneToOneConversationCreated(),
+            mlsClientIdentity = mlsClientIdentity(),
+            isE2EIEnabled = isE2EIEnabledUseCase(),
+            savedStateHandle = savedStateHandle,
+        )
 
-    fun otherUserProfileScreenViewModel(savedStateHandle: SavedStateHandle) = OtherUserProfileScreenViewModel(
-        dispatchers = dispatchers.get(),
-        observeUserInfo = observeUserInfo.get(),
-        userTypeMapper = userTypeMapper.get(),
-        observeConversationRoleForUser = observeConversationRoleForUser.get(),
-        removeMemberFromConversation = removeMemberFromConversation.get(),
-        updateMemberRole = updateMemberRole.get(),
-        observeClientList = observeClientList.get(),
-        fetchUsersClients = fetchUsersClients.get(),
-        getUserE2eiCertificateStatus = getUserE2eiCertificateStatus.get(),
-        isOneToOneConversationCreated = isOneToOneConversationCreated.get(),
-        mlsClientIdentity = mlsClientIdentity.get(),
-        isE2EIEnabled = isE2EIEnabledUseCase.get(),
-        savedStateHandle = savedStateHandle,
-    )
-
-    fun serviceDetailsViewModel(savedStateHandle: SavedStateHandle) = ServiceDetailsViewModelImpl(
-        dispatchers = dispatchers.get(),
-        selfUserId = currentUserId.get(),
-        getServiceById = getServiceById.get(),
-        getAppById = getAppById.get(),
-        observeConversationDetails = observeConversationDetails.get(),
-        observeIsServiceMember = observeIsServiceMember.get(),
-        observeIsAppMember = observeIsAppMember.get(),
-        observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage.get(),
-        observeConversationRoleForUser = observeConversationRoleForUser.get(),
-        removeMemberFromConversation = removeMemberFromConversation.get(),
-        addServiceToConversation = addServiceToConversation.get(),
-        addMemberToConversation = addMemberToConversation.get(),
-        isOneToOneConversationCreated = isOneToOneConversationCreated.get(),
-        getOrCreateOneToOneConversation = getOrCreateOneToOneConversation.get(),
+    fun serviceDetailsViewModel(savedStateHandle: SavedStateHandle): ServiceDetailsViewModelImpl = ServiceDetailsViewModelImpl(
+        dispatchers = dispatchers(),
+        selfUserId = currentUserId(),
+        getServiceById = getServiceById(),
+        getAppById = getAppById(),
+        observeConversationDetails = observeConversationDetails(),
+        observeIsServiceMember = observeIsServiceMember(),
+        observeIsAppMember = observeIsAppMember(),
+        observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage(),
+        observeConversationRoleForUser = observeConversationRoleForUser(),
+        removeMemberFromConversation = removeMemberFromConversation(),
+        addServiceToConversation = addServiceToConversation(),
+        addMemberToConversation = addMemberToConversation(),
+        isOneToOneConversationCreated = isOneToOneConversationCreated(),
+        getOrCreateOneToOneConversation = getOrCreateOneToOneConversation(),
         savedStateHandle = savedStateHandle,
     )
 }

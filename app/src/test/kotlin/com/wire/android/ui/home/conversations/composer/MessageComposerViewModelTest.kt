@@ -20,10 +20,12 @@ package com.wire.android.ui.home.conversations.composer
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.framework.TestUser
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.coVerify
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -94,6 +96,41 @@ class MessageComposerViewModelTest {
         // then
         assertTrue(!viewModel.messageComposerViewState.value.enterToSend)
     }
+
+    @Test
+    fun `given cached conversation members, when searching mentions repeatedly, then reuse member observation`() =
+        runTest {
+            // given
+            val searchQuery = "other"
+            val conversationMembers = listOf(TestUser.MEMBER_SELF, TestUser.MEMBER_OTHER)
+            val expectedMembers = listOf(TestUser.MEMBER_OTHER)
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withMembersToMention(conversationMembers, expectedMembers, searchQuery)
+                .arrange()
+            advanceUntilIdle()
+
+            // when
+            viewModel.searchMembersToMention(searchQuery)
+            viewModel.searchMembersToMention(searchQuery)
+            advanceUntilIdle()
+
+            // then
+            coVerify(exactly = 1) {
+                arrangement.observeConversationMembers(arrangement.conversationId)
+            }
+            coVerify(exactly = 0) {
+                arrangement.membersToMention(arrangement.conversationId, searchQuery)
+            }
+            verify(exactly = 2) {
+                arrangement.membersToMention.filterConversationMembers(conversationMembers, searchQuery)
+            }
+            assertEquals(1, viewModel.messageComposerViewState.value.mentionSearchResult.size)
+            assertEquals(
+                TestUser.OTHER_USER.name,
+                viewModel.messageComposerViewState.value.mentionSearchResult.first().name
+            )
+        }
 
     @Test
     fun `given messages were viewed, when conversation is closed, then mark as read with last viewed timestamp`() = runTest {

@@ -47,6 +47,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
@@ -58,11 +59,16 @@ import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
@@ -76,6 +82,7 @@ class MessageComposerViewModel(
     private val markConversationAsReadLocally: MarkConversationAsReadLocallyUseCase,
     private val contactMapper: ContactMapper,
     private val membersToMention: MembersToMentionUseCase,
+    private val observeConversationMembers: Lazy<ObserveConversationMembersUseCase>,
     private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
     private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
@@ -97,6 +104,12 @@ class MessageComposerViewModel(
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
+
+    private val conversationMembers = flow {
+        emitAll(observeConversationMembers.value(conversationId))
+    }
+        .flowOn(dispatchers.io())
+        .shareIn(viewModelScope, SharingStarted.Lazily, replay = 1)
 
     var visitLinkDialogState: VisitLinkDialogState by mutableStateOf(
         VisitLinkDialogState.Hidden
@@ -163,7 +176,7 @@ class MessageComposerViewModel(
 
     fun searchMembersToMention(searchQuery: String) {
         viewModelScope.launch(dispatchers.io()) {
-            val members = membersToMention(conversationId, searchQuery).map {
+            val members = membersToMention.filterConversationMembers(conversationMembers.first(), searchQuery).map {
                 contactMapper.fromOtherUser(it.user as OtherUser)
             }
 

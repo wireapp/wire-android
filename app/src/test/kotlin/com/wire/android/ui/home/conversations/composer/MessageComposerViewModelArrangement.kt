@@ -37,6 +37,8 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
@@ -45,6 +47,7 @@ import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
+import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.AssetId
@@ -62,6 +65,7 @@ import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyU
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
@@ -103,6 +107,8 @@ internal class MessageComposerViewModelArrangement {
         coEvery { globalDataStore.enterToSendFlow() } returns flowOf(false)
         coEvery { observeEstablishedCalls() } returns emptyFlow()
         coEvery { markConversationAsReadLocallyUseCase(any(), any()) } returns MarkConversationAsReadResult.Success(false)
+        coEvery { observeConversationMembers(any()) } returns flowOf(emptyList())
+        every { membersToMention.filterConversationMembers(any(), any()) } returns emptyList()
     }
 
     @MockK
@@ -133,7 +139,10 @@ internal class MessageComposerViewModelArrangement {
     private lateinit var contactMapper: ContactMapper
 
     @MockK
-    private lateinit var membersToMention: MembersToMentionUseCase
+    lateinit var membersToMention: MembersToMentionUseCase
+
+    @MockK
+    lateinit var observeConversationMembers: ObserveConversationMembersUseCase
 
     @MockK
     private lateinit var enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase
@@ -168,6 +177,7 @@ internal class MessageComposerViewModelArrangement {
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
             contactMapper = contactMapper,
             membersToMention = membersToMention,
+            observeConversationMembers = observeConversationMembers,
             enqueueMessageSelfDeletion = enqueueMessageSelfDeletionUseCase,
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
             sendTypingEvent = sendTypingEvent,
@@ -193,11 +203,33 @@ internal class MessageComposerViewModelArrangement {
         coEvery { globalDataStore.enterToSendFlow() } returns flowOf(enterToSend)
     }
 
+    fun withMembersToMention(
+        conversationMembers: List<MemberDetails>,
+        filteredMembers: List<MemberDetails>,
+        searchQuery: String,
+    ) = apply {
+        coEvery { observeConversationMembers(conversationId) } returns flowOf(conversationMembers)
+        every { membersToMention.filterConversationMembers(conversationMembers, searchQuery) } returns filteredMembers
+        filteredMembers.forEach { memberDetails ->
+            val otherUser = memberDetails.user as OtherUser
+            every { contactMapper.fromOtherUser(otherUser) } returns contact(otherUser)
+        }
+    }
+
     fun withCurrentSessionFlowResult(resultFlow: Flow<CurrentSessionResult>) = apply {
         coEvery { currentSessionFlowUseCase() } returns resultFlow
     }
 
     fun arrange() = this to viewModel
+
+    private fun contact(user: OtherUser) = Contact(
+        id = user.id.value,
+        domain = user.id.domain,
+        name = user.name.orEmpty(),
+        handle = user.handle.orEmpty(),
+        connectionState = user.connectionStatus,
+        membership = Membership.Standard,
+    )
 }
 
 internal fun withMockConversationDetailsOneOnOne(

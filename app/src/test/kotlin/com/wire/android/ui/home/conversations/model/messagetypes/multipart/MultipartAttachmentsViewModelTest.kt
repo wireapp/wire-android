@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.framework.FakeKaliumFileSystem
@@ -47,9 +48,11 @@ import kotlinx.coroutines.test.runCurrent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 typealias OpenImageCallback = (s: String) -> Unit
 
+@ExtendWith(CoroutineTestExtension::class)
 class MultipartAttachmentsViewModelTest {
 
     @Test

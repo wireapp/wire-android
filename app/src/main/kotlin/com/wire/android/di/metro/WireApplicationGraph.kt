@@ -59,6 +59,7 @@ import com.wire.android.ui.WireActivity
 import com.wire.android.ui.WireActivityViewModel
 import com.wire.android.ui.debug.StartServiceReceiver
 import com.wire.android.ui.calling.CallActivity
+import com.wire.android.ui.calling.ongoing.OngoingCallActivity
 import com.wire.android.util.NetworkUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.WireWorkerFactory
@@ -115,6 +116,7 @@ interface WireApplicationGraph {
     fun inject(activity: WireActivity)
     fun inject(activity: AppLockActivity)
     fun inject(activity: CallActivity)
+    fun inject(activity: OngoingCallActivity)
     fun inject(service: PersistentWebSocketService)
     fun inject(service: CallService)
     fun inject(service: PlayingAudioMessageService)

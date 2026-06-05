@@ -25,12 +25,15 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.decode.Decoder
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -62,10 +65,16 @@ fun MultipartAttachmentsView(
         else -> hiltViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value)
     }
 ) {
+    // Collect to trigger recomposition when offline availability changes.
+    val offlineAttachmentIds by viewModel.offlineAttachmentIds.collectAsStateWithLifecycle()
 
     // TODO I found out that empty attachments list is not handled here and it shows empty message with no information
     if (attachments.size == 1) {
-        attachments.first().toUiModel().let {
+        val attachment = attachments.first()
+        val item = remember(attachment, offlineAttachmentIds) {
+            viewModel.mapAttachment(attachment)
+        }
+        item.let {
             AssetPreview(
                 modifier = modifier
                     .onVisibilityChanged { visible ->
@@ -86,7 +95,9 @@ fun MultipartAttachmentsView(
             )
         }
     } else {
-        val groups = viewModel.mapAttachments(attachments)
+        val groups = remember(attachments, offlineAttachmentIds) {
+            viewModel.mapAttachments(attachments = attachments)
+        }
 
         Column(
             modifier = modifier

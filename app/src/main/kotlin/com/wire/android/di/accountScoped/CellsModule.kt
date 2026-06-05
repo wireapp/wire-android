@@ -66,6 +66,7 @@ import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesByConversationUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
 import com.wire.kalium.cells.paginatedConversationsFlowUseCase
@@ -279,6 +280,10 @@ class CellsModule {
     fun provideObserveOfflineFilesUseCase(cellsScope: CellsScope): ObserveOfflineFilesUseCase = cellsScope.observeOfflineFiles
 
     @ViewModelScoped
+    @Provides
+    fun provideObserveOfflineFilesByConversationUseCase(cellsScope: CellsScope): ObserveOfflineFilesByConversationUseCase =
+        cellsScope.observeOfflineFilesByConversation
+
     @Provides
     fun provideGetOfflineFileUseCase(cellsScope: CellsScope): GetOfflineFileUseCase = cellsScope.getOfflineFile
 

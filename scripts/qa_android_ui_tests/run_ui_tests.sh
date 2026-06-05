@@ -407,6 +407,8 @@ run_attempt_on_devices() {
       args+=(-e numShards "${num_shards}")
       args+=(-e shardIndex "${this_shard_index}")
       args+=(-e filter "com.wire.android.tests.support.suite.TaggedFilter")
+      # The tests must launch the exact app flavor CI installed for this run.
+      args+=(-e appPackage "${APP_ID}")
 
       if attempt_uses_selector_mode "${attempt}"; then
         if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then

@@ -42,18 +42,25 @@ object UiAutomatorSetup {
     const val APP_BETA: String = "com.wire.android.internal"
     const val APP_PROD: String = "com.wire"
     const val APP_ALPHA: String = "com.wire.internal"
+    private const val APP_PACKAGE_ARGUMENT = "appPackage"
     lateinit var appPackage: String
 
     fun start(appPackage: String, clearData: Boolean = true): UiDevice {
-        this.appPackage = appPackage
+        val selectedPackage = InstrumentationRegistry.getArguments()
+            .getString(APP_PACKAGE_ARGUMENT)
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: appPackage
+
+        this.appPackage = selectedPackage
 
         val device = getDevice()
 
         if (clearData) {
-            device.executeShellCommand("pm clear $appPackage")
+            device.executeShellCommand("pm clear $selectedPackage")
         }
 
-        grantNotificationPermissionIfSupported(appPackage)
+        grantNotificationPermissionIfSupported(selectedPackage)
 
         device.executeShellCommand("settings put secure show_ime_with_hard_keyboard 0")
         device.executeShellCommand("settings put global window_animation_scale 0")

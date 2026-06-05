@@ -17,12 +17,16 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
+import androidx.lifecycle.SavedStateHandle
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
@@ -52,6 +56,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 typealias OpenImageCallback = (s: String) -> Unit
 
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class MultipartAttachmentsViewModelTest {
 
     @Test
@@ -270,7 +275,11 @@ class MultipartAttachmentsViewModelTest {
 
         init {
             MockKAnnotations.init(this)
+            every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(testConversationId)
         }
+
+        @MockK
+        lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
         lateinit var refreshHelper: CellAssetRefreshHelper
@@ -326,7 +335,7 @@ class MultipartAttachmentsViewModelTest {
             } returns flowOf(offlineFiles)
 
             return this to MultipartAttachmentsViewModelImpl(
-                conversationId = testConversationId,
+                savedStateHandle = savedStateHandle,
                 refreshHelper = refreshHelper,
                 download = download,
                 fileManager = fileManager,

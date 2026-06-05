@@ -62,7 +62,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.atMost
 import com.wire.android.R
-import com.wire.android.di.wireViewModelScoped
 import com.wire.android.feature.aiassistant.AiMessageToneType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton

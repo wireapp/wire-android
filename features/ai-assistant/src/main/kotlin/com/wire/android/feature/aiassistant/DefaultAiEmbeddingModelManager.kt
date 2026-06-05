@@ -23,7 +23,7 @@ import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.feature.aiassistant.model.DefaultAiEmbeddingModelDescriptor
 import com.wire.android.feature.aiassistant.model.FailureReason
 import com.wire.android.feature.aiassistant.storage.AiModelStorage
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

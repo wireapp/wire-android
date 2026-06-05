@@ -1,7 +1,6 @@
 plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
     id(libs.plugins.wire.kover.get().pluginId)
-    id(libs.plugins.wire.hilt.get().pluginId)
     id(BuildPlugins.junit5)
     alias(libs.plugins.ksp)
     alias(libs.plugins.compose.compiler)
@@ -25,6 +24,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.di)
     implementation(projects.core.uiCommon)
     implementation(libs.androidx.core)
     implementation(libs.mediapipe.tasksGenai)

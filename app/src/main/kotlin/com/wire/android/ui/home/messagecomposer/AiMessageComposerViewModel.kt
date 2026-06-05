@@ -26,15 +26,12 @@ import com.wire.android.R
 import com.wire.android.feature.aiassistant.AiMessageComposerAgent
 import com.wire.android.feature.aiassistant.AiMessageComposerResult
 import com.wire.android.feature.aiassistant.AiMessageToneType
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-class AiMessageComposerViewModel @Inject constructor(
+class AiMessageComposerViewModel(
     private val aiMessageComposerAgent: AiMessageComposerAgent
 ) : ViewModel() {
 

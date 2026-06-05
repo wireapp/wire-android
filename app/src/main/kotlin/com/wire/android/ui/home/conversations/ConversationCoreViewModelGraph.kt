@@ -43,6 +43,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.multipart.Multi
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelImpl
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
+import com.wire.android.ui.home.messagecomposer.AiMessageComposerViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
@@ -111,6 +112,10 @@ fun conversationBannerViewModel(): ConversationBannerViewModel =
 @Composable
 fun conversationInfoViewModel(): ConversationInfoViewModel =
     conversationCoreViewModel()
+
+@Composable
+fun aiMessageComposerViewModel(): AiMessageComposerViewModel =
+    conversationViewModel { this.aiMessageComposerViewModel() }
 
 @Composable
 fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModel =

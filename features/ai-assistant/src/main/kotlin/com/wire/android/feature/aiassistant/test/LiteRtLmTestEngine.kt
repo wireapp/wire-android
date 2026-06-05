@@ -16,8 +16,8 @@
  */
 package com.wire.android.feature.aiassistant.test
 
+import dev.zacsweers.metro.Inject
 import java.io.File
-import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

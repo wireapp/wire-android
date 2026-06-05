@@ -38,7 +38,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.di.ViewModelScopedPreview
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.feature.aiassistant.AiEmbeddingModelManager
 import com.wire.android.feature.aiassistant.AiModelManager
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
@@ -71,13 +70,11 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.text.Regex
 
 @WireRootDestination
@@ -85,8 +82,7 @@ import kotlin.text.Regex
 fun AiAssistantDebugScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    viewModel: AiAssistantDebugViewModel =
-        hiltViewModelScoped<AiAssistantDebugViewModelImpl, AiAssistantDebugViewModel>(),
+    viewModel: AiAssistantDebugViewModel = aiAssistantDebugViewModel(),
 ) {
     val context = LocalContext.current
 
@@ -326,8 +322,7 @@ interface AiAssistantDebugViewModel {
     fun authorizeModelAccess(url: String) {}
 }
 
-@HiltViewModel
-class AiAssistantDebugViewModelImpl @Inject constructor(
+class AiAssistantDebugViewModelImpl(
     private val aiModelManager: AiModelManager,
     private val aiEmbeddingModelManager: AiEmbeddingModelManager,
     private val aiModelTestEngine: AiModelTestEngine,
@@ -382,10 +377,12 @@ class AiAssistantDebugViewModelImpl @Inject constructor(
     }
 
     override fun downloadEmbeddingModel() {
+        android.util.Log.d("AiAssistantDebug", "downloadEmbeddingModel clicked, isDownloading=${state.embeddingModelOptionState.isDownloading}")
         if (state.embeddingModelOptionState.isDownloading) return
 
         viewModelScope.launch {
             aiEmbeddingModelManager.downloadModel().collect { downloadState ->
+                android.util.Log.d("AiAssistantDebug", "embedding downloadState=$downloadState")
                 when (downloadState) {
                     is AiModelDownloadState.AuthRequired ->
                         state = state.copy(

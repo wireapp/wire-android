@@ -16,11 +16,11 @@
  */
 package com.wire.android.feature.aiassistant.download
 
+import dev.zacsweers.metro.Inject
 import java.io.InputStream
 import java.nio.charset.Charset
 import java.net.HttpURLConnection
 import java.net.URL
-import javax.inject.Inject
 
 class UrlConnectionAiModelHttpClient @Inject constructor() : AiModelHttpClient {
     override suspend fun open(url: String, headers: Map<String, String>): AiModelHttpResponse {

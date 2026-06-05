@@ -90,3 +90,7 @@ fun dependenciesViewModel(): DependenciesViewModel =
 @Composable
 fun licensesViewModel(): LicensesViewModel =
     debugInfoViewModel()
+
+@Composable
+fun aiAssistantDebugViewModel(): AiAssistantDebugViewModel =
+    debugInfoViewModel<AiAssistantDebugViewModelImpl> { aiAssistantDebugViewModel() }

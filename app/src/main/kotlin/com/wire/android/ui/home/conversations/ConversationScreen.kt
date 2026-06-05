@@ -272,7 +272,7 @@ fun ConversationScreen(
     conversationMigrationViewModel: ConversationMigrationViewModel = conversationMigrationViewModel(),
     messageDraftViewModel: MessageDraftViewModel = messageDraftViewModel(),
     messageAttachmentsViewModel: MessageAttachmentsViewModel = messageAttachmentsViewModel(),
-    aiMessageComposerViewModel: AiMessageComposerViewModel = wireViewModel(),
+    aiMessageComposerViewModel: AiMessageComposerViewModel = aiMessageComposerViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current

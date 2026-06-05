@@ -16,9 +16,9 @@
  */
 package com.wire.android.feature.aiassistant.di
 
+import com.wire.android.feature.aiassistant.AiEmbeddingModelManager
 import com.wire.android.feature.aiassistant.AiModelManager
 import com.wire.android.feature.aiassistant.AiMessageComposerAgent
-import com.wire.android.feature.aiassistant.AiEmbeddingModelManager
 import com.wire.android.feature.aiassistant.DefaultAiEmbeddingModelManager
 import com.wire.android.feature.aiassistant.DefaultAiModelManager
 import com.wire.android.feature.aiassistant.DefaultAiMessageComposerAgent
@@ -38,60 +38,60 @@ import com.wire.android.feature.aiassistant.test.DefaultMediaPipeLlmInferenceFac
 import com.wire.android.feature.aiassistant.test.LiteRtLmInferenceFactory
 import com.wire.android.feature.aiassistant.test.LiteRtLmTestEngine
 import com.wire.android.feature.aiassistant.test.MediaPipeLlmInferenceFactory
-import dagger.Binds
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class AiAssistantModule {
+@BindingContainer
+object AiAssistantModule {
 
-    @Binds
-    @Singleton
-    abstract fun bindAiModelManager(implementation: DefaultAiModelManager): AiModelManager
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideAiModelManager(implementation: DefaultAiModelManager): AiModelManager = implementation
 
-    @Binds
-    @Singleton
-    abstract fun bindAiEmbeddingModelManager(implementation: DefaultAiEmbeddingModelManager): AiEmbeddingModelManager
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideAiEmbeddingModelManager(implementation: DefaultAiEmbeddingModelManager): AiEmbeddingModelManager =
+        implementation
 
-    @Binds
-    @Singleton
-    abstract fun bindAiMessageComposerAgent(implementation: DefaultAiMessageComposerAgent): AiMessageComposerAgent
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideAiMessageComposerAgent(implementation: DefaultAiMessageComposerAgent): AiMessageComposerAgent =
+        implementation
 
-    @Binds
-    @Singleton
-    abstract fun bindAiModelDownloader(implementation: HuggingFaceAiModelDownloader): AiModelDownloader
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideAiModelDownloader(implementation: HuggingFaceAiModelDownloader): AiModelDownloader = implementation
 
-    @Binds
-    @Singleton
-    abstract fun bindAiModelStorage(implementation: PrivateFileAiModelStorage): AiModelStorage
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideAiModelStorage(implementation: PrivateFileAiModelStorage): AiModelStorage = implementation
 
-    @Binds
-    @Singleton
-    abstract fun bindAiModelHttpClient(implementation: UrlConnectionAiModelHttpClient): AiModelHttpClient
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideAiModelHttpClient(implementation: UrlConnectionAiModelHttpClient): AiModelHttpClient = implementation
 
-    @Binds
-    @Singleton
-    abstract fun bindHuggingFaceTokenProvider(implementation: BuildConfigHuggingFaceTokenProvider): HuggingFaceTokenProvider
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideHuggingFaceTokenProvider(implementation: BuildConfigHuggingFaceTokenProvider): HuggingFaceTokenProvider =
+        implementation
 
-    @Binds
-    @Singleton
-    abstract fun bindAiModelTestEngine(implementation: LiteRtLmTestEngine): AiModelTestEngine
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideAiModelTestEngine(implementation: LiteRtLmTestEngine): AiModelTestEngine = implementation
 
-    @Binds
-    @Singleton
-    abstract fun bindLiteRtLmInferenceFactory(implementation: DefaultLiteRtLmInferenceFactory): LiteRtLmInferenceFactory
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideLiteRtLmInferenceFactory(implementation: DefaultLiteRtLmInferenceFactory): LiteRtLmInferenceFactory =
+        implementation
 
-    @Binds
-    @Singleton
-    abstract fun bindMediaPipeLlmInferenceFactory(implementation: DefaultMediaPipeLlmInferenceFactory): MediaPipeLlmInferenceFactory
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideMediaPipeLlmInferenceFactory(implementation: DefaultMediaPipeLlmInferenceFactory): MediaPipeLlmInferenceFactory =
+        implementation
 
-    companion object {
-        @Provides
-        @Singleton
-        fun provideAiModelDescriptors(): List<AiModelDescriptor> = DefaultAiModelDescriptor.allModels
-    }
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideAiModelDescriptors(): List<AiModelDescriptor> = DefaultAiModelDescriptor.allModels
 }

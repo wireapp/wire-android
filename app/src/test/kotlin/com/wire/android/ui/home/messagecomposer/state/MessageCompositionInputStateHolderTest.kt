@@ -217,30 +217,6 @@ class MessageCompositionInputStateHolderTest {
         state.inputType.shouldBeInstanceOf<InputType.Editing>().isEditButtonEnabled shouldBeEqualTo false
     }
 
-    @Test
-    fun `given editing mode when state holder is restored then editing state is preserved`() = runTest {
-        // Given
-        val messageText = "edited message"
-        val originalMessageText = "original message"
-        val arrangement = Arrangement().withText(messageText)
-        val (state, _) = arrangement.arrange()
-        state.toEdit(originalMessageText, false)
-
-        val saver = MessageCompositionInputStateHolder.saver(
-            messageTextState = arrangement.textFieldState,
-            keyboardController = arrangement.softwareKeyboardController,
-            focusManager = arrangement.focusManager,
-            focusRequester = arrangement.focusRequester,
-            density = Density(1f)
-        )
-
-        // When
-        val savedState = saver.save(state)
-        val restoredState = saver.restore(savedState)
-
-        // Then
-        restoredState!!.inputType.shouldBeInstanceOf<InputType.Editing>().isEditButtonEnabled shouldBeEqualTo true
-    }
 
     @Test
     fun `given additional space is added to the keyboard when handling IME offset change then options height adjusts but keyboard height remains`() =

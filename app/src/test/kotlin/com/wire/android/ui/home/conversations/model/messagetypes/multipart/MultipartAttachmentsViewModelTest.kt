@@ -43,6 +43,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runCurrent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -150,12 +151,11 @@ class MultipartAttachmentsViewModelTest {
             .arrange()
 
         advanceUntilIdle()
+        runCurrent()
 
         val result = viewModel.mapAttachments(
             listOf(testAssetContent.copy(id = "asset_1", mimeType = "application/pdf")),
         )
-
-        advanceUntilIdle()
 
         assertEquals(
             listOf(

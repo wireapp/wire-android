@@ -240,7 +240,6 @@ class CellsModule {
     fun provideObserveOfflineFilesByConversationUseCase(cellsScope: CellsScope): ObserveOfflineFilesByConversationUseCase =
         cellsScope.observeOfflineFilesByConversation
 
-    @ViewModelScoped
     @Provides
     fun provideGetOfflineFileUseCase(cellsScope: CellsScope): GetOfflineFileUseCase = cellsScope.getOfflineFile
 

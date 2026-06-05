@@ -40,7 +40,6 @@ import coil3.request.crossfade
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
-import com.wire.android.ui.common.multipart.toUiModel
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid.AssetGridPreview
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone.AssetPreview

@@ -40,18 +40,17 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import javax.inject.Inject
@@ -81,6 +80,7 @@ interface MultipartAttachmentsViewModel {
                         val newAttachment = it.toUiModel(isAvailableOffline = isAvailableOffline)
                         group.copy(attachments = group.attachments + newAttachment)
                     }
+
                     else -> {
                         result.add(group)
                         MultipartAttachmentGroup.Media(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
@@ -93,6 +93,7 @@ interface MultipartAttachmentsViewModel {
                         val newAttachment = it.toUiModel(isAvailableOffline = isAvailableOffline)
                         group.copy(attachments = group.attachments + newAttachment)
                     }
+
                     else -> {
                         result.add(group)
                         MultipartAttachmentGroup.Files(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))

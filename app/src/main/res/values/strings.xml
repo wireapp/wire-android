@@ -1871,8 +1871,10 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_automatic_backups" translatable="false">Automatic backups</string>
     <string name="debug_settings_backup_root_key" translatable="false">Backup Root Key</string>
     <string name="debug_settings_no_backup_root_key" translatable="false">No Backup Root Key generated on this device.</string>
+    <string name="debug_settings_fetch_backup_root_key" translatable="false">Fetch backup root key</string>
     <string name="debug_settings_generate_backup_root_key" translatable="false">Generate new key</string>
     <string name="debug_settings_create_backup" translatable="false">Create backup</string>
+    <string name="debug_settings_restore_backup" translatable="false">Restore latest online backup</string>
     <string name="debug_settings_backup_root_key_id" translatable="false">Key ID</string>
     <string name="debug_settings_backup_root_key_fingerprint" translatable="false">Fingerprint</string>
     <string name="debug_settings_backup_root_key_created_at" translatable="false">Created at</string>

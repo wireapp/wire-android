@@ -26,9 +26,12 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyIfOnlineBackupExistsResult
+import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyIfOnlineBackupExistsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,7 +52,7 @@ class InitialSyncViewModelTest {
     @Test
     fun `given sync is live, when observing initial sync state, then navigate home`() = runTest {
         // given
-        val (viewModel, _) = Arrangement()
+        val (viewModel, arrangement) = Arrangement()
             .withSyncState(SyncState.Live)
             .arrange()
 
@@ -58,6 +61,7 @@ class InitialSyncViewModelTest {
         // then
         assertTrue(viewModel.isSyncCompleted)
         assertEquals(SyncCompletionState(shouldMoveToBackground = false), viewModel.syncCompletionState)
+        coVerify(exactly = 1) { arrangement.syncBackupRootKeyIfOnlineBackupExists() }
     }
 
     @Test
@@ -75,6 +79,7 @@ class InitialSyncViewModelTest {
         // then
         assertFalse(viewModel.isSyncCompleted)
         assertEquals(null, viewModel.syncCompletionState)
+        coVerify(exactly = 0) { arrangement.syncBackupRootKeyIfOnlineBackupExists() }
     }
 
     @Test
@@ -119,12 +124,23 @@ class InitialSyncViewModelTest {
 
         @MockK
         lateinit var userDataStore: UserDataStore
+
+        @MockK
+        lateinit var syncBackupRootKeyIfOnlineBackupExists: SyncBackupRootKeyIfOnlineBackupExistsUseCase
+
         val userId = UserId("id", "domain")
 
         val automatedLoginManager = AutomatedLoginManager()
 
         val viewModel by lazy {
-            InitialSyncViewModel(observeSyncState, userDataStoreProvider, userId, TestDispatcherProvider(), automatedLoginManager)
+            InitialSyncViewModel(
+                observeSyncState,
+                userDataStoreProvider,
+                userId,
+                TestDispatcherProvider(),
+                automatedLoginManager,
+                syncBackupRootKeyIfOnlineBackupExists,
+            )
         }
 
         private val syncStateChannel = Channel<SyncState>(capacity = Channel.UNLIMITED)
@@ -135,6 +151,7 @@ class InitialSyncViewModelTest {
             // Default empty values
             mockUri()
             coEvery { userDataStoreProvider.getOrCreate(any()) } returns userDataStore
+            coEvery { syncBackupRootKeyIfOnlineBackupExists() } returns SyncBackupRootKeyIfOnlineBackupExistsResult.NoOnlineBackups
         }
 
         suspend fun withSyncState(syncState: SyncState): Arrangement {

@@ -23,10 +23,15 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.feature.backup.BackupRootKeyInfo
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupResult
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
-import com.wire.kalium.logic.feature.backup.GenerateBackupRootKeyResult
-import com.wire.kalium.logic.feature.backup.GenerateBackupRootKeyUseCase
+import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyResult
+import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyResult
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyUseCase
+import com.wire.kalium.logic.feature.backup.PushBackupRootKeyResult
+import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupResult
+import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
+import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyResult
+import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.toBackupRootKeyInfo
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -39,8 +44,10 @@ import kotlinx.coroutines.launch
 
 class AutomaticBackupsDebugViewModel(
     private val getBackupRootKey: GetBackupRootKeyUseCase,
-    private val generateBackupRootKey: GenerateBackupRootKeyUseCase,
+    private val syncBackupRootKey: SyncBackupRootKeyUseCase,
+    private val generateAndForcePushBackupRootKey: GenerateAndForcePushBackupRootKeyUseCase,
     private val createOnlineBackup: CreateOnlineBackupUseCase,
+    private val restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AutomaticBackupsDebugState())
@@ -76,23 +83,52 @@ class AutomaticBackupsDebugViewModel(
     fun generateNewBackupRootKey() {
         viewModelScope.launch {
             _state.update { it.copy(isGenerating = true) }
-            when (val result = generateBackupRootKey()) {
-                is GenerateBackupRootKeyResult.Success -> {
+            when (val result = generateAndForcePushBackupRootKey()) {
+                is GenerateAndForcePushBackupRootKeyResult.Success -> {
                     _state.update {
                         it.copy(
                             isGenerating = false,
                             backupRootKey = result.backupRootKey.toBackupRootKeyInfo(),
                         )
                     }
-                    _infoMessage.emit(UIText.DynamicString("Backup Root Key generated"))
+                    _infoMessage.emit(result.toInfoMessage())
                 }
-                is GenerateBackupRootKeyResult.Failure.CurrentClientIdUnavailable -> {
+                is GenerateAndForcePushBackupRootKeyResult.Failure -> {
                     _state.update { it.copy(isGenerating = false) }
-                    _infoMessage.emit(UIText.DynamicString("Failed to get current client ID: ${result.cause}"))
+                    _infoMessage.emit(UIText.DynamicString("Failed to generate Backup Root Key: ${result.cause}"))
                 }
-                is GenerateBackupRootKeyResult.Failure.StorageFailure -> {
-                    _state.update { it.copy(isGenerating = false) }
-                    _infoMessage.emit(UIText.DynamicString("Failed to generate Backup Root Key: ${result.cause.message.orEmpty()}"))
+            }
+        }
+    }
+
+    fun fetchBackupRootKey() {
+        viewModelScope.launch {
+            _state.update { it.copy(isFetchingBackupRootKey = true) }
+            when (val result = syncBackupRootKey()) {
+                is SyncBackupRootKeyResult.Found -> {
+                    _state.update {
+                        it.copy(
+                            isFetchingBackupRootKey = false,
+                            backupRootKey = result.backupRootKey.toBackupRootKeyInfo(),
+                        )
+                    }
+                    _infoMessage.emit(UIText.DynamicString("Backup Root Key fetched from another client"))
+                }
+
+                SyncBackupRootKeyResult.LocalKeyExists -> {
+                    _state.update { it.copy(isFetchingBackupRootKey = false) }
+                    loadBackupRootKey()
+                    _infoMessage.emit(UIText.DynamicString("Backup Root Key already exists on this device"))
+                }
+
+                SyncBackupRootKeyResult.Unavailable -> {
+                    _state.update { it.copy(isFetchingBackupRootKey = false) }
+                    _infoMessage.emit(UIText.DynamicString("Backup Root Key unavailable from other clients"))
+                }
+
+                is SyncBackupRootKeyResult.Failure -> {
+                    _state.update { it.copy(isFetchingBackupRootKey = false) }
+                    _infoMessage.emit(UIText.DynamicString("Failed to fetch Backup Root Key: ${result.cause.message.orEmpty()}"))
                 }
             }
         }
@@ -119,6 +155,51 @@ class AutomaticBackupsDebugViewModel(
         }
     }
 
+    fun restoreLatestBackup() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isRestoringBackup = true,
+                    backupRestoreProgress = 0f,
+                )
+            }
+            val result = restoreLatestOnlineBackup { progress ->
+                _state.update { it.copy(backupRestoreProgress = progress) }
+            }
+            _state.update {
+                it.copy(
+                    isRestoringBackup = false,
+                    backupRestoreProgress = 0f,
+                )
+            }
+            _infoMessage.emit(result.toInfoMessage())
+        }
+    }
+
+    private fun RestoreLatestOnlineBackupResult.toInfoMessage(): UIText = UIText.DynamicString(
+        when (this) {
+            is RestoreLatestOnlineBackupResult.Success -> "Backup restored: ${metadata.fileName}"
+            RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable ->
+                "Restore failed: no backup root key available"
+            RestoreLatestOnlineBackupResult.Failure.NoOnlineBackupFound ->
+                "Restore failed: no online backup found"
+            RestoreLatestOnlineBackupResult.Failure.RootKeyIdMismatch ->
+                "Restore failed: backup root key id mismatch"
+            RestoreLatestOnlineBackupResult.Failure.BackupBelongsToAnotherUser ->
+                "Restore failed: backup belongs to another user"
+            is RestoreLatestOnlineBackupResult.Failure.BackupListFailed ->
+                "Restore failed while listing backups: $cause"
+            is RestoreLatestOnlineBackupResult.Failure.DownloadFailed ->
+                "Restore failed while downloading backup: $cause"
+            RestoreLatestOnlineBackupResult.Failure.InvalidPassphrase ->
+                "Restore failed: invalid passphrase"
+            is RestoreLatestOnlineBackupResult.Failure.RestoreFailed ->
+                "Restore failed while importing backup: ${cause.cause}"
+            is RestoreLatestOnlineBackupResult.Failure.Unknown ->
+                "Restore failed: ${cause.message.orEmpty()}"
+        }
+    )
+
     private fun CreateOnlineBackupResult.toInfoMessage(): UIText = UIText.DynamicString(
         when (this) {
             is CreateOnlineBackupResult.Success -> "Backup created: ${metadata.fileName}"
@@ -132,12 +213,23 @@ class AutomaticBackupsDebugViewModel(
             is CreateOnlineBackupResult.Failure.Unknown -> "Backup failed: ${cause.message.orEmpty()}"
         }
     )
+
+    private fun GenerateAndForcePushBackupRootKeyResult.Success.toInfoMessage(): UIText = UIText.DynamicString(
+        when (val result = pushResult) {
+            PushBackupRootKeyResult.Success -> "Backup Root Key generated and pushed"
+            is PushBackupRootKeyResult.PartialFailure -> "Backup Root Key generated, but push was partial: ${result.cause}"
+            is PushBackupRootKeyResult.Failure -> "Backup Root Key generated, but push failed: ${result.cause.message.orEmpty()}"
+        }
+    )
 }
 
 data class AutomaticBackupsDebugState(
     val isLoading: Boolean = false,
     val isGenerating: Boolean = false,
+    val isFetchingBackupRootKey: Boolean = false,
     val isCreatingBackup: Boolean = false,
     val backupCreationProgress: Float = 0f,
+    val isRestoringBackup: Boolean = false,
+    val backupRestoreProgress: Float = 0f,
     val backupRootKey: BackupRootKeyInfo? = null,
 )

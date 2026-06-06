@@ -43,7 +43,11 @@ import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase
 import com.wire.kalium.logic.feature.backup.CreateMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
+import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
+import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreMPBackupUseCase
+import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyIfOnlineBackupExistsUseCase
+import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
@@ -378,11 +382,39 @@ class UseCaseModule {
         coreLogic.getSessionScope(currentAccount).multiPlatformBackup.createOnline
 
     @Provides
+    fun provideGenerateAndForcePushBackupRootKeyUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GenerateAndForcePushBackupRootKeyUseCase =
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.generateAndForcePushBackupRootKey
+
+    @Provides
+    fun provideSyncBackupRootKeyUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SyncBackupRootKeyUseCase =
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.syncBackupRootKey
+
+    @Provides
+    fun provideSyncBackupRootKeyIfOnlineBackupExistsUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SyncBackupRootKeyIfOnlineBackupExistsUseCase =
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.syncBackupRootKeyIfOnlineBackupExists
+
+    @Provides
     fun provideRestoreMpBackupUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): RestoreMPBackupUseCase =
         coreLogic.getSessionScope(currentAccount).multiPlatformBackup.restore
+
+    @Provides
+    fun provideRestoreLatestOnlineBackupUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): RestoreLatestOnlineBackupUseCase =
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.restoreLatestOnline
 
     @Provides
     fun provideUpdateApiVersionsScheduler(@KaliumCoreLogic coreLogic: CoreLogic): UpdateApiVersionsScheduler =

@@ -66,8 +66,10 @@ fun AutomaticBackupsDebugScreen(
     AutomaticBackupsDebugContent(
         state = state,
         onNavigationPressed = navigator::navigateBack,
+        onFetchBackupRootKey = viewModel::fetchBackupRootKey,
         onGenerateNewKey = viewModel::generateNewBackupRootKey,
         onCreateBackup = viewModel::createBackup,
+        onRestoreBackup = viewModel::restoreLatestBackup,
         modifier = modifier,
     )
 }
@@ -76,8 +78,10 @@ fun AutomaticBackupsDebugScreen(
 internal fun AutomaticBackupsDebugContent(
     state: AutomaticBackupsDebugState,
     onNavigationPressed: () -> Unit,
+    onFetchBackupRootKey: () -> Unit,
     onGenerateNewKey: () -> Unit,
     onCreateBackup: () -> Unit,
+    onRestoreBackup: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
@@ -111,6 +115,18 @@ internal fun AutomaticBackupsDebugContent(
                     state.backupRootKey == null -> EmptyKeyState()
                     else -> BackupRootKeyDetails(state.backupRootKey)
                 }
+                if (!state.isLoading && state.backupRootKey == null) {
+                    Spacer(modifier = Modifier.height(dimensions().spacing8x))
+                    WirePrimaryButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = dimensions().spacing16x),
+                        onClick = onFetchBackupRootKey,
+                        loading = state.isFetchingBackupRootKey,
+                        state = if (state.isFetchingBackupRootKey) WireButtonState.Disabled else WireButtonState.Default,
+                        text = stringResource(R.string.debug_settings_fetch_backup_root_key),
+                    )
+                }
                 Spacer(modifier = Modifier.height(dimensions().spacing16x))
                 WirePrimaryButton(
                     modifier = Modifier
@@ -133,6 +149,23 @@ internal fun AutomaticBackupsDebugContent(
                 if (state.isCreatingBackup) {
                     Text(
                         text = "Progress: ${(state.backupCreationProgress * 100).toInt()}%",
+                        modifier = Modifier.padding(dimensions().spacing16x),
+                        style = MaterialTheme.wireTypography.body01,
+                    )
+                }
+                Spacer(modifier = Modifier.height(dimensions().spacing8x))
+                WirePrimaryButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensions().spacing16x),
+                    onClick = onRestoreBackup,
+                    loading = state.isRestoringBackup,
+                    state = if (state.isRestoringBackup) WireButtonState.Disabled else WireButtonState.Default,
+                    text = stringResource(R.string.debug_settings_restore_backup),
+                )
+                if (state.isRestoringBackup) {
+                    Text(
+                        text = "Progress: ${(state.backupRestoreProgress * 100).toInt()}%",
                         modifier = Modifier.padding(dimensions().spacing16x),
                         style = MaterialTheme.wireTypography.body01,
                     )

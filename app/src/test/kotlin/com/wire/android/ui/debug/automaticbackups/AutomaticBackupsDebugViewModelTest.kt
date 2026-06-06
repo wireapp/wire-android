@@ -28,10 +28,15 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.backup.BackupRootKey
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupResult
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
+import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
+import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyResult
+import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.GenerateBackupRootKeyResult
-import com.wire.kalium.logic.feature.backup.GenerateBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyResult
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyUseCase
+import com.wire.kalium.logic.feature.backup.PushBackupRootKeyResult
+import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyResult
+import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -71,7 +76,9 @@ class AutomaticBackupsDebugViewModelTest {
     fun givenGenerationSucceeds_whenGeneratingNewKey_thenStateContainsGeneratedKey() = runTest {
         val (_, viewModel) = Arrangement()
             .withGetBackupRootKey(GetBackupRootKeyResult.Success(null))
-            .withGenerateBackupRootKey(GenerateBackupRootKeyResult.Success(BACKUP_ROOT_KEY))
+            .withGenerateBackupRootKey(
+                GenerateAndForcePushBackupRootKeyResult.Success(BACKUP_ROOT_KEY, PushBackupRootKeyResult.Success)
+            )
             .arrange()
 
         viewModel.generateNewBackupRootKey()
@@ -84,14 +91,55 @@ class AutomaticBackupsDebugViewModelTest {
     fun givenGenerationFails_whenGeneratingNewKey_thenErrorMessageIsEmitted() = runTest {
         val (_, viewModel) = Arrangement()
             .withGetBackupRootKey(GetBackupRootKeyResult.Success(null))
-            .withGenerateBackupRootKey(GenerateBackupRootKeyResult.Failure.StorageFailure(IllegalStateException("boom")))
+            .withGenerateBackupRootKey(
+                GenerateAndForcePushBackupRootKeyResult.Failure(
+                    GenerateBackupRootKeyResult.Failure.StorageFailure(IllegalStateException("boom"))
+                )
+            )
             .arrange()
 
         viewModel.infoMessage.test {
             viewModel.generateNewBackupRootKey()
 
-            assertEquals(UIText.DynamicString("Failed to generate Backup Root Key: boom"), awaitItem())
+            assertEquals(
+                UIText.DynamicString("Failed to generate Backup Root Key: StorageFailure(cause=java.lang.IllegalStateException: boom)"),
+                awaitItem()
+            )
         }
+    }
+
+    @Test
+    fun givenNoStoredKeyAndFetchSucceeds_whenFetchingBackupRootKey_thenStateContainsFetchedKey() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(null))
+            .withSyncBackupRootKey(SyncBackupRootKeyResult.Found(BACKUP_ROOT_KEY))
+            .arrange()
+
+        viewModel.infoMessage.test {
+            viewModel.fetchBackupRootKey()
+
+            assertEquals(UIText.DynamicString("Backup Root Key fetched from another client"), awaitItem())
+        }
+
+        assertEquals(BACKUP_ROOT_KEY.id, viewModel.state.value.backupRootKey?.id)
+        assertEquals(false, viewModel.state.value.isFetchingBackupRootKey)
+    }
+
+    @Test
+    fun givenNoCompatibleClientAnswers_whenFetchingBackupRootKey_thenUnavailableMessageIsEmitted() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(null))
+            .withSyncBackupRootKey(SyncBackupRootKeyResult.Unavailable)
+            .arrange()
+
+        viewModel.infoMessage.test {
+            viewModel.fetchBackupRootKey()
+
+            assertEquals(UIText.DynamicString("Backup Root Key unavailable from other clients"), awaitItem())
+        }
+
+        assertNull(viewModel.state.value.backupRootKey)
+        assertEquals(false, viewModel.state.value.isFetchingBackupRootKey)
     }
 
     @Test
@@ -191,10 +239,16 @@ class AutomaticBackupsDebugViewModelTest {
         lateinit var getBackupRootKey: GetBackupRootKeyUseCase
 
         @MockK
-        lateinit var generateBackupRootKey: GenerateBackupRootKeyUseCase
+        lateinit var syncBackupRootKey: SyncBackupRootKeyUseCase
+
+        @MockK
+        lateinit var generateBackupRootKey: GenerateAndForcePushBackupRootKeyUseCase
 
         @MockK
         lateinit var createOnlineBackup: CreateOnlineBackupUseCase
+
+        @MockK
+        lateinit var restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -204,8 +258,12 @@ class AutomaticBackupsDebugViewModelTest {
             coEvery { getBackupRootKey() } returns result
         }
 
-        fun withGenerateBackupRootKey(result: GenerateBackupRootKeyResult) = apply {
+        fun withGenerateBackupRootKey(result: GenerateAndForcePushBackupRootKeyResult) = apply {
             coEvery { generateBackupRootKey() } returns result
+        }
+
+        fun withSyncBackupRootKey(result: SyncBackupRootKeyResult) = apply {
+            coEvery { syncBackupRootKey() } returns result
         }
 
         fun withCreateOnlineBackup(result: CreateOnlineBackupResult) = apply {
@@ -228,8 +286,10 @@ class AutomaticBackupsDebugViewModelTest {
         fun arrange(): Pair<Arrangement, AutomaticBackupsDebugViewModel> =
             this to AutomaticBackupsDebugViewModel(
                 getBackupRootKey = getBackupRootKey,
-                generateBackupRootKey = generateBackupRootKey,
+                syncBackupRootKey = syncBackupRootKey,
+                generateAndForcePushBackupRootKey = generateBackupRootKey,
                 createOnlineBackup = createOnlineBackup,
+                restoreLatestOnlineBackup = restoreLatestOnlineBackup,
             )
     }
 

@@ -36,10 +36,12 @@ import com.wire.kalium.logic.data.conversation.FetchConversationUseCase
 import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
-import com.wire.kalium.logic.feature.backup.GenerateBackupRootKeyUseCase
+import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
+import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
+import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
@@ -92,8 +94,10 @@ class DebugInfoViewModelFactory @Inject constructor(
     private val setDebugCRLExpirationAfterOneMinute: SetDebugCRLExpirationAfterOneMinuteUseCase,
     private val createUnencryptedCopy: CreateObfuscatedCopyUseCase,
     private val getBackupRootKey: GetBackupRootKeyUseCase,
-    private val generateBackupRootKey: GenerateBackupRootKeyUseCase,
+    private val syncBackupRootKey: SyncBackupRootKeyUseCase,
+    private val generateAndForcePushBackupRootKey: GenerateAndForcePushBackupRootKeyUseCase,
     private val createOnlineBackup: CreateOnlineBackupUseCase,
+    private val restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase,
     private val fileManager: FileManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,
@@ -159,8 +163,10 @@ class DebugInfoViewModelFactory @Inject constructor(
 
     fun automaticBackupsDebugViewModel() = AutomaticBackupsDebugViewModel(
         getBackupRootKey = getBackupRootKey,
-        generateBackupRootKey = generateBackupRootKey,
+        syncBackupRootKey = syncBackupRootKey,
+        generateAndForcePushBackupRootKey = generateAndForcePushBackupRootKey,
         createOnlineBackup = createOnlineBackup,
+        restoreLatestOnlineBackup = restoreLatestOnlineBackup,
     )
 
     fun debugFeatureFlagsViewModel() = DebugFeatureFlagsViewModel(

@@ -31,11 +31,12 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyIfOnlineBackupExistsResult
+import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyIfOnlineBackupExistsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class InitialSyncViewModel(
     private val observeSyncState: ObserveSyncStateUseCase,
@@ -43,6 +44,7 @@ class InitialSyncViewModel(
     @CurrentAccount private val userId: UserId,
     private val dispatchers: DispatcherProvider,
     private val automatedLoginManager: AutomatedLoginManager,
+    private val syncBackupRootKeyIfOnlineBackupExists: SyncBackupRootKeyIfOnlineBackupExistsUseCase,
 ) : ViewModel() {
 
     internal var syncCompletionState: SyncCompletionState? by mutableStateOf(null)
@@ -61,20 +63,35 @@ class InitialSyncViewModel(
     private fun waitUntilSyncIsCompleted() =
         viewModelScope.launch(dispatchers.io()) {
             delay(DefaultDurationMillis.toLong()) // it can be triggered instantly so it's added to keep smooth transitions
-            withContext(dispatchers.io()) {
-                observeSyncState().firstOrNull { it is SyncState.Live }?.let {
-                    userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
-                }
-            }?.let {
+            observeSyncState().firstOrNull { it is SyncState.Live }?.let {
+                userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
                 syncCompletionState = SyncCompletionState(
                     shouldMoveToBackground = automatedLoginManager.consumePendingMoveToBackgroundAfterSync()
                 )
+                syncBackupRootKeyIfOnlineBackupExistsInBackground()
             } ?: run {
                 appLogger.e("InitialSyncViewModel: SyncState is null")
             }
         }
+
+    private fun syncBackupRootKeyIfOnlineBackupExistsInBackground() {
+        viewModelScope.launch(dispatchers.io()) {
+            runCatching { syncBackupRootKeyIfOnlineBackupExists() }
+                .onSuccess { appLogger.i("InitialSyncViewModel: backup root key sync result: ${it.logName()}") }
+                .onFailure { appLogger.e("InitialSyncViewModel: backup root key sync failed: ${it.message.orEmpty()}") }
+        }
+    }
 }
 
 internal data class SyncCompletionState(
     val shouldMoveToBackground: Boolean,
 )
+
+private fun SyncBackupRootKeyIfOnlineBackupExistsResult.logName(): String =
+    when (this) {
+        SyncBackupRootKeyIfOnlineBackupExistsResult.KeyUnavailable -> "KeyUnavailable"
+        SyncBackupRootKeyIfOnlineBackupExistsResult.LocalKeyExists -> "LocalKeyExists"
+        SyncBackupRootKeyIfOnlineBackupExistsResult.NoOnlineBackups -> "NoOnlineBackups"
+        is SyncBackupRootKeyIfOnlineBackupExistsResult.Failure -> "Failure"
+        is SyncBackupRootKeyIfOnlineBackupExistsResult.Synced -> "Synced"
+    }

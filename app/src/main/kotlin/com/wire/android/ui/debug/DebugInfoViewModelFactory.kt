@@ -22,6 +22,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.debug.conversation.DebugConversationViewModel
+import com.wire.android.ui.debug.automaticbackups.AutomaticBackupsDebugViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewModel
@@ -35,6 +36,8 @@ import com.wire.kalium.logic.data.conversation.FetchConversationUseCase
 import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
+import com.wire.kalium.logic.feature.backup.GenerateBackupRootKeyUseCase
+import com.wire.kalium.logic.feature.backup.GetBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -87,6 +90,8 @@ class DebugInfoViewModelFactory @Inject constructor(
     private val observeDebugCRLExpirationAfterOneMinute: ObserveDebugCRLExpirationAfterOneMinuteUseCase,
     private val setDebugCRLExpirationAfterOneMinute: SetDebugCRLExpirationAfterOneMinuteUseCase,
     private val createUnencryptedCopy: CreateObfuscatedCopyUseCase,
+    private val getBackupRootKey: GetBackupRootKeyUseCase,
+    private val generateBackupRootKey: GenerateBackupRootKeyUseCase,
     private val fileManager: FileManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,
@@ -148,6 +153,11 @@ class DebugInfoViewModelFactory @Inject constructor(
 
     fun conversationCryptoStatsViewModel() = ConversationCryptoStatsViewModel(
         getConversationCryptoStats = getConversationCryptoStats,
+    )
+
+    fun automaticBackupsDebugViewModel() = AutomaticBackupsDebugViewModel(
+        getBackupRootKey = getBackupRootKey,
+        generateBackupRootKey = generateBackupRootKey,
     )
 
     fun debugFeatureFlagsViewModel() = DebugFeatureFlagsViewModel(

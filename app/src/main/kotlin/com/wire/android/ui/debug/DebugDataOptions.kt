@@ -68,6 +68,7 @@ fun DebugDataOptions(
     onCopyText: (String) -> Unit,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
+    onShowAutomaticBackups: () -> Unit,
     viewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel()
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
@@ -90,6 +91,7 @@ fun DebugDataOptions(
         onEnableAsyncNotificationsChange = viewModel::enableAsyncNotifications,
         onShowFeatureFlags = onShowFeatureFlags,
         onShowCryptoStats = onShowCryptoStats,
+        onShowAutomaticBackups = onShowAutomaticBackups,
         onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys
     )
 }
@@ -115,6 +117,7 @@ fun DebugDataOptionsContent(
     onResendFCMToken: () -> Unit,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
+    onShowAutomaticBackups: () -> Unit,
     onRepairFaultyRemovalKeys: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -243,6 +246,16 @@ fun DebugDataOptionsContent(
                 )
             }
         }
+
+        SectionHeader(stringResource(R.string.debug_settings_automatic_backups))
+        SettingsItem(
+            text = stringResource(R.string.debug_settings_automatic_backups),
+            onRowPressed = Clickable(
+                enabled = true,
+                onClick = onShowAutomaticBackups
+            ),
+            trailingIcon = R.drawable.ic_arrow_right,
+        )
 
         DebugToolsOptions(
             isEventProcessingEnabled = state.isEventProcessingDisabled,
@@ -418,6 +431,7 @@ fun PreviewOtherDebugOptions() = WireTheme {
         onEnableAsyncNotificationsChange = {},
         onShowFeatureFlags = {},
         onShowCryptoStats = {},
+        onShowAutomaticBackups = {},
         onRepairFaultyRemovalKeys = {}
     )
 }

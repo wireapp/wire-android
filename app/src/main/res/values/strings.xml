@@ -1868,6 +1868,15 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_repair_faulty_keys" translatable="false">Reset</string>
     <string name="debug_settings_feature_flags" translatable="false">Feature Flags</string>
     <string name="debug_settings_conversation_crypto_stats" translatable="false">Conversation Crypto Stats</string>
+    <string name="debug_settings_automatic_backups" translatable="false">Automatic backups</string>
+    <string name="debug_settings_backup_root_key" translatable="false">Backup Root Key</string>
+    <string name="debug_settings_no_backup_root_key" translatable="false">No Backup Root Key generated on this device.</string>
+    <string name="debug_settings_generate_backup_root_key" translatable="false">Generate new key</string>
+    <string name="debug_settings_backup_root_key_id" translatable="false">Key ID</string>
+    <string name="debug_settings_backup_root_key_fingerprint" translatable="false">Fingerprint</string>
+    <string name="debug_settings_backup_root_key_created_at" translatable="false">Created at</string>
+    <string name="debug_settings_backup_root_key_created_by_client" translatable="false">Created by client</string>
+    <string name="debug_settings_backup_root_key_version" translatable="false">Version</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

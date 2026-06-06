@@ -51,6 +51,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationCryptoStatsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.AutomaticBackupsDebugScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.DebugFeatureFlagsScreenDestination
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
@@ -85,6 +86,9 @@ fun DebugScreen(
         },
         onShowCryptoStats = {
             navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
+        },
+        onShowAutomaticBackups = {
+            navigator.navigate(NavigationCommand(AutomaticBackupsDebugScreenDestination))
         }
     )
 }
@@ -99,6 +103,7 @@ internal fun UserDebugContent(
     onFlushLogs: () -> Deferred<Unit>,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
+    onShowAutomaticBackups: () -> Unit,
     debugDataOptionsViewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel(),
     exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel(),
 ) {
@@ -136,6 +141,7 @@ internal fun UserDebugContent(
                     onCopyText = debugContentState::copyToClipboard,
                     onShowFeatureFlags = onShowFeatureFlags,
                     onShowCryptoStats = onShowCryptoStats,
+                    onShowAutomaticBackups = onShowAutomaticBackups,
                     viewModel = debugDataOptionsViewModel,
                 )
                 if (BuildConfig.PRIVATE_BUILD) {
@@ -255,5 +261,6 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onDatabaseLoggerEnabledChanged = {},
         onShowFeatureFlags = {},
         onShowCryptoStats = {},
+        onShowAutomaticBackups = {},
     )
 }

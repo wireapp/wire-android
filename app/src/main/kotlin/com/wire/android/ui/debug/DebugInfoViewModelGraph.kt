@@ -25,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.metro.metroSavedStateViewModel
 import com.wire.android.di.metro.metroViewModel
+import com.wire.android.ui.debug.automaticbackups.AutomaticBackupsDebugViewModel
 import com.wire.android.ui.debug.conversation.DebugConversationViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
@@ -88,6 +89,10 @@ fun debugConversationViewModel(): DebugConversationViewModel =
 @Composable
 fun conversationCryptoStatsViewModel(): ConversationCryptoStatsViewModel =
     debugInfoViewModel { conversationCryptoStatsViewModel() }
+
+@Composable
+fun automaticBackupsDebugViewModel(): AutomaticBackupsDebugViewModel =
+    debugInfoViewModel { automaticBackupsDebugViewModel() }
 
 @Composable
 fun debugFeatureFlagsViewModel(): DebugFeatureFlagsViewModel =

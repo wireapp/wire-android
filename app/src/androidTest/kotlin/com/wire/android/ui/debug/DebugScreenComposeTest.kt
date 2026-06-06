@@ -19,8 +19,13 @@ package com.wire.android.ui.debug
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.wire.android.extensions.waitUntilExists
+import com.wire.android.ui.debug.automaticbackups.AutomaticBackupsDebugContent
+import com.wire.android.ui.debug.automaticbackups.AutomaticBackupsDebugState
 import com.wire.android.ui.WireTestTheme
+import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.feature.backup.BackupRootKeyInfo
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.datetime.Instant
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -42,6 +47,7 @@ class DebugScreenComposeTest {
                         onDatabaseLoggerEnabledChanged = {},
                         onShowFeatureFlags = {},
                         onShowCryptoStats = {},
+                        onShowAutomaticBackups = {},
                         onFlushLogs = { CompletableDeferred(Unit) },
                         debugDataOptionsViewModel = object : DebugDataOptionsViewModel {},
                         exportObfuscatedCopyViewModel = object : ExportObfuscatedCopyViewModel {},
@@ -50,5 +56,53 @@ class DebugScreenComposeTest {
         }
 
         composeTestRule.waitUntilExists("Debug Settings")
+    }
+
+    @Test
+    fun givenAUserIsInDebugScreen_AutomaticBackupsShouldBeDisplayed() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                UserDebugContent(
+                    onNavigationPressed = { },
+                    state = UserDebugState(logPath = "logPath"),
+                    onLoggingEnabledChange = {},
+                    onDeleteLogs = {},
+                    onDatabaseLoggerEnabledChanged = {},
+                    onShowFeatureFlags = {},
+                    onShowCryptoStats = {},
+                    onShowAutomaticBackups = {},
+                    onFlushLogs = { CompletableDeferred(Unit) },
+                    debugDataOptionsViewModel = object : DebugDataOptionsViewModel {},
+                    exportObfuscatedCopyViewModel = object : ExportObfuscatedCopyViewModel {},
+                )
+            }
+        }
+
+        composeTestRule.waitUntilExists("Automatic backups")
+    }
+
+    @Test
+    fun givenExistingBackupRootKey_AutomaticBackupsScreenShouldDisplayKeyInfo() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                AutomaticBackupsDebugContent(
+                    state = AutomaticBackupsDebugState(
+                        backupRootKey = BackupRootKeyInfo(
+                            id = "key-id",
+                            fingerprint = "AA:BB:CC:DD",
+                            createdAt = Instant.parse("2026-06-06T12:00:00Z"),
+                            createdByClientId = ClientId("client-id"),
+                            version = 1,
+                        )
+                    ),
+                    onNavigationPressed = {},
+                    onGenerateNewKey = {},
+                )
+            }
+        }
+
+        composeTestRule.waitUntilExists("Automatic backups")
+        composeTestRule.waitUntilExists("AA:BB:CC:DD")
+        composeTestRule.waitUntilExists("Generate new key")
     }
 }

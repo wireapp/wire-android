@@ -27,6 +27,8 @@ import com.wire.kalium.logic.feature.backup.BackupAndUploadCryptoStateUseCase
 import com.wire.kalium.logic.feature.backup.BackupScope
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
+import com.wire.kalium.logic.feature.backup.GenerateBackupRootKeyUseCase
+import com.wire.kalium.logic.feature.backup.GetBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
 import com.wire.kalium.logic.feature.backup.SetLastDeviceIdUseCase
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
@@ -52,6 +54,14 @@ class BackupModule {
     @Provides
     fun provideRestoreBackupUseCase(backupScope: BackupScope): RestoreBackupUseCase =
         backupScope.restore
+
+    @Provides
+    fun provideGetBackupRootKeyUseCase(backupScope: BackupScope): GetBackupRootKeyUseCase =
+        backupScope.getBackupRootKey
+
+    @Provides
+    fun provideGenerateBackupRootKeyUseCase(backupScope: BackupScope): GenerateBackupRootKeyUseCase =
+        backupScope.generateBackupRootKey
 
     @Provides
     fun provideMpBackupSettings(): MPBackupSettings = if (BuildConfig.ENABLE_CROSSPLATFORM_BACKUP) {

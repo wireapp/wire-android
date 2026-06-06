@@ -97,6 +97,7 @@ class DebugScreenComposeTest {
                     ),
                     onNavigationPressed = {},
                     onGenerateNewKey = {},
+                    onCreateBackup = {},
                 )
             }
         }
@@ -104,5 +105,26 @@ class DebugScreenComposeTest {
         composeTestRule.waitUntilExists("Automatic backups")
         composeTestRule.waitUntilExists("AA:BB:CC:DD")
         composeTestRule.waitUntilExists("Generate new key")
+        composeTestRule.waitUntilExists("Create backup")
+    }
+
+    @Test
+    fun givenBackupCreationInProgress_AutomaticBackupsScreenShouldDisplayProgress() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                AutomaticBackupsDebugContent(
+                    state = AutomaticBackupsDebugState(
+                        isCreatingBackup = true,
+                        backupCreationProgress = 0.42f,
+                    ),
+                    onNavigationPressed = {},
+                    onGenerateNewKey = {},
+                    onCreateBackup = {},
+                )
+            }
+        }
+
+        composeTestRule.waitUntilExists("Create backup")
+        composeTestRule.waitUntilExists("Progress: 42%")
     }
 }

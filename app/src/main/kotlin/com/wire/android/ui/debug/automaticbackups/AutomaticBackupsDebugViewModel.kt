@@ -21,6 +21,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.feature.backup.BackupRootKeyInfo
+import com.wire.kalium.logic.feature.backup.CreateOnlineBackupResult
+import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
 import com.wire.kalium.logic.feature.backup.GenerateBackupRootKeyResult
 import com.wire.kalium.logic.feature.backup.GenerateBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyResult
@@ -38,6 +40,7 @@ import kotlinx.coroutines.launch
 class AutomaticBackupsDebugViewModel(
     private val getBackupRootKey: GetBackupRootKeyUseCase,
     private val generateBackupRootKey: GenerateBackupRootKeyUseCase,
+    private val createOnlineBackup: CreateOnlineBackupUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AutomaticBackupsDebugState())
@@ -94,10 +97,47 @@ class AutomaticBackupsDebugViewModel(
             }
         }
     }
+
+    fun createBackup() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isCreatingBackup = true,
+                    backupCreationProgress = 0f,
+                )
+            }
+            val result = createOnlineBackup { progress ->
+                _state.update { it.copy(backupCreationProgress = progress) }
+            }
+            _state.update {
+                it.copy(
+                    isCreatingBackup = false,
+                    backupCreationProgress = 0f,
+                )
+            }
+            _infoMessage.emit(result.toInfoMessage())
+        }
+    }
+
+    private fun CreateOnlineBackupResult.toInfoMessage(): UIText = UIText.DynamicString(
+        when (this) {
+            is CreateOnlineBackupResult.Success -> "Backup created: ${metadata.fileName}"
+            CreateOnlineBackupResult.Skipped.NoReceivedMessages -> "Backup skipped: no received messages"
+            is CreateOnlineBackupResult.Skipped.UpToDate -> "Backup skipped: already up to date"
+            is CreateOnlineBackupResult.Failure.BackupListFailed -> "Backup failed while listing backups: $cause"
+            is CreateOnlineBackupResult.Failure.MessageTimestampFailed -> "Backup failed while reading latest message timestamp: $cause"
+            is CreateOnlineBackupResult.Failure.BackupCreationFailed -> "Backup failed while creating backup: $cause"
+            is CreateOnlineBackupResult.Failure.UploadFailed -> "Backup failed while uploading backup: $cause"
+            is CreateOnlineBackupResult.Failure.MetadataRegistrationFailed -> "Backup failed while registering metadata: $cause"
+            is CreateOnlineBackupResult.Failure.Unknown -> "Backup failed: ${cause.message.orEmpty()}"
+        }
+    )
 }
 
 data class AutomaticBackupsDebugState(
     val isLoading: Boolean = false,
     val isGenerating: Boolean = false,
+    val isCreatingBackup: Boolean = false,
+    val backupCreationProgress: Float = 0f,
     val backupRootKey: BackupRootKeyInfo? = null,
 )

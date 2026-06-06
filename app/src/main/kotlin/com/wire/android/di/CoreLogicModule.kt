@@ -42,6 +42,7 @@ import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase
 import com.wire.kalium.logic.feature.backup.CreateMPBackupUseCase
+import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreMPBackupUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -368,6 +369,13 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): CreateMPBackupUseCase =
         coreLogic.getSessionScope(currentAccount).multiPlatformBackup.create
+
+    @Provides
+    fun provideCreateOnlineBackupUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): CreateOnlineBackupUseCase =
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.createOnline
 
     @Provides
     fun provideRestoreMpBackupUseCase(

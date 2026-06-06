@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberTopBarElevationState
@@ -66,6 +67,7 @@ fun AutomaticBackupsDebugScreen(
         state = state,
         onNavigationPressed = navigator::navigateBack,
         onGenerateNewKey = viewModel::generateNewBackupRootKey,
+        onCreateBackup = viewModel::createBackup,
         modifier = modifier,
     )
 }
@@ -75,6 +77,7 @@ internal fun AutomaticBackupsDebugContent(
     state: AutomaticBackupsDebugState,
     onNavigationPressed: () -> Unit,
     onGenerateNewKey: () -> Unit,
+    onCreateBackup: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
@@ -117,6 +120,23 @@ internal fun AutomaticBackupsDebugContent(
                     loading = state.isGenerating,
                     text = stringResource(R.string.debug_settings_generate_backup_root_key),
                 )
+                Spacer(modifier = Modifier.height(dimensions().spacing8x))
+                WirePrimaryButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensions().spacing16x),
+                    onClick = onCreateBackup,
+                    loading = state.isCreatingBackup,
+                    state = if (state.isCreatingBackup) WireButtonState.Disabled else WireButtonState.Default,
+                    text = stringResource(R.string.debug_settings_create_backup),
+                )
+                if (state.isCreatingBackup) {
+                    Text(
+                        text = "Progress: ${(state.backupCreationProgress * 100).toInt()}%",
+                        modifier = Modifier.padding(dimensions().spacing16x),
+                        style = MaterialTheme.wireTypography.body01,
+                    )
+                }
             }
         },
     )

@@ -39,6 +39,7 @@ import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdenti
 import com.wire.kalium.logic.feature.backup.GenerateBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
+import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
@@ -92,6 +93,7 @@ class DebugInfoViewModelFactory @Inject constructor(
     private val createUnencryptedCopy: CreateObfuscatedCopyUseCase,
     private val getBackupRootKey: GetBackupRootKeyUseCase,
     private val generateBackupRootKey: GenerateBackupRootKeyUseCase,
+    private val createOnlineBackup: CreateOnlineBackupUseCase,
     private val fileManager: FileManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,
@@ -158,6 +160,7 @@ class DebugInfoViewModelFactory @Inject constructor(
     fun automaticBackupsDebugViewModel() = AutomaticBackupsDebugViewModel(
         getBackupRootKey = getBackupRootKey,
         generateBackupRootKey = generateBackupRootKey,
+        createOnlineBackup = createOnlineBackup,
     )
 
     fun debugFeatureFlagsViewModel() = DebugFeatureFlagsViewModel(

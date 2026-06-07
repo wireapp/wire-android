@@ -31,6 +31,9 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.getBaseRoute
 import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.SettingUpWireScreenContent
 import com.wire.android.ui.initialSyncViewModel
 import kotlinx.coroutines.flow.first
@@ -53,6 +56,24 @@ fun InitialSyncScreen(
             null
         }
     )
+
+    if (viewModel.showBackupRootKeyUnavailableDialog) {
+        WireDialog(
+            title = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_title),
+            text = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_message),
+            onDismiss = viewModel::onBackupRootKeyDialogCancel,
+            optionButton1Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.label_cancel),
+                onClick = viewModel::onBackupRootKeyDialogCancel,
+                type = WireDialogButtonType.Secondary,
+            ),
+            optionButton2Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_try_again),
+                onClick = viewModel::onBackupRootKeyDialogTryAgain,
+                type = WireDialogButtonType.Primary,
+            ),
+        )
+    }
 
     LaunchedEffect(Unit) {
         viewModel.restoreErrorToast.collect { messageResId ->

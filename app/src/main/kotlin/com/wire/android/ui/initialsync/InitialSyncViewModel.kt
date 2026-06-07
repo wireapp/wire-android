@@ -61,6 +61,11 @@ class InitialSyncViewModel(
     internal var isRestoringBackup: Boolean by mutableStateOf(false)
         private set
 
+    internal var showBackupRootKeyUnavailableDialog: Boolean by mutableStateOf(false)
+        private set
+
+    private var pendingSyncCompletionState: SyncCompletionState? = null
+
     private val _restoreErrorToast = MutableSharedFlow<Int>(extraBufferCapacity = 1)
     internal val restoreErrorToast: SharedFlow<Int> = _restoreErrorToast.asSharedFlow()
 
@@ -80,37 +85,63 @@ class InitialSyncViewModel(
             observeSyncState().firstOrNull { it is SyncState.Live }?.let {
                 userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
                 val shouldMoveToBackground = automatedLoginManager.consumePendingMoveToBackgroundAfterSync()
-                loadConversationsBeforeBackupRestore()
-                restoreLatestOnlineBackupIfExists()
-                syncCompletionState = SyncCompletionState(
+                pendingSyncCompletionState = SyncCompletionState(
                     shouldMoveToBackground = shouldMoveToBackground
                 )
+                loadConversationsBeforeBackupRestore()
+                if (restoreLatestOnlineBackupIfExists()) {
+                    completeInitialSync()
+                }
             } ?: run {
                 appLogger.e("InitialSyncViewModel: SyncState is null")
             }
         }
+
+    internal fun onBackupRootKeyDialogTryAgain() {
+        showBackupRootKeyUnavailableDialog = false
+        viewModelScope.launch(dispatchers.io()) {
+            if (restoreLatestOnlineBackupIfExists()) {
+                completeInitialSync()
+            }
+        }
+    }
+
+    internal fun onBackupRootKeyDialogCancel() {
+        showBackupRootKeyUnavailableDialog = false
+        completeInitialSync()
+    }
+
+    private fun completeInitialSync() {
+        syncCompletionState = pendingSyncCompletionState ?: SyncCompletionState(shouldMoveToBackground = false)
+        pendingSyncCompletionState = null
+    }
 
     private suspend fun loadConversationsBeforeBackupRestore() {
         syncConversations()
             .onFailure { appLogger.e("InitialSyncViewModel: failed to sync conversations before backup restore: $it") }
     }
 
-    private suspend fun restoreLatestOnlineBackupIfExists() {
+    private suspend fun restoreLatestOnlineBackupIfExists(): Boolean {
         isRestoringBackup = true
         try {
             when (val result = restoreLatestOnlineBackup { }) {
                 is RestoreLatestOnlineBackupResult.Success -> {
                     appLogger.i("InitialSyncViewModel: latest online backup restored")
+                    return true
                 }
                 RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable -> {
-                    appLogger.i("InitialSyncViewModel: latest online backup restore skipped: NoBackupRootKeyAvailable")
+                    appLogger.i("InitialSyncViewModel: latest online backup restore paused: NoBackupRootKeyAvailable")
+                    showBackupRootKeyUnavailableDialog = true
+                    return false
                 }
                 RestoreLatestOnlineBackupResult.Failure.NoOnlineBackupFound -> {
                     appLogger.i("InitialSyncViewModel: latest online backup restore skipped: NoOnlineBackupFound")
+                    return true
                 }
                 is RestoreLatestOnlineBackupResult.Failure -> {
                     appLogger.e("InitialSyncViewModel: latest online backup restore failed: ${result.logName()}")
                     _restoreErrorToast.emit(R.string.initial_sync_restore_backup_failed)
+                    return true
                 }
             }
         } catch (e: CancellationException) {
@@ -118,6 +149,7 @@ class InitialSyncViewModel(
         } catch (e: Exception) {
             appLogger.e("InitialSyncViewModel: latest online backup restore failed: ${e.message.orEmpty()}")
             _restoreErrorToast.emit(R.string.initial_sync_restore_backup_failed)
+            return true
         } finally {
             isRestoringBackup = false
         }

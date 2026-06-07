@@ -142,7 +142,7 @@ class InitialSyncViewModelTest {
     }
 
     @Test
-    fun `given no backup root key is available, when restoring after initial sync, then complete without toast`() = runTest {
+    fun `given no backup root key is available, when restoring after initial sync, then show dialog and stay on this screen`() = runTest {
         // given
         val restoreErrorToasts = mutableListOf<Int>()
         val (viewModel, _) = Arrangement()
@@ -154,7 +154,85 @@ class InitialSyncViewModelTest {
         advanceUntilIdle()
 
         // then
+        assertFalse(viewModel.isSyncCompleted)
+        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+        assertEquals(emptyList<Int>(), restoreErrorToasts)
+        job.cancel()
+    }
+
+    @Test
+    fun `given no backup root key is available, when trying again succeeds, then complete initial sync`() = runTest {
+        // given
+        val (viewModel, arrangement) = Arrangement()
+            .withRestoreLatestOnlineBackupResults(
+                RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable,
+                RESTORE_BACKUP_SUCCESS
+            )
+            .withSyncState(SyncState.Live)
+            .arrange()
+
+        advanceUntilIdle()
+        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+
+        // when
+        viewModel.onBackupRootKeyDialogTryAgain()
+        advanceUntilIdle()
+
+        // then
         assertTrue(viewModel.isSyncCompleted)
+        assertFalse(viewModel.showBackupRootKeyUnavailableDialog)
+        assertEquals(SyncCompletionState(shouldMoveToBackground = false), viewModel.syncCompletionState)
+        coVerify(exactly = 2) { arrangement.restoreLatestOnlineBackup(any()) }
+    }
+
+    @Test
+    fun `given no backup root key is available, when trying again fails the same way, then show dialog again`() = runTest {
+        // given
+        val (viewModel, arrangement) = Arrangement()
+            .withRestoreLatestOnlineBackupResults(
+                RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable,
+                RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable
+            )
+            .withSyncState(SyncState.Live)
+            .arrange()
+
+        advanceUntilIdle()
+        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+
+        // when
+        viewModel.onBackupRootKeyDialogTryAgain()
+        advanceUntilIdle()
+
+        // then
+        assertFalse(viewModel.isSyncCompleted)
+        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+        assertEquals(null, viewModel.syncCompletionState)
+        coVerify(exactly = 2) { arrangement.restoreLatestOnlineBackup(any()) }
+    }
+
+    @Test
+    fun `given no backup root key is available, when cancelling dialog, then complete initial sync`() = runTest {
+        // given
+        val restoreErrorToasts = mutableListOf<Int>()
+        val (viewModel, _) = Arrangement()
+            .withAutomatedLoginPending()
+            .withRestoreLatestOnlineBackup(RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable)
+            .withSyncState(SyncState.Live)
+            .arrange()
+        val job = launch { viewModel.restoreErrorToast.collect { restoreErrorToasts.add(it) } }
+
+        advanceUntilIdle()
+        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+
+        // when
+        viewModel.onBackupRootKeyDialogCancel()
+        advanceUntilIdle()
+
+        // then
+        assertTrue(viewModel.isSyncCompleted)
+        assertTrue(viewModel.shouldMoveToBackground)
+        assertFalse(viewModel.showBackupRootKeyUnavailableDialog)
+        assertEquals(SyncCompletionState(shouldMoveToBackground = true), viewModel.syncCompletionState)
         assertEquals(emptyList<Int>(), restoreErrorToasts)
         job.cancel()
     }
@@ -298,6 +376,10 @@ class InitialSyncViewModelTest {
 
         fun withRestoreLatestOnlineBackup(result: RestoreLatestOnlineBackupResult) = apply {
             coEvery { restoreLatestOnlineBackup(any()) } returns result
+        }
+
+        fun withRestoreLatestOnlineBackupResults(vararg results: RestoreLatestOnlineBackupResult) = apply {
+            coEvery { restoreLatestOnlineBackup(any()) } returnsMany results.toList()
         }
 
         fun withSyncConversations(result: Either<CoreFailure, Unit>) = apply {

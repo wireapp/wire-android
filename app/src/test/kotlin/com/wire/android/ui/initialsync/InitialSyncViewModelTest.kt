@@ -18,27 +18,42 @@
 
 package com.wire.android.ui.initialsync
 
+import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
+import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.util.lifecycle.AutomatedLoginManager
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.data.asset.UploadedAssetId
+import com.wire.kalium.logic.data.backup.OnlineBackupMetadata
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyIfOnlineBackupExistsResult
-import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyIfOnlineBackupExistsUseCase
+import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupResult
+import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
+import com.wire.kalium.logic.feature.conversation.SyncConversationsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -53,6 +68,7 @@ class InitialSyncViewModelTest {
     fun `given sync is live, when observing initial sync state, then navigate home`() = runTest {
         // given
         val (viewModel, arrangement) = Arrangement()
+            .withRestoreLatestOnlineBackup(RESTORE_BACKUP_SUCCESS)
             .withSyncState(SyncState.Live)
             .arrange()
 
@@ -60,8 +76,9 @@ class InitialSyncViewModelTest {
 
         // then
         assertTrue(viewModel.isSyncCompleted)
+        assertFalse(viewModel.isRestoringBackup)
         assertEquals(SyncCompletionState(shouldMoveToBackground = false), viewModel.syncCompletionState)
-        coVerify(exactly = 1) { arrangement.syncBackupRootKeyIfOnlineBackupExists() }
+        coVerify(exactly = 1) { arrangement.restoreLatestOnlineBackup(any()) }
     }
 
     @Test
@@ -79,7 +96,117 @@ class InitialSyncViewModelTest {
         // then
         assertFalse(viewModel.isSyncCompleted)
         assertEquals(null, viewModel.syncCompletionState)
-        coVerify(exactly = 0) { arrangement.syncBackupRootKeyIfOnlineBackupExists() }
+        coVerify(exactly = 0) { arrangement.restoreLatestOnlineBackup(any()) }
+    }
+
+    @Test
+    fun `given restore is running, when observing initial sync state, then keep initial sync in progress`() = runTest {
+        // given
+        val restoreStarted = CompletableDeferred<Unit>()
+        val finishRestore = CompletableDeferred<Unit>()
+        val (viewModel, _) = Arrangement()
+            .withSuspendedRestoreLatestOnlineBackup(restoreStarted, finishRestore)
+            .withSyncState(SyncState.Live)
+            .arrange()
+
+        // when
+        advanceTimeBy(DefaultDurationMillis.toLong())
+        runCurrent()
+        restoreStarted.await()
+
+        // then
+        assertTrue(viewModel.isRestoringBackup)
+        assertFalse(viewModel.isSyncCompleted)
+        assertEquals(null, viewModel.syncCompletionState)
+
+        finishRestore.complete(Unit)
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun `given no online backup exists, when restoring after initial sync, then complete without toast`() = runTest {
+        // given
+        val restoreErrorToasts = mutableListOf<Int>()
+        val (viewModel, _) = Arrangement()
+            .withRestoreLatestOnlineBackup(RestoreLatestOnlineBackupResult.Failure.NoOnlineBackupFound)
+            .withSyncState(SyncState.Live)
+            .arrange()
+        val job = launch { viewModel.restoreErrorToast.collect { restoreErrorToasts.add(it) } }
+
+        advanceUntilIdle()
+
+        // then
+        assertTrue(viewModel.isSyncCompleted)
+        assertEquals(emptyList<Int>(), restoreErrorToasts)
+        job.cancel()
+    }
+
+    @Test
+    fun `given no backup root key is available, when restoring after initial sync, then complete without toast`() = runTest {
+        // given
+        val restoreErrorToasts = mutableListOf<Int>()
+        val (viewModel, _) = Arrangement()
+            .withRestoreLatestOnlineBackup(RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable)
+            .withSyncState(SyncState.Live)
+            .arrange()
+        val job = launch { viewModel.restoreErrorToast.collect { restoreErrorToasts.add(it) } }
+
+        advanceUntilIdle()
+
+        // then
+        assertTrue(viewModel.isSyncCompleted)
+        assertEquals(emptyList<Int>(), restoreErrorToasts)
+        job.cancel()
+    }
+
+    @Test
+    fun `given restore fails, when restoring after initial sync, then emit toast and complete`() = runTest {
+        // given
+        val (viewModel, _) = Arrangement()
+            .withRestoreLatestOnlineBackup(RestoreLatestOnlineBackupResult.Failure.RootKeyIdMismatch)
+            .withSyncState(SyncState.Live)
+            .arrange()
+        val restoreErrorToast = async { viewModel.restoreErrorToast.first() }
+
+        advanceUntilIdle()
+
+        // then
+        assertTrue(viewModel.isSyncCompleted)
+        assertEquals(R.string.initial_sync_restore_backup_failed, restoreErrorToast.await())
+    }
+
+    @Test
+    fun `given sync is live, when restoring backup, then sync conversations before restore`() = runTest {
+        // given
+        val (viewModel, arrangement) = Arrangement()
+            .withSyncState(SyncState.Live)
+            .arrange()
+
+        advanceUntilIdle()
+
+        // then
+        assertTrue(viewModel.isSyncCompleted)
+        coVerifyOrder {
+            arrangement.syncConversations()
+            arrangement.restoreLatestOnlineBackup(any())
+        }
+    }
+
+    @Test
+    fun `given conversation sync fails, when restoring backup, then still try restore and complete`() = runTest {
+        // given
+        val (viewModel, arrangement) = Arrangement()
+            .withSyncConversations(Either.Left(CoreFailure.Unknown(null)))
+            .withRestoreLatestOnlineBackup(RESTORE_BACKUP_SUCCESS)
+            .withSyncState(SyncState.Live)
+            .arrange()
+
+        advanceUntilIdle()
+
+        // then
+        assertTrue(viewModel.isSyncCompleted)
+        coVerify(exactly = 1) { arrangement.syncConversations() }
+        coVerify(exactly = 1) { arrangement.restoreLatestOnlineBackup(any()) }
     }
 
     @Test
@@ -126,7 +253,10 @@ class InitialSyncViewModelTest {
         lateinit var userDataStore: UserDataStore
 
         @MockK
-        lateinit var syncBackupRootKeyIfOnlineBackupExists: SyncBackupRootKeyIfOnlineBackupExistsUseCase
+        lateinit var restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase
+
+        @MockK
+        lateinit var syncConversations: SyncConversationsUseCase
 
         val userId = UserId("id", "domain")
 
@@ -139,7 +269,8 @@ class InitialSyncViewModelTest {
                 userId,
                 TestDispatcherProvider(),
                 automatedLoginManager,
-                syncBackupRootKeyIfOnlineBackupExists,
+                syncConversations,
+                restoreLatestOnlineBackup,
             )
         }
 
@@ -151,7 +282,8 @@ class InitialSyncViewModelTest {
             // Default empty values
             mockUri()
             coEvery { userDataStoreProvider.getOrCreate(any()) } returns userDataStore
-            coEvery { syncBackupRootKeyIfOnlineBackupExists() } returns SyncBackupRootKeyIfOnlineBackupExistsResult.NoOnlineBackups
+            coEvery { syncConversations() } returns Either.Right(Unit)
+            coEvery { restoreLatestOnlineBackup(any()) } returns RestoreLatestOnlineBackupResult.Failure.NoOnlineBackupFound
         }
 
         suspend fun withSyncState(syncState: SyncState): Arrangement {
@@ -164,6 +296,40 @@ class InitialSyncViewModelTest {
             automatedLoginManager.markPendingMoveToBackgroundAfterSync()
         }
 
+        fun withRestoreLatestOnlineBackup(result: RestoreLatestOnlineBackupResult) = apply {
+            coEvery { restoreLatestOnlineBackup(any()) } returns result
+        }
+
+        fun withSyncConversations(result: Either<CoreFailure, Unit>) = apply {
+            coEvery { syncConversations() } returns result
+        }
+
+        fun withSuspendedRestoreLatestOnlineBackup(
+            restoreStarted: CompletableDeferred<Unit>,
+            finishRestore: CompletableDeferred<Unit>,
+        ) = apply {
+            coEvery { restoreLatestOnlineBackup(any()) } coAnswers {
+                restoreStarted.complete(Unit)
+                finishRestore.await()
+                RESTORE_BACKUP_SUCCESS
+            }
+        }
+
         fun arrange() = viewModel to this
+    }
+
+    private companion object {
+        val RESTORE_BACKUP_SUCCESS = RestoreLatestOnlineBackupResult.Success(
+            OnlineBackupMetadata(
+                backupId = "backup-id",
+                userId = UserId("user-id", "wire.com"),
+                clientId = "client-id",
+                fileName = "backup.wbu",
+                lastMessageDate = Instant.parse("2026-06-06T12:00:00Z"),
+                assetId = UploadedAssetId("asset-key", "wire.com"),
+                rootKeyId = "backup-root-key-id",
+                encryptionAlgorithm = "AES256",
+            )
+        )
     }
 }

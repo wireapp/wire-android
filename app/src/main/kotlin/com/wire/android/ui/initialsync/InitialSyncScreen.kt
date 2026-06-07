@@ -18,10 +18,13 @@
 
 package com.wire.android.ui.initialsync
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -43,7 +46,19 @@ fun InitialSyncScreen(
     val activity = LocalActivity.current
     val syncCompletionState = viewModel.syncCompletionState
 
-    SettingUpWireScreenContent()
+    SettingUpWireScreenContent(
+        secondLineMessage = if (viewModel.isRestoringBackup) {
+            stringResource(R.string.backup_dialog_restoring_backup_title)
+        } else {
+            null
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.restoreErrorToast.collect { messageResId ->
+            Toast.makeText(activity, activity.getString(messageResId), Toast.LENGTH_SHORT).show()
+        }
+    }
 
     LaunchedEffect(syncCompletionState) {
         syncCompletionState ?: return@LaunchedEffect

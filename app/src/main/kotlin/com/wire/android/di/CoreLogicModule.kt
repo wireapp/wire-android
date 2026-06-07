@@ -52,6 +52,7 @@ import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.SyncConversationsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
@@ -415,6 +416,13 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): RestoreLatestOnlineBackupUseCase =
         coreLogic.getSessionScope(currentAccount).multiPlatformBackup.restoreLatestOnline
+
+    @Provides
+    fun provideSyncConversationsUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SyncConversationsUseCase =
+        coreLogic.getSessionScope(currentAccount).syncConversations
 
     @Provides
     fun provideUpdateApiVersionsScheduler(@KaliumCoreLogic coreLogic: CoreLogic): UpdateApiVersionsScheduler =

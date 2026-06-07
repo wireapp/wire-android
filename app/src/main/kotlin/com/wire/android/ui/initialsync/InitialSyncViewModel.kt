@@ -24,17 +24,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.AutomatedLoginManager
+import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyIfOnlineBackupExistsResult
-import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyIfOnlineBackupExistsUseCase
+import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupResult
+import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
+import com.wire.kalium.logic.feature.conversation.SyncConversationsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
@@ -44,11 +51,18 @@ class InitialSyncViewModel(
     @CurrentAccount private val userId: UserId,
     private val dispatchers: DispatcherProvider,
     private val automatedLoginManager: AutomatedLoginManager,
-    private val syncBackupRootKeyIfOnlineBackupExists: SyncBackupRootKeyIfOnlineBackupExistsUseCase,
+    private val syncConversations: SyncConversationsUseCase,
+    private val restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase,
 ) : ViewModel() {
 
     internal var syncCompletionState: SyncCompletionState? by mutableStateOf(null)
         private set
+
+    internal var isRestoringBackup: Boolean by mutableStateOf(false)
+        private set
+
+    private val _restoreErrorToast = MutableSharedFlow<Int>(extraBufferCapacity = 1)
+    internal val restoreErrorToast: SharedFlow<Int> = _restoreErrorToast.asSharedFlow()
 
     internal val isSyncCompleted: Boolean
         get() = syncCompletionState != null
@@ -65,20 +79,47 @@ class InitialSyncViewModel(
             delay(DefaultDurationMillis.toLong()) // it can be triggered instantly so it's added to keep smooth transitions
             observeSyncState().firstOrNull { it is SyncState.Live }?.let {
                 userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
+                val shouldMoveToBackground = automatedLoginManager.consumePendingMoveToBackgroundAfterSync()
+                loadConversationsBeforeBackupRestore()
+                restoreLatestOnlineBackupIfExists()
                 syncCompletionState = SyncCompletionState(
-                    shouldMoveToBackground = automatedLoginManager.consumePendingMoveToBackgroundAfterSync()
+                    shouldMoveToBackground = shouldMoveToBackground
                 )
-                syncBackupRootKeyIfOnlineBackupExistsInBackground()
             } ?: run {
                 appLogger.e("InitialSyncViewModel: SyncState is null")
             }
         }
 
-    private fun syncBackupRootKeyIfOnlineBackupExistsInBackground() {
-        viewModelScope.launch(dispatchers.io()) {
-            runCatching { syncBackupRootKeyIfOnlineBackupExists() }
-                .onSuccess { appLogger.i("InitialSyncViewModel: backup root key sync result: ${it.logName()}") }
-                .onFailure { appLogger.e("InitialSyncViewModel: backup root key sync failed: ${it.message.orEmpty()}") }
+    private suspend fun loadConversationsBeforeBackupRestore() {
+        syncConversations()
+            .onFailure { appLogger.e("InitialSyncViewModel: failed to sync conversations before backup restore: $it") }
+    }
+
+    private suspend fun restoreLatestOnlineBackupIfExists() {
+        isRestoringBackup = true
+        try {
+            when (val result = restoreLatestOnlineBackup { }) {
+                is RestoreLatestOnlineBackupResult.Success -> {
+                    appLogger.i("InitialSyncViewModel: latest online backup restored")
+                }
+                RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable -> {
+                    appLogger.i("InitialSyncViewModel: latest online backup restore skipped: NoBackupRootKeyAvailable")
+                }
+                RestoreLatestOnlineBackupResult.Failure.NoOnlineBackupFound -> {
+                    appLogger.i("InitialSyncViewModel: latest online backup restore skipped: NoOnlineBackupFound")
+                }
+                is RestoreLatestOnlineBackupResult.Failure -> {
+                    appLogger.e("InitialSyncViewModel: latest online backup restore failed: ${result.logName()}")
+                    _restoreErrorToast.emit(R.string.initial_sync_restore_backup_failed)
+                }
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            appLogger.e("InitialSyncViewModel: latest online backup restore failed: ${e.message.orEmpty()}")
+            _restoreErrorToast.emit(R.string.initial_sync_restore_backup_failed)
+        } finally {
+            isRestoringBackup = false
         }
     }
 }
@@ -87,11 +128,15 @@ internal data class SyncCompletionState(
     val shouldMoveToBackground: Boolean,
 )
 
-private fun SyncBackupRootKeyIfOnlineBackupExistsResult.logName(): String =
+private fun RestoreLatestOnlineBackupResult.Failure.logName(): String =
     when (this) {
-        SyncBackupRootKeyIfOnlineBackupExistsResult.KeyUnavailable -> "KeyUnavailable"
-        SyncBackupRootKeyIfOnlineBackupExistsResult.LocalKeyExists -> "LocalKeyExists"
-        SyncBackupRootKeyIfOnlineBackupExistsResult.NoOnlineBackups -> "NoOnlineBackups"
-        is SyncBackupRootKeyIfOnlineBackupExistsResult.Failure -> "Failure"
-        is SyncBackupRootKeyIfOnlineBackupExistsResult.Synced -> "Synced"
+        RestoreLatestOnlineBackupResult.Failure.BackupBelongsToAnotherUser -> "BackupBelongsToAnotherUser"
+        is RestoreLatestOnlineBackupResult.Failure.BackupListFailed -> "BackupListFailed"
+        is RestoreLatestOnlineBackupResult.Failure.DownloadFailed -> "DownloadFailed"
+        RestoreLatestOnlineBackupResult.Failure.InvalidPassphrase -> "InvalidPassphrase"
+        RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable -> "NoBackupRootKeyAvailable"
+        RestoreLatestOnlineBackupResult.Failure.NoOnlineBackupFound -> "NoOnlineBackupFound"
+        RestoreLatestOnlineBackupResult.Failure.RootKeyIdMismatch -> "RootKeyIdMismatch"
+        is RestoreLatestOnlineBackupResult.Failure.RestoreFailed -> "RestoreFailed"
+        is RestoreLatestOnlineBackupResult.Failure.Unknown -> "Unknown"
     }

@@ -56,7 +56,7 @@ fun SettingUpWireScreenContent(
     modifier: Modifier = Modifier,
     @StringRes topBarTitleResId: Int = R.string.migration_title,
     @DrawableRes iconResId: Int = R.drawable.ic_migration,
-    title: String? = null,
+    secondLineMessage: String? = null,
     message: AnnotatedString = AnnotatedString(stringResource(R.string.migration_message)),
     type: SettingUpWireScreenType = SettingUpWireScreenType.Progress
 ) {
@@ -95,18 +95,6 @@ fun SettingUpWireScreenContent(
                 AnimatedVisibility(visible = type is SettingUpWireScreenType.Progress) {
                     WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.onBackground)
                 }
-                AnimatedVisibility(visible = title?.isNotEmpty() == true) {
-                    Text(
-                        text = title ?: "",
-                        style = MaterialTheme.wireTypography.body02,
-                        color = MaterialTheme.wireColorScheme.onBackground,
-                        overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .animateContentSize()
-                            .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
-                    )
-                }
 
                 Text(
                     text = message,
@@ -118,6 +106,19 @@ fun SettingUpWireScreenContent(
                         .animateContentSize()
                         .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
                 )
+
+                AnimatedVisibility(visible = secondLineMessage?.isNotEmpty() == true) {
+                    Text(
+                        text = secondLineMessage ?: "",
+                        style = MaterialTheme.wireTypography.body01,
+                        color = MaterialTheme.wireColorScheme.secondaryText,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .animateContentSize()
+                            .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
+                    )
+                }
             }
 
             Box(modifier = Modifier.animateContentSize()) {
@@ -152,7 +153,7 @@ sealed class SettingUpWireScreenType {
 @Preview
 @Composable
 fun PreviewMigrationScreenProgress() {
-    SettingUpWireScreenContent(type = SettingUpWireScreenType.Progress, title = "Step 1/2")
+    SettingUpWireScreenContent(type = SettingUpWireScreenType.Progress, secondLineMessage = "Step 1/2")
 }
 
 @Preview

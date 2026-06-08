@@ -87,8 +87,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveSelfUserHasViewerAccessOnConversationUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveSelfUserHasViewerAccessOnConversationUseCase
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
@@ -197,7 +196,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     private val observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
-    private val observeSelfUserHasViewerAccess: ObserveSelfUserHasViewerAccessOnConversationUseCase,
+    private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
     private val networkStateObserver: NetworkStateObserver,
     @CurrentAccount private val selfUserId: UserId,
 ) {
@@ -240,7 +239,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
         currentSessionFlowUseCase = currentSessionFlowUseCase,
         observeEstablishedCalls = observeEstablishedCalls,
         globalDataStore = globalDataStore,
-        observeSelfUserHasViewerAccess = observeSelfUserHasViewerAccess
+        isSelfUserViewerOnConversation = isSelfUserViewerOnConversation
     )
 
     fun sendMessageViewModel(savedStateHandle: SavedStateHandle) = SendMessageViewModel(

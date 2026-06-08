@@ -45,9 +45,9 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveSelfUserHasViewerAccessOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
@@ -85,7 +85,7 @@ class MessageComposerViewModel(
     private val currentSessionFlowUseCase: CurrentSessionFlowUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val globalDataStore: GlobalDataStore,
-    private val observeSelfUserHasViewerAccess: ObserveSelfUserHasViewerAccessOnConversationUseCase,
+    private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
 ) : ViewModel() {
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
@@ -115,7 +115,7 @@ class MessageComposerViewModel(
         initTempWritableImageUri()
         observeIsTypingAvailable()
         setFileSharingStatus()
-        observeAttachmentOptionsAvailability()
+        checkAttachmentOptionsAvailability()
         getEnterToSendState()
         observeCallState()
     }
@@ -199,14 +199,12 @@ class MessageComposerViewModel(
         }
     }
 
-    private fun observeAttachmentOptionsAvailability() {
+    private fun checkAttachmentOptionsAvailability() {
         viewModelScope.launch {
-            observeSelfUserHasViewerAccess(conversationId)
-                .collectLatest { areAttachmentOptionsEnabled ->
-                    messageComposerViewState.value = messageComposerViewState.value.copy(
-                        areAttachmentOptionsEnabled = areAttachmentOptionsEnabled
-                    )
-                }
+            val areAttachmentOptionsEnabled = isSelfUserViewerOnConversation(conversationId)
+            messageComposerViewState.value = messageComposerViewState.value.copy(
+                areAttachmentOptionsEnabled = areAttachmentOptionsEnabled
+            )
         }
     }
 

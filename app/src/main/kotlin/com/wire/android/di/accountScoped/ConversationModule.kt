@@ -41,7 +41,7 @@ import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
 import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveSelfUserHasViewerAccessOnConversationUseCase
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
@@ -369,10 +369,8 @@ class ConversationModule {
     ): ChangeAccessForAppsInConversationUseCase =
         conversationScope.changeAccessForAppsInConversation
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveSelfUserHasViewerAccessUseCase(
+    fun provideIsSelfUserViewerOnConversationUseCase(
         conversationScope: ConversationScope
-    ): ObserveSelfUserHasViewerAccessOnConversationUseCase =
-        conversationScope.observeSelfUserHasViewerAccess
+    ): IsSelfUserViewerOnConversationUseCase = conversationScope.isSelfUserViewerOnConversation
 }

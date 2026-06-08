@@ -26,7 +26,10 @@ import com.wire.android.ui.home.newConversationViewModel
 @Composable
 fun sharedNewConversationViewModel(navigator: Navigator): NewConversationViewModel {
     val navController = navigator.navController
-    val parentEntry = remember(navController) {
+    val currentEntry = remember(navController) {
+        checkNotNull(navController.currentBackStackEntry)
+    }
+    val parentEntry = remember(currentEntry) {
         navController.getBackStackEntry(NewConversationGraph.route)
     }
     return newConversationViewModel(parentEntry)

@@ -86,7 +86,7 @@ class InitialSyncViewModelTest {
 
         // then
         assertTrue(viewModel.isSyncCompleted)
-        assertFalse(viewModel.isRestoringBackup)
+        assertEquals(InitialSyncBackupRestoreState.None, viewModel.backupRestoreState)
         assertEquals(SyncCompletionState(shouldMoveToBackground = false), viewModel.syncCompletionState)
         coVerify(exactly = 1) { arrangement.restoreLatestOnlineBackup(any()) }
     }
@@ -110,7 +110,7 @@ class InitialSyncViewModelTest {
     }
 
     @Test
-    fun `given restore is running, when observing initial sync state, then keep initial sync in progress`() = runTest {
+    fun `given restore is checking backup, when observing initial sync state, then keep initial sync in progress`() = runTest {
         // given
         val restoreStarted = CompletableDeferred<Unit>()
         val finishRestore = CompletableDeferred<Unit>()
@@ -125,12 +125,37 @@ class InitialSyncViewModelTest {
         restoreStarted.await()
 
         // then
-        assertTrue(viewModel.isRestoringBackup)
+        assertEquals(InitialSyncBackupRestoreState.Checking, viewModel.backupRestoreState)
         assertFalse(viewModel.isSyncCompleted)
         assertEquals(null, viewModel.syncCompletionState)
 
         finishRestore.complete(Unit)
         advanceUntilIdle()
+    }
+
+    @Test
+    fun `given restore emits progress, when observing initial sync state, then show restoring progress`() = runTest {
+        // given
+        val restoreStarted = CompletableDeferred<Unit>()
+        val finishRestore = CompletableDeferred<Unit>()
+        val (viewModel, _) = Arrangement()
+            .withSuspendedRestoreLatestOnlineBackupProgress(0.4f, restoreStarted, finishRestore)
+            .withSyncState(SyncState.Live)
+            .arrange()
+
+        // when
+        advanceTimeBy(DefaultDurationMillis.toLong())
+        runCurrent()
+        restoreStarted.await()
+
+        // then
+        assertEquals(InitialSyncBackupRestoreState.Restoring(0.4f), viewModel.backupRestoreState)
+        assertFalse(viewModel.isSyncCompleted)
+        assertEquals(null, viewModel.syncCompletionState)
+
+        finishRestore.complete(Unit)
+        advanceUntilIdle()
+        assertEquals(InitialSyncBackupRestoreState.None, viewModel.backupRestoreState)
     }
 
     @Test
@@ -147,6 +172,7 @@ class InitialSyncViewModelTest {
 
         // then
         assertTrue(viewModel.isSyncCompleted)
+        assertEquals(InitialSyncBackupRestoreState.None, viewModel.backupRestoreState)
         assertEquals(emptyList<Int>(), restoreErrorToasts)
         job.cancel()
     }
@@ -165,6 +191,7 @@ class InitialSyncViewModelTest {
 
         // then
         assertFalse(viewModel.isSyncCompleted)
+        assertEquals(InitialSyncBackupRestoreState.None, viewModel.backupRestoreState)
         assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
         assertEquals(emptyList<Int>(), restoreErrorToasts)
         job.cancel()
@@ -442,6 +469,7 @@ class InitialSyncViewModelTest {
 
         // then
         assertTrue(viewModel.isSyncCompleted)
+        assertEquals(InitialSyncBackupRestoreState.None, viewModel.backupRestoreState)
         assertEquals(R.string.initial_sync_restore_backup_failed, restoreErrorToast.await())
     }
 
@@ -606,6 +634,19 @@ class InitialSyncViewModelTest {
             finishRestore: CompletableDeferred<Unit>,
         ) = apply {
             coEvery { restoreLatestOnlineBackup(any()) } coAnswers {
+                restoreStarted.complete(Unit)
+                finishRestore.await()
+                RESTORE_BACKUP_SUCCESS
+            }
+        }
+
+        fun withSuspendedRestoreLatestOnlineBackupProgress(
+            progress: Float,
+            restoreStarted: CompletableDeferred<Unit>,
+            finishRestore: CompletableDeferred<Unit>,
+        ) = apply {
+            coEvery { restoreLatestOnlineBackup(any()) } coAnswers {
+                firstArg<(Float) -> Unit>().invoke(progress)
                 restoreStarted.complete(Unit)
                 finishRestore.await()
                 RESTORE_BACKUP_SUCCESS

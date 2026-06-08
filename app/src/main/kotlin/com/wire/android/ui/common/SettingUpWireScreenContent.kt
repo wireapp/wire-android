@@ -58,7 +58,8 @@ fun SettingUpWireScreenContent(
     @DrawableRes iconResId: Int = R.drawable.ic_migration,
     secondLineMessage: String? = null,
     message: AnnotatedString = AnnotatedString(stringResource(R.string.migration_message)),
-    type: SettingUpWireScreenType = SettingUpWireScreenType.Progress
+    type: SettingUpWireScreenType = SettingUpWireScreenType.Progress,
+    bottomContent: @Composable () -> Unit = {},
 ) {
     WireScaffold(
         modifier = modifier,
@@ -136,6 +137,8 @@ fun SettingUpWireScreenContent(
                             )
                         }
                     }
+                } else {
+                    bottomContent()
                 }
             }
         }

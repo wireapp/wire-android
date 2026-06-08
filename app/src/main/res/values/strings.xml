@@ -383,6 +383,7 @@
     <string name="migration_title_almost_done">Almost done!</string>
     <string name="migration_title_updated">Setting up Wire</string>
     <string name="initial_sync_restore_backup_failed">Couldn\'t restore backup</string>
+    <string name="initial_sync_checking_backup">Checking backup...</string>
     <string name="initial_sync_backup_root_key_unavailable_dialog_title">Open another Wire client</string>
     <string name="initial_sync_backup_root_key_unavailable_dialog_message">To restore your backup, open Wire Messenger on one of your other devices, then try again.</string>
     <string name="initial_sync_backup_root_key_unavailable_dialog_import_key">Import key</string>

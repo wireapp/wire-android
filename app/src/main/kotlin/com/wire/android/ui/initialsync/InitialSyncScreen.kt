@@ -19,12 +19,19 @@
 package com.wire.android.ui.initialsync
 
 import android.widget.Toast
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.lifecycleScope
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.wire.android.R
@@ -40,8 +47,12 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.SettingUpWireScreenContent
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.initialSyncViewModel
 import com.wire.android.util.permission.FileType
 import com.wire.android.util.permission.rememberChooseSingleFileFlow
@@ -64,13 +75,9 @@ fun InitialSyncScreen(
         onPermissionPermanentlyDenied = { viewModel.onBackupRootKeyImportFileSelected(null) },
     )
 
-    SettingUpWireScreenContent(
-        secondLineMessage = if (viewModel.isRestoringBackup) {
-            stringResource(R.string.backup_dialog_restoring_backup_title)
-        } else {
-            null
-        }
-    )
+    SettingUpWireScreenContent {
+        InitialSyncBackupRestoreStatus(viewModel.backupRestoreState)
+    }
 
     if (viewModel.showBackupRootKeyUnavailableDialog) {
         WireDialog(
@@ -145,5 +152,49 @@ fun InitialSyncScreen(
         }
 
         navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+    }
+}
+
+@Composable
+private fun InitialSyncBackupRestoreStatus(
+    state: InitialSyncBackupRestoreState,
+    modifier: Modifier = Modifier,
+) {
+    if (state is InitialSyncBackupRestoreState.None) {
+        return
+    }
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shadowElevation = MaterialTheme.wireDimensions.topBarShadowElevation,
+        color = MaterialTheme.wireColorScheme.background,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(MaterialTheme.wireDimensions.spacing16x)
+        ) {
+            Text(
+                text = when (state) {
+                    InitialSyncBackupRestoreState.Checking -> stringResource(R.string.initial_sync_checking_backup)
+                    InitialSyncBackupRestoreState.None -> ""
+                    is InitialSyncBackupRestoreState.Restoring -> stringResource(R.string.backup_dialog_restoring_backup_title)
+                },
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            if (state is InitialSyncBackupRestoreState.Restoring) {
+                val progress by animateFloatAsState(targetValue = state.progress)
+                WireLinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = MaterialTheme.wireDimensions.spacing16x),
+                )
+            }
+        }
     }
 }

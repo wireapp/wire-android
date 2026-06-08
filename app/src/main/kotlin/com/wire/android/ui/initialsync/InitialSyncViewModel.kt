@@ -70,7 +70,9 @@ class InitialSyncViewModel(
     internal var syncCompletionState: SyncCompletionState? by mutableStateOf(null)
         private set
 
-    internal var isRestoringBackup: Boolean by mutableStateOf(false)
+    internal var backupRestoreState: InitialSyncBackupRestoreState by mutableStateOf(
+        InitialSyncBackupRestoreState.None
+    )
         private set
 
     internal var showBackupRootKeyUnavailableDialog: Boolean by mutableStateOf(false)
@@ -218,9 +220,11 @@ class InitialSyncViewModel(
     }
 
     private suspend fun restoreLatestOnlineBackupIfExists(): Boolean {
-        isRestoringBackup = true
+        backupRestoreState = InitialSyncBackupRestoreState.Checking
         try {
-            when (val result = restoreLatestOnlineBackup { }) {
+            when (val result = restoreLatestOnlineBackup { progress ->
+                backupRestoreState = InitialSyncBackupRestoreState.Restoring(progress.coerceIn(0f, 1f))
+            }) {
                 is RestoreLatestOnlineBackupResult.Success -> {
                     appLogger.i("InitialSyncViewModel: latest online backup restored")
                     return true
@@ -247,7 +251,7 @@ class InitialSyncViewModel(
             _restoreErrorToast.emit(R.string.initial_sync_restore_backup_failed)
             return true
         } finally {
-            isRestoringBackup = false
+            backupRestoreState = InitialSyncBackupRestoreState.None
         }
     }
 }
@@ -255,6 +259,12 @@ class InitialSyncViewModel(
 internal data class SyncCompletionState(
     val shouldMoveToBackground: Boolean,
 )
+
+internal sealed interface InitialSyncBackupRestoreState {
+    data object None : InitialSyncBackupRestoreState
+    data object Checking : InitialSyncBackupRestoreState
+    data class Restoring(val progress: Float) : InitialSyncBackupRestoreState
+}
 
 private fun RestoreLatestOnlineBackupResult.Failure.logName(): String =
     when (this) {

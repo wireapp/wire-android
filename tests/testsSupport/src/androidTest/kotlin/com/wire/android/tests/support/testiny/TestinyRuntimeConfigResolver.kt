@@ -30,12 +30,14 @@ object TestinyRuntimeConfigResolver {
     const val ARG_API_KEY = "testinyApiKey"
     const val ARG_API_KEY_B64 = "testinyApiKeyB64"
     const val ARG_SOURCE_RUN_URL = "testinySourceRunUrl"
+    const val ARG_SOURCE_RUN_URL_B64 = "testinySourceRunUrlB64"
 
     fun fromInstrumentationArgs(arguments: Bundle = InstrumentationRegistry.getArguments()): TestinyRuntimeConfig? {
         val projectName = arguments.readDecodedTrimmed(ARG_PROJECT_NAME_B64) ?: arguments.readTrimmed(ARG_PROJECT_NAME)
         val runName = arguments.readDecodedTrimmed(ARG_RUN_NAME_B64) ?: arguments.readTrimmed(ARG_RUN_NAME)
         val apiKey = arguments.readDecodedTrimmed(ARG_API_KEY_B64) ?: arguments.readTrimmed(ARG_API_KEY)
-        val sourceRunUrl = arguments.readTrimmed(ARG_SOURCE_RUN_URL)
+        val sourceRunUrl = arguments.readDecodedTrimmed(ARG_SOURCE_RUN_URL_B64)
+            ?: arguments.readTrimmed(ARG_SOURCE_RUN_URL)
         val configuredValues = listOf(projectName, runName, apiKey, sourceRunUrl)
 
         // Treat a fully missing block as "Testiny disabled" for this run.

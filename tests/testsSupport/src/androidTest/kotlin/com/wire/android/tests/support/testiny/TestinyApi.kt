@@ -78,6 +78,15 @@ class TestinyApi {
         return runs.getJSONObject(0).getLong("id")
     }
 
+    fun getTestRunDescription(testRunId: Long, apiKey: String): String {
+        val response = getObject(
+            path = "testrun/$testRunId",
+            apiKey = apiKey,
+        )
+
+        return response.optString("description", "")
+    }
+
     fun findIdsByOldIds(projectId: Long, oldIds: List<String>, apiKey: String): List<String> {
         if (oldIds.isEmpty()) {
             return emptyList()
@@ -123,6 +132,14 @@ class TestinyApi {
         )
 
         return response.getLong("id")
+    }
+
+    fun updateTestRunDescription(testRunId: Long, description: String, apiKey: String) {
+        putObject(
+            path = "testrun/$testRunId?force=true",
+            apiKey = apiKey,
+            body = JSONObject().put("description", description),
+        )
     }
 
     fun addOrUpdateResults(
@@ -209,15 +226,27 @@ class TestinyApi {
         return JSONObject(postRaw(path, apiKey, body.toString()))
     }
 
+    private fun getObject(path: String, apiKey: String): JSONObject {
+        return JSONObject(sendRaw(path, "GET", apiKey))
+    }
+
     private fun postArray(path: String, apiKey: String, body: JSONArray): JSONArray {
         return JSONArray(postRaw(path, apiKey, body.toString()))
     }
 
+    private fun putObject(path: String, apiKey: String, body: JSONObject) {
+        sendRaw(path, "PUT", apiKey, body.toString())
+    }
+
     private fun postRaw(path: String, apiKey: String, body: String): String {
+        return sendRaw(path, "POST", apiKey, body)
+    }
+
+    private fun sendRaw(path: String, method: String, apiKey: String, body: String? = null): String {
         return try {
             sendJsonRequest(
                 url = URL("$baseUrl/$path"),
-                method = "POST",
+                method = method,
                 body = body,
                 headers = mapOf(
                     "Content-Type" to "application/json",

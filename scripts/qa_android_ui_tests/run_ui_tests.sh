@@ -422,6 +422,9 @@ run_attempt_on_devices() {
         if [[ -n "${TESTINY_API_KEY:-}" ]]; then
           args+=(-e testinyApiKeyB64 "$(encode_testiny_arg "${TESTINY_API_KEY}")")
         fi
+        if [[ -n "${TESTINY_SOURCE_RUN_URL:-}" ]]; then
+          args+=(-e testinySourceRunUrlB64 "$(encode_testiny_arg "${TESTINY_SOURCE_RUN_URL}")")
+        fi
       fi
 
       if attempt_uses_selector_mode "${attempt}"; then

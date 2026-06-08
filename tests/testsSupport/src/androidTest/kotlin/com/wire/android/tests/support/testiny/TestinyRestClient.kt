@@ -18,6 +18,8 @@
 package com.wire.android.tests.support.testiny
 
 import logger.WireTestLogger
+import org.json.JSONArray
+import org.json.JSONObject
 
 /** Sends per-test results to Testiny and retries per case on 4xx bulk failures. */
 class TestinyRestClient(
@@ -164,6 +166,17 @@ class TestinyRestClient(
                 val testRunId = api.findOpenTestRunId(projectId, config.runName, config.apiKey)
                     ?: api.createTestRun(projectId, config.runName, config.apiKey)
 
+                config.sourceRunUrl
+                    ?.takeIf(String::isNotBlank)
+                    ?.let { sourceRunUrl ->
+                        updateRunDescriptionIfNeeded(
+                            testRunId = testRunId,
+                            runName = config.runName,
+                            sourceRunUrl = sourceRunUrl,
+                            apiKey = config.apiKey,
+                        )
+                    }
+
                 statusReporter.info(
                     "Using Testiny projectId=$projectId testRunId=$testRunId run='${config.runName}'"
                 )
@@ -183,5 +196,58 @@ class TestinyRestClient(
     private companion object {
         // Cache project/run ids so every test does not repeat the lookup.
         val runCache = mutableMapOf<String, CachedRun>()
+    }
+
+    private fun updateRunDescriptionIfNeeded(
+        testRunId: Long,
+        runName: String,
+        sourceRunUrl: String,
+        apiKey: String,
+    ) {
+        val currentDescription = api.getTestRunDescription(testRunId, apiKey)
+        if (currentDescription.contains(sourceRunUrl)) {
+            statusReporter.info("Testiny run $testRunId already contains source run url")
+            return
+        }
+
+        val newDescription = buildUpdatedDescription(currentDescription, runName, sourceRunUrl)
+        api.updateTestRunDescription(testRunId, newDescription, apiKey)
+        statusReporter.info("Updated Testiny run $testRunId description")
+    }
+
+    private fun buildUpdatedDescription(currentDescription: String, runName: String, sourceRunUrl: String): String {
+        val entries = mutableListOf<JSONObject>()
+        if (currentDescription.isNotBlank()) {
+            val descriptionJson = JSONObject(currentDescription)
+            val existingEntries = descriptionJson.optJSONArray("c") ?: JSONArray()
+            repeat(existingEntries.length()) { index ->
+                entries += existingEntries.getJSONObject(index)
+            }
+        }
+
+        val newEntry = JSONObject().apply {
+            put("t", "p")
+            put(
+                "children",
+                JSONArray().apply {
+                    put(JSONObject().put("text", "$runName - "))
+                    put(
+                        JSONObject().apply {
+                            put("t", "a")
+                            put("children", JSONArray().put(JSONObject().put("text", "GitHub Actions")))
+                            put("url", sourceRunUrl)
+                        }
+                    )
+                    put(JSONObject().put("text", ""))
+                }
+            )
+        }
+
+        entries.add(0, newEntry)
+        return JSONObject().apply {
+            put("c", JSONArray(entries))
+            put("v", 1)
+            put("t", "slate")
+        }.toString()
     }
 }

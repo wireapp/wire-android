@@ -17,23 +17,21 @@
  */
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 
-class HiltConventionPlugin : Plugin<Project> {
+/**
+ * A convention plugin to apply and configure the JetBrains Compose Compiler Gradle plugin across all modules that use Compose.
+ */
+class ComposeCompilerConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
-        with(pluginManager) {
-            apply("dagger.hilt.android.plugin")
-            apply("com.google.devtools.ksp")
-        }
+        pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
-        dependencies {
-            add("implementation", findLibrary("hilt.android"))
-            add("androidTestImplementation", findLibrary("hilt.android"))
-
-            add("ksp", findLibrary("hilt.compiler"))
-            add("kspAndroidTest", findLibrary("hilt.compiler"))
-
-            add("androidTestImplementation", findLibrary("hilt.test"))
+        // Configure the compose stability configuration file for all modules using the compose compiler plugin
+        extensions.configure<ComposeCompilerGradlePluginExtension> {
+            stabilityConfigurationFiles.add(
+                rootProject.layout.projectDirectory.file("config/compose-stability.conf")
+            )
         }
     }
 }

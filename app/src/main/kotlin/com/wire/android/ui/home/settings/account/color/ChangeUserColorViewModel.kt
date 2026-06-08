@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.home.settings.account.color
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,19 +25,14 @@ import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateAccentColorResult
 import com.wire.kalium.logic.feature.user.UpdateAccentColorUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-@HiltViewModel
+import dev.zacsweers.metro.Inject
 class ChangeUserColorViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val updateAccentColor: UpdateAccentColorUseCase,
 ) : ActionsViewModel<ChangeUserColorAction>() {
-
     var accentState: AccentActionState by mutableStateOf(AccentActionState(null))
         private set
-
     init {
         viewModelScope.launch {
             getSelf()?.accentId.let { accentId ->
@@ -49,11 +42,9 @@ class ChangeUserColorViewModel @Inject constructor(
             }
         }
     }
-
     fun changeAccentColor(accent: Accent) {
         accentState = accentState.copy(accent = accent)
     }
-
     fun saveAccentColor() {
         viewModelScope.launch {
             accentState.accent?.let { accent ->
@@ -72,12 +63,10 @@ class ChangeUserColorViewModel @Inject constructor(
         }
     }
 }
-
 data class AccentActionState(
     val accent: Accent?,
     val isPerformingAction: Boolean = false,
 )
-
 enum class ChangeUserColorAction {
     Success,
     Failure

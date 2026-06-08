@@ -48,7 +48,7 @@ class PersonalUserRegistrationTest : BaseUiTest() {
 
     @Before
     fun setUp() {
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
     }
 
     @After

@@ -44,7 +44,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: CoreLogic) {
     private val actions = Channel<Action>(capacity = Channel.BUFFERED, onBufferOverflow = BufferOverflow.DROP_OLDEST)

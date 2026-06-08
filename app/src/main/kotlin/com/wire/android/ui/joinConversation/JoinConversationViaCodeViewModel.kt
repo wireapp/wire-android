@@ -26,14 +26,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class JoinConversationViaCodeViewModel @Inject constructor(
+class JoinConversationViaCodeViewModel(
     private val joinViaCode: JoinConversationViaCodeUseCase
 ) : ViewModel() {
 

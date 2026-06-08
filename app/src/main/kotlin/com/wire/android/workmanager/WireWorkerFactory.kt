@@ -34,7 +34,7 @@ import com.wire.android.workmanager.worker.AssetUploadObserverWorker
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.sync.WrapperWorker
 import com.wire.kalium.logic.sync.WrapperWorkerFactory
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class WireWorkerFactory @Inject constructor(
     private val wireNotificationManager: WireNotificationManager,

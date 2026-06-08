@@ -15,15 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.di
+package com.wire.android.feature.meetings.ui.usecase
 
-import androidx.activity.ComponentActivity
-import androidx.activity.viewModels
-import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.withCreationCallback
-
-inline fun <reified VM : ViewModel, reified VMF> ComponentActivity.assistedViewModels(
-    crossinline create: (VMF) -> VM
-) = viewModels<VM>(extrasProducer = {
-    defaultViewModelCreationExtras.withCreationCallback<VMF> { factory -> create(factory) }
-})
+import androidx.paging.PagingData
+import com.wire.android.feature.meetings.ui.MeetingsTabItem
+import com.wire.android.feature.meetings.ui.mock.Meeting
+import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
+import kotlinx.coroutines.flow.Flow
+import dev.zacsweers.metro.Inject
+class GetMeetingsPaginatedUseCase @Inject constructor() {
+    private val meetingMocksProvider = MeetingMocksProvider.Default // TODO replace with real data source
+    operator fun invoke(showingAll: Boolean, type: MeetingsTabItem): Flow<PagingData<Meeting>> =
+        meetingMocksProvider.getPagingDataFlow(type, showingAll)
+}

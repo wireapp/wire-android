@@ -65,11 +65,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModel
-import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
 import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.equalizedWavesMask
@@ -90,6 +88,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversations.LocalAudioMessageKeyInScopeResolver
+import com.wire.android.ui.home.conversations.audioMessageViewModel
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.messages.item.playedColor
@@ -181,21 +180,7 @@ private fun UploadedAudioMessage(
     modifier: Modifier = Modifier,
 ) {
     val keyInScopeResolver = LocalAudioMessageKeyInScopeResolver.current
-    val viewModel: AudioMessageViewModel = if (keyInScopeResolver != null) {
-        hiltViewModelScoped<
-                AudioMessageViewModelImpl,
-                AudioMessageViewModel,
-                AudioMessageArgs,
-                AudioMessageViewModelImpl.Factory
-                >(audioMessageArgs, keyInScopeResolver)
-    } else {
-        hiltViewModelScoped<
-                AudioMessageViewModelImpl,
-                AudioMessageViewModel,
-                AudioMessageArgs,
-                AudioMessageViewModelImpl.Factory
-                >(audioMessageArgs)
-    }
+    val viewModel: AudioMessageViewModel = audioMessageViewModel(audioMessageArgs, keyInScopeResolver)
 
     val sanitizedAudioState by remember(viewModel.state.audioState, audioMessageDurationInMs) {
         derivedStateOf {

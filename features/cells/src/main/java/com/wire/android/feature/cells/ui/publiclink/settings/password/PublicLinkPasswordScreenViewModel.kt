@@ -32,16 +32,13 @@ import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordU
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.util.RandomPassword
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-internal class PublicLinkPasswordScreenViewModel @Inject constructor(
+internal class PublicLinkPasswordScreenViewModel(
     private val generateRandomPassword: RandomPassword,
     private val createPassword: CreatePublicLinkPasswordUseCase,
     private val updatePassword: UpdatePublicLinkPasswordUseCase,

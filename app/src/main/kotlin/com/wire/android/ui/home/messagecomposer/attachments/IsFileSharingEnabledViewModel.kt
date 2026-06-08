@@ -26,17 +26,13 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-
 @ViewModelScopedPreview
 interface IsFileSharingEnabledViewModel {
     fun isFileSharingEnabled(): Boolean = true
 }
 
-@HiltViewModel
-class IsFileSharingEnabledViewModelImpl @Inject constructor(
+class IsFileSharingEnabledViewModelImpl(
     private val isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase,
 ) : IsFileSharingEnabledViewModel, ViewModel() {
 

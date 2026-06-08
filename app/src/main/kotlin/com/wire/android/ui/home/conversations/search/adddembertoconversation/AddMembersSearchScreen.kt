@@ -20,12 +20,12 @@ package com.wire.android.ui.home.conversations.search.adddembertoconversation
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
+import com.wire.android.ui.home.conversations.addMembersToConversationViewModel
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
@@ -42,7 +42,7 @@ import com.wire.kalium.logic.data.user.UserId
 fun AddMembersSearchScreen(
     navigator: Navigator,
     navArgs: AddMembersSearchNavArgs,
-    addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel(),
+    addMembersToConversationViewModel: AddMembersToConversationViewModel = addMembersToConversationViewModel(),
 ) {
     if (addMembersToConversationViewModel.newGroupState.isCompleted) {
         navigator.navigateBack()

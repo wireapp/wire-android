@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.home.settings.appsettings.networkSettings
-
 import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,12 +29,9 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.PersistPersistentWebSocketConnectionStatusUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-@HiltViewModel
+import dev.zacsweers.metro.Inject
 class NetworkSettingsViewModel
 @Inject constructor(
     private val persistPersistentWebSocketConnectionStatus: PersistPersistentWebSocketConnectionStatusUseCase,
@@ -46,19 +41,16 @@ class NetworkSettingsViewModel
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     var networkSettingsState by mutableStateOf(NetworkSettingsState())
-
     init {
         checkWebSocketEnforcedByDefault()
         observePersistentWebSocketConnection()
         observeMDMEnforcement()
     }
-
     private fun checkWebSocketEnforcedByDefault() {
         networkSettingsState = networkSettingsState.copy(
             isWebSocketEnforcedByDefault = isWebsocketEnabledByDefault(context)
         )
     }
-
     private fun observeMDMEnforcement() {
         viewModelScope.launch {
             managedConfigurationsManager.persistentWebSocketEnforcedByMDM.collect { isEnforced ->
@@ -73,20 +65,16 @@ class NetworkSettingsViewModel
             }
         }
     }
-
     private fun observePersistentWebSocketConnection() =
         viewModelScope.launch {
-
             when (val currentSession = currentSession()) {
                 is CurrentSessionResult.Success -> {
                     val userId = currentSession.accountInfo.userId
-
                     observePersistentWebSocketConnectionStatus().let {
                         when (it) {
                             is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                                 appLogger.e("Failure while fetching persistent web socket status flow from network settings")
                             }
-
                             is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
                                 it.persistentWebSocketStatusListFlow.collect {
                                     it.map { persistentWebSocketStatus ->
@@ -103,13 +91,11 @@ class NetworkSettingsViewModel
                         }
                     }
                 }
-
                 else -> {
                     // NO SESSION - Nothing to do
                 }
             }
         }
-
     fun setWebSocketState(isEnabled: Boolean) {
         // Block changes when MDM enforces the setting
         if (networkSettingsState.isEnforcedByMDM) {

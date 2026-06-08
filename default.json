@@ -75,7 +75,7 @@
             "enable_new_registration": true,
             "enforce_configuration_signature": true
         },
-        "internal": {
+        "alpha": {
             "application_id": "com.wire.internal",
             "developer_features_enabled": true,
             "logging_enabled": true,

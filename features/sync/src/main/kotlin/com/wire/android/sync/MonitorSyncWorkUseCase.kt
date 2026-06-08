@@ -28,12 +28,12 @@ import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import com.wire.kalium.work.Work
 import com.wire.kalium.work.WorkId
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class MonitorSyncWorkUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,

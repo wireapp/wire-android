@@ -60,15 +60,17 @@ import com.wire.kalium.logic.feature.message.ToggleReactionResult
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import com.wire.kalium.util.time.UNIX_FIRST_DATE
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Instant
 import okio.Path
@@ -77,7 +79,8 @@ class ConversationMessagesViewModelArrangement {
 
     val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
-    private val messagesChannel = Channel<PagingData<UIMessage>>(capacity = Channel.UNLIMITED)
+    private val messagesFlow = MutableSharedFlow<PagingData<UIMessage>>(replay = 1, extraBufferCapacity = 10)
+    val networkState = MutableStateFlow<NetworkState>(NetworkState.ConnectedWithInternet)
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
@@ -130,6 +133,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var isWireCellFeatureEnabled: IsWireCellsEnabledUseCase
 
+    @MockK
+    lateinit var networkStateObserver: NetworkStateObserver
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             savedStateHandle,
@@ -150,6 +156,7 @@ class ConversationMessagesViewModelArrangement {
             getSearchedConversationMessagePosition,
             deleteMessage,
             isWireCellFeatureEnabled,
+            networkStateObserver,
         )
     }
 
@@ -160,7 +167,7 @@ class ConversationMessagesViewModelArrangement {
         every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
         coEvery { toggleReaction(any(), any(), any()) } returns ToggleReactionResult.Success
         coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesChannel.consumeAsFlow()
+        coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesFlow
         coEvery { fetchOlderNomadMessagesByConversationUseCase(any(), any()) } returns NomadMessagePagingResult(hasMore = false)
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateTransferStatusResult.Success
@@ -170,6 +177,7 @@ class ConversationMessagesViewModelArrangement {
         } returns GetSearchedConversationMessagePositionUseCase.Result.Success(position = 0)
 
         coEvery { observeAssetStatuses(any()) } returns flowOf(mapOf())
+        every { networkStateObserver.observeNetworkState() } returns networkState
 
         coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)
         coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
@@ -222,7 +230,7 @@ class ConversationMessagesViewModelArrangement {
     }
 
     suspend fun withPaginatedMessagesReturning(pagingDataFlow: PagingData<UIMessage>) = apply {
-        messagesChannel.send(pagingDataFlow)
+        messagesFlow.emit(pagingDataFlow)
     }
 
     suspend fun withResetSessionResult(resetSessionResult: ResetSessionResult = ResetSessionResult.Success) = apply {

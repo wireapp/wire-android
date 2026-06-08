@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -40,7 +41,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -56,6 +56,7 @@ import com.ramcosta.composedestinations.generated.cells.destinations.SearchScree
 import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
 import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
@@ -101,8 +102,10 @@ import kotlinx.coroutines.flow.flowOf
 fun ConversationFilesScreen(
     navigator: WireNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    viewModel: CellViewModel = hiltViewModel(),
+    viewModel: CellViewModel = cellViewModel(),
 ) {
+    val isOnline by viewModel.isOnline.collectAsState()
+
     ConversationFilesScreenContent(
         animatedVisibilityScope = animatedVisibilityScope,
         navigator = navigator,
@@ -112,6 +115,7 @@ fun ConversationFilesScreen(
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         menu = viewModel.menu,
         isSearchResult = false,
+        isOnline = isOnline,
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
         isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
         isRefreshing = viewModel.isPullToRefresh.collectAsState(),
@@ -128,6 +132,7 @@ fun ConversationFilesScreen(
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun ConversationFilesScreenContent(
     animatedVisibilityScope: AnimatedVisibilityScope,
@@ -146,6 +151,7 @@ internal fun ConversationFilesScreenContent(
     screenTitle: String? = null,
     isRecycleBin: Boolean = false,
     isRestoreInProgress: Boolean = false,
+    isOnline: Boolean = true,
     breadcrumbs: Array<String>? = emptyArray(),
     fileReadyFlow: Flow<CellNodeUi.File> = emptyFlow(),
 ) {
@@ -223,7 +229,7 @@ internal fun ConversationFilesScreenContent(
                         navigationIconType = NavigationIconType.Back(),
                         elevation = dimensions().spacing0x,
                         actions = {
-                            if (!isRecycleBin) {
+                            if (!isRecycleBin && isOnline) {
                                 MoreOptionIcon(
                                     contentDescription = R.string.content_description_conversation_files_more_button,
                                     onButtonClicked = { optionsBottomSheetState.show() }
@@ -232,23 +238,27 @@ internal fun ConversationFilesScreenContent(
                         }
                     )
 
-                    SearchTopBar(
-                        modifier = Modifier
-                            .sharedElement(
-                                sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
-                                animatedVisibilityScope = animatedVisibilityScope
-                            ),
-                        isSearchActive = false,
-                        searchBarHint = stringResource(R.string.search_label),
-                        searchQueryTextState = TextFieldState(),
-                        onTap = {
-                            currentNodeUuid?.let {
-                                navigator.navigate(
-                                    NavigationCommand(SearchScreenDestination(conversationId = it))
-                                )
-                            }
-                        },
-                    )
+                    if (isOnline) {
+                        SearchTopBar(
+                            modifier = Modifier
+                                .sharedElement(
+                                    sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
+                                    animatedVisibilityScope = animatedVisibilityScope
+                                ),
+                            isSearchActive = false,
+                            searchBarHint = stringResource(R.string.search_label),
+                            searchQueryTextState = TextFieldState(),
+                            onTap = {
+                                currentNodeUuid?.let {
+                                    navigator.navigate(
+                                        NavigationCommand(SearchScreenDestination(conversationId = it))
+                                    )
+                                }
+                            },
+                        )
+                    } else {
+                        OfflineBanner()
+                    }
                 }
             },
             floatingActionButton = {
@@ -290,6 +300,7 @@ internal fun ConversationFilesScreenContent(
                 isRestoreInProgress = isRestoreInProgress,
                 isDeleteInProgress = isDeleteInProgress,
                 isRecycleBin = isRecycleBin,
+                isOffline = !isOnline,
                 openFolder = { path, title, parentFolderUuid ->
                     navigator.navigate(
                         NavigationCommand(
@@ -377,6 +388,7 @@ fun PreviewConversationFilesScreen() {
                             listOf(
                                 CellNodeUi.File(
                                     uuid = "file1",
+                                    conversationId = "conversationId",
                                     name = "File 1",
                                     assetType = AttachmentFileType.IMAGE,
                                     size = 123456,
@@ -387,7 +399,7 @@ fun PreviewConversationFilesScreen() {
                                     userHandle = "userHandle",
                                     ownerUserId = "userA",
                                     conversationName = "Conversation A",
-                                    modifiedTime = "2023-10-01T12:00:00Z",
+                                    modifiedTime = 1696154400000L,
                                     remotePath = "/path/to/file1.png",
                                     contentHash = null,
                                     contentUrl = null,
@@ -401,7 +413,7 @@ fun PreviewConversationFilesScreen() {
                                     userHandle = "userHandle",
                                     ownerUserId = "userB",
                                     conversationName = "Conversation B",
-                                    modifiedTime = "2023-10-01T12:00:00Z",
+                                    modifiedTime = 1696154400000L,
                                     size = 123456,
                                 )
                             )

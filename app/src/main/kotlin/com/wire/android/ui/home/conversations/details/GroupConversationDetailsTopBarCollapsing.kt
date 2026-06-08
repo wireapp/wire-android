@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.details
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -71,6 +72,7 @@ fun GroupConversationDetailsTopBarCollapsing(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
+            .focusGroup()
     ) {
         Box(contentAlignment = Alignment.Center) {
             GroupConversationAvatar(

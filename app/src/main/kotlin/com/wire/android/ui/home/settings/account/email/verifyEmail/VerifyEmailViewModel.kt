@@ -25,7 +25,7 @@ import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 class VerifyEmailViewModel @Inject constructor(
     private val updateEmail: UpdateEmailUseCase,
     savedStateHandle: SavedStateHandle

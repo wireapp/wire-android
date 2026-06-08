@@ -37,7 +37,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-
 @ViewModelScopedPreview
 interface AudioMessageViewModel {
     val state: AudioMessageState get() = AudioMessageState()

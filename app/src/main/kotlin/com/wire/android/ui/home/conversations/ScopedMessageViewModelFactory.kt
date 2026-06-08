@@ -51,8 +51,8 @@ import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
+import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
 class ScopedMessageViewModelFactory @Inject constructor(

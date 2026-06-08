@@ -19,7 +19,7 @@
 package com.wire.android.config
 
 import com.wire.android.BuildConfig
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class NomadProfilesFeatureConfig @Inject constructor() {
     fun isEnabled(): Boolean = BuildConfig.NOMAD_PROFILES_ENABLED

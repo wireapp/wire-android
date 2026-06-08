@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModel
 import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.metro.metroSavedStateViewModel
 import com.wire.android.di.metro.metroViewModel
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
@@ -115,9 +116,9 @@ fun conversationInfoViewModel(): ConversationInfoViewModel =
     conversationSavedStateViewModel { this.conversationInfoViewModel(it) }
 
 @Composable
-fun multipartAttachmentsViewModel(conversationKey: String): MultipartAttachmentsViewModel =
-    conversationViewModel<MultipartAttachmentsViewModelImpl>(key = conversationKey) {
-        this.multipartAttachmentsViewModel()
+fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModel =
+    conversationViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value) {
+        this.multipartAttachmentsViewModel(conversationId)
     }
 
 @Composable

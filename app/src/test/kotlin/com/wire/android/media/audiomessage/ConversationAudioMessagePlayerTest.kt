@@ -650,7 +650,7 @@ class Arrangement(private val tempDir: File) {
         ConversationAudioMessagePlayer(
             context = context,
             audioMediaPlayer = mediaPlayer,
-            servicesManager = { servicesManager },
+            servicesManager = lazyOf(servicesManager),
             audioFocusHelper = audioFocusHelper,
             coreLogic = coreLogic,
             scope = testScope,

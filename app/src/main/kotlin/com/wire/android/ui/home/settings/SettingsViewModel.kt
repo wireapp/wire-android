@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 class SettingsViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val observeIsAppLockEditable: ObserveIsAppLockEditableUseCase,

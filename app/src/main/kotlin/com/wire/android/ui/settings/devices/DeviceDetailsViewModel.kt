@@ -55,7 +55,7 @@ import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 @Suppress("TooManyFunctions", "LongParameterList")
 class DeviceDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

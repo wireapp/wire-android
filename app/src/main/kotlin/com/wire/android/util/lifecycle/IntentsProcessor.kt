@@ -21,8 +21,9 @@ import android.content.Intent
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URI
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 data class AutomatedLoginViaSSO(
     val backendConfig: String? = null,
@@ -30,7 +31,7 @@ data class AutomatedLoginViaSSO(
     val nomadProfilesHost: String? = null,
 )
 
-@Singleton
+@SingleIn(AppScope::class)
 class IntentsProcessor @Inject internal constructor(
     private val nomadIntentSignatureValidator: NomadIntentSignatureValidator
 ) {

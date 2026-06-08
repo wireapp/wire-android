@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.conversations.messages
+package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
@@ -39,18 +39,23 @@ internal fun PagingData<UIMessage>.withOfflineIndicator(
 ): PagingData<UIMessage> {
     if (!isOffline) return this
 
-    val offlineMessage = offlineMessage(conversationId)
     return insertSeparators { before, after ->
-        when {
-            before == null && after == null -> offlineMessage
-            before == null && after?.isPending == false -> offlineMessage
-            before?.isPending == true && after?.isPending != true -> offlineMessage
+        val keySuffix = when {
+            before == null && after == null -> "empty"
+            before == null && after?.isPending == false -> "before:${after.header.messageId}"
+            before?.isPending == true && after?.isPending != true -> "after:${before.header.messageId}"
             else -> null
+        }
+
+        if (keySuffix != null) {
+            offlineMessage(conversationId, keySuffix)
+        } else {
+            null
         }
     }
 }
 
-internal fun offlineMessage(conversationId: ConversationId): UIMessage.System =
+internal fun offlineMessage(conversationId: ConversationId, keySuffix: String): UIMessage.System =
     UIMessage.System(
         conversationId = conversationId,
         source = MessageSource.Self,
@@ -64,7 +69,7 @@ internal fun offlineMessage(conversationId: ConversationId): UIMessage.System =
                 flowStatus = MessageFlowStatus.Sent,
                 expirationStatus = ExpirationStatus.NotExpirable,
             ),
-            messageId = "offline-message:$conversationId",
+            messageId = "offline-message:$conversationId:$keySuffix",
             userId = null,
             connectionState = null,
             isSenderDeleted = false,

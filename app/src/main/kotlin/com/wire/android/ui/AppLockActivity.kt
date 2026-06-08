@@ -24,35 +24,33 @@ import androidx.biometric.BiometricManager
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.AppUnlockWithBiometricsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.EnterLockCodeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.appLogger
-import com.wire.android.di.metro.ImageAssetViewModelGraphBridgeViewModel
 import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@AndroidEntryPoint
 class AppLockActivity : BaseActivity() {
 
     @Inject
     lateinit var loginTypeSelector: LoginTypeSelector
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
         setupOrientationForDevice()
         enableEdgeToEdge()
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
-            val imageAssetViewModelGraph = hiltViewModel<ImageAssetViewModelGraphBridgeViewModel>()
+            val imageAssetViewModelGraph = remember { wireApplicationGraph.imageAssetViewModelGraph }
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
                 LocalMetroViewModelGraph provides imageAssetViewModelGraph,

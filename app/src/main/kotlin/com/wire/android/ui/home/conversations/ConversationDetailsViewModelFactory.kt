@@ -53,7 +53,7 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import com.wire.kalium.logic.util.RandomPassword
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
 class ConversationDetailsViewModelFactory @Inject constructor(

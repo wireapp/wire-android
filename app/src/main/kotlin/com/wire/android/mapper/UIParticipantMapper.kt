@@ -30,7 +30,7 @@ import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.data.user.type.isAppOrBot
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class UIParticipantMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,

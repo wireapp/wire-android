@@ -19,11 +19,12 @@ package com.wire.android.util
 
 import android.content.Context
 import android.os.Build
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 class UserAgentProvider @Inject constructor(@ApplicationContext private val context: Context) {
 
     val defaultUserAgent =

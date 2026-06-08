@@ -66,7 +66,9 @@ import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesByConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -85,6 +87,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveSelfUserHasViewerAccessOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSelfUserHasViewerAccessOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
@@ -113,7 +116,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificati
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.network.NetworkStateObserver
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationCoreViewModelFactory @Inject constructor(
@@ -193,6 +196,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val onlineEditor: OnlineEditor,
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
+    private val observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
     private val observeSelfUserHasViewerAccess: ObserveSelfUserHasViewerAccessOnConversationUseCase,
     private val networkStateObserver: NetworkStateObserver,
     @CurrentAccount private val selfUserId: UserId,
@@ -349,7 +353,8 @@ class ConversationCoreViewModelFactory @Inject constructor(
         selfUserId = selfUserId,
     )
 
-    fun multipartAttachmentsViewModel() = MultipartAttachmentsViewModelImpl(
+    fun multipartAttachmentsViewModel(conversationId: ConversationId) = MultipartAttachmentsViewModelImpl(
+        conversationId = conversationId,
         refreshHelper = refreshHelper,
         download = downloadCellFile,
         getEditorUrl = getEditorUrl,
@@ -358,5 +363,6 @@ class ConversationCoreViewModelFactory @Inject constructor(
         kaliumFileSystem = kaliumFileSystem,
         featureFlags = featureFlags,
         getWireCellsConfig = getWireCellsConfig,
+        observeOfflineFilesByConversation = observeOfflineFilesByConversation
     )
 }

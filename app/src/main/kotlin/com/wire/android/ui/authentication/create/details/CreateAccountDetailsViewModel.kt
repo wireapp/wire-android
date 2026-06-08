@@ -32,7 +32,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 // TODO: Cover this viewModel  with unit test
 class CreateAccountDetailsViewModel @Inject constructor(

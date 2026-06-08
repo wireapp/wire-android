@@ -31,13 +31,13 @@ import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.logger.KaliumLogLevel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.function.Consumer
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds

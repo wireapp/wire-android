@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class ObserveParticipantsForConversationUseCase @Inject constructor(
     private val observeConversationMembers: ObserveConversationMembersUseCase,

@@ -20,15 +20,14 @@ package com.wire.android.ui.home.drawer
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.framework.TestConversation
-import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
-import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
+import com.wire.kalium.common.error.StorageFailure
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
@@ -57,6 +56,7 @@ class HomeDrawerViewModelTest {
         // Given
         val unreadCount = 10L
         val (arrangement, viewModel) = Arrangement()
+            .withIsAtLeastOneCellAvailableUseCaseReturning(Either.Right(false))
             .arrange()
 
         // When
@@ -80,6 +80,7 @@ class HomeDrawerViewModelTest {
         // Given
         val (arrangement, viewModel) = Arrangement()
             .withSelfUserType(UserType.ADMIN)
+            .withIsAtLeastOneCellAvailableUseCaseReturning(Either.Right(false))
             .arrange()
 
         // When
@@ -99,10 +100,58 @@ class HomeDrawerViewModelTest {
     }
 
     @Test
-    fun `given wireCellsEnabledGlobally, when starts observing, then show cells drawer item`() = runTest {
+    fun `given cell disabled, when starts checking, then do not show cells drawer item`() =
+        runTest {
+            // Given
+            val (arrangement, viewModel) = Arrangement()
+                .withWireCellsEnabled(false)
+                .withIsAtLeastOneCellAvailableUseCaseReturning(Either.Right(false))
+                .arrange()
+
+            // When
+            arrangement.unreadArchivedConversationsCountChannel.send(0L)
+            advanceUntilIdle()
+
+            // Then
+            assertFalse(
+                listOf(
+                    viewModel.drawerState.items.first,
+                    viewModel.drawerState.items.second
+                ).flatten()
+                    .filterIsInstance<DrawerUiItem.RegularItem>()
+                    .any { it.destination.toString().contains("Cells") }
+            )
+        }
+
+    @Test
+    fun `given userInConversationWithCellsEnabled, when starts checking, then show Cell drawer item`() = runTest {
+        // Given
+        val (arrangement, viewModel) = Arrangement()
+            .withWireCellsEnabled(false)
+            .withIsAtLeastOneCellAvailableUseCaseReturning(Either.Right(true))
+            .arrange()
+
+        // When
+        arrangement.unreadArchivedConversationsCountChannel.send(0L)
+        advanceUntilIdle()
+
+        // Then
+        assertTrue(
+            listOf(
+                viewModel.drawerState.items.first,
+                viewModel.drawerState.items.second
+            ).flatten()
+                .filterIsInstance<DrawerUiItem.RegularItem>()
+                .any { it.destination.toString().contains("Cells") }
+        )
+    }
+
+    @Test
+    fun `given cell enabled and no cell conversation, when starts checking, then show Cell drawer item`() = runTest {
         // Given
         val (arrangement, viewModel) = Arrangement()
             .withWireCellsEnabled(true)
+            .withIsAtLeastOneCellAvailableUseCaseReturning(Either.Right(false))
             .arrange()
 
         // When
@@ -111,59 +160,6 @@ class HomeDrawerViewModelTest {
 
         // Then
         assertTrue(
-            listOf(
-                viewModel.drawerState.items.first,
-                viewModel.drawerState.items.second
-            ).flatten()
-                .filterIsInstance<DrawerUiItem.RegularItem>()
-                .any { it.destination.toString().contains("Cells") }
-        )
-    }
-
-    @Test
-    fun `given userInConversationWithCellsEnabled, when starts observing, then show cells drawer item`() = runTest {
-        // Given
-        val conversationWithCells = ConversationDetails.Group.Regular(
-            TestConversation.GROUP(),
-            isSelfUserMember = true,
-            selfRole = com.wire.kalium.logic.data.conversation.Conversation.Member.Role.Member,
-            wireCell = "2024-01-01T00:00:00.000Z",
-        )
-        val (arrangement, viewModel) = Arrangement()
-            .withWireCellsEnabled(false)
-            .withConversations(listOf(conversationWithCells))
-            .arrange()
-
-        // When
-        arrangement.unreadArchivedConversationsCountChannel.send(0L)
-        advanceUntilIdle()
-
-        // Then
-        assertTrue(
-            listOf(
-                viewModel.drawerState.items.first,
-                viewModel.drawerState.items.second
-            ).flatten()
-                .filterIsInstance<DrawerUiItem.RegularItem>()
-                .any { it.destination.toString().contains("Cells") }
-        )
-    }
-
-    @Test
-    fun `given noCellsEnabled_whenStartsObserving_thenDontShowCellsDrawerItem`() = runTest {
-        // Given
-        val conversationWithoutCells = TestConversationDetails.GROUP
-        val (arrangement, viewModel) = Arrangement()
-            .withWireCellsEnabled(false)
-            .withConversations(listOf(conversationWithoutCells))
-            .arrange()
-
-        // When
-        arrangement.unreadArchivedConversationsCountChannel.send(0L)
-        advanceUntilIdle()
-
-        // Then
-        assertFalse(
             listOf(
                 viewModel.drawerState.items.first,
                 viewModel.drawerState.items.second
@@ -191,7 +187,7 @@ class HomeDrawerViewModelTest {
         lateinit var getTeamUrlUseCase: GetTeamUrlUseCase
 
         @MockK
-        lateinit var observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase
+        lateinit var isAtLeastOneCellAvailableUseCase: IsAtLeastOneCellAvailableUseCase
 
         val unreadArchivedConversationsCountChannel = Channel<Long>(capacity = Channel.UNLIMITED)
 
@@ -199,7 +195,6 @@ class HomeDrawerViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeArchivedUnreadConversationsCount() } returns unreadArchivedConversationsCountChannel.consumeAsFlow()
             coEvery { isWireCellsEnabled() } returns false
-            coEvery { observeConversationListDetailsUseCase(fromArchive = false) } returns flowOf(emptyList())
             withSelfUserType()
             coEvery { getTeamUrlUseCase() } returns TEAM_URL
         }
@@ -212,8 +207,8 @@ class HomeDrawerViewModelTest {
             coEvery { isWireCellsEnabled() } returns enabled
         }
 
-        fun withConversations(conversations: List<ConversationDetails>) = apply {
-            coEvery { observeConversationListDetailsUseCase(fromArchive = false) } returns flowOf(conversations)
+        fun withIsAtLeastOneCellAvailableUseCaseReturning(result: Either<StorageFailure, Boolean>) = apply {
+            coEvery { isAtLeastOneCellAvailableUseCase() } returns result
         }
 
         fun arrange() = this to HomeDrawerViewModel(
@@ -222,7 +217,7 @@ class HomeDrawerViewModelTest {
             observeSelfUser = observeSelfUserUseCase,
             getTeamUrl = getTeamUrlUseCase,
             isWireCellsEnabled = isWireCellsEnabled,
-            observeConversationListDetails = { observeConversationListDetailsUseCase },
+            isAtLeastOneCellAvailable = isAtLeastOneCellAvailableUseCase,
         )
 
         companion object {

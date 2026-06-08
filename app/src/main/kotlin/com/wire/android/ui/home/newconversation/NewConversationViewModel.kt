@@ -52,16 +52,13 @@ import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class NewConversationViewModel @Inject constructor(
+class NewConversationViewModel(
     private val createRegularGroup: CreateRegularGroupUseCase,
     private val createChannel: CreateChannelUseCase,
     private val isUserAllowedToCreateChannels: ObserveChannelsCreationPermissionUseCase,

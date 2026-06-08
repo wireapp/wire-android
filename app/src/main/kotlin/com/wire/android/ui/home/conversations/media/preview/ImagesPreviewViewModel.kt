@@ -28,14 +28,11 @@ import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.util.dispatchers.DispatcherProvider
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class ImagesPreviewViewModel @Inject constructor(
+class ImagesPreviewViewModel(
     val savedStateHandle: SavedStateHandle,
     private val handleUriAsset: HandleUriAssetUseCase,
     private val dispatchers: DispatcherProvider

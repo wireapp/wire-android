@@ -17,7 +17,7 @@
  */
 package com.wire.android.di
 
-import javax.inject.Qualifier
+import dev.zacsweers.metro.Qualifier
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)

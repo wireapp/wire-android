@@ -19,7 +19,7 @@ package com.wire.android.ui.home.appLock.unlock
 
 import androidx.lifecycle.ViewModel
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class AppUnlockWithBiometricsViewModel @Inject constructor(
     private val lockCodeTimeManager: LockCodeTimeManager

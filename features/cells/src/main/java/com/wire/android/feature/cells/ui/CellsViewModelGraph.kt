@@ -55,7 +55,11 @@ inline fun <reified VM> cellsViewModel(
     }
 
 @Composable
-fun cellViewModel(): CellViewModel = cellsViewModel { cellViewModel(it) }
+fun cellViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
+): CellViewModel = cellsViewModel(viewModelStoreOwner = viewModelStoreOwner) { cellViewModel(it) }
 
 @Composable
 fun createFileViewModel(): CreateFileViewModel = cellsViewModel { createFileViewModel(it) }

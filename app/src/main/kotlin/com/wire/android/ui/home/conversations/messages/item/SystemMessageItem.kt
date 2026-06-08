@@ -151,6 +151,13 @@ fun SystemMessageItem(
 @Suppress("LongParameterList", "SpreadOperator", "ComplexMethod", "LongMethod")
 @Composable
 private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this) {
+    SystemMessage.Offline -> buildContent(
+        iconResId = R.drawable.ic_no_network,
+        iconTintColor = MaterialTheme.wireColorScheme.primary,
+    ) {
+        stringResource(R.string.label_system_message_offline).toMarkdownAnnotatedString()
+    }
+
     is SystemMessage.MemberAdded -> buildContent(
         iconResId = R.drawable.ic_add,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,

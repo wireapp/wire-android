@@ -30,20 +30,19 @@ import com.google.firebase.messaging.RemoteMessage
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.util.NetworkUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.NotificationFetchWorker
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.notificationToken.Result
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.Locale
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@AndroidEntryPoint
 class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     @Inject
@@ -59,6 +58,14 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
     private val scope by lazy {
         // There's no UI, no need to run anything using the Main/UI Dispatcher
         CoroutineScope(SupervisorJob() + dispatcherProvider.default())
+    }
+
+    override fun onCreate() {
+        val graph = wireApplicationGraph
+        coreLogic = graph.coreLogic
+        networkUtil = graph.networkUtil
+        dispatcherProvider = graph.dispatcherProvider
+        super.onCreate()
     }
 
     override fun onMessageReceived(message: RemoteMessage) {

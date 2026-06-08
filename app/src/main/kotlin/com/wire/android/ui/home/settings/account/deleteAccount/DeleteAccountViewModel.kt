@@ -23,7 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 class DeleteAccountViewModel @Inject constructor(
     private val deleteAccount: DeleteAccountUseCase,
 ) : ViewModel() {

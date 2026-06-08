@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearch
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
+import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UiTextResolver
@@ -37,20 +38,25 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
+import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
+import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ForegroundActionsUseCase
-import dagger.Lazy
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
 class HomeViewModelFactory @Inject constructor(
@@ -79,6 +85,12 @@ class HomeViewModelFactory @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
+    private val createRegularGroup: CreateRegularGroupUseCase,
+    private val createChannel: CreateChannelUseCase,
+    private val isUserAllowedToCreateChannels: ObserveChannelsCreationPermissionUseCase,
+    private val getSelfUser: GetSelfUserUseCase,
+    private val getDefaultProtocol: GetDefaultProtocolUseCase,
+    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
 ) {
     fun homeViewModel(savedStateHandle: SavedStateHandle) = HomeViewModel(
         savedStateHandle = savedStateHandle,
@@ -128,5 +140,15 @@ class HomeViewModelFactory @Inject constructor(
         userTypeMapper = userTypeMapper,
         getSelfTeamId = getSelfTeamId,
         uiTextResolver = uiTextResolver,
+    )
+
+    fun newConversationViewModel() = NewConversationViewModel(
+        createRegularGroup = createRegularGroup,
+        createChannel = createChannel,
+        isUserAllowedToCreateChannels = isUserAllowedToCreateChannels,
+        getSelfUser = getSelfUser,
+        getDefaultProtocol = getDefaultProtocol,
+        isWireCellsFeatureEnabled = isWireCellsEnabled,
+        observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
     )
 }

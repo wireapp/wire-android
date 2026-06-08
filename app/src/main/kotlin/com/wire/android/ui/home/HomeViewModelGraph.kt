@@ -19,6 +19,8 @@ package com.wire.android.ui.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.metro.metroSavedStateViewModel
 import com.wire.android.di.metro.metroViewModel
@@ -27,6 +29,8 @@ import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
+import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 
 interface HomeViewModelGraph : MetroViewModelGraph {
     val homeViewModelFactory: HomeViewModelFactory
@@ -51,3 +55,19 @@ fun conversationListViewModel(conversationsSource: ConversationsSource): Convers
         homeViewModelFactory.conversationListViewModel(conversationsSource)
     }
 }
+
+@Composable
+fun newConversationViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
+): NewConversationViewModel =
+    metroViewModel<HomeViewModelGraph, NewConversationViewModel>(viewModelStoreOwner = viewModelStoreOwner) {
+        homeViewModelFactory.newConversationViewModel()
+    }
+
+@Composable
+fun featureFlagNotificationViewModel(): FeatureFlagNotificationViewModel =
+    metroViewModel<HomeViewModelGraph, FeatureFlagNotificationViewModel> {
+        homeViewModelFactory.featureFlagNotificationViewModel()
+    }

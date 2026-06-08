@@ -17,33 +17,32 @@
  */
 package com.wire.android.di.metro
 
-import androidx.lifecycle.ViewModel
 import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
 import com.wire.android.ui.calling.CallingViewModelFactory
 import com.wire.android.ui.calling.CallingViewModelGraph
+import com.wire.android.ui.common.CommonViewModelFactory
+import com.wire.android.ui.common.CommonViewModelGraph
 import com.wire.android.ui.home.settings.SettingsViewModelFactory
 import com.wire.android.ui.home.settings.SettingsViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import javax.inject.Provider
+import dev.zacsweers.metro.Inject
 
-/**
- * Android-only bridge that exposes the image asset graph while ui-common is being decoupled from Hilt.
- */
-@HiltViewModel
-class ImageAssetViewModelGraphBridgeViewModel @Inject constructor(
-    imageLoader: Provider<WireSessionImageLoader>,
-    private val callingViewModelFactoryProvider: Provider<CallingViewModelFactory>,
-    private val settingsViewModelFactoryProvider: Provider<SettingsViewModelFactory>,
-) : ViewModel(), ImageAssetViewModelGraph, CallingViewModelGraph, SettingsViewModelGraph {
+class AppImageAssetViewModelGraph @Inject constructor(
+    imageLoader: () -> WireSessionImageLoader,
+    private val callingViewModelFactoryProvider: () -> CallingViewModelFactory,
+    private val settingsViewModelFactoryProvider: () -> SettingsViewModelFactory,
+    private val commonViewModelFactoryProvider: () -> CommonViewModelFactory,
+) : ImageAssetViewModelGraph, CallingViewModelGraph, SettingsViewModelGraph, CommonViewModelGraph {
     override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
-        ImageAssetViewModelFactory(imageLoader = imageLoader::get)
+        ImageAssetViewModelFactory(imageLoader = imageLoader)
 
     override val callingViewModelFactory: CallingViewModelFactory
-        get() = callingViewModelFactoryProvider.get()
+        get() = callingViewModelFactoryProvider()
 
     override val settingsViewModelFactory: SettingsViewModelFactory
-        get() = settingsViewModelFactoryProvider.get()
+        get() = settingsViewModelFactoryProvider()
+
+    override val commonViewModelFactory: CommonViewModelFactory
+        get() = commonViewModelFactoryProvider()
 }

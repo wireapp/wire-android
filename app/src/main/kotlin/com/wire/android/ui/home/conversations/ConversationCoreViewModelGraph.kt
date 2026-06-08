@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 /*
  * Wire
  * Copyright (C) 2026 Wire Swiss GmbH
@@ -19,18 +21,31 @@ package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.metro.metroSavedStateViewModel
 import com.wire.android.di.metro.metroViewModel
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
+import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
+import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
+import com.wire.android.ui.home.conversations.media.ConversationAssetMessagesViewModel
+import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewViewModel
+import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
+import com.wire.android.ui.home.conversations.messages.QuotedMultipartMessageViewModel
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModel
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModelImpl
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModelPreview
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
+import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModel
+import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelImpl
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
+import com.wire.android.ui.home.gallery.MediaGalleryViewModel
+import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
 
 interface ConversationCoreViewModelGraph : MetroViewModelGraph {
     val conversationCoreViewModelFactory: ConversationCoreViewModelFactory
@@ -38,44 +53,87 @@ interface ConversationCoreViewModelGraph : MetroViewModelGraph {
 
 @Composable
 fun conversationMessagesViewModel(): ConversationMessagesViewModel =
-    metroSavedStateViewModel<ConversationCoreViewModelGraph, ConversationMessagesViewModel> {
-        conversationCoreViewModelFactory.conversationMessagesViewModel(it)
-    }
+    conversationSavedStateViewModel { this.conversationMessagesViewModel(it) }
 
 @Composable
 fun messageComposerViewModel(): MessageComposerViewModel =
-    metroSavedStateViewModel<ConversationCoreViewModelGraph, MessageComposerViewModel> {
-        conversationCoreViewModelFactory.messageComposerViewModel(it)
-    }
+    conversationSavedStateViewModel { this.messageComposerViewModel(it) }
 
 @Composable
 fun sendMessageViewModel(): SendMessageViewModel =
-    metroSavedStateViewModel<ConversationCoreViewModelGraph, SendMessageViewModel> {
-        conversationCoreViewModelFactory.sendMessageViewModel(it)
-    }
+    conversationSavedStateViewModel { this.sendMessageViewModel(it) }
 
 @Composable
 fun messageDraftViewModel(): MessageDraftViewModel =
-    metroSavedStateViewModel<ConversationCoreViewModelGraph, MessageDraftViewModel> {
-        conversationCoreViewModelFactory.messageDraftViewModel(it)
-    }
+    conversationSavedStateViewModel { this.messageDraftViewModel(it) }
 
 @Composable
 fun messageAttachmentsViewModel(): MessageAttachmentsViewModel =
-    metroSavedStateViewModel<ConversationCoreViewModelGraph, MessageAttachmentsViewModel> {
-        conversationCoreViewModelFactory.messageAttachmentsViewModel(it)
-    }
+    conversationSavedStateViewModel { this.messageAttachmentsViewModel(it) }
 
 @Composable
 fun conversationMigrationViewModel(): ConversationMigrationViewModel =
-    metroSavedStateViewModel<ConversationCoreViewModelGraph, ConversationMigrationViewModel> {
-        conversationCoreViewModelFactory.conversationMigrationViewModel(it)
-    }
+    conversationSavedStateViewModel { this.conversationMigrationViewModel(it) }
 
 @Composable
 fun conversationAssetPathsViewModel(conversationKey: String): ConversationAssetPathsViewModel = when {
     LocalInspectionMode.current -> ConversationAssetPathsViewModelPreview
-    else -> metroViewModel<ConversationCoreViewModelGraph, ConversationAssetPathsViewModelImpl>(key = conversationKey) {
-        conversationCoreViewModelFactory.conversationAssetPathsViewModel()
+    else -> conversationViewModel<ConversationAssetPathsViewModelImpl>(key = conversationKey) {
+        this.conversationAssetPathsViewModel()
     }
 }
+
+@Composable
+fun mediaGalleryViewModel(): MediaGalleryViewModel =
+    conversationSavedStateViewModel { this.mediaGalleryViewModel(it) }
+
+@Composable
+fun locationPickerViewModel(): LocationPickerViewModel =
+    conversationViewModel { this.locationPickerViewModel() }
+
+@Composable
+fun conversationAssetMessagesViewModel(): ConversationAssetMessagesViewModel =
+    conversationSavedStateViewModel { this.conversationAssetMessagesViewModel(it) }
+
+@Composable
+fun imagesPreviewViewModel(): ImagesPreviewViewModel =
+    conversationSavedStateViewModel { this.imagesPreviewViewModel(it) }
+
+@Composable
+fun messageDetailsViewModel(): MessageDetailsViewModel =
+    conversationSavedStateViewModel { this.messageDetailsViewModel(it) }
+
+@Composable
+fun quotedMultipartMessageViewModel(conversationKey: String): QuotedMultipartMessageViewModel =
+    conversationViewModel(key = conversationKey) { this.quotedMultipartMessageViewModel() }
+
+@Composable
+fun conversationBannerViewModel(): ConversationBannerViewModel =
+    conversationSavedStateViewModel { this.conversationBannerViewModel(it) }
+
+@Composable
+fun conversationInfoViewModel(): ConversationInfoViewModel =
+    conversationSavedStateViewModel { this.conversationInfoViewModel(it) }
+
+@Composable
+fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModel =
+    conversationViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value) {
+        this.multipartAttachmentsViewModel(conversationId)
+    }
+
+@Composable
+private inline fun <reified VM> conversationSavedStateViewModel(
+    crossinline create: ConversationCoreViewModelFactory.(SavedStateHandle) -> VM,
+): VM where VM : ViewModel =
+    metroSavedStateViewModel<ConversationCoreViewModelGraph, VM> {
+        conversationCoreViewModelFactory.create(it)
+    }
+
+@Composable
+private inline fun <reified VM> conversationViewModel(
+    key: String? = null,
+    crossinline create: ConversationCoreViewModelFactory.() -> VM,
+): VM where VM : ViewModel =
+    metroViewModel<ConversationCoreViewModelGraph, VM>(key = key) {
+        conversationCoreViewModelFactory.create()
+    }

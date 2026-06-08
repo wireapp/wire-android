@@ -44,7 +44,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
-import com.wire.android.di.wireViewModelScoped
+import com.wire.android.ui.common.securityClassificationViewModel
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
@@ -59,12 +59,7 @@ fun SecurityClassificationBannerForConversation(
     conversationId: ConversationId,
     modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
-        wireViewModelScoped<
-                SecurityClassificationViewModelImpl,
-                SecurityClassificationViewModel,
-                SecurityClassificationArgs,
-                SecurityClassificationViewModelImpl.Factory
-                >(SecurityClassificationArgs.Conversation(conversationId))
+        securityClassificationViewModel(SecurityClassificationArgs.Conversation(conversationId))
 ) {
     SecurityClassificationBanner(
         state = viewModel.state(),
@@ -77,14 +72,7 @@ fun SecurityClassificationBannerForUser(
     userId: UserId,
     modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
-        wireViewModelScoped<
-                SecurityClassificationViewModelImpl,
-                SecurityClassificationViewModel,
-                SecurityClassificationArgs,
-                SecurityClassificationViewModelImpl.Factory
-                >(
-            SecurityClassificationArgs.User(id = userId)
-        )
+        securityClassificationViewModel(SecurityClassificationArgs.User(id = userId))
 ) {
     SecurityClassificationBanner(
         state = viewModel.state(),

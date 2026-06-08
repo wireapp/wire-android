@@ -23,13 +23,12 @@ import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@AndroidEntryPoint
 class PlayPauseAudioMessageReceiver : BroadcastReceiver() {
 
     @Inject
@@ -40,6 +39,7 @@ class PlayPauseAudioMessageReceiver : BroadcastReceiver() {
     lateinit var coroutineScope: CoroutineScope
 
     override fun onReceive(context: Context, intent: Intent) {
+        context.wireApplicationGraph.inject(this)
         appLogger.i("PlayPauseAudioMessageReceiver: onReceive")
 
         coroutineScope.launch {

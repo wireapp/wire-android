@@ -22,13 +22,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.wire.android.R
-import com.wire.android.di.wireViewModelScoped
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
 import com.wire.android.ui.connection.ConnectionActionButtonArgs
 import com.wire.android.ui.connection.ConnectionActionButtonViewModel
-import com.wire.android.ui.connection.ConnectionActionButtonViewModelImpl
 import com.wire.android.ui.connection.ConnectionActionState
 import com.wire.android.ui.connection.MissingLegalHoldConsentDialogState
 import com.wire.android.ui.legalhold.dialog.connectionfailed.LegalHoldSubjectConnectionFailedDialog
@@ -42,14 +40,7 @@ fun AddContactButton(
     userName: String,
     modifier: Modifier = Modifier,
     viewModel: ConnectionActionButtonViewModel =
-        wireViewModelScoped<
-                ConnectionActionButtonViewModelImpl,
-                ConnectionActionButtonViewModel,
-                ConnectionActionButtonArgs,
-                ConnectionActionButtonViewModelImpl.Factory
-                >(
-            ConnectionActionButtonArgs(userId, userName)
-        ),
+        connectionActionButtonViewModel(ConnectionActionButtonArgs(userId, userName)),
 ) {
     val state = viewModel.actionableState()
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)

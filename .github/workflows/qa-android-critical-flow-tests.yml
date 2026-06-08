@@ -45,8 +45,8 @@ on:
         required: true
         type: choice
         options:
-          - internal release candidate
-          - internal beta
+          - alpha release candidate
+          - alpha beta
           - staging compat
           - experimental
           - column-1
@@ -55,7 +55,7 @@ on:
           - debug
           - fdroid
           - production
-        default: internal release candidate
+        default: alpha release candidate
 
       TAGS:
         description: "Tags: '@regression' OR '@TC-8143'."
@@ -141,7 +141,7 @@ jobs:
             echo "isUpgrade=true"
             echo "oldBuildNumber="
             echo "enforceAppInstall=false"
-            echo "flavor=internal release candidate"
+            echo "flavor=alpha release candidate"
             echo "TAGS=@criticalFlow"
             echo "testinyRunName="
             echo "androidDeviceId="

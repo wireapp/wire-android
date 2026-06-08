@@ -29,7 +29,7 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamResult
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 class TeamMigrationViewModel @Inject constructor(
     private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
     private val migrateFromPersonalToTeam: MigrateFromPersonalToTeamUseCase,

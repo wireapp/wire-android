@@ -15,22 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.di
+package com.wire.android.ui.common
 
-import android.content.Context
-import com.wire.android.util.FileSizeFormatter
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
-@Module
-@InstallIn(SingletonComponent::class)
-object UiCommonHiltBridgeModule {
+class CollapsingTopBarScaffoldTest {
 
-    @Provides
-    fun provideFileSizeFormatter(
-        @ApplicationContext context: Context,
-    ): FileSizeFormatter = FileSizeFormatter(context)
+    @Test
+    fun givenUninitializedOffset_whenResolvingTopBarOffset_thenExpandedOffsetIsUsed() {
+        assertEquals(0f, Float.NaN.orExpandedTopBarOffset())
+    }
+
+    @Test
+    fun givenInitializedOffset_whenResolvingTopBarOffset_thenOriginalOffsetIsUsed() {
+        assertEquals(-42f, (-42f).orExpandedTopBarOffset())
+    }
 }

@@ -1,0 +1,27 @@
+<!--
+  ~ Wire
+  ~ Copyright (C) 2026 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="14dp"
+    android:height="13dp"
+    android:viewportWidth="14"
+    android:viewportHeight="13">
+  <path
+      android:pathData="M7.577,8.897L12.162,4.313L13.399,5.55L6.7,12.25L-0,5.55L1.237,4.313L5.827,8.903L5.827,-0L7.577,-0L7.577,8.897Z"
+      android:fillColor="#000000"
+      android:fillType="evenOdd"/>
+</vector>

@@ -27,11 +27,11 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
+import com.wire.kalium.common.functional.getOrElse
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import kotlinx.coroutines.flow.Flow
@@ -47,7 +47,7 @@ class HomeDrawerViewModel(
     private val observeSelfUser: ObserveSelfUserUseCase,
     private val getTeamUrl: GetTeamUrlUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
-    private val observeConversationListDetails: Lazy<ObserveConversationListDetailsUseCase>,
+    private val isAtLeastOneCellAvailable: IsAtLeastOneCellAvailableUseCase,
 ) : ViewModel() {
 
     var drawerState by mutableStateOf(HomeDrawerState())
@@ -73,12 +73,9 @@ class HomeDrawerViewModel(
                 flowOf(isWireCellsEnabled()),
                 observeArchivedUnreadConversationsCount.value.invoke(),
                 observeTeamManagementUrlForUser(),
-                observeConversationListDetails.get().invoke(fromArchive = false)
-            ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl, conversations ->
-                val hasConversationWithCells = conversations.any { conversation ->
-                    (conversation as? ConversationDetails.Group)?.wireCell != null
-                }
-                val shouldShowCells = wireCellsEnabled || hasConversationWithCells
+            ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
+                val isAtLeastOneCellAvailable = isAtLeastOneCellAvailable().getOrElse { false }
+                val shouldShowCells = wireCellsEnabled || isAtLeastOneCellAvailable
 
                 buildList {
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))

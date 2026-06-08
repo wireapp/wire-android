@@ -18,11 +18,13 @@
 package com.wire.android.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.ramcosta.composedestinations.utils.findDestination
 
+@Stable
 class Navigator(
     val finish: () -> Unit,
     val navController: NavHostController,

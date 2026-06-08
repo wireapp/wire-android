@@ -32,18 +32,14 @@ import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@HiltViewModel
-class HomeDrawerViewModel @Inject constructor(
+class HomeDrawerViewModel(
     val savedStateHandle: SavedStateHandle,
     private val observeArchivedUnreadConversationsCount: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
     private val observeSelfUser: ObserveSelfUserUseCase,
@@ -72,7 +68,7 @@ class HomeDrawerViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 flowOf(isWireCellsEnabled()),
-                observeArchivedUnreadConversationsCount.get().invoke(),
+                observeArchivedUnreadConversationsCount.value.invoke(),
                 observeTeamManagementUrlForUser()
             ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
                 buildList {

@@ -7,25 +7,18 @@ See https://agents.md/ for details about this file type.
 
 Wire for Android is a Jetpack Compose messaging application for the Wire platform. It handles authentication, messaging, voice/video calling, end-to-end encryption, and enterprise features. All business logic is provided by the [Kalium](kalium/AGENTS.md) Kotlin Multiplatform SDK, which is included as a git submodule.
 
-**Requirements:** JDK 21, Android SDK, Android NDK
-
-**First-time setup:**
-```bash
-git submodule update --init --recursive
-# Copy local.properties to kalium/ — the IDE will NOT create it automatically
-cp local.properties kalium/local.properties
-```
+**Requirements:** JDK, Android SDK, Android NDK
 
 **Key Technologies:**
-- Kotlin 2.3.10 with Android Gradle Plugin 9.0.1
-- Jetpack Compose + Material 3 (Compose BOM 2026.01.01)
-- Hilt 2.59.1 for dependency injection
-- Kotlin Coroutines 1.10.2 + Flow for async/reactive
-- Coil 3 for image loading
-- Compose Destinations 2.3.0 (KSP-based navigation)
-- Paging 3 for paginated lists
+- Kotlin with Android Gradle Plugin
+- Jetpack Compose + Material (Compose BOM)
+- Metro for dependency injection
+- Kotlin Coroutines + Flow for async/reactive
+- Coil for image loading
+- Compose Destinations (KSP-based navigation)
+- Paging for paginated lists
 - Kalium SDK (submodule) for all messaging, encryption, and data logic
-- Detekt 1.23.8 for static analysis, Kover for code coverage
+- Detekt for static analysis, Kover for code coverage
 
 ## Build Commands
 
@@ -92,7 +85,7 @@ app/                    — Main Android application
       └── screenshotTest/ — Compose screenshot tests
 
 core/
-  ├── di/               — Hilt DI modules shared across modules
+  ├── di/               — Metro DI utilities and shared injection wiring
   ├── ui-common/        — Shared Compose UI components, theming, and utilities
   ├── navigation/       — Navigation infrastructure and graph setup
   ├── analytics/        — Analytics tracking (enabled/disabled variants)
@@ -107,7 +100,7 @@ features/
   └── template/         — Starter template for new feature modules
 
 kalium/                 — KMP messaging SDK (git submodule — see kalium/AGENTS.md)
-build-logic/            — Gradle convention plugins (wire-android-application, wire-android-library, wire-hilt, etc.)
+build-logic/            — Gradle convention plugins (wire-android-application, wire-android-library, etc.)
 buildSrc/               — Build script helpers and legacy script plugins
 tests/                  — Shared test infrastructure
 benchmark/              — Benchmarking module
@@ -141,7 +134,7 @@ app
 
 **UI Layer:**
 - Jetpack Compose screens annotated with `@Destination` (Compose Destinations)
-- `@HiltViewModel` ViewModels injected via `hiltViewModel()` composable
+- ViewModels use Metro constructor injection
 - UI state exposed as `StateFlow`, one-shot effects as `SharedFlow`
 - Navigation handled through `core:navigation` and Compose Destinations
 
@@ -163,7 +156,7 @@ Compose UI → ViewModel (StateFlow/SharedFlow) → Kalium Use Case → Kalium R
 ## Testing
 
 **Frameworks:**
-- JUnit 5 (Jupiter) with `@ParameterizedTest` support (see [ADR-0003](docs/adr/0003-introducing-junit5-parametrizable-tests.md))
+- JUnit (Jupiter) with `@ParameterizedTest` support (see [ADR-0003](docs/adr/0003-introducing-junit5-parametrizable-tests.md))
 - MockK for mocking (`@MockK`, `coEvery`, `every`)
 - Turbine for Flow testing (`flow.test { ... }`)
 - Robolectric for Android unit tests
@@ -224,7 +217,7 @@ fun givenNetworkErrorOccurs_whenSendingMessage_thenShowErrorState()
 
 ## Code Conventions
 
-- `@HiltViewModel` with constructor injection — no manual ViewModel factories
+- Metro constructor injection for ViewModels
 - `StateFlow` for UI state, `SharedFlow` for one-shot navigation/side-effect events
 - `@Destination` annotation on every Compose screen for type-safe navigation
 - `kotlinx-datetime` (`Instant`, `LocalDateTime`) for all date/time values
@@ -235,11 +228,8 @@ fun givenNetworkErrorOccurs_whenSendingMessage_thenShowErrorState()
 
 ## Common Pitfalls
 
-- **Missing submodule:** Always run `git submodule update --init --recursive` after cloning. Without this the build fails silently or with cryptic errors.
-- **Missing `kalium/local.properties`:** The IDE does not create this file automatically. Copy it from the project root: `cp local.properties kalium/local.properties`.
 - **Stale submodule reference:** After pulling, run `git submodule update --remote --merge` if the build references missing Kalium symbols.
 - **`kalium.providerCacheScope` must be `GLOBAL`:** Set in `gradle.properties`. Do not change it — Kalium has no default and requires consumers to set it explicitly.
-- **F-Droid flavor must stay FOSS:** Never add Google/Firebase/GMS dependencies that are reachable from the `fdroid` flavor. Use source set separation (`src/nonfree/` vs `src/foss/`).
 - **Screenshot tests module opt-in:** A module must set `experimentalProperties["android.experimental.enableScreenshotTest"] = true` in its `build.gradle.kts` before screenshot tests will run.
 - **Protobuf conflict:** The `app` module excludes `protobuf-java` in favor of `protobuf-lite`. Do not re-add `protobuf-java` as a dependency.
 - **`libsodium.so` conflict:** Resolved via `jniLibs.pickFirsts.add("**/libsodium.so")`. Do not remove this packaging rule.
@@ -260,7 +250,6 @@ fun givenNetworkErrorOccurs_whenSendingMessage_thenShowErrorState()
   - Running full build or acceptance/E2E tests.
   - Modifying CI/CD configuration and scripts.
   - Introducing a new architectural pattern or design convention.
-  - Any change that touches the `fdroid` flavor's dependency graph.
 
 ## Agent Commandments
 
@@ -276,10 +265,10 @@ Adhere to the following guidelines for each session:
 - When fixing a bug, add a regression test.
 
 ### 3. Follow project patterns
-- **ViewModels:** `@HiltViewModel`, constructor-injected use cases from Kalium, state via `StateFlow`.
+- **ViewModels:** Metro constructor-injected use cases from Kalium, state via `StateFlow`.
 - **Screens:** `@Destination`-annotated Composables, receive state from ViewModel, emit events back.
 - **UI state:** Define a dedicated `sealed class` or `data class` per screen — never expose `Either` to the UI.
-- **DI:** Hilt modules in `core:di`; feature-specific modules in the feature's own module.
+- **DI:** Metro wiring in `core:di`; feature-specific bindings stay in the feature's own module.
 - **New feature modules:** Copy from `features/template/` and register in `settings.gradle.kts`.
 
 ### 4. Respect module boundaries
@@ -292,10 +281,3 @@ Adhere to the following guidelines for each session:
 - Adding a new library/dependency or introducing a new pattern requires an ADR in `docs/adr/`.
 - Name it sequentially: `docs/adr/XXXX-kebab-case-title.md` (see `0000-template-lightway-adr.md`).
 - Get the ADR approved before implementing the change.
-
-### 6. Limit scope and ask when uncertain
-- Focus on narrow, well-defined tasks.
-- Require approval before: adding a dependency, changing module dependencies, introducing a new pattern, touching CI/CD, deleting files, running full builds, or modifying the `fdroid` flavor's dependency graph.
-
-### 7. Run linter before finishing
-- `./gradlew staticCodeAnalysis` — must pass with zero issues on all changed files.

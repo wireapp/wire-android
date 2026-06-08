@@ -175,7 +175,7 @@ class HomeViewModelTest {
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
                 canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
-                currentSessionFlow = { currentSessionFlow },
+                currentSessionFlow = lazyOf(currentSessionFlow),
             )
         }
 

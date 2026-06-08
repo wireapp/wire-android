@@ -31,8 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
@@ -49,6 +48,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.calling.conversationListCallViewModel
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
@@ -64,6 +64,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.debug.conversation.DebugConversationScreenNavArgs
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
+import com.wire.android.ui.home.conversationListViewModel
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItemType
@@ -92,19 +93,8 @@ fun ConversationsScreenContent(
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     emptySearchResultFocusRequester: FocusRequester? = null,
     firstConversationFocusRequester: FocusRequester? = null,
-    conversationListViewModel: ConversationListViewModel = when {
-        LocalInspectionMode.current -> ConversationListViewModelPreview()
-        else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
-            key = "list_$conversationsSource",
-            creationCallback = { factory ->
-                factory.create(conversationsSource = conversationsSource)
-            }
-        )
-    },
-    conversationListCallViewModel: ConversationListCallViewModel = when {
-        LocalInspectionMode.current -> ConversationListCallViewModelPreview
-        else -> hiltViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
-    },
+    conversationListCallViewModel: ConversationListCallViewModel = conversationListCallViewModel(conversationsSource),
+    conversationListViewModel: ConversationListViewModel = conversationListViewModel(conversationsSource),
 ) {
     val sheetState = rememberWireModalSheetState<ConversationSheetState>()
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -173,6 +163,9 @@ fun ConversationsScreenContent(
             conversationListViewModel.stopCurrentAudio()
         }
     }
+    val isSelfUserUnderLegalHold by conversationListViewModel.isSelfUserUnderLegalHold.collectAsStateWithLifecycle(false)
+    val playingAudio by conversationListViewModel.playingAudio.collectAsStateWithLifecycle(null)
+    val searchQuery = searchBarState.searchQueryTextState.text.toString()
 
     Box(modifier = modifier) {
         when (val state = conversationListViewModel.conversationListState) {
@@ -186,6 +179,9 @@ fun ConversationsScreenContent(
                     lazyPagingItems.itemCount > 0 -> ConversationList(
                         lazyPagingConversations = lazyPagingItems,
                         lazyListState = lazyListState,
+                        searchQuery = searchQuery,
+                        isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
+                        playingAudio = playingAudio,
                         firstConversationFocusRequester = firstConversationFocusRequester,
                         onOpenConversation = onOpenConversation,
                         onEditConversation = onEditConversationItem,
@@ -224,6 +220,9 @@ fun ConversationsScreenContent(
                     hasConversations -> ConversationList(
                         lazyListState = lazyListState,
                         conversationListItems = state.conversations,
+                        searchQuery = searchQuery,
+                        isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
+                        playingAudio = playingAudio,
                         firstConversationFocusRequester = firstConversationFocusRequester,
                         onOpenConversation = onOpenConversation,
                         onEditConversation = onEditConversationItem,

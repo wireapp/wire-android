@@ -69,11 +69,12 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import java.util.concurrent.atomic.AtomicInteger
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@Singleton
+@SingleIn(AppScope::class)
 class CurrentScreenManager @Inject constructor(
     screenStateObserver: ScreenStateObserver
 ) : DefaultLifecycleObserver,

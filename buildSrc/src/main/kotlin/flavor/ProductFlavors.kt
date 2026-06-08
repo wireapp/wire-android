@@ -34,7 +34,7 @@ sealed class ProductFlavors(
     object Staging : ProductFlavors("staging", "Wire Staging")
 
     object Beta : ProductFlavors("beta", "Wire Beta")
-    object Internal : ProductFlavors("internal", "Wire Internal")
+    object Alpha : ProductFlavors("alpha", "Wire Alpha")
     object Production : ProductFlavors("prod", "Wire", shareduserId = "com.waz.userid")
     object Fdroid : ProductFlavors(
         buildName = "fdroid",
@@ -48,7 +48,7 @@ sealed class ProductFlavors(
             Dev,
             Staging,
             Beta,
-            Internal,
+            Alpha,
             Production,
             Fdroid,
         )

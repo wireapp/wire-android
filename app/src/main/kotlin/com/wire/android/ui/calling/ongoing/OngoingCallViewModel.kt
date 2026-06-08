@@ -27,7 +27,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.ui.calling.model.InCallReaction
 import com.wire.android.ui.calling.model.ReactionSender
@@ -37,6 +36,7 @@ import com.wire.android.ui.calling.ongoing.details.CallQualityState.Quality
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions
 import com.wire.android.ui.calling.ongoing.toast.InCallToast
+import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.ExpiringMap
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.withDelayAfterFirst
@@ -62,10 +62,6 @@ import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -87,10 +83,9 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel(assistedFactory = OngoingCallViewModel.Factory::class)
-class OngoingCallViewModel @AssistedInject constructor(
-    @Assisted val conversationId: ConversationId,
-    @CurrentAccount val currentUserId: UserId,
+class OngoingCallViewModel(
+    val conversationId: ConversationId,
+    val currentUserId: UserId,
     private val globalDataStore: GlobalDataStore,
     private val networkStateObserver: NetworkStateObserver,
     private val observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase,
@@ -104,7 +99,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     private val observeCallModerationActions: ObserveCallModerationActionsUseCase,
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val dispatchers: DispatcherProvider,
-    private val currentTime: () -> Long = { System.currentTimeMillis() },
+    private val currentTimeProvider: CurrentTimeProvider = CurrentTimeProvider.Default,
 ) : ViewModel() {
 
     var state by mutableStateOf(OngoingCallState())
@@ -117,14 +112,14 @@ class OngoingCallViewModel @AssistedInject constructor(
     val inCallReactions = _inCallReactions.receiveAsFlow().withDelayAfterFirst(InCallReactions.reactionsThrottleDelayMs)
     val recentReactions: MutableMap<UserId, String> = ExpiringMap(
         scope = viewModelScope,
-        currentTime = currentTime,
+        currentTime = { currentTimeProvider().toEpochMilliseconds() },
         expirationMs = InCallReactions.recentReactionShowDurationMs,
         delegate = mutableStateMapOf()
     )
 
     val toasts: ExpiringMap<InCallToast.Key, InCallToast> = ExpiringMap(
         scope = viewModelScope,
-        currentTime = currentTime,
+        currentTime = { currentTimeProvider().toEpochMilliseconds() },
         expirationMs = MODERATION_ACTION_TOAST_DISPLAY_TIME,
         delegate = mutableStateMapOf(),
         onEntryExpired = { toastKey, _ ->
@@ -240,7 +235,7 @@ class OngoingCallViewModel @AssistedInject constructor(
                 .map { action ->
                     callFlow.senderName(action.senderUserId)?.let { senderName ->
                         InCallToast.ModerationAction(
-                            time = currentTime(),
+                            time = currentTimeProvider().toEpochMilliseconds(),
                             actionId = action.id,
                             moderatorName = senderName,
                             type = when (action.type) {
@@ -316,7 +311,10 @@ class OngoingCallViewModel @AssistedInject constructor(
         viewModelScope.launch {
             delay(DELAY_TO_SHOW_DOUBLE_TAP_TOAST)
             if (globalDataStore.getShouldShowDoubleTapToast(currentUserId.toString())) {
-                val doubleTapToOpenFullscreenToast = InCallToast.Fullscreen(currentTime(), InCallToast.Fullscreen.Type.DoubleTapToOpen)
+                val doubleTapToOpenFullscreenToast = InCallToast.Fullscreen(
+                    currentTimeProvider().toEpochMilliseconds(),
+                    InCallToast.Fullscreen.Type.DoubleTapToOpen
+                )
                 toasts.putWithExpireIn(doubleTapToOpenFullscreenToast.key, doubleTapToOpenFullscreenToast, DOUBLE_TAP_TOAST_DISPLAY_TIME)
             }
         }
@@ -344,7 +342,10 @@ class OngoingCallViewModel @AssistedInject constructor(
             toasts.remove(InCallToast.Fullscreen.Type.DoubleTapToOpen)
             handleDismissedToast(InCallToast.Fullscreen.Type.DoubleTapToOpen)
             // instead, show "close fullscreen" toast to let user know how to exit the fullscreen, it shouldn't expire automatically
-            val doubleTapToCloseFullscreenToast = InCallToast.Fullscreen(currentTime(), InCallToast.Fullscreen.Type.DoubleTapToClose)
+            val doubleTapToCloseFullscreenToast = InCallToast.Fullscreen(
+                currentTimeProvider().toEpochMilliseconds(),
+                InCallToast.Fullscreen.Type.DoubleTapToClose
+            )
             toasts.putNonExpiring(doubleTapToCloseFullscreenToast.key, doubleTapToCloseFullscreenToast)
         } else { // fullscreen closed
             // when exiting fullscreen, remove "close fullscreen" toast as it's no longer relevant
@@ -374,11 +375,6 @@ class OngoingCallViewModel @AssistedInject constructor(
         const val DOUBLE_TAP_TOAST_DISPLAY_TIME = 7000L // according to the designs
         const val DELAY_TO_SHOW_DOUBLE_TAP_TOAST = 500L
         const val TAG = "OngoingCallViewModel"
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(conversationId: ConversationId): OngoingCallViewModel
     }
 }
 

@@ -27,7 +27,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR
 import com.wire.android.appLogger
-import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
@@ -60,8 +59,6 @@ import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -70,7 +67,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.days
 
 @Suppress("TooManyFunctions")
@@ -97,11 +93,9 @@ interface DebugDataOptionsViewModel {
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class DebugDataOptionsViewModelImpl
-@Inject constructor(
-    @ApplicationContext private val context: Context,
-    @CurrentAccount val currentAccount: UserId,
+class DebugDataOptionsViewModelImpl(
+    private val context: Context,
+    val currentAccount: UserId,
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCount: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,

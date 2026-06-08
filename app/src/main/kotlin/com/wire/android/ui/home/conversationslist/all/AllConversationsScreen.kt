@@ -22,15 +22,14 @@ import com.wire.android.navigation.annotation.app.WireHomeDestination
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.conversations.conversationFoldersViewModel
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
-import com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
 import com.wire.android.ui.home.conversationslist.ConversationsScreenContent
 import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
@@ -45,9 +44,7 @@ import com.wire.kalium.logic.data.conversation.ConversationFilter
 fun AllConversationsScreen(
     homeStateHolder: HomeStateHolder,
     foldersViewModel: ConversationFoldersVM =
-        hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
-            creationCallback = { it.create(ConversationFoldersStateArgs(null)) }
-        ),
+        conversationFoldersViewModel(ConversationFoldersStateArgs(null)),
 ) {
     with(homeStateHolder) {
         Crossfade(

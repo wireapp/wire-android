@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.userprofile.teammigration
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,11 +28,8 @@ import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamResult
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-@HiltViewModel
+import dev.zacsweers.metro.Inject
 class TeamMigrationViewModel @Inject constructor(
     private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
     private val migrateFromPersonalToTeam: MigrateFromPersonalToTeamUseCase,
@@ -41,20 +37,16 @@ class TeamMigrationViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getTeamUrl: GetTeamUrlUseCase
 ) : ViewModel() {
-
     var teamMigrationState by mutableStateOf(TeamMigrationState())
         private set
-
     init {
         setUsername()
         setTeamUrl()
         observeMigrationDotActive()
     }
-
     fun setCurrentStep(step: Int) {
         sendPersonalTeamCreationFlowStepEvent(step)
     }
-
     fun migrateFromPersonalToTeamAccount() {
         viewModelScope.launch {
             teamMigrationState = teamMigrationState.copy(isMigrating = true)
@@ -64,18 +56,15 @@ class TeamMigrationViewModel @Inject constructor(
                 teamMigrationState = when (result) {
                     is MigrateFromPersonalToTeamResult.Success ->
                         teamMigrationState.copy(isMigrating = false, migrationCompleted = true)
-
                     is MigrateFromPersonalToTeamResult.Error ->
                         teamMigrationState.copy(isMigrating = false, migrationFailure = result.failure)
                 }
             }
         }
     }
-
     fun failureHandled() {
         teamMigrationState = teamMigrationState.copy(migrationFailure = null)
     }
-
     private fun setUsername() {
         viewModelScope.launch {
             observeSelfUser().collect { selfUser ->
@@ -85,14 +74,12 @@ class TeamMigrationViewModel @Inject constructor(
             }
         }
     }
-
     private fun setTeamUrl() {
         viewModelScope.launch {
             val teamUrl = getTeamUrl()
             teamMigrationState = teamMigrationState.copy(teamUrl = teamUrl)
         }
     }
-
     private fun observeMigrationDotActive() {
         viewModelScope.launch {
             dataStore.isCreateTeamNoticeRead().collect { isRead ->
@@ -102,13 +89,11 @@ class TeamMigrationViewModel @Inject constructor(
             }
         }
     }
-
     private fun sendPersonalTeamCreationFlowStepEvent(step: Int) {
         val event = when (step) {
             TEAM_MIGRATION_TEAM_PLAN_STEP -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamPlan(
                 isMigrationDotActive = teamMigrationState.isMigrationDotActive
             )
-
             TEAM_MIGRATION_TEAM_NAME_STEP -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamName
             TEAM_MIGRATION_CONFIRMATION_STEP -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowConfirm
             TEAM_MIGRATION_DONE_STEP -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted
@@ -116,7 +101,6 @@ class TeamMigrationViewModel @Inject constructor(
         }
         event?.let { anonymousAnalyticsManager.sendEvent(event) }
     }
-
     companion object {
         const val TEAM_MIGRATION_TEAM_PLAN_STEP = 1
         const val TEAM_MIGRATION_TEAM_NAME_STEP = 2

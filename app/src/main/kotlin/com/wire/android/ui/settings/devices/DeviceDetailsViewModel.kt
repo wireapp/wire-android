@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.settings.devices
-
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
@@ -53,14 +52,11 @@ import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-
+import dev.zacsweers.metro.Inject
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel
 class DeviceDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     @CurrentAccount
@@ -75,11 +71,9 @@ class DeviceDetailsViewModel @Inject constructor(
     private val breakSession: BreakSessionUseCase,
     private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : ViewModel() {
-
     private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
     private val deviceId: ClientId = deviceDetailsNavArgs.clientId
     private val userId: UserId = deviceDetailsNavArgs.userId
-
     val passwordTextState: TextFieldState = TextFieldState()
     var state: DeviceDetailsState by mutableStateOf(
         DeviceDetailsState(
@@ -87,7 +81,6 @@ class DeviceDetailsViewModel @Inject constructor(
         )
     )
         private set
-
     init {
         observeDeviceDetails()
         getClientFingerPrint()
@@ -96,7 +89,6 @@ class DeviceDetailsViewModel @Inject constructor(
         observePasswordTextChanges()
         getIsE2EIEnabled()
     }
-
     private fun getIsE2EIEnabled() {
         viewModelScope.launch {
             isE2EIEnabledUseCase().let {
@@ -104,10 +96,8 @@ class DeviceDetailsViewModel @Inject constructor(
             }
         }
     }
-
     private val isSelfClient: Boolean
         get() = currentUserId == userId
-
     private fun observePasswordTextChanges() {
         viewModelScope.launch {
             passwordTextState.textAsFlow().distinctUntilChanged().collectLatest { newPassword ->
@@ -120,7 +110,6 @@ class DeviceDetailsViewModel @Inject constructor(
             }
         }
     }
-
     private fun observeUserName() {
         if (!isSelfClient) {
             viewModelScope.launch {
@@ -129,7 +118,6 @@ class DeviceDetailsViewModel @Inject constructor(
                         GetUserInfoResult.Failure -> {
                             /* no-op */
                         }
-
                         is GetUserInfoResult.Success ->
                             state =
                             state.copy(userName = result.otherUser.name)
@@ -138,7 +126,6 @@ class DeviceDetailsViewModel @Inject constructor(
             }
         }
     }
-
     private fun getE2eiCertificate() {
         viewModelScope.launch {
             state = when (val result = mlsClientIdentity(deviceId)) {
@@ -163,11 +150,9 @@ class DeviceDetailsViewModel @Inject constructor(
             }
         }
     }
-
     fun enrollE2EICertificate() {
         state = state.copy(isLoadingCertificate = true, startGettingE2EICertificate = true)
     }
-
     fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {
         state = when (result) {
             is FinalizeEnrollmentResult.Failure -> {
@@ -186,7 +171,6 @@ class DeviceDetailsViewModel @Inject constructor(
             }
         }
     }
-
     private fun getClientFingerPrint() {
         viewModelScope.launch {
             state = when (val result = fingerprintUseCase(userId, deviceId)) {
@@ -195,7 +179,6 @@ class DeviceDetailsViewModel @Inject constructor(
             }
         }
     }
-
     private fun observeDeviceDetails() {
         viewModelScope.launch {
             observeClientDetails(userId, deviceId).collect { result ->
@@ -204,7 +187,6 @@ class DeviceDetailsViewModel @Inject constructor(
                         appLogger.e("Error getting self clients $result")
                         state.copy(error = RemoveDeviceError.InitError)
                     }
-
                     is GetClientDetailsResult.Success -> {
                         state.copy(
                             device = state.device.updateFromClient(result.client),
@@ -220,7 +202,6 @@ class DeviceDetailsViewModel @Inject constructor(
             }
         }
     }
-
     private fun mapCipherSuiteSignatureToShortName(signature: MLSPublicKeyType): String? {
         return when (signature) {
             MLSPublicKeyType.ECDSA_SECP256R1_SHA256 -> "P256"
@@ -231,7 +212,6 @@ class DeviceDetailsViewModel @Inject constructor(
             is MLSPublicKeyType.Unknown -> null
         }
     }
-
     fun removeDevice() {
         viewModelScope.launch {
             val isPasswordRequired: Boolean = when (val passwordRequiredResult = isPasswordRequired()) {
@@ -239,7 +219,6 @@ class DeviceDetailsViewModel @Inject constructor(
                     state = state.copy(error = RemoveDeviceError.GenericError(passwordRequiredResult.cause))
                     return@launch
                 }
-
                 is IsPasswordRequiredUseCase.Result.Success -> passwordRequiredResult.value
             }
             when (isPasswordRequired) {
@@ -248,7 +227,6 @@ class DeviceDetailsViewModel @Inject constructor(
             }
         }
     }
-
     private fun showDeleteClientDialog(device: Device) {
         passwordTextState.clearText()
         state = device.let { RemoveDeviceDialogState.Visible(it) }.let {
@@ -258,22 +236,18 @@ class DeviceDetailsViewModel @Inject constructor(
             )
         }
     }
-
     private suspend fun deleteDevice(password: String?) {
         when (val result = deleteClient(DeleteClientParam(password, deviceId))) {
             is DeleteClientResult.Failure.Generic -> state = state.copy(
                 error = RemoveDeviceError.GenericError(result.genericFailure)
             )
-
             DeleteClientResult.Failure.InvalidCredentials -> state = state.copy(
                 error = RemoveDeviceError.InvalidCredentialsError
             )
-
             DeleteClientResult.Failure.PasswordAuthRequired -> showDeleteClientDialog(state.device)
             DeleteClientResult.Success -> state = state.copy(deviceRemoved = true)
         }
     }
-
     fun onRemoveConfirmed() {
         (state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
             updateStateIfDialogVisible {
@@ -287,36 +261,29 @@ class DeviceDetailsViewModel @Inject constructor(
             }
         }
     }
-
     private fun updateStateIfDialogVisible(newValue: (RemoveDeviceDialogState.Visible) -> DeviceDetailsState) {
         if (state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
             state = newValue(state.removeDeviceDialogState as RemoveDeviceDialogState.Visible)
         }
     }
-
     fun onUpdateVerificationStatus(status: Boolean) {
         viewModelScope.launch {
             updateClientVerificationStatus(userId, deviceId, status)
         }
     }
-
     fun onDialogDismissed() {
         passwordTextState.clearText()
         state = state.copy(removeDeviceDialogState = RemoveDeviceDialogState.Hidden)
     }
-
     fun clearDeleteClientError() {
         state = state.copy(error = RemoveDeviceError.None)
     }
-
     fun hideEnrollE2EICertificateError() {
         state = state.copy(isE2EICertificateEnrollError = false)
     }
-
     fun hideEnrollE2EICertificateSuccess() {
         state = state.copy(isE2EICertificateEnrollSuccess = false)
     }
-
     fun breakSession() {
         viewModelScope.launch { breakSession(userId, deviceId) }
     }

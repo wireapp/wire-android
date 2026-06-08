@@ -23,11 +23,9 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@HiltViewModel
 class CreateAccountSelectorViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     savedStateHandle: SavedStateHandle,

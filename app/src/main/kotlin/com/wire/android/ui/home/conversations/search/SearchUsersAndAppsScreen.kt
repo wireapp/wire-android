@@ -56,7 +56,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.ItemActionType
 import com.wire.android.ui.common.CollapsingTopBarScaffold
@@ -68,6 +67,7 @@ import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import com.wire.android.ui.home.conversations.searchUserViewModel
 import com.wire.android.ui.home.conversations.search.apps.SearchAppsScreen
 import com.wire.android.ui.home.newconversation.common.ContinueButton
 import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
@@ -320,7 +320,7 @@ private fun SearchAllPeopleOrContactsScreen(
     actionType: ItemActionType,
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
-    searchUserViewModel: SearchUserViewModel = hiltViewModel(),
+    searchUserViewModel: SearchUserViewModel = searchUserViewModel(),
     lazyListState: LazyListState = rememberLazyListState(),
     firstContactFocusRequester: FocusRequester? = null,
     nextFocusRequester: FocusRequester? = null,

@@ -29,17 +29,12 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.folder.MoveConversationToFolderUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-
 @ViewModelScopedPreview
 interface MoveConversationToFolderVM {
     val infoMessage: SharedFlow<UIText>
@@ -49,19 +44,13 @@ interface MoveConversationToFolderVM {
     fun moveConversationToFolder(folder: ConversationFolder) {}
 }
 
-@HiltViewModel(assistedFactory = MoveConversationToFolderVMImpl.Factory::class)
-class MoveConversationToFolderVMImpl @AssistedInject constructor(
+class MoveConversationToFolderVMImpl(
     private val dispatchers: DispatcherProvider,
-    @Assisted val args: MoveConversationToFolderArgs,
+    private val args: MoveConversationToFolderArgs,
     private val moveConversationToFolder: MoveConversationToFolderUseCase,
 ) : MoveConversationToFolderVM, ViewModel() {
 
     private var state: MoveConversationToFolderState by mutableStateOf(MoveConversationToFolderState())
-
-    @AssistedFactory
-    interface Factory {
-        fun create(args: MoveConversationToFolderArgs): MoveConversationToFolderVMImpl
-    }
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     override val infoMessage = _infoMessage.asSharedFlow()

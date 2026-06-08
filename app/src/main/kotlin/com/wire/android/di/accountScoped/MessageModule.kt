@@ -62,200 +62,160 @@ import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConvers
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 import com.wire.kalium.logic.feature.message.observePaginatedImageAssetMessageByConversationId
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
 
-@Module
-@InstallIn(ViewModelComponent::class)
+@BindingContainer
 @Suppress("TooManyFunctions")
 class MessageModule {
 
-    @ViewModelScoped
     @Provides
     fun provideMessageScope(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
     ): MessageScope = coreLogic.getSessionScope(currentAccount).messages
 
-    @ViewModelScoped
     @Provides
     fun provideSendButtonActionMessageUseCase(messageScope: MessageScope): SendButtonActionMessageUseCase =
         messageScope.sendButtonActionMessage
 
-    @ViewModelScoped
     @Provides
     fun provideEnqueueMessageSelfDeletionUseCase(messageScope: MessageScope): EnqueueMessageSelfDeletionUseCase =
         messageScope.enqueueMessageSelfDeletion
 
-    @ViewModelScoped
     @Provides
     fun provideResetSessionUseCase(messageScope: MessageScope): ResetSessionUseCase =
         messageScope.resetSession
 
-    @ViewModelScoped
     @Provides
     fun provideDeleteMessageUseCase(messageScope: MessageScope): DeleteMessageUseCase =
         messageScope.deleteMessage
 
-    @ViewModelScoped
     @Provides
     fun provideMarkMessagesAsNotifiedUseCase(messageScope: MessageScope): MarkMessagesAsNotifiedUseCase =
         messageScope.markMessagesAsNotified
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateAssetMessageTransferStatusUseCase(messageScope: MessageScope): UpdateAssetMessageTransferStatusUseCase =
         messageScope.updateAssetMessageTransferStatus
 
-    @ViewModelScoped
     @Provides
     fun provideSendTextMessageUseCase(messageScope: MessageScope): SendTextMessageUseCase = messageScope.sendTextMessage
 
-    @ViewModelScoped
     @Provides
     fun provideSendEditTextMessageUseCase(messageScope: MessageScope): SendEditTextMessageUseCase =
         messageScope.sendEditTextMessage
 
-    @ViewModelScoped
     @Provides
     fun provideSendEditMultipartMessageUseCase(messageScope: MessageScope): SendEditMultipartMessageUseCase =
         messageScope.sendEditMultipartMessage
 
-    @ViewModelScoped
     @Provides
     fun provideRetryFailedMessageUseCase(messageScope: MessageScope): RetryFailedMessageUseCase =
         messageScope.retryFailedMessage
 
-    @ViewModelScoped
     @Provides
     fun provideSendKnockUseCase(messageScope: MessageScope): SendKnockUseCase =
         messageScope.sendKnock
 
-    @ViewModelScoped
     @Provides
     fun provideToggleReactionUseCase(messageScope: MessageScope): ToggleReactionUseCase =
         messageScope.toggleReaction
 
-    @ViewModelScoped
     @Provides
     fun provideObserveMessageReactionsUseCase(messageScope: MessageScope): ObserveMessageReactionsUseCase =
         messageScope.observeMessageReactions
 
-    @ViewModelScoped
     @Provides
     fun provideObserveMessageReceiptsUseCase(messageScope: MessageScope): ObserveMessageReceiptsUseCase =
         messageScope.observeMessageReceipts
 
-    @ViewModelScoped
     @Provides
     fun providesSendAssetMessageUseCase(messageScope: MessageScope): ScheduleNewAssetMessageUseCase =
         messageScope.sendAssetMessage
 
-    @ViewModelScoped
     @Provides
     fun provideGetPrivateAssetUseCase(messageScope: MessageScope): GetMessageAssetUseCase =
         messageScope.getAssetMessage
 
-    @ViewModelScoped
     @Provides
     fun provideGetNotificationsUseCase(messageScope: MessageScope): GetNotificationsUseCase =
         messageScope.getNotifications
 
-    @ViewModelScoped
     @Provides
     fun provideGetMessageByIdUseCase(messageScope: MessageScope): GetMessageByIdUseCase =
         messageScope.getMessageById
 
-    @ViewModelScoped
     @Provides
     fun provideObserveMessageByIdUseCase(messageScope: MessageScope): ObserveMessageByIdUseCase =
         messageScope.observeMessageById
 
-    @ViewModelScoped
     @Provides
     fun provideGetPaginatedMessagesUseCase(messageScope: MessageScope): GetPaginatedFlowOfMessagesByConversationUseCase =
         messageScope.getPaginatedFlowOfMessagesByConversation
 
-    @ViewModelScoped
     @Provides
     fun provideFetchOlderMessagesUseCase(messageScope: MessageScope): FetchOlderNomadMessagesByConversationUseCase =
         messageScope.fetchOlderMessagesByConversationId
 
-    @ViewModelScoped
     @Provides
     fun provideGetImageAssetMessagesByConversationUseCase(messageScope: MessageScope): GetImageAssetMessagesForConversationUseCase =
         messageScope.getImageAssetMessagesByConversation
 
-    @ViewModelScoped
     @Provides
     fun provideGetPaginatedFlowOfAssetMessageByConversationId(
         messageScope: MessageScope
     ): GetPaginatedFlowOfAssetMessageByConversationIdUseCase =
         messageScope.getPaginatedFlowOfAssetMessageByConversationId
 
-    @ViewModelScoped
     @Provides
     fun provideGetPaginatedFlowOfImageAssetMessageByConversationId(
         messageScope: MessageScope
     ): ObservePaginatedAssetImageMessages =
         messageScope.observePaginatedImageAssetMessageByConversationId
 
-    @ViewModelScoped
     @Provides
     fun provideGetPaginatedFlowOfMessagesBySearchQueryAndConversation(
         messageScope: MessageScope
     ): GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase =
         messageScope.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 
-    @ViewModelScoped
     @Provides
     fun provideGetSearchedConversationMessagePositionUseCase(messageScope: MessageScope): GetSearchedConversationMessagePositionUseCase =
         messageScope.getSearchedConversationMessagePosition
 
-    @ViewModelScoped
     @Provides
     fun provideSendLocationUseCase(messageScope: MessageScope): SendLocationUseCase =
         messageScope.sendLocation
 
-    @ViewModelScoped
     @Provides
     fun provideObserveAssetStatusesUseCase(messageScope: MessageScope): ObserveAssetStatusesUseCase =
         messageScope.observeAssetStatuses
 
-    @ViewModelScoped
     @Provides
     fun provideSaveMessageDraftUseCase(messageScope: MessageScope): SaveMessageDraftUseCase =
         messageScope.saveMessageDraftUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideGetMessageDraftUseCase(messageScope: MessageScope): GetMessageDraftUseCase =
         messageScope.getMessageDraftUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideRemoveMessageDraftUseCase(messageScope: MessageScope): RemoveMessageDraftUseCase =
         messageScope.removeMessageDraftUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideSendInCallReactionUseCase(messageScope: MessageScope): SendInCallReactionUseCase =
         messageScope.sendInCallReactionUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideGetSenderNameByMessageIdUseCase(messageScope: MessageScope): GetSenderNameByMessageIdUseCase =
         messageScope.getSenderNameByMessageId
 
-    @ViewModelScoped
     @Provides
     fun provideSendMultipartMessageUseCase(messageScope: MessageScope): SendMultipartMessageUseCase =
         messageScope.sendMultipartMessage
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateAudioMessageNormalizedLoudnessUseCase(messageScope: MessageScope): UpdateAudioMessageNormalizedLoudnessUseCase =
         messageScope.updateAudioMessageNormalizedLoudnessUseCase

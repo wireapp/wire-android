@@ -17,8 +17,12 @@
  */
 package com.wire.android.ui.debug.automaticbackups
 
+import android.net.Uri
 import app.cash.turbine.test
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.asset.UploadedAssetId
@@ -28,6 +32,8 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.backup.BackupRootKey
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupResult
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
+import com.wire.kalium.logic.feature.backup.ExportBackupRootKeyResult
+import com.wire.kalium.logic.feature.backup.ExportBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
 import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyResult
 import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyUseCase
@@ -41,12 +47,15 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
+import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -234,6 +243,92 @@ class AutomaticBackupsDebugViewModelTest {
         advanceUntilIdle()
     }
 
+    @Test
+    fun givenExportRootKeyClicked_whenOpeningDialog_thenDialogStateIsShown() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(BACKUP_ROOT_KEY))
+            .arrange()
+
+        viewModel.showExportBackupRootKeyPasswordDialog()
+
+        assertTrue(viewModel.state.value.showExportBackupRootKeyPasswordDialog)
+    }
+
+    @Test
+    fun givenExportSucceeds_whenExportingRootKey_thenPendingFileIsStoredAndCreateFileEffectIsEmitted() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(BACKUP_ROOT_KEY))
+            .withExportBackupRootKey(EXPORT_BACKUP_ROOT_KEY_SUCCESS)
+            .arrange()
+        viewModel.exportBackupRootKeyPasswordState.setTextAndPlaceCursorAtEnd("password")
+
+        viewModel.effect.test {
+            viewModel.exportBackupRootKey()
+
+            assertEquals(
+                AutomaticBackupsDebugEffect.CreateBackupRootKeyExportFile("wire-backup-root-key-root-key-id.wbrk"),
+                awaitItem()
+            )
+        }
+
+        assertEquals(false, viewModel.state.value.isExportingBackupRootKey)
+        assertEquals("wire-backup-root-key-root-key-id.wbrk", viewModel.state.value.pendingExportedBackupRootKey?.fileName)
+    }
+
+    @Test
+    fun givenExportSaveUri_whenSavingRootKeyExport_thenFileIsCopiedAndSuccessMessageIsEmitted() = runTest {
+        val uri = mockk<Uri>()
+        val (arrangement, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(BACKUP_ROOT_KEY))
+            .withExportBackupRootKey(EXPORT_BACKUP_ROOT_KEY_SUCCESS)
+            .arrange()
+        viewModel.exportBackupRootKeyPasswordState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.exportBackupRootKey()
+        advanceUntilIdle()
+
+        viewModel.infoMessage.test {
+            viewModel.saveExportedBackupRootKey(uri)
+
+            assertEquals(UIText.DynamicString("Backup Root Key exported"), awaitItem())
+        }
+
+        coVerify { arrangement.fileManager.copyToUri(EXPORT_BACKUP_ROOT_KEY_PATH, uri, any()) }
+        assertNull(viewModel.state.value.pendingExportedBackupRootKey)
+    }
+
+    @Test
+    fun givenExportSaveIsCancelled_whenSavingRootKeyExport_thenPendingFileIsClearedAndMessageIsEmitted() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(BACKUP_ROOT_KEY))
+            .withExportBackupRootKey(EXPORT_BACKUP_ROOT_KEY_SUCCESS)
+            .arrange()
+        viewModel.exportBackupRootKeyPasswordState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.exportBackupRootKey()
+        advanceUntilIdle()
+
+        viewModel.infoMessage.test {
+            viewModel.saveExportedBackupRootKey(null)
+
+            assertEquals(UIText.DynamicString("Backup Root Key export save cancelled"), awaitItem())
+        }
+
+        assertNull(viewModel.state.value.pendingExportedBackupRootKey)
+    }
+
+    @Test
+    fun givenExportFailsBecausePasswordIsBlank_whenExportingRootKey_thenMessageIsEmitted() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(BACKUP_ROOT_KEY))
+            .withExportBackupRootKey(ExportBackupRootKeyResult.Failure.BlankPassword)
+            .arrange()
+
+        viewModel.infoMessage.test {
+            viewModel.exportBackupRootKey()
+
+            assertEquals(UIText.DynamicString("Enter a password to export Backup Root Key"), awaitItem())
+        }
+    }
+
     private class Arrangement {
         @MockK
         lateinit var getBackupRootKey: GetBackupRootKeyUseCase
@@ -245,13 +340,20 @@ class AutomaticBackupsDebugViewModelTest {
         lateinit var generateBackupRootKey: GenerateAndForcePushBackupRootKeyUseCase
 
         @MockK
+        lateinit var exportBackupRootKey: ExportBackupRootKeyUseCase
+
+        @MockK
         lateinit var createOnlineBackup: CreateOnlineBackupUseCase
 
         @MockK
         lateinit var restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase
 
+        @MockK
+        lateinit var fileManager: FileManager
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            coEvery { fileManager.copyToUri(any(), any(), any()) } returns Unit
         }
 
         fun withGetBackupRootKey(result: GetBackupRootKeyResult) = apply {
@@ -268,6 +370,10 @@ class AutomaticBackupsDebugViewModelTest {
 
         fun withCreateOnlineBackup(result: CreateOnlineBackupResult) = apply {
             coEvery { createOnlineBackup(any()) } returns result
+        }
+
+        fun withExportBackupRootKey(result: ExportBackupRootKeyResult) = apply {
+            coEvery { exportBackupRootKey(any()) } returns result
         }
 
         fun withCreateOnlineBackupProgress(
@@ -288,12 +394,20 @@ class AutomaticBackupsDebugViewModelTest {
                 getBackupRootKey = getBackupRootKey,
                 syncBackupRootKey = syncBackupRootKey,
                 generateAndForcePushBackupRootKey = generateBackupRootKey,
+                exportBackupRootKey = exportBackupRootKey,
                 createOnlineBackup = createOnlineBackup,
                 restoreLatestOnlineBackup = restoreLatestOnlineBackup,
+                fileManager = fileManager,
+                dispatcher = TestDispatcherProvider(),
             )
     }
 
     private companion object {
+        val EXPORT_BACKUP_ROOT_KEY_PATH = "/tmp/wire-backup-root-key-root-key-id.wbrk".toPath()
+        val EXPORT_BACKUP_ROOT_KEY_SUCCESS = ExportBackupRootKeyResult.Success(
+            exportFilePath = EXPORT_BACKUP_ROOT_KEY_PATH,
+            fileName = "wire-backup-root-key-root-key-id.wbrk",
+        )
         val BACKUP_ROOT_KEY = BackupRootKey(
             id = "backup-root-key-id",
             keyMaterial = ByteArray(32) { it.toByte() },

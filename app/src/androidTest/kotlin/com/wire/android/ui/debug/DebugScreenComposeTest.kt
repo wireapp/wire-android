@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.debug
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.wire.android.extensions.waitUntilExists
 import com.wire.android.ui.debug.automaticbackups.AutomaticBackupsDebugContent
@@ -95,9 +96,15 @@ class DebugScreenComposeTest {
                             version = 1,
                         )
                     ),
+                    exportBackupRootKeyPasswordTextState = TextFieldState(),
                     onNavigationPressed = {},
+                    onFetchBackupRootKey = {},
                     onGenerateNewKey = {},
+                    onShowExportBackupRootKeyPasswordDialog = {},
+                    onDismissExportBackupRootKeyPasswordDialog = {},
+                    onExportBackupRootKey = {},
                     onCreateBackup = {},
+                    onRestoreBackup = {},
                 )
             }
         }
@@ -117,9 +124,15 @@ class DebugScreenComposeTest {
                         isCreatingBackup = true,
                         backupCreationProgress = 0.42f,
                     ),
+                    exportBackupRootKeyPasswordTextState = TextFieldState(),
                     onNavigationPressed = {},
+                    onFetchBackupRootKey = {},
                     onGenerateNewKey = {},
+                    onShowExportBackupRootKeyPasswordDialog = {},
+                    onDismissExportBackupRootKeyPasswordDialog = {},
+                    onExportBackupRootKey = {},
                     onCreateBackup = {},
+                    onRestoreBackup = {},
                 )
             }
         }

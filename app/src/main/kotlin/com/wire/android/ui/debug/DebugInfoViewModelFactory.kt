@@ -40,6 +40,7 @@ import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyUse
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
+import com.wire.kalium.logic.feature.backup.ExportBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
 import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
@@ -96,6 +97,7 @@ class DebugInfoViewModelFactory @Inject constructor(
     private val getBackupRootKey: GetBackupRootKeyUseCase,
     private val syncBackupRootKey: SyncBackupRootKeyUseCase,
     private val generateAndForcePushBackupRootKey: GenerateAndForcePushBackupRootKeyUseCase,
+    private val exportBackupRootKey: ExportBackupRootKeyUseCase,
     private val createOnlineBackup: CreateOnlineBackupUseCase,
     private val restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase,
     private val fileManager: FileManager,
@@ -165,8 +167,11 @@ class DebugInfoViewModelFactory @Inject constructor(
         getBackupRootKey = getBackupRootKey,
         syncBackupRootKey = syncBackupRootKey,
         generateAndForcePushBackupRootKey = generateAndForcePushBackupRootKey,
+        exportBackupRootKey = exportBackupRootKey,
         createOnlineBackup = createOnlineBackup,
         restoreLatestOnlineBackup = restoreLatestOnlineBackup,
+        fileManager = fileManager,
+        dispatcher = dispatcherProvider,
     )
 
     fun debugFeatureFlagsViewModel() = DebugFeatureFlagsViewModel(

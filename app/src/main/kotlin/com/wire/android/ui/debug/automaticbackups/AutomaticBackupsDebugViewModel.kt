@@ -17,12 +17,19 @@
  */
 package com.wire.android.ui.debug.automaticbackups
 
+import android.net.Uri
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.util.FileManager
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.feature.backup.BackupRootKeyInfo
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupResult
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
+import com.wire.kalium.logic.feature.backup.ExportBackupRootKeyResult
+import com.wire.kalium.logic.feature.backup.ExportBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyResult
 import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyResult
@@ -46,15 +53,23 @@ class AutomaticBackupsDebugViewModel(
     private val getBackupRootKey: GetBackupRootKeyUseCase,
     private val syncBackupRootKey: SyncBackupRootKeyUseCase,
     private val generateAndForcePushBackupRootKey: GenerateAndForcePushBackupRootKeyUseCase,
+    private val exportBackupRootKey: ExportBackupRootKeyUseCase,
     private val createOnlineBackup: CreateOnlineBackupUseCase,
     private val restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase,
+    private val fileManager: FileManager,
+    private val dispatcher: DispatcherProvider,
 ) : ViewModel() {
+
+    val exportBackupRootKeyPasswordState: TextFieldState = TextFieldState()
 
     private val _state = MutableStateFlow(AutomaticBackupsDebugState())
     val state: StateFlow<AutomaticBackupsDebugState> = _state.asStateFlow()
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage: SharedFlow<UIText> = _infoMessage.asSharedFlow()
+
+    private val _effect = MutableSharedFlow<AutomaticBackupsDebugEffect>()
+    val effect: SharedFlow<AutomaticBackupsDebugEffect> = _effect.asSharedFlow()
 
     init {
         loadBackupRootKey()
@@ -130,6 +145,62 @@ class AutomaticBackupsDebugViewModel(
                     _state.update { it.copy(isFetchingBackupRootKey = false) }
                     _infoMessage.emit(UIText.DynamicString("Failed to fetch Backup Root Key: ${result.cause.message.orEmpty()}"))
                 }
+            }
+        }
+    }
+
+    fun showExportBackupRootKeyPasswordDialog() {
+        _state.update { it.copy(showExportBackupRootKeyPasswordDialog = true) }
+    }
+
+    fun dismissExportBackupRootKeyPasswordDialog() {
+        exportBackupRootKeyPasswordState.clearText()
+        _state.update { it.copy(showExportBackupRootKeyPasswordDialog = false) }
+    }
+
+    fun exportBackupRootKey() {
+        viewModelScope.launch {
+            _state.update { it.copy(isExportingBackupRootKey = true) }
+            when (val result = exportBackupRootKey(exportBackupRootKeyPasswordState.text.toString())) {
+                is ExportBackupRootKeyResult.Success -> {
+                    exportBackupRootKeyPasswordState.clearText()
+                    _state.update {
+                        it.copy(
+                            isExportingBackupRootKey = false,
+                            showExportBackupRootKeyPasswordDialog = false,
+                            pendingExportedBackupRootKey = PendingExportedBackupRootKey(
+                                path = result.exportFilePath,
+                                fileName = result.fileName,
+                            ),
+                        )
+                    }
+                    _effect.emit(AutomaticBackupsDebugEffect.CreateBackupRootKeyExportFile(result.fileName))
+                }
+
+                is ExportBackupRootKeyResult.Failure -> {
+                    _state.update { it.copy(isExportingBackupRootKey = false) }
+                    _infoMessage.emit(result.toInfoMessage())
+                }
+            }
+        }
+    }
+
+    fun saveExportedBackupRootKey(uri: Uri?) {
+        viewModelScope.launch {
+            val pendingExport = state.value.pendingExportedBackupRootKey
+            if (uri == null || pendingExport == null) {
+                _state.update { it.copy(pendingExportedBackupRootKey = null) }
+                _infoMessage.emit(UIText.DynamicString("Backup Root Key export save cancelled"))
+                return@launch
+            }
+
+            try {
+                fileManager.copyToUri(pendingExport.path, uri, dispatcher)
+                _state.update { it.copy(pendingExportedBackupRootKey = null) }
+                _infoMessage.emit(UIText.DynamicString("Backup Root Key exported"))
+            } catch (e: Exception) {
+                _state.update { it.copy(pendingExportedBackupRootKey = null) }
+                _infoMessage.emit(UIText.DynamicString("Failed to save Backup Root Key export: ${e.message.orEmpty()}"))
             }
         }
     }
@@ -221,15 +292,38 @@ class AutomaticBackupsDebugViewModel(
             is PushBackupRootKeyResult.Failure -> "Backup Root Key generated, but push failed: ${result.cause.message.orEmpty()}"
         }
     )
+
+    private fun ExportBackupRootKeyResult.Failure.toInfoMessage(): UIText = UIText.DynamicString(
+        when (this) {
+            ExportBackupRootKeyResult.Failure.BlankPassword -> "Enter a password to export Backup Root Key"
+            ExportBackupRootKeyResult.Failure.NoBackupRootKey -> "Backup Root Key export failed: no key available"
+            is ExportBackupRootKeyResult.Failure.EncryptionFailure ->
+                "Backup Root Key export failed while encrypting: ${cause.message.orEmpty()}"
+            is ExportBackupRootKeyResult.Failure.StorageFailure ->
+                "Backup Root Key export failed while accessing storage: ${cause.message.orEmpty()}"
+        }
+    )
 }
 
 data class AutomaticBackupsDebugState(
     val isLoading: Boolean = false,
     val isGenerating: Boolean = false,
     val isFetchingBackupRootKey: Boolean = false,
+    val showExportBackupRootKeyPasswordDialog: Boolean = false,
+    val isExportingBackupRootKey: Boolean = false,
+    val pendingExportedBackupRootKey: PendingExportedBackupRootKey? = null,
     val isCreatingBackup: Boolean = false,
     val backupCreationProgress: Float = 0f,
     val isRestoringBackup: Boolean = false,
     val backupRestoreProgress: Float = 0f,
     val backupRootKey: BackupRootKeyInfo? = null,
 )
+
+data class PendingExportedBackupRootKey(
+    val path: okio.Path,
+    val fileName: String,
+)
+
+sealed interface AutomaticBackupsDebugEffect {
+    data class CreateBackupRootKeyExportFile(val fileName: String) : AutomaticBackupsDebugEffect
+}

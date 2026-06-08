@@ -117,6 +117,7 @@ fun rememberCreateFileFlow(
     onFileCreated: (Uri) -> Unit,
     onPermissionDenied: () -> Unit,
     onPermissionPermanentlyDenied: () -> Unit,
+    onFileCreationCancelled: () -> Unit = {},
     fileMimeType: String = "*/*",
 ): RequestLauncher {
     val snackbarHostState = LocalSnackbarHostState.current
@@ -130,7 +131,7 @@ fun rememberCreateFileFlow(
             else -> arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         },
         onResult = { onFileCreatedUri ->
-            onFileCreatedUri?.let { onFileCreated(it) }
+            onFileCreatedUri?.let { onFileCreated(it) } ?: onFileCreationCancelled()
         },
         onAnyPermissionDenied = onPermissionDenied,
         onAnyPermissionPermanentlyDenied = onPermissionPermanentlyDenied,

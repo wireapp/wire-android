@@ -43,6 +43,7 @@ import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase
 import com.wire.kalium.logic.feature.backup.CreateMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
+import com.wire.kalium.logic.feature.backup.ExportBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
 import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreMPBackupUseCase
@@ -388,6 +389,13 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): GenerateAndForcePushBackupRootKeyUseCase =
         coreLogic.getSessionScope(currentAccount).multiPlatformBackup.generateAndForcePushBackupRootKey
+
+    @Provides
+    fun provideExportBackupRootKeyUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ExportBackupRootKeyUseCase =
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.exportBackupRootKey
 
     @Provides
     fun provideSyncBackupRootKeyUseCase(

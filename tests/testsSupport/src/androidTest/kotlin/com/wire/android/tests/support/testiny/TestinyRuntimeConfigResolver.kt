@@ -18,19 +18,23 @@
 package com.wire.android.tests.support.testiny
 
 import android.os.Bundle
+import android.util.Base64
 import androidx.test.platform.app.InstrumentationRegistry
 
 /** Reads Testiny runtime values from instrumentation arguments. */
 object TestinyRuntimeConfigResolver {
     const val ARG_PROJECT_NAME = "testinyProjectName"
+    const val ARG_PROJECT_NAME_B64 = "testinyProjectNameB64"
     const val ARG_RUN_NAME = "testinyRunName"
+    const val ARG_RUN_NAME_B64 = "testinyRunNameB64"
     const val ARG_API_KEY = "testinyApiKey"
+    const val ARG_API_KEY_B64 = "testinyApiKeyB64"
     const val ARG_SOURCE_RUN_URL = "testinySourceRunUrl"
 
     fun fromInstrumentationArgs(arguments: Bundle = InstrumentationRegistry.getArguments()): TestinyRuntimeConfig? {
-        val projectName = arguments.readTrimmed(ARG_PROJECT_NAME)
-        val runName = arguments.readTrimmed(ARG_RUN_NAME)
-        val apiKey = arguments.readTrimmed(ARG_API_KEY)
+        val projectName = arguments.readDecodedTrimmed(ARG_PROJECT_NAME_B64) ?: arguments.readTrimmed(ARG_PROJECT_NAME)
+        val runName = arguments.readDecodedTrimmed(ARG_RUN_NAME_B64) ?: arguments.readTrimmed(ARG_RUN_NAME)
+        val apiKey = arguments.readDecodedTrimmed(ARG_API_KEY_B64) ?: arguments.readTrimmed(ARG_API_KEY)
         val sourceRunUrl = arguments.readTrimmed(ARG_SOURCE_RUN_URL)
         val configuredValues = listOf(projectName, runName, apiKey, sourceRunUrl)
 
@@ -49,4 +53,11 @@ object TestinyRuntimeConfigResolver {
 
     private fun Bundle.readTrimmed(key: String): String? =
         getString(key)?.trim()?.takeIf { it.isNotEmpty() }
+
+    private fun Bundle.readDecodedTrimmed(key: String): String? =
+        readTrimmed(key)?.let { encodedValue ->
+            String(Base64.decode(encodedValue, Base64.DEFAULT), Charsets.UTF_8)
+                .trim()
+                .takeIf { it.isNotEmpty() }
+        }
 }

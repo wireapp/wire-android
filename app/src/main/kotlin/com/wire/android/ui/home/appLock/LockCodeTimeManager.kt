@@ -38,8 +38,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 /**
  * AppLockManager provides a mechanism to determine if the app should be locked based on configuration and screen state.
@@ -50,7 +51,7 @@ import javax.inject.Singleton
  *   - false if brought back to the foreground before the delay.
  */
 
-@Singleton
+@SingleIn(AppScope::class)
 class LockCodeTimeManager @Inject constructor(
     @ApplicationScope private val appCoroutineScope: CoroutineScope,
     currentScreenManager: CurrentScreenManager,

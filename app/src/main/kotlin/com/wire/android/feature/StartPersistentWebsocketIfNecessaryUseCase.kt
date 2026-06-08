@@ -21,10 +21,11 @@ package com.wire.android.feature
 
 import com.wire.android.appLogger
 import com.wire.android.services.ServicesManager
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 class StartPersistentWebsocketIfNecessaryUseCase @Inject constructor(
     private val servicesManager: ServicesManager,
     private val shouldStartPersistentWebSocketService: ShouldStartPersistentWebSocketServiceUseCase

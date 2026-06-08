@@ -25,7 +25,7 @@ import com.wire.android.feature.meetings.ui.usecase.GetMeetingUseCase
 import com.wire.android.feature.meetings.ui.usecase.GetMeetingsPaginatedUseCase
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class MeetingsViewModelFactory @Inject constructor(
     private val currentTimeProvider: CurrentTimeProvider,

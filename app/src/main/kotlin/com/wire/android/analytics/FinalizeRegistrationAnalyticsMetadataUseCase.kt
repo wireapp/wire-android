@@ -23,7 +23,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.firstOrNull
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * Finalize the registration process and analytics metadata in case there was enabled in the process.

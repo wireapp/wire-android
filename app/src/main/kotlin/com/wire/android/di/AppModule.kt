@@ -39,21 +39,18 @@ import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.AndroidUiTextResolver
 import com.wire.android.util.ui.UiTextResolver
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Named
-import javax.inject.Qualifier
-import javax.inject.Singleton
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.Named
+import dev.zacsweers.metro.Qualifier
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class CurrentAppVersion
 
-@Module
-@InstallIn(SingletonComponent::class)
+@BindingContainer
 @Suppress("TooManyFunctions")
 object AppModule {
 
@@ -61,18 +58,18 @@ object AppModule {
     @Provides
     fun provideCurrentAppVersion(): Int = BuildConfig.VERSION_CODE
 
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
-    fun providesApplicationContext(@ApplicationContext appContext: Context) = appContext
+    fun providesApplicationContext(@ApplicationContext appContext: Context): Context = appContext
 
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
     fun provideDefaultDispatchers(): DispatcherProvider = DefaultDispatcherProvider()
 
     @Provides
     fun provideMessageResourceProvider(): MessageResourceProvider = MessageResourceProvider()
 
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
     fun provideUiTextResolver(@ApplicationContext appContext: Context): UiTextResolver =
         AndroidUiTextResolver(appContext)
@@ -97,7 +94,7 @@ object AppModule {
         }
     }
 
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
     fun provideCurrentTimeProvider(): CurrentTimeProvider = CurrentTimeProvider.Default
 
@@ -108,7 +105,7 @@ object AppModule {
     fun provideLocationPickerParameters(): LocationPickerParameters = LocationPickerParameters()
 
     @Provides
-    fun provideAnalyticsConfiguration() =
+    fun provideAnalyticsConfiguration(): AnalyticsConfiguration =
         if (BuildConfig.ANALYTICS_ENABLED) AnalyticsConfiguration.Enabled else AnalyticsConfiguration.Disabled
 
     @Provides
@@ -123,7 +120,7 @@ object AppModule {
     fun provideUseNewLoginForDefaultBackend(): Boolean = BuildConfig.USE_NEW_LOGIN_FOR_DEFAULT_BACKEND
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun provideMessageSharedState(): MessageSharedState = MessageSharedState()
 
     @Provides

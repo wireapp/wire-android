@@ -22,6 +22,7 @@ import android.content.Intent
 import com.wire.android.appLogger
 import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.util.SwitchAccountObserver
@@ -30,14 +31,12 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@AndroidEntryPoint
 class NomadLogoutReceiver : CoroutineReceiver() {
 
     @Inject
@@ -55,6 +54,11 @@ class NomadLogoutReceiver : CoroutineReceiver() {
 
     @Inject
     lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
+
+    override fun onReceive(context: Context, intent: Intent?) {
+        context.wireApplicationGraph.inject(this)
+        super.onReceive(context, intent)
+    }
 
     public override suspend fun receive(context: Context, intent: Intent) {
         when {

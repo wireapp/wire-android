@@ -40,8 +40,9 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
+                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                 ),
                 items
             )
@@ -82,8 +83,10 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
-                    NodeBottomSheetAction.PUBLIC_LINK,
+                    NodeBottomSheetAction.OPEN,
+                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
                     NodeBottomSheetAction.DELETE,
@@ -104,8 +107,9 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
+                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                 ),
                 items
             )
@@ -126,11 +130,13 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
+                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                     NodeBottomSheetAction.EDIT,
                     NodeBottomSheetAction.VERSION_HISTORY,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
                     NodeBottomSheetAction.DELETE,
@@ -153,9 +159,11 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
+                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
                     NodeBottomSheetAction.DELETE,
@@ -393,6 +401,121 @@ class CellFileActionsMenuTest {
         }
 
     @Test
+    fun `GIVEN file is downloading offline WHEN building allFiles menu THEN emits only CANCEL_DOWNLOAD`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(downloadProgress = 0.5f),
+                isAllFiles = true,
+            )
+
+            // THEN
+            assertEquals(
+                listOf(NodeBottomSheetAction.CANCEL_DOWNLOAD),
+                items
+            )
+        }
+
+    @Test
+    fun `GIVEN file is downloading offline WHEN building conversationFiles menu THEN emits only CANCEL_DOWNLOAD`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(downloadProgress = 0.5f),
+                isConversationFiles = true,
+            )
+
+            // THEN
+            assertEquals(
+                listOf(NodeBottomSheetAction.CANCEL_DOWNLOAD),
+                items
+            )
+        }
+
+    @Test
+    fun `GIVEN file menu WHEN cancel download option selected THEN correct action emitted`() =
+        runTest {
+            // GIVEN
+            val menu = actionsMenu()
+
+            // WHEN
+            menu.onMenuItemAction(
+                conversationId = null,
+                parentFolderUuid = null,
+                node = fileNode,
+                action = NodeBottomSheetAction.CANCEL_DOWNLOAD,
+                onResult = { result ->
+                    // THEN
+                    assertEquals(CellFileActionsMenu.CancelDownload(fileNode), result)
+                }
+            )
+        }
+
+    @Test
+    fun `GIVEN file is available offline WHEN building allFiles menu THEN emits REMOVE_OFFLINE_ACCESS instead of MAKE_AVAILABLE_OFFLINE`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(isAvailableOffline = true),
+                isAllFiles = true,
+            )
+
+            // THEN
+            assertEquals(
+                listOf(
+                    NodeBottomSheetAction.OPEN,
+                    NodeBottomSheetAction.SHARE,
+                    NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS,
+                ),
+                items
+            )
+        }
+
+    @Test
+    fun `GIVEN file is available offline WHEN building conversationFiles menu THEN emits REMOVE_OFFLINE_ACCESS instead of MAKE_AVAILABLE_OFFLINE`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(isAvailableOffline = true),
+                isConversationFiles = true,
+            )
+
+            // THEN
+            assertEquals(
+                listOf(
+                    NodeBottomSheetAction.OPEN,
+                    NodeBottomSheetAction.SHARE,
+                    NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS,
+                    NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
+                    NodeBottomSheetAction.MOVE,
+                    NodeBottomSheetAction.RENAME,
+                    NodeBottomSheetAction.DELETE,
+                ),
+                items
+            )
+        }
+
+    @Test
+    fun `GIVEN file menu WHEN remove offline access option selected THEN correct action emitted`() =
+        runTest {
+            // GIVEN
+            val menu = actionsMenu()
+
+            // WHEN
+            menu.onMenuItemAction(
+                conversationId = null,
+                parentFolderUuid = null,
+                node = fileNode,
+                action = NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS,
+                onResult = { result ->
+                    // THEN
+                    assertEquals(CellFileActionsMenu.RemoveOfflineAccess(fileNode), result)
+                }
+            )
+        }
+
+    @Test
     fun `GIVEN file menu WHEN edit option selected called THEN correct action emitted`() =
         runTest {
             // GIVEN
@@ -441,6 +564,7 @@ class CellFileActionsMenuTest {
     private companion object {
         val fileNode = CellNodeUi.File(
             name = "file.txt",
+            conversationId = "conversationId",
             conversationName = "Conversation",
             uuid = "fileUuid",
             mimeType = "video/mp4",
@@ -462,7 +586,7 @@ class CellFileActionsMenuTest {
             uuid = "uuid",
             userName = "user",
             conversationName = "conversation",
-            modifiedTime = "time",
+            modifiedTime = 1696154400000L,
             size = 1,
             userHandle = null,
             ownerUserId = null,

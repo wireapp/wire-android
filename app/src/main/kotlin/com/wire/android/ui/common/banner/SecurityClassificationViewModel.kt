@@ -33,7 +33,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-
 @ViewModelScopedPreview
 interface SecurityClassificationViewModel {
     fun state(): SecurityClassificationType = SecurityClassificationType.NONE

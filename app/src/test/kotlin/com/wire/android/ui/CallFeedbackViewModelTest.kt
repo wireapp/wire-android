@@ -160,10 +160,10 @@ class CallFeedbackViewModelTest {
 
         val viewModel: CallFeedbackViewModel by lazy {
             CallFeedbackViewModel(
-                coreLogic = { coreLogic },
-                currentSessionFlow = { currentSessionFlow },
-                isAnalyticsAvailable = { isAnalyticsAvailable },
-                analyticsManager = { analyticsManager },
+                coreLogic = lazyOf(coreLogic),
+                currentSessionFlow = lazyOf(currentSessionFlow),
+                isAnalyticsAvailable = lazyOf(isAnalyticsAvailable),
+                analyticsManager = lazyOf(analyticsManager),
             )
         }
 

@@ -20,6 +20,9 @@ package com.wire.android.feature.meetings.ui
 import androidx.compose.runtime.Composable
 import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.metro.metroViewModel
+import com.wire.android.feature.meetings.ui.create.NewMeetingType
+import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel
+import com.wire.android.feature.meetings.ui.create.NewMeetingViewModelImpl
 import com.wire.android.feature.meetings.ui.list.MeetingListViewModel
 import com.wire.android.feature.meetings.ui.list.MeetingListViewModelImpl
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModel
@@ -39,4 +42,10 @@ fun meetingListViewModel(type: MeetingsTabItem): MeetingListViewModel =
 fun meetingOptionsMenuListViewModel(): MeetingOptionsMenuViewModel =
     metroViewModel<MeetingsViewModelGraph, MeetingOptionsMenuViewModelImpl> {
         meetingsViewModelFactory.meetingOptionsMenuViewModel()
+    }
+
+@Composable
+fun newMeetingViewModel(type: NewMeetingType): NewMeetingViewModel =
+    metroViewModel<MeetingsViewModelGraph, NewMeetingViewModelImpl>(key = "new_meeting_${type.name}") {
+        meetingsViewModelFactory.newMeetingViewModel(type)
     }

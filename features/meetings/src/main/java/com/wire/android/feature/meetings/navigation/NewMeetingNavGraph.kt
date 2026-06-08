@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2025 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.navigation
+package com.wire.android.feature.meetings.navigation
 
-import androidx.compose.runtime.Stable
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
+import com.ramcosta.composedestinations.annotation.NavGraph
 
-@Stable
-interface WireNavigator {
-    fun navigate(navigationCommand: NavigationCommand)
-    fun navigateBack()
-    fun navigateBackAndRemoveAllConsecutive(currentRoute: String)
-    fun navigateBackAndRemoveAllConsecutiveXTimes(currentRoute: String, stepsBack: Int)
-}
+@NavGraph<ExternalModuleGraph>
+annotation class NewMeetingNavGraph(
+    val start: Boolean = false
+)

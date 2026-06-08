@@ -19,11 +19,14 @@ package com.wire.android.ui.home.meetings
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import com.ramcosta.composedestinations.generated.meetings.destinations.NewMeetingScreenDestination
 import com.wire.android.feature.meetings.ui.AllMeetingsScreen
 import com.wire.android.feature.meetings.ui.NewMeetingBottomSheet
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.annotation.app.WireHomeDestination
 import com.wire.android.ui.common.dimensions
+import com.wire.android.feature.meetings.ui.create.NewMeetingType
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.ui.home.HomeStateHolder
 
 @WireHomeDestination
@@ -37,10 +40,14 @@ fun MeetingsScreen(homeStateHolder: HomeStateHolder) {
     NewMeetingBottomSheet(
         sheetState = homeStateHolder.newMeetingBottomSheetState,
         onMeetNowClick = {
-            // TODO to be implemented later
+            homeStateHolder.newMeetingBottomSheetState.hide {
+                homeStateHolder.navigator.navigate(NavigationCommand(NewMeetingScreenDestination(NewMeetingType.MeetNow)))
+            }
         },
         onScheduleClick = {
-            // TODO to be implemented later
+            homeStateHolder.newMeetingBottomSheetState.hide {
+                homeStateHolder.navigator.navigate(NavigationCommand(NewMeetingScreenDestination(NewMeetingType.Schedule)))
+            }
         }
     )
 }

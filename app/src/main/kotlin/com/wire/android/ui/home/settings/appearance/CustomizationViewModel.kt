@@ -24,7 +24,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.theme.ThemeOption
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 class CustomizationViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
 ) : ViewModel() {

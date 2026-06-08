@@ -24,7 +24,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class CreateAccountSelectorViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,

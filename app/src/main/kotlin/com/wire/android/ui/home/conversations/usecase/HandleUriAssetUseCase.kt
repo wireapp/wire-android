@@ -26,7 +26,7 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import kotlinx.coroutines.withContext
 import java.util.UUID
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class HandleUriAssetUseCase @Inject constructor(
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,

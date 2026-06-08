@@ -34,7 +34,6 @@ import com.wire.kalium.logic.feature.legalhold.ApproveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import dagger.Lazy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -88,7 +87,7 @@ class LegalHoldRequestedViewModel(
     }.stateIn(viewModelScope, SharingStarted.Eagerly, LegalHoldRequestData.None)
 
     private fun <T> currentSessionFlow(noSession: T, session: UserSessionScope.(UserId) -> Flow<T>): Flow<T> =
-        coreLogic.get().getGlobalScope().session.currentSessionFlow()
+        coreLogic.value.getGlobalScope().session.currentSessionFlow()
             .flatMapLatest { currentSessionResult ->
                 when (currentSessionResult) {
                     is CurrentSessionResult.Failure.Generic -> {
@@ -98,7 +97,7 @@ class LegalHoldRequestedViewModel(
 
                     CurrentSessionResult.Failure.SessionNotFound -> flowOf(noSession)
                     is CurrentSessionResult.Success ->
-                        currentSessionResult.accountInfo.userId.let { coreLogic.get().getSessionScope(it).session(it) }
+                        currentSessionResult.accountInfo.userId.let { coreLogic.value.getSessionScope(it).session(it) }
                 }
             }
 
@@ -151,7 +150,7 @@ class LegalHoldRequestedViewModel(
             } else {
                 val password = if (it.requiresPassword) passwordTextState.text.toString() else null
                 viewModelScope.launch {
-                    coreLogic.get().sessionScope(it.userId) {
+                    coreLogic.value.sessionScope(it.userId) {
                         approveLegalHoldRequest(password).let { approveLegalHoldResult ->
                             state = when (approveLegalHoldResult) {
                                 is ApproveLegalHoldRequestUseCase.Result.Success ->

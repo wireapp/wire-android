@@ -28,7 +28,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class GetQuoteMessageForConversationUseCase @Inject constructor(
     private val getMessageById: GetMessageByIdUseCase,

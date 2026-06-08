@@ -79,7 +79,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
-
 @ViewModelScopedPreview
 interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsMenuViewAction> {
     val leaveGroupDialogState: VisibilityState<LeaveGroupDialogState> get() = VisibilityState()

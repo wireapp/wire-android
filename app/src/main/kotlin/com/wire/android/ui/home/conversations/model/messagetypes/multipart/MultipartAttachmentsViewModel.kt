@@ -32,44 +32,65 @@ import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesByConversationUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 
 interface MultipartAttachmentsViewModel {
+    val offlineAttachmentIds: StateFlow<Set<String>>
     fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit)
+    fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
+        val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
+        return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
+    }
+
     fun mapAttachments(
-        attachments: List<MessageAttachment>
+        attachments: List<MessageAttachment>,
     ): List<MultipartAttachmentGroup> {
+        val offlineIds = offlineAttachmentIds.value
 
         val result = mutableListOf<MultipartAttachmentGroup>()
         var group: MultipartAttachmentGroup? = null
 
         attachments.forEach {
+            val isAvailableOffline = it.assetId() in offlineIds
             if (it.isMediaAttachment()) {
                 group = when (group) {
-                    null -> MultipartAttachmentGroup.Media(listOf(it.toUiModel()))
-                    is MultipartAttachmentGroup.Media -> group.copy(group.attachments + it.toUiModel())
+                    null -> MultipartAttachmentGroup.Media(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
+                    is MultipartAttachmentGroup.Media -> {
+                        val newAttachment = it.toUiModel(isAvailableOffline = isAvailableOffline)
+                        group.copy(attachments = group.attachments + newAttachment)
+                    }
                     else -> {
                         result.add(group)
-                        MultipartAttachmentGroup.Media(listOf(it.toUiModel()))
+                        MultipartAttachmentGroup.Media(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
                     }
                 }
             } else {
                 group = when (group) {
-                    null -> MultipartAttachmentGroup.Files(listOf(it.toUiModel()))
-                    is MultipartAttachmentGroup.Files -> group.copy(group.attachments + it.toUiModel())
+                    null -> MultipartAttachmentGroup.Files(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
+                    is MultipartAttachmentGroup.Files -> {
+                        val newAttachment = it.toUiModel(isAvailableOffline = isAvailableOffline)
+                        group.copy(attachments = group.attachments + newAttachment)
+                    }
                     else -> {
                         result.add(group)
-                        MultipartAttachmentGroup.Files(listOf(it.toUiModel()))
+                        MultipartAttachmentGroup.Files(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
                     }
                 }
             }
@@ -93,12 +114,15 @@ interface MultipartAttachmentsViewModel {
 
 @Suppress("EmptyFunctionBlock")
 object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
+    override val offlineAttachmentIds: StateFlow<Set<String>> = MutableStateFlow(emptySet<String>())
     override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {}
     override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
 
+@Suppress("LongParameterList")
 class MultipartAttachmentsViewModelImpl(
+    private val conversationId: ConversationId,
     private val refreshHelper: CellAssetRefreshHelper,
     private val download: DownloadCellFileUseCase,
     private val getEditorUrl: GetEditorUrlUseCase,
@@ -107,9 +131,13 @@ class MultipartAttachmentsViewModelImpl(
     private val kaliumFileSystem: KaliumFileSystem,
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
+    observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
 
     private val uploadProgress = mutableStateMapOf<String, Float>()
+    override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFilesByConversation(conversationId)
+        .map { offlineFiles -> offlineFiles.mapTo(mutableSetOf()) { it.id } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 
     private var isCollaboraEnabled: Boolean = false
 
@@ -117,7 +145,10 @@ class MultipartAttachmentsViewModelImpl(
         loadWireCellConfig()
     }
 
-    override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {
+    override fun onClick(
+        attachment: MultipartAttachmentUi,
+        openInImageViewer: (String) -> Unit,
+    ) {
         when {
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
             attachment.isEditSupported && isCollaboraEnabled && featureFlags.collaboraIntegration ->
@@ -171,7 +202,7 @@ class MultipartAttachmentsViewModelImpl(
 
         download(
             assetId = attachment.uuid,
-            conversationId = null, // TODO to replace with real conversation id in next PR
+            conversationId = conversationId.value,
             outFilePath = path,
             assetSize = attachment.assetSize ?: 0,
         ) { progress ->
@@ -205,7 +236,7 @@ class MultipartAttachmentsViewModelImpl(
     }
 }
 
-private fun MessageAttachment.assetId() =
+internal fun MessageAttachment.assetId() =
     when (this) {
         is AssetContent -> remoteData.assetId
         is CellAssetContent -> id

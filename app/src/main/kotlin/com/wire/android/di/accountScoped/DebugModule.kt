@@ -22,110 +22,98 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
+import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
 import com.wire.kalium.logic.feature.debug.DebugScope
+import com.wire.kalium.logic.feature.debug.DebugFeedConversationUseCase
+import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
 import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
 import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
+import com.wire.kalium.logic.feature.debug.ObserveDatabaseLoggerStateUseCase
+import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
 import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
+import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
 
-@Module
-@InstallIn(ViewModelComponent::class)
+@BindingContainer
 @Suppress("TooManyFunctions")
 class DebugModule {
 
-    @ViewModelScoped
     @Provides
     fun providesDebugScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): DebugScope = coreLogic.getSessionScope(currentAccount).debug
 
-    @ViewModelScoped
     @Provides
-    fun provideDisableEventProcessing(debugScope: DebugScope) =
+    fun provideDisableEventProcessing(debugScope: DebugScope): DisableEventProcessingUseCase =
         debugScope.disableEventProcessing
 
-    @ViewModelScoped
     @Provides
     fun provideBreakSessionUseCase(debugScope: DebugScope): BreakSessionUseCase =
         debugScope.breakSession
 
-    @ViewModelScoped
     @Provides
-    fun provideSendFCMTokenToAPIUseCase(debugScope: DebugScope) =
+    fun provideSendFCMTokenToAPIUseCase(debugScope: DebugScope): SendFCMTokenUseCase =
         debugScope.sendFCMTokenToServer
 
-    @ViewModelScoped
     @Provides
-    fun provideChangeProfilingUseCase(debugScope: DebugScope) =
+    fun provideChangeProfilingUseCase(debugScope: DebugScope): ChangeProfilingUseCase =
         debugScope.changeProfiling
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveDatabaseLoggerState(debugScope: DebugScope) =
+    fun provideObserveDatabaseLoggerState(debugScope: DebugScope): ObserveDatabaseLoggerStateUseCase =
         debugScope.observeDatabaseLoggerState
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveAsyncNotificationsEnabled(debugScope: DebugScope) = debugScope.observeIsConsumableNotificationsEnabled
+    fun provideObserveAsyncNotificationsEnabled(debugScope: DebugScope): ObserveIsConsumableNotificationsEnabledUseCase =
+        debugScope.observeIsConsumableNotificationsEnabled
 
-    @ViewModelScoped
     @Provides
-    fun provideStartUsingAsyncNotifications(debugScope: DebugScope) = debugScope.startUsingAsyncNotifications
+    fun provideStartUsingAsyncNotifications(debugScope: DebugScope): StartUsingAsyncNotificationsUseCase =
+        debugScope.startUsingAsyncNotifications
 
-    @ViewModelScoped
     @Provides
     fun provideFeatureConfigUseCase(debugScope: DebugScope): GetFeatureConfigUseCase = debugScope.getFeatureConfig
 
-    @ViewModelScoped
     @Provides
     fun provideGetDebugE2EICertificateExpirationUseCase(debugScope: DebugScope): GetDebugE2EICertificateExpirationUseCase =
         debugScope.getDebugE2EICertificateExpiration
 
-    @ViewModelScoped
     @Provides
     fun provideSetDebugE2EICertificateExpirationUseCase(debugScope: DebugScope): SetDebugE2EICertificateExpirationUseCase =
         debugScope.setDebugE2EICertificateExpiration
 
-    @ViewModelScoped
     @Provides
     fun provideObserveDebugCRLExpirationAfterOneMinuteUseCase(
         debugScope: DebugScope
     ): ObserveDebugCRLExpirationAfterOneMinuteUseCase =
         debugScope.observeDebugCRLExpirationAfterOneMinute
 
-    @ViewModelScoped
     @Provides
     fun provideSetDebugCRLExpirationAfterOneMinuteUseCase(
         debugScope: DebugScope
     ): SetDebugCRLExpirationAfterOneMinuteUseCase =
         debugScope.setDebugCRLExpirationAfterOneMinute
 
-    @ViewModelScoped
     @Provides
     fun provideGetConversationEpochFromCCUseCase(debugScope: DebugScope): GetConversationEpochFromCCUseCase =
         debugScope.getConversationEpochFromCC
 
-    @ViewModelScoped
     @Provides
-    fun provideDebugFeedConversationUseCase(debugScope: DebugScope) =
+    fun provideDebugFeedConversationUseCase(debugScope: DebugScope): DebugFeedConversationUseCase =
         debugScope.debugFeedConversationUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideRepairFaultyRemovalKeysUseCase(debugScope: DebugScope): RepairFaultyRemovalKeysUseCase =
         debugScope.repairFaultyRemovalKeysUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideGetConversationCryptoStatsUseCase(debugScope: DebugScope): GetConversationCryptoStatsUseCase =
         debugScope.getConversationCryptoStats

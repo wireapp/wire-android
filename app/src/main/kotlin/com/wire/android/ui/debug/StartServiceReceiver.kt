@@ -22,18 +22,17 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * This BroadcastReceiver will restart the persistentWebSocket Service after restarting the device.
  */
-@AndroidEntryPoint
 class StartServiceReceiver : BroadcastReceiver() {
     @Inject
     lateinit var dispatcherProvider: DispatcherProvider
@@ -46,6 +45,7 @@ class StartServiceReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
+        context?.wireApplicationGraph?.inject(this)
         appLogger.i("$TAG: onReceive called with action ${intent?.action}")
         scope.launch { startPersistentWebSocketService() }
     }

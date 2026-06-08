@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.toLocalDateTime
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 import kotlin.math.max
 
 class ObserveImageAssetMessagesFromConversationUseCase @Inject constructor(

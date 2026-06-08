@@ -81,8 +81,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import com.wire.kalium.network.NetworkStateObserver
-import dagger.Lazy
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
 class CallingViewModelFactory @Inject constructor(

@@ -20,13 +20,11 @@ package com.wire.android.ui.newauthentication.login
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeResult
 import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase
-import dagger.hilt.android.scopes.ViewModelScoped
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * Validates the input for a SSO code or an email address valid format.
  */
-@ViewModelScoped
 class ValidateEmailOrSSOCodeUseCase @Inject constructor(
     val validateEmail: ValidateEmailUseCase,
     val validateSSOCode: ValidateSSOCodeUseCase

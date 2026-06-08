@@ -31,6 +31,7 @@ import androidx.core.app.ServiceCompat
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NAME
@@ -41,7 +42,6 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.awaitCancellation
@@ -49,9 +49,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@AndroidEntryPoint
 class PersistentWebSocketService : Service() {
 
     @Inject
@@ -76,6 +75,7 @@ class PersistentWebSocketService : Service() {
     }
 
     override fun onCreate() {
+        wireApplicationGraph.inject(this)
         super.onCreate()
         isServiceStarted = true
         generateForegroundNotification()

@@ -21,7 +21,7 @@ package com.wire.android.mapper
 import com.wire.android.ui.home.conversations.avatar
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.SelfUser
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class OtherAccountMapper @Inject constructor() {
     fun toOtherAccount(selfUser: SelfUser): OtherAccount = OtherAccount(

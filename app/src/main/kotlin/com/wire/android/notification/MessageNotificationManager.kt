@@ -41,11 +41,12 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.notification.LocalNotificationUpdateMessageAction
 import kotlinx.coroutines.delay
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 @Suppress("TooManyFunctions")
-@Singleton
+@SingleIn(AppScope::class)
 class MessageNotificationManager
 @Inject constructor(
     private val context: Context,

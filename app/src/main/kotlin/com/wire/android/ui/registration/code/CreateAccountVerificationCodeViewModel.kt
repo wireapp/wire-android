@@ -48,7 +48,7 @@ import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class CreateAccountVerificationCodeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

@@ -69,9 +69,9 @@ import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
-import javax.inject.Inject
-import javax.inject.Named
-import javax.inject.Provider
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Named
+import dev.zacsweers.metro.Provider
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class AuthenticationViewModelFactory @Inject constructor(
@@ -108,145 +108,145 @@ class AuthenticationViewModelFactory @Inject constructor(
 ) {
     fun welcomeViewModel(savedStateHandle: SavedStateHandle) = WelcomeViewModel(
         savedStateHandle = savedStateHandle,
-        getSessions = getSessions.get(),
-        doesValidNomadAccountExist = doesValidNomadAccountExist.get(),
-        defaultServerConfig = defaultServerConfig.get(),
+        getSessions = getSessions(),
+        doesValidNomadAccountExist = doesValidNomadAccountExist(),
+        defaultServerConfig = defaultServerConfig(),
     )
 
     fun newLoginViewModel(savedStateHandle: SavedStateHandle) = NewLoginViewModel(
-        validateEmailOrSSOCode = validateEmailOrSSOCode.get(),
-        coreLogic = coreLogic.get(),
+        validateEmailOrSSOCode = validateEmailOrSSOCode(),
+        coreLogic = coreLogic(),
         savedStateHandle = savedStateHandle,
-        clientScopeProviderFactory = clientScopeProviderFactory.get(),
-        userDataStoreProvider = userDataStoreProvider.get(),
-        loginExtension = LoginViewModelExtension(clientScopeProviderFactory.get(), userDataStoreProvider.get()),
+        clientScopeProviderFactory = clientScopeProviderFactory(),
+        userDataStoreProvider = userDataStoreProvider(),
+        loginExtension = LoginViewModelExtension(clientScopeProviderFactory(), userDataStoreProvider()),
         ssoExtension = LoginSSOViewModelExtension(
-            addAuthenticatedUser = addAuthenticatedUser.get(),
-            coreLogic = coreLogic.get(),
-            defaultWebSocketEnabledByDefault = defaultWebSocketEnabledByDefault.get(),
+            addAuthenticatedUser = addAuthenticatedUser(),
+            coreLogic = coreLogic(),
+            defaultWebSocketEnabledByDefault = defaultWebSocketEnabledByDefault(),
         ),
-        dispatchers = dispatchers.get(),
-        defaultServerConfig = defaultServerConfig.get(),
-        defaultSSOCodeConfig = defaultSSOCodeConfig.get(),
+        dispatchers = dispatchers(),
+        defaultServerConfig = defaultServerConfig(),
+        defaultSSOCodeConfig = defaultSSOCodeConfig(),
     )
 
     fun loginEmailViewModel(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle) = LoginEmailViewModel(
         loginNavArgs = loginNavArgs,
-        addAuthenticatedUser = addAuthenticatedUser.get(),
-        clientScopeProviderFactory = clientScopeProviderFactory.get(),
+        addAuthenticatedUser = addAuthenticatedUser(),
+        clientScopeProviderFactory = clientScopeProviderFactory(),
         savedInputStore = loginSavedInputStore(savedStateHandle),
-        userDataStoreProvider = userDataStoreProvider.get(),
-        coreLogic = coreLogic.get(),
-        resendCodeTimer = countdownTimer.get(),
-        dispatchers = dispatchers.get(),
-        defaultServerConfig = defaultServerConfig.get(),
-        defaultWebSocketEnabledByDefault = defaultWebSocketEnabledByDefault.get(),
+        userDataStoreProvider = userDataStoreProvider(),
+        coreLogic = coreLogic(),
+        resendCodeTimer = countdownTimer(),
+        dispatchers = dispatchers(),
+        defaultServerConfig = defaultServerConfig(),
+        defaultWebSocketEnabledByDefault = defaultWebSocketEnabledByDefault(),
     )
 
     fun loginSSOViewModel(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle) = LoginSSOViewModel(
         loginNavArgs = loginNavArgs,
         savedInputStore = loginSavedInputStore(savedStateHandle),
-        addAuthenticatedUser = addAuthenticatedUser.get(),
-        validateEmailUseCase = validateEmail.get(),
-        coreLogic = coreLogic.get(),
-        clientScopeProviderFactory = clientScopeProviderFactory.get(),
-        userDataStoreProvider = userDataStoreProvider.get(),
-        serverConfig = defaultServerConfig.get(),
+        addAuthenticatedUser = addAuthenticatedUser(),
+        validateEmailUseCase = validateEmail(),
+        coreLogic = coreLogic(),
+        clientScopeProviderFactory = clientScopeProviderFactory(),
+        userDataStoreProvider = userDataStoreProvider(),
+        serverConfig = defaultServerConfig(),
         ssoExtension = LoginSSOViewModelExtension(
-            addAuthenticatedUser = addAuthenticatedUser.get(),
-            coreLogic = coreLogic.get(),
-            defaultWebSocketEnabledByDefault = defaultWebSocketEnabledByDefault.get(),
+            addAuthenticatedUser = addAuthenticatedUser(),
+            coreLogic = coreLogic(),
+            defaultWebSocketEnabledByDefault = defaultWebSocketEnabledByDefault(),
         ),
-        dispatchers = dispatchers.get(),
+        dispatchers = dispatchers(),
     )
 
     fun registerDeviceViewModel() = RegisterDeviceViewModel(
-        registerClientUseCase = getOrRegisterClient.get(),
-        isPasswordRequired = isPasswordRequired.get(),
-        userDataStore = userDataStore.get(),
-        getSelfUser = getSelfUser.get(),
-        requestSecondFactorVerificationCodeUseCase = requestSecondFactorVerificationCode.get(),
-        resendCodeTimer = countdownTimer.get(),
+        registerClientUseCase = getOrRegisterClient(),
+        isPasswordRequired = isPasswordRequired(),
+        userDataStore = userDataStore(),
+        getSelfUser = getSelfUser(),
+        requestSecondFactorVerificationCodeUseCase = requestSecondFactorVerificationCode(),
+        resendCodeTimer = countdownTimer(),
     )
 
     fun removeDeviceViewModel() = RemoveDeviceViewModel(
-        fetchSelfClientsFromRemote = fetchSelfClientsFromRemote.get(),
-        deleteClientUseCase = deleteClient.get(),
-        registerClientUseCase = getOrRegisterClient.get(),
-        isPasswordRequired = isPasswordRequired.get(),
-        userDataStore = userDataStore.get(),
-        getSelfUser = getSelfUser.get(),
-        requestSecondFactorVerificationCodeUseCase = requestSecondFactorVerificationCode.get(),
+        fetchSelfClientsFromRemote = fetchSelfClientsFromRemote(),
+        deleteClientUseCase = deleteClient(),
+        registerClientUseCase = getOrRegisterClient(),
+        isPasswordRequired = isPasswordRequired(),
+        userDataStore = userDataStore(),
+        getSelfUser = getSelfUser(),
+        requestSecondFactorVerificationCodeUseCase = requestSecondFactorVerificationCode(),
     )
 
     fun clearSessionViewModel() = ClearSessionViewModel(
-        currentSession = currentSession.get(),
-        deleteSession = deleteSession.get(),
-        switchAccount = switchAccount.get(),
-        logout = logout.get(),
+        currentSession = currentSession(),
+        deleteSession = deleteSession(),
+        switchAccount = switchAccount(),
+        logout = logout(),
     )
 
     fun createAccountUsernameViewModel() = CreateAccountUsernameViewModel(
-        validateUserHandleUseCase = validateUserHandle.get(),
-        setUserHandleUseCase = setUserHandle.get(),
-        finalizeRegistrationAnalyticsMetadata = finalizeRegistrationAnalyticsMetadata.get(),
-        registrationAnalyticsManager = registrationAnalyticsManager.get(),
+        validateUserHandleUseCase = validateUserHandle(),
+        setUserHandleUseCase = setUserHandle(),
+        finalizeRegistrationAnalyticsMetadata = finalizeRegistrationAnalyticsMetadata(),
+        registrationAnalyticsManager = registrationAnalyticsManager(),
     )
 
     fun createAccountOverviewViewModel(savedStateHandle: SavedStateHandle) = CreateAccountOverviewViewModel(
         savedStateHandle = savedStateHandle,
-        defaultServerConfig = defaultServerConfig.get(),
+        defaultServerConfig = defaultServerConfig(),
     )
 
     fun createAccountEmailViewModel(savedStateHandle: SavedStateHandle) = CreateAccountEmailViewModel(
         savedStateHandle = savedStateHandle,
-        validateEmail = validateEmail.get(),
-        coreLogic = coreLogic.get(),
-        defaultServerConfig = defaultServerConfig.get(),
+        validateEmail = validateEmail(),
+        coreLogic = coreLogic(),
+        defaultServerConfig = defaultServerConfig(),
     )
 
     fun createAccountDetailsViewModel(savedStateHandle: SavedStateHandle) = CreateAccountDetailsViewModel(
         savedStateHandle = savedStateHandle,
-        validatePasswordUseCase = validatePassword.get(),
-        defaultServerConfig = defaultServerConfig.get(),
+        validatePasswordUseCase = validatePassword(),
+        defaultServerConfig = defaultServerConfig(),
     )
 
     fun createAccountCodeViewModel(savedStateHandle: SavedStateHandle) = CreateAccountCodeViewModel(
         savedStateHandle = savedStateHandle,
-        coreLogic = coreLogic.get(),
-        addAuthenticatedUser = addAuthenticatedUser.get(),
-        clientScopeProviderFactory = clientScopeProviderFactory.get(),
-        defaultServerConfig = defaultServerConfig.get(),
-        defaultWebSocketEnabledByDefault = defaultWebSocketEnabledByDefault.get(),
+        coreLogic = coreLogic(),
+        addAuthenticatedUser = addAuthenticatedUser(),
+        clientScopeProviderFactory = clientScopeProviderFactory(),
+        defaultServerConfig = defaultServerConfig(),
+        defaultWebSocketEnabledByDefault = defaultWebSocketEnabledByDefault(),
     )
 
     fun createAccountSummaryViewModel(savedStateHandle: SavedStateHandle) =
         CreateAccountSummaryViewModel(savedStateHandle = savedStateHandle)
 
     fun createAccountSelectorViewModel(savedStateHandle: SavedStateHandle) = CreateAccountSelectorViewModel(
-        globalDataStore = globalDataStore.get(),
+        globalDataStore = globalDataStore(),
         savedStateHandle = savedStateHandle,
-        defaultServerConfig = defaultServerConfig.get(),
+        defaultServerConfig = defaultServerConfig(),
     )
 
     fun createAccountDataDetailViewModel(savedStateHandle: SavedStateHandle) = CreateAccountDataDetailViewModel(
         savedStateHandle = savedStateHandle,
-        validatePassword = validatePassword.get(),
-        validateEmail = validateEmail.get(),
-        globalDataStore = globalDataStore.get(),
-        registrationAnalyticsManager = registrationAnalyticsManager.get(),
-        coreLogic = coreLogic.get(),
-        defaultServerConfig = defaultServerConfig.get(),
+        validatePassword = validatePassword(),
+        validateEmail = validateEmail(),
+        globalDataStore = globalDataStore(),
+        registrationAnalyticsManager = registrationAnalyticsManager(),
+        coreLogic = coreLogic(),
+        defaultServerConfig = defaultServerConfig(),
     )
 
     fun createAccountVerificationCodeViewModel(savedStateHandle: SavedStateHandle) = CreateAccountVerificationCodeViewModel(
         savedStateHandle = savedStateHandle,
-        coreLogic = coreLogic.get(),
-        addAuthenticatedUser = addAuthenticatedUser.get(),
-        registrationAnalyticsManager = registrationAnalyticsManager.get(),
-        clientScopeProviderFactory = clientScopeProviderFactory.get(),
-        defaultServerConfig = defaultServerConfig.get(),
-        defaultWebSocketEnabledByDefault = defaultWebSocketEnabledByDefault.get(),
+        coreLogic = coreLogic(),
+        addAuthenticatedUser = addAuthenticatedUser(),
+        registrationAnalyticsManager = registrationAnalyticsManager(),
+        clientScopeProviderFactory = clientScopeProviderFactory(),
+        defaultServerConfig = defaultServerConfig(),
+        defaultWebSocketEnabledByDefault = defaultWebSocketEnabledByDefault(),
     )
 
     private fun loginSavedInputStore(savedStateHandle: SavedStateHandle): LoginSavedInputStore =

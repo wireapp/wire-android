@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-
 @ViewModelScopedPreview
 interface MoveConversationToFolderVM {
     val infoMessage: SharedFlow<UIText>

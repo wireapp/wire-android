@@ -612,7 +612,7 @@ public fun com.wire.android.navigation.MainNavHost(navigator: com.wire.android.n
   restartable: true
   params:
     - navigator: UNSTABLE (has mutable properties or unstable members)
-    - loginTypeSelector: STABLE (class with no mutable properties)
+    - loginTypeSelector: RUNTIME (requires runtime check)
     - startDestination: RUNTIME (requires runtime check)
     - modifier: STABLE (marked @Stable or @Immutable)
 
@@ -723,7 +723,7 @@ internal fun com.wire.android.ui.HandleViewActions(actions: kotlinx.coroutines.f
   params:
     - actions: RUNTIME (requires runtime check)
     - navigator: UNSTABLE (has mutable properties or unstable members)
-    - loginTypeSelector: STABLE (class with no mutable properties)
+    - loginTypeSelector: RUNTIME (requires runtime check)
 
 @Composable
 public fun com.wire.android.ui.JoinConversationDialog(joinedDialogState: com.wire.android.ui.joinConversation.JoinConversationViaCodeState?, navigate: kotlin.Function1<com.wire.android.navigation.NavigationCommand, kotlin.Unit>, onJoinConversationFlowCompleted: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -807,17 +807,17 @@ private fun com.wire.android.ui.WireActivity.SetUpNavigation(navigator: com.wire
     - navigator: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.WireActivity.rememberMetroViewModelGraph(currentBaseRoute: kotlin.String?, startDestinationBaseRoute: kotlin.String, wireActivityViewModelGraph: com.wire.android.di.metro.WireActivityViewModelGraphBridge?, authenticationViewModelGraph: com.wire.android.di.metro.AuthenticationViewModelGraphBridge): com.wire.android.di.metro.MetroViewModelGraph?
+private fun com.wire.android.ui.WireActivity.rememberMetroViewModelGraph(currentBaseRoute: kotlin.String?, startDestinationBaseRoute: kotlin.String, sessionViewModelGraph: com.wire.android.di.metro.AppSessionViewModelGraph?, authenticationViewModelGraph: com.wire.android.di.metro.AppAuthenticationViewModelGraph): com.wire.android.di.metro.MetroViewModelGraph?
   skippable: false
   restartable: true
   params:
     - currentBaseRoute: STABLE (class with no mutable properties)
     - startDestinationBaseRoute: STABLE (String is immutable)
-    - wireActivityViewModelGraph: UNSTABLE (has mutable properties or unstable members)
+    - sessionViewModelGraph: UNSTABLE (has mutable properties or unstable members)
     - authenticationViewModelGraph: RUNTIME (requires runtime check)
 
 @Composable
-private fun com.wire.android.ui.WireActivity.wireActivityScopedViewModels(graph: com.wire.android.di.metro.WireActivityViewModelGraphBridge): com.wire.android.ui.WireActivityScopedViewModels
+private fun com.wire.android.ui.WireActivity.wireActivityScopedViewModels(graph: com.wire.android.di.metro.AppSessionViewModelGraph): com.wire.android.ui.WireActivityScopedViewModels
   skippable: false
   restartable: true
   params:
@@ -1209,7 +1209,7 @@ public fun com.wire.android.ui.authentication.devices.register.RegisterDeviceScr
   restartable: true
   params:
     - navigator: UNSTABLE (has mutable properties or unstable members)
-    - loginTypeSelector: STABLE (class with no mutable properties)
+    - loginTypeSelector: RUNTIME (requires runtime check)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
     - clearSessionViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -1265,7 +1265,7 @@ public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceScreen(
   restartable: true
   params:
     - navigator: UNSTABLE (has mutable properties or unstable members)
-    - loginTypeSelector: STABLE (class with no mutable properties)
+    - loginTypeSelector: RUNTIME (requires runtime check)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
     - clearSessionViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -4180,7 +4180,7 @@ public fun com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentScreen(navigator: co
   restartable: true
   params:
     - navigator: UNSTABLE (has mutable properties or unstable members)
-    - loginTypeSelector: STABLE (class with no mutable properties)
+    - loginTypeSelector: RUNTIME (requires runtime check)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
     - clearSessionViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -10880,7 +10880,7 @@ public fun com.wire.android.ui.newauthentication.welcome.WelcomeChooserScreen(na
   restartable: true
   params:
     - navigator: UNSTABLE (has mutable properties or unstable members)
-    - loginTypeSelector: STABLE (class with no mutable properties)
+    - loginTypeSelector: RUNTIME (requires runtime check)
 
 @Composable
 private fun com.wire.android.ui.registration.code.CodeContent(state: com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewState, textState: androidx.compose.foundation.text.input.TextFieldState, onResendCodePressed: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links): kotlin.Unit
@@ -11383,7 +11383,7 @@ public fun com.wire.android.ui.sharing.ImportMediaScreen(navigator: com.wire.and
   restartable: true
   params:
     - navigator: UNSTABLE (has mutable properties or unstable members)
-    - loginTypeSelector: STABLE (class with no mutable properties)
+    - loginTypeSelector: RUNTIME (requires runtime check)
     - featureFlagNotificationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -11914,7 +11914,7 @@ public fun com.wire.android.ui.userprofile.self.SelfUserProfileScreen(navigator:
   restartable: true
   params:
     - navigator: UNSTABLE (has mutable properties or unstable members)
-    - loginTypeSelector: STABLE (class with no mutable properties)
+    - loginTypeSelector: RUNTIME (requires runtime check)
     - avatarPickerResultRecipient: STABLE (marked @Stable or @Immutable)
     - viewModelSelf: UNSTABLE (has mutable properties or unstable members)
     - legalHoldRequestedViewModel: UNSTABLE (has mutable properties or unstable members)
@@ -12385,3 +12385,4 @@ private fun com.wire.android.util.ui.createAnnotatedString(data: kotlin.collecti
   restartable: true
   params:
     - data: RUNTIME (requires runtime check)
+

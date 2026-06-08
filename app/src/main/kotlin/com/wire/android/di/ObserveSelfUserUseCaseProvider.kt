@@ -21,9 +21,9 @@ package com.wire.android.di
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
 class ObserveSelfUserUseCaseProvider @AssistedInject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,

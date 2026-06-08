@@ -30,7 +30,6 @@ import com.wire.kalium.logic.feature.legalhold.LegalHoldState
 import com.wire.kalium.logic.feature.legalhold.MarkLegalHoldChangeAsNotifiedForSelfUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldChangeNotifiedForSelfUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import dagger.Lazy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapLatest
@@ -46,7 +45,7 @@ class LegalHoldDeactivatedViewModel(
         private set
 
     private fun <T> currentSessionFlow(noSession: T, session: suspend UserSessionScope.(UserId) -> Flow<T>): Flow<T> =
-        coreLogic.get().getGlobalScope().session.currentSessionFlow()
+        coreLogic.value.getGlobalScope().session.currentSessionFlow()
             .flatMapLatest { currentSessionResult ->
                 when (currentSessionResult) {
                     is CurrentSessionResult.Failure.Generic -> {
@@ -56,7 +55,7 @@ class LegalHoldDeactivatedViewModel(
 
                     CurrentSessionResult.Failure.SessionNotFound -> flowOf(noSession)
                     is CurrentSessionResult.Success ->
-                        currentSessionResult.accountInfo.userId.let { coreLogic.get().getSessionScope(it).session(it) }
+                        currentSessionResult.accountInfo.userId.let { coreLogic.value.getSessionScope(it).session(it) }
                 }
             }
 
@@ -75,7 +74,7 @@ class LegalHoldDeactivatedViewModel(
                                 when (it.legalHoldState) {
                                     is LegalHoldState.Disabled -> LegalHoldDeactivatedState.Visible(userId)
                                     is LegalHoldState.Enabled -> { // for enabled we don't show the dialog, just mark as already notified
-                                        coreLogic.get().getSessionScope(userId).markLegalHoldChangeAsNotifiedForSelf()
+                                        coreLogic.value.getSessionScope(userId).markLegalHoldChangeAsNotifiedForSelf()
                                         LegalHoldDeactivatedState.Hidden
                                     }
                                 }
@@ -88,7 +87,7 @@ class LegalHoldDeactivatedViewModel(
     fun dismiss() {
         viewModelScope.launch {
             (state as? LegalHoldDeactivatedState.Visible)?.let {
-                coreLogic.get().getSessionScope(it.userId).markLegalHoldChangeAsNotifiedForSelf().let {
+                coreLogic.value.getSessionScope(it.userId).markLegalHoldChangeAsNotifiedForSelf().let {
                     if (it is MarkLegalHoldChangeAsNotifiedForSelfUseCase.Result.Success) {
                         state = LegalHoldDeactivatedState.Hidden
                     }

@@ -48,7 +48,7 @@ import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class MessageMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,

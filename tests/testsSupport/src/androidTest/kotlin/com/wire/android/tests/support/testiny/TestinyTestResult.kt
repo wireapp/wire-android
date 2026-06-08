@@ -42,6 +42,6 @@ data class TestinyTestResult(
     private fun normalizeTestCaseId(value: String): String {
         return value
             .trim()
-            .replaceFirst(Regex("^@?TC-", RegexOption.IGNORE_CASE), "")
+            .removePrefix("@")
     }
 }

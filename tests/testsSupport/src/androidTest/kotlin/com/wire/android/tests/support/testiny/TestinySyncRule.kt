@@ -31,6 +31,7 @@ class TestinySyncRule(
     private val client: TestinyClient = TestinyRestClient(),
 ) : TestRule {
     private val logger = WireTestLogger.getLog(javaClass.name)
+    private val statusReporter = TestinyStatusReporter
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
@@ -72,7 +73,22 @@ class TestinySyncRule(
         status: TestinyExecutionStatus,
         failure: Throwable?,
     ) {
-        if (config == null || !config.isConfigured || metadata.testCaseIds.isEmpty()) {
+        val skipReason = when {
+            config == null -> return
+            !config.isConfigured -> {
+                "incomplete config " +
+                    "(project=${config.projectName.isNotBlank()}, run=${config.runName.isNotBlank()}, apiKey=${config.apiKey.isNotBlank()})"
+            }
+            metadata.testCaseIds.isEmpty() -> "no @TestCaseId"
+            else -> null
+        }
+
+        if (skipReason != null) {
+            if (skipReason == "no @TestCaseId") {
+                statusReporter.info("Skipping ${description.displayName}: $skipReason")
+            } else {
+                statusReporter.warning("Skipping ${description.displayName}: $skipReason")
+            }
             return
         }
 
@@ -83,11 +99,17 @@ class TestinySyncRule(
             comment = failure?.asComment(),
         )
 
+        statusReporter.info(
+            "Preparing ${description.displayName} ids=${result.reportableTestCaseIds} status=${result.status.name}"
+        )
+
         runCatching {
             client.addOrUpdateTestResult(config, result)
+            statusReporter.info("Synced ${description.displayName}")
         }.onFailure { syncError ->
             // Reporting must never change the test result.
             logger.warning("Testiny sync failed for ${description.displayName}: ${syncError.message}")
+            statusReporter.error("Sync failed for ${description.displayName}: ${syncError.message}", syncError)
         }
     }
 

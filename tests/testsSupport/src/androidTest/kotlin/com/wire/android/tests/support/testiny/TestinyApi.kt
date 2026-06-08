@@ -29,8 +29,19 @@ import java.net.URL
 /** Small REST wrapper for the Testiny endpoints this sync needs. */
 class TestinyApi {
     private val baseUrl = "https://app.testiny.io/api/v1"
+    private val knownProjectIds = mapOf(
+        "Wire WebApp" to 3L,
+        "Wire iOS" to 7L,
+        "Wire Android Reloaded" to 8L,
+        "Wire Desktop" to 9L,
+        "Wire Account Pages" to 10L,
+        "Wire Team Management" to 11L,
+        "Wire Android New" to 15L,
+    )
 
     fun findProjectId(projectName: String, apiKey: String): Long {
+        knownProjectIds[projectName]?.let { return it }
+
         val response = postObject(
             path = "project/find",
             apiKey = apiKey,

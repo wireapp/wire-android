@@ -24,6 +24,7 @@ class TestinyRestClient(
     private val api: TestinyApi = TestinyApi(),
 ) : TestinyClient {
     private val logger = WireTestLogger.getLog(javaClass.name)
+    private val statusReporter = TestinyStatusReporter
 
     override fun addOrUpdateTestResult(config: TestinyRuntimeConfig, result: TestinyTestResult) {
         if (!config.isConfigured || !result.hasReportableTestCaseIds) {
@@ -32,9 +33,18 @@ class TestinyRestClient(
 
         val run = getOrCreateRun(config)
         val resolvedTestCaseIds = resolveTestCaseIds(run.projectId, result.reportableTestCaseIds, config.apiKey)
+        if (resolvedTestCaseIds.isEmpty()) {
+            statusReporter.warning(
+                "No Testiny ids could be resolved for ${result.testName} from ${result.reportableTestCaseIds}"
+            )
+            return
+        }
 
         try {
             syncResult(config, run, resolvedTestCaseIds, result.status, result.comment)
+            statusReporter.info(
+                "Updated run ${run.testRunId} with ids=$resolvedTestCaseIds status=${result.status.name}"
+            )
         } catch (error: TestinyRequestException) {
             if (!error.isClientError()) {
                 throw error
@@ -44,6 +54,9 @@ class TestinyRestClient(
                 "Bulk Testiny sync failed for ids $resolvedTestCaseIds. " +
                     "Retrying each testcase individually. ${error.message}"
             )
+            statusReporter.warning(
+                "Bulk sync failed for ids $resolvedTestCaseIds. Retrying individually. ${error.message}"
+            )
 
             resolvedTestCaseIds.forEach { testCaseId ->
                 runCatching {
@@ -52,19 +65,71 @@ class TestinyRestClient(
                     logger.warning(
                         "Testiny sync retry failed for testcase $testCaseId: ${retryError.message}"
                     )
+                    statusReporter.warning(
+                        "Retry failed for testcase $testCaseId: ${retryError.message}"
+                    )
                 }
             }
         }
     }
 
     private fun resolveTestCaseIds(projectId: Long, testCaseIds: List<String>, apiKey: String): List<String> {
-        val mappedIds = api.findIdsByOldIds(projectId, testCaseIds, apiKey)
-        if (mappedIds.isEmpty()) {
-            return testCaseIds
+        return testCaseIds.mapNotNull { rawId ->
+            resolveTestCaseId(projectId, rawId, apiKey)
+        }.distinct()
+    }
+
+    private fun resolveTestCaseId(projectId: Long, rawId: String, apiKey: String): String? {
+        val normalizedId = rawId.trim().removePrefix("@")
+        if (normalizedId.isBlank()) {
+            return null
         }
 
-        logger.info("Resolved Testiny old ids $testCaseIds to project ids $mappedIds")
-        return mappedIds
+        val lookupCandidates = buildLookupCandidates(normalizedId)
+        val mappedIds = api.findIdsByOldIds(projectId, lookupCandidates, apiKey)
+        val resolvedId = if (mappedIds.isNotEmpty()) {
+            if (mappedIds.size > 1) {
+                statusReporter.warning("Multiple Testiny ids $mappedIds matched lookup candidates $lookupCandidates")
+            }
+            mappedIds.first().also { mappedId ->
+                logger.info("Resolved Testiny id $normalizedId to project id $mappedId")
+                statusReporter.info("Resolved Testiny id $normalizedId to project id $mappedId")
+            }
+        } else {
+            extractDirectTestCaseId(normalizedId)?.also { directId ->
+                logger.info("Using direct Testiny id $directId for annotation $normalizedId")
+                statusReporter.info("Using direct Testiny id $directId for annotation $normalizedId")
+            }
+        }
+
+        if (resolvedId == null) {
+            statusReporter.warning("Could not resolve Testiny id for annotation $normalizedId")
+        }
+        return resolvedId
+    }
+
+    private fun buildLookupCandidates(testCaseId: String): List<String> {
+        val candidates = linkedSetOf<String>()
+        val normalizedId = testCaseId.trim()
+        val directId = extractDirectTestCaseId(normalizedId)
+
+        candidates += normalizedId
+        directId?.let {
+            candidates += it
+            candidates += "TC-$it"
+            candidates += "C$it"
+        }
+
+        return candidates.filter(String::isNotBlank)
+    }
+
+    private fun extractDirectTestCaseId(testCaseId: String): String? {
+        return when {
+            testCaseId.matches(Regex("^TC-[0-9]+$", RegexOption.IGNORE_CASE)) ->
+                testCaseId.replaceFirst(Regex("^TC-", RegexOption.IGNORE_CASE), "")
+            testCaseId.matches(Regex("^[0-9]+$")) -> testCaseId
+            else -> null
+        }
     }
 
     private fun syncResult(
@@ -98,6 +163,10 @@ class TestinyRestClient(
                 val projectId = api.findProjectId(config.projectName, config.apiKey)
                 val testRunId = api.findOpenTestRunId(projectId, config.runName, config.apiKey)
                     ?: api.createTestRun(projectId, config.runName, config.apiKey)
+
+                statusReporter.info(
+                    "Using Testiny projectId=$projectId testRunId=$testRunId run='${config.runName}'"
+                )
 
                 CachedRun(projectId = projectId, testRunId = testRunId)
             }

@@ -57,6 +57,7 @@
     <string name="error_delete_public_link">Öffentlicher Link kann nicht entfernt werden.</string>
     <string name="error_load_public_link">Öffentlicher Link kann nicht geladen werden.</string>
     <string name="error_create_public_link">Öffentlicher Link kann nicht erstellt werden.</string>
+    <string name="no_space_left_error">Nicht genügend Speicherplatz, um die Datei herunterzuladen.</string>
     <string name="download_file_message">Diese Datei wurde noch nicht heruntergeladen. Jetzt herunterladen?</string>
     <string name="download">Herunterladen</string>
     <string name="downloading_file_message">Datei wird heruntergeladen…</string>
@@ -69,11 +70,18 @@
     <string name="cells_folder_name">Ordnername</string>
     <string name="loading_files">Dateien werden geladen…</string>
     <string name="tap_to_cancel_loading">Tippen, um Laden abzubrechen</string>
+    <string name="tap_to_cancel_download">Zum Abbruch des Downloads tippen</string>
     <string name="unable_to_load_retry">Laden unmöglich, wiederholen</string>
     <string name="ready_to_open">Bereit zum Öffnen</string>
     <string name="cancel_loading_label">Laden abbrechen…</string>
+    <string name="cancel_download_label">Download abbrechen</string>
+    <string name="make_available_offline_label">Offline bereitstellen</string>
+    <string name="remove_offline_access_label">Offlinezugriff entfernen</string>
+    <string name="offline_file_saved_message">Datei für Offline-Nutzung gespeichert</string>
+    <string name="offline_banner_message">Sie sind offline und können nur gespeicherte Dateien sehen</string>
     <string name="file_open_snackbar_message">„%1$s“ kann geöffnet werden</string>
     <string name="file_open_snackbar_action">Öffnen</string>
+    <string name="open_label">Öffnen</string>
     <string name="create_folder_error">Ordner kann nicht erstellt werden. Bitte versuchen Sie es erneut</string>
     <string name="move_to_folder">In Ordner verschieben</string>
     <string name="move_here">Hierhin verschieben</string>

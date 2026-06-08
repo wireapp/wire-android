@@ -39,7 +39,6 @@ import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
-import dagger.Lazy
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -76,7 +75,7 @@ class FeatureFlagNotificationViewModel(
      * state.
      */
     private suspend fun initialSync() {
-        currentSessionFlow.get().invoke()
+        currentSessionFlow.value.invoke()
             .distinctUntilChanged()
             .collectLatest { currentSessionResult ->
                 when {
@@ -103,7 +102,7 @@ class FeatureFlagNotificationViewModel(
                             coroutineScope {
                                 launch { setFileSharingState(userId) }
                                 launch {
-                                    coreLogic.get().getSessionScope(userId).observeSyncState()
+                                    coreLogic.value.getSessionScope(userId).observeSyncState()
                                         .firstOrNull { it == SyncState.Live }?.let {
                                             observeStatesAfterInitialSync(userId)
                                         }
@@ -127,13 +126,13 @@ class FeatureFlagNotificationViewModel(
     }
 
     private suspend fun observeShouldNotifyForRevokedCertificate(userId: UserId) {
-        coreLogic.get().getSessionScope(userId).observeShouldNotifyForRevokedCertificate().collect {
+        coreLogic.value.getSessionScope(userId).observeShouldNotifyForRevokedCertificate().collect {
             featureFlagState = featureFlagState.copy(shouldShowE2eiCertificateRevokedDialog = it)
         }
     }
 
     private suspend fun setFileSharingState(userId: UserId) {
-        coreLogic.get().getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
+        coreLogic.value.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
             val state: FeatureFlagState.FileSharingState = fileSharingStatus.state.toFeatureFlagState()
             featureFlagState = featureFlagState.copy(
                 isFileSharingState = state,
@@ -143,7 +142,7 @@ class FeatureFlagNotificationViewModel(
     }
 
     private suspend fun setGuestRoomLinkFeatureFlag(userId: UserId) {
-        coreLogic.get().getSessionScope(userId).observeGuestRoomLinkFeatureFlag()
+        coreLogic.value.getSessionScope(userId).observeGuestRoomLinkFeatureFlag()
             .collect { guestRoomLinkStatus ->
                 guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
                     featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
@@ -156,8 +155,8 @@ class FeatureFlagNotificationViewModel(
 
     private suspend fun setTeamAppLockFeatureFlag(userId: UserId) {
         combine(
-            coreLogic.get().getSessionScope(userId).appLockTeamFeatureConfigObserver(),
-            globalDataStore.get().isAppLockPasscodeSetFlow(),
+            coreLogic.value.getSessionScope(userId).appLockTeamFeatureConfigObserver(),
+            globalDataStore.value.isAppLockPasscodeSetFlow(),
             ::Pair
         ).distinctUntilChanged()
             .collectLatest { (appLockConfig, isPasscodeSet) ->
@@ -178,7 +177,7 @@ class FeatureFlagNotificationViewModel(
     }
 
     private suspend fun observeTeamSettingsSelfDeletionStatus(userId: UserId) {
-        coreLogic.get().getSessionScope(userId).observeTeamSettingsSelfDeletionStatus()
+        coreLogic.value.getSessionScope(userId).observeTeamSettingsSelfDeletionStatus()
             .collect { teamSettingsSelfDeletingStatus ->
                 val areSelfDeletedMessagesEnabled =
                     teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer !is TeamSelfDeleteTimer.Disabled
@@ -202,7 +201,7 @@ class FeatureFlagNotificationViewModel(
     }
 
     private suspend fun setE2EIRequiredState(userId: UserId) {
-        coreLogic.get().getSessionScope(userId).observeE2EIRequired().collect { result ->
+        coreLogic.value.getSessionScope(userId).observeE2EIRequired().collect { result ->
             val state = when (result) {
                 E2EIRequiredResult.NoGracePeriod.Create -> FeatureFlagState.E2EIRequired.NoGracePeriod.Create
                 E2EIRequiredResult.NoGracePeriod.Renew -> FeatureFlagState.E2EIRequired.NoGracePeriod.Renew
@@ -221,7 +220,7 @@ class FeatureFlagNotificationViewModel(
     }
 
     private suspend fun observeCallEndedBecauseOfConversationDegraded(userId: UserId) =
-        coreLogic.get().getSessionScope(userId).calls.observeEndCallDueToDegradationDialog().collect {
+        coreLogic.value.getSessionScope(userId).calls.observeEndCallDueToDegradationDialog().collect {
             featureFlagState = featureFlagState.copy(showCallEndedBecauseOfConversationDegraded = true)
         }
 
@@ -229,7 +228,7 @@ class FeatureFlagNotificationViewModel(
         featureFlagState = featureFlagState.copy(shouldShowSelfDeletingMessagesDialog = false)
         viewModelScope.launch {
             currentUserId?.let {
-                coreLogic.get().getSessionScope(it).markSelfDeletingMessagesAsNotified()
+                coreLogic.value.getSessionScope(it).markSelfDeletingMessagesAsNotified()
             }
         }
     }
@@ -238,7 +237,7 @@ class FeatureFlagNotificationViewModel(
         featureFlagState = featureFlagState.copy(shouldShowE2eiCertificateRevokedDialog = false)
         currentUserId?.let {
             viewModelScope.launch {
-                coreLogic.get().getSessionScope(it).markNotifyForRevokedCertificateAsNotified()
+                coreLogic.value.getSessionScope(it).markNotifyForRevokedCertificateAsNotified()
             }
         }
     }
@@ -246,14 +245,14 @@ class FeatureFlagNotificationViewModel(
     fun dismissFileSharingDialog() {
         featureFlagState = featureFlagState.copy(showFileSharingDialog = false)
         viewModelScope.launch {
-            currentUserId?.let { coreLogic.get().getSessionScope(it).markFileSharingStatusAsNotified() }
+            currentUserId?.let { coreLogic.value.getSessionScope(it).markFileSharingStatusAsNotified() }
         }
     }
 
     fun dismissGuestRoomLinkDialog() {
         viewModelScope.launch {
             currentUserId?.let {
-                coreLogic.get().getSessionScope(it).markGuestLinkFeatureFlagAsNotChanged()
+                coreLogic.value.getSessionScope(it).markGuestLinkFeatureFlagAsNotChanged()
             }
         }
         featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = false)
@@ -266,17 +265,17 @@ class FeatureFlagNotificationViewModel(
     fun markTeamAppLockStatusAsNot() {
         viewModelScope.launch {
             currentUserId?.let {
-                coreLogic.get().getSessionScope(it).markTeamAppLockStatusAsNotified()
+                coreLogic.value.getSessionScope(it).markTeamAppLockStatusAsNotified()
             }
         }
     }
 
     fun confirmAppLockNotEnforced() {
         viewModelScope.launch {
-            when (globalDataStore.get().getAppLockSource()) {
+            when (globalDataStore.value.getAppLockSource()) {
                 AppLockSource.Manual -> {}
 
-                AppLockSource.TeamEnforced -> disableAppLockUseCase.get().invoke()
+                AppLockSource.TeamEnforced -> disableAppLockUseCase.value.invoke()
             }
         }
     }
@@ -316,7 +315,7 @@ class FeatureFlagNotificationViewModel(
         )
         currentUserId?.let { userId ->
             viewModelScope.launch {
-                coreLogic.get().getSessionScope(userId).markE2EIRequiredAsNotified(result.timeLeft)
+                coreLogic.value.getSessionScope(userId).markE2EIRequiredAsNotified(result.timeLeft)
             }
         }
     }

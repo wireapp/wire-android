@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.Serializable
 import java.util.concurrent.ConcurrentHashMap
-
 @ViewModelScopedPreview
 interface MessageOptionsMenuViewModel {
     fun observeMessageStateFlow(messageId: String): StateFlow<MessageOptionsMenuState> =

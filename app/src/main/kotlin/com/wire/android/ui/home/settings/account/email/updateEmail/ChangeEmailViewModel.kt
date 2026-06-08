@@ -30,7 +30,7 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 class ChangeEmailViewModel @Inject constructor(
     private val updateEmail: UpdateEmailUseCase,
     private val getSelf: GetSelfUserUseCase,

@@ -64,11 +64,6 @@ jetbrains-compose-material3 = "1.11.0-alpha07"
 # Compose Preview
 compose-edgetoedge-preview = "0.9.0"
 
-# Hilt
-hilt = "2.59.2"
-hilt-composeNavigation = "1.3.0"
-hilt-work = "1.3.0"
-
 # Android UI
 accompanist = "0.32.0"
 material = "1.12.0"
@@ -107,7 +102,7 @@ androidx-espresso = "3.7.0"
 androidx-test-core = "1.7.0"
 androidx-test-extensions = "1.2.1"
 androidx-test-orchestrator = "1.5.1"
-androidx-test-rules = "1.6.1"
+androidx-test-rules = "1.7.0"
 androidx-test-runner = "1.7.0"
 androidx-test-uiAutomator = "2.4.0-beta02"
 androidx-text-archCore = "2.2.0"
@@ -150,7 +145,6 @@ wire-android-test-library = { id = "com.wire.android.test.library" }
 wire-android-navigation = { id = "com.wire.android.navigation" }
 wire-compose-compiler = { id = "com.wire.android.compose.compiler" }
 wire-kmp-library = { id = "com.wire.android.kmp.library" }
-wire-hilt = { id = "com.wire.android.hilt" }
 wire-kover = { id = "com.wire.android.kover" }
 wire-versionizer = { id = "com.wire.android.versionizer" }
 [bundles]
@@ -164,7 +158,6 @@ kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-pl
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android-gradlePlugin" }
 android-gradleApi = { group = "com.android.tools.build", name = "gradle-api", version.ref = "android-gradlePlugin" }
 compose-compiler-gradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
-hilt-gradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google-gms" }
 googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
@@ -196,7 +189,6 @@ android-desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", versio
 squareup-javapoet = { module = "com.squareup:javapoet", version.ref = "squareup-javapoet" }
 visibilityModifiers = { module = "io.github.esentsov:kotlin-visibility", version.ref = "visibilityModifiers" }
 resaca-core = { module = "io.github.sebaslogen:resaca", version.ref = "resaca" }
-resaca-hilt = { module = "io.github.sebaslogen:resacahilt", version.ref = "resaca" }
 bundlizer-core = { module = "dev.ahmedmourad.bundlizer:bundlizer-core", version.ref = "bundlizer" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBOM" }
 firebase-fcm = { module = "com.google.firebase:firebase-messaging" }
@@ -226,13 +218,6 @@ androidx-biometric = { group = "androidx.biometric", name = "biometric", version
 androidx-startup = { group = "androidx.startup", name = "startup-runtime", version.ref = "androidx-startup" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "androidx-compose-runtime" }
 enterprise-feedback = { group = "androidx.enterprise", name = "enterprise-feedback", version.ref = "enterprise-feedback" }
-
-# Dependency Injection
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
-hilt-navigationCompose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-composeNavigation" }
-hilt-test = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" }
 
 # Compose BOM
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }

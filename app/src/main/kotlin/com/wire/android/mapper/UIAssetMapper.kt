@@ -21,7 +21,7 @@ import com.wire.android.R
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetMessage
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class UIAssetMapper @Inject constructor() {
 

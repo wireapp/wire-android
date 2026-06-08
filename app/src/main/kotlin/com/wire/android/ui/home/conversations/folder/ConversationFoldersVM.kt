@@ -30,7 +30,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-
 @ViewModelScopedPreview
 interface ConversationFoldersVM {
     fun state(): ConversationFoldersState = ConversationFoldersState(persistentListOf())

@@ -58,8 +58,8 @@ import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
+import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
 class DebugInfoViewModelFactory @Inject constructor(

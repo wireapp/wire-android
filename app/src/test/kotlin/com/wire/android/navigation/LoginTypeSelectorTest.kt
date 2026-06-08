@@ -103,7 +103,7 @@ class LoginTypeSelectorTest {
         }
 
         fun arrange(useNewLoginForDefaultBackend: Boolean) = this to LoginTypeSelector(
-            coreLogic = { coreLogic },
+            coreLogic = lazyOf(coreLogic),
             useNewLoginForDefaultBackend = useNewLoginForDefaultBackend
         )
 

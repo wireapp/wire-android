@@ -30,35 +30,32 @@ import com.wire.android.emm.ManagedConfigurationsManagerImpl
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Named
-import javax.inject.Singleton
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.Named
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Module
-@InstallIn(SingletonComponent::class)
+@BindingContainer
 class ManagedConfigurationsModule {
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun provideServerConfigProvider(): ServerConfigProvider = ServerConfigProvider()
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun provideAndroidUserContextProvider(): AndroidUserContextProvider =
         AndroidUserContextProviderImpl()
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun provideManagedConfigParser(
         userContextProvider: AndroidUserContextProvider
     ): ManagedConfigParser = ManagedConfigParserImpl(userContextProvider)
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun provideManagedConfigurationsRepository(
         @ApplicationContext context: Context,
         dispatcherProvider: DispatcherProvider,

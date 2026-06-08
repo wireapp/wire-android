@@ -19,7 +19,7 @@ package com.wire.android.ui.home.messagecomposer.location
 
 import android.location.Geocoder
 import android.location.Location
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class GeocoderHelper @Inject constructor(private val geocoder: Geocoder) {
 

@@ -31,7 +31,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ShouldAskCallFeedbackUseCaseResult
-import dagger.Lazy
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -59,12 +58,12 @@ class CallFeedbackViewModel(
     }
 
     private suspend fun observeAskCallFeedback() {
-        currentSessionFlow.get().invoke()
+        currentSessionFlow.value.invoke()
             .distinctUntilChanged()
             .flatMapLatest { session ->
                 if (session is CurrentSessionResult.Success && session.accountInfo.isValid()) {
                     currentUserId = session.accountInfo.userId
-                    coreLogic.get().getSessionScope(currentUserId!!).observeSyncState()
+                    coreLogic.value.getSessionScope(currentUserId!!).observeSyncState()
                 } else {
                     currentUserId = null
                     emptyFlow()
@@ -72,10 +71,10 @@ class CallFeedbackViewModel(
             }
             .filter { it == SyncState.Live }
             .flatMapLatest {
-                coreLogic.get().getSessionScope(currentUserId!!).calls.observeAskCallFeedbackUseCase()
+                coreLogic.value.getSessionScope(currentUserId!!).calls.observeAskCallFeedbackUseCase()
             }
             .collectLatest { shouldAskFeedback ->
-                if (isAnalyticsAvailable.get().invoke(currentUserId!!)) {
+                if (isAnalyticsAvailable.value.invoke(currentUserId!!)) {
                     when (shouldAskFeedback) {
                         is ShouldAskCallFeedbackUseCaseResult.ShouldAskCallFeedback -> {
                             showCallFeedbackFlow.emit(Unit)
@@ -83,8 +82,8 @@ class CallFeedbackViewModel(
 
                         is ShouldAskCallFeedbackUseCaseResult.ShouldNotAskCallFeedback.CallDurationIsLessThanOneMinute -> {
                             val recentlyEndedCallMetadata =
-                                coreLogic.get().getSessionScope(currentUserId!!).calls.observeRecentlyEndedCallMetadata().first()
-                            analyticsManager.get().sendEvent(
+                                coreLogic.value.getSessionScope(currentUserId!!).calls.observeRecentlyEndedCallMetadata().first()
+                            analyticsManager.value.sendEvent(
                                 with(recentlyEndedCallMetadata) {
                                     AnalyticsEvent.CallQualityFeedback.TooShort(
                                         callDuration = shouldAskFeedback.callDurationInSeconds.toInt(),
@@ -99,8 +98,8 @@ class CallFeedbackViewModel(
 
                         is ShouldAskCallFeedbackUseCaseResult.ShouldNotAskCallFeedback.NextTimeForCallFeedbackIsNotReached -> {
                             val recentlyEndedCallMetadata =
-                                coreLogic.get().getSessionScope(currentUserId!!).calls.observeRecentlyEndedCallMetadata().first()
-                            analyticsManager.get().sendEvent(
+                                coreLogic.value.getSessionScope(currentUserId!!).calls.observeRecentlyEndedCallMetadata().first()
+                            analyticsManager.value.sendEvent(
                                 with(recentlyEndedCallMetadata) {
                                     AnalyticsEvent.CallQualityFeedback.Muted(
                                         callDuration = shouldAskFeedback.callDurationInSeconds.toInt(),
@@ -120,8 +119,8 @@ class CallFeedbackViewModel(
     fun rateCall(rate: Int, doNotAsk: Boolean) {
         currentUserId?.let {
             viewModelScope.launch {
-                val recentlyEndedCallMetadata = coreLogic.get().getSessionScope(it).calls.observeRecentlyEndedCallMetadata().first()
-                analyticsManager.get().sendEvent(
+                val recentlyEndedCallMetadata = coreLogic.value.getSessionScope(it).calls.observeRecentlyEndedCallMetadata().first()
+                analyticsManager.value.sendEvent(
                     with(recentlyEndedCallMetadata) {
                         AnalyticsEvent.CallQualityFeedback.Answered(
                             score = rate,
@@ -133,7 +132,7 @@ class CallFeedbackViewModel(
                         )
                     }
                 )
-                coreLogic.get().getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
+                coreLogic.value.getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
             }
         }
     }
@@ -141,9 +140,9 @@ class CallFeedbackViewModel(
     fun skipCallFeedback(doNotAsk: Boolean) {
         currentUserId?.let {
             viewModelScope.launch {
-                val recentlyEndedCallMetadata = coreLogic.get().getSessionScope(it).calls.observeRecentlyEndedCallMetadata().first()
-                coreLogic.get().getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
-                analyticsManager.get().sendEvent(
+                val recentlyEndedCallMetadata = coreLogic.value.getSessionScope(it).calls.observeRecentlyEndedCallMetadata().first()
+                coreLogic.value.getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
+                analyticsManager.value.sendEvent(
                     with(recentlyEndedCallMetadata) {
                         AnalyticsEvent.CallQualityFeedback.Dismissed(
                             callDuration = callDetails.callDurationInSeconds.toInt(),

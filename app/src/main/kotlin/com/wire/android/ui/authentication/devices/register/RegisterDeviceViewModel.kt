@@ -43,7 +43,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class RegisterDeviceViewModel @Inject constructor(
     private val registerClientUseCase: GetOrRegisterClientUseCase,

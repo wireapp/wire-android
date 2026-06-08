@@ -309,7 +309,7 @@ class LegalHoldRequestedViewModelTest {
         val viewModel by lazy {
             LegalHoldRequestedViewModel(
                 validatePassword = validatePassword,
-                coreLogic = { coreLogic },
+                coreLogic = lazyOf(coreLogic),
             )
         }
 

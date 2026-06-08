@@ -21,41 +21,36 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.ConnectionScope
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
 
-@Module
-@InstallIn(ViewModelComponent::class)
+@BindingContainer
 class ConnectionModule {
 
-    @ViewModelScoped
     @Provides
     fun provideConnectionScope(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
     ): ConnectionScope = coreLogic.getSessionScope(currentAccount).connection
 
-    @ViewModelScoped
     @Provides
-    fun provideSendConnectionRequestUseCase(connectionScope: ConnectionScope) =
+    fun provideSendConnectionRequestUseCase(connectionScope: ConnectionScope): SendConnectionRequestUseCase =
         connectionScope.sendConnectionRequest
 
-    @ViewModelScoped
     @Provides
-    fun provideCancelConnectionRequestUseCase(connectionScope: ConnectionScope) =
+    fun provideCancelConnectionRequestUseCase(connectionScope: ConnectionScope): CancelConnectionRequestUseCase =
         connectionScope.cancelConnectionRequest
 
-    @ViewModelScoped
     @Provides
-    fun provideIgnoreConnectionRequestUseCase(connectionScope: ConnectionScope) =
+    fun provideIgnoreConnectionRequestUseCase(connectionScope: ConnectionScope): IgnoreConnectionRequestUseCase =
         connectionScope.ignoreConnectionRequest
 
-    @ViewModelScoped
     @Provides
-    fun provideAcceptConnectionRequestUseCase(connectionScope: ConnectionScope) =
+    fun provideAcceptConnectionRequestUseCase(connectionScope: ConnectionScope): AcceptConnectionRequestUseCase =
         connectionScope.acceptConnectionRequest
 }

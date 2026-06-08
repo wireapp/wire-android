@@ -25,6 +25,7 @@ import androidx.core.app.RemoteInput
 import com.wire.android.R
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.notification.MessageNotificationManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -32,11 +33,9 @@ import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.datetime.Clock
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@AndroidEntryPoint
 class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argument constructor
 
     @Inject
@@ -49,6 +48,11 @@ class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argumen
     @Inject
     @NoSession
     lateinit var qualifiedIdMapper: QualifiedIdMapper
+
+    override fun onReceive(context: Context, intent: Intent?) {
+        context.wireApplicationGraph.inject(this)
+        super.onReceive(context, intent)
+    }
 
     override suspend fun receive(context: Context, intent: Intent) {
         val remoteInput = RemoteInput.getResultsFromIntent(intent)

@@ -175,7 +175,7 @@ jobs:
           RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
           # Reuse the same Testiny run so deflake updates the original run.
-          TESTINY_PROJECT_NAME: Wire Android
+          TESTINY_PROJECT_NAME: Wire Android Reloaded
           TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
           TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |

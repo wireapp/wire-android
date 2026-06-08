@@ -307,7 +307,7 @@ jobs:
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
           # Testiny sync is keyed by testcase ids but grouped under one run name.
-          TESTINY_PROJECT_NAME: Wire Android
+          TESTINY_PROJECT_NAME: Wire Android Reloaded
           TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
           TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |

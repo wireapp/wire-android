@@ -409,6 +409,19 @@ run_attempt_on_devices() {
       args+=(-e filter "com.wire.android.tests.support.suite.TaggedFilter")
       # The tests must launch the exact app flavor CI installed for this run.
       args+=(-e appPackage "${APP_ID}")
+      # Only Testiny-enabled runs need the reporting config and secret.
+      if [[ -n "${TESTINY_RUN_NAME:-}" ]]; then
+        if [[ -n "${TESTINY_PROJECT_NAME:-}" ]]; then
+          args+=(-e testinyProjectName "${TESTINY_PROJECT_NAME}")
+        fi
+        args+=(-e testinyRunName "${TESTINY_RUN_NAME}")
+        if [[ -n "${TESTINY_API_KEY:-}" ]]; then
+          args+=(-e testinyApiKey "${TESTINY_API_KEY}")
+        fi
+        if [[ -n "${TESTINY_SOURCE_RUN_URL:-}" ]]; then
+          args+=(-e testinySourceRunUrl "${TESTINY_SOURCE_RUN_URL}")
+        fi
+      fi
 
       if attempt_uses_selector_mode "${attempt}"; then
         if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then

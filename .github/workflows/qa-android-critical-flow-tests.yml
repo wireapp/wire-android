@@ -277,6 +277,14 @@ jobs:
       - name: Fetch secrets.json (runtime only)
         run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
 
+      # Reuse the Android Testiny key from 1Password for this run.
+      - name: Export Testiny API key from runtime secrets
+        if: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName != '' }}
+        run: |
+          testiny_api_key="$(python3 -c 'import json; print(json.load(open("secrets.json", encoding="utf-8"))["TESTINY_API_KEY_ANDROID"]["fields"]["password"]["value"])')"
+          echo "::add-mask::${testiny_api_key}"
+          echo "TESTINY_API_KEY=${testiny_api_key}" >> "${GITHUB_ENV}"
+
       # Build androidTest APK once and reuse it across selected devices.
       - name: Build test APK (assemble once)
         run: bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
@@ -298,6 +306,10 @@ jobs:
           RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
+          # Testiny sync is keyed by testcase ids but grouped under one run name.
+          TESTINY_PROJECT_NAME: Wire Android New
+          TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
+          TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           if [[ "${IS_UPGRADE}" == "true" && ( "${RESOLVED_CATEGORY}" == "upgrade" || -n "${RESOLVED_TESTCASE_ID}" ) ]]; then
             # Single upgrade-tagged runs do not need the normal phase. They only

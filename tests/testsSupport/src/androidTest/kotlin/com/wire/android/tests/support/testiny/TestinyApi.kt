@@ -1,0 +1,198 @@
+/*
+ * Wire
+ * Copyright (C) 2026 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+package com.wire.android.tests.support.testiny
+
+import network.HttpRequestException
+import network.NetworkBackendClient.sendJsonRequest
+import network.NumberSequence
+import network.RequestOptions
+import org.json.JSONArray
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+
+/** Small REST wrapper for the Testiny endpoints this sync needs. */
+class TestinyApi {
+    private val baseUrl = "https://app.testiny.io/api/v1"
+
+    fun findProjectId(projectName: String, apiKey: String): Long {
+        val response = postObject(
+            path = "project/find",
+            apiKey = apiKey,
+            body = JSONObject().put("filter", JSONObject().put("title", projectName)),
+        )
+
+        val projects = response.optJSONArray("data") ?: JSONArray()
+        if (projects.length() == 0) {
+            throw IllegalArgumentException("Testiny project '$projectName' cannot be found")
+        }
+
+        return projects.getJSONObject(0).getLong("id")
+    }
+
+    fun findOpenTestRunId(projectId: Long, runName: String, apiKey: String): Long? {
+        val response = postObject(
+            path = "testrun/find",
+            apiKey = apiKey,
+            body = JSONObject().put(
+                "filter",
+                JSONObject().apply {
+                    put("project_id", projectId)
+                    put("title", runName)
+                    put("is_closed", false)
+                }
+            ),
+        )
+
+        val runs = response.optJSONArray("data") ?: JSONArray()
+        if (runs.length() == 0) {
+            return null
+        }
+
+        return runs.getJSONObject(0).getLong("id")
+    }
+
+    fun createTestRun(projectId: Long, runName: String, apiKey: String): Long {
+        val response = postObject(
+            path = "testrun",
+            apiKey = apiKey,
+            body = JSONObject().apply {
+                // Keep the create-run payload aligned with Android Reloaded.
+                put("id", 1)
+                put("title", runName)
+                put("is_deleted", false)
+                put("project_id", projectId)
+                put("testplan_id", 0)
+                put("is_closed", false)
+                put("description", "")
+            },
+        )
+
+        return response.getLong("id")
+    }
+
+    fun addOrUpdateResults(
+        testRunId: Long,
+        testCaseIds: List<String>,
+        status: TestinyExecutionStatus,
+        apiKey: String,
+    ) {
+        val body = JSONArray().apply {
+            testCaseIds.map(String::toLong).forEach { testCaseId ->
+                put(
+                    JSONObject().apply {
+                        put(
+                            "ids",
+                            JSONObject().apply {
+                                put("testcase_id", testCaseId)
+                                put("testrun_id", testRunId)
+                            }
+                        )
+                        put(
+                            "mapped",
+                            JSONObject().apply {
+                                put("result_status", status.apiValue)
+                                put("assigned_to", "OWNER")
+                            }
+                        )
+                    }
+                )
+            }
+        }
+
+        postArray(
+            path = "testrun/mapping/bulk/testcase:testrun?op=add_or_update",
+            apiKey = apiKey,
+            body = body,
+        )
+    }
+
+    fun createTextComment(projectId: Long, comment: String, apiKey: String): Long {
+        val response = postObject(
+            path = "comment",
+            apiKey = apiKey,
+            body = JSONObject().apply {
+                put("project_id", projectId)
+                put("type", "TEXT")
+                put("text", comment)
+            },
+        )
+
+        return response.getLong("id")
+    }
+
+    fun addCommentToResults(
+        testRunId: Long,
+        testCaseIds: List<String>,
+        commentId: Long,
+        apiKey: String,
+    ) {
+        val body = JSONArray().apply {
+            testCaseIds.map(String::toLong).forEach { testCaseId ->
+                put(
+                    JSONObject().apply {
+                        put(
+                            "ids",
+                            JSONObject().apply {
+                                put("comment_id", commentId)
+                                put("testcase_id", testCaseId)
+                                put("testrun_id", testRunId)
+                            }
+                        )
+                    }
+                )
+            }
+        }
+
+        postArray(
+            path = "comment/mapping/bulk/testcase:testrun?op=add",
+            apiKey = apiKey,
+            body = body,
+        )
+    }
+
+    private fun postObject(path: String, apiKey: String, body: JSONObject): JSONObject {
+        return JSONObject(postRaw(path, apiKey, body.toString()))
+    }
+
+    private fun postArray(path: String, apiKey: String, body: JSONArray): JSONArray {
+        return JSONArray(postRaw(path, apiKey, body.toString()))
+    }
+
+    private fun postRaw(path: String, apiKey: String, body: String): String {
+        return try {
+            sendJsonRequest(
+                url = URL("$baseUrl/$path"),
+                method = "POST",
+                body = body,
+                headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "Accept" to "application/json",
+                    "X-Api-Key" to apiKey,
+                ),
+                options = RequestOptions(
+                    expectedResponseCodes = NumberSequence.Array(
+                        intArrayOf(HttpURLConnection.HTTP_OK)
+                    )
+                ),
+            )
+        } catch (error: HttpRequestException) {
+            throw TestinyRequestException(error.message, error.returnCode, error)
+        }
+    }
+}

@@ -27,6 +27,7 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import com.wire.android.tests.support.suite.AllureFailureScreenshotRule
 import com.wire.android.tests.support.suite.AllureLabelsRule
+import com.wire.android.tests.support.testiny.TestinySyncRule
 import io.qameta.allure.kotlin.Allure
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
@@ -50,6 +51,10 @@ abstract class BaseUiTest : KoinTest {
     // Screenshot ONLY for real failures
     @get:Rule
     val failureScreenshotRule = AllureFailureScreenshotRule()
+
+    // Report each finished test to Testiny.
+    @get:Rule
+    val testinySyncRule = TestinySyncRule()
 
     protected fun step(name: String, block: () -> Unit) {
         Allure.step(name) { block() }

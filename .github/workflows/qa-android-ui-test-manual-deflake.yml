@@ -146,6 +146,14 @@ jobs:
       - name: Fetch secrets.json (runtime only)
         run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
 
+      # Reuse the Android Testiny key from 1Password for this run.
+      - name: Export Testiny API key from runtime secrets
+        if: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName != '' }}
+        run: |
+          testiny_api_key="$(python3 -c 'import json; print(json.load(open("secrets.json", encoding="utf-8"))["TESTINY_API_KEY_ANDROID"]["fields"]["password"]["value"])')"
+          echo "::add-mask::${testiny_api_key}"
+          echo "TESTINY_API_KEY=${testiny_api_key}" >> "${GITHUB_ENV}"
+
       - name: Build test APK (assemble once)
         run: bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
 
@@ -166,6 +174,10 @@ jobs:
           RERUN_FAILED_ENABLED: ${{ steps.validate_deflake_input.outputs.rerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
+          # Reuse the same Testiny run so deflake updates the original run.
+          TESTINY_PROJECT_NAME: Wire Android New
+          TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
+          TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           if [[ "${IS_UPGRADE}" == "true" ]]; then
             upgrade_failed_file="${RUNNER_TEMP}/deflake-upgrade-failed-tests.txt"

@@ -19,20 +19,16 @@ package com.wire.android.tests.core.e2eTests
 
 import InbucketClient
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.uiautomator.UiDevice
 import com.wire.android.testSupport.BuildConfig
+import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
-import com.wire.android.tests.core.pages.AllPages
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.inject
 import user.UserClient
-import com.wire.android.tests.core.BaseUiTest
-import com.wire.android.tests.support.tags.Category
-import com.wire.android.tests.support.tags.TestCaseId
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
 import kotlin.time.Duration.Companion.seconds
@@ -43,17 +39,9 @@ This test works on the following conditions:
 */
 @RunWith(AndroidJUnit4::class)
 class PersonalUserRegistrationTest : BaseUiTest() {
-    private val pages: AllPages by inject()
-    private lateinit var device: UiDevice
-
     @Before
     fun setUp() {
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-    }
-
-    @After
-    fun tearDown() {
-        // UiAutomatorSetup.stopApp()
     }
 
     @Suppress("LongMethod")

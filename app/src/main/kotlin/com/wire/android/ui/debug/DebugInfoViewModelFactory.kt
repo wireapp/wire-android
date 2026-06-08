@@ -41,6 +41,7 @@ import com.wire.kalium.logic.feature.backup.GetBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
 import com.wire.kalium.logic.feature.backup.ExportBackupRootKeyUseCase
+import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
 import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
@@ -66,6 +67,7 @@ import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import com.wire.android.di.ApplicationContext
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
@@ -98,8 +100,10 @@ class DebugInfoViewModelFactory @Inject constructor(
     private val syncBackupRootKey: SyncBackupRootKeyUseCase,
     private val generateAndForcePushBackupRootKey: GenerateAndForcePushBackupRootKeyUseCase,
     private val exportBackupRootKey: ExportBackupRootKeyUseCase,
+    private val importBackupRootKey: ImportBackupRootKeyUseCase,
     private val createOnlineBackup: CreateOnlineBackupUseCase,
     private val restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase,
+    private val kaliumFileSystem: KaliumFileSystem,
     private val fileManager: FileManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,
@@ -168,8 +172,10 @@ class DebugInfoViewModelFactory @Inject constructor(
         syncBackupRootKey = syncBackupRootKey,
         generateAndForcePushBackupRootKey = generateAndForcePushBackupRootKey,
         exportBackupRootKey = exportBackupRootKey,
+        importBackupRootKey = importBackupRootKey,
         createOnlineBackup = createOnlineBackup,
         restoreLatestOnlineBackup = restoreLatestOnlineBackup,
+        kaliumFileSystem = kaliumFileSystem,
         fileManager = fileManager,
         dispatcher = dispatcherProvider,
     )

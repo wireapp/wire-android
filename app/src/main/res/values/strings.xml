@@ -1880,6 +1880,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_export_backup_root_key" translatable="false">Export backup root key</string>
     <string name="debug_settings_export_backup_root_key_dialog_title" translatable="false">Enter your password</string>
     <string name="debug_settings_export_backup_root_key_dialog_message" translatable="false">The backup root key export will be encrypted with this password.</string>
+    <string name="debug_settings_import_backup_root_key" translatable="false">Import backup root key</string>
+    <string name="debug_settings_import_backup_root_key_dialog_title" translatable="false">Enter your password</string>
+    <string name="debug_settings_import_backup_root_key_dialog_message" translatable="false">The backup root key import will be decrypted with this password.</string>
     <string name="debug_settings_create_backup" translatable="false">Create backup</string>
     <string name="debug_settings_restore_backup" translatable="false">Restore latest online backup</string>
     <string name="debug_settings_backup_root_key_id" translatable="false">Key ID</string>

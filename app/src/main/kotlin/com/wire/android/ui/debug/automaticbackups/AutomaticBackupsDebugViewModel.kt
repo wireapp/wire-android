@@ -25,6 +25,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.BackupRootKeyInfo
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupResult
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
@@ -34,6 +35,8 @@ import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyRes
 import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyResult
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyUseCase
+import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyResult
+import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.PushBackupRootKeyResult
 import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
@@ -54,13 +57,16 @@ class AutomaticBackupsDebugViewModel(
     private val syncBackupRootKey: SyncBackupRootKeyUseCase,
     private val generateAndForcePushBackupRootKey: GenerateAndForcePushBackupRootKeyUseCase,
     private val exportBackupRootKey: ExportBackupRootKeyUseCase,
+    private val importBackupRootKey: ImportBackupRootKeyUseCase,
     private val createOnlineBackup: CreateOnlineBackupUseCase,
     private val restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase,
+    private val kaliumFileSystem: KaliumFileSystem,
     private val fileManager: FileManager,
     private val dispatcher: DispatcherProvider,
 ) : ViewModel() {
 
     val exportBackupRootKeyPasswordState: TextFieldState = TextFieldState()
+    val importBackupRootKeyPasswordState: TextFieldState = TextFieldState()
 
     private val _state = MutableStateFlow(AutomaticBackupsDebugState())
     val state: StateFlow<AutomaticBackupsDebugState> = _state.asStateFlow()
@@ -205,6 +211,76 @@ class AutomaticBackupsDebugViewModel(
         }
     }
 
+    fun chooseBackupRootKeyToImport(uri: Uri?) {
+        viewModelScope.launch {
+            if (uri == null) {
+                _state.update { it.copy(pendingImportedBackupRootKeyPath = null) }
+                _infoMessage.emit(UIText.DynamicString("Backup Root Key import cancelled"))
+                return@launch
+            }
+
+            val importedBackupRootKeyPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_ROOT_KEY_FILE_NAME)
+            try {
+                fileManager.copyToPath(uri, importedBackupRootKeyPath, dispatcher)
+                _state.update {
+                    it.copy(
+                        pendingImportedBackupRootKeyPath = importedBackupRootKeyPath,
+                        showImportBackupRootKeyPasswordDialog = true,
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(
+                        pendingImportedBackupRootKeyPath = null,
+                        showImportBackupRootKeyPasswordDialog = false,
+                    )
+                }
+                _infoMessage.emit(UIText.DynamicString("Failed to read Backup Root Key import: ${e.message.orEmpty()}"))
+            }
+        }
+    }
+
+    fun dismissImportBackupRootKeyPasswordDialog() {
+        importBackupRootKeyPasswordState.clearText()
+        _state.update {
+            it.copy(
+                showImportBackupRootKeyPasswordDialog = false,
+                pendingImportedBackupRootKeyPath = null,
+            )
+        }
+    }
+
+    fun importBackupRootKey() {
+        viewModelScope.launch {
+            val pendingImportPath = state.value.pendingImportedBackupRootKeyPath
+            if (pendingImportPath == null) {
+                _infoMessage.emit(UIText.DynamicString("Select a Backup Root Key export file to import"))
+                return@launch
+            }
+
+            _state.update { it.copy(isImportingBackupRootKey = true) }
+            when (val result = importBackupRootKey(pendingImportPath, importBackupRootKeyPasswordState.text.toString())) {
+                is ImportBackupRootKeyResult.Success -> {
+                    importBackupRootKeyPasswordState.clearText()
+                    _state.update {
+                        it.copy(
+                            isImportingBackupRootKey = false,
+                            showImportBackupRootKeyPasswordDialog = false,
+                            pendingImportedBackupRootKeyPath = null,
+                            backupRootKey = result.backupRootKey.toBackupRootKeyInfo(),
+                        )
+                    }
+                    _infoMessage.emit(UIText.DynamicString("Backup Root Key imported"))
+                }
+
+                is ImportBackupRootKeyResult.Failure -> {
+                    _state.update { it.copy(isImportingBackupRootKey = false) }
+                    _infoMessage.emit(result.toInfoMessage())
+                }
+            }
+        }
+    }
+
     fun createBackup() {
         viewModelScope.launch {
             _state.update {
@@ -303,6 +379,21 @@ class AutomaticBackupsDebugViewModel(
                 "Backup Root Key export failed while accessing storage: ${cause.message.orEmpty()}"
         }
     )
+
+    private fun ImportBackupRootKeyResult.Failure.toInfoMessage(): UIText = UIText.DynamicString(
+        when (this) {
+            ImportBackupRootKeyResult.Failure.BlankPassword -> "Enter a password to import Backup Root Key"
+            ImportBackupRootKeyResult.Failure.InvalidFile -> "Backup Root Key import failed: invalid export file"
+            ImportBackupRootKeyResult.Failure.AuthenticationFailure -> "Backup Root Key import failed: wrong password"
+            ImportBackupRootKeyResult.Failure.UserMismatch -> "Backup Root Key import failed: key belongs to another user"
+            ImportBackupRootKeyResult.Failure.FingerprintMismatch ->
+                "Backup Root Key import failed: key fingerprint mismatch"
+            is ImportBackupRootKeyResult.Failure.DecryptionFailure ->
+                "Backup Root Key import failed while decrypting: ${cause.message.orEmpty()}"
+            is ImportBackupRootKeyResult.Failure.StorageFailure ->
+                "Backup Root Key import failed while accessing storage: ${cause.message.orEmpty()}"
+        }
+    )
 }
 
 data class AutomaticBackupsDebugState(
@@ -312,6 +403,9 @@ data class AutomaticBackupsDebugState(
     val showExportBackupRootKeyPasswordDialog: Boolean = false,
     val isExportingBackupRootKey: Boolean = false,
     val pendingExportedBackupRootKey: PendingExportedBackupRootKey? = null,
+    val showImportBackupRootKeyPasswordDialog: Boolean = false,
+    val isImportingBackupRootKey: Boolean = false,
+    val pendingImportedBackupRootKeyPath: okio.Path? = null,
     val isCreatingBackup: Boolean = false,
     val backupCreationProgress: Float = 0f,
     val isRestoringBackup: Boolean = false,
@@ -327,3 +421,5 @@ data class PendingExportedBackupRootKey(
 sealed interface AutomaticBackupsDebugEffect {
     data class CreateBackupRootKeyExportFile(val fileName: String) : AutomaticBackupsDebugEffect
 }
+
+private const val TEMP_IMPORTED_BACKUP_ROOT_KEY_FILE_NAME = "imported-backup-root-key.wbrk"

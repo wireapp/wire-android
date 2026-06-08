@@ -25,6 +25,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.asset.UploadedAssetId
 import com.wire.kalium.logic.data.backup.OnlineBackupMetadata
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -40,12 +41,15 @@ import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyUse
 import com.wire.kalium.logic.feature.backup.GenerateBackupRootKeyResult
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyResult
 import com.wire.kalium.logic.feature.backup.GetBackupRootKeyUseCase
+import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyResult
+import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.PushBackupRootKeyResult
 import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyResult
 import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
@@ -329,6 +333,115 @@ class AutomaticBackupsDebugViewModelTest {
         }
     }
 
+    @Test
+    fun givenImportFileUri_whenChoosingRootKeyToImport_thenFileIsCopiedAndPasswordDialogIsShown() = runTest {
+        val uri = mockk<Uri>()
+        val (arrangement, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(null))
+            .arrange()
+
+        viewModel.chooseBackupRootKeyToImport(uri)
+        advanceUntilIdle()
+
+        coVerify { arrangement.fileManager.copyToPath(uri, IMPORT_BACKUP_ROOT_KEY_PATH, any()) }
+        assertEquals(IMPORT_BACKUP_ROOT_KEY_PATH, viewModel.state.value.pendingImportedBackupRootKeyPath)
+        assertEquals(true, viewModel.state.value.showImportBackupRootKeyPasswordDialog)
+    }
+
+    @Test
+    fun givenImportDialogIsDismissed_whenDismissingRootKeyImport_thenPasswordAndPendingPathAreCleared() = runTest {
+        val uri = mockk<Uri>()
+        val (_, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(null))
+            .arrange()
+        viewModel.chooseBackupRootKeyToImport(uri)
+        advanceUntilIdle()
+        viewModel.importBackupRootKeyPasswordState.setTextAndPlaceCursorAtEnd("password")
+
+        viewModel.dismissImportBackupRootKeyPasswordDialog()
+
+        assertEquals(false, viewModel.state.value.showImportBackupRootKeyPasswordDialog)
+        assertNull(viewModel.state.value.pendingImportedBackupRootKeyPath)
+        assertEquals("", viewModel.importBackupRootKeyPasswordState.text.toString())
+    }
+
+    @Test
+    fun givenImportSucceeds_whenImportingRootKey_thenStateContainsImportedKeyAndSuccessMessageIsEmitted() = runTest {
+        val uri = mockk<Uri>()
+        val (arrangement, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(null))
+            .withImportBackupRootKey(ImportBackupRootKeyResult.Success(BACKUP_ROOT_KEY))
+            .arrange()
+        viewModel.chooseBackupRootKeyToImport(uri)
+        advanceUntilIdle()
+        viewModel.importBackupRootKeyPasswordState.setTextAndPlaceCursorAtEnd("password")
+
+        viewModel.infoMessage.test {
+            viewModel.importBackupRootKey()
+
+            assertEquals(UIText.DynamicString("Backup Root Key imported"), awaitItem())
+        }
+
+        coVerify { arrangement.importBackupRootKey(IMPORT_BACKUP_ROOT_KEY_PATH, "password") }
+        assertEquals(BACKUP_ROOT_KEY.id, viewModel.state.value.backupRootKey?.id)
+        assertEquals(false, viewModel.state.value.isImportingBackupRootKey)
+        assertEquals(false, viewModel.state.value.showImportBackupRootKeyPasswordDialog)
+        assertNull(viewModel.state.value.pendingImportedBackupRootKeyPath)
+    }
+
+    @Test
+    fun givenImportFailsBecausePasswordIsBlank_whenImportingRootKey_thenMessageIsEmitted() = runTest {
+        val uri = mockk<Uri>()
+        val (_, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(null))
+            .withImportBackupRootKey(ImportBackupRootKeyResult.Failure.BlankPassword)
+            .arrange()
+        viewModel.chooseBackupRootKeyToImport(uri)
+        advanceUntilIdle()
+
+        viewModel.infoMessage.test {
+            viewModel.importBackupRootKey()
+
+            assertEquals(UIText.DynamicString("Enter a password to import Backup Root Key"), awaitItem())
+        }
+    }
+
+    @Test
+    fun givenImportFailsBecausePasswordIsWrong_whenImportingRootKey_thenMessageIsEmitted() = runTest {
+        val uri = mockk<Uri>()
+        val (_, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(null))
+            .withImportBackupRootKey(ImportBackupRootKeyResult.Failure.AuthenticationFailure)
+            .arrange()
+        viewModel.chooseBackupRootKeyToImport(uri)
+        advanceUntilIdle()
+        viewModel.importBackupRootKeyPasswordState.setTextAndPlaceCursorAtEnd("wrong-password")
+
+        viewModel.infoMessage.test {
+            viewModel.importBackupRootKey()
+
+            assertEquals(UIText.DynamicString("Backup Root Key import failed: wrong password"), awaitItem())
+        }
+    }
+
+    @Test
+    fun givenImportFileCopyFails_whenChoosingRootKeyToImport_thenMessageIsEmittedAndPendingPathIsCleared() = runTest {
+        val uri = mockk<Uri>()
+        val (_, viewModel) = Arrangement()
+            .withGetBackupRootKey(GetBackupRootKeyResult.Success(null))
+            .withImportFileCopyFailure(IllegalStateException("boom"))
+            .arrange()
+
+        viewModel.infoMessage.test {
+            viewModel.chooseBackupRootKeyToImport(uri)
+
+            assertEquals(UIText.DynamicString("Failed to read Backup Root Key import: boom"), awaitItem())
+        }
+
+        assertNull(viewModel.state.value.pendingImportedBackupRootKeyPath)
+        assertEquals(false, viewModel.state.value.showImportBackupRootKeyPasswordDialog)
+    }
+
     private class Arrangement {
         @MockK
         lateinit var getBackupRootKey: GetBackupRootKeyUseCase
@@ -343,17 +456,25 @@ class AutomaticBackupsDebugViewModelTest {
         lateinit var exportBackupRootKey: ExportBackupRootKeyUseCase
 
         @MockK
+        lateinit var importBackupRootKey: ImportBackupRootKeyUseCase
+
+        @MockK
         lateinit var createOnlineBackup: CreateOnlineBackupUseCase
 
         @MockK
         lateinit var restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase
 
         @MockK
+        lateinit var kaliumFileSystem: KaliumFileSystem
+
+        @MockK
         lateinit var fileManager: FileManager
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            every { kaliumFileSystem.tempFilePath("imported-backup-root-key.wbrk") } returns IMPORT_BACKUP_ROOT_KEY_PATH
             coEvery { fileManager.copyToUri(any(), any(), any()) } returns Unit
+            coEvery { fileManager.copyToPath(any(), any(), any()) } returns 1L
         }
 
         fun withGetBackupRootKey(result: GetBackupRootKeyResult) = apply {
@@ -376,6 +497,14 @@ class AutomaticBackupsDebugViewModelTest {
             coEvery { exportBackupRootKey(any()) } returns result
         }
 
+        fun withImportBackupRootKey(result: ImportBackupRootKeyResult) = apply {
+            coEvery { importBackupRootKey(any(), any()) } returns result
+        }
+
+        fun withImportFileCopyFailure(cause: Throwable) = apply {
+            coEvery { fileManager.copyToPath(any(), any(), any()) } throws cause
+        }
+
         fun withCreateOnlineBackupProgress(
             progress: Float,
             backupStarted: CompletableDeferred<Unit>,
@@ -395,8 +524,10 @@ class AutomaticBackupsDebugViewModelTest {
                 syncBackupRootKey = syncBackupRootKey,
                 generateAndForcePushBackupRootKey = generateBackupRootKey,
                 exportBackupRootKey = exportBackupRootKey,
+                importBackupRootKey = importBackupRootKey,
                 createOnlineBackup = createOnlineBackup,
                 restoreLatestOnlineBackup = restoreLatestOnlineBackup,
+                kaliumFileSystem = kaliumFileSystem,
                 fileManager = fileManager,
                 dispatcher = TestDispatcherProvider(),
             )
@@ -404,6 +535,7 @@ class AutomaticBackupsDebugViewModelTest {
 
     private companion object {
         val EXPORT_BACKUP_ROOT_KEY_PATH = "/tmp/wire-backup-root-key-root-key-id.wbrk".toPath()
+        val IMPORT_BACKUP_ROOT_KEY_PATH = "/tmp/imported-backup-root-key.wbrk".toPath()
         val EXPORT_BACKUP_ROOT_KEY_SUCCESS = ExportBackupRootKeyResult.Success(
             exportFilePath = EXPORT_BACKUP_ROOT_KEY_PATH,
             fileName = "wire-backup-root-key-root-key-id.wbrk",

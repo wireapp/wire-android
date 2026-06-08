@@ -58,7 +58,9 @@ import com.wire.android.ui.debug.automaticBackupsDebugViewModel
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.FileType
 import com.wire.android.util.permission.rememberCreateFileFlow
+import com.wire.android.util.permission.rememberChooseSingleFileFlow
 import com.wire.kalium.logic.feature.backup.BackupRootKeyInfo
 
 @WireRootDestination
@@ -79,6 +81,12 @@ fun AutomaticBackupsDebugScreen(
         onPermissionDenied = { viewModel.saveExportedBackupRootKey(null) },
         onPermissionPermanentlyDenied = { viewModel.saveExportedBackupRootKey(null) },
     )
+    val chooseImportFileFlow = rememberChooseSingleFileFlow(
+        fileType = FileType.Any,
+        onFileBrowserItemPicked = viewModel::chooseBackupRootKeyToImport,
+        onPermissionDenied = { viewModel.chooseBackupRootKeyToImport(null) },
+        onPermissionPermanentlyDenied = { viewModel.chooseBackupRootKeyToImport(null) },
+    )
 
     LaunchedEffect(pendingExport?.fileName) {
         if (pendingExport != null) {
@@ -89,12 +97,16 @@ fun AutomaticBackupsDebugScreen(
     AutomaticBackupsDebugContent(
         state = state,
         exportBackupRootKeyPasswordTextState = viewModel.exportBackupRootKeyPasswordState,
+        importBackupRootKeyPasswordTextState = viewModel.importBackupRootKeyPasswordState,
         onNavigationPressed = navigator::navigateBack,
         onFetchBackupRootKey = viewModel::fetchBackupRootKey,
         onGenerateNewKey = viewModel::generateNewBackupRootKey,
         onShowExportBackupRootKeyPasswordDialog = viewModel::showExportBackupRootKeyPasswordDialog,
         onDismissExportBackupRootKeyPasswordDialog = viewModel::dismissExportBackupRootKeyPasswordDialog,
         onExportBackupRootKey = viewModel::exportBackupRootKey,
+        onChooseBackupRootKeyToImport = chooseImportFileFlow::launch,
+        onDismissImportBackupRootKeyPasswordDialog = viewModel::dismissImportBackupRootKeyPasswordDialog,
+        onImportBackupRootKey = viewModel::importBackupRootKey,
         onCreateBackup = viewModel::createBackup,
         onRestoreBackup = viewModel::restoreLatestBackup,
         modifier = modifier,
@@ -105,12 +117,16 @@ fun AutomaticBackupsDebugScreen(
 internal fun AutomaticBackupsDebugContent(
     state: AutomaticBackupsDebugState,
     exportBackupRootKeyPasswordTextState: TextFieldState,
+    importBackupRootKeyPasswordTextState: TextFieldState,
     onNavigationPressed: () -> Unit,
     onFetchBackupRootKey: () -> Unit,
     onGenerateNewKey: () -> Unit,
     onShowExportBackupRootKeyPasswordDialog: () -> Unit,
     onDismissExportBackupRootKeyPasswordDialog: () -> Unit,
     onExportBackupRootKey: () -> Unit,
+    onChooseBackupRootKeyToImport: () -> Unit,
+    onDismissImportBackupRootKeyPasswordDialog: () -> Unit,
+    onImportBackupRootKey: () -> Unit,
     onCreateBackup: () -> Unit,
     onRestoreBackup: () -> Unit,
     modifier: Modifier = Modifier,
@@ -177,6 +193,20 @@ internal fun AutomaticBackupsDebugContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = dimensions().spacing16x),
+                    onClick = onChooseBackupRootKeyToImport,
+                    loading = state.isImportingBackupRootKey,
+                    state = if (state.isLoading || state.isImportingBackupRootKey) {
+                        WireButtonState.Disabled
+                    } else {
+                        WireButtonState.Default
+                    },
+                    text = stringResource(R.string.debug_settings_import_backup_root_key),
+                )
+                Spacer(modifier = Modifier.height(dimensions().spacing8x))
+                WirePrimaryButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensions().spacing16x),
                     onClick = onGenerateNewKey,
                     loading = state.isGenerating,
                     text = stringResource(R.string.debug_settings_generate_backup_root_key),
@@ -227,6 +257,15 @@ internal fun AutomaticBackupsDebugContent(
             onExport = onExportBackupRootKey,
         )
     }
+
+    if (state.showImportBackupRootKeyPasswordDialog) {
+        ImportBackupRootKeyPasswordDialog(
+            passwordTextState = importBackupRootKeyPasswordTextState,
+            isImporting = state.isImportingBackupRootKey,
+            onDismiss = onDismissImportBackupRootKeyPasswordDialog,
+            onImport = onImportBackupRootKey,
+        )
+    }
 }
 
 @Composable
@@ -258,6 +297,42 @@ private fun ExportBackupRootKeyPasswordDialog(
             textState = passwordTextState,
             labelText = stringResource(R.string.login_password_label),
             state = if (isExporting) WireTextFieldState.Disabled else WireTextFieldState.Default,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = dimensions().spacing16x),
+        )
+    }
+}
+
+@Composable
+private fun ImportBackupRootKeyPasswordDialog(
+    passwordTextState: TextFieldState,
+    isImporting: Boolean,
+    onDismiss: () -> Unit,
+    onImport: () -> Unit,
+) {
+    WireDialog(
+        title = stringResource(R.string.debug_settings_import_backup_root_key_dialog_title),
+        text = stringResource(R.string.debug_settings_import_backup_root_key_dialog_message),
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            text = stringResource(R.string.label_cancel),
+            onClick = onDismiss,
+            type = WireDialogButtonType.Secondary,
+            state = if (isImporting) WireButtonState.Disabled else WireButtonState.Default,
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
+            text = stringResource(R.string.debug_settings_import_backup_root_key),
+            onClick = onImport,
+            type = WireDialogButtonType.Primary,
+            loading = isImporting,
+            state = if (isImporting) WireButtonState.Disabled else WireButtonState.Default,
+        ),
+    ) {
+        WirePasswordTextField(
+            textState = passwordTextState,
+            labelText = stringResource(R.string.login_password_label),
+            state = if (isImporting) WireTextFieldState.Disabled else WireTextFieldState.Default,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = dimensions().spacing16x),

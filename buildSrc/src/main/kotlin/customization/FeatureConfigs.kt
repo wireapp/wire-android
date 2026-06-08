@@ -155,5 +155,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     CALL_QUALITY_MENU_ENABLED("call_quality_menu_enabled", ConfigType.BOOLEAN),
 
-    CALL_REACTIONS_ENABLED("call_reactions_enabled", ConfigType.BOOLEAN)
+    CALL_REACTIONS_ENABLED("call_reactions_enabled", ConfigType.BOOLEAN),
+
+    LINK_PREVIEW_ENABLED("link_preview_enabled", ConfigType.BOOLEAN)
 }

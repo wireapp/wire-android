@@ -67,6 +67,34 @@ class TestinyApi {
         return runs.getJSONObject(0).getLong("id")
     }
 
+    fun findIdsByOldIds(projectId: Long, oldIds: List<String>, apiKey: String): List<String> {
+        if (oldIds.isEmpty()) {
+            return emptyList()
+        }
+
+        val response = postObject(
+            path = "testcase/find",
+            apiKey = apiKey,
+            body = JSONObject().apply {
+                put(
+                    "filter",
+                    JSONObject().apply {
+                        put("cf__old_id", JSONArray().apply { oldIds.forEach(::put) })
+                        put("project_id", projectId)
+                    }
+                )
+                put("idOnly", true)
+            },
+        )
+
+        val cases = response.optJSONArray("data") ?: JSONArray()
+        return buildList(cases.length()) {
+            repeat(cases.length()) { index ->
+                add(cases.getJSONObject(index).get("id").toString())
+            }
+        }
+    }
+
     fun createTestRun(projectId: Long, runName: String, apiKey: String): Long {
         val response = postObject(
             path = "testrun",

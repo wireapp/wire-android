@@ -31,20 +31,21 @@ class TestinyRestClient(
         }
 
         val run = getOrCreateRun(config)
+        val resolvedTestCaseIds = resolveTestCaseIds(run.projectId, result.reportableTestCaseIds, config.apiKey)
 
         try {
-            syncResult(config, run, result.reportableTestCaseIds, result.status, result.comment)
+            syncResult(config, run, resolvedTestCaseIds, result.status, result.comment)
         } catch (error: TestinyRequestException) {
             if (!error.isClientError()) {
                 throw error
             }
 
             logger.warning(
-                "Bulk Testiny sync failed for ids ${result.reportableTestCaseIds}. " +
+                "Bulk Testiny sync failed for ids $resolvedTestCaseIds. " +
                     "Retrying each testcase individually. ${error.message}"
             )
 
-            result.reportableTestCaseIds.forEach { testCaseId ->
+            resolvedTestCaseIds.forEach { testCaseId ->
                 runCatching {
                     syncResult(config, run, listOf(testCaseId), result.status, result.comment)
                 }.onFailure { retryError ->
@@ -54,6 +55,16 @@ class TestinyRestClient(
                 }
             }
         }
+    }
+
+    private fun resolveTestCaseIds(projectId: Long, testCaseIds: List<String>, apiKey: String): List<String> {
+        val mappedIds = api.findIdsByOldIds(projectId, testCaseIds, apiKey)
+        if (mappedIds.isEmpty()) {
+            return testCaseIds
+        }
+
+        logger.info("Resolved Testiny old ids $testCaseIds to project ids $mappedIds")
+        return mappedIds
     }
 
     private fun syncResult(

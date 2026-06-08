@@ -18,20 +18,28 @@
 
 package com.wire.android.ui.initialsync
 
+import android.net.Uri
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.util.FileManager
 import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.asset.UploadedAssetId
 import com.wire.kalium.logic.data.backup.OnlineBackupMetadata
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.backup.BackupRootKey
+import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyResult
+import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationsUseCase
@@ -42,6 +50,7 @@ import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -54,6 +63,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
+import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -238,6 +248,188 @@ class InitialSyncViewModelTest {
     }
 
     @Test
+    fun `given no backup root key is available, when import file is selected, then show password dialog`() = runTest {
+        // given
+        val uri = mockk<Uri>()
+        val (viewModel, arrangement) = Arrangement()
+            .withRestoreLatestOnlineBackup(RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable)
+            .withSyncState(SyncState.Live)
+            .arrange()
+
+        advanceUntilIdle()
+        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+
+        // when
+        viewModel.onBackupRootKeyImportFileSelected(uri)
+        advanceUntilIdle()
+
+        // then
+        coVerify { arrangement.fileManager.copyToPath(uri, IMPORT_BACKUP_ROOT_KEY_PATH, any()) }
+        assertFalse(viewModel.showBackupRootKeyUnavailableDialog)
+        assertTrue(viewModel.showImportBackupRootKeyPasswordDialog)
+        assertEquals(IMPORT_BACKUP_ROOT_KEY_PATH, viewModel.pendingImportedBackupRootKeyPath)
+    }
+
+    @Test
+    fun `given no backup root key is available, when import file selection is cancelled, then show root key dialog again`() = runTest {
+        // given
+        val (viewModel, _) = Arrangement()
+            .withRestoreLatestOnlineBackup(RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable)
+            .withSyncState(SyncState.Live)
+            .arrange()
+
+        advanceUntilIdle()
+
+        // when
+        viewModel.onBackupRootKeyImportFileSelected(null)
+        advanceUntilIdle()
+
+        // then
+        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+        assertFalse(viewModel.showImportBackupRootKeyPasswordDialog)
+        assertEquals(null, viewModel.pendingImportedBackupRootKeyPath)
+    }
+
+    @Test
+    fun `given no backup root key is available, when import file copy fails, then emit toast and show root key dialog again`() = runTest {
+        // given
+        val uri = mockk<Uri>()
+        val (viewModel, _) = Arrangement()
+            .withRestoreLatestOnlineBackup(RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable)
+            .withImportFileCopyFailure(IllegalStateException("boom"))
+            .withSyncState(SyncState.Live)
+            .arrange()
+        val toast = async { viewModel.restoreErrorToast.first() }
+
+        advanceUntilIdle()
+
+        // when
+        viewModel.onBackupRootKeyImportFileSelected(uri)
+        advanceUntilIdle()
+
+        // then
+        assertEquals(R.string.initial_sync_import_backup_root_key_failed, toast.await())
+        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+        assertFalse(viewModel.showImportBackupRootKeyPasswordDialog)
+        assertEquals(null, viewModel.pendingImportedBackupRootKeyPath)
+    }
+
+    @Test
+    fun `given import password dialog is shown, when dismissing dialog, then password and pending file are cleared`() = runTest {
+        // given
+        val uri = mockk<Uri>()
+        val (viewModel, _) = Arrangement()
+            .withRestoreLatestOnlineBackup(RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable)
+            .withSyncState(SyncState.Live)
+            .arrange()
+
+        advanceUntilIdle()
+        viewModel.onBackupRootKeyImportFileSelected(uri)
+        advanceUntilIdle()
+        viewModel.importBackupRootKeyPasswordState.setTextAndPlaceCursorAtEnd("password")
+
+        // when
+        viewModel.onImportBackupRootKeyPasswordDialogDismiss()
+
+        // then
+        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+        assertFalse(viewModel.showImportBackupRootKeyPasswordDialog)
+        assertFalse(viewModel.isImportingBackupRootKey)
+        assertEquals(null, viewModel.pendingImportedBackupRootKeyPath)
+        assertEquals("", viewModel.importBackupRootKeyPasswordState.text.toString())
+    }
+
+    @Test
+    fun `given root key import succeeds, when restoring retry succeeds, then complete initial sync`() = runTest {
+        // given
+        val uri = mockk<Uri>()
+        val (viewModel, arrangement) = Arrangement()
+            .withRestoreLatestOnlineBackupResults(
+                RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable,
+                RESTORE_BACKUP_SUCCESS
+            )
+            .withImportBackupRootKey(ImportBackupRootKeyResult.Success(BACKUP_ROOT_KEY))
+            .withSyncState(SyncState.Live)
+            .arrange()
+
+        advanceUntilIdle()
+        viewModel.onBackupRootKeyImportFileSelected(uri)
+        advanceUntilIdle()
+        viewModel.importBackupRootKeyPasswordState.setTextAndPlaceCursorAtEnd("password")
+
+        // when
+        viewModel.onImportBackupRootKey()
+        advanceUntilIdle()
+
+        // then
+        coVerify { arrangement.importBackupRootKey(IMPORT_BACKUP_ROOT_KEY_PATH, "password") }
+        coVerify(exactly = 2) { arrangement.restoreLatestOnlineBackup(any()) }
+        assertTrue(viewModel.isSyncCompleted)
+        assertFalse(viewModel.showBackupRootKeyUnavailableDialog)
+        assertFalse(viewModel.showImportBackupRootKeyPasswordDialog)
+        assertEquals(null, viewModel.pendingImportedBackupRootKeyPath)
+        assertEquals("", viewModel.importBackupRootKeyPasswordState.text.toString())
+    }
+
+    @Test
+    fun `given root key import fails because password is wrong, when importing, then emit toast and keep password dialog open`() = runTest {
+        // given
+        val uri = mockk<Uri>()
+        val (viewModel, _) = Arrangement()
+            .withRestoreLatestOnlineBackup(RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable)
+            .withImportBackupRootKey(ImportBackupRootKeyResult.Failure.AuthenticationFailure)
+            .withSyncState(SyncState.Live)
+            .arrange()
+        val toast = async { viewModel.restoreErrorToast.first() }
+
+        advanceUntilIdle()
+        viewModel.onBackupRootKeyImportFileSelected(uri)
+        advanceUntilIdle()
+        viewModel.importBackupRootKeyPasswordState.setTextAndPlaceCursorAtEnd("wrong-password")
+
+        // when
+        viewModel.onImportBackupRootKey()
+        advanceUntilIdle()
+
+        // then
+        assertEquals(R.string.initial_sync_import_backup_root_key_wrong_password, toast.await())
+        assertFalse(viewModel.isSyncCompleted)
+        assertFalse(viewModel.isImportingBackupRootKey)
+        assertFalse(viewModel.showBackupRootKeyUnavailableDialog)
+        assertTrue(viewModel.showImportBackupRootKeyPasswordDialog)
+        assertEquals(IMPORT_BACKUP_ROOT_KEY_PATH, viewModel.pendingImportedBackupRootKeyPath)
+    }
+
+    @Test
+    fun `given root key import fails because file is invalid, when importing, then emit toast and keep password dialog open`() = runTest {
+        // given
+        val uri = mockk<Uri>()
+        val (viewModel, _) = Arrangement()
+            .withRestoreLatestOnlineBackup(RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable)
+            .withImportBackupRootKey(ImportBackupRootKeyResult.Failure.InvalidFile)
+            .withSyncState(SyncState.Live)
+            .arrange()
+        val toast = async { viewModel.restoreErrorToast.first() }
+
+        advanceUntilIdle()
+        viewModel.onBackupRootKeyImportFileSelected(uri)
+        advanceUntilIdle()
+        viewModel.importBackupRootKeyPasswordState.setTextAndPlaceCursorAtEnd("password")
+
+        // when
+        viewModel.onImportBackupRootKey()
+        advanceUntilIdle()
+
+        // then
+        assertEquals(R.string.initial_sync_import_backup_root_key_invalid_file, toast.await())
+        assertFalse(viewModel.isSyncCompleted)
+        assertFalse(viewModel.isImportingBackupRootKey)
+        assertFalse(viewModel.showBackupRootKeyUnavailableDialog)
+        assertTrue(viewModel.showImportBackupRootKeyPasswordDialog)
+        assertEquals(IMPORT_BACKUP_ROOT_KEY_PATH, viewModel.pendingImportedBackupRootKeyPath)
+    }
+
+    @Test
     fun `given restore fails, when restoring after initial sync, then emit toast and complete`() = runTest {
         // given
         val (viewModel, _) = Arrangement()
@@ -334,6 +526,15 @@ class InitialSyncViewModelTest {
         lateinit var restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase
 
         @MockK
+        lateinit var importBackupRootKey: ImportBackupRootKeyUseCase
+
+        @MockK
+        lateinit var kaliumFileSystem: KaliumFileSystem
+
+        @MockK
+        lateinit var fileManager: FileManager
+
+        @MockK
         lateinit var syncConversations: SyncConversationsUseCase
 
         val userId = UserId("id", "domain")
@@ -349,6 +550,9 @@ class InitialSyncViewModelTest {
                 automatedLoginManager,
                 syncConversations,
                 restoreLatestOnlineBackup,
+                importBackupRootKey,
+                kaliumFileSystem,
+                fileManager,
             )
         }
 
@@ -362,6 +566,9 @@ class InitialSyncViewModelTest {
             coEvery { userDataStoreProvider.getOrCreate(any()) } returns userDataStore
             coEvery { syncConversations() } returns Either.Right(Unit)
             coEvery { restoreLatestOnlineBackup(any()) } returns RestoreLatestOnlineBackupResult.Failure.NoOnlineBackupFound
+            coEvery { importBackupRootKey(any(), any()) } returns ImportBackupRootKeyResult.Success(BACKUP_ROOT_KEY)
+            every { kaliumFileSystem.tempFilePath("imported-backup-root-key.wbrk") } returns IMPORT_BACKUP_ROOT_KEY_PATH
+            coEvery { fileManager.copyToPath(any(), any(), any()) } returns 1L
         }
 
         suspend fun withSyncState(syncState: SyncState): Arrangement {
@@ -380,6 +587,14 @@ class InitialSyncViewModelTest {
 
         fun withRestoreLatestOnlineBackupResults(vararg results: RestoreLatestOnlineBackupResult) = apply {
             coEvery { restoreLatestOnlineBackup(any()) } returnsMany results.toList()
+        }
+
+        fun withImportBackupRootKey(result: ImportBackupRootKeyResult) = apply {
+            coEvery { importBackupRootKey(any(), any()) } returns result
+        }
+
+        fun withImportFileCopyFailure(cause: Throwable) = apply {
+            coEvery { fileManager.copyToPath(any(), any(), any()) } throws cause
         }
 
         fun withSyncConversations(result: Either<CoreFailure, Unit>) = apply {
@@ -401,6 +616,14 @@ class InitialSyncViewModelTest {
     }
 
     private companion object {
+        val IMPORT_BACKUP_ROOT_KEY_PATH = "/tmp/imported-backup-root-key.wbrk".toPath()
+        val BACKUP_ROOT_KEY = BackupRootKey(
+            id = "backup-root-key-id",
+            keyMaterial = ByteArray(32) { it.toByte() },
+            createdAt = Instant.parse("2026-06-06T12:00:00Z"),
+            createdByClientId = ClientId("client-id"),
+            version = 1,
+        )
         val RESTORE_BACKUP_SUCCESS = RestoreLatestOnlineBackupResult.Success(
             OnlineBackupMetadata(
                 backupId = "backup-id",

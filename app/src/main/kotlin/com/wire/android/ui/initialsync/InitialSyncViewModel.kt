@@ -18,7 +18,10 @@
 
 package com.wire.android.ui.initialsync
 
+import android.net.Uri
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,11 +31,15 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
+import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.kalium.common.functional.onFailure
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyResult
+import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationsUseCase
@@ -53,7 +60,12 @@ class InitialSyncViewModel(
     private val automatedLoginManager: AutomatedLoginManager,
     private val syncConversations: SyncConversationsUseCase,
     private val restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase,
+    private val importBackupRootKey: ImportBackupRootKeyUseCase,
+    private val kaliumFileSystem: KaliumFileSystem,
+    private val fileManager: FileManager,
 ) : ViewModel() {
+
+    internal val importBackupRootKeyPasswordState: TextFieldState = TextFieldState()
 
     internal var syncCompletionState: SyncCompletionState? by mutableStateOf(null)
         private set
@@ -62,6 +74,15 @@ class InitialSyncViewModel(
         private set
 
     internal var showBackupRootKeyUnavailableDialog: Boolean by mutableStateOf(false)
+        private set
+
+    internal var showImportBackupRootKeyPasswordDialog: Boolean by mutableStateOf(false)
+        private set
+
+    internal var isImportingBackupRootKey: Boolean by mutableStateOf(false)
+        private set
+
+    internal var pendingImportedBackupRootKeyPath: okio.Path? by mutableStateOf(null)
         private set
 
     private var pendingSyncCompletionState: SyncCompletionState? = null
@@ -109,6 +130,81 @@ class InitialSyncViewModel(
     internal fun onBackupRootKeyDialogCancel() {
         showBackupRootKeyUnavailableDialog = false
         completeInitialSync()
+    }
+
+    internal fun onBackupRootKeyImportFileSelected(uri: Uri?) {
+        viewModelScope.launch(dispatchers.io()) {
+            if (uri == null) {
+                pendingImportedBackupRootKeyPath = null
+                showImportBackupRootKeyPasswordDialog = false
+                showBackupRootKeyUnavailableDialog = true
+                return@launch
+            }
+
+            val importedBackupRootKeyPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_ROOT_KEY_FILE_NAME)
+            try {
+                fileManager.copyToPath(uri, importedBackupRootKeyPath, dispatchers)
+                pendingImportedBackupRootKeyPath = importedBackupRootKeyPath
+                showBackupRootKeyUnavailableDialog = false
+                showImportBackupRootKeyPasswordDialog = true
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                pendingImportedBackupRootKeyPath = null
+                showImportBackupRootKeyPasswordDialog = false
+                showBackupRootKeyUnavailableDialog = true
+                _restoreErrorToast.emit(R.string.initial_sync_import_backup_root_key_failed)
+            }
+        }
+    }
+
+    internal fun onImportBackupRootKeyPasswordDialogDismiss() {
+        importBackupRootKeyPasswordState.clearText()
+        pendingImportedBackupRootKeyPath = null
+        isImportingBackupRootKey = false
+        showImportBackupRootKeyPasswordDialog = false
+        showBackupRootKeyUnavailableDialog = true
+    }
+
+    internal fun onImportBackupRootKey() {
+        viewModelScope.launch(dispatchers.io()) {
+            val pendingImportPath = pendingImportedBackupRootKeyPath
+            if (pendingImportPath == null) {
+                showImportBackupRootKeyPasswordDialog = false
+                showBackupRootKeyUnavailableDialog = true
+                _restoreErrorToast.emit(R.string.initial_sync_import_backup_root_key_failed)
+                return@launch
+            }
+
+            isImportingBackupRootKey = true
+            val result = try {
+                importBackupRootKey(pendingImportPath, importBackupRootKeyPasswordState.text.toString())
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                appLogger.e("InitialSyncViewModel: backup root key import failed: ${e.message.orEmpty()}")
+                isImportingBackupRootKey = false
+                _restoreErrorToast.emit(R.string.initial_sync_import_backup_root_key_failed)
+                return@launch
+            }
+
+            when (result) {
+                is ImportBackupRootKeyResult.Success -> {
+                    importBackupRootKeyPasswordState.clearText()
+                    pendingImportedBackupRootKeyPath = null
+                    isImportingBackupRootKey = false
+                    showImportBackupRootKeyPasswordDialog = false
+                    showBackupRootKeyUnavailableDialog = false
+                    if (restoreLatestOnlineBackupIfExists()) {
+                        completeInitialSync()
+                    }
+                }
+                is ImportBackupRootKeyResult.Failure -> {
+                    isImportingBackupRootKey = false
+                    _restoreErrorToast.emit(result.messageResId())
+                }
+            }
+        }
     }
 
     private fun completeInitialSync() {
@@ -172,3 +268,16 @@ private fun RestoreLatestOnlineBackupResult.Failure.logName(): String =
         is RestoreLatestOnlineBackupResult.Failure.RestoreFailed -> "RestoreFailed"
         is RestoreLatestOnlineBackupResult.Failure.Unknown -> "Unknown"
     }
+
+private fun ImportBackupRootKeyResult.Failure.messageResId(): Int =
+    when (this) {
+        ImportBackupRootKeyResult.Failure.BlankPassword -> R.string.initial_sync_import_backup_root_key_blank_password
+        ImportBackupRootKeyResult.Failure.InvalidFile -> R.string.initial_sync_import_backup_root_key_invalid_file
+        ImportBackupRootKeyResult.Failure.AuthenticationFailure -> R.string.initial_sync_import_backup_root_key_wrong_password
+        ImportBackupRootKeyResult.Failure.UserMismatch -> R.string.initial_sync_import_backup_root_key_wrong_user
+        ImportBackupRootKeyResult.Failure.FingerprintMismatch -> R.string.initial_sync_import_backup_root_key_fingerprint_mismatch
+        is ImportBackupRootKeyResult.Failure.DecryptionFailure -> R.string.initial_sync_import_backup_root_key_failed
+        is ImportBackupRootKeyResult.Failure.StorageFailure -> R.string.initial_sync_import_backup_root_key_failed
+    }
+
+private const val TEMP_IMPORTED_BACKUP_ROOT_KEY_FILE_NAME = "imported-backup-root-key.wbrk"

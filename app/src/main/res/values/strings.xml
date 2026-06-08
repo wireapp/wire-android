@@ -385,7 +385,16 @@
     <string name="initial_sync_restore_backup_failed">Couldn\'t restore backup</string>
     <string name="initial_sync_backup_root_key_unavailable_dialog_title">Open another Wire client</string>
     <string name="initial_sync_backup_root_key_unavailable_dialog_message">To restore your backup, open Wire Messenger on one of your other devices, then try again.</string>
+    <string name="initial_sync_backup_root_key_unavailable_dialog_import_key">Import key</string>
     <string name="initial_sync_backup_root_key_unavailable_dialog_try_again">Try again</string>
+    <string name="initial_sync_import_backup_root_key_dialog_title">Enter your password</string>
+    <string name="initial_sync_import_backup_root_key_dialog_message">The backup root key import will be decrypted with this password.</string>
+    <string name="initial_sync_import_backup_root_key_blank_password">Enter a password to import your backup root key.</string>
+    <string name="initial_sync_import_backup_root_key_invalid_file">Backup root key import failed: invalid export file.</string>
+    <string name="initial_sync_import_backup_root_key_wrong_password">Backup root key import failed: wrong password.</string>
+    <string name="initial_sync_import_backup_root_key_wrong_user">Backup root key import failed: key belongs to another user.</string>
+    <string name="initial_sync_import_backup_root_key_fingerprint_mismatch">Backup root key import failed: key fingerprint mismatch.</string>
+    <string name="initial_sync_import_backup_root_key_failed">Backup root key import failed.</string>
     <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
     <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
     <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>

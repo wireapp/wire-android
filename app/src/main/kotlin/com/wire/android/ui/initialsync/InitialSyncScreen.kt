@@ -19,8 +19,11 @@
 package com.wire.android.ui.initialsync
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
@@ -35,7 +38,13 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.SettingUpWireScreenContent
+import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.textfield.WirePasswordTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.initialSyncViewModel
+import com.wire.android.util.permission.FileType
+import com.wire.android.util.permission.rememberChooseSingleFileFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -48,6 +57,12 @@ fun InitialSyncScreen(
 ) {
     val activity = LocalActivity.current
     val syncCompletionState = viewModel.syncCompletionState
+    val chooseImportFileFlow = rememberChooseSingleFileFlow(
+        fileType = FileType.Any,
+        onFileBrowserItemPicked = viewModel::onBackupRootKeyImportFileSelected,
+        onPermissionDenied = { viewModel.onBackupRootKeyImportFileSelected(null) },
+        onPermissionPermanentlyDenied = { viewModel.onBackupRootKeyImportFileSelected(null) },
+    )
 
     SettingUpWireScreenContent(
         secondLineMessage = if (viewModel.isRestoringBackup) {
@@ -62,17 +77,53 @@ fun InitialSyncScreen(
             title = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_title),
             text = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_message),
             onDismiss = viewModel::onBackupRootKeyDialogCancel,
-            optionButton1Properties = WireDialogButtonProperties(
+            dismissButtonProperties = WireDialogButtonProperties(
                 text = stringResource(R.string.label_cancel),
                 onClick = viewModel::onBackupRootKeyDialogCancel,
                 type = WireDialogButtonType.Secondary,
             ),
-            optionButton2Properties = WireDialogButtonProperties(
+            optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_try_again),
                 onClick = viewModel::onBackupRootKeyDialogTryAgain,
                 type = WireDialogButtonType.Primary,
             ),
+            optionButton2Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_import_key),
+                onClick = chooseImportFileFlow::launch,
+                type = WireDialogButtonType.Secondary,
+            ),
+            buttonsHorizontalAlignment = false,
         )
+    }
+
+    if (viewModel.showImportBackupRootKeyPasswordDialog) {
+        WireDialog(
+            title = stringResource(R.string.initial_sync_import_backup_root_key_dialog_title),
+            text = stringResource(R.string.initial_sync_import_backup_root_key_dialog_message),
+            onDismiss = viewModel::onImportBackupRootKeyPasswordDialogDismiss,
+            optionButton1Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.label_cancel),
+                onClick = viewModel::onImportBackupRootKeyPasswordDialogDismiss,
+                type = WireDialogButtonType.Secondary,
+                state = if (viewModel.isImportingBackupRootKey) WireButtonState.Disabled else WireButtonState.Default,
+            ),
+            optionButton2Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_import_key),
+                onClick = viewModel::onImportBackupRootKey,
+                type = WireDialogButtonType.Primary,
+                loading = viewModel.isImportingBackupRootKey,
+                state = if (viewModel.isImportingBackupRootKey) WireButtonState.Disabled else WireButtonState.Default,
+            ),
+        ) {
+            WirePasswordTextField(
+                textState = viewModel.importBackupRootKeyPasswordState,
+                labelText = stringResource(R.string.login_password_label),
+                state = if (viewModel.isImportingBackupRootKey) WireTextFieldState.Disabled else WireTextFieldState.Default,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = dimensions().spacing16x),
+            )
+        }
     }
 
     LaunchedEffect(Unit) {

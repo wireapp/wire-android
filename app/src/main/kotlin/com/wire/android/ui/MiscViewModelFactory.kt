@@ -32,13 +32,16 @@ import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedView
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsViewModel
 import com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModel
+import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollmentUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
@@ -64,6 +67,9 @@ class MiscViewModelFactory @Inject constructor(
     private val automatedLoginManager: AutomatedLoginManager,
     private val syncConversations: SyncConversationsUseCase,
     private val restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase,
+    private val importBackupRootKey: ImportBackupRootKeyUseCase,
+    private val kaliumFileSystem: KaliumFileSystem,
+    private val fileManager: FileManager,
     private val validatePassword: ValidatePasswordUseCase,
     @KaliumCoreLogic private val coreLogicLazy: Lazy<CoreLogic>,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
@@ -91,6 +97,9 @@ class MiscViewModelFactory @Inject constructor(
         automatedLoginManager = automatedLoginManager,
         syncConversations = syncConversations,
         restoreLatestOnlineBackup = restoreLatestOnlineBackup,
+        importBackupRootKey = importBackupRootKey,
+        kaliumFileSystem = kaliumFileSystem,
+        fileManager = fileManager,
     )
 
     fun legalHoldRequestedViewModel() = LegalHoldRequestedViewModel(

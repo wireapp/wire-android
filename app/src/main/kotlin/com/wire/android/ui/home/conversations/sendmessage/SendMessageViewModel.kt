@@ -276,7 +276,7 @@ class SendMessageViewModel(
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() }
                     )
-                    val linkPreviews = linkPreviewResult.getOrNull()?.let { listOf(it) } ?: emptyList()
+                    val linkPreviews = linkPreviewResult?.let { listOf(it) } ?: emptyList()
 
                     sendTextMessage(
                         conversationId = conversationId,
@@ -542,12 +542,7 @@ class SendMessageViewModel(
 
     fun updateLinkPreview(text: String, mentions: List<MessageMention>) {
         viewModelScope.launch(dispatchers.io()) {
-            val result = generateLinkPreview(text = text, mentions = mentions)
-            result.onSuccess { preview ->
-                currentLinkPreview = preview
-            }.onFailure {
-                currentLinkPreview = null
-            }
+            currentLinkPreview = generateLinkPreview(text = text, mentions = mentions)
         }
     }
 

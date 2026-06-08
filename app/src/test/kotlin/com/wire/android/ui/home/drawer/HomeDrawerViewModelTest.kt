@@ -218,7 +218,7 @@ class HomeDrawerViewModelTest {
 
         fun arrange() = this to HomeDrawerViewModel(
             savedStateHandle = savedStateHandle,
-            observeArchivedUnreadConversationsCount = { observeArchivedUnreadConversationsCount },
+            observeArchivedUnreadConversationsCount = lazyOf(observeArchivedUnreadConversationsCount),
             observeSelfUser = observeSelfUserUseCase,
             getTeamUrl = getTeamUrlUseCase,
             isWireCellsEnabled = isWireCellsEnabled,

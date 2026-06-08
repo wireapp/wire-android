@@ -32,17 +32,21 @@ import com.wire.kalium.logic.feature.conversation.GetConversationProtocolInfoUse
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
 import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
@@ -67,6 +71,14 @@ import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConv
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedLocallyUseCase
+import com.wire.kalium.logic.feature.conversation.folder.AddConversationToFavoritesUseCase
+import com.wire.kalium.logic.feature.conversation.folder.CreateConversationFolderUseCase
+import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
+import com.wire.kalium.logic.feature.conversation.folder.MoveConversationToFolderUseCase
+import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
+import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
+import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFavoritesUseCase
+import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFolderUseCase
 import com.wire.kalium.logic.feature.conversation.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
 import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
@@ -74,349 +86,291 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoom
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
 
-@Module
-@InstallIn(ViewModelComponent::class)
+@BindingContainer
 @Suppress("TooManyFunctions")
 class ConversationModule {
 
     @Provides
-    @ViewModelScoped
     fun provideConversationScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): ConversationScope = coreLogic.getSessionScope(currentAccount).conversations
 
-    @ViewModelScoped
     @Provides
     fun provideObserveConversationListDetails(conversationScope: ConversationScope): ObserveConversationListDetailsUseCase =
         conversationScope.observeConversationListDetails
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveConversationListDetailsWithEvents(conversationScope: ConversationScope) =
+    fun provideObserveConversationListDetailsWithEvents(
+        conversationScope: ConversationScope
+    ): ObserveConversationListDetailsWithEventsUseCase =
         conversationScope.observeConversationListDetailsWithEvents
 
-    @ViewModelScoped
     @Provides
     fun provideObserveConversationUseCase(conversationScope: ConversationScope): GetOneToOneConversationDetailsUseCase =
         conversationScope.getOneToOneConversation
 
-    @ViewModelScoped
     @Provides
     fun provideObserveConversationDetailsUseCase(conversationScope: ConversationScope): ObserveConversationDetailsUseCase =
         conversationScope.observeConversationDetails
 
-    @ViewModelScoped
     @Provides
     fun provideNotifyConversationIsOpenUseCase(conversationScope: ConversationScope): NotifyConversationIsOpenUseCase =
         conversationScope.notifyConversationIsOpen
 
-    @ViewModelScoped
     @Provides
     fun provideDeleteTeamConversationUseCase(conversationScope: ConversationScope): DeleteTeamConversationUseCase =
         conversationScope.deleteTeamConversation
 
-    @ViewModelScoped
     @Provides
     fun provideMarkConversationAsDeletedLocallyUseCase(conversationScope: ConversationScope): MarkConversationAsDeletedLocallyUseCase =
         conversationScope.markConversationAsDeletedLocallyUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideObserveIsSelfConversationMemberUseCase(conversationScope: ConversationScope): ObserveIsSelfUserMemberUseCase =
         conversationScope.observeIsSelfUserMemberUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideObserveConversationInteractionAvailability(
         conversationScope: ConversationScope
     ): ObserveConversationInteractionAvailabilityUseCase =
         conversationScope.observeConversationInteractionAvailabilityUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideObserveConversationMembersUseCase(conversationScope: ConversationScope): ObserveConversationMembersUseCase =
         conversationScope.observeConversationMembers
 
-    @ViewModelScoped
     @Provides
-    fun provideMembersToMentionUseCase(conversationScope: ConversationScope) =
+    fun provideMembersToMentionUseCase(conversationScope: ConversationScope): MembersToMentionUseCase =
         conversationScope.getMembersToMention
 
-    @ViewModelScoped
     @Provides
     fun provideObserveUserListByIdUseCase(conversationScope: ConversationScope): ObserveUserListByIdUseCase =
         conversationScope.observeUserListById
 
-    @ViewModelScoped
     @Provides
     fun providesJoinConversationViaCodeUseCase(conversationScope: ConversationScope): JoinConversationViaCodeUseCase =
         conversationScope.joinConversationViaCode
 
-    @ViewModelScoped
     @Provides
     fun providesCanCreatePasswordProtectedLinksUseCase(conversationScope: ConversationScope): CanCreatePasswordProtectedLinksUseCase =
         conversationScope.canCreatePasswordProtectedLinks
 
-    @ViewModelScoped
     @Provides
     fun provideRefreshConversationsWithoutMetadataUseCase(
         conversationScope: ConversationScope
     ): RefreshConversationsWithoutMetadataUseCase =
         conversationScope.refreshConversationsWithoutMetadata
 
-    @ViewModelScoped
     @Provides
     fun provideGetConversationUnreadEventsCountUseCase(conversationScope: ConversationScope): GetConversationUnreadEventsCountUseCase =
         conversationScope.getConversationUnreadEventsCountUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateMessageTimerUseCase(conversationScope: ConversationScope): UpdateMessageTimerUseCase =
         conversationScope.updateMessageTimer
 
-    @ViewModelScoped
     @Provides
     fun provideRenameConversation(conversationScope: ConversationScope): RenameConversationUseCase =
         conversationScope.renameConversation
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateConversationReadDateUseCase(conversationScope: ConversationScope): UpdateConversationReadDateUseCase =
         conversationScope.updateConversationReadDateUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideMarkConversationAsReadLocallyUseCase(conversationScope: ConversationScope): MarkConversationAsReadLocallyUseCase =
         conversationScope.markConversationAsReadLocally
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateConversationAccessUseCase(conversationScope: ConversationScope): UpdateConversationAccessRoleUseCase =
         conversationScope.updateConversationAccess
 
-    @ViewModelScoped
     @Provides
     fun provideLeaveConversationUseCase(conversationScope: ConversationScope): LeaveConversationUseCase =
         conversationScope.leaveConversation
 
-    @ViewModelScoped
     @Provides
     fun providePromoteAdminAndLeaveConversationUseCase(conversationScope: ConversationScope): PromoteAdminAndLeaveConversationUseCase =
         conversationScope.promoteAdminAndLeaveConversation
 
-    @ViewModelScoped
     @Provides
     fun provideCheckConversationLeaveConditionsUseCase(conversationScope: ConversationScope): CheckConversationLeaveConditionsUseCase =
         conversationScope.checkConversationLeaveConditions
 
-    @ViewModelScoped
     @Provides
     fun provideObserveEligibleMembersForConversationAdminRoleUseCase(
         conversationScope: ConversationScope
     ): ObserveEligibleMembersForConversationAdminRoleUseCase =
         conversationScope.observeEligibleMembersForConversationAdminRole
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateConversationMutedStatusUseCase(conversationScope: ConversationScope): UpdateConversationMutedStatusUseCase =
         conversationScope.updateConversationMutedStatus
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateConversationReceiptModeUseCase(conversationScope: ConversationScope): UpdateConversationReceiptModeUseCase =
         conversationScope.updateConversationReceiptMode
 
-    @ViewModelScoped
     @Provides
     fun provideAddServiceToConversationUseCase(conversationScope: ConversationScope): AddServiceToConversationUseCase =
         conversationScope.addServiceToConversationUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideRemoveMemberFromConversationUseCase(conversationScope: ConversationScope): RemoveMemberFromConversationUseCase =
         conversationScope.removeMemberFromConversation
 
-    @ViewModelScoped
     @Provides
     fun provideCreateRegularGroupUseCase(conversationScope: ConversationScope): CreateRegularGroupUseCase =
         conversationScope.createRegularGroup
 
-    @ViewModelScoped
     @Provides
     fun provideCreateChannelUseCase(conversationScope: ConversationScope): CreateChannelUseCase =
         conversationScope.createChannel
 
-    @ViewModelScoped
     @Provides
     fun provideAddMemberToConversationUseCase(conversationScope: ConversationScope): AddMemberToConversationUseCase =
         conversationScope.addMemberToConversationUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideGetOrCreateOneToOneConversationUseCase(conversationScope: ConversationScope): GetOrCreateOneToOneConversationUseCase =
         conversationScope.getOrCreateOneToOneConversationUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideGenerateGuestRoomLinkUseCase(conversationScope: ConversationScope): GenerateGuestRoomLinkUseCase =
         conversationScope.generateGuestRoomLink
 
-    @ViewModelScoped
     @Provides
     fun provideRevokeGuestRoomLinkUseCase(conversationScope: ConversationScope): RevokeGuestRoomLinkUseCase =
         conversationScope.revokeGuestRoomLink
 
-    @ViewModelScoped
     @Provides
     fun provideObserveGuestRoomLinkUseCase(conversationScope: ConversationScope): ObserveGuestRoomLinkUseCase =
         conversationScope.observeGuestRoomLink
 
-    @ViewModelScoped
     @Provides
     fun provideClearConversationContentUseCase(conversationScope: ConversationScope): ClearConversationContentUseCase =
         conversationScope.clearConversationContent
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateConversationArchivedStatusUseCase(conversationScope: ConversationScope): UpdateConversationArchivedStatusUseCase =
         conversationScope.updateConversationArchivedStatus
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateConversationMemberRoleUseCase(conversationScope: ConversationScope): UpdateConversationMemberRoleUseCase =
         conversationScope.updateConversationMemberRole
 
-    @ViewModelScoped
     @Provides
     fun provideObserveArchivedUnreadConversationsCountUseCase(
         conversationScope: ConversationScope
     ): ObserveArchivedUnreadConversationsCountUseCase = conversationScope.observeArchivedUnreadConversationsCount
 
-    @ViewModelScoped
     @Provides
     fun provideObserveUsersTypingUseCase(conversationScope: ConversationScope): ObserveUsersTypingUseCase =
         conversationScope.observeUsersTyping
 
-    @ViewModelScoped
     @Provides
     fun provideSendTypingEventUseCase(conversationScope: ConversationScope): SendTypingEventUseCase = conversationScope.sendTypingEvent
 
-    @ViewModelScoped
     @Provides
     fun provideClearTypingEventsUseCase(conversationScope: ConversationScope): ClearUsersTypingEventsUseCase =
         conversationScope.clearUsersTypingEvents
 
-    @ViewModelScoped
     @Provides
     fun provideSetUserInformedAboutVerificationBeforeMessagingUseCase(
         conversationScope: ConversationScope
     ): SetUserInformedAboutVerificationUseCase =
         conversationScope.setUserInformedAboutVerificationBeforeMessagingUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideObserveInformAboutVerificationBeforeMessagingFlagUseCase(
         conversationScope: ConversationScope
     ): ObserveDegradedConversationNotifiedUseCase =
         conversationScope.observeInformAboutVerificationBeforeMessagingFlagUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideSetUserNotifiedAboutConversationUnderLegalHoldUseCase(
         conversationScope: ConversationScope,
     ): SetNotifiedAboutConversationUnderLegalHoldUseCase = conversationScope.setNotifiedAboutConversationUnderLegalHold
 
-    @ViewModelScoped
     @Provides
     fun provideObserveLegalHoldWithChangeNotifiedForConversationUseCase(
         conversationScope: ConversationScope,
     ): ObserveConversationUnderLegalHoldNotifiedUseCase = conversationScope.observeConversationUnderLegalHoldNotified
 
-    @ViewModelScoped
     @Provides
     fun provideSyncConversationCodeUseCase(conversationScope: ConversationScope): SyncConversationCodeUseCase =
         conversationScope.syncConversationCode
 
-    @ViewModelScoped
     @Provides
     fun provideIsOneToOneConversationCreatedUseCase(conversationScope: ConversationScope): IsOneToOneConversationCreatedUseCase =
         conversationScope.isOneToOneConversationCreatedUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideGetConversationProtocolInfoUseCase(conversationScope: ConversationScope): GetConversationProtocolInfoUseCase =
         conversationScope.getConversationProtocolInfo
 
-    @ViewModelScoped
     @Provides
-    fun provideGetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase(conversationScope: ConversationScope) =
+    fun provideGetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase(
+        conversationScope: ConversationScope
+    ): GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase =
         conversationScope.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveConversationsFromFolderUseCase(conversationScope: ConversationScope) =
+    fun provideObserveConversationsFromFolderUseCase(conversationScope: ConversationScope): ObserveConversationsFromFolderUseCase =
         conversationScope.observeConversationsFromFolder
 
-    @ViewModelScoped
     @Provides
-    fun provideGetFavoriteFolderUseCase(conversationScope: ConversationScope) =
+    fun provideGetFavoriteFolderUseCase(conversationScope: ConversationScope): GetFavoriteFolderUseCase =
         conversationScope.getFavoriteFolder
 
-    @ViewModelScoped
     @Provides
-    fun provideAddConversationToFavoritesUseCase(conversationScope: ConversationScope) =
+    fun provideAddConversationToFavoritesUseCase(conversationScope: ConversationScope): AddConversationToFavoritesUseCase =
         conversationScope.addConversationToFavorites
 
-    @ViewModelScoped
     @Provides
-    fun provideRemoveConversationFromFavoritesUseCase(conversationScope: ConversationScope) =
+    fun provideRemoveConversationFromFavoritesUseCase(conversationScope: ConversationScope): RemoveConversationFromFavoritesUseCase =
         conversationScope.removeConversationFromFavorites
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveUserFoldersUseCase(conversationScope: ConversationScope) =
+    fun provideObserveUserFoldersUseCase(conversationScope: ConversationScope): ObserveUserFoldersUseCase =
         conversationScope.observeUserFolders
 
-    @ViewModelScoped
     @Provides
-    fun provideMoveConversationToFolderUseCase(conversationScope: ConversationScope) =
+    fun provideMoveConversationToFolderUseCase(conversationScope: ConversationScope): MoveConversationToFolderUseCase =
         conversationScope.moveConversationToFolder
 
-    @ViewModelScoped
     @Provides
-    fun provideRemoveConversationFromFolderUseCase(conversationScope: ConversationScope) =
+    fun provideRemoveConversationFromFolderUseCase(conversationScope: ConversationScope): RemoveConversationFromFolderUseCase =
         conversationScope.removeConversationFromFolder
 
-    @ViewModelScoped
     @Provides
-    fun provideCreateConversationFolderUseCase(conversationScope: ConversationScope) =
+    fun provideCreateConversationFolderUseCase(conversationScope: ConversationScope): CreateConversationFolderUseCase =
         conversationScope.createConversationFolder
 
-    @ViewModelScoped
     @Provides
     fun provideResetMlsConversationUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): ResetMLSConversationUseCase = coreLogic.getSessionScope(currentAccount).resetMlsConversation
 
-    @ViewModelScoped
     @Provides
     fun provideFetchConversationUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): FetchConversationUseCase = coreLogic.getSessionScope(currentAccount).fetchConversationUseCase
 
-    @ViewModelScoped
     @Provides
     fun provideChangeAccessForAppsInConversationUseCase(
         conversationScope: ConversationScope
     ): ChangeAccessForAppsInConversationUseCase =
         conversationScope.changeAccessForAppsInConversation
+
+    @Provides
+    fun provideIsSelfUserViewerOnConversationUseCase(
+        conversationScope: ConversationScope
+    ): IsSelfUserViewerOnConversationUseCase = conversationScope.isSelfUserViewerOnConversation
 }

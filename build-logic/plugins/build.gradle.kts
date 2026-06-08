@@ -36,8 +36,10 @@ tasks.withType<KotlinCompile>().configureEach {
 
 dependencies {
     compileOnly(libs.android.gradlePlugin)
+    compileOnly(libs.compose.compiler.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.kover.gradlePlugin)
+    compileOnly(libs.metro.gradlePlugin)
 
     testImplementation(libs.junit4)
     testImplementation(kotlin("test"))
@@ -55,10 +57,6 @@ gradlePlugin {
             id = libs.plugins.wire.android.application.get().pluginId
             implementationClass = "AndroidApplicationConventionPlugin"
         }
-        register("wireHiltConventionPlugin") {
-            id = libs.plugins.wire.hilt.get().pluginId
-            implementationClass = "HiltConventionPlugin"
-        }
         register("wireKoverConventionPlugin") {
             id = libs.plugins.wire.kover.get().pluginId
             implementationClass = "KoverConventionPlugin"
@@ -74,6 +72,10 @@ gradlePlugin {
         register("androidNavigationConventionPlugin") {
             id = libs.plugins.wire.android.navigation.get().pluginId
             implementationClass = "AndroidNavigationConventionPlugin"
+        }
+        register("composeCompilerConventionPlugin") {
+            id = libs.plugins.wire.compose.compiler.get().pluginId
+            implementationClass = "ComposeCompilerConventionPlugin"
         }
         register("kmpLibraryConventionPlugin") {
             id = libs.plugins.wire.kmp.library.get().pluginId

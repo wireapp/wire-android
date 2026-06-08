@@ -53,6 +53,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -67,14 +68,15 @@ import kotlinx.datetime.Instant
 import java.net.UnknownHostException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("TooManyFunctions", "LongParameterList")
-@Singleton
+@SingleIn(AppScope::class)
 class WireNotificationManager @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val currentScreenManager: CurrentScreenManager,
@@ -116,6 +118,18 @@ class WireNotificationManager @Inject constructor(
         userIds: List<UserId>,
         scope: CoroutineScope
     ) = observeNotificationsAndCalls(userIds, scope, observingPersistentlyJobs)
+
+    /**
+     * When there are no valid users with active sessions, we want to stop all the notifications and calls observing jobs,
+     * hide all the notifications and stop the call service, because they are not relevant anymore.
+     */
+    fun clearWhenNoUsers() {
+        observingWhileRunningJobs.cancelAndClearAll()
+        observingPersistentlyJobs.cancelAndClearAll()
+        messagesNotificationManager.hideAllNotifications()
+        callNotificationManager.hideAllCallNotifications()
+        servicesManager.stopCallService()
+    }
 
     /**
      * Become online, process all the Pending events,
@@ -305,14 +319,6 @@ class WireNotificationManager @Inject constructor(
             .forEach { userId -> stopObservingForUser(userId, observingJobs) }
 
         if (userIds.isEmpty()) {
-            // userIds.isEmpty() means there is no current user (logged out e.g.)
-            // so we need to unsubscribe from the notification changes (done by canceling all the jobs above)
-            // and remove the notifications that were displayed previously
-            appLogger.i("$TAG no Users -> hide all the notifications")
-            messagesNotificationManager.hideAllNotifications()
-            callNotificationManager.hideAllIncomingCallNotifications()
-            servicesManager.stopCallService()
-
             return
         }
 
@@ -498,10 +504,17 @@ class WireNotificationManager @Inject constructor(
         coreLogic.getGlobalScope().session.currentSessionFlow()
             .flatMapLatest {
                 if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
-                    combine(
-                        coreLogic.getSessionScope(it.accountInfo.userId).calls.establishedCall(),
-                        coreLogic.getSessionScope(it.accountInfo.userId).calls.observeOutgoingCall()
-                    ) { establishedCalls, outgoingCalls -> (establishedCalls + outgoingCalls).isNotEmpty() }
+                    val sessionScope = coreLogic.getSessionScope(it.accountInfo.userId)
+                    // wait for the initial cleanup of stale open calls to be completed before starting to observe the calls,
+                    // to avoid starting the service by mistake for the calls that are already stale
+                    sessionScope.calls.observeStaleOpenCallsCleanup()
+                        .dropWhile { completed -> !completed }
+                        .flatMapLatest {
+                            combine(
+                                sessionScope.calls.establishedCall(),
+                                sessionScope.calls.observeOutgoingCall()
+                            ) { establishedCalls, outgoingCalls -> (establishedCalls + outgoingCalls).isNotEmpty() }
+                        }
                 } else {
                     flowOf(null)
                 }
@@ -593,7 +606,14 @@ class WireNotificationManager @Inject constructor(
     private data class ObservingJobs(
         val outgoingOngoingCallJob: AtomicReference<Job?> = AtomicReference(),
         val userJobs: ConcurrentHashMap<QualifiedID, UserObservingJobs> = ConcurrentHashMap()
-    )
+    ) {
+        fun cancelAndClearAll() {
+            outgoingOngoingCallJob.get()?.cancel()
+            outgoingOngoingCallJob.set(null)
+            userJobs.values.forEach { it.cancelAll() }
+            userJobs.clear()
+        }
+    }
 
     companion object {
         private const val TAG = "WireNotificationManager"

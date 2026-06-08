@@ -30,10 +30,11 @@ import androidx.core.app.NotificationManagerCompat
 import com.wire.android.media.PingRinger
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 class NotificationChannelsManager @Inject constructor(
     private val context: Context,
     private val notificationManagerCompat: NotificationManagerCompat
@@ -69,7 +70,7 @@ class NotificationChannelsManager @Inject constructor(
         }
 
         // OngoingCall is not user specific channel, but common for all users.
-        createOngoingNotificationChannel()
+        createOngoingCallNotificationChannel()
 
         createPlayingAudioMessageNotificationChannel()
 
@@ -136,7 +137,7 @@ class NotificationChannelsManager @Inject constructor(
         notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
-    private fun createOngoingNotificationChannel() {
+    fun createOngoingCallNotificationChannel() {
         val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         val notificationChannel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)

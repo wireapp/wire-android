@@ -22,30 +22,31 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
+import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollmentUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class E2EIEnrollmentState(
     val certificate: String = "null",
     val showCertificate: Boolean = false,
     val isLoading: Boolean = false,
+    val isFinalizing: Boolean = false,
     val isCertificateEnrollError: Boolean = false,
     val isCertificateEnrollSuccess: Boolean = false,
     val startGettingE2EICertificate: Boolean = false
 )
 
-@HiltViewModel
-class E2EIEnrollmentViewModel @Inject constructor(
-    private val finalizeMLSClientAfterE2EIEnrollment: FinalizeMLSClientAfterE2EIEnrollment,
+class E2EIEnrollmentViewModel(
+    private val finalizeMLSClientAfterE2EIEnrollment: FinalizeMLSClientAfterE2EIEnrollmentUseCase,
 ) : ViewModel() {
     var state by mutableStateOf(E2EIEnrollmentState())
 
-    fun finalizeMLSClient() {
+    fun finalizeMLSClient(onComplete: () -> Unit) {
+        state = state.copy(isFinalizing = true)
         viewModelScope.launch {
             finalizeMLSClientAfterE2EIEnrollment.invoke()
+            state = state.copy(isFinalizing = false)
+            onComplete()
         }
     }
 

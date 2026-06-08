@@ -57,13 +57,13 @@ jobs:
           git push origin screenshot-tests
 
       - name: Verify Screenshot Tests
-        run: ./gradlew validateInternalDebugScreenshotTest
+        run: ./gradlew validateAlphaDebugScreenshotTest
         continue-on-error: true # Ensure this task doesn't fail the build
 
       - name: Copy test results to simplified directory
         run: |
           mkdir -p screenshotTest
-          cp -r app/build/reports/screenshotTest/preview/debug/internal/* screenshotTest/
+          cp -r app/build/reports/screenshotTest/preview/debug/alpha/* screenshotTest/
 
       - name: Zip Screenshot Test Reports
         run: |
@@ -82,7 +82,7 @@ jobs:
           git clean -fd        
 
       - name: Update Screenshot Reference Images
-        run: ./gradlew updateInternalDebugScreenshotTest
+        run: ./gradlew updateAlphaDebugScreenshotTest
 
       - name: Create New Branch
         id: create_branch

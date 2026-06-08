@@ -47,7 +47,6 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomL
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -59,11 +58,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
-class EditGuestAccessViewModel @Inject constructor(
+class EditGuestAccessViewModel(
     private val dispatcher: DispatcherProvider,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,

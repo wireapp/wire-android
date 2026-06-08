@@ -18,10 +18,11 @@
 package com.wire.android.util
 
 import com.wire.android.feature.SwitchAccountActions
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 class SwitchAccountObserver @Inject constructor() : SwitchAccountActions {
     private val lock = Object()
     private val items = mutableListOf<SwitchAccountActions>()

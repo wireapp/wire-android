@@ -46,7 +46,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.home.settings.selfUserProfileViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
@@ -89,6 +89,7 @@ import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileSelfDialog
+import com.wire.android.ui.legalHoldRequestedViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -113,8 +114,8 @@ fun SelfUserProfileScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
     avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>,
-    viewModelSelf: SelfUserProfileViewModel = hiltViewModel(),
-    legalHoldRequestedViewModel: LegalHoldRequestedViewModel = hiltViewModel()
+    viewModelSelf: SelfUserProfileViewModel = selfUserProfileViewModel(),
+    legalHoldRequestedViewModel: LegalHoldRequestedViewModel = legalHoldRequestedViewModel()
 ) {
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
 

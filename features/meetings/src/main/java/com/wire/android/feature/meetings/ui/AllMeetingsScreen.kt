@@ -20,8 +20,11 @@ package com.wire.android.feature.meetings.ui
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Surface
@@ -39,49 +42,60 @@ import com.wire.android.ui.common.bottomsheet.WireBottomSheetDefaults
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.rememberLazyListStateProvider
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun AllMeetingsScreen() {
+fun AllMeetingsScreen(
+    lazyListState: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(),
+    tabs: ImmutableList<MeetingsTabItem> = persistentListOf(MeetingsTabItem.NEXT), // history is not available yet, only "Next" for now
+    initialTab: MeetingsTabItem = MeetingsTabItem.NEXT,
+) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         val scope = rememberCoroutineScope()
-        val pagerState = rememberPagerState { MeetingsTabItem.entries.size }
+        val pagerState = rememberPagerState(tabs.indexOf(initialTab).coerceIn(0, tabs.size - 1)) { tabs.size }
         val lazyListStateProvider = rememberLazyListStateProvider<MeetingsTabItem>()
         val meetingOptionsSheetState = rememberWireModalSheetState<String>(initialValue = WireSheetValue.Hidden)
 
-        Surface(
-            color = WireBottomSheetDefaults.WireSheetContainerColor,
-            shadowElevation = lazyListStateProvider[MeetingsTabItem.entries[pagerState.currentPage]].rememberTopBarElevationState().value,
-            modifier = Modifier
-                .fillMaxWidth()
-                .zIndex(1f) // Ensure tab row is above the lazy column (for elevation shadow)
-        ) {
-            WireTabRow(
-                tabs = MeetingsTabItem.entries,
-                selectedTabIndex = pagerState.calculateCurrentTab(),
-                onTabChange = {
-                    scope.launch {
-                        pagerState.animateScrollToPage(it)
+        if (tabs.size > 1) {
+            Surface(
+                color = WireBottomSheetDefaults.WireSheetContainerColor,
+                shadowElevation = lazyListStateProvider[tabs[pagerState.currentPage]].rememberTopBarElevationState().value,
+                contentColor = colorsScheme().background,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .zIndex(1f) // Ensure tab row is above the lazy column (for elevation shadow)
+            ) {
+                WireTabRow(
+                    tabs = tabs,
+                    selectedTabIndex = pagerState.calculateCurrentTab(),
+                    onTabChange = {
+                        scope.launch {
+                            pagerState.animateScrollToPage(it)
+                        }
                     }
-                }
-            )
+                )
+            }
         }
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.weight(1f),
         ) {
-            val lazyListState = lazyListStateProvider[MeetingsTabItem.entries[it]]
             MeetingList(
                 modifier = Modifier.fillMaxSize(),
-                lazyListState = lazyListState,
-                type = MeetingsTabItem.entries[it],
+                lazyListState = if (tabs.size > 1) lazyListStateProvider[tabs[it]] else lazyListState,
+                type = tabs[it],
+                contentPadding = contentPadding,
                 openMeetingOptions = { meetingId ->
                     meetingOptionsSheetState.show(meetingId)
                 }
@@ -101,6 +115,12 @@ enum class MeetingsTabItem(@StringRes val titleResId: Int) : TabItem {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewAllMeetingsScreen() = WireTheme {
-    AllMeetingsScreen()
+fun PreviewAllMeetingsScreen_OnlyNextTab() = WireTheme {
+    AllMeetingsScreen(tabs = persistentListOf(MeetingsTabItem.NEXT))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewAllMeetingsScreen_NextAndPastTabs() = WireTheme {
+    AllMeetingsScreen(tabs = persistentListOf(MeetingsTabItem.NEXT, MeetingsTabItem.PAST), initialTab = MeetingsTabItem.PAST)
 }

@@ -25,18 +25,17 @@ import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@AndroidEntryPoint
 class EndOngoingCallReceiver : BroadcastReceiver() {
 
     @Inject
@@ -55,6 +54,7 @@ class EndOngoingCallReceiver : BroadcastReceiver() {
     lateinit var coroutineScope: CoroutineScope
 
     override fun onReceive(context: Context, intent: Intent) {
+        context.wireApplicationGraph.inject(this)
         val conversationId: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
         appLogger.i("EndOngoingCallReceiver: onReceive, conversationId: $conversationId")
 

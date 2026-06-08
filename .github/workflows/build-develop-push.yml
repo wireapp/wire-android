@@ -14,15 +14,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Build for direct pushes to develop (includes internal store deployment)
+  # Build for direct pushes to develop (includes alpha flavor deployment to the internal store)
   build-develop:
+    permissions:
+      contents: write
+      actions: read
+      security-events: write
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: push
       build-config: |
         [
           {
-            "flavor": "Internal",
+            "flavor": "Alpha",
             "variant": "Compat",
             "keystore-type": "internal",
             "build-type": "both",

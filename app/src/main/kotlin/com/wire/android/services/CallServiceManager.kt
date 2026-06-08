@@ -44,7 +44,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: CoreLogic) {
     private val actions = Channel<Action>(capacity = Channel.BUFFERED, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -61,7 +61,11 @@ class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: Cor
     internal fun handleActionsFlow(): Flow<Either<StopReason, CallNotificationData>> = actions.receiveAsFlow()
         .flatMapLatest { action ->
             when (action) {
-                is Action.Stop -> flowOf(Either.Left(StopReason.ACTION_STOP_CALLED))
+                is Action.Stop -> {
+                    closeActiveCall()
+                    flowOf(Either.Left(StopReason.ACTION_STOP_CALLED))
+                }
+
                 is Action.Start -> {
                     if (action is Action.Start.AnswerCall) answerCall(action)
                     startedServiceLifecycleFlow(action)
@@ -87,6 +91,28 @@ class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: Cor
             )
         }
     })
+
+    /** Closes the active call for the current session if it exists, logging if it does not. */
+    private suspend fun closeActiveCall() =
+        coreLogic.getGlobalScope().session.currentSessionFlow().firstOrNull().let {
+            if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
+                val userId = it.accountInfo.userId
+                val userSessionScope = coreLogic.getSessionScope(userId)
+                combine(
+                    userSessionScope.calls.observeOutgoingCall(),
+                    userSessionScope.calls.establishedCall(),
+                    { outgoingCalls, establishedCalls -> outgoingCalls + establishedCalls }
+                ).firstOrNull()?.forEach {
+                    appLogger.i(
+                        "$TAG: Ending call for user ${userId.toLogString()}" +
+                                " and conversation ${it.conversationId.toLogString()}"
+                    )
+                    userSessionScope.calls.endCall(it.conversationId)
+                }
+            } else {
+                appLogger.i("$TAG: Cannot end call, no valid current session")
+            }
+        }
 
     /**
      * Returns a flow representing the lifecycle of the service for the given start action.

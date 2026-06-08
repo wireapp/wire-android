@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingHeader
-import com.wire.android.feature.meetings.ui.util.rememberCurrentTimeProvider
+import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.BigSectionHeader
 import com.wire.android.ui.common.rowitem.SectionHeader
@@ -47,6 +47,11 @@ fun MeetingHeader(
                 name = stringResource(R.string.meeting_date_header_ongoing),
                 modifier = Modifier.padding(top = dimensions().spacing8x),
             )
+
+            is MeetingHeader.Day -> BigSectionHeader(
+                    name = getDateHeaderString(header.time),
+                    modifier = Modifier.padding(top = dimensions().spacing24x),
+                )
 
             is MeetingHeader.DayAndHour -> {
                 BigSectionHeader(

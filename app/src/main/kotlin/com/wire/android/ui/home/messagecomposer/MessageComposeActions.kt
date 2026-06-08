@@ -31,14 +31,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.selfDeletingMessageActionViewModel
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModel
-import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelImpl
 import com.wire.android.ui.home.messagecomposer.attachments.AdditionalOptionButton
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
@@ -251,14 +250,7 @@ fun SelfDeletingMessageAction(
     conversationId: ConversationId,
     onButtonClicked: (SelfDeletionTimer) -> Unit,
     viewModel: SelfDeletingMessageActionViewModel =
-        hiltViewModelScoped<
-                SelfDeletingMessageActionViewModelImpl,
-                SelfDeletingMessageActionViewModel,
-                SelfDeletingMessageActionArgs,
-                SelfDeletingMessageActionViewModelImpl.Factory
-                >(
-            SelfDeletingMessageActionArgs(conversationId = conversationId)
-        ),
+        selfDeletingMessageActionViewModel(SelfDeletingMessageActionArgs(conversationId = conversationId)),
 ) {
     when (val state = viewModel.state()) {
         SelfDeletionTimer.Disabled -> {}

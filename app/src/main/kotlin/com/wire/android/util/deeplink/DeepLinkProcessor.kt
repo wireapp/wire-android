@@ -36,8 +36,9 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.Serializable
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 sealed class DeepLinkResult {
     data object Unknown : DeepLinkResult()
@@ -78,7 +79,7 @@ sealed class DeepLinkResult {
     }
 }
 
-@Singleton
+@SingleIn(AppScope::class)
 class DeepLinkProcessor @Inject constructor(
     private val accountSwitch: AccountSwitchUseCase,
     private val currentSession: CurrentSessionUseCase,

@@ -30,7 +30,7 @@ import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.type.isFederated
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class ContactMapper
 @Inject constructor(

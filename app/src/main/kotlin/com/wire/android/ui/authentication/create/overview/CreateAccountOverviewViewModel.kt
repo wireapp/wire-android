@@ -21,10 +21,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@HiltViewModel
 class CreateAccountOverviewViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     defaultServerConfig: ServerConfig.Links

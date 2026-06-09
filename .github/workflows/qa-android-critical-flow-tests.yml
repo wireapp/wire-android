@@ -120,7 +120,15 @@ jobs:
         id: resolve_run_inputs
         shell: bash
         run: |
+          trim_surrounding_whitespace() {
+            local value="$1"
+            value="${value#"${value%%[![:space:]]*}"}"
+            value="${value%"${value##*[![:space:]]}"}"
+            printf '%s' "${value}"
+          }
+
           if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            testiny_run_name="$(trim_surrounding_whitespace "${{ inputs.testinyRunName }}")"
             {
               echo "appBuildNumber=${{ inputs.appBuildNumber }}"
               echo "isUpgrade=${{ inputs.isUpgrade }}"
@@ -128,7 +136,7 @@ jobs:
               echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
               echo "flavor=${{ inputs.flavor }}"
               echo "TAGS=${{ inputs.TAGS }}"
-              echo "testinyRunName=${{ inputs.testinyRunName }}"
+              echo "testinyRunName=${testiny_run_name}"
               echo "androidDeviceId=${{ inputs.androidDeviceId }}"
               echo "rerunFailedEnabled=${{ inputs.rerunFailedEnabled }}"
               echo "rerunFailedCount=${{ inputs.rerunFailedCount }}"
@@ -277,6 +285,11 @@ jobs:
       - name: Fetch secrets.json (runtime only)
         run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
 
+      # Reuse the Android Testiny key from 1Password for this run.
+      - name: Export Testiny API key from runtime secrets
+        if: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName != '' }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh export-testiny-api-key
+
       # Build androidTest APK once and reuse it across selected devices.
       - name: Build test APK (assemble once)
         run: bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
@@ -298,6 +311,10 @@ jobs:
           RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
+          # Testiny sync is keyed by testcase ids but grouped under one run name.
+          TESTINY_PROJECT_NAME: Wire Android
+          TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
+          TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           if [[ "${IS_UPGRADE}" == "true" && ( "${RESOLVED_CATEGORY}" == "upgrade" || -n "${RESOLVED_TESTCASE_ID}" ) ]]; then
             # Single upgrade-tagged runs do not need the normal phase. They only

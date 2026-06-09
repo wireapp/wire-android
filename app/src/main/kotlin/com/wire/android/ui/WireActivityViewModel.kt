@@ -106,6 +106,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
@@ -168,6 +169,14 @@ class WireActivityViewModel @Inject constructor(
         .flowOn(dispatchers.io())
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
+    private val observeCurrentUserId: SharedFlow<UserId?> = observeCurrentAccountInfo
+        .map {
+            if (it?.isValid() == true) it.userId else null
+        }
+        .distinctUntilChanged()
+        .flowOn(dispatchers.io())
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+
     private lateinit var validSessions: StateFlow<List<AccountInfo>>
 
     init {
@@ -175,7 +184,7 @@ class WireActivityViewModel @Inject constructor(
         observeUpdateAppState()
         observeNewClientState()
         observeScreenshotCensoringConfigState()
-        observeCurrentValidUserState()
+        observeCurrentUserState()
         observeAppThemeState()
         observeSelectedAccent()
         observeLogoutState()
@@ -229,10 +238,22 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private fun observeCurrentValidUserState() {
+    private fun observeCurrentUserState() {
         viewModelScope.launch(dispatchers.io()) {
-            observeCurrentValidUserId.collectLatest {
-                globalAppState = globalAppState.copy(currentUserId = it)
+            observeCurrentUserId.collectLatest {
+                globalAppState = globalAppState.copy(
+                    currentUserId = it,
+                    isSessionTransitionInProgress = if (it != null) {
+                        false
+                    } else {
+                        globalAppState.isSessionTransitionInProgress
+                    },
+                    sessionTransitionReason = if (it != null) {
+                        null
+                    } else {
+                        globalAppState.sessionTransitionReason
+                    },
+                )
             }
         }
     }
@@ -323,24 +344,42 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private suspend fun handleInvalidSession(logoutReason: LogoutReason) {
-        withContext(dispatchers.main()) {
-            when (logoutReason) {
-                LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
-                    // Self logout is handled from the Self user profile screen directly
-                }
-
-                LogoutReason.MIGRATION_TO_CC_FAILED, LogoutReason.REMOVED_CLIENT ->
-                    globalAppState =
-                        globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)
-
-                LogoutReason.DELETED_ACCOUNT ->
-                    globalAppState =
-                        globalAppState.copy(blockUserUI = CurrentSessionErrorState.DeletedAccount)
-
-                LogoutReason.SESSION_EXPIRED ->
-                    globalAppState =
-                        globalAppState.copy(blockUserUI = CurrentSessionErrorState.SessionExpired)
+        when (logoutReason) {
+            LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
+                // Self logout is handled from the Self user profile screen directly.
             }
+
+            LogoutReason.REMOVED_CLIENT -> recoverFromRemovedClient()
+
+            LogoutReason.MIGRATION_TO_CC_FAILED ->
+                setCurrentSessionError(CurrentSessionErrorState.RemovedClient)
+
+            LogoutReason.DELETED_ACCOUNT ->
+                setCurrentSessionError(CurrentSessionErrorState.DeletedAccount)
+
+            LogoutReason.SESSION_EXPIRED ->
+                setCurrentSessionError(CurrentSessionErrorState.SessionExpired)
+        }
+    }
+
+    private suspend fun recoverFromRemovedClient() {
+        withContext(dispatchers.main()) {
+            globalAppState = globalAppState.copy(
+                currentUserId = null,
+                blockUserUI = CurrentSessionErrorState.RemovedClient,
+                isSessionTransitionInProgress = false,
+                sessionTransitionReason = SessionTransitionReason.REMOVED_CLIENT,
+            )
+        }
+    }
+
+    private suspend fun setCurrentSessionError(errorState: CurrentSessionErrorState) {
+        withContext(dispatchers.main()) {
+            globalAppState = globalAppState.copy(
+                blockUserUI = errorState,
+                isSessionTransitionInProgress = false,
+                sessionTransitionReason = null,
+            )
         }
     }
 
@@ -521,21 +560,32 @@ class WireActivityViewModel @Inject constructor(
     // TODO: needs to be covered with test once hard logout is validated to be used
     fun doHardLogout(
         clearUserData: (userId: UserId) -> Unit,
-        switchAccountActions: SwitchAccountActions
+        switchAccountActions: SwitchAccountActions,
+        wipeData: Boolean = true
     ) {
         viewModelScope.launch {
+            globalAppState = globalAppState.copy(
+                currentUserId = null,
+                isSessionTransitionInProgress = true,
+                sessionTransitionReason = SessionTransitionReason.SELF_LOGOUT,
+            )
             coreLogic.value.getGlobalScope().session.currentSession().takeIf {
                 it is CurrentSessionResult.Success
             }?.let {
                 val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
-                coreLogic.value.getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
-                clearUserData(currentUserId)
-            }
-            accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount).also {
-                if (it == SwitchAccountResult.NoOtherAccountToSwitch) {
-                    globalDataStore.value.clearAppLockPasscode()
+                val switchResult = accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount).also { switchResult ->
+                    if (switchResult == SwitchAccountResult.NoOtherAccountToSwitch) {
+                        globalDataStore.value.clearAppLockPasscode()
+                    }
                 }
-            }.callAction(switchAccountActions)
+                val logoutReason = if (wipeData) LogoutReason.SELF_HARD_LOGOUT else LogoutReason.SELF_SOFT_LOGOUT
+                coreLogic.value.getSessionScope(currentUserId).logout(logoutReason)
+                if (wipeData) {
+                    clearUserData(currentUserId)
+                }
+                syncCurrentUserIdFromSession()
+                switchResult.callAction(switchAccountActions)
+            }
         }
     }
 
@@ -552,17 +602,37 @@ class WireActivityViewModel @Inject constructor(
 
     fun switchAccount(userId: UserId, actions: SwitchAccountActions, onComplete: () -> Unit) {
         viewModelScope.launch {
-            accountSwitch.value.invoke(SwitchAccountParam.SwitchToAccount(userId))
-                .callAction(actions)
+            val result = accountSwitch.value.invoke(SwitchAccountParam.SwitchToAccount(userId))
+            syncCurrentUserIdFromSession()
+            result.callAction(actions)
             onComplete()
         }
     }
 
     fun tryToSwitchAccount(actions: SwitchAccountActions) {
         viewModelScope.launch {
+            val result = accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
+            syncCurrentUserIdFromSession()
+            result.callAction(actions)
             globalAppState = globalAppState.copy(blockUserUI = null)
-            accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
-                .callAction(actions)
+        }
+    }
+
+    fun resolveMissingCurrentSession(actions: SwitchAccountActions) {
+        viewModelScope.launch {
+            syncCurrentUserIdFromSession(retries = CURRENT_SESSION_RESOLUTION_RETRIES)
+            if (globalAppState.currentUserId == null) {
+                globalAppState = globalAppState.copy(blockUserUI = null)
+                val result = accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
+                syncCurrentUserIdFromSession(retries = CURRENT_SESSION_RESOLUTION_RETRIES)
+                result.callAction(actions)
+            }
+        }
+    }
+
+    fun resolveCurrentSessionUserId() {
+        viewModelScope.launch {
+            syncCurrentUserIdFromSession(retries = CURRENT_SESSION_RESOLUTION_RETRIES)
         }
     }
 
@@ -659,6 +729,49 @@ class WireActivityViewModel @Inject constructor(
             ?.takeIf { it.isValid() }
             ?.userId
 
+    private suspend fun currentSessionUserId(): UserId? =
+        (coreLogic.value.getGlobalScope().session.currentSession() as? CurrentSessionResult.Success)
+            ?.accountInfo
+            ?.takeIf { it.isValid() }
+            ?.userId
+
+    private suspend fun syncCurrentUserIdFromSession(retries: Int = 0) {
+        val userId = withContext(dispatchers.io()) {
+            var resolvedUserId = currentSessionUserId()
+            repeat(retries) { attempt ->
+                if (resolvedUserId != null) return@repeat
+                delay(CURRENT_SESSION_RESOLUTION_RETRY_DELAY_MS)
+                resolvedUserId = currentSessionUserId()
+                if (resolvedUserId != null) {
+                    appLogger.i("Resolved current session after retry ${attempt + 1}")
+                }
+            }
+            resolvedUserId
+        }
+        withContext(dispatchers.main()) {
+            globalAppState = globalAppState.copy(
+                currentUserId = userId,
+                isSessionTransitionInProgress = if (userId != null) {
+                    false
+                } else {
+                    globalAppState.isSessionTransitionInProgress
+                },
+                sessionTransitionReason = if (userId != null) {
+                    null
+                } else {
+                    globalAppState.sessionTransitionReason
+                },
+            )
+        }
+    }
+
+    fun finishSessionTransition() {
+        globalAppState = globalAppState.copy(
+            isSessionTransitionInProgress = false,
+            sessionTransitionReason = null,
+        )
+    }
+
     fun dismissMaxAccountDialog() {
         globalAppState = globalAppState.copy(maxAccountDialog = false)
     }
@@ -735,6 +848,9 @@ class WireActivityViewModel @Inject constructor(
     }
 }
 
+private const val CURRENT_SESSION_RESOLUTION_RETRIES = 50
+private const val CURRENT_SESSION_RESOLUTION_RETRY_DELAY_MS = 100L
+
 sealed class CurrentSessionErrorState {
     data object RemovedClient : CurrentSessionErrorState()
     data object DeletedAccount : CurrentSessionErrorState()
@@ -797,8 +913,15 @@ data class GlobalAppState(
     val newClientDialog: NewClientsData? = null,
     val screenshotCensoringEnabled: Boolean = true,
     val themeOption: ThemeOption = ThemeOption.SYSTEM,
-    val userAccent: Accent = Accent.Unknown
+    val userAccent: Accent = Accent.Unknown,
+    val isSessionTransitionInProgress: Boolean = false,
+    val sessionTransitionReason: SessionTransitionReason? = null,
 )
+
+enum class SessionTransitionReason {
+    SELF_LOGOUT,
+    REMOVED_CLIENT,
+}
 
 enum class InitialAppState {
     NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI

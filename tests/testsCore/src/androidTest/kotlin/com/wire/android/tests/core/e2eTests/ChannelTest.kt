@@ -166,7 +166,7 @@ class ChannelTest : BaseUiTest() {
 
         step("When I tap on conversation name TestChannel in conversation list") {
             pages.conversationListPage.apply {
-                clickChannelConversation("TestChannelPPP")
+                clickChannelConversation("TestChannel")
             }
         }
 
@@ -411,7 +411,7 @@ class ChannelTest : BaseUiTest() {
 
         step("Then I see channel conversation LeavingChannel is in foreground") {
             pages.conversationViewPage.apply {
-                assertChannelConversationInForeground("LeavingChannelKKK")
+                assertChannelConversationInForeground("LeavingChannel")
             }
         }
 

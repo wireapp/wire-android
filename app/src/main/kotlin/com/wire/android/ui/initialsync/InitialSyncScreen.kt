@@ -79,23 +79,18 @@ fun InitialSyncScreen(
         InitialSyncBackupRestoreStatus(viewModel.backupRestoreState)
     }
 
-    if (viewModel.showBackupRootKeyUnavailableDialog) {
+    if (viewModel.showBackupRootKeyApprovalWaitingDialog) {
         WireDialog(
-            title = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_title),
-            text = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_message),
-            onDismiss = viewModel::onBackupRootKeyDialogCancel,
-            dismissButtonProperties = WireDialogButtonProperties(
+            title = stringResource(R.string.initial_sync_backup_root_key_approval_waiting_dialog_title),
+            text = stringResource(R.string.initial_sync_backup_root_key_approval_waiting_dialog_message),
+            onDismiss = viewModel::onBackupRootKeyApprovalWaitingDialogCancel,
+            optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.label_cancel),
-                onClick = viewModel::onBackupRootKeyDialogCancel,
+                onClick = viewModel::onBackupRootKeyApprovalWaitingDialogCancel,
                 type = WireDialogButtonType.Secondary,
             ),
-            optionButton1Properties = WireDialogButtonProperties(
-                text = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_try_again),
-                onClick = viewModel::onBackupRootKeyDialogTryAgain,
-                type = WireDialogButtonType.Primary,
-            ),
             optionButton2Properties = WireDialogButtonProperties(
-                text = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_import_key),
+                text = stringResource(R.string.initial_sync_backup_root_key_import_key),
                 onClick = chooseImportFileFlow::launch,
                 type = WireDialogButtonType.Secondary,
             ),
@@ -115,7 +110,7 @@ fun InitialSyncScreen(
                 state = if (viewModel.isImportingBackupRootKey) WireButtonState.Disabled else WireButtonState.Default,
             ),
             optionButton2Properties = WireDialogButtonProperties(
-                text = stringResource(R.string.initial_sync_backup_root_key_unavailable_dialog_import_key),
+                text = stringResource(R.string.initial_sync_backup_root_key_import_key),
                 onClick = viewModel::onImportBackupRootKey,
                 type = WireDialogButtonType.Primary,
                 loading = viewModel.isImportingBackupRootKey,

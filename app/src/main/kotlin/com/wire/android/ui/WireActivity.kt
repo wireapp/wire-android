@@ -99,6 +99,7 @@ import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
+import com.wire.android.ui.backup.BackupRootKeyApprovalViewModel
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.setupOrientationForDevice
@@ -440,6 +441,14 @@ class WireActivity : BaseActivity() {
                     }
                 }
             ),
+            backupRootKeyApprovalViewModel = viewModel(
+                key = "BackupRootKeyApprovalViewModel:$scopeKey",
+                factory = viewModelFactory {
+                    initializer {
+                        graph.miscViewModelFactory.backupRootKeyApprovalViewModel()
+                    }
+                }
+            ),
         )
     }
 
@@ -560,6 +569,7 @@ class WireActivity : BaseActivity() {
         val featureFlagNotificationViewModel = activityViewModels.featureFlagNotificationViewModel
         val legalHoldRequestedViewModel = activityViewModels.legalHoldRequestedViewModel
         val legalHoldDeactivatedViewModel = activityViewModels.legalHoldDeactivatedViewModel
+        val backupRootKeyApprovalViewModel = activityViewModels.backupRootKeyApprovalViewModel
         val callFeedbackSheetState =
             rememberWireModalSheetState<Unit>(onDismissAction = {
                 callFeedbackViewModel.skipCallFeedback(false)
@@ -603,6 +613,14 @@ class WireActivity : BaseActivity() {
                 if (legalHoldDeactivatedViewModel.state is LegalHoldDeactivatedState.Visible) {
                     LegalHoldDeactivatedDialog(
                         dialogDismissed = legalHoldDeactivatedViewModel::dismiss,
+                    )
+                }
+                backupRootKeyApprovalViewModel.state.request?.let { request ->
+                    BackupRootKeyApprovalDialog(
+                        requesterName = request.requesterName,
+                        isLoading = backupRootKeyApprovalViewModel.state.isLoading,
+                        onApprove = backupRootKeyApprovalViewModel::approve,
+                        onDecline = backupRootKeyApprovalViewModel::decline,
                     )
                 }
                 if (showFileSharingDialog) {
@@ -889,6 +907,7 @@ private data class WireActivityScopedViewModels(
     val commonTopAppBarViewModel: CommonTopAppBarViewModel,
     val legalHoldRequestedViewModel: LegalHoldRequestedViewModel,
     val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel,
+    val backupRootKeyApprovalViewModel: BackupRootKeyApprovalViewModel,
 )
 
 private val authenticationGraphRoutes = setOf(

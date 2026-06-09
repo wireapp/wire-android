@@ -126,11 +126,13 @@ class InitialSyncViewModelTest {
 
         // then
         assertEquals(InitialSyncBackupRestoreState.Checking, viewModel.backupRestoreState)
+        assertTrue(viewModel.showBackupRootKeyApprovalWaitingDialog)
         assertFalse(viewModel.isSyncCompleted)
         assertEquals(null, viewModel.syncCompletionState)
 
         finishRestore.complete(Unit)
         advanceUntilIdle()
+        assertFalse(viewModel.showBackupRootKeyApprovalWaitingDialog)
     }
 
     @Test
@@ -150,6 +152,7 @@ class InitialSyncViewModelTest {
 
         // then
         assertEquals(InitialSyncBackupRestoreState.Restoring(0.4f), viewModel.backupRestoreState)
+        assertFalse(viewModel.showBackupRootKeyApprovalWaitingDialog)
         assertFalse(viewModel.isSyncCompleted)
         assertEquals(null, viewModel.syncCompletionState)
 
@@ -192,59 +195,9 @@ class InitialSyncViewModelTest {
         // then
         assertFalse(viewModel.isSyncCompleted)
         assertEquals(InitialSyncBackupRestoreState.None, viewModel.backupRestoreState)
-        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+        assertTrue(viewModel.showBackupRootKeyApprovalWaitingDialog)
         assertEquals(emptyList<Int>(), restoreErrorToasts)
         job.cancel()
-    }
-
-    @Test
-    fun `given no backup root key is available, when trying again succeeds, then complete initial sync`() = runTest {
-        // given
-        val (viewModel, arrangement) = Arrangement()
-            .withRestoreLatestOnlineBackupResults(
-                RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable,
-                RESTORE_BACKUP_SUCCESS
-            )
-            .withSyncState(SyncState.Live)
-            .arrange()
-
-        advanceUntilIdle()
-        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
-
-        // when
-        viewModel.onBackupRootKeyDialogTryAgain()
-        advanceUntilIdle()
-
-        // then
-        assertTrue(viewModel.isSyncCompleted)
-        assertFalse(viewModel.showBackupRootKeyUnavailableDialog)
-        assertEquals(SyncCompletionState(shouldMoveToBackground = false), viewModel.syncCompletionState)
-        coVerify(exactly = 2) { arrangement.restoreLatestOnlineBackup(any()) }
-    }
-
-    @Test
-    fun `given no backup root key is available, when trying again fails the same way, then show dialog again`() = runTest {
-        // given
-        val (viewModel, arrangement) = Arrangement()
-            .withRestoreLatestOnlineBackupResults(
-                RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable,
-                RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable
-            )
-            .withSyncState(SyncState.Live)
-            .arrange()
-
-        advanceUntilIdle()
-        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
-
-        // when
-        viewModel.onBackupRootKeyDialogTryAgain()
-        advanceUntilIdle()
-
-        // then
-        assertFalse(viewModel.isSyncCompleted)
-        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
-        assertEquals(null, viewModel.syncCompletionState)
-        coVerify(exactly = 2) { arrangement.restoreLatestOnlineBackup(any()) }
     }
 
     @Test
@@ -259,16 +212,16 @@ class InitialSyncViewModelTest {
         val job = launch { viewModel.restoreErrorToast.collect { restoreErrorToasts.add(it) } }
 
         advanceUntilIdle()
-        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+        assertTrue(viewModel.showBackupRootKeyApprovalWaitingDialog)
 
         // when
-        viewModel.onBackupRootKeyDialogCancel()
+        viewModel.onBackupRootKeyApprovalWaitingDialogCancel()
         advanceUntilIdle()
 
         // then
         assertTrue(viewModel.isSyncCompleted)
         assertTrue(viewModel.shouldMoveToBackground)
-        assertFalse(viewModel.showBackupRootKeyUnavailableDialog)
+        assertFalse(viewModel.showBackupRootKeyApprovalWaitingDialog)
         assertEquals(SyncCompletionState(shouldMoveToBackground = true), viewModel.syncCompletionState)
         assertEquals(emptyList<Int>(), restoreErrorToasts)
         job.cancel()
@@ -284,7 +237,7 @@ class InitialSyncViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+        assertTrue(viewModel.showBackupRootKeyApprovalWaitingDialog)
 
         // when
         viewModel.onBackupRootKeyImportFileSelected(uri)
@@ -292,13 +245,13 @@ class InitialSyncViewModelTest {
 
         // then
         coVerify { arrangement.fileManager.copyToPath(uri, IMPORT_BACKUP_ROOT_KEY_PATH, any()) }
-        assertFalse(viewModel.showBackupRootKeyUnavailableDialog)
+        assertFalse(viewModel.showBackupRootKeyApprovalWaitingDialog)
         assertTrue(viewModel.showImportBackupRootKeyPasswordDialog)
         assertEquals(IMPORT_BACKUP_ROOT_KEY_PATH, viewModel.pendingImportedBackupRootKeyPath)
     }
 
     @Test
-    fun `given no backup root key is available, when import file selection is cancelled, then show root key dialog again`() = runTest {
+    fun `given no backup root key is available, when import file selection is cancelled, then show approval waiting dialog again`() = runTest {
         // given
         val (viewModel, _) = Arrangement()
             .withRestoreLatestOnlineBackup(RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable)
@@ -312,13 +265,13 @@ class InitialSyncViewModelTest {
         advanceUntilIdle()
 
         // then
-        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+        assertTrue(viewModel.showBackupRootKeyApprovalWaitingDialog)
         assertFalse(viewModel.showImportBackupRootKeyPasswordDialog)
         assertEquals(null, viewModel.pendingImportedBackupRootKeyPath)
     }
 
     @Test
-    fun `given no backup root key is available, when import file copy fails, then emit toast and show root key dialog again`() = runTest {
+    fun `given no backup root key is available, when import file copy fails, then emit toast and show approval waiting dialog again`() = runTest {
         // given
         val uri = mockk<Uri>()
         val (viewModel, _) = Arrangement()
@@ -336,7 +289,7 @@ class InitialSyncViewModelTest {
 
         // then
         assertEquals(R.string.initial_sync_import_backup_root_key_failed, toast.await())
-        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+        assertTrue(viewModel.showBackupRootKeyApprovalWaitingDialog)
         assertFalse(viewModel.showImportBackupRootKeyPasswordDialog)
         assertEquals(null, viewModel.pendingImportedBackupRootKeyPath)
     }
@@ -359,7 +312,7 @@ class InitialSyncViewModelTest {
         viewModel.onImportBackupRootKeyPasswordDialogDismiss()
 
         // then
-        assertTrue(viewModel.showBackupRootKeyUnavailableDialog)
+        assertTrue(viewModel.showBackupRootKeyApprovalWaitingDialog)
         assertFalse(viewModel.showImportBackupRootKeyPasswordDialog)
         assertFalse(viewModel.isImportingBackupRootKey)
         assertEquals(null, viewModel.pendingImportedBackupRootKeyPath)
@@ -392,7 +345,7 @@ class InitialSyncViewModelTest {
         coVerify { arrangement.importBackupRootKey(IMPORT_BACKUP_ROOT_KEY_PATH, "password") }
         coVerify(exactly = 2) { arrangement.restoreLatestOnlineBackup(any()) }
         assertTrue(viewModel.isSyncCompleted)
-        assertFalse(viewModel.showBackupRootKeyUnavailableDialog)
+        assertFalse(viewModel.showBackupRootKeyApprovalWaitingDialog)
         assertFalse(viewModel.showImportBackupRootKeyPasswordDialog)
         assertEquals(null, viewModel.pendingImportedBackupRootKeyPath)
         assertEquals("", viewModel.importBackupRootKeyPasswordState.text.toString())
@@ -422,7 +375,7 @@ class InitialSyncViewModelTest {
         assertEquals(R.string.initial_sync_import_backup_root_key_wrong_password, toast.await())
         assertFalse(viewModel.isSyncCompleted)
         assertFalse(viewModel.isImportingBackupRootKey)
-        assertFalse(viewModel.showBackupRootKeyUnavailableDialog)
+        assertFalse(viewModel.showBackupRootKeyApprovalWaitingDialog)
         assertTrue(viewModel.showImportBackupRootKeyPasswordDialog)
         assertEquals(IMPORT_BACKUP_ROOT_KEY_PATH, viewModel.pendingImportedBackupRootKeyPath)
     }
@@ -451,7 +404,7 @@ class InitialSyncViewModelTest {
         assertEquals(R.string.initial_sync_import_backup_root_key_invalid_file, toast.await())
         assertFalse(viewModel.isSyncCompleted)
         assertFalse(viewModel.isImportingBackupRootKey)
-        assertFalse(viewModel.showBackupRootKeyUnavailableDialog)
+        assertFalse(viewModel.showBackupRootKeyApprovalWaitingDialog)
         assertTrue(viewModel.showImportBackupRootKeyPasswordDialog)
         assertEquals(IMPORT_BACKUP_ROOT_KEY_PATH, viewModel.pendingImportedBackupRootKeyPath)
     }

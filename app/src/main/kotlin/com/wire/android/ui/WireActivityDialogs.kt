@@ -156,6 +156,33 @@ fun GuestRoomLinkFeatureFlagDialog(
 }
 
 @Composable
+fun BackupRootKeyApprovalDialog(
+    requesterName: String,
+    isLoading: Boolean,
+    onApprove: () -> Unit,
+    onDecline: () -> Unit,
+) {
+    WireDialog(
+        title = stringResource(id = R.string.backup_root_key_approval_dialog_title),
+        text = stringResource(id = R.string.backup_root_key_approval_dialog_message, requesterName),
+        onDismiss = onDecline,
+        dismissButtonProperties = WireDialogButtonProperties(
+            onClick = onDecline,
+            text = stringResource(id = R.string.backup_root_key_approval_dialog_decline),
+            type = WireDialogButtonType.Secondary,
+            state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,
+        ),
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onApprove,
+            text = stringResource(id = R.string.backup_root_key_approval_dialog_approve),
+            type = WireDialogButtonType.Primary,
+            loading = isLoading,
+            state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,
+        ),
+    )
+}
+
+@Composable
 fun TeamAppLockFeatureFlagDialog(
     isTeamAppLockEnabled: Boolean,
     onConfirm: () -> Unit,

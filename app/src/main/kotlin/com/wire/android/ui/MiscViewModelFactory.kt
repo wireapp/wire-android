@@ -24,6 +24,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
+import com.wire.android.ui.backup.BackupRootKeyApprovalViewModel
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
 import com.wire.android.ui.initialsync.InitialSyncViewModel
@@ -41,8 +42,12 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.backup.ApproveBackupRootKeyRequestUseCase
+import com.wire.kalium.logic.feature.backup.DeclineBackupRootKeyRequestUseCase
 import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyUseCase
+import com.wire.kalium.logic.feature.backup.ObservePendingBackupRootKeyRequestsUseCase
 import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
+import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollmentUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationsUseCase
@@ -68,6 +73,10 @@ class MiscViewModelFactory @Inject constructor(
     private val syncConversations: SyncConversationsUseCase,
     private val restoreLatestOnlineBackup: RestoreLatestOnlineBackupUseCase,
     private val importBackupRootKey: ImportBackupRootKeyUseCase,
+    private val observePendingBackupRootKeyRequests: ObservePendingBackupRootKeyRequestsUseCase,
+    private val approveBackupRootKeyRequest: ApproveBackupRootKeyRequestUseCase,
+    private val declineBackupRootKeyRequest: DeclineBackupRootKeyRequestUseCase,
+    private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val fileManager: FileManager,
     private val validatePassword: ValidatePasswordUseCase,
@@ -100,6 +109,14 @@ class MiscViewModelFactory @Inject constructor(
         importBackupRootKey = importBackupRootKey,
         kaliumFileSystem = kaliumFileSystem,
         fileManager = fileManager,
+    )
+
+    fun backupRootKeyApprovalViewModel() = BackupRootKeyApprovalViewModel(
+        observePendingBackupRootKeyRequests = observePendingBackupRootKeyRequests,
+        approveBackupRootKeyRequest = approveBackupRootKeyRequest,
+        declineBackupRootKeyRequest = declineBackupRootKeyRequest,
+        fetchSelfClientsFromRemote = fetchSelfClientsFromRemote,
+        dispatchers = dispatchers,
     )
 
     fun legalHoldRequestedViewModel() = LegalHoldRequestedViewModel(

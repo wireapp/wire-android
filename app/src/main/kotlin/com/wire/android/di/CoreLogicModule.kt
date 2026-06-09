@@ -41,12 +41,15 @@ import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase
+import com.wire.kalium.logic.feature.backup.ApproveBackupRootKeyRequestUseCase
 import com.wire.kalium.logic.feature.backup.CreateMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.CreateOnlineBackupUseCase
+import com.wire.kalium.logic.feature.backup.DeclineBackupRootKeyRequestUseCase
 import com.wire.kalium.logic.feature.backup.ExportBackupRootKeyUseCase
-import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyUseCase
-import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
 import com.wire.kalium.logic.feature.backup.GenerateAndForcePushBackupRootKeyUseCase
+import com.wire.kalium.logic.feature.backup.ImportBackupRootKeyUseCase
+import com.wire.kalium.logic.feature.backup.ObservePendingBackupRootKeyRequestsUseCase
+import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyIfOnlineBackupExistsUseCase
 import com.wire.kalium.logic.feature.backup.SyncBackupRootKeyUseCase
@@ -418,6 +421,27 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): SyncBackupRootKeyIfOnlineBackupExistsUseCase =
         coreLogic.getSessionScope(currentAccount).multiPlatformBackup.syncBackupRootKeyIfOnlineBackupExists
+
+    @Provides
+    fun provideObservePendingBackupRootKeyRequestsUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObservePendingBackupRootKeyRequestsUseCase =
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.observePendingBackupRootKeyRequests
+
+    @Provides
+    fun provideApproveBackupRootKeyRequestUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ApproveBackupRootKeyRequestUseCase =
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.approveBackupRootKeyRequest
+
+    @Provides
+    fun provideDeclineBackupRootKeyRequestUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): DeclineBackupRootKeyRequestUseCase =
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.declineBackupRootKeyRequest
 
     @Provides
     fun provideRestoreMpBackupUseCase(

@@ -45,6 +45,7 @@ import com.wire.kalium.logic.feature.backup.RestoreLatestOnlineBackupUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -75,7 +76,7 @@ class InitialSyncViewModel(
     )
         private set
 
-    internal var showBackupRootKeyUnavailableDialog: Boolean by mutableStateOf(false)
+    internal var showBackupRootKeyApprovalWaitingDialog: Boolean by mutableStateOf(false)
         private set
 
     internal var showImportBackupRootKeyPasswordDialog: Boolean by mutableStateOf(false)
@@ -88,6 +89,7 @@ class InitialSyncViewModel(
         private set
 
     private var pendingSyncCompletionState: SyncCompletionState? = null
+    private var onlineBackupRestoreJob: Job? = null
 
     private val _restoreErrorToast = MutableSharedFlow<Int>(extraBufferCapacity = 1)
     internal val restoreErrorToast: SharedFlow<Int> = _restoreErrorToast.asSharedFlow()
@@ -99,7 +101,7 @@ class InitialSyncViewModel(
         get() = syncCompletionState?.shouldMoveToBackground == true
 
     init {
-        waitUntilSyncIsCompleted()
+        onlineBackupRestoreJob = waitUntilSyncIsCompleted()
     }
 
     private fun waitUntilSyncIsCompleted() =
@@ -120,17 +122,9 @@ class InitialSyncViewModel(
             }
         }
 
-    internal fun onBackupRootKeyDialogTryAgain() {
-        showBackupRootKeyUnavailableDialog = false
-        viewModelScope.launch(dispatchers.io()) {
-            if (restoreLatestOnlineBackupIfExists()) {
-                completeInitialSync()
-            }
-        }
-    }
-
-    internal fun onBackupRootKeyDialogCancel() {
-        showBackupRootKeyUnavailableDialog = false
+    internal fun onBackupRootKeyApprovalWaitingDialogCancel() {
+        showBackupRootKeyApprovalWaitingDialog = false
+        onlineBackupRestoreJob?.cancel()
         completeInitialSync()
     }
 
@@ -139,7 +133,7 @@ class InitialSyncViewModel(
             if (uri == null) {
                 pendingImportedBackupRootKeyPath = null
                 showImportBackupRootKeyPasswordDialog = false
-                showBackupRootKeyUnavailableDialog = true
+                showBackupRootKeyApprovalWaitingDialog = true
                 return@launch
             }
 
@@ -147,14 +141,14 @@ class InitialSyncViewModel(
             try {
                 fileManager.copyToPath(uri, importedBackupRootKeyPath, dispatchers)
                 pendingImportedBackupRootKeyPath = importedBackupRootKeyPath
-                showBackupRootKeyUnavailableDialog = false
+                showBackupRootKeyApprovalWaitingDialog = false
                 showImportBackupRootKeyPasswordDialog = true
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 pendingImportedBackupRootKeyPath = null
                 showImportBackupRootKeyPasswordDialog = false
-                showBackupRootKeyUnavailableDialog = true
+                showBackupRootKeyApprovalWaitingDialog = true
                 _restoreErrorToast.emit(R.string.initial_sync_import_backup_root_key_failed)
             }
         }
@@ -165,7 +159,7 @@ class InitialSyncViewModel(
         pendingImportedBackupRootKeyPath = null
         isImportingBackupRootKey = false
         showImportBackupRootKeyPasswordDialog = false
-        showBackupRootKeyUnavailableDialog = true
+        showBackupRootKeyApprovalWaitingDialog = true
     }
 
     internal fun onImportBackupRootKey() {
@@ -173,7 +167,7 @@ class InitialSyncViewModel(
             val pendingImportPath = pendingImportedBackupRootKeyPath
             if (pendingImportPath == null) {
                 showImportBackupRootKeyPasswordDialog = false
-                showBackupRootKeyUnavailableDialog = true
+                showBackupRootKeyApprovalWaitingDialog = true
                 _restoreErrorToast.emit(R.string.initial_sync_import_backup_root_key_failed)
                 return@launch
             }
@@ -196,7 +190,7 @@ class InitialSyncViewModel(
                     pendingImportedBackupRootKeyPath = null
                     isImportingBackupRootKey = false
                     showImportBackupRootKeyPasswordDialog = false
-                    showBackupRootKeyUnavailableDialog = false
+                    showBackupRootKeyApprovalWaitingDialog = false
                     if (restoreLatestOnlineBackupIfExists()) {
                         completeInitialSync()
                     }
@@ -221,24 +215,28 @@ class InitialSyncViewModel(
 
     private suspend fun restoreLatestOnlineBackupIfExists(): Boolean {
         backupRestoreState = InitialSyncBackupRestoreState.Checking
+        showBackupRootKeyApprovalWaitingDialog = true
         try {
             when (val result = restoreLatestOnlineBackup { progress ->
+                showBackupRootKeyApprovalWaitingDialog = false
                 backupRestoreState = InitialSyncBackupRestoreState.Restoring(progress.coerceIn(0f, 1f))
             }) {
                 is RestoreLatestOnlineBackupResult.Success -> {
+                    showBackupRootKeyApprovalWaitingDialog = false
                     appLogger.i("InitialSyncViewModel: latest online backup restored")
                     return true
                 }
                 RestoreLatestOnlineBackupResult.Failure.NoBackupRootKeyAvailable -> {
                     appLogger.i("InitialSyncViewModel: latest online backup restore paused: NoBackupRootKeyAvailable")
-                    showBackupRootKeyUnavailableDialog = true
                     return false
                 }
                 RestoreLatestOnlineBackupResult.Failure.NoOnlineBackupFound -> {
+                    showBackupRootKeyApprovalWaitingDialog = false
                     appLogger.i("InitialSyncViewModel: latest online backup restore skipped: NoOnlineBackupFound")
                     return true
                 }
                 is RestoreLatestOnlineBackupResult.Failure -> {
+                    showBackupRootKeyApprovalWaitingDialog = false
                     appLogger.e("InitialSyncViewModel: latest online backup restore failed: ${result.logName()}")
                     _restoreErrorToast.emit(R.string.initial_sync_restore_backup_failed)
                     return true
@@ -247,6 +245,7 @@ class InitialSyncViewModel(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            showBackupRootKeyApprovalWaitingDialog = false
             appLogger.e("InitialSyncViewModel: latest online backup restore failed: ${e.message.orEmpty()}")
             _restoreErrorToast.emit(R.string.initial_sync_restore_backup_failed)
             return true

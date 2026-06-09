@@ -116,7 +116,7 @@ hamcrest = "3.0"
 rules = "1.7.0"
 zxing = "3.5.2"
 zxingAndroid = "4.3.0"
-gson = "2.13.2"
+gson = "2.14.0"
 allureKotlin = "2.4.0"
 androidx-test-services = "1.6.0"
 

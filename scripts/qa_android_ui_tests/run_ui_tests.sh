@@ -16,6 +16,13 @@ is_true() {
   [[ "${1:-}" == "true" ]]
 }
 
+trim_surrounding_whitespace() {
+  local value="$1"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  printf '%s' "${value}"
+}
+
 RERUN_FAILED_ENABLED="${RERUN_FAILED_ENABLED:-true}"
 RERUN_FAILED_COUNT="${RERUN_FAILED_COUNT:-1}"
 ALLURE_RESULTS_ROOT="${ALLURE_RESULTS_ROOT:-${RUNNER_TEMP}/allure-results}"
@@ -23,6 +30,7 @@ ALLURE_PULL_MAX_ATTEMPTS="${ALLURE_PULL_MAX_ATTEMPTS:-3}"
 ALLURE_PULL_BASE_DELAY_SEC="${ALLURE_PULL_BASE_DELAY_SEC:-5}"
 RERUN_INLINE_PART_MAX_CHARS="${RERUN_INLINE_PART_MAX_CHARS:-7000}"
 INITIAL_FAILED_TESTS_FILE="${INITIAL_FAILED_TESTS_FILE:-}"
+TESTINY_RUN_NAME_TRIMMED="$(trim_surrounding_whitespace "${TESTINY_RUN_NAME:-}")"
 
 if [[ ! "${RERUN_FAILED_ENABLED}" =~ ^(true|false)$ ]]; then
   echo "ERROR: RERUN_FAILED_ENABLED must be true or false."
@@ -414,11 +422,11 @@ run_attempt_on_devices() {
       }
 
       # Only Testiny-enabled runs need the reporting config and secret.
-      if [[ -n "${TESTINY_RUN_NAME:-}" ]]; then
+      if [[ -n "${TESTINY_RUN_NAME_TRIMMED}" ]]; then
         if [[ -n "${TESTINY_PROJECT_NAME:-}" ]]; then
           args+=(-e testinyProjectNameB64 "$(encode_testiny_arg "${TESTINY_PROJECT_NAME}")")
         fi
-        args+=(-e testinyRunNameB64 "$(encode_testiny_arg "${TESTINY_RUN_NAME}")")
+        args+=(-e testinyRunNameB64 "$(encode_testiny_arg "${TESTINY_RUN_NAME_TRIMMED}")")
         if [[ -n "${TESTINY_API_KEY:-}" ]]; then
           args+=(-e testinyApiKeyB64 "$(encode_testiny_arg "${TESTINY_API_KEY}")")
         fi

@@ -166,7 +166,7 @@ class ChannelTest : BaseUiTest() {
 
         step("When I tap on conversation name TestChannel in conversation list") {
             pages.conversationListPage.apply {
-                clickChannelConversation("TestChannel")
+                clickChannelConversation("TestChannelPPP")
             }
         }
 
@@ -405,7 +405,7 @@ class ChannelTest : BaseUiTest() {
 
         step("When I tap on conversation name LeavingChannel in conversation list") {
             pages.conversationListPage.apply {
-                clickChannelConversation("LeavingChannel")
+                clickChannelConversation("LeavingChannelPPP")
             }
         }
 

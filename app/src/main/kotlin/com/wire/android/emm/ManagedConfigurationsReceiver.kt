@@ -26,14 +26,14 @@ import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import dagger.Lazy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 class ManagedConfigurationsReceiver @Inject constructor(
     private val managedConfigurationsManager: ManagedConfigurationsManager,
     private val managedConfigurationsReporter: ManagedConfigurationsReporter,
@@ -116,7 +116,7 @@ class ManagedConfigurationsReceiver @Inject constructor(
 
         // Only bulk update when MDM enforcement turns ON
         if (!wasEnforced && isEnforced) {
-            coreLogic.get().getGlobalScope().setAllPersistentWebSocketEnabled(true)
+            coreLogic.value.getGlobalScope().setAllPersistentWebSocketEnabled(true)
         }
 
         // Trigger service start/stop based on current state

@@ -66,6 +66,11 @@ object SupportScreenDestination : ExternalUriStringResDirection {
         get() = R.string.url_support
 }
 
+object ReportMisuseScreenDestination : ExternalUriStringResDirection {
+    override val uriStringRes: Int
+        get() = R.string.url_report_misuse
+}
+
 data object TeamManagementScreenDestination : ExternalDirectionLess
 
 object PrivacyPolicyScreenDestination : ExternalUriStringResDirection {

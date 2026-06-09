@@ -27,205 +27,187 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.IsCallRunningUseCase
+import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveCallModerationActionsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveCallQualityDataUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveConferenceCallingEnabledUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallWithSortedParticipantsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
+import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetUIRotationUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetCallQualityIntervalUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
 
-@Module
-@InstallIn(ViewModelComponent::class)
+@BindingContainer
 @Suppress("TooManyFunctions")
 class CallsModule {
 
-    @ViewModelScoped
     @Provides
     fun providesCallsScope(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): CallsScope = coreLogic.getSessionScope(currentAccount).calls
 
-    @ViewModelScoped
     @Provides
     fun provideGetIncomingCallsUseCase(callsScope: CallsScope): GetIncomingCallsUseCase =
         callsScope.getIncomingCalls
 
-    @ViewModelScoped
     @Provides
-    fun provideRequestVideoStreamsUseCase(callsScope: CallsScope) =
+    fun provideRequestVideoStreamsUseCase(callsScope: CallsScope): RequestVideoStreamsUseCase =
         callsScope.requestVideoStreams
 
-    @ViewModelScoped
     @Provides
-    fun provideIsLastCallClosedUseCase(callsScope: CallsScope) =
+    fun provideIsLastCallClosedUseCase(callsScope: CallsScope): IsLastCallClosedUseCase =
         callsScope.isLastCallClosed
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveOngoingCallsUseCase(callsScope: CallsScope) =
+    fun provideObserveOngoingCallsUseCase(callsScope: CallsScope): ObserveOngoingCallsUseCase =
         callsScope.observeOngoingCalls
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveEstablishedCallWithSortedParticipantsUseCase(callsScope: CallsScope) =
+    fun provideObserveEstablishedCallWithSortedParticipantsUseCase(
+        callsScope: CallsScope
+    ): ObserveEstablishedCallWithSortedParticipantsUseCase =
         callsScope.observeEstablishedCallWithSortedParticipants
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveLastActiveCallWithSortedParticipantsUseCase(callsScope: CallsScope) =
+    fun provideObserveLastActiveCallWithSortedParticipantsUseCase(
+        callsScope: CallsScope
+    ): ObserveLastActiveCallWithSortedParticipantsUseCase =
         callsScope.observeLastActiveCallWithSortedParticipants
 
-    @ViewModelScoped
     @Provides
-    fun provideRejectCallUseCase(callsScope: CallsScope) =
+    fun provideRejectCallUseCase(callsScope: CallsScope): RejectCallUseCase =
         callsScope.rejectCall
 
-    @ViewModelScoped
     @Provides
-    fun provideAcceptCallUseCase(callsScope: CallsScope) =
+    fun provideAcceptCallUseCase(callsScope: CallsScope): AnswerCallUseCase =
         callsScope.answerCall
 
-    @ViewModelScoped
     @Provides
     fun provideOnGoingCallUseCase(
         callsScope: CallsScope
     ): ObserveEstablishedCallsUseCase =
         callsScope.establishedCall
 
-    @ViewModelScoped
     @Provides
     fun provideObserveOutgoingCallUseCase(
         callsScope: CallsScope
     ): ObserveOutgoingCallUseCase =
         callsScope.observeOutgoingCall
 
-    @ViewModelScoped
     @Provides
     fun provideStartCallUseCase(callsScope: CallsScope): StartCallUseCase =
         callsScope.startCall
 
-    @ViewModelScoped
     @Provides
     fun provideEndCallUseCase(callsScope: CallsScope): EndCallUseCase =
         callsScope.endCall
 
-    @ViewModelScoped
     @Provides
     fun provideEndCallOnConversationChangeUseCase(
         callsScope: CallsScope
     ): EndCallOnConversationChangeUseCase =
         callsScope.endCallOnConversationChange
 
-    @ViewModelScoped
     @Provides
     fun provideMuteCallUseCase(callsScope: CallsScope): MuteCallUseCase =
         callsScope.muteCall
 
-    @ViewModelScoped
     @Provides
     fun provideUnMuteCallUseCase(callsScope: CallsScope): UnMuteCallUseCase =
         callsScope.unMuteCall
 
-    @ViewModelScoped
     @Provides
     fun provideSetVideoPreviewUseCase(
         callsScope: CallsScope
     ): SetVideoPreviewUseCase = callsScope.setVideoPreview
 
-    @ViewModelScoped
     @Provides
     fun provideSetUIRotationUseCase(
         callsScope: CallsScope
     ): SetUIRotationUseCase = callsScope.setUIRotation
 
-    @ViewModelScoped
     @Provides
     fun provideFlipToBackCameraUseCase(
         callsScope: CallsScope
     ): FlipToBackCameraUseCase = callsScope.flipToBackCamera
 
-    @ViewModelScoped
     @Provides
     fun provideFlipToFrontCameraUseCase(
         callsScope: CallsScope
     ): FlipToFrontCameraUseCase = callsScope.flipToFrontCamera
 
-    @ViewModelScoped
     @Provides
     fun turnLoudSpeakerOffUseCaseProvider(
         callsScope: CallsScope
     ): TurnLoudSpeakerOffUseCase = callsScope.turnLoudSpeakerOff
 
-    @ViewModelScoped
     @Provides
     fun provideTurnLoudSpeakerOnUseCase(
         callsScope: CallsScope
     ): TurnLoudSpeakerOnUseCase = callsScope.turnLoudSpeakerOn
 
-    @ViewModelScoped
     @Provides
     fun provideObserveSpeakerUseCase(
         callsScope: CallsScope
     ): ObserveSpeakerUseCase = callsScope.observeSpeaker
 
-    @ViewModelScoped
     @Provides
     fun provideUpdateVideoStateUseCase(
         callsScope: CallsScope
     ): UpdateVideoStateUseCase =
         callsScope.updateVideoState
 
-    @ViewModelScoped
     @Provides
     fun provideSetVideoSendStateUseCase(
         callsScope: CallsScope
     ): SetVideoSendStateUseCase =
         callsScope.setVideoSendState
 
-    @ViewModelScoped
     @Provides
-    fun provideIsCallRunningUseCase(callsScope: CallsScope) =
+    fun provideIsCallRunningUseCase(callsScope: CallsScope): IsCallRunningUseCase =
         callsScope.isCallRunning
 
-    @ViewModelScoped
     @Provides
-    fun provideIsEligibleToStartCall(callsScope: CallsScope) =
+    fun provideIsEligibleToStartCall(callsScope: CallsScope): IsEligibleToStartCallUseCase =
         callsScope.isEligibleToStartCall
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveConferenceCallingEnabledUseCase(callsScope: CallsScope) =
+    fun provideObserveConferenceCallingEnabledUseCase(callsScope: CallsScope): ObserveConferenceCallingEnabledUseCase =
         callsScope.observeConferenceCallingEnabled
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveInCallReactionsUseCase(callsScope: CallsScope) =
+    fun provideObserveInCallReactionsUseCase(callsScope: CallsScope): ObserveInCallReactionsUseCase =
         callsScope.observeInCallReactions
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveCallQualityDataUseCase(callsScope: CallsScope) =
+    fun provideObserveCallQualityDataUseCase(callsScope: CallsScope): ObserveCallQualityDataUseCase =
         callsScope.observeCallQualityData
 
-    @ViewModelScoped
     @Provides
-    fun provideSetCallQualityIntervalUseCase(callsScope: CallsScope) =
+    fun provideSetCallQualityIntervalUseCase(callsScope: CallsScope): SetCallQualityIntervalUseCase =
         callsScope.setCallQualityInterval
 
-    @ViewModelScoped
     @Provides
-    fun provideObserveCallModerationActionsUseCase(callsScope: CallsScope) =
+    fun provideObserveCallModerationActionsUseCase(callsScope: CallsScope): ObserveCallModerationActionsUseCase =
         callsScope.observeCallModerationActions
 }

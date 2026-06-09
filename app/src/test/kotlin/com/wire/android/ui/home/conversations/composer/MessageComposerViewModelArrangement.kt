@@ -217,6 +217,8 @@ internal fun withMockConversationDetailsOneOnOne(
         every { isUnavailableUser } returns unavailable
         every { deleted } returns false
         every { accentId } returns 0
+        every { botService } returns null
+        every { userType } returns UserTypeInfo.Regular(UserType.NONE)
     },
     userType = UserTypeInfo.Regular(UserType.INTERNAL),
 )

@@ -36,6 +36,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.GiveFeedbackDestination
 import com.wire.android.navigation.PrivacyPolicyScreenDestination
 import com.wire.android.navigation.ReportBugDestination
+import com.wire.android.navigation.ReportMisuseScreenDestination
 import com.wire.android.navigation.SupportScreenDestination
 import com.wire.android.navigation.TermsOfUseScreenDestination
 import com.wire.android.navigation.WireWebsiteScreenDestination
@@ -221,6 +222,12 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
         id = "other_support",
         title = UIText.StringResource(R.string.support_screen_title),
         direction = SupportScreenDestination
+    )
+
+    data object ReportMisuse : DirectionItem(
+        id = "other_report_misuse",
+        title = UIText.StringResource(R.string.report_misuse_screen_title),
+        direction = ReportMisuseScreenDestination
     )
 
     data object DebugSettings : DirectionItem(

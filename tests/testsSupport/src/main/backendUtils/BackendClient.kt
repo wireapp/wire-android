@@ -41,6 +41,7 @@ import network.RequestOptions
 import org.json.JSONArray
 import org.json.JSONObject
 import service.models.Connection
+import service.models.Conversation
 import service.models.TeamMember
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
@@ -632,6 +633,105 @@ class BackendClient(
         return JSONObject(response.body)
     }
 
+    suspend fun switchServiceForTeam(
+        ownerOrAdminUser: ClientUser,
+        teamId: String,
+        providerId: String,
+        serviceId: String,
+        isEnabled: Boolean
+    ) {
+        val token = getAuthToken(ownerOrAdminUser)
+        val url = URI("teams/$teamId/services/whitelist".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put(AUTHORIZATION, "${token?.type} ${token?.value}")
+            put(accept, "*/*")
+        }
+
+        val requestBody = JSONObject().apply {
+            put("id", serviceId)
+            put("provider", providerId)
+            put("whitelisted", isEnabled)
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "POST",
+            headers = headers,
+            body = requestBody.toString(),
+            options = RequestOptions(
+                accessToken = token,
+                expectedResponseCodes = NumberSequence.Array(
+                    intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NO_CONTENT)
+                )
+            )
+        )
+    }
+
+    suspend fun addServiceToConversation(asUser: ClientUser, serviceName: String, conversation: Conversation) {
+        val teamId = conversation.teamId
+            ?: throw IllegalStateException("Conversation '${conversation.name}' has no team id.")
+        val service = getWhitelistedService(asUser, teamId, serviceName)
+        val token = getAuthToken(asUser)
+        val url = URI("conversations/${conversation.id}/bots".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put(AUTHORIZATION, "${token?.type} ${token?.value}")
+        }
+
+        val requestBody = JSONObject().apply {
+            put("service", service.getString("id"))
+            put("provider", service.getString("provider"))
+        }
+
+        try {
+            NetworkBackendClient.sendJsonRequestWithCookies(
+                url = url,
+                method = "POST",
+                headers = headers,
+                body = requestBody.toString(),
+                options = RequestOptions(
+                    accessToken = token,
+                    expectedResponseCodes = NumberSequence.Array(
+                        intArrayOf(HttpURLConnection.HTTP_CREATED, HttpURLConnection.HTTP_NO_CONTENT)
+                    )
+                )
+            )
+        } catch (e: HttpRequestException) {
+            throw HttpRequestException(
+                "POST $url failed with HTTP ${e.returnCode}: ${e.message}",
+                e.returnCode
+            )
+        }
+    }
+
+    private suspend fun getWhitelistedService(asUser: ClientUser, teamId: String, serviceName: String): JSONObject {
+        val token = getAuthToken(asUser)
+        val url = URI(
+            "teams/$teamId/services/whitelisted?prefix=${Uri.encode(serviceName)}".composeCompleteUrl()
+        ).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put(AUTHORIZATION, "${token?.type} ${token?.value}")
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "GET",
+            headers = headers,
+            options = RequestOptions(accessToken = token)
+        )
+
+        val services = JSONObject(response.body).getJSONArray("services")
+        for (index in 0 until services.length()) {
+            val service = services.getJSONObject(index)
+            if (service.optString("name") == serviceName) {
+                return service
+            }
+        }
+        throw NoSuchElementException("Service '$serviceName' is not whitelisted for team '$teamId'.")
+    }
+
     fun getUserNameByID(domain: String, id: String, user: ClientUser): String {
         val token = runBlocking { getAuthToken(user) }
 
@@ -672,6 +772,81 @@ class BackendClient(
 
     fun isDevelopmentApiEnabled(user: ClientUser): Boolean {
         return getFeatureConfig("mls", user).get("status").equals("enabled")
+    }
+
+    suspend fun enableMLSFeatureTeam(
+        team: Team,
+        defaultCipherSuite: Int,
+        allowedCipherSuites: List<Int>,
+        defaultProtocol: String,
+        allowedProtocols: List<String>
+    ) {
+        val teamId = Uri.encode(team.id)
+        val url = URI("i/teams/$teamId/features/mls".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        val requestBody = JSONObject().apply {
+            put("status", "enabled")
+            put(
+                "config",
+                JSONObject().apply {
+                    put("defaultCipherSuite", defaultCipherSuite)
+                    put("allowedCipherSuites", JSONArray(allowedCipherSuites))
+                    put("defaultProtocol", defaultProtocol)
+                    put("protocolToggleUsers", JSONArray())
+                    put("supportedProtocols", JSONArray(allowedProtocols))
+                }
+            )
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PUT",
+            headers = headers,
+            body = requestBody.toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
+    suspend fun enableChannelFeatureViaBackdoorTeam(team: Team) {
+        val teamId = Uri.encode(team.id)
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = URI("i/teams/$teamId/features/channels".composeCompleteUrl()).toURL(),
+            method = "PATCH",
+            headers = headers,
+            body = JSONObject().put("status", "enabled").toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
+    suspend fun unlockChannelFeature(team: Team) {
+        val teamId = Uri.encode(team.id)
+        val url = URI("i/teams/$teamId/features/channels/unlocked".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PUT",
+            headers = headers,
+            body = JSONObject().toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
     }
 
     suspend fun unlockConferenceCallingFeature(team: Team) {
@@ -817,6 +992,15 @@ class BackendClient(
 
     suspend fun acceptAllIncomingConnectionRequests(asUser: ClientUser) {
         updateConnections(asUser, ConnectionStatus.Pending, ConnectionStatus.Accepted, null)
+    }
+
+    suspend fun acceptIncomingConnectionRequest(asUser: ClientUser, fromUser: ClientUser) {
+        updateConnections(
+            asUser,
+            ConnectionStatus.Pending,
+            ConnectionStatus.Accepted,
+            listOf(fromUser.id.orEmpty())
+        )
     }
 
     private suspend fun updateConnections(

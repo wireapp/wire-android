@@ -19,7 +19,7 @@ package com.wire.android.feature.cells.ui.model
 
 import okio.Path
 
-sealed interface OpenLoadState {
+internal sealed interface OpenLoadState {
     data class Loading(val progress: Float = 0f) : OpenLoadState
     data class Ready(val localPath: Path) : OpenLoadState
     data object Error : OpenLoadState

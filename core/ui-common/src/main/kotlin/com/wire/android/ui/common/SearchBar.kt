@@ -49,24 +49,29 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.PreviewMultipleThemes
 
+@Suppress("LongParameterList")
 @Composable
 fun SearchBarInput(
     placeholderText: String,
     leadingIcon: @Composable () -> Unit,
     textState: TextFieldState,
     modifier: Modifier = Modifier,
+    inputModifier: Modifier = Modifier,
+    clearButtonModifier: Modifier = Modifier,
     placeholderTextStyle: TextStyle = LocalTextStyle.current,
     placeholderAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = LocalTextStyle.current,
     textFieldState: WireTextFieldState = WireTextFieldState.Default,
     isLoading: Boolean = false,
+    inputEnabled: Boolean = true,
     semanticDescription: String? = null,
     onTap: (() -> Unit)? = null
 ) {
 
     WireTextField(
         modifier = modifier,
+        inputModifier = inputModifier,
         textState = textState,
         state = textFieldState,
         leadingIcon = {
@@ -95,7 +100,9 @@ fun SearchBarInput(
                         )
                     }
                     IconButton(
-                        modifier = Modifier.padding(start = dimensions().spacing12x),
+                        modifier = Modifier
+                            .padding(start = dimensions().spacing12x)
+                            .then(clearButtonModifier),
                         onClick = textState::clearText,
                     ) {
                         Icon(
@@ -112,6 +119,7 @@ fun SearchBarInput(
         placeholderAlignment = placeholderAlignment,
         placeholderText = placeholderText,
         lineLimits = TextFieldLineLimits.SingleLine,
+        enabled = inputEnabled,
         semanticDescription = semanticDescription,
         onTap = onTap,
     )

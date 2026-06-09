@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
@@ -165,23 +166,40 @@ private fun LoginEmailContent(
                         )
                 )
             }
+            val invalidCredentialsErrorText = if (loginEmailState.showInvalidCredentialsError) {
+                stringResource(R.string.login_error_invalid_credentials_message)
+            } else {
+                null
+            }
             UserIdentifierInput(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
                 userIdentifierState = userIdentifierTextState,
-                error = when (loginEmailState.flowState) {
-                    is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
-                    else -> null
-                },
-                isEnabled = loginEmailState.userIdentifierEnabled,
+                state = userIdentifierInputState(loginEmailState),
             )
             PasswordInput(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
                 passwordState = passwordTextState,
+                state = if (loginEmailState.showInvalidCredentialsError) {
+                    WireTextFieldState.Error()
+                } else {
+                    WireTextFieldState.Default
+                },
             )
+            if (loginEmailState.showInvalidCredentialsError) {
+                Text(
+                    text = invalidCredentialsErrorText.orEmpty(),
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.error,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = MaterialTheme.wireDimensions.spacing16x)
+                        .testTag("invalidCredentialsError")
+                )
+            }
             ForgotPasswordLabel(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -228,10 +246,18 @@ private fun LoginEmailContent(
 }
 
 @Composable
+private fun userIdentifierInputState(loginEmailState: LoginEmailState): WireTextFieldState = when {
+    !loginEmailState.userIdentifierEnabled -> WireTextFieldState.Disabled
+    loginEmailState.flowState is LoginState.Error.TextFieldError.InvalidValue ->
+        WireTextFieldState.Error(stringResource(R.string.login_error_invalid_user_identifier))
+    loginEmailState.showInvalidCredentialsError -> WireTextFieldState.Error()
+    else -> WireTextFieldState.Default
+}
+
+@Composable
 private fun UserIdentifierInput(
     userIdentifierState: TextFieldState,
-    error: String?,
-    isEnabled: Boolean,
+    state: WireTextFieldState,
     modifier: Modifier = Modifier,
 ) {
     WireTextField(
@@ -239,11 +265,7 @@ private fun UserIdentifierInput(
         textState = userIdentifierState,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
         labelText = stringResource(R.string.login_user_identifier_label),
-        state = when {
-            !isEnabled -> WireTextFieldState.Disabled
-            error != null -> WireTextFieldState.Error(error)
-            else -> WireTextFieldState.Default
-        },
+        state = state,
         semanticDescription = stringResource(R.string.content_description_login_user_identifier_field),
         keyboardOptions = KeyboardOptions.DefaultEmailNext,
         modifier = modifier.testTag("emailField"),
@@ -252,10 +274,11 @@ private fun UserIdentifierInput(
 }
 
 @Composable
-private fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
+private fun PasswordInput(passwordState: TextFieldState, state: WireTextFieldState, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = passwordState,
+        state = state,
         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
         onKeyboardAction = { keyboardController?.hide() },
         semanticDescription = stringResource(R.string.content_description_login_password_field),
@@ -284,6 +307,7 @@ fun ForgotPasswordLabel(
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
+                    role = Role.Button,
                     onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
                     onClickLabel = stringResource(R.string.content_description_open_link_label)
                 )

@@ -278,7 +278,7 @@ class ManagedConfigurationsReceiverTest {
         fun arrange() = this to ManagedConfigurationsReceiver(
             managedConfigurationsManager = managedConfigurationsManager,
             managedConfigurationsReporter = managedConfigurationsReporter,
-            coreLogic = { coreLogic },
+            coreLogic = lazyOf(coreLogic),
             startPersistentWebsocketIfNecessary = startPersistentWebsocketIfNecessary,
             dispatcher = dispatchers
         )

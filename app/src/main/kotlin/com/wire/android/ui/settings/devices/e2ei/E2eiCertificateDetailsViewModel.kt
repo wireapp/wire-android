@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.settings.devices.e2ei
-
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,48 +23,37 @@ import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.util.DateTimeUtil
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class E2eiCertificateDetailsViewModel @Inject constructor(
+class E2eiCertificateDetailsViewModel(
     savedStateHandle: SavedStateHandle,
     private val getSelfUser: GetSelfUserUseCase,
 ) : ViewModel() {
     private val navArgs: E2eiCertificateDetailsScreenNavArgs =
         savedStateHandle.navArgs()
-
     private var selfUserHandle: String? = null
-
     init {
         getSelfUserHandle()
     }
-
     private fun getSelfUserHandle() {
         viewModelScope.launch {
             selfUserHandle = getSelfUser()?.handle
         }
     }
-
     fun getCertificate() =
         when (navArgs.certificateDetails) {
             is E2EICertificateDetails.DuringLoginCertificateDetails ->
                 navArgs.certificateDetails.certificate
-
             is E2EICertificateDetails.AfterLoginCertificateDetails ->
                 navArgs.certificateDetails.mlsClientIdentity.x509Identity?.certificate ?: ""
         }
-
     fun userHandle() =
         when (navArgs.certificateDetails) {
             is E2EICertificateDetails.DuringLoginCertificateDetails ->
                 selfUserHandle
-
             is E2EICertificateDetails.AfterLoginCertificateDetails ->
                 navArgs.certificateDetails.mlsClientIdentity.x509Identity?.handle?.handle ?: ""
         }
-
     fun getCertificateName(): String {
         val date = DateTimeUtil.currentInstant().fileDateTime()
         return "wire-certificate-${userHandle()}-$date.txt"

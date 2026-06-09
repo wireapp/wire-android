@@ -20,13 +20,14 @@ package com.wire.android.datastore
 
 import android.content.Context
 import com.wire.kalium.logic.data.user.UserId
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 class UserDataStoreProvider @Inject constructor(@ApplicationContext private val context: Context) {
 
     private val dataStoreMap: ConcurrentMap<UserId, UserDataStore> by lazy { ConcurrentHashMap() }

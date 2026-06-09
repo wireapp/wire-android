@@ -36,18 +36,28 @@ import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
+import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
+import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.right
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
+import kotlinx.coroutines.flow.MutableStateFlow
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.mockkObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -70,6 +80,7 @@ class CellViewModelTest {
         val testFiles = listOf(
             Node.File(
                 uuid = "fileUuid",
+                conversationId = "conversationId",
                 versionId = "versionId",
                 name = "fileName",
                 mimeType = "image/png",
@@ -81,6 +92,7 @@ class CellViewModelTest {
             ),
             Node.File(
                 uuid = "fileUuid2",
+                conversationId = "conversationId",
                 versionId = "versionId2",
                 name = "fileName2",
                 mimeType = "image/png",
@@ -112,7 +124,8 @@ class CellViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        val items = viewModel.nodesFlow.asSnapshot()
+        val pagingData = viewModel.nodesFlow.first()
+        val items = flowOf(pagingData).asSnapshot()
         assertEquals(items.size, 2)
 
         coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
@@ -184,24 +197,25 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when file clicked and local file is not present and url is not openable then download starts immediately`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .withDownloadSuccess()
-            .arrange()
+    fun `given view model when file clicked and local file is not present and url is not openable then download starts immediately`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withLoadSuccess()
+                .withDownloadSuccess()
+                .arrange()
 
-        val testFile = testFiles[0].copy(
-            localPath = null,
-            contentUrl = null
-        ).toUiModel()
+            val testFile = testFiles[0].copy(
+                localPath = null,
+                contentUrl = null
+            ).toUiModel()
 
-        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
-        // Advance time so download coroutine can complete
-        advanceUntilIdle()
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
+            // Advance time so download coroutine can complete
+            advanceUntilIdle()
 
-        // Download use case was called
-        coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
-    }
+            // Download use case was called
+            coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) }
+        }
 
     @Test
     fun `given file has local path in DB when clicked with error state then file opened without re-downloading`() = runTest {
@@ -217,7 +231,7 @@ class CellViewModelTest {
         viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
         advanceUntilIdle()
 
-        coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) }
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
@@ -253,8 +267,11 @@ class CellViewModelTest {
             .toUiModel()
 
         viewModel.sendIntent(CellViewIntent.OnNodeDeleteConfirmed(testFile))
+        advanceUntilIdle()
 
-        with(viewModel.nodesFlow.asSnapshot()) {
+        // nodesFlow is hot — take the current PagingData and wrap it for asSnapshot() to terminate.
+        val pagingData = viewModel.nodesFlow.first()
+        with(flowOf(pagingData).asSnapshot()) {
             assertFalse(contains(testFile))
         }
     }
@@ -327,6 +344,24 @@ class CellViewModelTest {
         @MockK
         lateinit var getWireCellsConfig: GetWireCellConfigurationUseCase
 
+        @MockK
+        lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
+
+        @MockK
+        lateinit var deleteOfflineFile: DeleteOfflineFileUseCase
+
+        @MockK
+        lateinit var getOfflineFile: GetOfflineFileUseCase
+
+        @MockK
+        lateinit var networkStateObserver: NetworkStateObserver
+
+        @MockK
+        lateinit var getConversationNames: GetConversationNameUseCase
+
+        @MockK
+        lateinit var getUserNames: GetUserNameUseCase
+
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -340,6 +375,12 @@ class CellViewModelTest {
             every { savedStateHandle.get<String>("conversationId") } returns conversationId
 
             coEvery { isCellAvailableUseCase.invoke() } returns true.right()
+
+            every { observeOfflineFiles() } returns flowOf(emptyList())
+            coEvery { getOfflineFile(any()) } returns null
+            every { networkStateObserver.observeNetworkState() } returns MutableStateFlow(NetworkState.ConnectedWithInternet)
+            coEvery { getConversationNames(any()) } returns null
+            coEvery { getUserNames(any()) } returns null
 
             coEvery { getCellFilesPagedUseCase.invoke(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(
@@ -369,11 +410,11 @@ class CellViewModelTest {
         }
 
         fun withDownloadSuccess() = apply {
-            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any()) } returns Unit.right()
+            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()
         }
 
         fun withSlowDownloadSuccess() = apply {
-            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any()) } coAnswers {
+            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
                 delay(500) // Simulate download taking 500ms (longer than the 300ms threshold)
                 Unit.right()
             }
@@ -389,7 +430,7 @@ class CellViewModelTest {
 
         fun arrange(): Pair<Arrangement, CellViewModel> {
 
-            every { fileHelper.getCacheDir() } returns File("")
+            every { fileHelper.getExternalFilesDir() } returns File("")
             every { fileNameResolver.getUniqueFile(any(), any()) } returns File("")
 
             coEvery { getWireCellsConfig() } returns null
@@ -398,6 +439,14 @@ class CellViewModelTest {
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,
                 fileNameResolver = fileNameResolver,
+                sharedPathCache = sharedPathCache,
+            )
+
+            val offlineFileDownloadController = OfflineFileDownloadController(
+                download = downloadCellFileUseCase,
+                fileHelper = fileHelper,
+                fileNameResolver = fileNameResolver,
+                saveOfflineFile = mockk(relaxUnitFun = true),
                 sharedPathCache = sharedPathCache,
             )
 
@@ -414,6 +463,13 @@ class CellViewModelTest {
                 getWireCellsConfig = getWireCellsConfig,
                 sharedPathCache = sharedPathCache,
                 openFileDownloadController = openFileDownloadController,
+                offlineFileDownloadController = offlineFileDownloadController,
+                observeOfflineFiles = observeOfflineFiles,
+                deleteOfflineFile = deleteOfflineFile,
+                getOfflineFile = getOfflineFile,
+                networkStateObserver = networkStateObserver,
+                getConversationName = getConversationNames,
+                getUserName = getUserNames,
             )
         }
     }

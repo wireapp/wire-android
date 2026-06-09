@@ -27,7 +27,7 @@ import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class ObserveReactionsForMessageUseCase @Inject constructor(
     private val observeMessageReactions: ObserveMessageReactionsUseCase,

@@ -1,0 +1,17 @@
+New
+- Optimizations for database performance
+- Report misuse buttons in settings and connection requests
+
+Improvements
+- App startup performance
+- Accessibility
+- Conversation list behavior when navigating back
+- Loading time for integrated apps
+- Drive:
+    - Icon to show offline availability
+    - Video previews and sizing
+
+Fixes
+- Syncing issue while sharing
+- Display of disabled apps
+- Several call crashes

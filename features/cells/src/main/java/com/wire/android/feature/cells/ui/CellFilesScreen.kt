@@ -31,8 +31,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -66,6 +66,7 @@ internal fun CellFilesScreen(
     modifier: Modifier = Modifier,
     isPullToRefreshEnabled: Boolean = true,
     lazyListState: LazyListState = rememberLazyListState(),
+    showConversationName: Boolean = true,
     onItemMenuClick: (CellNodeUi) -> Unit
 ) {
     if (isPullToRefreshEnabled) {
@@ -79,6 +80,7 @@ internal fun CellFilesScreen(
                 lazyListState = lazyListState,
                 onItemClick = onItemClick,
                 onItemMenuClick = onItemMenuClick,
+                showConversationName = showConversationName,
             )
         }
     } else {
@@ -88,6 +90,7 @@ internal fun CellFilesScreen(
             lazyListState = lazyListState,
             onItemClick = onItemClick,
             onItemMenuClick = onItemMenuClick,
+            showConversationName = showConversationName,
         )
     }
 }
@@ -99,6 +102,7 @@ private fun ContentList(
     onItemClick: (CellNodeUi) -> Unit,
     onItemMenuClick: (CellNodeUi) -> Unit,
     modifier: Modifier = Modifier,
+    showConversationName: Boolean = true,
 ) {
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -118,6 +122,7 @@ private fun ContentList(
                         .background(color = colorsScheme().surface)
                         .clickable { onItemClick(item) },
                     cell = item,
+                    showConversationName = showConversationName,
                     onMenuClick = { onItemMenuClick(item) }
                 )
                 WireDivider(modifier = Modifier.fillMaxWidth())

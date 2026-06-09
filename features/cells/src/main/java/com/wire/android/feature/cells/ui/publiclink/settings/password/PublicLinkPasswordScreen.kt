@@ -44,7 +44,7 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.feature.cells.ui.publicLinkPasswordScreenViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
@@ -69,7 +69,7 @@ import com.wire.android.ui.theme.WireTheme
 internal fun PublicLinkPasswordScreen(
     resultNavigator: ResultBackNavigator<Boolean>,
     modifier: Modifier = Modifier,
-    viewModel: PublicLinkPasswordScreenViewModel = hiltViewModel(),
+    viewModel: PublicLinkPasswordScreenViewModel = publicLinkPasswordScreenViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
     val clipboardManager = LocalClipboardManager.current

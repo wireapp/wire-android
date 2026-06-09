@@ -35,11 +35,8 @@ import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
+import com.wire.kalium.logic.feature.service.SyncServicesUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -51,10 +48,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = SearchAppsViewModel.Factory::class)
-class SearchAppsViewModel @AssistedInject constructor(
-    @Assisted val protocolInfo: Conversation.ProtocolInfo?,
+class SearchAppsViewModel(
+    private val protocolInfo: Conversation.ProtocolInfo?,
     private val getAllServices: ObserveAllServicesUseCase,
+    private val syncServices: SyncServicesUseCase,
     private val getAllApps: ObserveAllAppsUseCase,
     private val contactMapper: ContactMapper,
     private val searchServicesByName: SearchServicesByNameUseCase,
@@ -63,6 +60,7 @@ class SearchAppsViewModel @AssistedInject constructor(
     private val observeSelfUser: ObserveSelfUserUseCase
 ) : ViewModel() {
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
+    private var servicesSynced = false
     var state: SearchServicesState by mutableStateOf(SearchServicesState(isLoading = true))
         private set
 
@@ -113,6 +111,10 @@ class SearchAppsViewModel @AssistedInject constructor(
             val result = if (showNewApps) {
                 if (query.isEmpty()) getAllApps() else searchAppsByName(query)
             } else {
+                if (!servicesSynced) {
+                    servicesSynced = true
+                    launch { syncServices() }
+                }
                 if (query.isEmpty()) getAllServices() else searchServicesByName(query)
             }
 
@@ -122,11 +124,6 @@ class SearchAppsViewModel @AssistedInject constructor(
                 result = result.first().map(contactMapper::fromService).toImmutableList()
             )
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel
     }
 }
 

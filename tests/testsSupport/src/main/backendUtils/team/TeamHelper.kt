@@ -27,6 +27,37 @@ import user.utils.ClientUser
 class TeamHelper {
     val usersManager: ClientUserManager = ClientUserManager(useSpecialEmail = false)
 
+    fun userConfiguresMLSForTeam(
+        ownerUserAlias: String,
+        teamName: String,
+        backendClient: BackendClient
+    ) {
+        val owner = toClientUser(ownerUserAlias)
+        runBlocking {
+            val team = backendClient.getTeamByName(owner, teamName)
+            backendClient.enableMLSFeatureTeam(
+                team = team,
+                defaultCipherSuite = 2,
+                allowedCipherSuites = listOf(2),
+                defaultProtocol = "mls",
+                allowedProtocols = listOf("mls", "proteus")
+            )
+        }
+    }
+
+    fun userEnablesChannelFeatureForTeam(
+        ownerUserAlias: String,
+        teamName: String,
+        backendClient: BackendClient
+    ) {
+        val owner = toClientUser(ownerUserAlias)
+        runBlocking {
+            val team = backendClient.getTeamByName(owner, teamName)
+            backendClient.unlockChannelFeature(team)
+            backendClient.enableChannelFeatureViaBackdoorTeam(team)
+        }
+    }
+
     @Suppress("LongParameterList", "TooGenericExceptionThrown")
     fun userXAddsUsersToTeam(
         ownerNameAlias: String,

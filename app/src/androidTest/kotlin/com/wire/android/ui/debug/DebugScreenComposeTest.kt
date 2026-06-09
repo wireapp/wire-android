@@ -43,6 +43,8 @@ class DebugScreenComposeTest {
                         onShowFeatureFlags = {},
                         onShowCryptoStats = {},
                         onFlushLogs = { CompletableDeferred(Unit) },
+                        debugDataOptionsViewModel = object : DebugDataOptionsViewModel {},
+                        exportObfuscatedCopyViewModel = object : ExportObfuscatedCopyViewModel {},
                     )
             }
         }

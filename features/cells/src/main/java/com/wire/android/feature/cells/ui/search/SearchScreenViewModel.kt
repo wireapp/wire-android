@@ -29,7 +29,7 @@ import com.ramcosta.composedestinations.generated.cells.destinations.SearchScree
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
-import com.wire.android.feature.cells.ui.model.withOpenLoadState
+import com.wire.android.feature.cells.ui.model.withSessionState
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
@@ -48,10 +48,10 @@ import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetPaginatedCellConversationsFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.UserAssetId
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,19 +65,18 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 private const val SEARCH_DEBOUNCE_MILLIS = 200L
 
 @Suppress("TooManyFunctions")
-@HiltViewModel
-class SearchScreenViewModel @Inject constructor(
+class SearchScreenViewModel(
     val savedStateHandle: SavedStateHandle,
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val getOwners: GetOwnersUseCase,
     private val getPaginatedConversations: GetPaginatedCellConversationsFlowUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
+    private val observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel() {
 
     private data class SearchParams(
@@ -178,10 +177,17 @@ class SearchScreenViewModel @Inject constructor(
                 }
             }.cachedIn(viewModelScope),
             sharedPathCache.openLoadStates,
-        ) { pagingData, states ->
+            sharedPathCache.downloadProgresses,
+            observeOfflineFiles(),
+        ) { pagingData, openLoadStates, downloadProgresses, offlineFiles ->
+            val offlineUuids = offlineFiles.map { it.id }.toSet()
             pagingData.map { node ->
                 if (node is CellNodeUi.File) {
-                    node.withOpenLoadState(states[node.uuid])
+                    node.withSessionState(
+                        openLoadState = openLoadStates[node.uuid],
+                        downloadProgress = downloadProgresses[node.uuid],
+                        isAvailableOffline = node.uuid in offlineUuids,
+                    )
                 } else {
                     node
                 }

@@ -26,7 +26,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseC
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class ObserveConversationMembersByTypesUseCase @Inject constructor(
     private val observeConversationMembers: ObserveConversationMembersUseCase,

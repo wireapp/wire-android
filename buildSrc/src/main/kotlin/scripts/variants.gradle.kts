@@ -99,6 +99,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
+            isProfileable = true
             signingConfig = if (enableSigning) {
                 signingConfigs.getByName("release")
             } else {
@@ -119,6 +120,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
+            isProfileable = true
             matchingFallbacks.add("release")
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("compatrelease")
@@ -128,6 +130,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
+            isProfileable = true
             matchingFallbacks.add("release")
             signingConfig = signingConfigs.getByName("debug")
         }

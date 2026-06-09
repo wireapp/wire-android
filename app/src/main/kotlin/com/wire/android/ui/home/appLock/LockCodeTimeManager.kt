@@ -23,6 +23,7 @@ import com.wire.android.di.ApplicationScope
 import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.CurrentTimeProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -37,8 +38,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 /**
  * AppLockManager provides a mechanism to determine if the app should be locked based on configuration and screen state.
@@ -49,13 +51,13 @@ import javax.inject.Singleton
  *   - false if brought back to the foreground before the delay.
  */
 
-@Singleton
+@SingleIn(AppScope::class)
 class LockCodeTimeManager @Inject constructor(
     @ApplicationScope private val appCoroutineScope: CoroutineScope,
     currentScreenManager: CurrentScreenManager,
     observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
     globalDataStore: GlobalDataStore,
-    currentTimestamp: CurrentTimestampProvider,
+    currentTime: CurrentTimeProvider,
 ) {
 
     private var isLockedFlow: MutableStateFlow<Boolean>
@@ -82,7 +84,7 @@ class LockCodeTimeManager @Inject constructor(
                         !isInForeground && !isLockedFlow.value && appLockConfig is AppLockConfig.Enabled -> flow {
                             appLogger.i("$TAG lock is enabled and app in the background, lock count started")
                             if (lockTimeoutStarted == null) {
-                                lockTimeoutStarted = currentTimestamp()
+                                lockTimeoutStarted = currentTime().toEpochMilliseconds()
                             }
                             delay(appLockConfig.timeout.inWholeMilliseconds)
                             appLogger.i("$TAG lock count ended while app in the background, app state should be locked")
@@ -91,7 +93,7 @@ class LockCodeTimeManager @Inject constructor(
 
                         isInForeground && !isLockedFlow.value && appLockConfig is AppLockConfig.Enabled -> flow {
                             if (lockTimeoutStarted != null
-                                && (lockTimeoutStarted!! + appLockConfig.timeout.inWholeMilliseconds) < currentTimestamp()
+                                && (lockTimeoutStarted!! + appLockConfig.timeout.inWholeMilliseconds) < currentTime().toEpochMilliseconds()
                             ) {
                                 appLogger.i("$TAG app put into foreground and lock count ended, app state should be locked")
                                 emit(true)
@@ -127,5 +129,3 @@ class LockCodeTimeManager @Inject constructor(
         private const val TAG = "LockCodeTimeManager"
     }
 }
-
-typealias CurrentTimestampProvider = () -> Long

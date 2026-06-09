@@ -28,12 +28,9 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-open class GroupConversationParticipantsViewModel @Inject constructor(
+open class GroupConversationParticipantsViewModel(
     savedStateHandle: SavedStateHandle,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,

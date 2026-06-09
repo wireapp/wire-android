@@ -55,6 +55,7 @@ import kotlin.math.ceil
 fun WireCenterAlignedTopAppBar(
     title: String,
     modifier: Modifier = Modifier,
+    navigationIconModifier: Modifier = Modifier,
     titleStyle: TextStyle = MaterialTheme.wireTypography.title01,
     maxLines: Int = 2,
     subtitleContent: @Composable ColumnScope.() -> Unit = {},
@@ -77,6 +78,7 @@ fun WireCenterAlignedTopAppBar(
         subtitleContent = subtitleContent,
         onNavigationPressed = onNavigationPressed,
         navigationIconType = navigationIconType,
+        navigationIconModifier = navigationIconModifier,
         elevation = elevation,
         actions = actions,
         modifier = modifier,
@@ -89,6 +91,7 @@ fun WireCenterAlignedTopAppBar(
 fun WireCenterAlignedTopAppBar(
     titleContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
+    navigationIconModifier: Modifier = Modifier,
     subtitleContent: @Composable ColumnScope.() -> Unit = {},
     onNavigationPressed: () -> Unit = {},
     navigationIconType: NavigationIconType? = NavigationIconType.Back(),
@@ -109,7 +112,15 @@ fun WireCenterAlignedTopAppBar(
                         subtitleContent()
                     }
                 },
-                navigationIcon = { navigationIconType?.let { NavigationIconButton(iconType = it, onClick = onNavigationPressed) } },
+                navigationIcon = {
+                    navigationIconType?.let {
+                        NavigationIconButton(
+                            iconType = it,
+                            onClick = onNavigationPressed,
+                            modifier = navigationIconModifier
+                        )
+                    }
+                },
                 colors = wireTopAppBarColors(),
                 actions = actions,
                 modifier = Modifier

@@ -35,6 +35,9 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     private val unblockUserButton = UiSelectorParams(text = "Unblock User")
     private val blockButtonAlert = UiSelectorParams(text = "Block")
+    private val participantRemoveFromConversationButton = UiSelectorParams(textContains = "Remove from conversation")
+
+    private val removeConversationButtonOnModal = UiSelectorParams(text = "Remove")
 
     private val closeButton = UiSelectorParams(
         className = "android.view.View",
@@ -103,6 +106,26 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         } catch (e: AssertionError) {
             throw AssertionError("Unblock User button is not visible", e)
         }
+        return this
+    }
+
+    fun tapRemoveFromConversationButtonForParticipant(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(participantRemoveFromConversationButton).click()
+        return this
+    }
+
+    fun assertRemoveFromConversationButtonForParticipant(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(participantRemoveFromConversationButton)
+        return this
+    }
+
+    fun tapRemoveConversationButtonOnModal(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(removeConversationButtonOnModal).click()
+        return this
+    }
+
+    fun assetRemoveConversationButtonOnModal(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(removeConversationButtonOnModal)
         return this
     }
 }

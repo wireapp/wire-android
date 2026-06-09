@@ -20,11 +20,12 @@ package com.wire.android.util.lifecycle
 import com.ionspin.kotlin.crypto.signature.Signature
 import com.wire.android.BuildConfig
 import com.wire.kalium.cryptography.LibsodiumInitializer
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 import kotlin.io.encoding.Base64
 
-@Singleton
+@SingleIn(AppScope::class)
 class NomadIntentSignatureValidator internal constructor(
     private val configurationSignatureKeys: Map<String, String>,
     private val isConfigurationSignatureEnforced: Boolean

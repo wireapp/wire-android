@@ -20,6 +20,7 @@ package com.wire.android.feature.meetings.model
 import kotlinx.datetime.Instant
 
 sealed interface MeetingHeader : MeetingListItem {
+    data class Day(val time: Instant) : MeetingHeader
     data class DayAndHour(val time: Instant) : MeetingHeader
     data class Hour(val time: Instant) : MeetingHeader
     data object Ongoing : MeetingHeader

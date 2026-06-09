@@ -30,15 +30,12 @@ import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class PublicLinkViewModel @Inject constructor(
+class PublicLinkViewModel(
     val savedStateHandle: SavedStateHandle,
     private val createPublicLink: CreatePublicLinkUseCase,
     private val getPublicLinkUseCase: GetPublicLinkUseCase,

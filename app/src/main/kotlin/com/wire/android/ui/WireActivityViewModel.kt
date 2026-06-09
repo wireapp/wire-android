@@ -91,8 +91,6 @@ import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
-import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -112,17 +110,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.InputStreamReader
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 private const val AUTOMATED_NOMAD_COOKIE_LABEL = "shared-device"
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel
 class WireActivityViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     private val dispatchers: DispatcherProvider,
-    currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
+    private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
     private val doesValidSessionExist: Lazy<DoesValidSessionExistUseCase>,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>,
     private val deepLinkProcessor: Lazy<DeepLinkProcessor>,
@@ -157,7 +154,7 @@ class WireActivityViewModel @Inject constructor(
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
-    private val observeCurrentAccountInfo: SharedFlow<AccountInfo?> = currentSessionFlow.get().invoke()
+    private val observeCurrentAccountInfo: SharedFlow<AccountInfo?> = currentSessionFlow.value.invoke()
         .map { (it as? CurrentSessionResult.Success)?.accountInfo }
         .distinctUntilChanged()
         .flowOn(dispatchers.io())
@@ -178,6 +175,7 @@ class WireActivityViewModel @Inject constructor(
         observeUpdateAppState()
         observeNewClientState()
         observeScreenshotCensoringConfigState()
+        observeCurrentValidUserState()
         observeAppThemeState()
         observeSelectedAccent()
         observeLogoutState()
@@ -185,14 +183,13 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) { monitorSyncWorkUseCase() }
     }
 
-    private suspend fun shouldEnrollToE2ei(): Boolean = observeCurrentValidUserId.first()?.let {
-        observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(it)
+    private suspend fun shouldEnrollToE2ei(userId: UserId): Boolean =
+        observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(userId)
             .observeIfE2EIIsRequiredDuringLogin().first() ?: false
-    } ?: false
 
     private fun observeAppThemeState() {
         viewModelScope.launch(dispatchers.io()) {
-            globalDataStore.get().selectedThemeOptionFlow()
+            globalDataStore.value.selectedThemeOptionFlow()
                 .distinctUntilChanged()
                 .collect {
                     globalAppState = globalAppState.copy(themeOption = it)
@@ -232,6 +229,14 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    private fun observeCurrentValidUserState() {
+        viewModelScope.launch(dispatchers.io()) {
+            observeCurrentValidUserId.collectLatest {
+                globalAppState = globalAppState.copy(currentUserId = it)
+            }
+        }
+    }
+
     private fun observeLogoutState() {
         viewModelScope.launch(dispatchers.io()) {
             observeCurrentAccountInfo
@@ -251,7 +256,7 @@ class WireActivityViewModel @Inject constructor(
 
     private fun observeUpdateAppState() {
         viewModelScope.launch(dispatchers.io()) {
-            observeIfAppUpdateRequired.get().invoke(BuildConfig.VERSION_CODE)
+            observeIfAppUpdateRequired.value.invoke(BuildConfig.VERSION_CODE)
                 .distinctUntilChanged()
                 .collect {
                     globalAppState = globalAppState.copy(updateAppDialog = it)
@@ -261,10 +266,10 @@ class WireActivityViewModel @Inject constructor(
 
     private fun observeNewClientState() {
         viewModelScope.launch(dispatchers.io()) {
-            currentScreenManager.get().observeCurrentScreen(this)
+            currentScreenManager.value.observeCurrentScreen(this)
                 .flatMapLatest {
                     if (it.isGlobalDialogAllowed()) {
-                        observeNewClients.get().invoke()
+                        observeNewClients.value.invoke()
                     } else {
                         flowOf(NewClientResult.Empty)
                     }
@@ -294,7 +299,7 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private suspend fun validSessionsFlow() = observeSessions.get().invoke()
+    private suspend fun validSessionsFlow() = observeSessions.value.invoke()
         .map { (it as? GetAllSessionsResult.Success)?.sessions ?: emptyList() }
 
     @VisibleForTesting
@@ -306,9 +311,13 @@ class WireActivityViewModel @Inject constructor(
 
     suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
         initValidSessionsFlowIfNeeded()
+        val currentValidUserId = currentValidUserId()
+        withContext(dispatchers.main()) {
+            globalAppState = globalAppState.copy(currentUserId = currentValidUserId)
+        }
         when {
-            shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
-            shouldEnrollToE2ei() -> InitialAppState.ENROLL_E2EI
+            currentValidUserId == null -> InitialAppState.NOT_LOGGED_IN
+            shouldEnrollToE2ei(currentValidUserId) -> InitialAppState.ENROLL_E2EI
             else -> InitialAppState.LOGGED_IN
         }
     }
@@ -339,11 +348,11 @@ class WireActivityViewModel @Inject constructor(
         data: InputStream
     ) {
         viewModelScope.launch(dispatchers.io()) {
-            when (val currentSession = coreLogic.get().getGlobalScope().session.currentSession()) {
+            when (val currentSession = coreLogic.value.getGlobalScope().session.currentSession()) {
                 is CurrentSessionResult.Failure.Generic -> null
                 CurrentSessionResult.Failure.SessionNotFound -> null
                 is CurrentSessionResult.Success -> {
-                    coreLogic.get().sessionScope(currentSession.accountInfo.userId) {
+                    coreLogic.value.sessionScope(currentSession.accountInfo.userId) {
                         when (val result = debug.synchronizeExternalData(InputStreamReader(data).readText())) {
                             is SynchronizeExternalDataResult.Success -> {
                                 appLogger.d("Synchronized external data")
@@ -362,7 +371,7 @@ class WireActivityViewModel @Inject constructor(
     @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
         viewModelScope.launch(dispatchers.io()) {
-            when (val result = deepLinkProcessor.get().invoke(intent?.data, intent?.action)) {
+            when (val result = deepLinkProcessor.value.invoke(intent?.data, intent?.action)) {
                 DeepLinkResult.AuthorizationNeeded -> sendAction(OnAuthorizationNeeded)
                 is DeepLinkResult.SSOLogin -> sendAction(OnSSOLogin(result))
                 is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result.url, result.loginType)
@@ -392,7 +401,7 @@ class WireActivityViewModel @Inject constructor(
     // Returns whether an intent was handled, or if there was nothing to do
     @Suppress("ReturnCount")
     suspend fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
-        val result = intentsProcessor.get().invoke(intent)
+        val result = intentsProcessor.value.invoke(intent)
         if (result != null) {
             if (!nomadProfilesFeatureConfig.isEnabled()) {
                 appLogger.w("Nomad login ignored: local Nomad profiles flag is disabled")
@@ -418,7 +427,7 @@ class WireActivityViewModel @Inject constructor(
                 initValidSessionsFlowIfNeeded()
                 if (validSessions.value.filterIsInstance<AccountInfo.Valid>().isNotEmpty()) {
 					appLogger.w("Nomad login blocked: a non-nomad session already exists")
-                    if (!doesValidNomadAccountExist.get().invoke()) {
+                    if (!doesValidNomadAccountExist.value.invoke()) {
                         sendAction(ShowToast(R.string.nomad_login_blocked_message))
                     }
 					return@launch
@@ -464,7 +473,7 @@ class WireActivityViewModel @Inject constructor(
             return false
         }
 
-        return when (val authScopeResult = coreLogic.get().versionedAuthenticationScope(serverLinks).invoke(null)) {
+        return when (val authScopeResult = coreLogic.value.versionedAuthenticationScope(serverLinks).invoke(null)) {
             is AutoVersionAuthScopeUseCase.Result.Failure -> {
                 appLogger.w("Nomad login ignored: failed to create auth scope for backend ${serverLinks.api}")
                 false
@@ -515,16 +524,16 @@ class WireActivityViewModel @Inject constructor(
         switchAccountActions: SwitchAccountActions
     ) {
         viewModelScope.launch {
-            coreLogic.get().getGlobalScope().session.currentSession().takeIf {
+            coreLogic.value.getGlobalScope().session.currentSession().takeIf {
                 it is CurrentSessionResult.Success
             }?.let {
                 val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
-                coreLogic.get().getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
+                coreLogic.value.getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
                 clearUserData(currentUserId)
             }
-            accountSwitch.get().invoke(SwitchAccountParam.TryToSwitchToNextAccount).also {
+            accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount).also {
                 if (it == SwitchAccountResult.NoOtherAccountToSwitch) {
-                    globalDataStore.get().clearAppLockPasscode()
+                    globalDataStore.value.clearAppLockPasscode()
                 }
             }.callAction(switchAccountActions)
         }
@@ -533,9 +542,9 @@ class WireActivityViewModel @Inject constructor(
     fun dismissNewClientsDialog(userId: UserId) {
         globalAppState = globalAppState.copy(newClientDialog = null)
         viewModelScope.launch {
-            doesValidSessionExist.get().invoke(userId).let {
+            doesValidSessionExist.value.invoke(userId).let {
                 if (it is DoesValidSessionExistResult.Success && it.doesValidSessionExist) {
-                    clearNewClientsForUser.get().invoke(userId)
+                    clearNewClientsForUser.value.invoke(userId)
                 }
             }
         }
@@ -543,7 +552,7 @@ class WireActivityViewModel @Inject constructor(
 
     fun switchAccount(userId: UserId, actions: SwitchAccountActions, onComplete: () -> Unit) {
         viewModelScope.launch {
-            accountSwitch.get().invoke(SwitchAccountParam.SwitchToAccount(userId))
+            accountSwitch.value.invoke(SwitchAccountParam.SwitchToAccount(userId))
                 .callAction(actions)
             onComplete()
         }
@@ -552,7 +561,7 @@ class WireActivityViewModel @Inject constructor(
     fun tryToSwitchAccount(actions: SwitchAccountActions) {
         viewModelScope.launch {
             globalAppState = globalAppState.copy(blockUserUI = null)
-            accountSwitch.get().invoke(SwitchAccountParam.TryToSwitchToNextAccount)
+            accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
                 .callAction(actions)
         }
     }
@@ -571,7 +580,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private suspend fun loadServerConfig(url: String): ServerConfig.Links? =
-        when (val result = getServerConfigUseCase.get().invoke(url)) {
+        when (val result = getServerConfigUseCase.value.invoke(url)) {
             is GetServerConfigResult.Success -> result.serverConfigLinks
             is GetServerConfigResult.Failure.Generic -> {
                 appLogger.e("something went wrong during handling the custom server deep link: ${result.genericFailure}")
@@ -605,11 +614,11 @@ class WireActivityViewModel @Inject constructor(
         key: String,
         domain: String?,
         onSuccess: (ConversationId) -> Unit
-    ) = when (val currentSession = coreLogic.get().getGlobalScope().session.currentSession()) {
+    ) = when (val currentSession = coreLogic.value.getGlobalScope().session.currentSession()) {
         is CurrentSessionResult.Failure.Generic -> null
         CurrentSessionResult.Failure.SessionNotFound -> null
         is CurrentSessionResult.Success -> {
-            coreLogic.get().sessionScope(currentSession.accountInfo.userId) {
+            coreLogic.value.sessionScope(currentSession.accountInfo.userId) {
                 when (val result = conversations.checkIConversationInviteCode(code, key, domain)) {
                     is CheckConversationInviteCodeUseCase.Result.Success -> {
                         if (result.isSelfMember) {
@@ -644,7 +653,11 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
     }
 
-    private suspend fun shouldLogIn(): Boolean = observeCurrentValidUserId.first() == null
+    private suspend fun currentValidUserId(): UserId? =
+        (coreLogic.value.getGlobalScope().session.currentSession() as? CurrentSessionResult.Success)
+            ?.accountInfo
+            ?.takeIf { it.isValid() }
+            ?.userId
 
     fun dismissMaxAccountDialog() {
         globalAppState = globalAppState.copy(maxAccountDialog = false)
@@ -655,14 +668,14 @@ class WireActivityViewModel @Inject constructor(
             val wasEnforced = managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value
             val isEnforced = managedConfigurationsManager.refreshPersistentWebSocketConfig()
             if (!wasEnforced && isEnforced) {
-                coreLogic.get().getGlobalScope().setAllPersistentWebSocketEnabled(true)
+                coreLogic.value.getGlobalScope().setAllPersistentWebSocketEnabled(true)
             }
         }
     }
 
     fun observePersistentConnectionStatus() {
         viewModelScope.launch {
-            coreLogic.get().getGlobalScope().observePersistentWebSocketConnectionStatus()
+            coreLogic.value.getGlobalScope().observePersistentWebSocketConnectionStatus()
                 .let { result ->
                     when (result) {
                         is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
@@ -677,13 +690,13 @@ class WireActivityViewModel @Inject constructor(
                                 mdmEnforced || statuses.any { it.isPersistentWebSocketEnabled }
                             }.collect { shouldBeRunning ->
                                 if (shouldBeRunning) {
-                                    if (!servicesManager.get().isPersistentWebSocketServiceRunning()) {
-                                        servicesManager.get().startPersistentWebSocketService()
-                                        workManager.get().enqueuePeriodicPersistentWebsocketCheckWorker()
+                                    if (!servicesManager.value.isPersistentWebSocketServiceRunning()) {
+                                        servicesManager.value.startPersistentWebSocketService()
+                                        workManager.value.enqueuePeriodicPersistentWebsocketCheckWorker()
                                     }
                                 } else {
-                                    servicesManager.get().stopPersistentWebSocketService()
-                                    workManager.get().cancelPeriodicPersistentWebsocketCheckWorker()
+                                    servicesManager.value.stopPersistentWebSocketService()
+                                    workManager.value.cancelPeriodicPersistentWebsocketCheckWorker()
                                 }
                             }
                         }
@@ -706,7 +719,7 @@ class WireActivityViewModel @Inject constructor(
      * Reset any unfinished registration process analytics where the user aborted and enabled the registration analytics.
      */
     private fun resetNewRegistrationAnalyticsState() = viewModelScope.launch {
-        globalDataStore.get().setAnonymousRegistrationEnabled(false)
+        globalDataStore.value.setAnonymousRegistrationEnabled(false)
     }
 
     private fun CurrentScreen.isGlobalDialogAllowed(): Boolean = when (this) {
@@ -775,6 +788,7 @@ data class NewClientInfo(val date: String, val deviceInfo: UIText) {
 }
 
 data class GlobalAppState(
+    val currentUserId: UserId? = null,
     val customBackendDialog: CustomServerDialogState? = null,
     val maxAccountDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,

@@ -42,7 +42,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -66,6 +65,8 @@ import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryS
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialog
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
+import com.wire.android.ui.home.conversations.conversationAssetMessagesViewModel
+import com.wire.android.ui.home.conversations.conversationMessagesViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
@@ -87,8 +88,8 @@ import kotlinx.serialization.Serializable
 @Composable
 fun ConversationMediaScreen(
     navigator: Navigator,
-    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = hiltViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel()
+    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = conversationAssetMessagesViewModel(),
+    conversationMessagesViewModel: ConversationMessagesViewModel = conversationMessagesViewModel()
 ) {
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val context = LocalContext.current

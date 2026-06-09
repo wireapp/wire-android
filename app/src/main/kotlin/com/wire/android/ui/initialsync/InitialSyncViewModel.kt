@@ -32,15 +32,12 @@ import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class InitialSyncViewModel @Inject constructor(
+class InitialSyncViewModel(
     private val observeSyncState: ObserveSyncStateUseCase,
     private val userDataStoreProvider: UserDataStoreProvider,
     @CurrentAccount private val userId: UserId,

@@ -39,9 +39,10 @@ def list_attempt_device_dirs(base_dir: Path) -> list[tuple[int, Path]]:
         src_dir = src_candidate if src_candidate.is_dir() else device_dir
         return src_dir.is_dir() and any(src_dir.glob("*-result.json"))
 
-    # Discover retry-aware layout first: OUT_DIR/attempt-N/<serial>/...
+    # Discover retry-aware layout first. Upgrade runs can keep phase results
+    # under OUT_DIR/<phase>/attempt-N/<serial>/..., so search recursively.
     attempt_dirs = []
-    for candidate in sorted(base_dir.iterdir()):
+    for candidate in sorted(base_dir.rglob("attempt-*")):
         if not candidate.is_dir():
             continue
         if not candidate.name.startswith("attempt-"):

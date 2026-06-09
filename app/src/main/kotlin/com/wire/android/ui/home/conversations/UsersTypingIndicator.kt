@@ -49,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.avatar.UserProfileAvatarsRow
@@ -58,7 +57,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorArgs
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModel
-import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModelImpl
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
@@ -74,14 +72,7 @@ private const val ANIMATION_SPEED_MILLIS = 1_500
 fun UsersTypingIndicatorForConversation(
     conversationId: ConversationId,
     viewModel: TypingIndicatorViewModel =
-        hiltViewModelScoped<
-                TypingIndicatorViewModelImpl,
-                TypingIndicatorViewModel,
-                TypingIndicatorArgs,
-                TypingIndicatorViewModelImpl.Factory
-                >(
-        TypingIndicatorArgs(conversationId)
-                )
+        typingIndicatorViewModel(TypingIndicatorArgs(conversationId))
 ) {
     UsersTypingIndicator(usersTyping = viewModel.state().usersTyping)
 }

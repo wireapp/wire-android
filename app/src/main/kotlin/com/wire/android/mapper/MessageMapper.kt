@@ -27,6 +27,7 @@ import com.wire.android.ui.home.conversations.model.MessageEditStatus
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
+import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
@@ -46,7 +47,8 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import javax.inject.Inject
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
+import dev.zacsweers.metro.Inject
 
 class MessageMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
@@ -165,7 +167,14 @@ class MessageMapper @Inject constructor(
         },
         clientId = (message as? Message.Sendable)?.senderClientId,
         accent = Accent.fromAccentId(sender?.accentId),
-        guestExpiresAt = sender?.expiresAt
+        guestExpiresAt = sender?.expiresAt,
+        senderId = when {
+            (sender as? OtherUser)?.botService != null -> MessageSenderId.Bot(sender.botService!!)
+            sender?.userType == UserTypeInfo.App -> MessageSenderId.App(sender.id)
+            else -> sender?.id?.let {
+                MessageSenderId.User(it.toString())
+            }
+        }
     )
 
     private fun getMessageStatus(message: Message.Standalone): MessageStatus {

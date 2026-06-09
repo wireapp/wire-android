@@ -10,7 +10,7 @@
 #   docker run --rm android-agent:latest ldd --version | head -1
 #   # Should show: GLIBC 2.39
 
-FROM eclipse-temurin:17-jdk-noble
+FROM eclipse-temurin:21-jdk-noble
 
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \

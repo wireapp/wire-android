@@ -28,6 +28,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         with(pluginManager) {
             apply("com.android.library")
+            apply("dev.zacsweers.metro")
         }
 
         extensions.configure<LibraryExtension> {

@@ -23,10 +23,11 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withTimeoutOrNull
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 class ShouldStartPersistentWebSocketServiceUseCase @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val managedConfigurationsManager: ManagedConfigurationsManager

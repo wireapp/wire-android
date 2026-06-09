@@ -47,7 +47,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.feature.cells.ui.addRemoveTagsViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.WireNavigator
@@ -78,7 +78,7 @@ import kotlinx.coroutines.launch
 fun AddRemoveTagsScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    addRemoveTagsViewModel: AddRemoveTagsViewModel = hiltViewModel(),
+    addRemoveTagsViewModel: AddRemoveTagsViewModel = addRemoveTagsViewModel(),
 ) {
     val context = LocalContext.current
 

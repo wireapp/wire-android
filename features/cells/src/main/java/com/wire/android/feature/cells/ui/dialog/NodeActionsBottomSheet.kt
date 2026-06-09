@@ -136,6 +136,7 @@ private fun PreviewFileActionsBottomSheet() {
             menuOptions = MenuOptions(
                 node = CellNodeUi.File(
                     uuid = "",
+                    conversationId = "conversationId",
                     name = "test file.pdf",
                     mimeType = "application/pdf",
                     assetType = AttachmentFileType.PDF,

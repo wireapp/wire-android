@@ -45,7 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.home.conversations.quotedMultipartMessageViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -75,7 +75,7 @@ fun QuotedMultipartMessage(
     accent: Accent,
     clickable: Clickable?,
     modifier: Modifier = Modifier,
-    viewModel: QuotedMultipartMessageViewModel = hiltViewModel(key = conversationId.toString()),
+    viewModel: QuotedMultipartMessageViewModel = quotedMultipartMessageViewModel(conversationId.toString()),
     startContent: @Composable () -> Unit = {}
 ) {
 

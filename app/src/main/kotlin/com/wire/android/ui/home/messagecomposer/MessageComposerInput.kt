@@ -55,7 +55,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.atMost
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -65,9 +64,9 @@ import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
+import com.wire.android.ui.home.conversations.selfDeletingMessageActionViewModel
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModel
-import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelImpl
 import com.wire.android.ui.home.messagecomposer.attachments.AdditionalOptionButton
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.InputType
@@ -184,14 +183,7 @@ private fun InputContent(
     onPlusClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SelfDeletingMessageActionViewModel =
-        hiltViewModelScoped<
-                SelfDeletingMessageActionViewModelImpl,
-                SelfDeletingMessageActionViewModel,
-                SelfDeletingMessageActionArgs,
-                SelfDeletingMessageActionViewModelImpl.Factory
-                >(
-            SelfDeletingMessageActionArgs(conversationId = conversationId)
-        ),
+        selfDeletingMessageActionViewModel(SelfDeletingMessageActionArgs(conversationId = conversationId)),
 ) {
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()

@@ -32,6 +32,7 @@ import kotlinx.coroutines.test.runTest
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.assertions.shouldBeInstanceOf
 import com.wire.android.util.ui.UiTextResolver
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -147,6 +148,22 @@ class MessagePreviewContentMapperTest {
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.DynamicString>()
 
         result.value shouldBeEqualTo lastMessage
+    }
+
+    @Test
+    fun givenLastTextMessageContainsMarkdown_whenMappingToUIPreview_thenMarkdownShouldNotBeParsed() = runTest {
+        val lastMessage = "**hello**"
+        val messagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.Text("admin", lastMessage),
+        )
+
+        val senderWithMessage = messagePreview.toUIPreview(emptyMap(), uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val result = senderWithMessage.message.shouldBeInstanceOf<UIText.DynamicString>()
+
+        result.value shouldBeEqualTo lastMessage
+        assertNull(senderWithMessage.markdownPreview)
+        assertNull(senderWithMessage.markdownLocaleTag)
     }
 
     @Test

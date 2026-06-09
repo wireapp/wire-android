@@ -35,8 +35,7 @@ import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.message.GetNextAudioMessageInConversationUseCase
 import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import dagger.Lazy
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.channels.BufferOverflow
@@ -58,10 +57,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 @Suppress("TooManyFunctions")
 class ConversationAudioMessagePlayer
 @Inject constructor(
@@ -255,7 +255,7 @@ class ConversationAudioMessagePlayer
 
     suspend fun forceToStopCurrentAudioMessage() {
         stopCurrentAudioMessage()
-        servicesManager.get().stopPlayingAudioMessageService()
+        servicesManager.value.stopPlayingAudioMessageService()
         audioFocusHelper.abandon()
     }
 
@@ -311,7 +311,7 @@ class ConversationAudioMessagePlayer
                         )
                     )
 
-                    servicesManager.get().startPlayingAudioMessageService()
+                    servicesManager.value.startPlayingAudioMessageService()
 
                     audioMessageStateUpdate.emit(
                         AudioMediaPlayerStateUpdate.TotalTimeUpdate(conversationId, messageId, audioMediaPlayer.duration)
@@ -432,7 +432,7 @@ class ConversationAudioMessagePlayer
         audioMessageStateUpdate.emit(
             AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(conversationId, messageId, AudioMediaPlayingState.Playing)
         )
-        servicesManager.get().startPlayingAudioMessageService()
+        servicesManager.value.startPlayingAudioMessageService()
     }
 
     private suspend fun pause(conversationId: ConversationId, messageId: String) {
@@ -507,7 +507,7 @@ class ConversationAudioMessagePlayer
         audioMediaPlayer.reset()
         currentAudioMessageId = null
         audioMessageStateHistory = emptyMap()
-        servicesManager.get().stopPlayingAudioMessageService()
+        servicesManager.value.stopPlayingAudioMessageService()
     }
 
     data class MessageIdWrapper(val conversationId: ConversationId, val messageId: String)

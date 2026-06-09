@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -44,14 +45,15 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 /**
  * This is a helper class used to collect the necessary data and perform the actions required in order for the app to function properly,
  * such as notifications or persistent web socket.
  */
-@Singleton
+@SingleIn(AppScope::class)
 class GlobalObserversManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
@@ -67,8 +69,10 @@ class GlobalObserversManager @Inject constructor(
         scope.launch { setUpNotifications() }
         scope.launch {
             coreLogic.getGlobalScope().observeValidAccounts().distinctUntilChanged().collectLatest {
-                if (it.isNotEmpty()) {
-                    coreLogic.getSessionScope(it.first().first.id).calls.endCallOnConversationChange()
+                coroutineScope {
+                    it.forEach {
+                        launch { coreLogic.getSessionScope(it.first.id).calls.endCallOnConversationChange() }
+                    }
                 }
             }
         }
@@ -107,7 +111,14 @@ class GlobalObserversManager @Inject constructor(
             .distinctUntilChanged()
             .collectLatest {
                 // create notification channels for all valid users
+                appLogger.i("GlobalObserversManager: creating notification channels for users: ${it.map { it.first.id }}")
                 notificationChannelsManager.createUserNotificationChannels(it.map { it.first })
+
+                if (it.isEmpty()) {
+                    appLogger.i("GlobalObserversManager: no valid users, stopping observing notifications")
+                    notificationManager.clearWhenNoUsers()
+                    return@collectLatest
+                }
 
                 // do not observe notifications for users with PersistentWebSocketEnabled, it will be done in PersistentWebSocketService
                 it.filter { (_, isPersistentWebSocketEnabled) -> !isPersistentWebSocketEnabled }

@@ -28,6 +28,10 @@ object MarkdownParser {
         .includeSourceSpans(IncludeSourceSpans.BLOCKS)
         .build()
 
+    private val previewParser = Parser.builder()
+        .extensions(MarkdownConstants.supportedExtensions)
+        .build()
+
     // We preserve blank lines across *all* block types by using source spans:
     // CommonMark collapses empty lines into block boundaries, so we count
     // blank input lines between top-level blocks and insert spacer paragraphs
@@ -56,6 +60,12 @@ object MarkdownParser {
         return MarkdownNode.Document(
             adjustPaddingForSpacers(markdownChildren)
         )
+    }
+
+    fun parsePreview(text: String): MarkdownPreview? {
+        val documentNode = previewParser.parse(text) as Document
+        val firstBlock = documentNode.firstChild ?: return null
+        return (firstBlock.toContent() as? MarkdownNode.Block)?.getFirstInlines()
     }
 
     private fun collectTopLevelBlocks(document: Document): List<org.commonmark.node.Node> {

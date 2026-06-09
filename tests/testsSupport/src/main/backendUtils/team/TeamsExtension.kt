@@ -539,12 +539,12 @@ val defaultheaders = mapOf(
 )
 
 enum class TeamRoles(val role: String, val permissionBitMask: Int) {
-    Owner("Owner", 8191),
-    Admin("Admin", 5951),
+    Owner("owner", 8191),
+    Admin("admin", 5951),
     Member("member", 1587),
-    Partner("Partner", 1025),
-    External("External", 0),
-    INVALID("Invalid", 1234);
+    Partner("partner", 1025),
+    External("partner", 0),
+    INVALID("invalid", 1234);
 
     companion object {
         fun getByPermissionBitMask(permissionBitMask: Int): TeamRoles =

@@ -47,7 +47,7 @@ fun NewMeetingBottomSheet(
                                 MenuItemIcon(
                                     id = com.wire.android.ui.common.R.drawable.ic_video_call,
                                     tint = colorsScheme().onSurface,
-                                    contentDescription = stringResource(R.string.content_description_new_meeting_now_icon),
+                                    contentDescription = null, // no separate content description as the title already describes the action
                                 )
                             },
                             onItemClick = onMeetNowClick,
@@ -60,7 +60,7 @@ fun NewMeetingBottomSheet(
                                 MenuItemIcon(
                                     id = com.wire.android.ui.common.R.drawable.ic_calendar,
                                     tint = colorsScheme().onSurface,
-                                    contentDescription = stringResource(R.string.content_description_new_meeting_schedule_icon),
+                                    contentDescription = null, // no separate content description as the title already describes the action
                                 )
                             },
                             onItemClick = onScheduleClick,

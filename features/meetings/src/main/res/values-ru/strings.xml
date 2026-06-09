@@ -54,6 +54,4 @@
     <string name="new_meeting_title">Новая встреча</string>
     <string name="new_meeting_now">Встречи сейчас</string>
     <string name="new_meeting_schedule">Запланировать встречу</string>
-    <string name="content_description_new_meeting_now_icon">Значок встреч сейчас</string>
-    <string name="content_description_new_meeting_schedule_icon">Значок планирования встречи</string>
 </resources>

@@ -61,7 +61,7 @@ class SSODeviceBackup : BaseUiTest() {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
         SSOServiceHelper.usersManager = teamHelper.usersManager
@@ -179,6 +179,9 @@ class SSODeviceBackup : BaseUiTest() {
                     pages.connectedUserProfilePage.apply {
                         tapCloseButtonOnConnectedUserProfilePage()
                     }
+                    pages.searchPage.apply {
+                        clickCloseButtonOnSearchInputField()
+                    }
                     pages.conversationListPage.apply {
                         clickCloseButtonOnNewConversationScreen()
                         assertConversationListVisible()
@@ -224,7 +227,7 @@ class SSODeviceBackup : BaseUiTest() {
 
                 step("Start SSO login again using SSO code") {
                     pages.registrationPage.apply {
-                        assertEmailWelcomePage()
+                        assertEmailWelcomePage(timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
                     }
                     pages.loginPage.apply {
                         clickStagingDeepLink()

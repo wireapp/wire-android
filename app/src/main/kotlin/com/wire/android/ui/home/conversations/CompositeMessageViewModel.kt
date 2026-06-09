@@ -25,18 +25,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.app.navArgs
-import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.wire.kalium.logic.data.id.MessageButtonId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-
 @ViewModelScopedPreview
 interface CompositeMessageViewModel {
     val pendingButtonId: MessageButtonId?
@@ -44,11 +38,10 @@ interface CompositeMessageViewModel {
     fun sendButtonActionMessage(buttonId: String) {}
 }
 
-@HiltViewModel(assistedFactory = CompositeMessageViewModelImpl.Factory::class)
-class CompositeMessageViewModelImpl @AssistedInject constructor(
+class CompositeMessageViewModelImpl(
     private val sendButtonActionMessageUseCase: SendButtonActionMessageUseCase,
     savedStateHandle: SavedStateHandle,
-    @Assisted private val scopedArgs: CompositeMessageArgs,
+    scopedArgs: CompositeMessageArgs,
 ) : CompositeMessageViewModel, ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -68,10 +61,5 @@ class CompositeMessageViewModelImpl @AssistedInject constructor(
         }.invokeOnCompletion {
             pendingButtonId = null
         }
-    }
-
-    @AssistedFactory
-    interface Factory : AssistedViewModelFactory<CompositeMessageViewModelImpl, CompositeMessageArgs> {
-        override fun create(args: CompositeMessageArgs): CompositeMessageViewModelImpl
     }
 }

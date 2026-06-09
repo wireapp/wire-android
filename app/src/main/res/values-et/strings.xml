@@ -285,7 +285,6 @@
     <string name="notification_incoming_call_content">Helistab…</string>
     <string name="notification_ongoing_call_content">Käimasolev kõne…</string>
     <string name="notification_call_default_caller_name">Keegi</string>
-    <string name="notification_call_default_group_name">Sissetulev grupikõne</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Ühtlane bitisagedus</string>
     <string name="calling_button_label_microphone">Mikrofon</string>

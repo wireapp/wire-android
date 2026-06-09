@@ -57,7 +57,7 @@ class AccountManagement : BaseUiTest() {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
-        appPackage = UiAutomatorSetup.APP_INTERNAL
+        appPackage = UiAutomatorSetup.APP_ALPHA
         device = UiAutomatorSetup.start(appPackage)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()

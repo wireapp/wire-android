@@ -36,7 +36,7 @@ import com.wire.kalium.logic.data.conversation.FolderType
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -87,7 +87,7 @@ class GetConversationsFromSearchUseCaseTest {
             ConversationDetailsWithEvents(TestConversationDetails.CONVERSATION_ONE_ONE),
             ConversationDetailsWithEvents(TestConversationDetails.GROUP),
         )
-        val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfUser().arrange()
+        val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfTeamId().arrange()
         // When
         val result = with(arrangement.queryConfig) {
             useCase(
@@ -101,7 +101,6 @@ class GetConversationsFromSearchUseCaseTest {
         // Then
         result.forEachIndexed { index, conversationItem ->
             assertEquals(conversationsList[index].conversationDetails.conversation.id, conversationItem.conversationId)
-            assertEquals(arrangement.queryConfig.searchQuery, conversationItem.searchQuery)
         }
     }
 
@@ -117,7 +116,7 @@ class GetConversationsFromSearchUseCaseTest {
         )
 
         val (arrangement, useCase) = Arrangement().withFavoriteFolderResult(folderResult).withFolderConversationsResult(conversationsList)
-            .withSelfUser().arrange()
+            .withSelfTeamId().arrange()
 
         // When
         useCase(
@@ -148,7 +147,7 @@ class GetConversationsFromSearchUseCaseTest {
                     )
                 )
             )
-            val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfUser().arrange()
+            val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfTeamId().arrange()
             // When
             val result = with(arrangement.queryConfig) {
                 useCase(
@@ -170,7 +169,7 @@ class GetConversationsFromSearchUseCaseTest {
         runTest(dispatcherProvider.main()) {
             // Given
             val conversationsList = listOf(ConversationDetailsWithEvents(TestConversationDetails.GROUP))
-            val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfUser().arrange()
+            val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfTeamId().arrange()
             // When
             val result = with(arrangement.queryConfig) {
                 useCase(
@@ -202,7 +201,7 @@ class GetConversationsFromSearchUseCaseTest {
         lateinit var userTypeMapper: UserTypeMapper
 
         @MockK
-        lateinit var getSelfUser: GetSelfUserUseCase
+        lateinit var getSelfTeamId: GetSelfTeamIdUseCase
 
         @MockK
         lateinit var uiTextResolver: UiTextResolver
@@ -226,6 +225,7 @@ class GetConversationsFromSearchUseCaseTest {
                 }
             }
             coEvery { uiTextResolver.localeTag() } returns "test-locale"
+            withSelfTeamId()
             withPaginatedResult(emptyList())
         }
 
@@ -245,8 +245,8 @@ class GetConversationsFromSearchUseCaseTest {
             } returns flowOf(conversations)
         }
 
-        fun withSelfUser() = apply {
-            coEvery { getSelfUser() } returns TestUser.SELF_USER
+        fun withSelfTeamId() = apply {
+            coEvery { getSelfTeamId() } returns TestUser.SELF_USER.teamId
         }
 
         fun arrange() = this to GetConversationsFromSearchUseCase(
@@ -255,7 +255,7 @@ class GetConversationsFromSearchUseCaseTest {
             observeConversationsFromFolderUseCase,
             userTypeMapper,
             dispatcherProvider,
-            getSelfUser,
+            getSelfTeamId,
             uiTextResolver
         )
     }

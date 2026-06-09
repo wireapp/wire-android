@@ -144,7 +144,6 @@ class OAuthUseCase(
                 } else {
                     if (response != null) {
                         _authState.update(response, exception)
-                        appLogger.i("OAuth idToken: ${response.idToken}")
                         resultHandler(
                             OAuthResult.Success(
                                 response.idToken.toString(),

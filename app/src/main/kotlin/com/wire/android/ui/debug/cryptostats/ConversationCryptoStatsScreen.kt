@@ -38,9 +38,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.debug.conversationCryptoStatsViewModel
 import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.chip.WireFilterChip
 import com.wire.android.ui.common.dimensions
@@ -58,7 +58,7 @@ import com.wire.android.ui.theme.wireTypography
 fun ConversationCryptoStatsScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    viewModel: ConversationCryptoStatsViewModel = hiltViewModel(),
+    viewModel: ConversationCryptoStatsViewModel = conversationCryptoStatsViewModel(),
 ) {
     val scrollState = rememberScrollState()
     val state by viewModel.state.collectAsState()
@@ -133,8 +133,11 @@ private fun StatsSummary(uiModel: ConversationCryptoStatsUiModel) {
         StatRow("MLS", uiModel.mlsCount.toString())
         StatRow("Mixed", uiModel.mixedCount.toString())
         HorizontalDivider(modifier = Modifier.padding(vertical = dimensions().spacing4x))
-        StatRow("MLS not in core crypto", uiModel.mlsNotEstablishedInCrypto.toString())
-        StatRow("Mixed not in core crypto", uiModel.mixedNotEstablishedInCrypto.toString())
+        StatRow("MLS drift", uiModel.mlsDriftCount.toString())
+        StatRow("Mixed drift", uiModel.mixedDriftCount.toString())
+        StatRow("MLS left", uiModel.mlsLeftCount.toString())
+        StatRow("Mixed left", uiModel.mixedLeftCount.toString())
+        StatRow("CC lookup failed", uiModel.ccLookupFailedCount.toString())
     }
 }
 
@@ -177,7 +180,7 @@ private fun FilterSection(
             }
         }
         Text(
-            text = "Core crypto status",
+            text = "Crypto status",
             style = MaterialTheme.wireTypography.label01,
         )
         FlowRow(
@@ -275,13 +278,21 @@ private fun ConversationDetailsList(
                         style = MaterialTheme.wireTypography.body01,
                     )
                 }
+                Text(
+                    text = "Self is member: ${detail.selfIsMember}",
+                    style = MaterialTheme.wireTypography.body01,
+                )
+                Text(
+                    text = "CC lookup failed: ${detail.ccLookupFailed}",
+                    style = MaterialTheme.wireTypography.body01,
+                )
                 val color = when {
-                    detail.establishedInCrypto == "Yes" -> MaterialTheme.wireColorScheme.positive
-                    detail.establishedInCrypto == "No" -> MaterialTheme.wireColorScheme.error
+                    detail.cryptoStatus == ConversationCryptoStatus.IN_SYNC -> MaterialTheme.wireColorScheme.positive
+                    detail.cryptoStatus == ConversationCryptoStatus.NOT_APPLICABLE -> MaterialTheme.wireColorScheme.onBackground
                     else -> MaterialTheme.wireColorScheme.onBackground
                 }
                 Text(
-                    text = "In core crypto: ${detail.establishedInCrypto}",
+                    text = "Status: ${detail.cryptoStatus.label}",
                     style = MaterialTheme.wireTypography.body01,
                     color = color,
                 )

@@ -38,8 +38,10 @@ import com.wire.kalium.logic.feature.app.SearchAppsByNameUseCase
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
+import com.wire.kalium.logic.feature.service.SyncServicesUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -267,6 +269,66 @@ class SearchAppsViewModelTest {
         }
 
     @Test
+    fun `given services branch is used across multiple searches, when init view model, then syncServices is called exactly once`() =
+        runTest {
+            // given
+            val query = "Service Name"
+            val (arrangement, viewModel) = Arrangement()
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
+                .withGetAllServices(listOf(SERVICE_DETAILS))
+                .withSearchServicesByName(query, listOf(SERVICE_DETAILS))
+                .arrange(protocolInfo = null)
+
+            // when
+            advanceUntilIdle()
+            viewModel.searchQueryChanged(query)
+            advanceUntilIdle()
+            viewModel.searchQueryChanged(String.EMPTY)
+            advanceUntilIdle()
+
+            // then
+            coVerify(exactly = 1) {
+                arrangement.syncServices()
+            }
+        }
+
+    @Test
+    fun `given apps branch is used, when init view model, then syncServices is never called`() =
+        runTest {
+            // given
+            val (arrangement, _) = Arrangement()
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
+                .withGetAllApps(listOf(SERVICE_DETAILS))
+                .arrange(protocolInfo = null)
+
+            // when
+            advanceUntilIdle()
+
+            // then
+            coVerify(exactly = 0) {
+                arrangement.syncServices()
+            }
+        }
+
+    @Test
+    fun `given syncServices fails, when services branch is used, then observed services are still emitted`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
+                .withGetAllServices(listOf(SERVICE_DETAILS, SERVICE_DETAILS2))
+                .withSyncServicesFailing()
+                .arrange(protocolInfo = null)
+
+            // when
+            advanceUntilIdle()
+
+            // then
+            assertEquals(2, viewModel.state.result.size)
+            assertFalse(viewModel.state.isLoading)
+        }
+
+    @Test
     fun `given Apps feature flag is PROTEUS enabled, when searching for Apps by name, then load searched Services`() =
         runTest {
             // given
@@ -341,6 +403,9 @@ class SearchAppsViewModelTest {
         lateinit var getAllServices: ObserveAllServicesUseCase
 
         @MockK
+        lateinit var syncServices: SyncServicesUseCase
+
+        @MockK
         lateinit var getAllApps: ObserveAllAppsUseCase
 
         @MockK
@@ -362,6 +427,7 @@ class SearchAppsViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
             coEvery { getAllServices() } returns flowOf(emptyList())
+            coEvery { syncServices() } returns SyncServicesUseCase.Result.Success
             coEvery { getAllApps() } returns flowOf(emptyList())
             coEvery { searchServicesByName(any()) } returns flowOf(emptyList())
             coEvery { searchAppsByName(any()) } returns flowOf(emptyList())
@@ -375,6 +441,7 @@ class SearchAppsViewModelTest {
         fun arrange(protocolInfo: Conversation.ProtocolInfo?) = this to SearchAppsViewModel(
             protocolInfo = protocolInfo,
             getAllServices = getAllServices,
+            syncServices = syncServices,
             getAllApps = getAllApps,
             contactMapper = contactMapper,
             searchServicesByName = searchServicesByName,
@@ -401,6 +468,10 @@ class SearchAppsViewModelTest {
 
         fun withSearchServicesByName(query: String, result: List<ServiceDetails>) = apply {
             coEvery { searchServicesByName(query) } returns flowOf(result)
+        }
+
+        fun withSyncServicesFailing() = apply {
+            coEvery { syncServices() } returns SyncServicesUseCase.Result.Failure(NetworkFailure.NoNetworkConnection(cause = null))
         }
     }
 }

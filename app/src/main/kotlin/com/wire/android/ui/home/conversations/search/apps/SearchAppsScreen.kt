@@ -35,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
@@ -46,6 +45,7 @@ import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.upgradetoapps.UpgradeToGetAppsBanner
 import com.wire.android.ui.home.conversations.search.HighlightName
+import com.wire.android.ui.home.conversations.searchAppsViewModel
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -66,10 +66,7 @@ fun SearchAppsScreen(
     searchQuery: String,
     onServiceClicked: (Contact) -> Unit,
     isConversationAppsEnabled: Boolean,
-    searchAppsViewModel: SearchAppsViewModel = hiltViewModel<SearchAppsViewModel, SearchAppsViewModel.Factory>(
-        key = "search_apps_protocol_info_${protocolInfo?.name()}",
-        creationCallback = { factory -> factory.create(protocolInfo = protocolInfo) }
-    ),
+    searchAppsViewModel: SearchAppsViewModel = searchAppsViewModel(protocolInfo),
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     LaunchedEffect(key1 = searchQuery) {

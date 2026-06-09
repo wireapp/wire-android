@@ -38,7 +38,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.home.settings.backupAndRestoreViewModel
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -64,7 +64,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun BackupAndRestoreScreen(
     navigator: Navigator,
-    viewModel: BackupAndRestoreViewModel = hiltViewModel()
+    viewModel: BackupAndRestoreViewModel = backupAndRestoreViewModel()
 ) {
     BackupAndRestoreContent(
         backUpAndRestoreState = viewModel.state,

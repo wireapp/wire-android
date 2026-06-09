@@ -44,8 +44,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.ItemActionType
 import com.wire.android.ui.common.CollapsingTopBarScaffold
@@ -57,6 +67,7 @@ import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import com.wire.android.ui.home.conversations.searchUserViewModel
 import com.wire.android.ui.home.conversations.search.apps.SearchAppsScreen
 import com.wire.android.ui.home.newconversation.common.ContinueButton
 import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
@@ -92,6 +103,7 @@ fun SearchUsersAndAppsScreen(
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
     val tabs = remember(isAppsTabVisible) {
         if (isAppsTabVisible) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE)
     }
@@ -107,11 +119,45 @@ fun SearchUsersAndAppsScreen(
     val lazyListStates: List<LazyListState> = List(tabs.size) {
         rememberLazyListState()
     }
+    val searchFocusRequester = remember { FocusRequester() }
+    val peopleTabFocusRequester = remember { FocusRequester() }
+    val firstContactFocusRequester = remember { FocusRequester() }
+    val bottomActionFocusRequester = remember { FocusRequester() }
 
     val searchBarTitle = if (isAppsTabVisible) {
         stringResource(R.string.label_search_people_or_apps)
     } else {
         stringResource(R.string.label_search_people)
+    }
+    val shouldHideBottomActionForSearch = searchBarState.isSearchActive && screenType == SearchPeopleScreenType.NEW_CONVERSATION
+    val shouldHideBottomActionForServices = screenType == SearchPeopleScreenType.CONVERSATION_DETAILS &&
+            tabs[pagerState.currentPage] == SearchPeopleTabItem.SERVICES
+    val isBottomActionVisible = isGroupSubmitVisible && !shouldHideBottomActionForSearch && !shouldHideBottomActionForServices
+    val bottomActionModifier = Modifier.focusRequester(bottomActionFocusRequester)
+    val searchNextFocusRequester = if (isAppsTabVisible) peopleTabFocusRequester else firstContactFocusRequester
+    val tabModifiers = tabs.map { tab ->
+        when (tab) {
+            SearchPeopleTabItem.PEOPLE ->
+                Modifier
+                    .focusRequester(peopleTabFocusRequester)
+                    .focusProperties {
+                        previous = searchFocusRequester
+                    }
+                    .onPreviewKeyEvent { event ->
+                        if (
+                            event.type == KeyEventType.KeyDown &&
+                            event.key == Key.Tab &&
+                            !event.isShiftPressed
+                        ) {
+                            focusManager.moveFocus(FocusDirection.Down) ||
+                                    bottomActionFocusRequester.takeIf { isBottomActionVisible }?.requestFocus() == true
+                        } else {
+                            false
+                        }
+                    }
+
+            SearchPeopleTabItem.SERVICES -> Modifier
+        }
     }
 
     CollapsingTopBarScaffold(
@@ -136,7 +182,11 @@ fun SearchUsersAndAppsScreen(
                             SearchPeopleScreenType.NEW_GROUP_CONVERSATION ->
                                 NavigationIconType.Back(R.string.content_description_new_conversation_back_btn)
                         },
-                        onNavigationPressed = onClose
+                        onNavigationPressed = onClose,
+                        navigationIconModifier = Modifier
+                            .focusProperties {
+                                next = searchFocusRequester
+                            }
                     )
                 }
             }
@@ -148,6 +198,9 @@ fun SearchUsersAndAppsScreen(
                 backIconContentDescription = stringResource(id = R.string.content_description_add_participants_back_btn),
                 searchBarDescription = stringResource(R.string.content_description_add_participants_search_field),
                 searchQueryTextState = searchBarState.searchQueryTextState,
+                externalFocusRequester = searchFocusRequester,
+                nextFocusRequester = searchNextFocusRequester,
+                activateSearchOnFocus = false,
                 onActiveChanged = searchBarState::searchActiveChanged,
             )
         },
@@ -157,6 +210,7 @@ fun SearchUsersAndAppsScreen(
                     tabs = SearchPeopleTabItem.entries,
                     selectedTabIndex = currentTabState,
                     onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                    tabModifiers = tabModifiers,
                 )
             }
         },
@@ -185,6 +239,8 @@ fun SearchUsersAndAppsScreen(
                                 isSearchActive = searchBarState.isSearchActive,
                                 actionType = actionType,
                                 lazyListState = lazyListStates[pageIndex],
+                                firstContactFocusRequester = firstContactFocusRequester,
+                                nextFocusRequester = bottomActionFocusRequester.takeIf { isBottomActionVisible },
                             )
                         }
 
@@ -216,20 +272,23 @@ fun SearchUsersAndAppsScreen(
                             shouldShowChannelPromotion = shouldShowChannelPromotion,
                             isUserAllowedToCreateChannels = isUserAllowedToCreateChannels,
                             onCreateNewRegularGroup = onCreateNewGroup,
-                            onCreateNewChannel = onCreateNewChannel
+                            onCreateNewChannel = onCreateNewChannel,
+                            firstVisibleButtonModifier = bottomActionModifier
                         )
                     }
 
                     SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> {
                         ContinueButton(
-                            onContinue = onContinue
+                            onContinue = onContinue,
+                            buttonModifier = bottomActionModifier
                         )
                     }
 
                     SearchPeopleScreenType.CONVERSATION_DETAILS -> {
                         if (tabs[pagerState.currentPage] != SearchPeopleTabItem.SERVICES) {
                             ContinueButton(
-                                onContinue = onContinue
+                                onContinue = onContinue,
+                                buttonModifier = bottomActionModifier
                             )
                         }
                     }
@@ -261,8 +320,10 @@ private fun SearchAllPeopleOrContactsScreen(
     actionType: ItemActionType,
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
-    searchUserViewModel: SearchUserViewModel = hiltViewModel(),
+    searchUserViewModel: SearchUserViewModel = searchUserViewModel(),
     lazyListState: LazyListState = rememberLazyListState(),
+    firstContactFocusRequester: FocusRequester? = null,
+    nextFocusRequester: FocusRequester? = null,
 ) {
 
     LaunchedEffect(key1 = searchQuery) {
@@ -291,6 +352,8 @@ private fun SearchAllPeopleOrContactsScreen(
         isSearchActive = isSearchActive,
         isLoading = searchUserViewModel.state.isLoading,
         actionType = actionType,
+        firstContactFocusRequester = firstContactFocusRequester,
+        nextFocusRequester = nextFocusRequester,
         selectedContactResultsExpanded = selectedContactResultsExpanded,
         onSelectedContactResultsExpansionChanged = remember { { selectedContactResultsExpanded = it } },
         contactResultsExpanded = contactResultsExpanded,

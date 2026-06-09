@@ -46,12 +46,10 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@HiltViewModel
 class CreateAccountVerificationCodeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     @KaliumCoreLogic private val coreLogic: CoreLogic,

@@ -23,7 +23,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.ObserveUsersTypingUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class ObserveUsersTypingInConversationUseCase @Inject constructor(
     private val observeUsersTyping: ObserveUsersTypingUseCase,

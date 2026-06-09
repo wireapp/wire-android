@@ -37,8 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.appLogger
-import com.wire.android.di.assistedViewModels
+import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.LocalActivity
@@ -51,11 +54,11 @@ import com.wire.android.ui.common.topappbar.WireTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import dagger.hilt.android.AndroidEntryPoint
+import dev.zacsweers.metro.HasMemberInjections
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@AndroidEntryPoint
+@HasMemberInjections
 abstract class CallActivity : BaseActivity() {
 
     @Inject
@@ -63,10 +66,6 @@ abstract class CallActivity : BaseActivity() {
 
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
-
-    private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
-        factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false))
-    }
 
     companion object {
         const val EXTRA_CONVERSATION_ID = "conversation_id"
@@ -76,7 +75,23 @@ abstract class CallActivity : BaseActivity() {
         const val TAG = "CallActivity"
     }
 
-    private val callActivityViewModel: CallActivityViewModel by viewModels()
+    private val imageAssetViewModelGraph by lazy { wireApplicationGraph.imageAssetViewModelGraph }
+    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                imageAssetViewModelGraph.commonViewModelFactory.commonTopAppBarViewModel(
+                    CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false)
+                )
+            }
+        }
+    }
+    private val callActivityViewModel: CallActivityViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                imageAssetViewModelGraph.callingViewModelFactory.callActivityViewModel()
+            }
+        }
+    }
     protected val qualifiedIdMapper = QualifiedIdMapper(null)
 
     override fun onNewIntent(intent: Intent) {
@@ -86,6 +101,7 @@ abstract class CallActivity : BaseActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
         setupOrientationForDevice()
         setUpScreenshotPreventionFlag()
@@ -102,6 +118,7 @@ abstract class CallActivity : BaseActivity() {
             val snackbarHostState = remember { SnackbarHostState() }
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
+                LocalMetroViewModelGraph provides imageAssetViewModelGraph,
                 LocalActivity provides this
             ) {
                 WireTheme {

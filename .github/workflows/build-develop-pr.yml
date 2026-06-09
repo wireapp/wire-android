@@ -20,6 +20,10 @@ concurrency:
 jobs:
   # Build for PR and merge group validation (no store deployment)
   build-validation:
+    permissions:
+      contents: write
+      actions: read
+      security-events: write
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: pr

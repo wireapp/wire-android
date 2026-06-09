@@ -26,6 +26,7 @@ data class DebugDataOptionsState(
     val showCertificate: Boolean = false,
     val startGettingE2EICertificate: Boolean = false,
     val e2eiCertificateExpirationSeconds: Long = 360L,
+    val forceCRLExpirationAfterOneMinute: Boolean = false,
     val analyticsTrackingId: String = "null",
     val isFederationEnabled: Boolean = false,
     val currentApiVersion: String = "null",

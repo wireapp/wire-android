@@ -151,6 +151,13 @@ fun SystemMessageItem(
 @Suppress("LongParameterList", "SpreadOperator", "ComplexMethod", "LongMethod")
 @Composable
 private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this) {
+    SystemMessage.Offline -> buildContent(
+        iconResId = R.drawable.ic_no_network,
+        iconTintColor = MaterialTheme.wireColorScheme.primary,
+    ) {
+        stringResource(R.string.label_system_message_offline).toMarkdownAnnotatedString()
+    }
+
     is SystemMessage.MemberAdded -> buildContent(
         iconResId = R.drawable.ic_add,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
@@ -538,6 +545,13 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
             appendVerticalSpace()
             append("") // so that "learn more" can be on a new line below another vertical space
         }
+    }
+
+    is SystemMessage.SelfUserPromotedToAdmin -> buildContent(
+        iconResId = R.drawable.ic_member_role_updated,
+        iconTintColor = MaterialTheme.wireColorScheme.onBackground,
+    ) {
+        stringResource(id = R.string.label_system_message_admin_role_assigned).toMarkdownAnnotatedString()
     }
 
     is SystemMessage.NewConversationWithCellStarted -> buildContent(

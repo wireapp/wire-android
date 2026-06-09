@@ -38,6 +38,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -88,13 +97,15 @@ fun SearchAllPeopleScreen(
     actionType: ItemActionType,
     onChecked: (Boolean, Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
+    firstContactFocusRequester: FocusRequester? = null,
+    nextFocusRequester: FocusRequester? = null,
     selectedContactResultsExpanded: Boolean = false,
     onSelectedContactResultsExpansionChanged: (Boolean) -> Unit = {},
     contactResultsExpanded: Boolean = true,
     onContactResultsExpansionChanged: (Boolean) -> Unit = {},
     publicResultsExpanded: Boolean = true,
     onPublicResultsExpansionChanged: (Boolean) -> Unit = {},
-    lazyListState: LazyListState = rememberLazyListState()
+    lazyListState: LazyListState = rememberLazyListState(),
 ) {
 
     val noSearchResults: Boolean by remember(publicSearchResult, contactsSearchResult, contactsSelectedSearchResult) {
@@ -136,6 +147,8 @@ fun SearchAllPeopleScreen(
             onContactResultsExpansionChanged = onContactResultsExpansionChanged,
             publicResultsExpanded = publicResultsExpanded,
             onPublicResultsExpansionChanged = onPublicResultsExpansionChanged,
+            firstContactFocusRequester = firstContactFocusRequester,
+            nextFocusRequester = nextFocusRequester,
         )
     }
 }
@@ -156,16 +169,31 @@ private fun SearchResult(
     onContactResultsExpansionChanged: (Boolean) -> Unit,
     publicResultsExpanded: Boolean,
     onPublicResultsExpansionChanged: (Boolean) -> Unit,
-    lazyListState: LazyListState = rememberLazyListState()
+    lazyListState: LazyListState = rememberLazyListState(),
+    firstContactFocusRequester: FocusRequester? = null,
+    nextFocusRequester: FocusRequester? = null,
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
+    val firstContactId = listOfNotNull(
+        contactsSelectedSearchResult.firstOrNull()?.id.takeIf { selectedContactResultsExpanded },
+        contactsSearchResult.firstOrNull()?.id.takeIf { contactResultsExpanded },
+        publicSearchResult.firstOrNull()?.id.takeIf { publicResultsExpanded }
+    ).firstOrNull()
 
     Column {
         LazyColumn(
             state = lazyListState,
             modifier = Modifier
                 .fillMaxHeight()
-                .weight(1f),
+                .weight(1f)
+                .onPreviewKeyEvent { event ->
+                    if (event.isForwardTabKey && nextFocusRequester != null) {
+                        nextFocusRequester.requestFocus()
+                        true
+                    } else {
+                        false
+                    }
+                },
         ) {
             if (contactsSelectedSearchResult.isNotEmpty()) { // selected contacts section filtered by search query
                 internalSearchResults(
@@ -180,6 +208,8 @@ private fun SearchResult(
                     actionType = actionType,
                     expanded = selectedContactResultsExpanded,
                     onExpansionChanged = onSelectedContactResultsExpansionChanged,
+                    firstContactId = firstContactId,
+                    firstContactFocusRequester = firstContactFocusRequester,
                 )
             }
 
@@ -196,6 +226,8 @@ private fun SearchResult(
                     actionType = actionType,
                     expanded = contactResultsExpanded,
                     onExpansionChanged = onContactResultsExpansionChanged,
+                    firstContactId = firstContactId,
+                    firstContactFocusRequester = firstContactFocusRequester,
                 )
             }
 
@@ -210,6 +242,8 @@ private fun SearchResult(
                     onOpenUserProfile = onOpenUserProfile,
                     expanded = publicResultsExpanded,
                     onExpansionChanged = onPublicResultsExpansionChanged,
+                    firstContactId = firstContactId,
+                    firstContactFocusRequester = firstContactFocusRequester,
                 )
             }
         }
@@ -233,6 +267,8 @@ private fun LazyListScope.internalSearchResults(
     onOpenUserProfile: (Contact) -> Unit,
     onExpansionChanged: (Boolean) -> Unit,
     expanded: Boolean,
+    firstContactId: String?,
+    firstContactFocusRequester: FocusRequester?,
 ) {
     if (searchResult.isNotEmpty()) {
         sectionWithElements(
@@ -261,7 +297,8 @@ private fun LazyListScope.internalSearchResults(
                     isSelected = isSelected,
                     onCheckClickable = onCheckClickable,
                     actionType = actionType,
-                    clickable = remember { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } }
+                    clickable = remember(contact) { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } },
+                    modifier = contact.firstContactFocusModifier(firstContactId, firstContactFocusRequester)
                 )
             }
         }
@@ -297,6 +334,8 @@ private fun LazyListScope.externalSearchResults(
     onOpenUserProfile: (Contact) -> Unit,
     expanded: Boolean,
     onExpansionChanged: (Boolean) -> Unit,
+    firstContactId: String?,
+    firstContactFocusRequester: FocusRequester?,
 ) {
     val itemsList =
         if (allItemsVisible) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
@@ -316,7 +355,8 @@ private fun LazyListScope.externalSearchResults(
                 membership = membership,
                 connectionState = connectionState,
                 searchQuery = searchQuery,
-                clickable = remember { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } }
+                clickable = remember(contact) { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } },
+                modifier = contact.firstContactFocusModifier(firstContactId, firstContactFocusRequester)
             )
         }
     }
@@ -338,6 +378,18 @@ private fun LazyListScope.externalSearchResults(
         }
     }
 }
+
+private fun Contact.firstContactFocusModifier(
+    firstContactId: String?,
+    focusRequester: FocusRequester?,
+): Modifier = if (id == firstContactId && focusRequester != null) {
+    Modifier.focusRequester(focusRequester)
+} else {
+    Modifier
+}
+
+private val KeyEvent.isForwardTabKey: Boolean
+    get() = type == KeyEventType.KeyDown && key == Key.Tab && !isShiftPressed
 
 @Composable
 private fun ShowButton(

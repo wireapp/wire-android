@@ -24,7 +24,7 @@ import com.wire.kalium.logic.data.user.UserId
 object NotificationConstants {
 
     const val INCOMING_CALL_CHANNEL_ID = "com.wire.android.notification_incoming_call_channel"
-    private const val OUTGOING_CALL_CHANNEL_ID = "com.wire.android.notification_outgoing_call_channel"
+    const val OUTGOING_CALL_CHANNEL_ID = "com.wire.android.notification_outgoing_call_channel"
     const val INCOMING_CALL_CHANNEL_NAME = "Incoming calls"
     const val OUTGOING_CALL_CHANNEL_NAME = "Outgoing call"
     const val ONGOING_CALL_CHANNEL_ID = "com.wire.android.notification_ongoing_call_channel"

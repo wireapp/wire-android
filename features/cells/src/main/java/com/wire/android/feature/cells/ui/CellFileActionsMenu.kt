@@ -19,11 +19,10 @@ package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
-import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.isEditSupported
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 @Suppress("CyclomaticComplexMethod", "LongParameterList")
 class CellFileActionsMenu @Inject constructor(
@@ -36,64 +35,131 @@ class CellFileActionsMenu @Inject constructor(
         isAllFiles: Boolean,
         isSearching: Boolean,
         isCollaboraEnabled: Boolean,
-    ): List<NodeBottomSheetAction> =
-        when {
-            isRecycleBin -> {
-                buildList {
-                    add(NodeBottomSheetAction.RESTORE)
-                    add(NodeBottomSheetAction.DELETE_PERMANENTLY)
+        isOnline: Boolean = true,
+    ): List<NodeBottomSheetAction> {
+        if (!isOnline) {
+            return buildList {
+                val canOpenOffline = cellNode is CellNodeUi.Folder ||
+                        (cellNode is CellNodeUi.File && cellNode.localFileAvailable())
+                if (canOpenOffline) {
+                    add(NodeBottomSheetAction.OPEN)
+                }
+                if (cellNode is CellNodeUi.File && cellNode.isAvailableOffline) {
+                    add(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS)
                 }
             }
+        }
+        return when {
+            isRecycleBin -> recycleBinActions()
 
             isAllFiles || isSearching -> {
-                buildList {
-                    if (cellNode is CellNodeUi.File && cellNode.openLoadState is OpenLoadState.Loading) {
-                        add(NodeBottomSheetAction.CANCEL_LOADING)
-                    } else {
-                        if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
-                            add(NodeBottomSheetAction.SHARE)
-                        }
-                        add(NodeBottomSheetAction.PUBLIC_LINK)
-                    }
-                }
+                commonActions(cellNode)
             }
 
             isConversationFiles -> {
-                buildList {
-                    if (cellNode is CellNodeUi.File && cellNode.openLoadState is OpenLoadState.Loading) {
-                        add(NodeBottomSheetAction.CANCEL_LOADING)
-                    } else {
-                        if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
-                            add(NodeBottomSheetAction.SHARE)
-                        }
-                        add(NodeBottomSheetAction.PUBLIC_LINK)
-
-                        if (isCollaboraEnabled && featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
-                            add(NodeBottomSheetAction.EDIT)
-                        }
-
-                        if (featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
-                            add(NodeBottomSheetAction.VERSION_HISTORY)
-                        }
-
-                        add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
-                        add(NodeBottomSheetAction.MOVE)
-                        add(NodeBottomSheetAction.RENAME)
-                        add(NodeBottomSheetAction.DELETE)
-                    }
+                val common = commonActions(cellNode)
+                val isTerminal = cellNode is CellNodeUi.File &&
+                        (cellNode.isOpenLoading || cellNode.downloadProgress != null)
+                if (isTerminal) {
+                    common
+                } else {
+                    common + conversationActions(
+                        cellNode = cellNode,
+                        isCollaboraEnabled = isCollaboraEnabled,
+                    )
                 }
             }
 
-            else -> {
-                emptyList()
-            }
+            else -> emptyList()
         }
+    }
+
+    private fun recycleBinActions(): List<NodeBottomSheetAction> = listOf(
+        NodeBottomSheetAction.RESTORE,
+        NodeBottomSheetAction.DELETE_PERMANENTLY,
+    )
+
+    private fun commonActions(
+        cellNode: CellNodeUi,
+    ): List<NodeBottomSheetAction> = buildList {
+
+        if (cellNode is CellNodeUi.File) {
+
+            when {
+                cellNode.isOpenLoading -> {
+                    add(NodeBottomSheetAction.CANCEL_LOADING)
+                    return@buildList
+                }
+
+                cellNode.downloadProgress != null -> {
+                    add(NodeBottomSheetAction.CANCEL_DOWNLOAD)
+                    return@buildList
+                }
+
+                else -> {
+
+                    add(NodeBottomSheetAction.OPEN)
+
+                    if (cellNode.localFileAvailable()) {
+                        add(NodeBottomSheetAction.SHARE)
+                    }
+
+                    add(
+                        if (cellNode.isAvailableOffline) {
+                            NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS
+                        } else {
+                            NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE
+                        },
+                    )
+                }
+            }
+        } else {
+            add(NodeBottomSheetAction.OPEN)
+        }
+    }
+
+    private fun conversationActions(
+        cellNode: CellNodeUi,
+        isCollaboraEnabled: Boolean,
+    ): List<NodeBottomSheetAction> = buildList {
+
+        val canEdit = cellNode is CellNodeUi.File &&
+                isCollaboraEnabled &&
+                featureFlags.collaboraIntegration &&
+                cellNode.isEditSupported()
+
+        if (canEdit) {
+            add(NodeBottomSheetAction.EDIT)
+        }
+
+        if (
+            cellNode is CellNodeUi.File &&
+            featureFlags.collaboraIntegration &&
+            cellNode.isEditSupported()
+        ) {
+            add(NodeBottomSheetAction.VERSION_HISTORY)
+        }
+
+        addAll(
+            listOf(
+                NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                NodeBottomSheetAction.PUBLIC_LINK,
+                NodeBottomSheetAction.MOVE,
+                NodeBottomSheetAction.RENAME,
+                NodeBottomSheetAction.DELETE,
+            ),
+        )
+    }
 
     internal sealed interface MenuActionResult
     internal data class Action(val action: CellViewAction) : MenuActionResult
+    internal data class Open(val node: CellNodeUi) : MenuActionResult
     internal data class Share(val node: CellNodeUi.File) : MenuActionResult
     internal data class Edit(val node: CellNodeUi) : MenuActionResult
     internal data class CancelLoading(val node: CellNodeUi) : MenuActionResult
+    internal data class CancelDownload(val node: CellNodeUi) : MenuActionResult
+    internal data class MakeAvailableOffline(val node: CellNodeUi.File) : MenuActionResult
+    internal data class RemoveOfflineAccess(val node: CellNodeUi.File) : MenuActionResult
 
     internal fun onMenuItemAction(
         conversationId: String?,
@@ -103,6 +169,7 @@ class CellFileActionsMenu @Inject constructor(
         onResult: (MenuActionResult) -> Unit,
     ) {
         val result = when (action) {
+            NodeBottomSheetAction.OPEN -> Open(node)
             NodeBottomSheetAction.SHARE -> {
                 if (node is CellNodeUi.File) {
                     Share(node)
@@ -137,6 +204,22 @@ class CellFileActionsMenu @Inject constructor(
             NodeBottomSheetAction.EDIT -> Edit(node)
             NodeBottomSheetAction.VERSION_HISTORY -> Action(ShowVersionHistoryScreen(node.uuid, node.name ?: ""))
             NodeBottomSheetAction.CANCEL_LOADING -> CancelLoading(node)
+            NodeBottomSheetAction.CANCEL_DOWNLOAD -> CancelDownload(node)
+            NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE -> {
+                if (node is CellNodeUi.File) {
+                    MakeAvailableOffline(node)
+                } else {
+                    Action(ShowPublicLinkScreen(node))
+                }
+            }
+
+            NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS -> {
+                if (node is CellNodeUi.File) {
+                    RemoveOfflineAccess(node)
+                } else {
+                    Action(ShowPublicLinkScreen(node))
+                }
+            }
         }
 
         onResult(result)

@@ -20,6 +20,8 @@
 
 package com.wire.android.ui.home.conversations.details.options
 
+import com.wire.android.ui.home.conversations.groupConversationDetailsViewModel
+
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.times
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -71,7 +72,7 @@ fun GroupConversationOptions(
     onAppsAccessItemClicked: () -> Unit,
     onChannelAccessItemClicked: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
-    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
+    viewModel: GroupConversationDetailsViewModel = groupConversationDetailsViewModel(),
     onEditGroupName: () -> Unit
 ) {
     val state by viewModel.groupOptionsState.collectAsStateWithLifecycle()

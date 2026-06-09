@@ -22,14 +22,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import com.wire.android.di.metro.MetroViewModelGraph
+import com.wire.android.di.metro.metroViewModel
 import com.wire.android.ui.common.R
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserAssetId
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -38,7 +38,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import okio.Path
 import okio.Path.Companion.toPath
-import javax.inject.Inject
 
 @Stable
 @Serializable
@@ -70,7 +69,7 @@ sealed class ImageAsset {
             withCrossfadeAnimation: Boolean = false
         ) = when {
             LocalInspectionMode.current -> painterResource(id = R.drawable.mock_image)
-            else -> hiltViewModel<RemoteAssetImageViewModel>().imageLoader
+            else -> remoteAssetImageViewModel().imageLoader
                 .paint(asset = this, fallbackData = fallbackData, withCrossfadeAnimation = withCrossfadeAnimation)
         }
     }
@@ -111,5 +110,14 @@ object PathAsStringSerializer : KSerializer<Path> {
     override fun deserialize(decoder: Decoder): Path = decoder.decodeString().toPath(normalize = true)
 }
 
-@HiltViewModel
-class RemoteAssetImageViewModel @Inject constructor(val imageLoader: WireSessionImageLoader) : ViewModel()
+interface ImageAssetViewModelGraph : MetroViewModelGraph {
+    val imageAssetViewModelFactory: ImageAssetViewModelFactory
+}
+
+@Composable
+private fun remoteAssetImageViewModel(): RemoteAssetImageViewModel =
+    metroViewModel<ImageAssetViewModelGraph, RemoteAssetImageViewModel> {
+        imageAssetViewModelFactory.create()
+    }
+
+class RemoteAssetImageViewModel(val imageLoader: WireSessionImageLoader) : ViewModel()

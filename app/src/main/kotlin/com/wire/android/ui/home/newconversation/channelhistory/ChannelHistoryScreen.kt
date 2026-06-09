@@ -29,7 +29,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.WireNavigator
+import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.WirePromotionCard
 import com.wire.android.ui.common.colorsScheme
@@ -41,7 +41,7 @@ import com.wire.android.ui.common.typography
 import com.ramcosta.composedestinations.generated.app.destinations.ChannelHistoryCustomScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
-import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.newconversation.sharedNewConversationViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -50,11 +50,11 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 )
 @Composable
 fun ChannelHistoryScreen(
-    navigator: WireNavigator,
+    navigator: Navigator,
     customResultRecipient: ResultRecipient<ChannelHistoryCustomScreenDestination, ChannelHistoryCustomNavBackArgs>,
-    newConversationViewModel: NewConversationViewModel,
     modifier: Modifier = Modifier,
 ) {
+    val newConversationViewModel = sharedNewConversationViewModel(navigator)
     customResultRecipient.onNavResult { result ->
         when (result) {
             is NavResult.Canceled -> {}

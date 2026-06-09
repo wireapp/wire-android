@@ -30,11 +30,13 @@ import com.wire.android.util.PreviewMultipleThemes
 
 @Composable
 fun LoadingListContent(
-    lazyListState: LazyListState,
     modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = false,
+    lazyListState: LazyListState = rememberLazyListState(),
 ) {
     LazyColumn(
         state = lazyListState,
+        userScrollEnabled = userScrollEnabled,
         modifier = modifier.fillMaxSize()
     ) {
         items(count = LOADING_PLACEHOLDER_ITEMS_COUNT) { index ->

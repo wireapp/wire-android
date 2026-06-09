@@ -18,8 +18,9 @@
 package com.wire.android.util.lifecycle
 
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 /**
  * Tracks whether the app was started via an automated login intent,
@@ -29,7 +30,7 @@ import javax.inject.Singleton
  * resets naturally, preventing the app from unexpectedly backgrounding itself
  * on a future normal launch.
  */
-@Singleton
+@SingleIn(AppScope::class)
 class AutomatedLoginManager @Inject constructor() {
     private val pendingMoveToBackgroundAfterSyncState = AtomicBoolean(false)
 

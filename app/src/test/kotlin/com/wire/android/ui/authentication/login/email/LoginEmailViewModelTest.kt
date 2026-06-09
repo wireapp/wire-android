@@ -21,7 +21,6 @@
 package com.wire.android.ui.authentication.login.email
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.assertions.shouldBeInstanceOf
@@ -37,8 +36,8 @@ import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestClient
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
+import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginState
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
 import com.wire.android.util.ui.CountdownTimer
@@ -216,6 +215,7 @@ class LoginEmailViewModelTest {
         loginViewModel.login()
         advanceUntilIdle()
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidCredentialsError>()
+        loginViewModel.loginState.showInvalidCredentialsError shouldBeEqualTo true
     }
 
     @Test
@@ -244,6 +244,11 @@ class LoginEmailViewModelTest {
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidCredentialsError>()
         loginViewModel.clearLoginErrors()
         loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Error>()
+        loginViewModel.loginState.showInvalidCredentialsError shouldBeEqualTo true
+
+        loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd("new password")
+        advanceUntilIdle()
+        loginViewModel.loginState.showInvalidCredentialsError shouldBeEqualTo false
     }
 
     @Test
@@ -815,7 +820,7 @@ class LoginEmailViewModelTest {
         internal lateinit var getOrRegisterClientUseCase: GetOrRegisterClientUseCase
 
         @MockK
-        internal lateinit var savedStateHandle: SavedStateHandle
+        internal lateinit var savedInputStore: LoginSavedInputStore
 
         @MockK
         internal lateinit var qualifiedIdMapper: QualifiedIdMapper
@@ -853,17 +858,14 @@ class LoginEmailViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
-            every { savedStateHandle.get<String>(any()) } returns null
+            every { savedInputStore.userIdentifier } returns null
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns USER_ID
-            every { savedStateHandle.set(any(), any<String>()) } returns Unit
+            every { savedInputStore.userIdentifier = any<String>() } returns Unit
             every { coreLogic.getGlobalScope().validateEmailUseCase } returns validateEmailUseCase
             every { coreLogic.getSessionScope(any()).users } returns userScope
             every { userScope.persistSelfUserEmail } returns persistSelfUserEmailUseCase
             every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
             every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-            every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(
-                loginPasswordPath = LoginPasswordPath(newServerConfig(1).links)
-            )
             coEvery { autoVersionAuthScopeUseCase(any()) } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
             every { authenticationScope.login } returns loginUseCase
             every { authenticationScope.requestSecondFactorVerificationCode } returns requestSecondFactorCodeUseCase
@@ -877,9 +879,10 @@ class LoginEmailViewModelTest {
         }
 
         fun arrange() = this to LoginEmailViewModel(
+            LoginNavArgs(loginPasswordPath = LoginPasswordPath(newServerConfig(1).links)),
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
-            savedStateHandle,
+            savedInputStore,
             userDataStoreProvider,
             coreLogic,
             countdownTimer,

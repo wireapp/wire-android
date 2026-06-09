@@ -18,7 +18,5 @@
 package com.wire.android.ui
 
 import androidx.activity.ComponentActivity
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 class WireTestActivity : ComponentActivity()

@@ -1,0 +1,15 @@
+New
+- List of call participants in calls
+- Drive:
+    - Prevent uploading files with special characters
+    - Pagination support added to the conversation filter
+    - Loading and opening behaviour of files
+
+Improvement
+- Accessibility support
+- Handling of profile colors
+- Drive: Default sorting behavior
+
+Fixes
+- Delayed notifications
+- Several MLS (Messaging Layer Security) related issues

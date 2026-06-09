@@ -58,7 +58,7 @@ PULL_BASE_DELAY_SEC="$((10#${ALLURE_PULL_BASE_DELAY_SEC}))"
 INLINE_PART_MAX_CHARS="$((10#${RERUN_INLINE_PART_MAX_CHARS}))"
 
 LOG_DIR="${RUNNER_TEMP}/instrumentation-logs"
-STATE_DIR="${RUNNER_TEMP}/retry-state"
+STATE_DIR="${RETRY_STATE_DIR:-${RUNNER_TEMP}/retry-state}"
 mkdir -p "${LOG_DIR}" "${STATE_DIR}" "${ALLURE_RESULTS_ROOT}"
 
 read -ra DEVICES <<< "${DEVICE_LIST}"
@@ -170,6 +170,41 @@ count_tests_in_list_file() {
   fi
 
   wc -l < "${list_file}" | tr -d ' '
+}
+
+install_app_before_attempt_if_needed() {
+  local attempt="$1"
+  # The first argument is the attempt number and the remaining arguments are device serials.
+  # shift removes the first argument, so "$@" only contains device serials for the install loop.
+  shift
+  local devices=("$@")
+  local apk_path="${APP_APK_BEFORE_ATTEMPT:-}"
+
+  if [[ -z "${apk_path}" ]]; then
+    return
+  fi
+
+  echo "Installing app APK before attempt ${attempt}: ${apk_path}"
+  for serial in "${devices[@]}"; do
+    adb -s "${serial}" wait-for-device
+    # Upgrade attempts must start from the old APK. Uninstall first because
+    # Android rejects installing an older version over an already-newer app.
+    adb -s "${serial}" uninstall "${APP_ID}" >/dev/null 2>&1 || true
+    if [[ "${apk_path}" == /data/local/tmp/* ]]; then
+      local output
+      output="$(adb -s "${serial}" shell pm install -r -g "${apk_path}" 2>&1 | tr -d '\r' || true)"
+      if [[ "${output}" != *"Success"* ]]; then
+        echo "ERROR: Failed to install app APK on ${serial} from ${apk_path}. Output: ${output:-<empty>}"
+        exit 1
+      fi
+    else
+      if [[ ! -s "${apk_path}" ]]; then
+        echo "ERROR: APP_APK_BEFORE_ATTEMPT does not exist or is empty: ${apk_path}"
+        exit 1
+      fi
+      adb -s "${serial}" install -r "${apk_path}" >/dev/null
+    fi
+  done
 }
 
 rerun_list_file_for_device() {
@@ -372,6 +407,8 @@ run_attempt_on_devices() {
       args+=(-e numShards "${num_shards}")
       args+=(-e shardIndex "${this_shard_index}")
       args+=(-e filter "com.wire.android.tests.support.suite.TaggedFilter")
+      # The tests must launch the exact app flavor CI installed for this run.
+      args+=(-e appPackage "${APP_ID}")
 
       if attempt_uses_selector_mode "${attempt}"; then
         if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
@@ -379,6 +416,12 @@ run_attempt_on_devices() {
         fi
         if [[ -n "${RESOLVED_CATEGORY:-}" ]]; then
           args+=(-e category "${RESOLVED_CATEGORY}")
+        fi
+        if [[ -n "${EXCLUDE_CATEGORY:-}" ]]; then
+          args+=(-e excludeCategory "${EXCLUDE_CATEGORY}")
+        fi
+        if [[ -n "${REQUIRED_CATEGORY:-}" ]]; then
+          args+=(-e requiredCategory "${REQUIRED_CATEGORY}")
         fi
       else
         local retry_list_file
@@ -412,7 +455,6 @@ run_attempt_on_devices() {
 
       if [[ "${IS_UPGRADE:-}" == "true" ]]; then
         args+=(-e newApkPath "${NEW_APK_DEVICE_PATH}")
-        args+=(-e oldApkPath "${OLD_APK_DEVICE_PATH}")
       fi
 
       local log_file="${LOG_DIR}/attempt-${attempt}-instrument-${serial}.log"
@@ -506,6 +548,7 @@ while true; do
   fi
 
   echo "=== Attempt ${attempt} ==="
+  install_app_before_attempt_if_needed "${attempt}" "${attempt_devices[@]}"
   attempt_worker_failed=0
   if ! run_attempt_on_devices "${attempt}" "${attempt_num_shards}" "${attempt_devices[@]}"; then
     attempt_worker_failed=1

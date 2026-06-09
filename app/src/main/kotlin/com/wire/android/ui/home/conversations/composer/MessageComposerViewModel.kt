@@ -208,7 +208,6 @@ class MessageComposerViewModel(
         }
     }
 
-
     fun updateConversationReadDate(utcISO: String) {
         val instant = Instant.parse(utcISO)
         lastReadInstant = instant

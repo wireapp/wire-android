@@ -140,6 +140,17 @@ class ConversationMessagesViewModel(
         loadLastMessageInstant()
         observeAudioPlayerState()
         observeAssetStatuses()
+        observeNetworkAvailability()
+    }
+
+    private fun observeNetworkAvailability() {
+        viewModelScope.launch {
+            networkStateObserver.observeNetworkState().collect { networkState ->
+                conversationViewState = conversationViewState.copy(
+                    isNetworkAvailable = networkState is NetworkState.ConnectedWithInternet
+                )
+            }
+        }
     }
 
     val currentTimeInMillisFlow: Flow<Long> = flow {

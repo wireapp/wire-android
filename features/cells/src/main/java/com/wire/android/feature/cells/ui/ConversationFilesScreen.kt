@@ -45,7 +45,9 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.CellVideoViewerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CreateFileScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CreateFolderScreenDestination
@@ -57,7 +59,9 @@ import com.ramcosta.composedestinations.generated.cells.destinations.SearchScree
 import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.audioplayer.CellAudioPlayerNavArgs
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
+import com.wire.android.feature.cells.ui.videoviewer.CellVideoViewerNavArgs
 import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
 import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
@@ -361,6 +365,32 @@ internal fun ConversationFilesScreenContent(
                                     contentUrl = file.contentUrl,
                                     previewUrl = file.previewUrl,
                                     contentHash = file.contentHash,
+                                    fileName = file.name,
+                                )
+                            )
+                        )
+                    )
+                },
+                showVideoViewer = { file ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            CellVideoViewerScreenDestination(
+                                CellVideoViewerNavArgs(
+                                    localPath = file.localPath,
+                                    contentUrl = file.contentUrl,
+                                    fileName = file.name,
+                                )
+                            )
+                        )
+                    )
+                },
+                showAudioPlayer = { file ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            CellAudioPlayerScreenDestination(
+                                CellAudioPlayerNavArgs(
+                                    localPath = file.localPath,
+                                    contentUrl = file.contentUrl,
                                     fileName = file.name,
                                 )
                             )

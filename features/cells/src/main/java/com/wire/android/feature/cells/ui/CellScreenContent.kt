@@ -99,6 +99,8 @@ internal fun CellScreenContent(
     retryEditNodeError: (String) -> Unit = {},
     showVersionHistoryScreen: (String, String) -> Unit = { _, _ -> },
     showImageViewer: (CellNodeUi.File) -> Unit = {},
+    showVideoViewer: (CellNodeUi.File) -> Unit = {},
+    showAudioPlayer: (CellNodeUi.File) -> Unit = {},
     fileReadyFlow: Flow<CellNodeUi.File>? = emptyFlow(),
 ) {
 
@@ -247,6 +249,8 @@ internal fun CellScreenContent(
             is OpenFolder -> openFolder(action.path, action.title, action.parentFolderUuid)
             is ShowEditErrorDialog -> editNodeError = action.nodeUuid
             is OpenImageViewer -> showImageViewer(action.file)
+            is OpenVideoViewer -> showVideoViewer(action.file)
+            is OpenAudioPlayer -> showAudioPlayer(action.file)
         }
     }
 

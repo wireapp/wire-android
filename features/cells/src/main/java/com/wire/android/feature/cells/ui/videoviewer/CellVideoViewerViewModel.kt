@@ -17,14 +17,21 @@
  */
 package com.wire.android.feature.cells.ui.videoviewer
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
 import com.ramcosta.composedestinations.generated.cells.destinations.CellVideoViewerScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class CellVideoViewerViewModel @Inject constructor(
+    @ApplicationContext context: Context,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -33,5 +40,25 @@ class CellVideoViewerViewModel @Inject constructor(
     val localPath: String? = navArgs.localPath
     val contentUrl: String? = navArgs.contentUrl
     val fileName: String? = navArgs.fileName
+
+    // Held in the ViewModel so playback survives configuration changes (e.g. rotating to full screen)
+    // without re-buffering the media.
+    val player: ExoPlayer = ExoPlayer.Builder(context).build().apply {
+        videoUri()?.let {
+            setMediaItem(MediaItem.fromUri(it))
+            prepare()
+        }
+    }
+
+    private fun videoUri(): Uri? = when {
+        localPath != null -> Uri.fromFile(File(localPath))
+        contentUrl != null -> Uri.parse(contentUrl)
+        else -> null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        player.release()
+    }
 }
 

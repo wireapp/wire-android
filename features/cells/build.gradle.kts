@@ -38,6 +38,9 @@ dependencies {
     implementation(libs.coil.video)
     implementation(libs.coil.compose)
 
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.ui)
+
     implementation(libs.ktx.dateTime)
 
     implementation(libs.androidx.paging3)

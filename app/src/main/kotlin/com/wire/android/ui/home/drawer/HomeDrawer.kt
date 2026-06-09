@@ -38,23 +38,29 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
+import com.wire.android.model.Clickable
 import com.wire.android.navigation.ExternalDirectionLess
 import com.wire.android.navigation.ExternalUriDirection
 import com.wire.android.navigation.ExternalUriStringResDirection
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.ui.common.Logo
+import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversationslist.common.UnreadMessageEventBadge
 import com.wire.android.ui.theme.WireTheme
@@ -68,7 +74,10 @@ fun HomeDrawer(
     currentRoute: String?,
     navigateToHomeItem: (HomeDestination) -> Unit,
     onCloseDrawer: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFocusTrapEnabled: Boolean = false,
+    firstItemFocusRequester: FocusRequester? = null,
+    lastItemFocusRequester: FocusRequester? = null,
 ) {
     Column(
         modifier = modifier
@@ -89,15 +98,44 @@ fun HomeDrawer(
                 .height(MaterialTheme.wireDimensions.homeDrawerLogoHeight)
         )
 
+        if (!isFocusTrapEnabled) {
+            return@Column
+        }
+
         val (topItems, bottomItems) = homeDrawerState.items
-        topItems.forEach { item ->
-            MapToDrawerItem(navigateToHomeItem, onCloseDrawer, currentRoute, item)
+        val allItems = topItems + bottomItems
+        val focusRequesters = remember(allItems.size, firstItemFocusRequester, lastItemFocusRequester) {
+            List(allItems.size) { index ->
+                when (index) {
+                    0 -> firstItemFocusRequester ?: FocusRequester()
+                    allItems.lastIndex -> lastItemFocusRequester ?: FocusRequester()
+                    else -> FocusRequester()
+                }
+            }
+        }
+
+        topItems.forEachIndexed { index, item ->
+            Box(modifier = drawerItemFocusModifier(index, focusRequesters)) {
+                MapToDrawerItem(
+                    navigateToHomeItem = navigateToHomeItem,
+                    onCloseDrawer = onCloseDrawer,
+                    currentRoute = currentRoute,
+                    drawerUiItem = item
+                )
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        bottomItems.forEach { item ->
-            MapToDrawerItem(navigateToHomeItem, onCloseDrawer, currentRoute, item)
+        bottomItems.forEachIndexed { index, item ->
+            Box(modifier = drawerItemFocusModifier(topItems.size + index, focusRequesters)) {
+                MapToDrawerItem(
+                    navigateToHomeItem = navigateToHomeItem,
+                    onCloseDrawer = onCloseDrawer,
+                    currentRoute = currentRoute,
+                    drawerUiItem = item
+                )
+            }
         }
     }
 }
@@ -107,7 +145,7 @@ fun MapToDrawerItem(
     navigateToHomeItem: (HomeDestination) -> Unit,
     onCloseDrawer: () -> Unit,
     currentRoute: String?,
-    drawerUiItem: DrawerUiItem
+    drawerUiItem: DrawerUiItem,
 ) {
     val context = LocalContext.current
     fun navigateAndCloseDrawer(item: HomeDestination) {
@@ -120,7 +158,7 @@ fun MapToDrawerItem(
             is DrawerUiItem.DynamicExternalNavigationItem -> DrawerItem(
                 destination = destination,
                 selected = currentRoute == destination.direction.route,
-                onItemClick = remember {
+                onItemClick = remember(url, onCloseDrawer) {
                     {
                         com.wire.android.util.CustomTabsHelper.launchUrl(context, url)
                         onCloseDrawer()
@@ -131,16 +169,42 @@ fun MapToDrawerItem(
             is DrawerUiItem.RegularItem -> DrawerItem(
                 destination = destination,
                 selected = currentRoute == destination.direction.route,
-                onItemClick = remember { { navigateAndCloseDrawer(destination) } }
+                onItemClick = remember(destination, navigateToHomeItem, onCloseDrawer) {
+                    {
+                        navigateAndCloseDrawer(destination)
+                    }
+                }
             )
 
             is DrawerUiItem.UnreadCounterItem -> DrawerItem(
                 destination = destination,
                 unreadCount = this.unreadCount.toInt(),
                 selected = currentRoute == destination.direction.route,
-                onItemClick = remember { { navigateAndCloseDrawer(destination) } }
+                onItemClick = remember(destination, navigateToHomeItem, onCloseDrawer) {
+                    {
+                        navigateAndCloseDrawer(destination)
+                    }
+                }
             )
         }
+    }
+}
+
+private fun drawerItemFocusModifier(
+    index: Int,
+    focusRequesters: List<FocusRequester>,
+): Modifier {
+    return if (focusRequesters.isNotEmpty()) {
+        val previousIndex = if (index == 0) focusRequesters.lastIndex else index - 1
+        val nextIndex = if (index == focusRequesters.lastIndex) 0 else index + 1
+        Modifier
+            .focusRequester(focusRequesters[index])
+            .focusProperties {
+                previous = focusRequesters[previousIndex]
+                next = focusRequesters[nextIndex]
+            }
+    } else {
+        Modifier
     }
 }
 
@@ -154,6 +218,20 @@ fun DrawerItem(
 ) {
     val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
     val contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
+    val clickableModifier = Modifier.clickable(
+        Clickable(
+            onClickDescription = stringResource(R.string.content_description_open_label),
+            onClick = onItemClick
+        )
+    )
+    val selectionModifier = if (selected) {
+        Modifier.semantics {
+            this.selected = true
+        }
+    } else {
+        Modifier
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -162,7 +240,8 @@ fun DrawerItem(
             .fillMaxWidth()
             .height(dimensions().spacing40x)
             .background(backgroundColor)
-            .selectableBackground(selected, stringResource(R.string.content_description_open_label), onItemClick),
+            .then(clickableModifier)
+            .then(selectionModifier),
     ) {
         Box(
             contentAlignment = Alignment.CenterStart,

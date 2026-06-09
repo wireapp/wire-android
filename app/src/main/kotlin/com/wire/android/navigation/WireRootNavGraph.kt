@@ -20,6 +20,7 @@ package com.wire.android.navigation
 import com.ramcosta.composedestinations.annotation.ExternalNavGraph
 import com.ramcosta.composedestinations.annotation.NavHostGraph
 import com.ramcosta.composedestinations.generated.cells.navgraphs.CellsGraph
+import com.ramcosta.composedestinations.generated.meetings.navgraphs.NewMeetingGraph
 import com.ramcosta.composedestinations.generated.sketch.navgraphs.SketchGraph
 import com.wire.android.navigation.style.DefaultRootNavGraphAnimations
 
@@ -27,5 +28,6 @@ import com.wire.android.navigation.style.DefaultRootNavGraphAnimations
 annotation class WireRootNavGraph {
     @ExternalNavGraph<CellsGraph>
     @ExternalNavGraph<SketchGraph>
+    @ExternalNavGraph<NewMeetingGraph>
     companion object Includes
 }

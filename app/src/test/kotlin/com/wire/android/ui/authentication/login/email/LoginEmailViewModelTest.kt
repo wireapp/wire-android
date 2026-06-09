@@ -215,6 +215,7 @@ class LoginEmailViewModelTest {
         loginViewModel.login()
         advanceUntilIdle()
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidCredentialsError>()
+        loginViewModel.loginState.showInvalidCredentialsError shouldBeEqualTo true
     }
 
     @Test
@@ -243,6 +244,11 @@ class LoginEmailViewModelTest {
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidCredentialsError>()
         loginViewModel.clearLoginErrors()
         loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Error>()
+        loginViewModel.loginState.showInvalidCredentialsError shouldBeEqualTo true
+
+        loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd("new password")
+        advanceUntilIdle()
+        loginViewModel.loginState.showInvalidCredentialsError shouldBeEqualTo false
     }
 
     @Test

@@ -66,10 +66,28 @@ class RegistrationPage(private val device: UiDevice) {
         .text("Setting up Wire")
     private val agreeButton = UiSelectorParams(text = "Agree")
     private val conversationsPage = UiSelectorParams(text = "Conversations")
+    private val searchConversationsButton = UiSelectorParams(description = "Search conversations")
 
     fun assertEmailWelcomePage(timeout: Duration = UiWaitUtils.DEFAULT_TIMEOUT): RegistrationPage {
         val element = UiWaitUtils.waitElement(welcomePage, timeout = timeout)
         assertTrue("Expected 'Enter your email to start!' to be visible", !element.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertAuthEntryVisible(timeout: Duration = 45.seconds): RegistrationPage {
+        val authElement = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(
+                welcomePage,
+                emailInputField,
+                loginButton
+            ),
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        )
+        assertTrue(
+            "Auth entry screen is not visible",
+            authElement != null && !authElement.visibleBounds.isEmpty
+        )
         return this
     }
 
@@ -250,11 +268,10 @@ class RegistrationPage(private val device: UiDevice) {
             timeout = timeout,
             pollingInterval = UiWaitUtils.POLLING_DEFAULT
         ) {
-            UiWaitUtils.clickWhenClickable(
-                params = declineButton,
-                timeout = UiWaitUtils.POLLING_DEFAULT,
-                pollingInterval = UiWaitUtils.POLLING_FAST
-            )
+            UiWaitUtils.findElementOrNull(declineButton)
+                ?.takeIf { !it.visibleBounds.isEmpty && it.isEnabled }
+                ?.visibleCenter
+                ?.let { device.click(it.x, it.y) }
 
             val dialogVisible = UiWaitUtils.findElementOrNull(consentDialogTitle)?.let { !it.visibleBounds.isEmpty } == true
             val declineVisible = UiWaitUtils.findElementOrNull(declineButton)?.let { !it.visibleBounds.isEmpty } == true
@@ -271,9 +288,33 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertConversationPageVisible(): RegistrationPage {
-        val page = UiWaitUtils.waitElement(conversationsPage)
+    fun assertConversationPageVisible(timeout: Duration = 45.seconds): RegistrationPage {
+        val page = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(conversationsPage, searchConversationsButton),
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        ) ?: throw AssertionError("Conversations page is not visible")
         assertTrue("Conversations page is not visible", !page.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun waitUntilConversationPageVisibleDismissingPostLoginPrompts(timeout: Duration = 45.seconds): RegistrationPage {
+        val visible = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            clickAllowNotificationButton()
+            clickDeclineShareDataAlert(timeout = 1.seconds)
+
+            UiWaitUtils.waitAnyVisible(
+                selectors = listOf(conversationsPage, searchConversationsButton),
+                timeout = UiWaitUtils.POLLING_FAST,
+                pollingInterval = UiWaitUtils.POLLING_FAST
+            )?.let { !it.visibleBounds.isEmpty } == true
+        }
+        if (!visible) {
+            throw AssertionError("Conversations page is not visible after dismissing post-login prompts")
+        }
         return this
     }
 

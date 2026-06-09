@@ -38,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -105,6 +106,10 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
+val LocalSelfUserProfileLogoutAction = staticCompositionLocalOf<((wipeData: Boolean) -> Unit)?> {
+    null
+}
+
 @WireRootDestination(
     style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
 )
@@ -118,6 +123,7 @@ fun SelfUserProfileScreen(
     legalHoldRequestedViewModel: LegalHoldRequestedViewModel = legalHoldRequestedViewModel()
 ) {
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
+    val logoutAction = LocalSelfUserProfileLogoutAction.current
 
     LaunchedEffect(Unit) {
         // Check if the user is able to migrate to a team account, every time the screen is shown
@@ -128,7 +134,8 @@ fun SelfUserProfileScreen(
         state = viewModelSelf.userProfileState,
         onCloseClick = navigator::navigateBack,
         logout = {
-            viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
+            logoutAction?.invoke(it)
+                ?: viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
         },
         onChangeUserProfilePicture = {
             navigator.navigate(

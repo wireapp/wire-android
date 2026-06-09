@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.conversations.details.options
 
-import com.wire.android.ui.home.conversations.groupConversationDetailsViewModel
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -72,7 +71,7 @@ fun GroupConversationOptions(
     onAppsAccessItemClicked: () -> Unit,
     onChannelAccessItemClicked: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
-    viewModel: GroupConversationDetailsViewModel = groupConversationDetailsViewModel(),
+    viewModel: GroupConversationDetailsViewModel,
     onEditGroupName: () -> Unit
 ) {
     val state by viewModel.groupOptionsState.collectAsStateWithLifecycle()

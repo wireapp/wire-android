@@ -193,6 +193,7 @@ fun GroupConversationDetailsScreen(
     GroupConversationDetailsContent(
         sheetState = sheetState,
         groupConversationOptionsState = groupOptions,
+        viewModel = viewModel,
         onBackPressed = navigator::navigateBack,
         onProfilePressed = { participant ->
             when {
@@ -362,6 +363,7 @@ fun GroupConversationDetailsScreen(
 @Composable
 private fun GroupConversationDetailsContent(
     groupConversationOptionsState: GroupConversationOptionsState,
+    viewModel: GroupConversationDetailsViewModel? = null,
     sheetState: WireModalSheetState<ConversationSheetState>,
     onBackPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
@@ -539,6 +541,9 @@ private fun GroupConversationDetailsContent(
                             onAppsAccessItemClicked = onAppsAccessItemClicked,
                             onChannelAccessItemClicked = onChannelAccessItemClicked,
                             onEditSelfDeletingMessages = onEditSelfDeletingMessages,
+                            viewModel = requireNotNull(viewModel) {
+                                "GroupConversationDetailsContent requires GroupConversationDetailsViewModel outside preview"
+                            },
                             onEditGroupName = onEditGroupName
                         )
 

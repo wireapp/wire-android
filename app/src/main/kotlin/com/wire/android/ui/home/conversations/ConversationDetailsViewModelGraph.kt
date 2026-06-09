@@ -18,9 +18,7 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.metroSavedStateViewModel
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.metro.scopedMetroViewModel
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessViewModel
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel
@@ -31,60 +29,38 @@ import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateApp
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModel
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
 
-interface ConversationDetailsViewModelGraph : MetroViewModelGraph {
-    val conversationDetailsViewModelFactory: ConversationDetailsViewModelFactory
-}
-
 @Composable
 fun groupConversationDetailsViewModel(): GroupConversationDetailsViewModel =
-    metroSavedStateViewModel<ConversationDetailsViewModelGraph, GroupConversationDetailsViewModel> {
-        conversationDetailsViewModelFactory.groupConversationDetailsViewModel(it)
-    }
+    scopedMetroViewModel()
 
 @Composable
 fun groupConversationParticipantsViewModel(): GroupConversationParticipantsViewModel =
-    metroSavedStateViewModel<ConversationDetailsViewModelGraph, GroupConversationParticipantsViewModel> {
-        conversationDetailsViewModelFactory.groupConversationParticipantsViewModel(it)
-    }
+    scopedMetroViewModel()
 
 @Composable
 fun editConversationMetadataViewModel(): EditConversationMetadataViewModel =
-    metroSavedStateViewModel<ConversationDetailsViewModelGraph, EditConversationMetadataViewModel> {
-        conversationDetailsViewModelFactory.editConversationMetadataViewModel(it)
-    }
+    scopedMetroViewModel()
 
 @Composable
 fun editSelfDeletingMessagesViewModel(): EditSelfDeletingMessagesViewModel =
-    metroSavedStateViewModel<ConversationDetailsViewModelGraph, EditSelfDeletingMessagesViewModel> {
-        conversationDetailsViewModelFactory.editSelfDeletingMessagesViewModel(it)
-    }
+    scopedMetroViewModel()
 
 @Composable
 fun updateChannelAccessViewModel(): UpdateChannelAccessViewModel =
-    metroSavedStateViewModel<ConversationDetailsViewModelGraph, UpdateChannelAccessViewModel> {
-        conversationDetailsViewModelFactory.updateChannelAccessViewModel(it)
-    }
+    scopedMetroViewModel()
 
 @Composable
 fun updateAppsAccessViewModel(): UpdateAppsAccessViewModel =
-    metroSavedStateViewModel<ConversationDetailsViewModelGraph, UpdateAppsAccessViewModel> {
-        conversationDetailsViewModelFactory.updateAppsAccessViewModel(it)
-    }
+    scopedMetroViewModel()
 
 @Composable
 fun editGuestAccessViewModel(): EditGuestAccessViewModel =
-    metroSavedStateViewModel<ConversationDetailsViewModelGraph, EditGuestAccessViewModel> {
-        conversationDetailsViewModelFactory.editGuestAccessViewModel(it)
-    }
+    scopedMetroViewModel()
 
 @Composable
 fun createPasswordGuestLinkViewModel(): CreatePasswordGuestLinkViewModel =
-    metroSavedStateViewModel<ConversationDetailsViewModelGraph, CreatePasswordGuestLinkViewModel> {
-        conversationDetailsViewModelFactory.createPasswordGuestLinkViewModel(it)
-    }
+    scopedMetroViewModel()
 
 @Composable
 fun checkAssetRestrictionsViewModel(): CheckAssetRestrictionsViewModel =
-    metroViewModel<ConversationDetailsViewModelGraph, CheckAssetRestrictionsViewModel> {
-        conversationDetailsViewModelFactory.checkAssetRestrictionsViewModel()
-    }
+    scopedMetroViewModel()

@@ -18,96 +18,75 @@
 package com.wire.android.di.metro
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 interface MetroViewModelGraph {
     val viewModelScopeKey: String?
         get() = null
 }
 
-/**
- * Temporary Android Compose bridge used while moving ViewModel creation to Metro.
- *
- * Reusable UI should not treat this as a general DI entry point. The target direction is to keep
- * common UI components UI-only and pass state, callbacks, or narrow models from screen/container
- * code.
- */
-val LocalMetroViewModelGraph = staticCompositionLocalOf<MetroViewModelGraph?> {
+val LocalWireViewModelScopeKey = staticCompositionLocalOf<String?> {
     null
-}
-
-@Composable
-inline fun <reified Graph, reified VM> metroViewModel(
-    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    },
-    key: String? = null,
-    crossinline create: Graph.() -> VM,
-): VM where Graph : MetroViewModelGraph, VM : ViewModel {
-    val graph = checkNotNull(LocalMetroViewModelGraph.current as? Graph) {
-        "No Metro graph matching ${Graph::class.qualifiedName} was provided"
-    }
-    val scopedKey = scopedMetroViewModelKey(
-        defaultKey = VM::class.qualifiedName,
-        key = key,
-        scopeKey = graph.viewModelScopeKey,
-    )
-    val factory = remember(graph) {
-        viewModelFactory {
-            initializer {
-                graph.create()
-            }
-        }
-    }
-    return viewModel(
-        modelClass = VM::class,
-        viewModelStoreOwner = viewModelStoreOwner,
-        key = scopedKey,
-        factory = factory,
-    )
-}
-
-@Composable
-inline fun <reified Graph, reified VM> metroSavedStateViewModel(
-    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    },
-    key: String? = null,
-    crossinline create: Graph.(SavedStateHandle) -> VM,
-): VM where Graph : MetroViewModelGraph, VM : ViewModel {
-    val graph = checkNotNull(LocalMetroViewModelGraph.current as? Graph) {
-        "No Metro graph matching ${Graph::class.qualifiedName} was provided"
-    }
-    val scopedKey = scopedMetroViewModelKey(
-        defaultKey = VM::class.qualifiedName,
-        key = key,
-        scopeKey = graph.viewModelScopeKey,
-    )
-    val factory = remember(graph) {
-        viewModelFactory {
-            initializer {
-                graph.create(createSavedStateHandle())
-            }
-        }
-    }
-    return viewModel(
-        modelClass = VM::class,
-        viewModelStoreOwner = viewModelStoreOwner,
-        key = scopedKey,
-        factory = factory,
-    )
 }
 
 fun scopedMetroViewModelKey(defaultKey: String?, key: String?, scopeKey: String?): String? {
     if (scopeKey == null) return key
     return "${key ?: defaultKey}:$scopeKey"
 }
+
+/**
+ * Creates a Metro-backed ViewModel using the current Wire ViewModel scope key.
+ *
+ * Session screens provide [LocalWireViewModelScopeKey] from the active account/session graph.
+ * Including that value in the ViewModel key prevents Compose from reusing a ViewModel that was
+ * created for a different account after account switching, logout, or client removal.
+ *
+ * Use this for regular Metro ViewModels that do not need runtime screen arguments. Pass [key] only
+ * when the same ViewModel class can have multiple instances inside one scope, for example one
+ * instance per tab, conversation, or picker target.
+ */
+@Composable
+inline fun <reified VM> scopedMetroViewModel(
+    key: String? = null,
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
+): VM where VM : ViewModel =
+    metroViewModel(
+        viewModelStoreOwner = viewModelStoreOwner,
+        key = scopedMetroViewModelKey(
+            defaultKey = VM::class.qualifiedName,
+            key = key,
+            scopeKey = LocalWireViewModelScopeKey.current,
+        ),
+    )
+
+/**
+ * Creates an assisted Metro-backed ViewModel using the current Wire ViewModel scope key.
+ *
+ * This has the same account/session isolation guarantees as [scopedMetroViewModel], but it also
+ * lets the caller pass runtime screen arguments through a [ManualViewModelAssistedFactory].
+ *
+ * Use this when the ViewModel constructor needs values that are only known by the screen route or
+ * call site, such as conversation id, selected folder id, login arguments, or tab type.
+ */
+@Composable
+inline fun <reified VM, reified Factory> scopedAssistedMetroViewModel(
+    key: String? = null,
+    crossinline createViewModel: Factory.() -> VM,
+): VM where VM : ViewModel, Factory : ManualViewModelAssistedFactory =
+    assistedMetroViewModel<VM, Factory>(
+        key = scopedMetroViewModelKey(
+            defaultKey = VM::class.qualifiedName,
+            key = key,
+            scopeKey = LocalWireViewModelScopeKey.current,
+        ),
+    ) {
+        createViewModel()
+    }

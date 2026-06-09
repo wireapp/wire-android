@@ -31,7 +31,9 @@ import com.wire.android.ui.home.HomeStateHolder
 
 @WireHomeDestination
 @Composable
-fun MeetingsScreen(homeStateHolder: HomeStateHolder) {
+fun MeetingsScreen(
+    homeStateHolder: HomeStateHolder,
+) {
     AllMeetingsScreen(
         lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Meetings),
         contentPadding = PaddingValues(bottom = dimensions().spacing80x), // to ensure last item is not obscured by FAB

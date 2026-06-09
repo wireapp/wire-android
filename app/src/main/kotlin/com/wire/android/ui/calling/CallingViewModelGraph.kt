@@ -19,9 +19,8 @@ package com.wire.android.ui.calling
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.metroSavedStateViewModel
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.metro.scopedAssistedMetroViewModel
+import com.wire.android.di.metro.scopedMetroViewModel
 import com.wire.android.ui.calling.common.SharedCallingViewModel
 import com.wire.android.ui.calling.incoming.IncomingCallViewModel
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
@@ -32,45 +31,58 @@ import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelI
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelPreview
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.kalium.logic.data.id.ConversationId
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.metroViewModel as metroxViewModel
 
-interface CallingViewModelGraph : MetroViewModelGraph {
+interface CallingManualViewModelFactory : ManualViewModelAssistedFactory {
+    fun incomingCallViewModel(conversationId: ConversationId): IncomingCallViewModel
+    fun outgoingCallViewModel(conversationId: ConversationId): OutgoingCallViewModel
+    fun ongoingCallViewModel(conversationId: ConversationId): OngoingCallViewModel
+    fun sharedCallingViewModel(conversationId: ConversationId): SharedCallingViewModel
+}
+
+interface CallingViewModelGraph {
     val callingViewModelFactory: CallingViewModelFactory
 }
 
 @Composable
 fun incomingCallViewModel(conversationId: ConversationId): IncomingCallViewModel =
-    metroViewModel<CallingViewModelGraph, IncomingCallViewModel>(key = "incoming_$conversationId") {
-        callingViewModelFactory.incomingCallViewModel(conversationId)
+    scopedAssistedMetroViewModel<IncomingCallViewModel, CallingManualViewModelFactory>(
+        key = "incoming_$conversationId",
+    ) {
+        incomingCallViewModel(conversationId)
     }
 
 @Composable
 fun outgoingCallViewModel(conversationId: ConversationId): OutgoingCallViewModel =
-    metroViewModel<CallingViewModelGraph, OutgoingCallViewModel>(key = "outgoing_$conversationId") {
-        callingViewModelFactory.outgoingCallViewModel(conversationId)
+    scopedAssistedMetroViewModel<OutgoingCallViewModel, CallingManualViewModelFactory>(
+        key = "outgoing_$conversationId",
+    ) {
+        outgoingCallViewModel(conversationId)
     }
 
 @Composable
 fun ongoingCallViewModel(conversationId: ConversationId): OngoingCallViewModel =
-    metroViewModel<CallingViewModelGraph, OngoingCallViewModel>(key = "ongoing_$conversationId") {
-        callingViewModelFactory.ongoingCallViewModel(conversationId)
+    scopedAssistedMetroViewModel<OngoingCallViewModel, CallingManualViewModelFactory>(
+        key = "ongoing_$conversationId",
+    ) {
+        ongoingCallViewModel(conversationId)
     }
 
 @Composable
 fun sharedCallingViewModel(conversationId: ConversationId): SharedCallingViewModel =
-    metroViewModel<CallingViewModelGraph, SharedCallingViewModel>(key = "shared_$conversationId") {
-        callingViewModelFactory.sharedCallingViewModel(conversationId)
+    scopedAssistedMetroViewModel<SharedCallingViewModel, CallingManualViewModelFactory>(
+        key = "shared_$conversationId",
+    ) {
+        sharedCallingViewModel(conversationId)
     }
 
 @Composable
 fun conversationCallViewModel(): ConversationCallViewModel =
-    metroSavedStateViewModel<CallingViewModelGraph, ConversationCallViewModel> {
-        callingViewModelFactory.conversationCallViewModel(it)
-    }
+    metroxViewModel()
 
 @Composable
 fun conversationListCallViewModel(conversationsSource: ConversationsSource): ConversationListCallViewModel = when {
     LocalInspectionMode.current -> ConversationListCallViewModelPreview
-    else -> metroViewModel<CallingViewModelGraph, ConversationListCallViewModelImpl>(key = "call_$conversationsSource") {
-        callingViewModelFactory.conversationListCallViewModel()
-    }
+    else -> scopedMetroViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
 }

@@ -18,13 +18,11 @@
 package com.wire.android.ui.debug
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.metroSavedStateViewModel
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.metro.scopedMetroViewModel
 import com.wire.android.ui.debug.conversation.DebugConversationViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
@@ -43,64 +41,52 @@ inline fun <reified VM> debugInfoViewModel(
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
     key: String? = null,
-    crossinline create: DebugInfoViewModelFactory.() -> VM,
 ): VM where VM : ViewModel =
-    metroViewModel<DebugInfoViewModelGraph, VM>(
+    scopedMetroViewModel(
         viewModelStoreOwner = viewModelStoreOwner,
         key = key,
-    ) {
-        debugInfoViewModelFactory.create()
-    }
+    )
 
 @Composable
-inline fun <reified VM> debugInfoSavedStateViewModel(
-    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    },
-    key: String? = null,
-    crossinline create: DebugInfoViewModelFactory.(SavedStateHandle) -> VM,
-): VM where VM : ViewModel =
-    metroSavedStateViewModel<DebugInfoViewModelGraph, VM>(
-        viewModelStoreOwner = viewModelStoreOwner,
-        key = key,
-    ) { savedStateHandle ->
-        debugInfoViewModelFactory.create(savedStateHandle)
-    }
+fun userDebugViewModel(): UserDebugViewModel =
+    debugInfoViewModel()
 
 @Composable
-fun userDebugViewModel(): UserDebugViewModel = debugInfoViewModel { userDebugViewModel() }
-
-@Composable
-fun logManagementViewModel(): LogManagementViewModel = debugInfoViewModel { logManagementViewModel() }
+fun logManagementViewModel(): LogManagementViewModel =
+    debugInfoViewModel()
 
 @Composable
 fun debugDataOptionsViewModel(): DebugDataOptionsViewModel =
-    debugInfoViewModel<DebugDataOptionsViewModelImpl> { debugDataOptionsViewModel() }
+    debugInfoViewModel<DebugDataOptionsViewModelImpl>()
 
 @Composable
 fun exportObfuscatedCopyViewModel(): ExportObfuscatedCopyViewModel =
-    debugInfoViewModel<ExportObfuscatedCopyViewModelImpl> { exportObfuscatedCopyViewModel() }
+    debugInfoViewModel<ExportObfuscatedCopyViewModelImpl>()
 
 @Composable
 fun debugConversationViewModel(): DebugConversationViewModel =
-    debugInfoSavedStateViewModel { debugConversationViewModel(it) }
+    debugInfoViewModel()
 
 @Composable
 fun conversationCryptoStatsViewModel(): ConversationCryptoStatsViewModel =
-    debugInfoViewModel { conversationCryptoStatsViewModel() }
+    debugInfoViewModel()
 
 @Composable
 fun debugFeatureFlagsViewModel(): DebugFeatureFlagsViewModel =
-    debugInfoViewModel { debugFeatureFlagsViewModel() }
+    debugInfoViewModel()
 
 @Composable
-fun whatsNewViewModel(): WhatsNewViewModel = debugInfoViewModel { whatsNewViewModel() }
+fun whatsNewViewModel(): WhatsNewViewModel =
+    debugInfoViewModel()
 
 @Composable
-fun aboutThisAppViewModel(): AboutThisAppViewModel = debugInfoViewModel { aboutThisAppViewModel() }
+fun aboutThisAppViewModel(): AboutThisAppViewModel =
+    debugInfoViewModel()
 
 @Composable
-fun dependenciesViewModel(): DependenciesViewModel = debugInfoViewModel { dependenciesViewModel() }
+fun dependenciesViewModel(): DependenciesViewModel =
+    debugInfoViewModel()
 
 @Composable
-fun licensesViewModel(): LicensesViewModel = debugInfoViewModel { licensesViewModel() }
+fun licensesViewModel(): LicensesViewModel =
+    debugInfoViewModel()

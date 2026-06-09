@@ -173,7 +173,9 @@ fun MessageButtonsContent(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     viewModel: CompositeMessageViewModel =
-        compositeMessageViewModel(CompositeMessageArgs(messageId))
+        compositeMessageViewModel(
+            CompositeMessageArgs(messageId)
+        )
 ) {
     Column(
         modifier = modifier

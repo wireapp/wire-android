@@ -19,94 +19,129 @@ package com.wire.android.di
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.wire.android.di.metro.LocalMetroViewModelGraph
-import com.wire.android.di.metro.MetroViewModelGraph
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import com.wire.android.di.metro.LocalWireViewModelScopeKey
 import com.sebaslogen.resaca.KeyInScopeResolver
-import com.sebaslogen.resaca.viewModelScoped as resacaViewModelScoped
+import com.sebaslogen.resaca.metro.metroViewModelScoped as resacaMetroViewModelScoped
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import kotlin.reflect.KClass
+import kotlin.reflect.cast
 import kotlin.time.Duration
 
 @Composable
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-inline fun <reified Graph, reified T, reified S, reified R : ScopedArgs> wireMetroViewModelScoped(
+inline fun <reified T, reified S, reified R : ScopedArgs, reified FactoryType> wireManualMetroViewModelScoped(
     arguments: R,
     clearDelay: Duration? = null,
-    noinline create: Graph.(SavedStateHandle, R) -> T,
-): S where Graph : MetroViewModelGraph, T : ViewModel, T : S = when {
+    noinline create: FactoryType.(SavedStateHandle, R) -> T,
+): S where T : ViewModel, T : S, FactoryType : ManualViewModelAssistedFactory = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> {
-        val graph = currentMetroViewModelGraph<Graph>()
-        resacaViewModelScoped<T>(
-            key = arguments.key?.toString(),
+        resacaMetroViewModelScoped<T>(
+            key = scopedResacaKey(LocalWireViewModelScopeKey.current, arguments.key?.toString()),
             clearDelay = clearDelay,
-        ) { savedStateHandle ->
-            graph.create(savedStateHandle, arguments)
-        } as S
+            factory = manualScopedViewModelFactory<T, FactoryType> { extras ->
+                create(extras.createSavedStateHandle(), arguments)
+            },
+            creationExtras = defaultViewModelCreationExtras(),
+        ) as S
     }
 }
 
 @Composable
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-inline fun <reified Graph, reified T, reified S, reified R : ScopedArgs> wireMetroViewModelScoped(
+inline fun <reified T, reified S, reified R : ScopedArgs, reified FactoryType> wireManualMetroViewModelScoped(
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
     clearDelay: Duration? = null,
-    noinline create: Graph.(SavedStateHandle, R) -> T,
-): S where Graph : MetroViewModelGraph, T : ViewModel, T : S = when {
+    noinline create: FactoryType.(SavedStateHandle, R) -> T,
+): S where T : ViewModel, T : S, FactoryType : ManualViewModelAssistedFactory = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> {
-        val graph = currentMetroViewModelGraph<Graph>()
-        val scopedKey = requireNotNull(arguments.key?.toString()) {
+        val argumentsKey = requireNotNull(arguments.key?.toString()) {
             "Scoped key must not be null for ${T::class.qualifiedName}"
         }
-        resacaViewModelScoped<T, String>(
-            key = scopedKey,
-            keyInScopeResolver = keyInScopeResolver,
+        resacaMetroViewModelScoped<T, String>(
+            key = requireNotNull(scopedResacaKey(LocalWireViewModelScopeKey.current, argumentsKey)),
+            keyInScopeResolver = { keyInScopeResolver(argumentsKey) },
             clearDelay = clearDelay,
-        ) { savedStateHandle ->
-            graph.create(savedStateHandle, arguments)
-        } as S
+            factory = manualScopedViewModelFactory<T, FactoryType> { extras ->
+                create(extras.createSavedStateHandle(), arguments)
+            },
+            creationExtras = defaultViewModelCreationExtras(),
+        ) as S
     }
 }
 
 @Composable
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-inline fun <reified Graph, reified T, reified S> wireMetroViewModelScoped(
+inline fun <reified T, reified S, reified FactoryType> wireManualMetroViewModelScoped(
     clearDelay: Duration? = null,
-    noinline create: Graph.(SavedStateHandle) -> T,
-): S where Graph : MetroViewModelGraph, T : ViewModel, T : S = when {
+    noinline create: FactoryType.(SavedStateHandle) -> T,
+): S where T : ViewModel, T : S, FactoryType : ManualViewModelAssistedFactory = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> {
-        val graph = currentMetroViewModelGraph<Graph>()
-        resacaViewModelScoped<T>(clearDelay = clearDelay) { savedStateHandle ->
-            graph.create(savedStateHandle)
-        } as S
-    }
+    else -> resacaMetroViewModelScoped<T>(
+        key = scopedResacaKey(LocalWireViewModelScopeKey.current),
+        clearDelay = clearDelay,
+        factory = manualScopedViewModelFactory<T, FactoryType> { extras ->
+            create(extras.createSavedStateHandle())
+        },
+        creationExtras = defaultViewModelCreationExtras(),
+    ) as S
 }
 
 @Composable
-inline fun <reified Graph, reified T> wireMetroViewModelScoped(
+inline fun <reified T, reified FactoryType> wireManualMetroViewModelScoped(
     clearDelay: Duration? = null,
-    noinline create: Graph.(SavedStateHandle) -> T,
-): T where Graph : MetroViewModelGraph, T : ViewModel = when {
-    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? T }
-    espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? T }
-    else -> {
-        val graph = currentMetroViewModelGraph<Graph>()
-        resacaViewModelScoped<T>(clearDelay = clearDelay) { savedStateHandle ->
-            graph.create(savedStateHandle)
+    noinline create: FactoryType.(SavedStateHandle) -> T,
+): T where T : ViewModel, FactoryType : ManualViewModelAssistedFactory =
+    wireManualMetroViewModelScoped<T, T, FactoryType>(
+        clearDelay = clearDelay,
+        create = create,
+    )
+
+@Composable
+@PublishedApi
+internal inline fun <reified T, reified FactoryType> manualScopedViewModelFactory(
+    crossinline create: FactoryType.(CreationExtras) -> T,
+): ViewModelProvider.Factory where T : ViewModel, FactoryType : ManualViewModelAssistedFactory {
+    val metroViewModelFactory = LocalMetroViewModelFactory.current
+    return object : ViewModelProvider.Factory {
+        override fun <VM : ViewModel> create(modelClass: KClass<VM>, extras: CreationExtras): VM {
+            val factory = metroViewModelFactory.createManuallyAssistedFactory(FactoryType::class)()
+            return modelClass.cast(factory.create(extras))
         }
     }
 }
 
 @Composable
-inline fun <reified Graph : MetroViewModelGraph> currentMetroViewModelGraph(): Graph =
-    checkNotNull(LocalMetroViewModelGraph.current as? Graph) {
-        "No Metro graph matching ${Graph::class.qualifiedName} was provided"
+@PublishedApi
+internal fun defaultViewModelCreationExtras(): CreationExtras {
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    }
+    return if (viewModelStoreOwner is HasDefaultViewModelProviderFactory) {
+        viewModelStoreOwner.defaultViewModelCreationExtras
+    } else {
+        CreationExtras.Empty
+    }
+}
+
+@PublishedApi
+internal fun scopedResacaKey(scopeKey: String?, key: String? = null): String? =
+    when (scopeKey) {
+        null -> key
+        else -> listOfNotNull(key, scopeKey).joinToString(":")
     }
 
 val espresso

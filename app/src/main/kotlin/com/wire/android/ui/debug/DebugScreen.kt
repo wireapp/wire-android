@@ -72,6 +72,8 @@ import java.io.File
 fun DebugScreen(
     navigator: Navigator,
     userDebugViewModel: UserDebugViewModel = userDebugViewModel(),
+    debugDataOptionsViewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel(),
+    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel(),
 ) {
     UserDebugContent(
         onNavigationPressed = navigator::navigateBack,
@@ -85,7 +87,9 @@ fun DebugScreen(
         },
         onShowCryptoStats = {
             navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
-        }
+        },
+        debugDataOptionsViewModel = debugDataOptionsViewModel,
+        exportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel,
     )
 }
 
@@ -99,8 +103,8 @@ internal fun UserDebugContent(
     onFlushLogs: () -> Deferred<Unit>,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
-    debugDataOptionsViewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel(),
-    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel(),
+    debugDataOptionsViewModel: DebugDataOptionsViewModel,
+    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel,
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
 
@@ -149,7 +153,7 @@ internal fun UserDebugContent(
 @Composable
 fun DangerOptions(
     modifier: Modifier = Modifier,
-    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel()
+    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel,
 ) {
 
     Column(modifier = modifier) {
@@ -255,5 +259,7 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onDatabaseLoggerEnabledChanged = {},
         onShowFeatureFlags = {},
         onShowCryptoStats = {},
+        debugDataOptionsViewModel = object : DebugDataOptionsViewModel {},
+        exportObfuscatedCopyViewModel = object : ExportObfuscatedCopyViewModel {},
     )
 }

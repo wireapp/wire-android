@@ -45,7 +45,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.divider.WireDivider
@@ -165,12 +164,6 @@ fun SelectableSelfDeletingItem(
             color = MaterialTheme.wireColorScheme.onBackground
         )
     }
-}
-
-@Preview
-@Composable
-fun PreviewEditSelfDeletingMessagesScreen() {
-    EditSelfDeletingMessagesScreen(rememberNavigator {})
 }
 
 @Preview

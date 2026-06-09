@@ -18,9 +18,8 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.metroSavedStateViewModel
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.metro.scopedAssistedMetroViewModel
+import com.wire.android.di.metro.scopedMetroViewModel
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl
@@ -34,61 +33,58 @@ import com.wire.android.ui.home.conversations.search.adddembertoconversation.Add
 import com.wire.android.ui.home.conversations.search.apps.SearchAppsViewModel
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
 import com.wire.kalium.logic.data.conversation.Conversation
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-interface ConversationSearchFolderViewModelGraph : MetroViewModelGraph {
-    val conversationSearchFolderViewModelFactory: ConversationSearchFolderViewModelFactory
+interface ConversationSearchFolderManualViewModelFactory : ManualViewModelAssistedFactory {
+    fun conversationFoldersViewModel(args: ConversationFoldersStateArgs): ConversationFoldersVMImpl
+    fun moveConversationToFolderViewModel(args: MoveConversationToFolderArgs): MoveConversationToFolderVMImpl
+    fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel
 }
 
 @Composable
-fun conversationFoldersViewModel(args: ConversationFoldersStateArgs): ConversationFoldersVM =
-    metroViewModel<ConversationSearchFolderViewModelGraph, ConversationFoldersVMImpl>(
+fun conversationFoldersViewModel(
+    args: ConversationFoldersStateArgs
+): ConversationFoldersVM =
+    scopedAssistedMetroViewModel<ConversationFoldersVMImpl, ConversationSearchFolderManualViewModelFactory>(
         key = "conversation_folders_${args.selectedFolderId}"
     ) {
-        conversationSearchFolderViewModelFactory.conversationFoldersViewModel(args)
+        conversationFoldersViewModel(args)
     }
 
 @Composable
-fun moveConversationToFolderViewModel(args: MoveConversationToFolderArgs): MoveConversationToFolderVM =
-    metroViewModel<ConversationSearchFolderViewModelGraph, MoveConversationToFolderVMImpl>(
+fun moveConversationToFolderViewModel(
+    args: MoveConversationToFolderArgs
+): MoveConversationToFolderVM =
+    scopedAssistedMetroViewModel<MoveConversationToFolderVMImpl, ConversationSearchFolderManualViewModelFactory>(
         key = "move_conversation_to_folder_${args.conversationId}_${args.currentFolderId}"
     ) {
-        conversationSearchFolderViewModelFactory.moveConversationToFolderViewModel(args)
+        moveConversationToFolderViewModel(args)
     }
 
 @Composable
 fun newFolderViewModel(): NewFolderViewModel =
-    metroViewModel<ConversationSearchFolderViewModelGraph, NewFolderViewModel> {
-        conversationSearchFolderViewModelFactory.newFolderViewModel()
-    }
+    scopedMetroViewModel()
 
 @Composable
 fun searchUserViewModel(): SearchUserViewModel =
-    metroSavedStateViewModel<ConversationSearchFolderViewModelGraph, SearchUserViewModel> {
-        conversationSearchFolderViewModelFactory.searchUserViewModel(it)
-    }
+    scopedMetroViewModel()
 
 @Composable
 fun addMembersToConversationViewModel(): AddMembersToConversationViewModel =
-    metroSavedStateViewModel<ConversationSearchFolderViewModelGraph, AddMembersToConversationViewModel> {
-        conversationSearchFolderViewModelFactory.addMembersToConversationViewModel(it)
-    }
+    scopedMetroViewModel()
 
 @Composable
 fun searchConversationMessagesViewModel(): SearchConversationMessagesViewModel =
-    metroSavedStateViewModel<ConversationSearchFolderViewModelGraph, SearchConversationMessagesViewModel> {
-        conversationSearchFolderViewModelFactory.searchConversationMessagesViewModel(it)
-    }
+    scopedMetroViewModel()
 
 @Composable
 fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel =
-    metroViewModel<ConversationSearchFolderViewModelGraph, SearchAppsViewModel>(
+    scopedAssistedMetroViewModel<SearchAppsViewModel, ConversationSearchFolderManualViewModelFactory>(
         key = "search_apps_protocol_info_${protocolInfo?.name()}"
     ) {
-        conversationSearchFolderViewModelFactory.searchAppsViewModel(protocolInfo)
+        searchAppsViewModel(protocolInfo)
     }
 
 @Composable
 fun promoteAdminViewModel(): PromoteAdminViewModel =
-    metroSavedStateViewModel<ConversationSearchFolderViewModelGraph, PromoteAdminViewModel> {
-        conversationSearchFolderViewModelFactory.promoteAdminViewModel(it)
-    }
+    scopedMetroViewModel()

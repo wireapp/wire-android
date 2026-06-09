@@ -21,9 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.metroSavedStateViewModel
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.metro.scopedAssistedMetroViewModel
+import com.wire.android.di.metro.scopedMetroViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
@@ -31,28 +30,31 @@ import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-interface HomeViewModelGraph : MetroViewModelGraph {
-    val homeViewModelFactory: HomeViewModelFactory
+interface HomeManualViewModelFactory : ManualViewModelAssistedFactory {
+    fun conversationListViewModel(conversationsSource: ConversationsSource): ConversationListViewModelImpl
 }
 
 @Composable
 fun homeViewModel(): HomeViewModel =
-    metroSavedStateViewModel<HomeViewModelGraph, HomeViewModel> { homeViewModelFactory.homeViewModel(it) }
+    scopedMetroViewModel()
 
 @Composable
 fun appSyncViewModel(): AppSyncViewModel =
-    metroViewModel<HomeViewModelGraph, AppSyncViewModel> { homeViewModelFactory.appSyncViewModel() }
+    scopedMetroViewModel()
 
 @Composable
 fun homeDrawerViewModel(): HomeDrawerViewModel =
-    metroSavedStateViewModel<HomeViewModelGraph, HomeDrawerViewModel> { homeViewModelFactory.homeDrawerViewModel(it) }
+    scopedMetroViewModel()
 
 @Composable
 fun conversationListViewModel(conversationsSource: ConversationsSource): ConversationListViewModel = when {
     LocalInspectionMode.current -> ConversationListViewModelPreview()
-    else -> metroViewModel<HomeViewModelGraph, ConversationListViewModelImpl>(key = "list_$conversationsSource") {
-        homeViewModelFactory.conversationListViewModel(conversationsSource)
+    else -> scopedAssistedMetroViewModel<ConversationListViewModelImpl, HomeManualViewModelFactory>(
+        key = "list_$conversationsSource",
+    ) {
+        conversationListViewModel(conversationsSource)
     }
 }
 
@@ -62,12 +64,10 @@ fun newConversationViewModel(
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
 ): NewConversationViewModel =
-    metroViewModel<HomeViewModelGraph, NewConversationViewModel>(viewModelStoreOwner = viewModelStoreOwner) {
-        homeViewModelFactory.newConversationViewModel()
-    }
+    scopedMetroViewModel(
+        viewModelStoreOwner = viewModelStoreOwner,
+    )
 
 @Composable
 fun featureFlagNotificationViewModel(): FeatureFlagNotificationViewModel =
-    metroViewModel<HomeViewModelGraph, FeatureFlagNotificationViewModel> {
-        homeViewModelFactory.featureFlagNotificationViewModel()
-    }
+    scopedMetroViewModel()

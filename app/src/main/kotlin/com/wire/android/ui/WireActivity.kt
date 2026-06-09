@@ -38,10 +38,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -68,6 +66,8 @@ import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPassw
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewWelcomeEmptyStartScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.RegisterDeviceScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfDevicesScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
@@ -81,11 +81,16 @@ import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.metro.AppAuthenticationViewModelGraph
 import com.wire.android.di.metro.AppSessionViewModelGraph
-import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.LocalWireViewModelScopeKey
 import com.wire.android.di.metro.MetroViewModelGraph
+import com.wire.android.di.metro.WireApplicationGraph
+import com.wire.android.di.metro.createCurrentSessionViewModelGraph
+import com.wire.android.di.metro.createSessionViewModelGraph
+import com.wire.android.di.metro.scopedMetroViewModelKey
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.NavigationSwitchAccountActions
+import com.wire.android.model.LocalWireSessionImageLoader
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
@@ -99,6 +104,7 @@ import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
+import com.wire.android.ui.authentication.LocalAuthenticationCancelUserId
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.setupOrientationForDevice
@@ -115,6 +121,7 @@ import com.wire.android.ui.home.E2EIResultDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
+import com.wire.android.ui.home.featureFlagNotificationViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedDialog
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedState
@@ -135,6 +142,7 @@ import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.launchUpdateTheApp
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
@@ -143,6 +151,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelGraph
+import dev.zacsweers.metrox.viewmodel.metroViewModel as metroxViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Suppress("TooManyFunctions", "LargeClass")
@@ -258,31 +270,22 @@ class WireActivity : BaseActivity() {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
             val currentUserId = viewModel.globalAppState.currentUserId
-            val appGraph = LocalContext.current.wireApplicationGraph
-            val sessionViewModelGraph = remember(appGraph, currentUserId) {
-                currentUserId?.let { appGraph.sessionViewModelGraph }
-            }
+            val context = LocalContext.current
+            val appGraph = context.wireApplicationGraph
             val authenticationViewModelGraph = remember(appGraph) {
                 appGraph.authenticationViewModelGraph
             }
-            val activityViewModels = sessionViewModelGraph?.let {
-                wireActivityScopedViewModels(it)
-            }
-
-            HandleThemeChanges(viewModel.globalAppState.themeOption)
-
             CompositionLocalProvider(
+                LocalMetroViewModelFactory provides appGraph.metroViewModelFactory,
+                LocalWireViewModelScopeKey provides null,
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
                 LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
                 LocalSnackbarHostState provides snackbarHostState,
                 LocalActivity provides this
             ) {
-                activityViewModels?.let {
-                    LaunchedEffect(it.legalHoldRequestedViewModel) {
-                        it.legalHoldRequestedViewModel.observeLegalHoldRequest()
-                    }
-                }
+                HandleThemeChanges(viewModel.globalAppState.themeOption)
+
                 WireTheme(accent = viewModel.globalAppState.userAccent) {
                     val navigator = rememberNavigator(
                         finish = this@WireActivity::finish,
@@ -305,12 +308,20 @@ class WireActivity : BaseActivity() {
                         ?.destination
                         ?.route
                         ?.getBaseRoute()
-                    val metroViewModelGraph = rememberMetroViewModelGraph(
+                    val isUserUiBlocked = viewModel.globalAppState.blockUserUI != null
+                    val graphContext = rememberWireActivityGraphContext(
+                        appGraph = appGraph,
+                        authenticationViewModelGraph = authenticationViewModelGraph,
+                        currentUserId = currentUserId,
                         currentBaseRoute = currentBaseRoute,
                         startDestinationBaseRoute = startDestination.baseRoute,
-                        sessionViewModelGraph = sessionViewModelGraph,
-                        authenticationViewModelGraph = authenticationViewModelGraph
+                        isUserUiBlocked = isUserUiBlocked,
                     )
+                    graphContext?.activityViewModels?.let {
+                        LaunchedEffect(it.legalHoldRequestedViewModel) {
+                            it.legalHoldRequestedViewModel.observeLegalHoldRequest()
+                        }
+                    }
                     val backgroundType by remember {
                         derivedStateOf {
                             currentBackStackEntryState.value?.destination()?.style.let {
@@ -321,14 +332,14 @@ class WireActivity : BaseActivity() {
                     if (backgroundType == BackgroundType.Auth) {
                         WireAuthBackgroundLayout()
                     }
-                    metroViewModelGraph?.let {
-                        CompositionLocalProvider(LocalMetroViewModelGraph provides it) {
+                    if (graphContext != null) {
+                        graphContext.ProvideViewModelGraph {
                             Column(
                                 modifier = Modifier
                                     .semantics { testTagsAsResourceId = true }
                             ) {
                                 WireTopAppBar(
-                                    commonTopAppBarState = activityViewModels
+                                    commonTopAppBarState = graphContext.activityViewModels
                                         ?.commonTopAppBarViewModel
                                         ?.state ?: CommonTopAppBarState(),
                                     backgroundType = backgroundType,
@@ -344,10 +355,12 @@ class WireActivity : BaseActivity() {
                                 // can crash before the graph is fully built.
                                 SetUpNavigation(navigator)
                                 HandleScreenshotCensoring()
-                                HandleDialogs(navigator, activityViewModels)
+                                HandleDialogs(navigator, graphContext.activityViewModels)
                                 HandleViewActions(viewModel.actions, navigator, loginTypeSelector)
                             }
                         }
+                    } else {
+                        HandleDialogs(navigator, null)
                     }
                 }
             }
@@ -355,65 +368,74 @@ class WireActivity : BaseActivity() {
     }
 
     @Composable
-    private fun rememberMetroViewModelGraph(
+    private fun rememberWireActivityGraphContext(
+        appGraph: WireApplicationGraph,
+        authenticationViewModelGraph: AppAuthenticationViewModelGraph,
+        currentUserId: UserId?,
         currentBaseRoute: String?,
         startDestinationBaseRoute: String,
-        sessionViewModelGraph: AppSessionViewModelGraph?,
-        authenticationViewModelGraph: AppAuthenticationViewModelGraph,
-    ): MetroViewModelGraph? {
+        isUserUiBlocked: Boolean,
+    ): WireActivityGraphContext? {
+        if (isUserUiBlocked) return null
+
         val effectiveBaseRoute = currentBaseRoute ?: startDestinationBaseRoute
-        val usesAuthenticationGraph = effectiveBaseRoute in authenticationGraphRoutes
-        var useStandaloneAuthenticationGraph by remember {
-            mutableStateOf(false)
+        val sessionGraph = remember(
+            appGraph,
+            currentUserId,
+            currentBaseRoute,
+        ) {
+            when {
+                currentUserId != null -> appGraph.createSessionViewModelGraph(currentUserId)
+                currentBaseRoute in sessionBackedAuthenticationGraphRoutes -> appGraph.createCurrentSessionViewModelGraphOrNull()
+                else -> null
+            }
         }
-        if (usesAuthenticationGraph && sessionViewModelGraph == null) {
-            useStandaloneAuthenticationGraph = true
+        val graph = when {
+            sessionGraph != null -> sessionGraph
+            effectiveBaseRoute in authenticationGraphRoutes -> authenticationViewModelGraph
+            currentBaseRoute == null -> authenticationViewModelGraph
+            else -> return null
         }
-        if (!usesAuthenticationGraph && sessionViewModelGraph != null) {
-            useStandaloneAuthenticationGraph = false
+        val activityViewModels = sessionGraph?.let {
+            wireActivityScopedViewModels(it)
         }
-        return selectMetroViewModelGraph(
-            currentBaseRoute = effectiveBaseRoute,
-            usesAuthenticationGraph = usesAuthenticationGraph,
-            useStandaloneAuthenticationGraph = useStandaloneAuthenticationGraph,
-            sessionViewModelGraph = sessionViewModelGraph,
-            authenticationViewModelGraph = authenticationViewModelGraph
+        return WireActivityGraphContext(
+            graph = graph,
+            viewModelFactory = (graph as? ViewModelGraph)?.metroViewModelFactory ?: appGraph.metroViewModelFactory,
+            sessionGraph = sessionGraph,
+            activityViewModels = activityViewModels,
         )
     }
 
-    private fun selectMetroViewModelGraph(
-        currentBaseRoute: String?,
-        usesAuthenticationGraph: Boolean,
-        useStandaloneAuthenticationGraph: Boolean,
-        sessionViewModelGraph: AppSessionViewModelGraph?,
-        authenticationViewModelGraph: AppAuthenticationViewModelGraph,
-    ): MetroViewModelGraph? = when {
-        useStandaloneAuthenticationGraph && usesAuthenticationGraph -> authenticationViewModelGraph
-        sessionViewModelGraph != null -> sessionViewModelGraph
-        currentBaseRoute == null -> authenticationViewModelGraph
-        else -> null
+    @Composable
+    private fun WireActivityGraphContext.ProvideViewModelGraph(content: @Composable () -> Unit) {
+        CompositionLocalProvider(
+            LocalMetroViewModelFactory provides viewModelFactory,
+            LocalWireViewModelScopeKey provides graph.viewModelScopeKey,
+            LocalAuthenticationCancelUserId provides sessionGraph?.currentAccount,
+            LocalWireSessionImageLoader provides sessionGraph?.wireSessionImageLoader,
+        ) {
+            content()
+        }
     }
+
+    private fun WireApplicationGraph.createCurrentSessionViewModelGraphOrNull(): AppSessionViewModelGraph? =
+        runCatching {
+            createCurrentSessionViewModelGraph()
+        }.getOrNull()
 
     @Composable
     private fun wireActivityScopedViewModels(graph: AppSessionViewModelGraph): WireActivityScopedViewModels {
         val scopeKey = graph.viewModelScopeKey
         return WireActivityScopedViewModels(
-            callFeedbackViewModel = viewModel(
-                key = "CallFeedbackViewModel:$scopeKey",
-                factory = viewModelFactory {
-                    initializer {
-                        graph.callingViewModelFactory.callFeedbackViewModel()
-                    }
-                }
+            callFeedbackViewModel = metroxViewModel(
+                key = scopedMetroViewModelKey(
+                    defaultKey = CallFeedbackViewModel::class.qualifiedName,
+                    key = null,
+                    scopeKey = scopeKey,
+                ),
             ),
-            featureFlagNotificationViewModel = viewModel(
-                key = "FeatureFlagNotificationViewModel:$scopeKey",
-                factory = viewModelFactory {
-                    initializer {
-                        graph.homeViewModelFactory.featureFlagNotificationViewModel()
-                    }
-                }
-            ),
+            featureFlagNotificationViewModel = featureFlagNotificationViewModel(),
             commonTopAppBarViewModel = viewModel(
                 key = "CommonTopAppBarViewModel:$scopeKey",
                 factory = viewModelFactory {
@@ -530,7 +552,10 @@ class WireActivity : BaseActivity() {
 
     @Suppress("ComplexMethod")
     @Composable
-    private fun HandleDialogs(navigator: Navigator, activityViewModels: WireActivityScopedViewModels?) {
+    private fun HandleDialogs(
+        navigator: Navigator,
+        activityViewModels: WireActivityScopedViewModels?,
+    ) {
         val navigate: (NavigationCommand) -> Unit = { navigator.navigate(it) }
         val context = LocalContext.current
         if (activityViewModels == null) {
@@ -891,6 +916,24 @@ private data class WireActivityScopedViewModels(
     val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel,
 )
 
+private data class WireActivityGraphContext(
+    val graph: MetroViewModelGraph,
+    val viewModelFactory: MetroViewModelFactory,
+    val sessionGraph: AppSessionViewModelGraph?,
+    val activityViewModels: WireActivityScopedViewModels?,
+)
+
+private val noSessionAuthenticationGraphRoutes = setOf(
+    NewLoginPasswordScreenDestination.baseRoute,
+    NewLoginVerificationCodeScreenDestination.baseRoute,
+)
+
+private val sessionBackedAuthenticationGraphRoutes = setOf(
+    RegisterDeviceScreenDestination.baseRoute,
+    RemoveDeviceScreenDestination.baseRoute,
+    E2EIEnrollmentScreenDestination.baseRoute,
+)
+
 private val authenticationGraphRoutes = setOf(
     WelcomeScreenDestination.baseRoute,
     NewWelcomeEmptyStartScreenDestination.baseRoute,
@@ -898,6 +941,8 @@ private val authenticationGraphRoutes = setOf(
     NewLoginScreenDestination.baseRoute,
     NewLoginPasswordScreenDestination.baseRoute,
     NewLoginVerificationCodeScreenDestination.baseRoute,
+    RegisterDeviceScreenDestination.baseRoute,
+    RemoveDeviceScreenDestination.baseRoute,
 )
 
 internal fun Navigator.shouldReplaceWelcomeLoginStartDestination(): Boolean {

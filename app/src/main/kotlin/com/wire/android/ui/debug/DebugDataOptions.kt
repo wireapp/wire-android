@@ -68,7 +68,7 @@ fun DebugDataOptions(
     onCopyText: (String) -> Unit,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
-    viewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel()
+    viewModel: DebugDataOptionsViewModel,
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     DebugDataOptionsContent(
@@ -90,7 +90,7 @@ fun DebugDataOptions(
         onEnableAsyncNotificationsChange = viewModel::enableAsyncNotifications,
         onShowFeatureFlags = onShowFeatureFlags,
         onShowCryptoStats = onShowCryptoStats,
-        onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys
+        onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys,
     )
 }
 

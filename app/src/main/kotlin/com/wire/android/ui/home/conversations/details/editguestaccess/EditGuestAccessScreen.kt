@@ -44,7 +44,6 @@ import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.dimensions
@@ -234,10 +233,4 @@ fun EditGuestAccessScreen(
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewEditGuestAccessScreen() {
-    EditGuestAccessScreen(rememberNavigator {})
 }

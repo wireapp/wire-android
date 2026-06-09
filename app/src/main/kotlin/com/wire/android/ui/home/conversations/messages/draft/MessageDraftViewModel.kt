@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.toUiMention
@@ -28,7 +29,6 @@ import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversa
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.model.toDraft
 import com.wire.android.ui.home.messagecomposer.model.update
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.draft.MessageDraft
@@ -60,6 +60,7 @@ class MessageDraftViewModel(
                     messageComposition.copy(
                         quotedMessageId = null,
                         quotedMessage = null,
+                        quotedMessageConversationId = null,
                         draftText = String.EMPTY,
                     )
                 }
@@ -70,9 +71,11 @@ class MessageDraftViewModel(
 
     private fun loadMessageDraft() = viewModelScope.launch {
         getMessageDraft(conversationId)?.let { draft ->
-
             val quotedMessage = draft.quotedMessageId?.let { quotedMessageId ->
-                getQuotedMessage(conversationId, quotedMessageId)
+                getQuotedMessage(
+                    conversationId = draft.quotedMessageConversationId ?: conversationId,
+                    quotedMessageId = quotedMessageId
+                )
             }
 
             state.update { messageComposition ->
@@ -83,6 +86,7 @@ class MessageDraftViewModel(
                     isMultipart = draft.isMultipartEdit,
                     quotedMessage = quotedMessage as? UIQuotedMessage.UIQuotedData,
                     quotedMessageId = (quotedMessage as? UIQuotedMessage.UIQuotedData)?.messageId,
+                    quotedMessageConversationId = draft.quotedMessageConversationId ?: conversationId,
                 )
             }
         } ?: run {

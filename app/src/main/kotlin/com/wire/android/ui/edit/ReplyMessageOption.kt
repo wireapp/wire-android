@@ -36,3 +36,17 @@ fun ReplyMessageOption(onReplyItemClick: () -> Unit) {
         onItemClick = onReplyItemClick
     )
 }
+
+@Composable
+fun ReplyInPrivateMessageOption(onReplyItemClick: () -> Unit) {
+    MenuBottomSheetItem(
+        leading = {
+            MenuItemIcon(
+                id = R.drawable.ic_reply,
+                contentDescription = stringResource(R.string.content_description_reply_in_private_to_message),
+            )
+        },
+        title = stringResource(R.string.message_option_reply_in_private),
+        onItemClick = onReplyItemClick
+    )
+}

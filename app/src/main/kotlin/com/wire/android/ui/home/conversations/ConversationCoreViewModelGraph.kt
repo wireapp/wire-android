@@ -43,6 +43,7 @@ import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPat
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelImpl
+import com.wire.android.ui.home.conversations.privateReply.ReplyInPrivateViewModel
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
@@ -66,6 +67,10 @@ fun sendMessageViewModel(): SendMessageViewModel =
 @Composable
 fun messageDraftViewModel(): MessageDraftViewModel =
     conversationSavedStateViewModel { this.messageDraftViewModel(it) }
+
+@Composable
+fun replyInPrivateViewModel(): ReplyInPrivateViewModel =
+    conversationViewModel { this.replyInPrivateViewModel() }
 
 @Composable
 fun messageAttachmentsViewModel(): MessageAttachmentsViewModel =

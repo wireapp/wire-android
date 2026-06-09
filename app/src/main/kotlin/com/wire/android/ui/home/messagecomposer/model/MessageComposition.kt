@@ -31,6 +31,7 @@ data class MessageComposition(
     val editMessageId: String? = null,
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
     val quotedMessageId: String? = null,
+    val quotedMessageConversationId: ConversationId? = null,
     val selectedMentions: List<UIMention> = emptyList(),
     val isMultipart: Boolean = false,
 ) {
@@ -86,14 +87,16 @@ data class MessageComposition(
                     conversationId = conversationId,
                     message = messageText,
                     mentions = selectedMentions,
-                    quotedMessageId = quotedMessageId
+                    quotedMessageId = quotedMessageId,
+                    quotedMessageConversationId = quotedMessageConversationId
                 )
             } else {
                 ComposableMessageBundle.SendMultipartMessageBundle(
                     conversationId = conversationId,
                     message = messageText,
                     mentions = selectedMentions,
-                    quotedMessageId = quotedMessageId
+                    quotedMessageId = quotedMessageId,
+                    quotedMessageConversationId = quotedMessageConversationId
                 )
             }
         }
@@ -111,6 +114,7 @@ fun MessageComposition.toDraft(messageText: String): MessageDraft {
         text = messageText,
         editMessageId = editMessageId,
         quotedMessageId = quotedMessageId,
-        selectedMentionList = selectedMentions.map { it.intoMessageMention() }
+        selectedMentionList = selectedMentions.map { it.intoMessageMention() },
+        quotedMessageConversationId = quotedMessageConversationId
     )
 }

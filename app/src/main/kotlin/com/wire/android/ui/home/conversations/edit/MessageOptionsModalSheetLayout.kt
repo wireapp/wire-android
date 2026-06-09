@@ -57,6 +57,8 @@ fun MessageOptionsModalSheetLayout(
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onReplyClick: (UIMessage.Regular) -> Unit,
+    onReplyInPrivateClick: (UIMessage.Regular) -> Unit,
+    isGroupConversation: Boolean,
     onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>, isMultipart: Boolean) -> Unit,
     onShareAssetClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
@@ -78,6 +80,8 @@ fun MessageOptionsModalSheetLayout(
                     onReactionClick = onReactionClick,
                     onDetailsClick = onDetailsClick,
                     onReplyClick = onReplyClick,
+                    onReplyInPrivateClick = onReplyInPrivateClick,
+                    isGroupConversation = isGroupConversation,
                     onEditClick = onEditClick,
                     onShareAssetClick = onShareAssetClick,
                     onDownloadAssetClick = onDownloadAssetClick,
@@ -111,6 +115,8 @@ private fun MessageOptionsModalContent(
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onReplyClick: (UIMessage.Regular) -> Unit,
+    onReplyInPrivateClick: (UIMessage.Regular) -> Unit,
+    isGroupConversation: Boolean,
     onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>, isMultipart: Boolean) -> Unit,
     onShareAssetClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
@@ -121,6 +127,7 @@ private fun MessageOptionsModalContent(
     val isDeleted = message.isDeleted
     val isMyMessage = message.isMyMessage
     val isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable
+    val isReplyInPrivateAllowed = isGroupConversation && message.isReplyable && !isMyMessage && message.header.userId != null
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Gone,
         menuItems = messageOptionsMenuItems(
@@ -172,6 +179,14 @@ private fun MessageOptionsModalContent(
                     }
                 }
             },
+            onReplyInPrivateClick = remember(message.header.messageId) {
+                {
+                    sheetState.hide {
+                        onReplyInPrivateClick(message)
+                    }
+                }
+            },
+            isReplyInPrivateAllowed = isReplyInPrivateAllowed,
             onEditClick = remember(message.header.messageId, message.messageContent) {
                 {
                     when (message.messageContent) {
@@ -255,6 +270,8 @@ fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
         onReactionClick = { _, _ -> },
         onDetailsClick = { _, _ -> },
         onReplyClick = { },
+        onReplyInPrivateClick = { },
+        isGroupConversation = true,
         onEditClick = { _, _, _, _ -> },
         onShareAssetClick = { },
         onDownloadAssetClick = { },

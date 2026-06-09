@@ -22,6 +22,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.serialization.Serializable
@@ -35,6 +36,7 @@ sealed class UIQuotedMessage {
     @Serializable
     data class UIQuotedData(
         val messageId: String,
+        val conversationId: ConversationId,
         val senderId: UserId,
         val senderName: UIText,
         val senderAccent: Accent,

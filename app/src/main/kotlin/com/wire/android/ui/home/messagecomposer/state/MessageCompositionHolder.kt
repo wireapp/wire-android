@@ -67,11 +67,17 @@ class MessageCompositionHolder(
         const val RICH_TEXT_MARKDOWN_MULTIPLIER = 2
     }
 
-    fun updateQuote(quotedMessage: UIQuotedMessage.UIQuotedData) {
+    private var hasObservedTextUpdate = false
+
+    fun updateQuote(
+        quotedMessage: UIQuotedMessage.UIQuotedData,
+        quotedMessageConversationId: ConversationId? = messageComposition.value.conversationId
+    ) {
         messageComposition.update {
             it.copy(
                 quotedMessage = quotedMessage,
                 quotedMessageId = quotedMessage.messageId,
+                quotedMessageConversationId = quotedMessageConversationId,
                 editMessageId = null
             )
         }
@@ -84,6 +90,7 @@ class MessageCompositionHolder(
         message.mapToQuotedContent()?.let { quotedContent ->
             val quotedMessage = UIQuotedMessage.UIQuotedData(
                 messageId = message.header.messageId,
+                conversationId = message.conversationId,
                 senderId = senderId,
                 senderName = message.header.username,
                 originalMessageDateDescription = "".toUIText(),
@@ -96,6 +103,7 @@ class MessageCompositionHolder(
                 it.copy(
                     quotedMessage = quotedMessage,
                     quotedMessageId = message.header.messageId,
+                    quotedMessageConversationId = message.conversationId,
                     editMessageId = null
                 )
             }
@@ -107,7 +115,8 @@ class MessageCompositionHolder(
         messageComposition.update {
             it.copy(
                 quotedMessage = null,
-                quotedMessageId = null
+                quotedMessageId = null,
+                quotedMessageConversationId = null
             )
         }
         onSaveDraft(messageComposition.value.toDraft(String.EMPTY))
@@ -120,9 +129,20 @@ class MessageCompositionHolder(
                 updateTypingEvent(messageText.toString())
                 updateMentionsIfNeeded(messageText.toString())
                 requestMentionSuggestionIfNeeded(messageText.toString(), selection)
-                onMessageTextUpdate(messageComposition.value.toDraft(messageText = messageText.toString()))
+                val draft = messageComposition.value.toDraft(messageText = messageText.toString())
+                if (!draft.isEmpty() || hasObservedTextUpdate) {
+                    onMessageTextUpdate(draft)
+                }
+                hasObservedTextUpdate = true
             }
     }
+
+    private fun MessageDraft.isEmpty(): Boolean =
+        text.isEmpty() &&
+                editMessageId == null &&
+                quotedMessageId == null &&
+                quotedMessageConversationId == null &&
+                selectedMentionList.isEmpty()
 
     private fun updateMentionsIfNeeded(messageText: String) {
         messageComposition.update { it.copy(selectedMentions = it.getSelectedMentions(messageText)) }
@@ -316,6 +336,7 @@ class MessageCompositionHolder(
             it.copy(
                 quotedMessageId = null,
                 quotedMessage = null,
+                quotedMessageConversationId = null,
                 editMessageId = null,
                 selectedMentions = emptyList()
             )

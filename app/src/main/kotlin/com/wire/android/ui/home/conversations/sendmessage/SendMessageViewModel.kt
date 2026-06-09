@@ -57,6 +57,7 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.upload.AssetUploadParams
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
@@ -267,7 +268,7 @@ class SendMessageViewModel(
                         conversationId = conversationId,
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
-                        quotedMessageId = quotedMessageId
+                        quotedMessageReference = quotedMessageReference()
                     ).toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
@@ -282,7 +283,7 @@ class SendMessageViewModel(
                         conversationId = conversationId,
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
-                        quotedMessageId = quotedMessageId
+                        quotedMessageReference = quotedMessageReference()
                     ).toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
@@ -307,6 +308,26 @@ class SendMessageViewModel(
             }
         }
     }
+
+    private fun ComposableMessageBundle.SendTextMessageBundle.quotedMessageReference(): MessageContent.QuoteReference? =
+        quotedMessageId?.let {
+            MessageContent.QuoteReference(
+                quotedMessageId = it,
+                quotedMessageConversationId = quotedMessageConversationId,
+                quotedMessageSha256 = null,
+                isVerified = true
+            )
+        }
+
+    private fun ComposableMessageBundle.SendMultipartMessageBundle.quotedMessageReference(): MessageContent.QuoteReference? =
+        quotedMessageId?.let {
+            MessageContent.QuoteReference(
+                quotedMessageId = it,
+                quotedMessageConversationId = quotedMessageConversationId,
+                quotedMessageSha256 = null,
+                isVerified = true
+            )
+        }
 
     private suspend fun handleAssetMessageBundle(
         conversationId: ConversationId,

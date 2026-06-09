@@ -23,6 +23,7 @@ import com.wire.android.ui.edit.DownloadAssetExternallyOption
 import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.OpenAssetExternallyOption
 import com.wire.android.ui.edit.ReactionOption
+import com.wire.android.ui.edit.ReplyInPrivateMessageOption
 import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.edit.ShareAssetMenuOption
 
@@ -36,6 +37,8 @@ fun assetMessageOptionsMenuItems(
     onShareAsset: () -> Unit,
     onDownloadAsset: () -> Unit,
     onReplyClick: () -> Unit,
+    onReplyInPrivateClick: () -> Unit,
+    isReplyInPrivateAllowed: Boolean,
     onReactionClick: (emoji: String) -> Unit,
     isOpenable: Boolean = false,
     onOpenAsset: () -> Unit = {},
@@ -58,6 +61,7 @@ fun assetMessageOptionsMenuItems(
                 add { ReactionOption(ownReactions, onReactionClick) }
                 add { MessageDetailsMenuOption(onDetailsClick) }
                 add { ReplyMessageOption(onReplyClick) }
+                if (isReplyInPrivateAllowed) add { ReplyInPrivateMessageOption(onReplyInPrivateClick) }
                 add { DownloadAssetExternallyOption(onDownloadAsset) }
                 add { ShareAssetMenuOption(onShareAsset) }
                 if (isOpenable) add { OpenAssetExternallyOption(onOpenAsset) }

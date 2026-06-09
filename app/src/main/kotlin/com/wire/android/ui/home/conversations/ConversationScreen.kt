@@ -177,6 +177,8 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.conversations.privateReply.ReplyInPrivateAction
+import com.wire.android.ui.home.conversations.privateReply.ReplyInPrivateViewModel
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
@@ -269,10 +271,12 @@ fun ConversationScreen(
     conversationMigrationViewModel: ConversationMigrationViewModel = conversationMigrationViewModel(),
     messageDraftViewModel: MessageDraftViewModel = messageDraftViewModel(),
     messageAttachmentsViewModel: MessageAttachmentsViewModel = messageAttachmentsViewModel(),
+    replyInPrivateViewModel: ReplyInPrivateViewModel = replyInPrivateViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     val resources = LocalContext.current.resources
+    val snackbarHostState = LocalSnackbarHostState.current
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
@@ -348,7 +352,10 @@ fun ConversationScreen(
     LaunchedEffect(messageDraftViewModel.state.value.quotedMessageId) {
         val compositionState = messageDraftViewModel.state.value
         if (compositionState.quotedMessage != null) {
-            messageComposerStateHolder.messageCompositionHolder.value.updateQuote(compositionState.quotedMessage)
+            messageComposerStateHolder.messageCompositionHolder.value.updateQuote(
+                quotedMessage = compositionState.quotedMessage,
+                quotedMessageConversationId = compositionState.quotedMessageConversationId
+            )
         }
     }
 
@@ -369,6 +376,21 @@ fun ConversationScreen(
                 context.startActivity(getOngoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
             }
+        }
+    }
+
+    HandleActions(replyInPrivateViewModel.actions) { action ->
+        when (action) {
+            ReplyInPrivateAction.Failure -> coroutineScope.launch {
+                snackbarHostState.showSnackbar(resources.getString(R.string.error_conversation_generic))
+            }
+
+            is ReplyInPrivateAction.Navigate -> navigator.navigate(
+                NavigationCommand(
+                    ConversationScreenDestination(action.conversationId),
+                    BackStackMode.UPDATE_EXISTED
+                )
+            )
         }
     }
 
@@ -625,6 +647,7 @@ fun ConversationScreen(
         onReactionClick = { messageId, emoji ->
             conversationMessagesViewModel.toggleReaction(messageId, emoji)
         },
+        onReplyInPrivateClick = replyInPrivateViewModel::replyInPrivate,
         onResetSessionClick = conversationMessagesViewModel::onResetSession,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = {
@@ -671,7 +694,22 @@ fun ConversationScreen(
         shareAsset = conversationMessagesViewModel::shareAsset,
         onDownloadAssetClick = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset,
-        onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage,
+        onNavigateToReplyOriginalMessage = { message ->
+            message.quotedMessageData()?.let { quotedData ->
+                navigator.navigate(
+                    NavigationCommand(
+                        ConversationScreenDestination(
+                            navArgs = ConversationNavArgs(
+                                conversationId = quotedData.conversationId,
+                                searchedMessageId = quotedData.messageId
+                            )
+                        ),
+                        BackStackMode.REMOVE_CURRENT_AND_REPLACE,
+                        launchSingleTop = false
+                    )
+                )
+            }
+        },
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
@@ -977,6 +1015,7 @@ private fun ConversationScreen(
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
+    onReplyInPrivateClick: (UIMessage.Regular) -> Unit,
     onResetSessionClick: (senderUserId: UserId, clientId: String?) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onDropDownClick: () -> Unit,
@@ -1123,6 +1162,8 @@ private fun ConversationScreen(
             onReactionClick = onReactionClick,
             onDetailsClick = onMessageDetailsClick,
             onReplyClick = messageComposerStateHolder::toReply,
+            onReplyInPrivateClick = onReplyInPrivateClick,
+            isGroupConversation = conversationInfoViewState.conversationType is Conversation.Type.Group,
             onEditClick = messageComposerStateHolder::toEdit,
             onShareAssetClick = { shareAsset(context, it) },
             onDownloadAssetClick = onDownloadAssetClick,
@@ -1943,6 +1984,14 @@ private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
     block()
 }
 
+private fun UIMessage.quotedMessageData(): UIQuotedMessage.UIQuotedData? =
+    when (val content = messageContent) {
+        is UIMessageContent.TextMessage -> content.messageBody.quotedMessage as? UIQuotedMessage.UIQuotedData
+        is UIMessageContent.Composite -> content.messageBody?.quotedMessage as? UIQuotedMessage.UIQuotedData
+        is UIMessageContent.Multipart -> content.messageBody?.quotedMessage as? UIQuotedMessage.UIQuotedData
+        else -> null
+    }
+
 enum class ConversationActionPermissionType {
     CaptureVideo, TakePicture, ChooseImage, ChooseFile, CallAudio
 }
@@ -1985,6 +2034,7 @@ fun PreviewConversationScreen() = WireTheme {
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },
+        onReplyInPrivateClick = { },
         onResetSessionClick = { _, _ -> },
         onUpdateConversationReadDate = { },
         onDropDownClick = { },

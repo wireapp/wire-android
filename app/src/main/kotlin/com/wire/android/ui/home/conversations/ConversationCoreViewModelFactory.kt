@@ -42,6 +42,7 @@ import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveRece
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellAssetRefreshHelper
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelImpl
+import com.wire.android.ui.home.conversations.privateReply.ReplyInPrivateViewModel
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
@@ -80,6 +81,7 @@ import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUse
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
+import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
@@ -184,6 +186,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val getAssetMessages: GetAssetMessagesFromConversationUseCase,
     private val observeConversationMembersByTypes: ObserveConversationMembersByTypesUseCase,
     private val notifyConversationIsOpen: NotifyConversationIsOpenUseCase,
+    private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     private val qualifiedIdMapper: QualifiedIdMapper,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val observeReactionsForMessage: ObserveReactionsForMessageUseCase,
@@ -269,6 +272,11 @@ class ConversationCoreViewModelFactory @Inject constructor(
         savedStateHandle = savedStateHandle,
         getMessageDraft = getMessageDraft,
         getQuotedMessage = getQuotedMessage,
+        saveMessageDraft = saveMessageDraft,
+    )
+
+    fun replyInPrivateViewModel() = ReplyInPrivateViewModel(
+        getOrCreateOneToOneConversation = getOrCreateOneToOneConversation,
         saveMessageDraft = saveMessageDraft,
     )
 

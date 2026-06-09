@@ -24,11 +24,4 @@ enum class TestinyExecutionStatus(val apiValue: String) {
     Failed("FAILED"),
     Blocked("BLOCKED"),
     Skipped("SKIPPED");
-
-    companion object {
-        fun fromApiValue(value: String): TestinyExecutionStatus {
-            return entries.firstOrNull { it.apiValue.equals(value, ignoreCase = true) }
-                ?: throw IllegalArgumentException("Unknown Testiny execution status: $value")
-        }
-    }
 }

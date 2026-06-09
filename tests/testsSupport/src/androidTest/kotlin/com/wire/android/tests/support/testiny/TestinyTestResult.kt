@@ -17,24 +17,20 @@
  */
 package com.wire.android.tests.support.testiny
 
-import com.wire.android.tests.support.suite.TestMetadata
-
 /** Report payload for one executed UI test. */
 data class TestinyTestResult(
     val testName: String,
-    val metadata: TestMetadata,
+    val testCaseIds: List<String>,
+    val categories: List<String>,
     val status: TestinyExecutionStatus,
     val comment: String? = null,
 ) {
     // One executed test can update more than one Testiny case.
     val reportableTestCaseIds: List<String>
-        get() = metadata.testCaseIds
+        get() = testCaseIds
             .map(::normalizeTestCaseId)
             .filter(String::isNotBlank)
             .distinct()
-
-    val categories: List<String>
-        get() = metadata.categories
 
     val hasReportableTestCaseIds: Boolean
         get() = reportableTestCaseIds.isNotEmpty()

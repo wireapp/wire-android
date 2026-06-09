@@ -29,31 +29,14 @@ import java.net.URL
 /** Small REST wrapper for the Testiny endpoints this sync needs. */
 class TestinyApi {
     private val baseUrl = "https://app.testiny.io/api/v1"
-    private val knownProjectIds = mapOf(
-        "Wire WebApp" to 3L,
-        "Wire iOS" to 7L,
-        "Wire Android Reloaded" to 8L,
-        "Wire Desktop" to 9L,
-        "Wire Account Pages" to 10L,
-        "Wire Team Management" to 11L,
-        "Wire Android New" to 15L,
-    )
 
-    fun findProjectId(projectName: String, apiKey: String): Long {
-        knownProjectIds[projectName]?.let { return it }
-
-        val response = postObject(
-            path = "project/find",
-            apiKey = apiKey,
-            body = JSONObject().put("filter", JSONObject().put("title", projectName)),
-        )
-
-        val projects = response.optJSONArray("data") ?: JSONArray()
-        if (projects.length() == 0) {
-            throw IllegalArgumentException("Testiny project '$projectName' cannot be found")
+    fun findProjectId(projectName: String): Long {
+        return when (projectName) {
+            TESTINY_PROJECT_NAME -> TESTINY_PROJECT_ID
+            else -> throw IllegalArgumentException(
+                "Unsupported Testiny project '$projectName'. Expected '$TESTINY_PROJECT_NAME'."
+            )
         }
-
-        return projects.getJSONObject(0).getLong("id")
     }
 
     fun findOpenTestRunId(projectId: Long, runName: String, apiKey: String): Long? {
@@ -262,5 +245,10 @@ class TestinyApi {
         } catch (error: HttpRequestException) {
             throw TestinyRequestException(error.message, error.returnCode, error)
         }
+    }
+
+    private companion object {
+        const val TESTINY_PROJECT_NAME = "Wire Android"
+        const val TESTINY_PROJECT_ID = 8L
     }
 }

@@ -24,11 +24,11 @@ import org.json.JSONObject
 /** Sends per-test results to Testiny and retries per case on 4xx bulk failures. */
 class TestinyRestClient(
     private val api: TestinyApi = TestinyApi(),
-) : TestinyClient {
+) {
     private val logger = WireTestLogger.getLog(javaClass.name)
     private val statusReporter = TestinyStatusReporter
 
-    override fun addOrUpdateTestResult(config: TestinyRuntimeConfig, result: TestinyTestResult) {
+    fun addOrUpdateTestResult(config: TestinyRuntimeConfig, result: TestinyTestResult) {
         if (!config.isConfigured || !result.hasReportableTestCaseIds) {
             return
         }
@@ -116,12 +116,10 @@ class TestinyRestClient(
                 statusReporter.warning("Multiple Testiny ids $mappedIds matched lookup candidates $lookupCandidates")
             }
             mappedIds.first().also { mappedId ->
-                logger.info("Resolved Testiny id $normalizedId to project id $mappedId")
                 statusReporter.info("Resolved Testiny id $normalizedId to project id $mappedId")
             }
         } else {
             extractDirectTestCaseId(normalizedId)?.also { directId ->
-                logger.info("Using direct Testiny id $directId for annotation $normalizedId")
                 statusReporter.info("Using direct Testiny id $directId for annotation $normalizedId")
             }
         }
@@ -140,8 +138,6 @@ class TestinyRestClient(
         candidates += normalizedId
         directId?.let {
             candidates += it
-            candidates += "TC-$it"
-            candidates += "C$it"
         }
 
         return candidates.filter(String::isNotBlank)
@@ -184,7 +180,7 @@ class TestinyRestClient(
         return synchronized(runCache) {
             runCache.getOrPut(cacheKey) {
                 // Reuse the same open run for all tests in this workflow run.
-                val projectId = api.findProjectId(config.projectName, config.apiKey)
+                val projectId = api.findProjectId(config.projectName)
                 val testRunId = api.findOpenTestRunId(projectId, config.runName, config.apiKey)
                     ?: api.createTestRun(projectId, config.runName, config.apiKey)
 

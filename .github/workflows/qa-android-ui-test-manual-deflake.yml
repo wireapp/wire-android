@@ -149,10 +149,7 @@ jobs:
       # Reuse the Android Testiny key from 1Password for this run.
       - name: Export Testiny API key from runtime secrets
         if: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName != '' }}
-        run: |
-          testiny_api_key="$(python3 -c 'import json; print(json.load(open("secrets.json", encoding="utf-8"))["TESTINY_API_KEY_ANDROID"]["fields"]["password"]["value"])')"
-          echo "::add-mask::${testiny_api_key}"
-          echo "TESTINY_API_KEY=${testiny_api_key}" >> "${GITHUB_ENV}"
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh export-testiny-api-key
 
       - name: Build test APK (assemble once)
         run: bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
@@ -175,7 +172,7 @@ jobs:
           RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
           # Reuse the same Testiny run so deflake updates the original run.
-          TESTINY_PROJECT_NAME: Wire Android Reloaded
+          TESTINY_PROJECT_NAME: Wire Android
           TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
           TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |

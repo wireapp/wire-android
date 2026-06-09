@@ -17,7 +17,8 @@
  */
 package com.wire.android.tests.support.testiny
 
-import com.wire.android.tests.support.suite.TestMetadataExtractor
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 import logger.WireTestLogger
 import org.junit.AssumptionViolatedException
 import org.junit.rules.TestRule
@@ -28,7 +29,7 @@ import java.io.StringWriter
 
 /** JUnit rule that reports each finished test to Testiny. */
 class TestinySyncRule(
-    private val client: TestinyClient = TestinyRestClient(),
+    private val client: TestinyRestClient = TestinyRestClient(),
 ) : TestRule {
     private val logger = WireTestLogger.getLog(javaClass.name)
     private val statusReporter = TestinyStatusReporter
@@ -36,7 +37,14 @@ class TestinySyncRule(
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {
-                val metadata = TestMetadataExtractor.from(description)
+                val testCaseIds = description.annotations
+                    .filterIsInstance<TestCaseId>()
+                    .flatMap { it.value.asList() }
+                    .distinct()
+                val categories = description.annotations
+                    .filterIsInstance<Category>()
+                    .flatMap { it.value.asList() }
+                    .distinct()
                 val config = TestinyRuntimeConfigResolver.fromInstrumentationArgs()
 
                 var testStatus = TestinyExecutionStatus.Passed
@@ -56,7 +64,8 @@ class TestinySyncRule(
                     // Report after the test finishes so the final outcome is stable.
                     publishIfConfigured(
                         description = description,
-                        metadata = metadata,
+                        testCaseIds = testCaseIds,
+                        categories = categories,
                         config = config,
                         status = testStatus,
                         failure = testFailure,
@@ -68,7 +77,8 @@ class TestinySyncRule(
 
     private fun publishIfConfigured(
         description: Description,
-        metadata: com.wire.android.tests.support.suite.TestMetadata,
+        testCaseIds: List<String>,
+        categories: List<String>,
         config: TestinyRuntimeConfig?,
         status: TestinyExecutionStatus,
         failure: Throwable?,
@@ -79,7 +89,7 @@ class TestinySyncRule(
                 "incomplete config " +
                     "(project=${config.projectName.isNotBlank()}, run=${config.runName.isNotBlank()}, apiKey=${config.apiKey.isNotBlank()})"
             }
-            metadata.testCaseIds.isEmpty() -> "no @TestCaseId"
+            testCaseIds.isEmpty() -> "no @TestCaseId"
             else -> null
         }
 
@@ -94,7 +104,8 @@ class TestinySyncRule(
 
         val result = TestinyTestResult(
             testName = description.displayName,
-            metadata = metadata,
+            testCaseIds = testCaseIds,
+            categories = categories,
             status = status,
             comment = failure?.asComment(),
         )

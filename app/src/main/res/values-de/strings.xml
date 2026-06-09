@@ -47,6 +47,7 @@
     <string name="label_message_decryption_failure_message">Nachricht konnte nicht entschlüsselt werden.</string>
     <string name="label_message_decryption_failure_message_with_error_code">Nachricht konnte nicht entschlüsselt werden (Fehler %s).</string>
     <string name="label_message_decryption_failure_informative_message">Versuchen Sie, die Session zurückzusetzen, um neue Verschlüsselungsschlüssel zu erzeugen.</string>
+    <string name="label_system_message_offline">**Sie sind offline.** Ihre Nachrichten werden gesendet, sobald Sie wieder online sind.</string>
     <string name="label_system_message_self_user_knock">%s haben gepingt</string>
     <string name="label_system_message_other_user_knock">%s hat gepingt</string>
     <string name="label_message_partial_delivery_participants_count">%1$d Teilnehmer haben Ihre Nachricht nicht erhalten.</string>
@@ -1164,6 +1165,7 @@
     <string name="service_remove_error">App kann nicht aus Unterhaltung entfernt werden</string>
     <string name="service_add_success">App zur Unterhaltung hinzugefügt</string>
     <string name="service_add_error">App kann nicht zur Unterhaltung hinzugefügt werden</string>
+    <string name="service_conversation_creation_or_retrieval_error">Die Unterhaltung konnte nicht eröffnet oder erstellt werden</string>
     <string name="service_no_information_available_title">Keine Informationen verfügbar</string>
     <string name="service_no_information_available_subtitle">Versuchen Sie es erneut oder wenden Sie sich an Ihren Team-Admin</string>
     <string name="read_receipts">Lesebestätigungen</string>

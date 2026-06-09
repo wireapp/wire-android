@@ -54,4 +54,9 @@
     <string name="new_meeting_title">Новая встреча</string>
     <string name="new_meeting_now">Встречи сейчас</string>
     <string name="new_meeting_schedule">Запланировать встречу</string>
+    <string name="new_meeting_action_start">Начать встречу</string>
+    <string name="new_meeting_action_schedule">Расписание</string>
+    <string name="new_meeting_title_input_label">Название</string>
+    <string name="new_meeting_title_input_placeholder">Введите название встречи</string>
+    <string name="contnt_description_new_meeting_back_icon">Закрыть вид новой встречи</string>
 </resources>

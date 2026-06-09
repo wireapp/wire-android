@@ -42,37 +42,59 @@ class TestinyRestClient(
             return
         }
 
-        try {
+        val synced = try {
             syncResult(config, run, resolvedTestCaseIds, result.status, result.comment)
+            true
+        } catch (error: TestinyRequestException) {
+            retrySyncIndividually(config, run, resolvedTestCaseIds, result, error)
+        }
+
+        if (synced) {
             statusReporter.info(
                 "Updated run ${run.testRunId} with ids=$resolvedTestCaseIds status=${result.status.name}"
             )
-        } catch (error: TestinyRequestException) {
-            if (!error.isClientError()) {
-                throw error
-            }
-
-            logger.warning(
-                "Bulk Testiny sync failed for ids $resolvedTestCaseIds. " +
-                    "Retrying each testcase individually. ${error.message}"
-            )
+        } else {
             statusReporter.warning(
-                "Bulk sync failed for ids $resolvedTestCaseIds. Retrying individually. ${error.message}"
+                "No Testiny result could be updated for ids=$resolvedTestCaseIds status=${result.status.name}"
             )
+        }
+    }
 
-            resolvedTestCaseIds.forEach { testCaseId ->
-                runCatching {
-                    syncResult(config, run, listOf(testCaseId), result.status, result.comment)
-                }.onFailure { retryError ->
-                    logger.warning(
-                        "Testiny sync retry failed for testcase $testCaseId: ${retryError.message}"
-                    )
-                    statusReporter.warning(
-                        "Retry failed for testcase $testCaseId: ${retryError.message}"
-                    )
-                }
+    private fun retrySyncIndividually(
+        config: TestinyRuntimeConfig,
+        run: CachedRun,
+        resolvedTestCaseIds: List<String>,
+        result: TestinyTestResult,
+        error: TestinyRequestException,
+    ): Boolean {
+        if (!error.isClientError()) {
+            throw error
+        }
+
+        logger.warning(
+            "Bulk Testiny sync failed for ids $resolvedTestCaseIds. " +
+                "Retrying each testcase individually. ${error.message}"
+        )
+        statusReporter.warning(
+            "Bulk sync failed for ids $resolvedTestCaseIds. Retrying individually. ${error.message}"
+        )
+
+        var synced = false
+        resolvedTestCaseIds.forEach { testCaseId ->
+            runCatching {
+                syncResult(config, run, listOf(testCaseId), result.status, result.comment)
+            }.onSuccess {
+                synced = true
+            }.onFailure { retryError ->
+                logger.warning(
+                    "Testiny sync retry failed for testcase $testCaseId: ${retryError.message}"
+                )
+                statusReporter.warning(
+                    "Retry failed for testcase $testCaseId: ${retryError.message}"
+                )
             }
         }
+        return synced
     }
 
     private fun resolveTestCaseIds(projectId: Long, testCaseIds: List<String>, apiKey: String): List<String> {

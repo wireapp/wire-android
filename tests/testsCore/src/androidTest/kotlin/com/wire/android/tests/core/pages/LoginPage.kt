@@ -28,8 +28,10 @@ import androidx.test.uiautomator.Until
 import com.wire.android.tests.support.UiAutomatorSetup
 import backendUtils.BackendClient
 import org.junit.Assert.assertTrue
+import java.io.ByteArrayOutputStream
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 data class LoginPage(private val device: UiDevice) {
@@ -40,12 +42,19 @@ data class LoginPage(private val device: UiDevice) {
     private val emailInputFieldSelector = UiSelectorParams(resourceId = "userIdentifierInput")
     private val passwordInputFieldSelector = UiSelectorParams(resourceId = "PasswordInput")
     private val loginButtonSelector = UiSelectorParams(resourceId = "loginButton")
+    private val newLoginPasswordInputFieldSelector = UiSelectorParams(resourceId = "passwordField")
+    private val newLoginButtonSelector = UiSelectorParams(resourceId = "LoginNextButton")
     private val proceedButtonSelector = UiSelectorParams(text = "Proceed")
     private val proceedButtonGoneSelector = UiSelector().text("Proceed")
     private val confirmButtonSelector = UiSelectorParams(text = "Confirm")
     private val androidResolverWireDevSelector = UiSelectorParams(text = "Wire Dev")
     private val androidResolverJustOnceSelector = UiSelectorParams(text = "Just once")
     private val emailWelcomeSelector = UiSelectorParams(textMatches = "Enter your (email to start!|credentials to log in)")
+    private val removeDeviceLabelSelector = UiSelectorParams(text = "YOUR DEVICES")
+    private val removeDeviceButtonSelector = UiSelectorParams(description = "Remove device")
+    private val removeDeviceDialogSelector = UiSelectorParams(text = "Remove the following device?")
+    private val removeDevicePasswordSelector = UiSelectorParams(className = "android.widget.EditText")
+    private val removeButtonSelector = UiSelectorParams(text = "Remove")
 
     fun enterPersonalUserLoggingEmail(email: String): LoginPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
@@ -59,8 +68,41 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
+    fun enterUserIdentifier(email: String): LoginPage {
+        val input = UiWaitUtils.findElementOrNull(UiSelectorParams(resourceId = "userIdentifierInput"))
+            ?: UiWaitUtils.waitAnyVisible(
+                selectors = listOf(
+                    UiSelectorParams(resourceId = "userIdentifierInput"),
+                    UiSelectorParams(resourceId = "emailField")
+                )
+            )
+            ?: throw AssertionError("Login email/user identifier input was not visible.")
+        val bounds = input.visibleBounds
+        device.click(bounds.centerX(), bounds.centerY())
+        device.waitForIdle()
+        val userIdentifierInput = runCatching { device.findObject(emailInputField) }.getOrNull()
+        if (userIdentifierInput != null) {
+            userIdentifierInput.setText("")
+            userIdentifierInput.setText(email)
+        } else {
+            input.text = email
+        }
+        return this
+    }
+
     fun enterPersonalUserLoginPassword(password: String): LoginPage {
         enterPassword(password)
+        return this
+    }
+
+    fun enterUserPassword(password: String, timeout: Duration = 30.seconds): LoginPage {
+        val input = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(passwordInputFieldSelector, newLoginPasswordInputFieldSelector),
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        ) ?: throw AssertionError("Login password input was not visible.")
+        input.click()
+        input.text = password
         return this
     }
 
@@ -129,13 +171,87 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertIdentifierInputVisible(timeout: Duration = 30.seconds): LoginPage {
+        UiWaitUtils.waitAnyVisible(
+            selectors = listOf(
+                UiSelectorParams(resourceId = "userIdentifierInput"),
+                UiSelectorParams(resourceId = "emailField")
+            ),
+            timeout = timeout
+        ) ?: throw AssertionError("Login email/user identifier input was not visible.")
+        return this
+    }
+
     fun clickLoginButton(): LoginPage {
-        val nextButton = try {
-            UiWaitUtils.waitElement(loginButtonSelector)
-        } catch (e: AssertionError) {
-            throw AssertionError("Login button not found or not clickable", e)
+        val clicked = UiWaitUtils.retryUntilTimeout(
+            timeout = 30.seconds,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        ) {
+            listOf(loginButtonSelector, newLoginButtonSelector).any { selector ->
+                UiWaitUtils.clickWhenClickable(
+                    params = selector,
+                    timeout = UiWaitUtils.POLLING_FAST,
+                    pollingInterval = UiWaitUtils.POLLING_FAST
+                )
+            }
         }
-        nextButton.click()
+        if (!clicked) {
+            throw AssertionError("Login button not found or not clickable.\n${loginScreenDiagnostics()}")
+        }
+        return this
+    }
+
+    fun assertRemoveDeviceScreenVisible(timeout: Duration = 30.seconds): LoginPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(text = "Remove a Device"),
+            timeout = timeout,
+            errorMessage = "Remove a Device screen was not visible."
+        )
+        return this
+    }
+
+    fun assertRemoveDeviceListVisible(timeout: Duration = 30.seconds): LoginPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = removeDeviceLabelSelector,
+            timeout = timeout,
+            errorMessage = "Remove Device list was not visible."
+        )
+        return this
+    }
+
+    fun clickFirstRemoveDeviceButton(): LoginPage {
+        val clicked = UiWaitUtils.clickWhenClickable(
+            params = removeDeviceButtonSelector,
+            timeout = 30.seconds,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        )
+        assertTrue("Remove device button was not clickable.", clicked)
+        return this
+    }
+
+    fun assertRemoveDeviceDialogVisible(timeout: Duration = 30.seconds): LoginPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = removeDeviceDialogSelector,
+            timeout = timeout,
+            errorMessage = "Remove Device confirmation dialog was not visible."
+        )
+        return this
+    }
+
+    fun enterRemoveDevicePassword(password: String): LoginPage {
+        val input = UiWaitUtils.waitElement(removeDevicePasswordSelector)
+        input.click()
+        input.text = password
+        return this
+    }
+
+    fun confirmRemoveDevice(): LoginPage {
+        val clicked = UiWaitUtils.clickWhenClickable(
+            params = removeButtonSelector,
+            timeout = 30.seconds,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        )
+        assertTrue("Remove Device confirmation button was not clickable.", clicked)
         return this
     }
 
@@ -202,5 +318,30 @@ data class LoginPage(private val device: UiDevice) {
         }
         UiWaitUtils.waitElement(emailWelcomeSelector, timeout = UiWaitUtils.LONG_TIMEOUT)
         UiWaitUtils.waitElement(emailInputFieldSelector, timeout = UiWaitUtils.LONG_TIMEOUT)
+    }
+
+    private fun loginScreenDiagnostics(): String {
+        val output = ByteArrayOutputStream()
+        device.dumpWindowHierarchy(output)
+        val hierarchy = output.toString()
+        val nodes = Regex("<node [^>]+>").findAll(hierarchy)
+            .map { it.value }
+            .filter {
+                it.contains("login", ignoreCase = true) ||
+                        it.contains("email", ignoreCase = true) ||
+                        it.contains("identifier", ignoreCase = true) ||
+                        it.contains("password", ignoreCase = true) ||
+                        it.contains("button", ignoreCase = true) ||
+                        it.contains("continue", ignoreCase = true) ||
+                        it.contains("next", ignoreCase = true)
+            }
+            .take(30)
+            .joinToString(separator = "\n")
+
+        return if (nodes.isBlank()) {
+            "No login-related nodes found in current window hierarchy."
+        } else {
+            "Current login-related nodes:\n$nodes"
+        }
     }
 }

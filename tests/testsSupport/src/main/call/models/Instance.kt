@@ -21,17 +21,17 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Instance(
-    val id: String? = null,
-    val instanceStatus: InstanceStatus? = null,
-    val currentCall: Call? = null,
-    val email: String? = null,
-    val password: String? = null,
-    val backend: String? = null,
-    val screenshot: String? = null,
-    val instanceType: VersionedInstanceType? = null,
-    val name: String? = null,
-    val timeout: Long? = null,
-    val created: Long? = null,
+    val id: String?,
+    val instanceStatus: InstanceStatus?,
+    val currentCall: Call?,
+    val email: String?,
+    val password: String?,
+    val backend: String?,
+    val screenshot: String?,
+    val instanceType: VersionedInstanceType?,
+    val name: String?,
+    val timeout: Long?,
+    val created: Long?,
     val message: String? = null
 ) {
     override fun toString(): String {

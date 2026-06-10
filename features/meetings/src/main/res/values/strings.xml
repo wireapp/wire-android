@@ -52,7 +52,10 @@
     <string name="meetings_empty_text_past">Previous meetings will be listed here.</string>
     <string name="new_meeting_title">New Meeting</string>
     <string name="new_meeting_now">Meet Now</string>
-    <string name="new_meeting_schedule">Schedule a Meeting</string>
-    <string name="content_description_new_meeting_now_icon">Meet now icon</string>
-    <string name="content_description_new_meeting_schedule_icon">Schedule a Meeting icon</string>
+    <string name="new_meeting_schedule">Schedule a Meeting</string>v
+    <string name="new_meeting_action_start">Start Meeting</string>
+    <string name="new_meeting_action_schedule">Schedule</string>
+    <string name="new_meeting_title_input_label">Title</string>
+    <string name="new_meeting_title_input_placeholder">Enter meeting title</string>
+    <string name="contnt_description_new_meeting_back_icon">Close new meeting view</string>
 </resources>

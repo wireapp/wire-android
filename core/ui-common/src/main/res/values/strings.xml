@@ -94,6 +94,7 @@
     <string name="content_description_conversation_search_icon">Search icon</string>
     <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_clear_content">Clear content</string>
+    <string name="content_description_drag_handle">Drag handle</string>
 
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Unblock user?</string>

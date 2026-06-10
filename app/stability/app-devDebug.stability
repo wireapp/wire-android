@@ -560,47 +560,6 @@ public fun com.ramcosta.composedestinations.generated.app.destinations.WhatsNewS
   params:
 
 @Composable
-public fun com.wire.android.di.currentMetroViewModelGraph(): Graph of com.wire.android.di.currentMetroViewModelGraph
-  skippable: true
-  restartable: true
-  params:
-
-@Composable
-public fun com.wire.android.di.wireMetroViewModelScoped(arguments: R of com.wire.android.di.wireMetroViewModelScoped, clearDelay: kotlin.time.Duration?, create: @[ExtensionFunctionType] kotlin.Function3<Graph of com.wire.android.di.wireMetroViewModelScoped, androidx.lifecycle.SavedStateHandle, R of com.wire.android.di.wireMetroViewModelScoped, T of com.wire.android.di.wireMetroViewModelScoped>): S of com.wire.android.di.wireMetroViewModelScoped
-  skippable: false
-  restartable: true
-  params:
-    - arguments: RUNTIME (requires runtime check)
-    - clearDelay: STABLE (known stable type)
-    - create: STABLE (function type)
-
-@Composable
-public fun com.wire.android.di.wireMetroViewModelScoped(arguments: R of com.wire.android.di.wireMetroViewModelScoped, keyInScopeResolver: kotlin.Function1<@[ParameterName(name = \, clearDelay: kotlin.time.Duration?, create: @[ExtensionFunctionType] kotlin.Function3<Graph of com.wire.android.di.wireMetroViewModelScoped, androidx.lifecycle.SavedStateHandle, R of com.wire.android.di.wireMetroViewModelScoped, T of com.wire.android.di.wireMetroViewModelScoped>): S of com.wire.android.di.wireMetroViewModelScoped
-  skippable: false
-  restartable: true
-  params:
-    - arguments: RUNTIME (requires runtime check)
-    - keyInScopeResolver: STABLE (function type)
-    - clearDelay: STABLE (known stable type)
-    - create: STABLE (function type)
-
-@Composable
-public fun com.wire.android.di.wireMetroViewModelScoped(clearDelay: kotlin.time.Duration?, create: @[ExtensionFunctionType] kotlin.Function2<Graph of com.wire.android.di.wireMetroViewModelScoped, androidx.lifecycle.SavedStateHandle, T of com.wire.android.di.wireMetroViewModelScoped>): S of com.wire.android.di.wireMetroViewModelScoped
-  skippable: true
-  restartable: true
-  params:
-    - clearDelay: STABLE (known stable type)
-    - create: STABLE (function type)
-
-@Composable
-public fun com.wire.android.di.wireMetroViewModelScoped(clearDelay: kotlin.time.Duration?, create: @[ExtensionFunctionType] kotlin.Function2<Graph of com.wire.android.di.wireMetroViewModelScoped, androidx.lifecycle.SavedStateHandle, T of com.wire.android.di.wireMetroViewModelScoped>): T of com.wire.android.di.wireMetroViewModelScoped
-  skippable: true
-  restartable: true
-  params:
-    - clearDelay: STABLE (known stable type)
-    - create: STABLE (function type)
-
-@Composable
 public fun com.wire.android.navigation.AdjustDestinationStylesForTablets(): kotlin.Unit
   skippable: true
   restartable: true
@@ -611,7 +570,7 @@ public fun com.wire.android.navigation.MainNavHost(navigator: com.wire.android.n
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - loginTypeSelector: RUNTIME (requires runtime check)
     - startDestination: RUNTIME (requires runtime check)
     - modifier: STABLE (marked @Stable or @Immutable)
@@ -722,7 +681,7 @@ internal fun com.wire.android.ui.HandleViewActions(actions: kotlinx.coroutines.f
   restartable: true
   params:
     - actions: RUNTIME (requires runtime check)
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - loginTypeSelector: RUNTIME (requires runtime check)
 
 @Composable
@@ -783,7 +742,7 @@ private fun com.wire.android.ui.WireActivity.HandleDialogs(navigator: com.wire.a
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - activityViewModels: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -801,10 +760,10 @@ private fun com.wire.android.ui.WireActivity.HandleThemeChanges(themeOption: com
 
 @Composable
 private fun com.wire.android.ui.WireActivity.SetUpNavigation(navigator: com.wire.android.navigation.Navigator): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.ui.WireActivity.rememberMetroViewModelGraph(currentBaseRoute: kotlin.String?, startDestinationBaseRoute: kotlin.String, sessionViewModelGraph: com.wire.android.di.metro.AppSessionViewModelGraph?, authenticationViewModelGraph: com.wire.android.di.metro.AppAuthenticationViewModelGraph): com.wire.android.di.metro.MetroViewModelGraph?
@@ -869,7 +828,7 @@ public fun com.wire.android.ui.authentication.create.code.CreateAccountCodeScree
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - createAccountCodeViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -915,7 +874,7 @@ public fun com.wire.android.ui.authentication.create.details.CreateAccountDetail
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - createAccountDetailsViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -939,7 +898,7 @@ public fun com.wire.android.ui.authentication.create.email.CreateAccountEmailScr
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - createAccountEmailViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -988,7 +947,7 @@ public fun com.wire.android.ui.authentication.create.overview.CreateAccountOverv
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - flowType: STABLE (class with no mutable properties)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -997,7 +956,7 @@ public fun com.wire.android.ui.authentication.create.overview.CreatePersonalAcco
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -1005,7 +964,7 @@ public fun com.wire.android.ui.authentication.create.overview.CreateTeamAccountO
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -1032,7 +991,7 @@ public fun com.wire.android.ui.authentication.create.summary.CreateAccountSummar
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -1048,7 +1007,7 @@ public fun com.wire.android.ui.authentication.create.username.CreateAccountUsern
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -1208,7 +1167,7 @@ public fun com.wire.android.ui.authentication.devices.register.RegisterDeviceScr
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - loginTypeSelector: RUNTIME (requires runtime check)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
     - clearSessionViewModel: UNSTABLE (has mutable properties or unstable members)
@@ -1264,7 +1223,7 @@ public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceScreen(
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - loginTypeSelector: RUNTIME (requires runtime check)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
     - clearSessionViewModel: UNSTABLE (has mutable properties or unstable members)
@@ -1311,7 +1270,7 @@ public fun com.wire.android.ui.authentication.login.LoginScreen(navigator: com.w
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - loginNavArgs: UNSTABLE (has mutable properties or unstable members)
     - loginEmailViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -1396,11 +1355,12 @@ public fun com.wire.android.ui.authentication.login.email.LoginEmailVerification
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.email.PasswordInput(passwordState: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.email.PasswordInput(passwordState: androidx.compose.foundation.text.input.TextFieldState, state: com.wire.android.ui.common.textfield.WireTextFieldState, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - passwordState: STABLE (marked @Stable or @Immutable)
+    - state: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
@@ -1432,14 +1392,20 @@ public fun com.wire.android.ui.authentication.login.email.ProxyScreen(proxyIdent
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.email.UserIdentifierInput(userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, error: kotlin.String?, isEnabled: kotlin.Boolean, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.email.UserIdentifierInput(userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, state: com.wire.android.ui.common.textfield.WireTextFieldState, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - userIdentifierState: STABLE (marked @Stable or @Immutable)
-    - error: STABLE (class with no mutable properties)
-    - isEnabled: STABLE (primitive type)
+    - state: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.ui.authentication.login.email.userIdentifierInputState(loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState): com.wire.android.ui.common.textfield.WireTextFieldState
+  skippable: true
+  restartable: true
+  params:
+    - loginEmailState: STABLE (class with no mutable properties)
 
 @Composable
 private fun com.wire.android.ui.authentication.login.sso.LoginButton(loading: kotlin.Boolean, enabled: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -1650,7 +1616,7 @@ public fun com.wire.android.ui.authentication.welcome.WelcomeScreen(navigator: c
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -1700,7 +1666,7 @@ public fun com.wire.android.ui.calling.common.CallerDetails(conversationId: com.
     - isCbrEnabled: STABLE (primitive type)
     - avatarAssetId: STABLE (marked @Stable or @Immutable)
     - conversationTypeForCall: STABLE (class with no mutable properties)
-    - membership: STABLE (class with no mutable properties)
+    - membership: STABLE (marked @Stable or @Immutable)
     - groupCallerName: STABLE (class with no mutable properties)
     - protocolInfo: UNSTABLE (has mutable properties or unstable members)
     - mlsVerificationStatus: STABLE (class with no mutable properties)
@@ -2588,41 +2554,6 @@ public fun com.wire.android.ui.calling.sharedCallingViewModel(conversationId: co
     - conversationId: STABLE (matched by stability configuration)
 
 @Composable
-public fun com.wire.android.ui.common.AddContactButton(userId: com.wire.kalium.logic.data.id.QualifiedID, userName: kotlin.String, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.ui.connection.ConnectionActionButtonViewModel): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - userId: STABLE (matched by stability configuration)
-    - userName: STABLE (String is immutable)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - viewModel: RUNTIME (requires runtime check)
-
-@Composable
-private fun com.wire.android.ui.common.ArrowIcon(arrowIcon: kotlin.Int, contentDescription: kotlin.Int, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - arrowIcon: STABLE (primitive type)
-    - contentDescription: STABLE (primitive type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.common.ArrowLeftIcon(modifier: androidx.compose.ui.Modifier, contentDescription: kotlin.Int): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - contentDescription: STABLE (primitive type)
-
-@Composable
-public fun com.wire.android.ui.common.ArrowRightIcon(modifier: androidx.compose.ui.Modifier, contentDescription: kotlin.Int): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - contentDescription: STABLE (primitive type)
-
-@Composable
 public fun com.wire.android.ui.common.AttachmentButton(icon: kotlin.Int, labelStyle: androidx.compose.ui.text.TextStyle, modifier: androidx.compose.ui.Modifier, text: kotlin.String, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -2632,13 +2563,6 @@ public fun com.wire.android.ui.common.AttachmentButton(icon: kotlin.Int, labelSt
     - modifier: STABLE (marked @Stable or @Immutable)
     - text: STABLE (String is immutable)
     - onClick: STABLE (function type)
-
-@Composable
-public fun com.wire.android.ui.common.BlockedLabel(modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.common.ClickableText(text: androidx.compose.ui.text.AnnotatedString, onClick: kotlin.Function1<kotlin.Int, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, color: androidx.compose.ui.graphics.Color, textDecoration: androidx.compose.ui.text.style.TextDecoration?, textAlign: androidx.compose.ui.text.style.TextAlign?, overflow: androidx.compose.ui.text.style.TextOverflow, softWrap: kotlin.Boolean, maxLines: kotlin.Int, onTextLayout: kotlin.Function1<androidx.compose.ui.text.TextLayoutResult, kotlin.Unit>, style: androidx.compose.ui.text.TextStyle, onLongClick: kotlin.Function0<kotlin.Unit>?): kotlin.Unit
@@ -2676,13 +2600,6 @@ public fun com.wire.android.ui.common.CopyButton(onCopyClicked: kotlin.Function0
     - modifier: STABLE (marked @Stable or @Immutable)
     - contentDescription: STABLE (primitive type)
     - state: STABLE (class with no mutable properties)
-
-@Composable
-public fun com.wire.android.ui.common.DeletedLabel(modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.ui.common.DropdownItem(text: kotlin.String, leadingCompose: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, isSelected: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -2747,14 +2664,6 @@ public fun com.wire.android.ui.common.MLSVerifiedIcon(modifier: androidx.compose
     - contentDescriptionId: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.common.MembershipQualifierLabel(membership: com.wire.android.ui.home.conversationslist.model.Membership, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - membership: STABLE (class with no mutable properties)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
 private fun com.wire.android.ui.common.MenuPopUp(shape: androidx.compose.foundation.shape.RoundedCornerShape, textFieldWidth: androidx.compose.ui.geometry.Size, expanded: kotlin.Boolean, borderColor: androidx.compose.ui.graphics.Color, leadingCompose: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, selectedIndex: kotlin.Int, items: kotlin.collections.List<kotlin.String>, showDefaultTextIndicator: kotlin.Boolean, defaultItemIndex: kotlin.Int, selectionText: kotlin.String, arrowRotation: kotlin.Float, hidePopUp: kotlin.Function0<kotlin.Unit>, onChange: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: false
   restartable: true
@@ -2807,14 +2716,6 @@ public fun com.wire.android.ui.common.ProteusVerifiedIcon(modifier: androidx.com
     - contentDescriptionId: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.common.ProtocolLabel(protocolName: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - protocolName: STABLE (String is immutable)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
 private fun com.wire.android.ui.common.SelectionField(leadingCompose: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, selectedIndex: kotlin.Int, text: kotlin.String, arrowRotation: kotlin.Float, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -2838,17 +2739,6 @@ public fun com.wire.android.ui.common.SettingUpWireScreenContent(modifier: andro
     - type: STABLE (class with no mutable properties)
 
 @Composable
-public fun com.wire.android.ui.common.StatusBox(statusText: kotlin.String, modifier: androidx.compose.ui.Modifier, textColor: androidx.compose.ui.graphics.Color, badgeColor: androidx.compose.ui.graphics.Color, withBorder: kotlin.Boolean): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - statusText: STABLE (String is immutable)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - textColor: STABLE (marked @Stable or @Immutable)
-    - badgeColor: STABLE (marked @Stable or @Immutable)
-    - withBorder: STABLE (primitive type)
-
-@Composable
 public fun com.wire.android.ui.common.TextWithLearnMore(textAnnotatedString: androidx.compose.ui.text.AnnotatedString, learnMoreLink: kotlin.String, modifier: androidx.compose.ui.Modifier, onTextLayout: kotlin.Function1<androidx.compose.ui.text.TextLayoutResult, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -2867,36 +2757,6 @@ public fun com.wire.android.ui.common.UnderConstructionScreen(screenName: kotlin
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.common.UserBadge(membership: com.wire.android.ui.home.conversationslist.model.Membership, modifier: androidx.compose.ui.Modifier, connectionState: com.wire.kalium.logic.data.user.ConnectionState?, isDeleted: kotlin.Boolean, startPadding: androidx.compose.ui.unit.Dp, topPadding: androidx.compose.ui.unit.Dp): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - membership: STABLE (class with no mutable properties)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - connectionState: STABLE (class with no mutable properties)
-    - isDeleted: STABLE (primitive type)
-    - startPadding: STABLE (marked @Stable or @Immutable)
-    - topPadding: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.common.VisibilityState(status: com.wire.android.ui.common.visbility.VisibilityState<State of com.wire.android.ui.common.VisibilityState>, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<State of com.wire.android.ui.common.VisibilityState, kotlin.Unit>): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - status: UNSTABLE (has mutable properties or unstable members)
-    - content: STABLE (composable function type)
-
-@Composable
-public fun com.wire.android.ui.common.WireCheckbox(checked: kotlin.Boolean, onCheckedChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>?, modifier: androidx.compose.ui.Modifier, enabled: kotlin.Boolean): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - checked: STABLE (primitive type)
-    - onCheckedChange: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - enabled: STABLE (primitive type)
-
-@Composable
 internal fun com.wire.android.ui.common.WireDropDown(items: kotlin.collections.List<kotlin.String>, label: kotlin.String?, modifier: androidx.compose.ui.Modifier, defaultItemIndex: kotlin.Int, selectedItemIndex: kotlin.Int, autoUpdateSelection: kotlin.Boolean, showDefaultTextIndicator: kotlin.Boolean, leadingCompose: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, onChangeClickDescription: kotlin.String, placeholder: kotlin.String, onSelected: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: false
   restartable: true
@@ -2912,21 +2772,6 @@ internal fun com.wire.android.ui.common.WireDropDown(items: kotlin.collections.L
     - onChangeClickDescription: STABLE (String is immutable)
     - placeholder: STABLE (String is immutable)
     - onSelected: STABLE (function type)
-
-@Composable
-public fun com.wire.android.ui.common.WireLabelledCheckbox(label: kotlin.String, checked: kotlin.Boolean, onCheckClicked: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, maxLine: kotlin.Int, overflow: androidx.compose.ui.text.style.TextOverflow, horizontalArrangement: androidx.compose.foundation.layout.Arrangement.Horizontal, contentPadding: androidx.compose.foundation.layout.PaddingValues, checkboxEnabled: kotlin.Boolean): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - label: STABLE (String is immutable)
-    - checked: STABLE (primitive type)
-    - onCheckClicked: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - maxLine: STABLE (primitive type)
-    - overflow: STABLE (known stable type)
-    - horizontalArrangement: STABLE (marked @Stable or @Immutable)
-    - contentPadding: STABLE (marked @Stable or @Immutable)
-    - checkboxEnabled: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.ui.common.WireRadioButton(checked: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, onButtonChecked: kotlin.Function0<kotlin.Unit>?, enabled: kotlin.Boolean): kotlin.Unit
@@ -3191,13 +3036,6 @@ private fun com.wire.android.ui.common.bottomsheet.conversation.PreviewConversat
     - initialPage: STABLE (class with no mutable properties)
 
 @Composable
-public fun com.wire.android.ui.common.connectionActionButtonViewModel(args: com.wire.android.ui.connection.ConnectionActionButtonArgs): com.wire.android.ui.connection.ConnectionActionButtonViewModel
-  skippable: false
-  restartable: true
-  params:
-    - args: UNSTABLE (has mutable properties or unstable members)
-
-@Composable
 public fun com.wire.android.ui.common.conversationOptionsMenuViewModel(): com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModel
   skippable: true
   restartable: true
@@ -3348,14 +3186,6 @@ public fun com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConver
     - dialogState: STABLE (class with no mutable properties)
     - sendAnyway: STABLE (function type)
     - hideDialog: STABLE (function type)
-
-@Composable
-public fun com.wire.android.ui.common.dialogs.UnblockUserDialogContent(dialogState: com.wire.android.ui.common.visbility.VisibilityState<com.wire.android.ui.common.dialogs.UnblockUserDialogState>, onUnblock: kotlin.Function1<com.wire.android.ui.common.dialogs.UnblockUserDialogState, kotlin.Unit>): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - dialogState: UNSTABLE (has mutable properties or unstable members)
-    - onUnblock: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.common.dialogs.UserNotFoundDialog(onActionButtonClicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -3518,35 +3348,11 @@ public fun com.wire.android.ui.common.imagepreview.rememberPickPictureState(onIm
     - onGalleryPermissionPermanentlyDenied: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.common.rememberFlow(flow: kotlinx.coroutines.flow.Flow<T of com.wire.android.ui.common.rememberFlow>, lifecycleOwner: androidx.lifecycle.LifecycleOwner): kotlinx.coroutines.flow.Flow<T of com.wire.android.ui.common.rememberFlow>
-  skippable: false
-  restartable: true
-  params:
-    - flow: RUNTIME (requires runtime check)
-    - lifecycleOwner: RUNTIME (requires runtime check)
-
-@Composable
 public fun com.wire.android.ui.common.securityClassificationViewModel(args: com.wire.android.ui.common.banner.SecurityClassificationArgs): com.wire.android.ui.common.banner.SecurityClassificationViewModel
   skippable: false
   restartable: true
   params:
     - args: UNSTABLE (has mutable properties or unstable members)
-
-@Composable
-public fun com.wire.android.ui.common.selectableBackground(isSelected: kotlin.Boolean, onClickDescription: kotlin.String, onClick: kotlin.Function0<kotlin.Unit>): androidx.compose.ui.Modifier
-  skippable: true
-  restartable: true
-  params:
-    - isSelected: STABLE (primitive type)
-    - onClickDescription: STABLE (String is immutable)
-    - onClick: STABLE (function type)
-
-@Composable
-public fun com.wire.android.ui.common.snackbar.collectAndShowSnackbar(snackbarFlow: kotlinx.coroutines.flow.SharedFlow<com.wire.android.util.ui.UIText>): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - snackbarFlow: RUNTIME (requires runtime check)
 
 @Composable
 private fun com.wire.android.ui.common.topappbar.CallsContent(calls: kotlin.collections.List<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call>, onReturnToCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Established, kotlin.Unit>, onReturnToIncomingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Incoming, kotlin.Unit>, onReturnToOutgoingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Outgoing, kotlin.Unit>): kotlin.Unit
@@ -3690,42 +3496,6 @@ public fun com.wire.android.ui.common.topappbar.rememberConversationFilterState(
   params:
 
 @Composable
-public fun com.wire.android.ui.common.upgradetoapps.UpgradeToGetAppsBanner(modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.common.visbility.rememberVisibilityState(saveable: Saveable of com.wire.android.ui.common.visbility.rememberVisibilityState?): com.wire.android.ui.common.visbility.VisibilityState<Saveable of com.wire.android.ui.common.visbility.rememberVisibilityState>
-  skippable: false
-  restartable: true
-  params:
-    - saveable: RUNTIME (requires runtime check)
-
-@Composable
-public fun com.wire.android.ui.connection.ConnectionActionButton(userId: com.wire.kalium.logic.data.id.QualifiedID, userName: kotlin.String, fullName: kotlin.String, connectionStatus: com.wire.kalium.logic.data.user.ConnectionState, isConversationStarted: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, onConnectionRequestIgnored: kotlin.Function1<kotlin.String, kotlin.Unit>, onOpenConversation: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, viewModel: com.wire.android.ui.connection.ConnectionActionButtonViewModel): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - userId: STABLE (matched by stability configuration)
-    - userName: STABLE (String is immutable)
-    - fullName: STABLE (String is immutable)
-    - connectionStatus: STABLE (class with no mutable properties)
-    - isConversationStarted: STABLE (primitive type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - onConnectionRequestIgnored: STABLE (function type)
-    - onOpenConversation: STABLE (function type)
-    - viewModel: RUNTIME (requires runtime check)
-
-@Composable
-public fun com.wire.android.ui.connection.UnableStartConversationDialogContent(dialogState: com.wire.android.ui.common.visbility.VisibilityState<com.wire.android.ui.connection.UnableStartConversationDialogState>): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - dialogState: UNSTABLE (has mutable properties or unstable members)
-
-@Composable
 private fun com.wire.android.ui.debug.CheckCrlRevocationButton(onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -3808,7 +3578,7 @@ public fun com.wire.android.ui.debug.DebugScreen(navigator: com.wire.android.nav
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - userDebugViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -3880,7 +3650,7 @@ public fun com.wire.android.ui.debug.LogManagementScreen(navigator: com.wire.and
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -4007,7 +3777,7 @@ public fun com.wire.android.ui.debug.conversation.DebugConversationScreen(naviga
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -4031,7 +3801,7 @@ public fun com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsScreen(n
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -4119,7 +3889,7 @@ public fun com.wire.android.ui.debug.featureflags.DebugFeatureFlagsScreen(naviga
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -4179,7 +3949,7 @@ public fun com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentScreen(navigator: co
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - loginTypeSelector: RUNTIME (requires runtime check)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
     - clearSessionViewModel: UNSTABLE (has mutable properties or unstable members)
@@ -4457,6 +4227,20 @@ public fun com.wire.android.ui.home.HomeContent(homeState: com.wire.android.ui.h
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
+internal fun com.wire.android.ui.home.HomeDrawerSheet(currentRoute: kotlin.String, homeDrawerState: com.wire.android.ui.home.drawer.HomeDrawerState, focusTrapState: com.wire.android.ui.home.HomeDrawerSheetFocusTrapState, focusTrapActions: com.wire.android.ui.home.HomeDrawerSheetFocusTrapActions, firstItemFocusRequester: androidx.compose.ui.focus.FocusRequester, lastItemFocusRequester: androidx.compose.ui.focus.FocusRequester, onNavigateToHomeItem: kotlin.Function1<com.wire.android.navigation.HomeDestination, kotlin.Unit>, onCloseDrawer: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - currentRoute: STABLE (String is immutable)
+    - homeDrawerState: STABLE (class with no mutable properties)
+    - focusTrapState: STABLE (class with no mutable properties)
+    - focusTrapActions: STABLE (class with no mutable properties)
+    - firstItemFocusRequester: STABLE (marked @Stable or @Immutable)
+    - lastItemFocusRequester: STABLE (marked @Stable or @Immutable)
+    - onNavigateToHomeItem: STABLE (function type)
+    - onCloseDrawer: STABLE (function type)
+
+@Composable
 private fun com.wire.android.ui.home.HomeFloatingActionButton(currentNavigationItem: com.wire.android.navigation.HomeDestination, fabFocusRequester: androidx.compose.ui.focus.FocusRequester, nextFocusRequester: androidx.compose.ui.focus.FocusRequester, onNewConversationClick: kotlin.Function0<kotlin.Unit>, onNewMeetingClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
@@ -4468,11 +4252,38 @@ private fun com.wire.android.ui.home.HomeFloatingActionButton(currentNavigationI
     - onNewMeetingClick: STABLE (function type)
 
 @Composable
+private fun com.wire.android.ui.home.HomeNavHost(state: com.wire.android.ui.home.HomeScaffoldState): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (marked @Stable or @Immutable)
+
+@Composable
+internal fun com.wire.android.ui.home.HomeScaffold(homeState: com.wire.android.ui.home.HomeState, state: com.wire.android.ui.home.HomeScaffoldState, drawerState: androidx.compose.material3.DrawerState, focusRequesters: com.wire.android.ui.home.HomeScaffoldFocusRequesters, actions: com.wire.android.ui.home.HomeScaffoldActions): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - homeState: STABLE (class with no mutable properties)
+    - state: STABLE (marked @Stable or @Immutable)
+    - drawerState: STABLE (marked @Stable or @Immutable)
+    - focusRequesters: STABLE (class with no mutable properties)
+    - actions: STABLE (class with no mutable properties)
+
+@Composable
+private fun com.wire.android.ui.home.HomeScaffoldFloatingActionButton(state: com.wire.android.ui.home.HomeScaffoldState, fabFocusRequester: androidx.compose.ui.focus.FocusRequester, onNewConversationClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (marked @Stable or @Immutable)
+    - fabFocusRequester: STABLE (marked @Stable or @Immutable)
+    - onNewConversationClick: STABLE (function type)
+
+@Composable
 public fun com.wire.android.ui.home.HomeScreen(navigator: com.wire.android.navigation.Navigator, groupDetailsScreenResultRecipient: com.ramcosta.composedestinations.result.ResultRecipient<com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination, com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs>, otherUserProfileScreenResultRecipient: com.ramcosta.composedestinations.result.ResultRecipient<com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination, kotlin.String>, conversationFoldersScreenResultRecipient: com.ramcosta.composedestinations.result.ResultRecipient<com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination, com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs>, homeViewModel: com.wire.android.ui.home.HomeViewModel, appSyncViewModel: com.wire.android.ui.home.AppSyncViewModel, homeDrawerViewModel: com.wire.android.ui.home.drawer.HomeDrawerViewModel, analyticsUsageViewModel: com.wire.android.ui.analytics.AnalyticsUsageViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - groupDetailsScreenResultRecipient: STABLE (marked @Stable or @Immutable)
     - otherUserProfileScreenResultRecipient: STABLE (marked @Stable or @Immutable)
     - conversationFoldersScreenResultRecipient: STABLE (marked @Stable or @Immutable)
@@ -4480,6 +4291,15 @@ public fun com.wire.android.ui.home.HomeScreen(navigator: com.wire.android.navig
     - appSyncViewModel: UNSTABLE (has mutable properties or unstable members)
     - homeDrawerViewModel: UNSTABLE (has mutable properties or unstable members)
     - analyticsUsageViewModel: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+private fun com.wire.android.ui.home.HomeSearchTopBar(state: com.wire.android.ui.home.HomeScaffoldState, searchFocusRequester: androidx.compose.ui.focus.FocusRequester, fabFocusRequester: androidx.compose.ui.focus.FocusRequester): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (marked @Stable or @Immutable)
+    - searchFocusRequester: STABLE (marked @Stable or @Immutable)
+    - fabFocusRequester: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.home.HomeTopBar(title: kotlin.String, currentConversationFilter: com.wire.kalium.logic.data.conversation.ConversationFilter, navigationItem: com.wire.android.navigation.HomeDestination, userAvatarData: com.wire.android.model.UserAvatarData, elevation: androidx.compose.ui.unit.Dp, withLegalHoldIndicator: kotlin.Boolean, shouldShowCreateTeamUnreadIndicator: kotlin.Boolean, onHamburgerMenuClick: kotlin.Function0<kotlin.Unit>, onNavigateToSelfUserProfile: kotlin.Function0<kotlin.Unit>, onOpenConversationFilter: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
@@ -4498,6 +4318,17 @@ public fun com.wire.android.ui.home.HomeTopBar(title: kotlin.String, currentConv
     - onOpenConversationFilter: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - nextFocusRequester: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.ui.home.HomeTopBarHeader(homeState: com.wire.android.ui.home.HomeState, state: com.wire.android.ui.home.HomeScaffoldState, searchFocusRequester: androidx.compose.ui.focus.FocusRequester, onSelfUserClick: kotlin.Function0<kotlin.Unit>, onHamburgerMenuClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - homeState: STABLE (class with no mutable properties)
+    - state: STABLE (marked @Stable or @Immutable)
+    - searchFocusRequester: STABLE (marked @Stable or @Immutable)
+    - onSelfUserClick: STABLE (function type)
+    - onHamburgerMenuClick: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.home.appLock.forgot.ForgotLockCodeScreen(viewModel: com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModel): kotlin.Unit
@@ -4554,7 +4385,7 @@ public fun com.wire.android.ui.home.appLock.set.SetLockCodeScreen(navigator: com
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -4562,7 +4393,7 @@ public fun com.wire.android.ui.home.appLock.set.SetLockCodeScreenContent(navigat
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - state: UNSTABLE (has mutable properties or unstable members)
     - passwordTextState: STABLE (marked @Stable or @Immutable)
     - scrollState: STABLE (marked @Stable or @Immutable)
@@ -4581,7 +4412,7 @@ public fun com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsScreen
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - appUnlockWithBiometricsViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -4598,7 +4429,7 @@ public fun com.wire.android.ui.home.appLock.unlock.EnterLockCodeScreen(navigator
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -4698,7 +4529,7 @@ public fun com.wire.android.ui.home.conversations.ConversationScreen(navigator: 
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - groupDetailsScreenResultRecipient: STABLE (marked @Stable or @Immutable)
     - mediaGalleryScreenResultRecipient: STABLE (marked @Stable or @Immutable)
     - imagePreviewScreenResultRecipient: STABLE (marked @Stable or @Immutable)
@@ -5047,10 +4878,10 @@ public fun com.wire.android.ui.home.conversations.channels.BrowseChannelsEmptySc
 
 @Composable
 public fun com.wire.android.ui.home.conversations.channels.BrowseChannelsScreen(navigator: com.wire.android.navigation.Navigator): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.ui.home.conversations.channels.Content(searchQueryTextState: androidx.compose.foundation.text.input.TextFieldState, onCloseSearchClicked: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -5199,7 +5030,7 @@ public fun com.wire.android.ui.home.conversations.details.GroupConversationDetai
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - resultNavigator: STABLE (marked @Stable or @Immutable)
     - groupConversationDetailResultRecipient: STABLE (marked @Stable or @Immutable)
     - editChannelAccessResultRecipient: STABLE (marked @Stable or @Immutable)
@@ -5330,7 +5161,7 @@ public fun com.wire.android.ui.home.conversations.details.editguestaccess.EditGu
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
     - editGuestAccessViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -5420,7 +5251,7 @@ public fun com.wire.android.ui.home.conversations.details.editguestaccess.create
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -5443,7 +5274,7 @@ public fun com.wire.android.ui.home.conversations.details.editselfdeletingmessag
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - editSelfDeletingMessagesViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -5517,7 +5348,7 @@ public fun com.wire.android.ui.home.conversations.details.metadata.EditConversat
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - resultNavigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -5687,7 +5518,7 @@ public fun com.wire.android.ui.home.conversations.details.participants.GroupConv
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - navArgs: UNSTABLE (has mutable properties or unstable members)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -5748,7 +5579,7 @@ public fun com.wire.android.ui.home.conversations.details.updateappsaccess.Updat
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - updateAppsAccessViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -5912,7 +5743,7 @@ public fun com.wire.android.ui.home.conversations.folder.ConversationFoldersScre
   restartable: true
   params:
     - args: UNSTABLE (has mutable properties or unstable members)
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - resultNavigator: STABLE (marked @Stable or @Immutable)
     - resultRecipient: STABLE (marked @Stable or @Immutable)
     - foldersViewModel: RUNTIME (requires runtime check)
@@ -5923,7 +5754,7 @@ public fun com.wire.android.ui.home.conversations.folder.NewConversationFolderSc
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - resultNavigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -6023,7 +5854,7 @@ public fun com.wire.android.ui.home.conversations.media.ConversationMediaScreen(
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - conversationAssetMessagesViewModel: UNSTABLE (has mutable properties or unstable members)
     - conversationMessagesViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -6126,7 +5957,7 @@ public fun com.wire.android.ui.home.conversations.media.preview.ImagesPreviewScr
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - resultNavigator: STABLE (marked @Stable or @Immutable)
     - imagesPreviewViewModel: UNSTABLE (has mutable properties or unstable members)
     - checkAssetRestrictionsViewModel: UNSTABLE (has mutable properties or unstable members)
@@ -6154,7 +5985,7 @@ public fun com.wire.android.ui.home.conversations.mention.MemberItemToMention(av
     - avatarData: STABLE (marked @Stable or @Immutable)
     - name: STABLE (String is immutable)
     - label: STABLE (String is immutable)
-    - membership: STABLE (class with no mutable properties)
+    - membership: STABLE (marked @Stable or @Immutable)
     - searchQuery: STABLE (String is immutable)
     - clickable: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
@@ -6225,7 +6056,7 @@ public fun com.wire.android.ui.home.conversations.messagedetails.MessageDetailsS
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -7522,11 +7353,11 @@ public fun com.wire.android.ui.home.conversations.moveConversationToFolderViewMo
     - args: STABLE (matched by stability configuration)
 
 @Composable
-public fun com.wire.android.ui.home.conversations.multipartAttachmentsViewModel(conversationKey: kotlin.String): com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModel
+public fun com.wire.android.ui.home.conversations.multipartAttachmentsViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID): com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModel
   skippable: true
   restartable: true
   params:
-    - conversationKey: STABLE (String is immutable)
+    - conversationId: STABLE (matched by stability configuration)
 
 @Composable
 public fun com.wire.android.ui.home.conversations.newFolderViewModel(): com.wire.android.ui.home.conversations.folder.NewFolderViewModel
@@ -7556,7 +7387,7 @@ public fun com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminScree
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -7617,237 +7448,13 @@ private fun com.wire.android.ui.home.conversations.scopedMessageViewModel(clearD
     - create: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.conversations.search.EmptySearchQueryScreen(modifier: androidx.compose.ui.Modifier, text: kotlin.String, learnMoreTextToLink: kotlin.Pair<kotlin.String, kotlin.String>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - text: STABLE (String is immutable)
-    - learnMoreTextToLink: STABLE (known stable type)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.ExternalContactSearchResultItem(avatarData: com.wire.android.model.UserAvatarData, userId: com.wire.kalium.logic.data.id.QualifiedID, name: kotlin.String, label: kotlin.String, membership: com.wire.android.ui.home.conversationslist.model.Membership, searchQuery: kotlin.String, connectionState: com.wire.kalium.logic.data.user.ConnectionState, clickable: com.wire.android.model.Clickable, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - avatarData: STABLE (marked @Stable or @Immutable)
-    - userId: STABLE (matched by stability configuration)
-    - name: STABLE (String is immutable)
-    - label: STABLE (String is immutable)
-    - membership: STABLE (class with no mutable properties)
-    - searchQuery: STABLE (String is immutable)
-    - connectionState: STABLE (class with no mutable properties)
-    - clickable: STABLE (class with no mutable properties)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.HighlightName(name: kotlin.String, searchQuery: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - name: STABLE (String is immutable)
-    - searchQuery: STABLE (String is immutable)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.HighlightSubtitle(subTitle: kotlin.String, modifier: androidx.compose.ui.Modifier, searchQuery: kotlin.String, prefix: kotlin.String): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - subTitle: STABLE (String is immutable)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - searchQuery: STABLE (String is immutable)
-    - prefix: STABLE (String is immutable)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.InternalContactSearchResultItem(avatarData: com.wire.android.model.UserAvatarData, name: kotlin.String, label: kotlin.String, membership: com.wire.android.ui.home.conversationslist.model.Membership, searchQuery: kotlin.String, connectionState: com.wire.kalium.logic.data.user.ConnectionState, onCheckClickable: com.wire.android.model.Clickable, isSelected: kotlin.Boolean, clickable: com.wire.android.model.Clickable, actionType: com.wire.android.model.ItemActionType, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - avatarData: STABLE (marked @Stable or @Immutable)
-    - name: STABLE (String is immutable)
-    - label: STABLE (String is immutable)
-    - membership: STABLE (class with no mutable properties)
-    - searchQuery: STABLE (String is immutable)
-    - connectionState: STABLE (class with no mutable properties)
-    - onCheckClickable: STABLE (class with no mutable properties)
-    - isSelected: STABLE (primitive type)
-    - clickable: STABLE (class with no mutable properties)
-    - actionType: STABLE (class with no mutable properties)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun com.wire.android.ui.home.conversations.search.SearchAllPeopleOrContactsScreen(searchQuery: kotlin.String, contactsSelected: kotlinx.collections.immutable.ImmutableSet<com.wire.android.ui.home.newconversation.model.Contact>, isSearchActive: kotlin.Boolean, actionType: com.wire.android.model.ItemActionType, onOpenUserProfile: kotlin.Function1<com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, onContactChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, searchUserViewModel: com.wire.android.ui.home.conversations.search.SearchUserViewModel, lazyListState: androidx.compose.foundation.lazy.LazyListState, firstContactFocusRequester: androidx.compose.ui.focus.FocusRequester?, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - searchQuery: STABLE (String is immutable)
-    - contactsSelected: STABLE (known stable type)
-    - isSearchActive: STABLE (primitive type)
-    - actionType: STABLE (class with no mutable properties)
-    - onOpenUserProfile: STABLE (function type)
-    - onContactChecked: STABLE (function type)
-    - searchUserViewModel: UNSTABLE (has mutable properties or unstable members)
-    - lazyListState: STABLE (marked @Stable or @Immutable)
-    - firstContactFocusRequester: STABLE (marked @Stable or @Immutable)
-    - nextFocusRequester: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.SearchAllPeopleScreen(searchQuery: kotlin.String, contactsSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.ui.home.newconversation.model.Contact>, publicSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.ui.home.newconversation.model.Contact>, contactsSelectedSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.ui.home.newconversation.model.Contact>, isLoading: kotlin.Boolean, isSearchActive: kotlin.Boolean, actionType: com.wire.android.model.ItemActionType, onChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, firstContactFocusRequester: androidx.compose.ui.focus.FocusRequester?, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?, selectedContactResultsExpanded: kotlin.Boolean, onSelectedContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, contactResultsExpanded: kotlin.Boolean, onContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, publicResultsExpanded: kotlin.Boolean, onPublicResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - searchQuery: STABLE (String is immutable)
-    - contactsSearchResult: STABLE (known stable type)
-    - publicSearchResult: STABLE (known stable type)
-    - contactsSelectedSearchResult: STABLE (known stable type)
-    - isLoading: STABLE (primitive type)
-    - isSearchActive: STABLE (primitive type)
-    - actionType: STABLE (class with no mutable properties)
-    - onChecked: STABLE (function type)
-    - onOpenUserProfile: STABLE (function type)
-    - firstContactFocusRequester: STABLE (marked @Stable or @Immutable)
-    - nextFocusRequester: STABLE (marked @Stable or @Immutable)
-    - selectedContactResultsExpanded: STABLE (primitive type)
-    - onSelectedContactResultsExpansionChanged: STABLE (function type)
-    - contactResultsExpanded: STABLE (primitive type)
-    - onContactResultsExpansionChanged: STABLE (function type)
-    - publicResultsExpanded: STABLE (primitive type)
-    - onPublicResultsExpansionChanged: STABLE (function type)
-    - lazyListState: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun com.wire.android.ui.home.conversations.search.SearchResult(searchQuery: kotlin.String, contactsSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.ui.home.newconversation.model.Contact>, publicSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.ui.home.newconversation.model.Contact>, contactsSelectedSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.ui.home.newconversation.model.Contact>, isSearchActive: kotlin.Boolean, actionType: com.wire.android.model.ItemActionType, onChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, selectedContactResultsExpanded: kotlin.Boolean, onSelectedContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, contactResultsExpanded: kotlin.Boolean, onContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, publicResultsExpanded: kotlin.Boolean, onPublicResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, lazyListState: androidx.compose.foundation.lazy.LazyListState, firstContactFocusRequester: androidx.compose.ui.focus.FocusRequester?, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - searchQuery: STABLE (String is immutable)
-    - contactsSearchResult: STABLE (known stable type)
-    - publicSearchResult: STABLE (known stable type)
-    - contactsSelectedSearchResult: STABLE (known stable type)
-    - isSearchActive: STABLE (primitive type)
-    - actionType: STABLE (class with no mutable properties)
-    - onChecked: STABLE (function type)
-    - onOpenUserProfile: STABLE (function type)
-    - selectedContactResultsExpanded: STABLE (primitive type)
-    - onSelectedContactResultsExpansionChanged: STABLE (function type)
-    - contactResultsExpanded: STABLE (primitive type)
-    - onContactResultsExpansionChanged: STABLE (function type)
-    - publicResultsExpanded: STABLE (primitive type)
-    - onPublicResultsExpansionChanged: STABLE (function type)
-    - lazyListState: STABLE (marked @Stable or @Immutable)
-    - firstContactFocusRequester: STABLE (marked @Stable or @Immutable)
-    - nextFocusRequester: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen(searchTitle: kotlin.String, selectedContacts: kotlinx.collections.immutable.ImmutableSet<com.wire.android.ui.home.newconversation.model.Contact>, onContactChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, onAppClicked: kotlin.Function1<com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, onClose: kotlin.Function0<kotlin.Unit>, screenType: com.wire.android.ui.home.conversations.search.SearchPeopleScreenType, shouldShowChannelPromotion: kotlin.Boolean, isUserAllowedToCreateChannels: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, isGroupSubmitVisible: kotlin.Boolean, isAppsTabVisible: kotlin.Boolean, isConversationAppsEnabled: kotlin.Boolean, initialPage: com.wire.android.ui.home.conversations.search.SearchPeopleTabItem, conversationProtocol: com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo?, onContinue: kotlin.Function0<kotlin.Unit>, onCreateNewGroup: kotlin.Function0<kotlin.Unit>, onCreateNewChannel: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - searchTitle: STABLE (String is immutable)
-    - selectedContacts: STABLE (known stable type)
-    - onContactChecked: STABLE (function type)
-    - onOpenUserProfile: STABLE (function type)
-    - onAppClicked: STABLE (function type)
-    - onClose: STABLE (function type)
-    - screenType: STABLE (class with no mutable properties)
-    - shouldShowChannelPromotion: STABLE (primitive type)
-    - isUserAllowedToCreateChannels: STABLE (primitive type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - isGroupSubmitVisible: STABLE (primitive type)
-    - isAppsTabVisible: STABLE (primitive type)
-    - isConversationAppsEnabled: STABLE (primitive type)
-    - initialPage: STABLE (class with no mutable properties)
-    - conversationProtocol: UNSTABLE (has mutable properties or unstable members)
-    - onContinue: STABLE (function type)
-    - onCreateNewGroup: STABLE (function type)
-    - onCreateNewChannel: STABLE (function type)
-
-@Composable
-private fun com.wire.android.ui.home.conversations.search.ShowButton(isShownAll: kotlin.Boolean, onShowButtonClicked: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - isShownAll: STABLE (primitive type)
-    - onShowButtonClicked: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
 public fun com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersSearchScreen(navigator: com.wire.android.navigation.Navigator, navArgs: com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs, addMembersToConversationViewModel: com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - navArgs: UNSTABLE (has mutable properties or unstable members)
     - addMembersToConversationViewModel: UNSTABLE (has mutable properties or unstable members)
-
-@Composable
-private fun com.wire.android.ui.home.conversations.search.apps.AppsList(searchQuery: kotlin.String, apps: kotlin.collections.List<com.wire.android.ui.home.newconversation.model.Contact>, onServiceClicked: kotlin.Function1<com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - searchQuery: STABLE (String is immutable)
-    - apps: RUNTIME (requires runtime check)
-    - onServiceClicked: STABLE (function type)
-    - lazyListState: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.apps.EmptySearchAppsContent(isSelfATeamAdmin: kotlin.Boolean, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - isSelfATeamAdmin: STABLE (primitive type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.apps.EmptySearchDisabledByConversationContent(modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun com.wire.android.ui.home.conversations.search.apps.SearchAllAppsContent(searchQuery: kotlin.String, result: kotlinx.collections.immutable.ImmutableList<com.wire.android.ui.home.newconversation.model.Contact>, isLoading: kotlin.Boolean, onServiceClicked: kotlin.Function1<com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, appsAllowedResult: com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult, isSelfATeamAdmin: kotlin.Boolean, isConversationAppsEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - searchQuery: STABLE (String is immutable)
-    - result: STABLE (known stable type)
-    - isLoading: STABLE (primitive type)
-    - onServiceClicked: STABLE (function type)
-    - appsAllowedResult: UNSTABLE (has mutable properties or unstable members)
-    - isSelfATeamAdmin: STABLE (primitive type)
-    - isConversationAppsEnabled: STABLE (primitive type)
-    - lazyListState: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.apps.SearchAppsScreen(protocolInfo: com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo?, searchQuery: kotlin.String, onServiceClicked: kotlin.Function1<com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, isConversationAppsEnabled: kotlin.Boolean, searchAppsViewModel: com.wire.android.ui.home.conversations.search.apps.SearchAppsViewModel, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - protocolInfo: UNSTABLE (has mutable properties or unstable members)
-    - searchQuery: STABLE (String is immutable)
-    - onServiceClicked: STABLE (function type)
-    - isConversationAppsEnabled: STABLE (primitive type)
-    - searchAppsViewModel: UNSTABLE (has mutable properties or unstable members)
-    - lazyListState: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun com.wire.android.ui.home.conversations.search.apps.rememberAppsContentState(isConversationAppsEnabled: kotlin.Boolean, isLoading: kotlin.Boolean, appsAllowedResult: com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult, searchQuery: kotlin.String, result: kotlinx.collections.immutable.ImmutableList<com.wire.android.ui.home.newconversation.model.Contact>): androidx.compose.runtime.State<com.wire.android.ui.home.conversations.search.apps.AppsContentState>
-  skippable: false
-  restartable: true
-  params:
-    - isConversationAppsEnabled: STABLE (primitive type)
-    - isLoading: STABLE (primitive type)
-    - appsAllowedResult: UNSTABLE (has mutable properties or unstable members)
-    - searchQuery: STABLE (String is immutable)
-    - result: STABLE (known stable type)
-
-@Composable
-private fun com.wire.android.ui.home.conversations.search.isUnknownUser(): kotlin.Boolean
-  skippable: true
-  restartable: true
-  params:
 
 @Composable
 public fun com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesButton(modifier: androidx.compose.ui.Modifier, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -7908,39 +7515,11 @@ public fun com.wire.android.ui.home.conversations.search.messages.SearchConversa
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - searchConversationMessagesViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-public fun com.wire.android.ui.home.conversations.search.rememberSearchPeopleScreenState(coroutineScope: kotlinx.coroutines.CoroutineScope): com.wire.android.ui.home.conversations.search.SearchPeopleScreenState
-  skippable: false
-  restartable: true
-  params:
-    - coroutineScope: RUNTIME (requires runtime check)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.widget.SearchFailureBox(failureMessage: kotlin.Int, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - failureMessage: STABLE (primitive type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.searchAppsViewModel(protocolInfo: com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo?): com.wire.android.ui.home.conversations.search.apps.SearchAppsViewModel
-  skippable: false
-  restartable: true
-  params:
-    - protocolInfo: UNSTABLE (has mutable properties or unstable members)
-
-@Composable
 public fun com.wire.android.ui.home.conversations.searchConversationMessagesViewModel(): com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
-  skippable: true
-  restartable: true
-  params:
-
-@Composable
-public fun com.wire.android.ui.home.conversations.searchUserViewModel(): com.wire.android.ui.home.conversations.search.SearchUserViewModel
   skippable: true
   restartable: true
   params:
@@ -8014,7 +7593,7 @@ public fun com.wire.android.ui.home.conversationslist.ConversationsScreenContent
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - searchBarState: UNSTABLE (has mutable properties or unstable members)
     - modifier: STABLE (marked @Stable or @Immutable)
     - emptyListContent: STABLE (composable function type)
@@ -8039,7 +7618,7 @@ public fun com.wire.android.ui.home.conversationslist.all.ConversationsEmptyCont
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
     - filter: UNSTABLE (has mutable properties or unstable members)
     - domain: STABLE (String is immutable)
@@ -8050,7 +7629,7 @@ private fun com.wire.android.ui.home.conversationslist.all.EmptyContentFooter(cu
   restartable: true
   params:
     - currentFilter: UNSTABLE (has mutable properties or unstable members)
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.ui.home.conversationslist.all.emptyDescription(backendName: kotlin.String): kotlin.String
@@ -8075,20 +7654,6 @@ private fun com.wire.android.ui.home.conversationslist.common.BrowsePublicChanne
   restartable: true
   params:
     - onBrowsePublicChannels: STABLE (function type)
-
-@Composable
-public fun com.wire.android.ui.home.conversationslist.common.ConnectPendingRequestBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.conversationslist.common.ConnectRequestBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.home.conversationslist.common.ConnectionLabel(connectionInfo: com.wire.android.ui.home.conversations.model.UILastMessageContent.Connection, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -8193,14 +7758,6 @@ public fun com.wire.android.ui.home.conversationslist.common.ConversationUserAva
     - avatarData: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.home.conversationslist.common.EventBadgeFactory(eventType: com.wire.android.ui.home.conversationslist.model.BadgeEventType, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - eventType: STABLE (class with no mutable properties)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
 private fun com.wire.android.ui.home.conversationslist.common.GeneralConversationItem(conversation: com.wire.android.ui.home.conversationslist.model.ConversationItem, isChecked: kotlin.Boolean, isSelectable: kotlin.Boolean, onConversationItemClick: com.wire.android.model.Clickable, onJoinCallClick: kotlin.Function0<kotlin.Unit>, onAudioPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, showLegalHoldIndicator: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, selectOnRadioGroup: kotlin.Function0<kotlin.Unit>, subTitle: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, searchQuery: kotlin.String, playingAudio: com.wire.android.ui.home.conversationslist.model.PlayingAudioInConversation?, onPlayPauseCurrentAudio: kotlin.Function0<kotlin.Unit>, onStopCurrentAudio: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
@@ -8272,51 +7829,7 @@ public fun com.wire.android.ui.home.conversationslist.common.LastMultipleMessage
     - separator: STABLE (String is immutable)
 
 @Composable
-private fun com.wire.android.ui.home.conversationslist.common.MissedCallBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
 public fun com.wire.android.ui.home.conversationslist.common.MutedConversationBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun com.wire.android.ui.home.conversationslist.common.NotificationBadgeContainer(notificationIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - notificationIcon: STABLE (composable function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.conversationslist.common.UnreadKnockBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun com.wire.android.ui.home.conversationslist.common.UnreadMentionBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.conversationslist.common.UnreadMessageEventBadge(unreadMessageCount: kotlin.Int, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - unreadMessageCount: STABLE (primitive type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun com.wire.android.ui.home.conversationslist.common.UnreadReplyBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -8412,7 +7925,7 @@ public fun com.wire.android.ui.home.drawer.DrawerItem(destination: com.wire.andr
     - unreadCount: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.home.drawer.HomeDrawer(homeDrawerState: com.wire.android.ui.home.drawer.HomeDrawerState, currentRoute: kotlin.String?, navigateToHomeItem: kotlin.Function1<com.wire.android.navigation.HomeDestination, kotlin.Unit>, onCloseDrawer: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.home.drawer.HomeDrawer(homeDrawerState: com.wire.android.ui.home.drawer.HomeDrawerState, currentRoute: kotlin.String?, navigateToHomeItem: kotlin.Function1<com.wire.android.navigation.HomeDestination, kotlin.Unit>, onCloseDrawer: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isFocusTrapEnabled: kotlin.Boolean, firstItemFocusRequester: androidx.compose.ui.focus.FocusRequester?, lastItemFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -8421,6 +7934,9 @@ public fun com.wire.android.ui.home.drawer.HomeDrawer(homeDrawerState: com.wire.
     - navigateToHomeItem: STABLE (function type)
     - onCloseDrawer: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - isFocusTrapEnabled: STABLE (primitive type)
+    - firstItemFocusRequester: STABLE (marked @Stable or @Immutable)
+    - lastItemFocusRequester: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.home.drawer.MapToDrawerItem(navigateToHomeItem: kotlin.Function1<com.wire.android.navigation.HomeDestination, kotlin.Unit>, onCloseDrawer: kotlin.Function0<kotlin.Unit>, currentRoute: kotlin.String?, drawerUiItem: com.wire.android.ui.home.drawer.DrawerUiItem): kotlin.Unit
@@ -8459,10 +7975,10 @@ private fun com.wire.android.ui.home.gallery.MediaGalleryOptionsBottomSheetLayou
 
 @Composable
 public fun com.wire.android.ui.home.gallery.MediaGalleryScreen(navigator: com.wire.android.navigation.Navigator, resultNavigator: com.ramcosta.composedestinations.result.ResultBackNavigator<com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - resultNavigator: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
 
@@ -8698,7 +8214,7 @@ private fun com.wire.android.ui.home.messagecomposer.DrawingModeAction(onButtonC
     - onButtonClicked: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.messagecomposer.DropDownMentionsSuggestions(searchQuery: kotlin.String, currentSelectedLineIndex: kotlin.Int, cursorCoordinateY: kotlin.Float, membersToMention: kotlin.collections.List<com.wire.android.ui.home.newconversation.model.Contact>, onMentionPicked: kotlin.Function1<com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.home.messagecomposer.DropDownMentionsSuggestions(searchQuery: kotlin.String, currentSelectedLineIndex: kotlin.Int, cursorCoordinateY: kotlin.Float, membersToMention: kotlin.collections.List<com.wire.android.model.Contact>, onMentionPicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -8787,7 +8303,7 @@ private fun com.wire.android.ui.home.messagecomposer.ItalicButton(onRichTextItal
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.home.messagecomposer.MembersMentionList(membersToMention: kotlin.collections.List<com.wire.android.ui.home.newconversation.model.Contact>, searchQuery: kotlin.String, onMentionPicked: kotlin.Function1<com.wire.android.ui.home.newconversation.model.Contact, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.home.messagecomposer.MembersMentionList(membersToMention: kotlin.collections.List<com.wire.android.model.Contact>, searchQuery: kotlin.String, onMentionPicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -9257,10 +8773,10 @@ private fun com.wire.android.ui.home.newconversation.channelaccess.AccessSection
 
 @Composable
 public fun com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessOnCreateScreen(navigator: com.wire.android.navigation.Navigator): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessScreenContent(internalPadding: androidx.compose.foundation.layout.PaddingValues, selectedAccess: com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType, selectedPermission: com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType, modifier: androidx.compose.ui.Modifier, onAccessChange: kotlin.Function1<com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType, kotlin.Unit>, onPermissionChange: kotlin.Function1<com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType, kotlin.Unit>): kotlin.Unit
@@ -9321,10 +8837,10 @@ private fun com.wire.android.ui.home.newconversation.channelhistory.ChannelHisto
 
 @Composable
 public fun com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryScreen(navigator: com.wire.android.navigation.Navigator, customResultRecipient: com.ramcosta.composedestinations.result.ResultRecipient<com.ramcosta.composedestinations.generated.app.destinations.ChannelHistoryCustomScreenDestination, com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryCustomNavBackArgs>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - customResultRecipient: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
 
@@ -9458,10 +8974,10 @@ private fun com.wire.android.ui.home.newconversation.groupOptions.EnableWireCell
 
 @Composable
 public fun com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen(navigator: com.wire.android.navigation.Navigator): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreenContent(groupOptionState: com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState, createGroupState: com.wire.android.ui.home.newconversation.common.CreateGroupState, groupMetadataState: com.wire.android.ui.common.groupname.GroupMetadataState, onAccessClicked: kotlin.Function0<kotlin.Unit>, onHistoryClicked: kotlin.Function0<kotlin.Unit>, onAllowGuestChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onAllowServicesChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onReadReceiptChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onEnableWireCellChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onAllowGuestsDialogDismissed: kotlin.Function0<kotlin.Unit>, onNotAllowGuestsClicked: kotlin.Function0<kotlin.Unit>, onAllowGuestsClicked: kotlin.Function0<kotlin.Unit>, onErrorDismissed: kotlin.Function0<kotlin.Unit>, onEditParticipantsClick: kotlin.Function0<kotlin.Unit>, onDiscardGroupCreationClick: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, channelsHistoryOptionsEnabled: kotlin.Boolean, mlsReadReceiptsEnabled: kotlin.Boolean): kotlin.Unit
@@ -9533,17 +9049,17 @@ private fun com.wire.android.ui.home.newconversation.groupOptions.ReadReceiptsOp
 
 @Composable
 public fun com.wire.android.ui.home.newconversation.groupname.NewGroupNameScreen(navigator: com.wire.android.navigation.Navigator): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.home.newconversation.groupsearch.NewGroupConversationSearchPeopleScreen(navigator: com.wire.android.navigation.Navigator): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.home.newconversation.search.ChannelNotAvailableDialog(onCreateTeam: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -9556,24 +9072,24 @@ public fun com.wire.android.ui.home.newconversation.search.ChannelNotAvailableDi
 
 @Composable
 public fun com.wire.android.ui.home.newconversation.search.NewConversationSearchPeopleScreen(navigator: com.wire.android.navigation.Navigator): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.home.newconversation.sharedNewConversationViewModel(navigator: com.wire.android.navigation.Navigator): com.wire.android.ui.home.newconversation.NewConversationViewModel
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.home.rememberHomeScreenState(navigator: com.wire.android.navigation.Navigator, coroutineScope: kotlinx.coroutines.CoroutineScope, navController: androidx.navigation.NavHostController, drawerState: androidx.compose.material3.DrawerState): com.wire.android.ui.home.HomeStateHolder
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - coroutineScope: RUNTIME (requires runtime check)
     - navController: UNSTABLE (has mutable properties or unstable members)
     - drawerState: STABLE (marked @Stable or @Immutable)
@@ -9651,7 +9167,7 @@ public fun com.wire.android.ui.home.settings.about.dependencies.DependenciesScre
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -9678,7 +9194,7 @@ public fun com.wire.android.ui.home.settings.about.licenses.LicensesScreen(navig
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -9732,7 +9248,7 @@ public fun com.wire.android.ui.home.settings.account.MyAccountScreen(navigator: 
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - changeDisplayNameResultRecipient: STABLE (marked @Stable or @Immutable)
     - changeHandleResultRecipient: STABLE (marked @Stable or @Immutable)
     - changeUserColorResultRecipient: STABLE (marked @Stable or @Immutable)
@@ -9763,7 +9279,7 @@ public fun com.wire.android.ui.home.settings.account.color.ChangeUserColorScreen
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - resultNavigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -9791,7 +9307,7 @@ public fun com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNa
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - resultNavigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -9818,7 +9334,7 @@ public fun com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEma
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -9844,7 +9360,7 @@ public fun com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEma
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -9864,7 +9380,7 @@ public fun com.wire.android.ui.home.settings.account.handle.ChangeHandleScreen(n
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - resultNavigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -9888,7 +9404,7 @@ public fun com.wire.android.ui.home.settings.appearance.CustomizationScreen(navi
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -9924,7 +9440,7 @@ public fun com.wire.android.ui.home.settings.appsettings.networkSettings.Network
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - networkSettingsViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -9969,7 +9485,7 @@ public fun com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen(navig
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -10224,7 +9740,7 @@ public fun com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -10372,7 +9888,7 @@ public fun com.wire.android.ui.initialsync.InitialSyncScreen(navigator: com.wire
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -10462,21 +9978,6 @@ public fun com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner(modifier:
   params:
     - modifier: STABLE (marked @Stable or @Immutable)
     - onClick: STABLE (function type)
-
-@Composable
-public fun com.wire.android.ui.legalhold.dialog.common.LearnMoreAboutLegalHoldButton(modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.legalhold.dialog.connectionfailed.LegalHoldSubjectConnectionFailedDialog(dialogDismissed: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - dialogDismissed: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedDialog(dialogDismissed: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -10772,7 +10273,7 @@ public fun com.wire.android.ui.newauthentication.login.NewLoginScreen(navigator:
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - navArgs: UNSTABLE (has mutable properties or unstable members)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -10794,7 +10295,7 @@ public fun com.wire.android.ui.newauthentication.login.code.NewLoginVerification
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - loginEmailViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -10838,23 +10339,24 @@ public fun com.wire.android.ui.newauthentication.login.password.LoginStateNaviga
   restartable: true
   params:
     - viewModel: UNSTABLE (has mutable properties or unstable members)
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.newauthentication.login.password.NewLoginPasswordScreen(navigator: com.wire.android.navigation.Navigator, navArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - navArgs: UNSTABLE (has mutable properties or unstable members)
     - loginEmailViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-public fun com.wire.android.ui.newauthentication.login.password.PasswordInput(passwordState: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.newauthentication.login.password.PasswordInput(passwordState: androidx.compose.foundation.text.input.TextFieldState, state: com.wire.android.ui.common.textfield.WireTextFieldState, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - passwordState: STABLE (marked @Stable or @Immutable)
+    - state: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
@@ -10879,7 +10381,7 @@ public fun com.wire.android.ui.newauthentication.welcome.WelcomeChooserScreen(na
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - loginTypeSelector: RUNTIME (requires runtime check)
 
 @Composable
@@ -10898,7 +10400,7 @@ public fun com.wire.android.ui.registration.code.CreateAccountVerificationCodeSc
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - createAccountCodeVerificationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -10939,7 +10441,7 @@ public fun com.wire.android.ui.registration.details.CreateAccountDataDetailScree
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - createAccountDataDetailViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -10991,7 +10493,7 @@ public fun com.wire.android.ui.registration.selector.CreateAccountSelectorScreen
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -11037,7 +10539,7 @@ public fun com.wire.android.ui.settings.about.AboutThisAppScreen(navigator: com.
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -11098,7 +10600,7 @@ public fun com.wire.android.ui.settings.devices.DeviceDetailsScreen(navigator: c
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -11176,7 +10678,7 @@ public fun com.wire.android.ui.settings.devices.SelfDevicesScreen(navigator: com
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -11276,7 +10778,7 @@ public fun com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsScree
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - e2eiCertificateDetailsViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -11309,7 +10811,7 @@ private fun com.wire.android.ui.sharing.ImportMediaAuthenticatedContent(navigato
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - isRestrictedInTeam: STABLE (primitive type)
     - checkAssetRestrictionsViewModel: UNSTABLE (has mutable properties or unstable members)
     - importMediaViewModel: UNSTABLE (has mutable properties or unstable members)
@@ -11382,7 +10884,7 @@ public fun com.wire.android.ui.sharing.ImportMediaScreen(navigator: com.wire.and
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - loginTypeSelector: RUNTIME (requires runtime check)
     - featureFlagNotificationViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -11447,7 +10949,7 @@ public fun com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen(navig
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - resultNavigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -11513,7 +11015,7 @@ public fun com.wire.android.ui.userprofile.common.UserProfileInfo(userId: com.wi
     - fullName: STABLE (String is immutable)
     - userName: STABLE (String is immutable)
     - teamName: STABLE (class with no mutable properties)
-    - membership: STABLE (class with no mutable properties)
+    - membership: STABLE (marked @Stable or @Immutable)
     - onUserProfileClick: STABLE (function type)
     - editableState: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
@@ -11542,7 +11044,7 @@ private fun com.wire.android.ui.userprofile.common.processUsername(userName: kot
   restartable: true
   params:
     - userName: STABLE (String is immutable)
-    - membership: STABLE (class with no mutable properties)
+    - membership: STABLE (marked @Stable or @Immutable)
     - expiresAt: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -11605,7 +11107,7 @@ public fun com.wire.android.ui.userprofile.other.OtherUserConnectionStatusInfo(c
   restartable: true
   params:
     - connectionStatus: STABLE (class with no mutable properties)
-    - membership: STABLE (class with no mutable properties)
+    - membership: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
@@ -11676,7 +11178,7 @@ public fun com.wire.android.ui.userprofile.other.OtherUserProfileScreen(navigato
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - navArgs: UNSTABLE (has mutable properties or unstable members)
     - resultNavigator: STABLE (marked @Stable or @Immutable)
     - conversationFoldersScreenResultRecipient: STABLE (marked @Stable or @Immutable)
@@ -11775,7 +11277,7 @@ private fun com.wire.android.ui.userprofile.other.descriptionResourceForConnecti
   restartable: true
   params:
     - connectionStatus: STABLE (class with no mutable properties)
-    - membership: STABLE (class with no mutable properties)
+    - membership: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.userprofile.other.rememberOtherUserProfileScreenState(): com.wire.android.ui.userprofile.other.OtherUserProfileScreenState
@@ -11805,7 +11307,7 @@ public fun com.wire.android.ui.userprofile.qr.SelfQRCodeScreen(navigator: com.wi
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -11913,7 +11415,7 @@ public fun com.wire.android.ui.userprofile.self.SelfUserProfileScreen(navigator:
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - loginTypeSelector: RUNTIME (requires runtime check)
     - avatarPickerResultRecipient: STABLE (marked @Stable or @Immutable)
     - viewModelSelf: UNSTABLE (has mutable properties or unstable members)
@@ -12021,7 +11523,7 @@ public fun com.wire.android.ui.userprofile.service.ServiceDetailsScreen(navigato
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: RUNTIME (requires runtime check)
 
 @Composable
@@ -12116,7 +11618,7 @@ public fun com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeam
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - teamMigrationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -12133,7 +11635,7 @@ public fun com.wire.android.ui.userprofile.teammigration.step2.TeamMigrationTeam
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - teamMigrationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -12178,7 +11680,7 @@ public fun com.wire.android.ui.userprofile.teammigration.step3.TeamMigrationConf
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - teamMigrationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -12213,7 +11715,7 @@ public fun com.wire.android.ui.userprofile.teammigration.step4.TeamMigrationDone
   skippable: false
   restartable: true
   params:
-    - navigator: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
     - teamMigrationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -12355,15 +11857,6 @@ public fun com.wire.android.util.permission.rememberWriteStoragePermissionFlow(o
     - onPermissionPermanentlyDenied: STABLE (function type)
 
 @Composable
-public fun com.wire.android.util.ui.LinkText(linkTextData: kotlin.collections.List<com.wire.android.util.ui.LinkTextData>, modifier: androidx.compose.ui.Modifier, textColor: androidx.compose.ui.graphics.Color): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - linkTextData: RUNTIME (requires runtime check)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - textColor: STABLE (marked @Stable or @Immutable)
-
-@Composable
 public fun com.wire.android.util.ui.SnackBarMessageHandler(infoMessages: kotlinx.coroutines.flow.SharedFlow<com.wire.android.model.SnackBarMessage>, onEmitted: kotlin.Function0<kotlin.Unit>, onActionClicked: kotlin.Function1<com.wire.android.model.SnackBarMessage, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
@@ -12378,11 +11871,4 @@ public fun com.wire.android.util.ui.WireScrollableThemePreview(content: @[Compos
   restartable: true
   params:
     - content: STABLE (composable function type)
-
-@Composable
-private fun com.wire.android.util.ui.createAnnotatedString(data: kotlin.collections.List<com.wire.android.util.ui.LinkTextData>): androidx.compose.ui.text.AnnotatedString
-  skippable: false
-  restartable: true
-  params:
-    - data: RUNTIME (requires runtime check)
 

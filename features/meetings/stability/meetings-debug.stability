@@ -5,6 +5,12 @@
 //   ./gradlew :meetings:stabilityDump
 
 @Composable
+public fun com.ramcosta.composedestinations.generated.meetings.destinations.NewMeetingScreenDestination.Content(): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.wire.android.feature.meetings.ui.AllMeetingsScreen(lazyListState: androidx.compose.foundation.lazy.LazyListState, contentPadding: androidx.compose.foundation.layout.PaddingValues, tabs: kotlinx.collections.immutable.ImmutableList<com.wire.android.feature.meetings.ui.MeetingsTabItem>, initialTab: com.wire.android.feature.meetings.ui.MeetingsTabItem): kotlin.Unit
   skippable: true
   restartable: true
@@ -22,6 +28,31 @@ public fun com.wire.android.feature.meetings.ui.NewMeetingBottomSheet(sheetState
     - sheetState: UNSTABLE (has mutable properties or unstable members)
     - onMeetNowClick: STABLE (function type)
     - onScheduleClick: STABLE (function type)
+
+@Composable
+public fun com.wire.android.feature.meetings.ui.create.NewMeetingContent(titleState: androidx.compose.foundation.text.input.TextFieldState, type: com.wire.android.feature.meetings.ui.create.NewMeetingType, onBackPressed: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - titleState: STABLE (marked @Stable or @Immutable)
+    - type: STABLE (class with no mutable properties)
+    - onBackPressed: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.feature.meetings.ui.create.NewMeetingScreen(navigator: com.wire.android.navigation.WireNavigator, navArgs: com.wire.android.feature.meetings.ui.create.NewMeetingNavArgs): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - navigator: STABLE (marked @Stable or @Immutable)
+    - navArgs: STABLE (class with no mutable properties)
+
+@Composable
+private fun com.wire.android.feature.meetings.ui.create.TitleInput(titleState: androidx.compose.foundation.text.input.TextFieldState): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - titleState: STABLE (marked @Stable or @Immutable)
 
 @Composable
 internal fun com.wire.android.feature.meetings.ui.list.CalendarIcon(tint: androidx.compose.ui.graphics.Color, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -200,6 +231,13 @@ public fun com.wire.android.feature.meetings.ui.meetingOptionsMenuListViewModel(
   skippable: true
   restartable: true
   params:
+
+@Composable
+public fun com.wire.android.feature.meetings.ui.newMeetingViewModel(type: com.wire.android.feature.meetings.ui.create.NewMeetingType): com.wire.android.feature.meetings.ui.create.NewMeetingViewModel
+  skippable: true
+  restartable: true
+  params:
+    - type: STABLE (class with no mutable properties)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalContent(meeting: com.wire.android.feature.meetings.model.MeetingItem, onStartMeeting: kotlin.Function0<kotlin.Unit>, onCreateConversation: kotlin.Function0<kotlin.Unit>, onCopyLink: kotlin.Function0<kotlin.Unit>, onEditMeeting: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForMe: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForEveryone: kotlin.Function0<kotlin.Unit>): kotlin.Unit

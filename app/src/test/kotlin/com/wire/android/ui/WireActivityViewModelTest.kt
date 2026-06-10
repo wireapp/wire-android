@@ -85,6 +85,7 @@ import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUse
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
+import com.wire.kalium.logic.feature.server.IsCrossBackendLoginBlockedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
@@ -1061,6 +1062,9 @@ class WireActivityViewModelTest {
             coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(true)
             coEvery { loginTypeSelector.canUseNewLogin(any()) } returns true
             coEvery { doesValidNomadAccountExist() } returns false
+            coEvery {
+                coreLogic.getGlobalScope().isCrossBackendLoginBlocked(any<IsCrossBackendLoginBlockedUseCase.Target>())
+            } returns false
         }
 
         @MockK

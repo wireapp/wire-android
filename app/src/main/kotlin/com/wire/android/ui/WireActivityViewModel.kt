@@ -115,7 +115,7 @@ import dev.zacsweers.metro.Inject
 
 private const val AUTOMATED_NOMAD_COOKIE_LABEL = "shared-device"
 
-@Suppress("LongParameterList", "TooManyFunctions")
+@Suppress("LongParameterList", "TooManyFunctions", "LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
 class WireActivityViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,

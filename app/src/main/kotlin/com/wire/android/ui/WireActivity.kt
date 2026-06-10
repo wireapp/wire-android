@@ -343,41 +343,16 @@ class WireActivity : BaseActivity() {
                         }
                     }
                     LaunchedEffect(currentUserId, currentBaseRoute, isSessionTransitionInProgress, isUserUiBlocked) {
-                        if (isUserUiBlocked) {
-                            appLogger.i("$TAG blocking session dialog visible on route=$currentBaseRoute, waiting for user action")
-                            return@LaunchedEffect
-                        }
-                        if (isSessionTransitionInProgress) {
-                            if (
-                                currentBaseRoute != null &&
-                                !isAuthenticationRoute &&
-                                viewModel.globalAppState.sessionTransitionReason != SessionTransitionReason.SELF_LOGOUT
-                            ) {
-                                appLogger.i("$TAG session transition on route=$currentBaseRoute, resolving current session")
-                                viewModel.resolveMissingCurrentSession(
-                                    NavigationSwitchAccountActions(
-                                        navigate = navigator::navigate,
-                                        canUseNewLogin = loginTypeSelector::canUseNewLogin
-                                    )
-                                )
-                            }
-                            return@LaunchedEffect
-                        }
-                        if (currentUserId != null && currentBaseRoute == NewWelcomeEmptyStartScreenDestination.baseRoute) {
-                            appLogger.i("$TAG valid session on empty auth start, navigating to home")
-                            navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-                        } else if (currentUserId == null && currentBaseRoute == NewWelcomeEmptyStartScreenDestination.baseRoute) {
-                            appLogger.i("$TAG no session left on empty auth start, navigating to login")
-                            navigator.navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
-                        } else if (currentUserId == null && currentBaseRoute != null && !isAuthenticationRoute) {
-                            appLogger.i("$TAG no session left on route=$currentBaseRoute, trying to switch account")
-                            viewModel.resolveMissingCurrentSession(
-                                NavigationSwitchAccountActions(
-                                    navigate = navigator::navigate,
-                                    canUseNewLogin = loginTypeSelector::canUseNewLogin
-                                )
-                            )
-                        }
+                        handleSessionNavigationState(
+                            SessionNavigationState(
+                                currentUserId = currentUserId,
+                                currentBaseRoute = currentBaseRoute,
+                                isAuthenticationRoute = isAuthenticationRoute,
+                                isUserUiBlocked = isUserUiBlocked,
+                                isSessionTransitionInProgress = isSessionTransitionInProgress,
+                            ),
+                            navigator = navigator,
+                        )
                     }
                     val backgroundType by remember {
                         derivedStateOf {
@@ -445,53 +420,125 @@ class WireActivity : BaseActivity() {
         isUserUiBlocked: Boolean,
         isSessionTransitionInProgress: Boolean,
     ): WireActivityGraphContext? {
-        var graphContext: WireActivityGraphContext? = null
-        if (!isUserUiBlocked) {
-            val effectiveBaseRoute = currentBaseRoute ?: startDestinationBaseRoute
-            val usesNoSessionAuthenticationGraph = effectiveBaseRoute in noSessionAuthenticationGraphRoutes
-            val usesAuthenticationGraph = effectiveBaseRoute in authenticationGraphRoutes
-            val sessionGraph = remember(
-                appGraph,
-                currentUserId,
-                currentBaseRoute,
-                usesNoSessionAuthenticationGraph,
-                isSessionTransitionInProgress,
-            ) {
-                when {
-                    usesNoSessionAuthenticationGraph -> null
-                    isSessionTransitionInProgress -> null
-                    currentUserId != null -> appGraph.createSessionViewModelGraph(currentUserId)
-                    currentBaseRoute in sessionBackedAuthenticationGraphRoutes -> appGraph.createCurrentSessionViewModelGraphOrNull()
-                    else -> null
-                }
+        if (isUserUiBlocked) return null
+
+        val effectiveBaseRoute = currentBaseRoute ?: startDestinationBaseRoute
+        val usesNoSessionAuthenticationGraph = effectiveBaseRoute in noSessionAuthenticationGraphRoutes
+        val usesAuthenticationGraph = effectiveBaseRoute in authenticationGraphRoutes
+        val sessionGraph = remember(
+            appGraph,
+            currentUserId,
+            currentBaseRoute,
+            usesNoSessionAuthenticationGraph,
+            isSessionTransitionInProgress,
+        ) {
+            appGraph.resolveSessionGraph(
+                currentUserId = currentUserId,
+                currentBaseRoute = currentBaseRoute,
+                usesNoSessionAuthenticationGraph = usesNoSessionAuthenticationGraph,
+                isSessionTransitionInProgress = isSessionTransitionInProgress,
+            )
+        }
+        val graph = resolveActiveGraph(
+            ActiveGraphRequest(
+                authenticationViewModelGraph = authenticationViewModelGraph,
+                sessionGraph = sessionGraph,
+                effectiveBaseRoute = effectiveBaseRoute,
+                currentBaseRoute = currentBaseRoute,
+                usesAuthenticationGraph = usesAuthenticationGraph,
+                usesNoSessionAuthenticationGraph = usesNoSessionAuthenticationGraph,
+                isSessionTransitionInProgress = isSessionTransitionInProgress,
+            )
+        )
+        val activityViewModels = sessionGraph?.let {
+            wireActivityScopedViewModels(it)
+        }
+        return graph?.let {
+            WireActivityGraphContext(
+                graph = it,
+                viewModelFactory = (it as? ViewModelGraph)?.metroViewModelFactory ?: appGraph.metroViewModelFactory,
+                sessionGraph = sessionGraph,
+                activityViewModels = activityViewModels,
+            )
+        }
+    }
+
+    private fun WireApplicationGraph.resolveSessionGraph(
+        currentUserId: UserId?,
+        currentBaseRoute: String?,
+        usesNoSessionAuthenticationGraph: Boolean,
+        isSessionTransitionInProgress: Boolean,
+    ): AppSessionViewModelGraph? = when {
+        usesNoSessionAuthenticationGraph -> null
+        isSessionTransitionInProgress -> null
+        currentUserId != null -> createSessionViewModelGraph(currentUserId)
+        currentBaseRoute in sessionBackedAuthenticationGraphRoutes -> createCurrentSessionViewModelGraphOrNull()
+        else -> null
+    }
+
+    private fun resolveActiveGraph(request: ActiveGraphRequest): MetroViewModelGraph? = when {
+        request.isSessionTransitionInProgress && !request.usesAuthenticationGraph -> null
+        request.usesNoSessionAuthenticationGraph -> request.authenticationViewModelGraph
+        request.sessionGraph != null -> request.sessionGraph
+        request.effectiveBaseRoute in authenticationGraphRoutes -> request.authenticationViewModelGraph
+        request.currentBaseRoute == null -> request.authenticationViewModelGraph
+        else -> null
+    }
+
+    private fun handleSessionNavigationState(
+        state: SessionNavigationState,
+        navigator: Navigator,
+    ) {
+        when {
+            state.isUserUiBlocked -> {
+                appLogger.i("$TAG blocking session dialog visible on route=${state.currentBaseRoute}, waiting for user action")
             }
-            val graph = when {
-                isSessionTransitionInProgress && !usesAuthenticationGraph -> null
-                usesNoSessionAuthenticationGraph -> authenticationViewModelGraph
-                sessionGraph != null -> sessionGraph
-                effectiveBaseRoute in authenticationGraphRoutes -> authenticationViewModelGraph
-                currentBaseRoute == null -> authenticationViewModelGraph
-                else -> null
+            state.isSessionTransitionInProgress -> {
+                handleSessionTransition(state.currentBaseRoute, state.isAuthenticationRoute, navigator)
             }
-            val activityViewModels = sessionGraph?.let {
-                wireActivityScopedViewModels(it)
+            state.currentUserId != null && state.currentBaseRoute == NewWelcomeEmptyStartScreenDestination.baseRoute -> {
+                appLogger.i("$TAG valid session on empty auth start, navigating to home")
+                navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
             }
-            graphContext = graph?.let {
-                WireActivityGraphContext(
-                    graph = it,
-                    viewModelFactory = (it as? ViewModelGraph)?.metroViewModelFactory ?: appGraph.metroViewModelFactory,
-                    sessionGraph = sessionGraph,
-                    activityViewModels = activityViewModels,
-                )
+            state.currentUserId == null && state.currentBaseRoute == NewWelcomeEmptyStartScreenDestination.baseRoute -> {
+                appLogger.i("$TAG no session left on empty auth start, navigating to login")
+                navigator.navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+            }
+            state.currentUserId == null && state.currentBaseRoute != null && !state.isAuthenticationRoute -> {
+                appLogger.i("$TAG no session left on route=${state.currentBaseRoute}, trying to switch account")
+                resolveMissingCurrentSession(navigator)
             }
         }
-        return graphContext
+    }
+
+    private fun handleSessionTransition(
+        currentBaseRoute: String?,
+        isAuthenticationRoute: Boolean,
+        navigator: Navigator,
+    ) {
+        if (
+            currentBaseRoute != null &&
+            !isAuthenticationRoute &&
+            viewModel.globalAppState.sessionTransitionReason != SessionTransitionReason.SELF_LOGOUT
+        ) {
+            appLogger.i("$TAG session transition on route=$currentBaseRoute, resolving current session")
+            resolveMissingCurrentSession(navigator)
+        }
+    }
+
+    private fun resolveMissingCurrentSession(navigator: Navigator) {
+        viewModel.resolveMissingCurrentSession(
+            NavigationSwitchAccountActions(
+                navigate = navigator::navigate,
+                canUseNewLogin = loginTypeSelector::canUseNewLogin,
+            )
+        )
     }
 
     @Composable
     private fun WireActivityGraphContext.ProvideViewModelGraph(
         logoutAction: (wipeData: Boolean) -> Unit,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         CompositionLocalProvider(
             LocalMetroViewModelFactory provides viewModelFactory,
@@ -1011,6 +1058,24 @@ private data class WireActivityGraphContext(
     val viewModelFactory: MetroViewModelFactory,
     val sessionGraph: AppSessionViewModelGraph?,
     val activityViewModels: WireActivityScopedViewModels?,
+)
+
+private data class ActiveGraphRequest(
+    val authenticationViewModelGraph: AppAuthenticationViewModelGraph,
+    val sessionGraph: AppSessionViewModelGraph?,
+    val effectiveBaseRoute: String,
+    val currentBaseRoute: String?,
+    val usesAuthenticationGraph: Boolean,
+    val usesNoSessionAuthenticationGraph: Boolean,
+    val isSessionTransitionInProgress: Boolean,
+)
+
+private data class SessionNavigationState(
+    val currentUserId: UserId?,
+    val currentBaseRoute: String?,
+    val isAuthenticationRoute: Boolean,
+    val isUserUiBlocked: Boolean,
+    val isSessionTransitionInProgress: Boolean,
 )
 
 private val noSessionAuthenticationGraphRoutes = setOf(

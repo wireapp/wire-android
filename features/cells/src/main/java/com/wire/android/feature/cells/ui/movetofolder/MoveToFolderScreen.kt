@@ -79,7 +79,7 @@ fun MoveToFolderScreen(
     navigator: WireNavigator,
     createFolderResultRecipient: ResultRecipient<CreateFolderScreenDestination, Boolean>,
     modifier: Modifier = Modifier,
-    moveToFolderViewModel: MoveToFolderViewModel = moveToFolderViewModel()
+    moveToFolderViewModel: MoveToFolderViewModel = moveToFolderViewModel(),
 ) {
     val context = LocalContext.current
     val viewState by moveToFolderViewModel.state.collectAsState()

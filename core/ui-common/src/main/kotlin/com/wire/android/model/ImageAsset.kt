@@ -20,11 +20,9 @@ package com.wire.android.model
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.ViewModel
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.metroViewModel
 import com.wire.android.ui.common.R
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
@@ -69,7 +67,9 @@ sealed class ImageAsset {
             withCrossfadeAnimation: Boolean = false
         ) = when {
             LocalInspectionMode.current -> painterResource(id = R.drawable.mock_image)
-            else -> remoteAssetImageViewModel().imageLoader
+            else -> checkNotNull(LocalWireSessionImageLoader.current) {
+                "No WireSessionImageLoader was provided"
+            }
                 .paint(asset = this, fallbackData = fallbackData, withCrossfadeAnimation = withCrossfadeAnimation)
         }
     }
@@ -110,14 +110,8 @@ object PathAsStringSerializer : KSerializer<Path> {
     override fun deserialize(decoder: Decoder): Path = decoder.decodeString().toPath(normalize = true)
 }
 
-interface ImageAssetViewModelGraph : MetroViewModelGraph {
-    val imageAssetViewModelFactory: ImageAssetViewModelFactory
+val LocalWireSessionImageLoader = staticCompositionLocalOf<WireSessionImageLoader?> {
+    null
 }
 
-@Composable
-private fun remoteAssetImageViewModel(): RemoteAssetImageViewModel =
-    metroViewModel<ImageAssetViewModelGraph, RemoteAssetImageViewModel> {
-        imageAssetViewModelFactory.create()
-    }
-
-class RemoteAssetImageViewModel(val imageLoader: WireSessionImageLoader) : ViewModel()
+class RemoteAssetImageViewModel(val imageLoader: WireSessionImageLoader)

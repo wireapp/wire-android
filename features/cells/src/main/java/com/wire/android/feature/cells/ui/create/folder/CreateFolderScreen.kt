@@ -69,7 +69,7 @@ fun CreateFolderScreen(
     navigator: WireNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
     modifier: Modifier = Modifier,
-    createFolderViewModel: CreateFolderViewModel = createFolderViewModel()
+    createFolderViewModel: CreateFolderViewModel = createFolderViewModel(),
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
 

@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -93,8 +94,14 @@ fun ConversationsScreenContent(
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     emptySearchResultFocusRequester: FocusRequester? = null,
     firstConversationFocusRequester: FocusRequester? = null,
-    conversationListCallViewModel: ConversationListCallViewModel = conversationListCallViewModel(conversationsSource),
-    conversationListViewModel: ConversationListViewModel = conversationListViewModel(conversationsSource),
+    conversationListCallViewModel: ConversationListCallViewModel = when {
+        LocalInspectionMode.current -> ConversationListCallViewModelPreview
+        else -> conversationListCallViewModel(conversationsSource)
+    },
+    conversationListViewModel: ConversationListViewModel = when {
+        LocalInspectionMode.current -> ConversationListViewModelPreview()
+        else -> conversationListViewModel(conversationsSource)
+    },
 ) {
     val sheetState = rememberWireModalSheetState<ConversationSheetState>()
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()

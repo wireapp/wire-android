@@ -75,7 +75,9 @@ fun QuotedMultipartMessage(
     accent: Accent,
     clickable: Clickable?,
     modifier: Modifier = Modifier,
-    viewModel: QuotedMultipartMessageViewModel = quotedMultipartMessageViewModel(conversationId.toString()),
+    viewModel: QuotedMultipartMessageViewModel = quotedMultipartMessageViewModel(
+        conversationId.toString()
+    ),
     startContent: @Composable () -> Unit = {}
 ) {
 

@@ -145,7 +145,7 @@ fun OtherUserProfileScreen(
     OtherProfileScreenContent(
         scope = scope,
         state = viewModel.state,
-        conversationOptionsSheetState = conversationOptionsSheetState,
+                conversationOptionsSheetState = conversationOptionsSheetState,
         changeRoleSheetState = changeRoleSheetState,
         removeMemberDialogState = viewModel.removeConversationMemberDialogState,
         eventsHandler = viewModel as OtherUserProfileEventsHandler,
@@ -309,7 +309,7 @@ fun OtherProfileScreenContent(
         sheetState = conversationOptionsSheetState,
         openConversationFolders = onMoveToFolder,
         openConversationDebugMenu = openConversationDebugMenu,
-    )
+            )
     EditGroupRoleBottomSheet(
         sheetState = changeRoleSheetState,
         changeMemberRole = onChangeMemberRole,

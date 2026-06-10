@@ -60,7 +60,9 @@ fun SecurityClassificationBannerForConversation(
     conversationId: ConversationId,
     modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
-        securityClassificationViewModel(SecurityClassificationArgs.Conversation(conversationId))
+        securityClassificationViewModel(
+            SecurityClassificationArgs.Conversation(conversationId)
+        )
 ) {
     SecurityClassificationBanner(
         state = viewModel.state(),
@@ -73,7 +75,9 @@ fun SecurityClassificationBannerForUser(
     userId: UserId,
     modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
-        securityClassificationViewModel(SecurityClassificationArgs.User(id = userId))
+        securityClassificationViewModel(
+            SecurityClassificationArgs.User(id = userId)
+        )
 ) {
     SecurityClassificationBanner(
         state = viewModel.state(),

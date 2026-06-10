@@ -189,7 +189,9 @@ fun EnabledMessageComposer(
                 ) {
                     messageListContent()
                     if (!inputStateHolder.isTextExpanded) {
-                        UsersTypingIndicatorForConversation(conversationId = conversationId)
+                        UsersTypingIndicatorForConversation(
+                            conversationId = conversationId,
+                        )
                     }
                     if (!inputStateHolder.isTextExpanded && messageComposerViewState.value.mentionSearchResult.isNotEmpty()) {
                         MembersMentionList(

@@ -286,6 +286,8 @@ dependencies {
 
     // smaller view models
     implementation(libs.resaca.core)
+    implementation(libs.resaca.metro)
+    implementation(libs.metrox.viewModelCompose)
     implementation(libs.bundlizer.core)
 
     allFlavors.forEach { flavor ->

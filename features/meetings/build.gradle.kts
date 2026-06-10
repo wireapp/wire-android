@@ -27,6 +27,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)
+    implementation(libs.metrox.viewModelCompose)
 
     implementation(libs.ktx.dateTime)
 

@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -37,6 +38,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.network.NetworkState
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -58,22 +60,30 @@ class CommonTopAppBarViewModel(
     private suspend fun currentScreenFlow() =
         currentScreenManager.observeCurrentScreen(viewModelScope)
 
-    private fun connectivityFlow(userId: UserId): Flow<Connectivity> =
-        coreLogic.value.sessionScope(userId) {
-            combine(observeSyncState(), coreLogic.value.networkStateObserver.observeNetworkState()) { syncState, networkState ->
-                when {
-                    // Waiting is a pure pre-initialization state: the sync worker has not been
-                    // scheduled yet. It carries no information about network health, so map it
-                    // to Idle (no banner) rather than WaitingConnection or Connecting.
-                    syncState is Waiting -> Connectivity.Idle
-                    syncState is Failed -> Connectivity.WaitingConnection(syncState.cause, syncState.retryDelay)
-                    networkState !is NetworkState.ConnectedWithInternet && params.showNoNetwork ->
-                        Connectivity.WaitingConnection(null, null)
-                    syncState is SlowSync && params.showSync -> Connectivity.Connecting
-                    syncState is GatheringPendingEvents && params.showSync -> Connectivity.Connecting
-                    else -> Connectivity.Connected
+    private suspend fun connectivityFlow(userId: UserId): Flow<Connectivity> =
+        runCatching {
+            coreLogic.value.sessionScope(userId) {
+                combine(observeSyncState(), coreLogic.value.networkStateObserver.observeNetworkState()) { syncState, networkState ->
+                    when {
+                        // Waiting is a pure pre-initialization state: the sync worker has not been
+                        // scheduled yet. It carries no information about network health, so map it
+                        // to Idle (no banner) rather than WaitingConnection or Connecting.
+                        syncState is Waiting -> Connectivity.Idle
+                        syncState is Failed -> Connectivity.WaitingConnection(syncState.cause, syncState.retryDelay)
+                        networkState !is NetworkState.ConnectedWithInternet && params.showNoNetwork ->
+                            Connectivity.WaitingConnection(null, null)
+                        syncState is SlowSync && params.showSync -> Connectivity.Connecting
+                        syncState is GatheringPendingEvents && params.showSync -> Connectivity.Connecting
+                        else -> Connectivity.Connected
+                    }
                 }
             }
+        }.getOrElse {
+            appLogger.e("$TAG: Failed to get connectivity session scope for current session: $userId")
+            flowOf(Connectivity.Idle)
+        }.catch {
+            appLogger.e("$TAG: Connectivity session flow failed for current session: $userId")
+            emit(Connectivity.Idle)
         }.debounce { connectivity ->
             when (connectivity) {
                 // Pass through immediately so the banner is dismissed without delay
@@ -91,14 +101,22 @@ class CommonTopAppBarViewModel(
     @VisibleForTesting
     internal suspend fun activeCallsFlow(userId: UserId): Flow<List<Call>> = when {
         !params.showActiveCalls -> flowOf(emptyList()) // assume list is always empty to not show it on the bar
-        else -> coreLogic.value.sessionScope(userId) { // otherwise observe real calls to show them on the bar
-            combine(
-                calls.establishedCall(),
-                calls.getIncomingCalls(),
-                calls.observeOutgoingCall(),
-            ) { establishedCall, incomingCalls, outgoingCalls ->
-                establishedCall + incomingCalls + outgoingCalls
-            }.distinctUntilChanged()
+        else -> runCatching {
+            coreLogic.value.sessionScope(userId) { // otherwise observe real calls to show them on the bar
+                combine(
+                    calls.establishedCall(),
+                    calls.getIncomingCalls(),
+                    calls.observeOutgoingCall(),
+                ) { establishedCall, incomingCalls, outgoingCalls ->
+                    establishedCall + incomingCalls + outgoingCalls
+                }.distinctUntilChanged()
+            }
+        }.getOrElse {
+            appLogger.e("$TAG: Failed to get calls session scope for current session: $userId")
+            flowOf(emptyList())
+        }.catch {
+            appLogger.e("$TAG: Calls session flow failed for current session: $userId")
+            emit(emptyList())
         }
     }
 
@@ -189,6 +207,7 @@ class CommonTopAppBarViewModel(
     }
 
     private companion object {
+        const val TAG = "CommonTopAppBarViewModel"
         const val CONNECTIVITY_STATE_DEBOUNCE_ONGOING_CALL = 600L
         const val CONNECTIVITY_STATE_DEBOUNCE_DEFAULT = 1000L
     }

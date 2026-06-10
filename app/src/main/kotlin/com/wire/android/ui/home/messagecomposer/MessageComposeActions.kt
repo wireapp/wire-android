@@ -113,7 +113,7 @@ private fun ComposingActions(
         with(localFeatureVisibilityFlags) {
             AdditionalOptionButton(
                 isSelected = attachmentsVisible,
-                onClick = onAdditionalOptionButtonClicked
+                onClick = onAdditionalOptionButtonClicked,
             )
             RichTextEditingAction(
                 isSelected = selectedOption == AdditionalOptionSelectItem.RichTextEditing,
@@ -244,7 +244,9 @@ fun SelfDeletingMessageAction(
     conversationId: ConversationId,
     onButtonClicked: (SelfDeletionTimer) -> Unit,
     viewModel: SelfDeletingMessageActionViewModel =
-        selfDeletingMessageActionViewModel(SelfDeletingMessageActionArgs(conversationId = conversationId)),
+        selfDeletingMessageActionViewModel(
+            SelfDeletingMessageActionArgs(conversationId = conversationId)
+        ),
 ) {
     when (val state = viewModel.state()) {
         SelfDeletionTimer.Disabled -> {}

@@ -33,19 +33,17 @@ class DebugScreenComposeTest {
     @Test
     fun givenAUserIsInDebugScreen_TitleShouldBeDisplayed() = runTest {
         composeTestRule.setContent {
-                WireTestTheme {
-                    UserDebugContent(
-                        onNavigationPressed = { },
-                        state = UserDebugState(logPath = "logPath"),
-                        onLoggingEnabledChange = {},
-                        onDeleteLogs = {},
-                        onDatabaseLoggerEnabledChanged = {},
-                        onShowFeatureFlags = {},
-                        onShowCryptoStats = {},
-                        onFlushLogs = { CompletableDeferred(Unit) },
-                        debugDataOptionsViewModel = object : DebugDataOptionsViewModel {},
-                        exportObfuscatedCopyViewModel = object : ExportObfuscatedCopyViewModel {},
-                    )
+            WireTestTheme {
+                UserDebugContent(
+                    onNavigationPressed = { },
+                    state = UserDebugState(logPath = "logPath"),
+                    onLoggingEnabledChange = {},
+                    onDeleteLogs = {},
+                    onDatabaseLoggerEnabledChanged = {},
+                    onFlushLogs = { CompletableDeferred(Unit) },
+                    debugDataOptionsContent = {},
+                    dangerOptionsContent = {},
+                )
             }
         }
 

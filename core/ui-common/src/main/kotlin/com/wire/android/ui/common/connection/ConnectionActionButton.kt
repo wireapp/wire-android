@@ -73,7 +73,9 @@ fun ConnectionActionButton(
     onConnectionRequestIgnored: (String) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit = {},
     viewModel: ConnectionActionButtonViewModel =
-        connectionActionButtonViewModel(ConnectionActionButtonArgs(userId, userName)),
+        connectionActionButtonViewModel(
+            ConnectionActionButtonArgs(userId, userName)
+        ),
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()

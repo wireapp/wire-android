@@ -15,11 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.feature.meetings.ui
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.feature.meetings.ui.create.NewMeetingType
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModelImpl
@@ -27,25 +29,31 @@ import com.wire.android.feature.meetings.ui.list.MeetingListViewModel
 import com.wire.android.feature.meetings.ui.list.MeetingListViewModelImpl
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModel
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModelImpl
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-interface MeetingsViewModelGraph : MetroViewModelGraph {
-    val meetingsViewModelFactory: MeetingsViewModelFactory
+interface MeetingsManualViewModelFactory : ManualViewModelAssistedFactory {
+    fun meetingListViewModel(type: MeetingsTabItem): MeetingListViewModelImpl
+    fun newMeetingViewModel(type: NewMeetingType): NewMeetingViewModelImpl
 }
 
 @Composable
-fun meetingListViewModel(type: MeetingsTabItem): MeetingListViewModel =
-    metroViewModel<MeetingsViewModelGraph, MeetingListViewModelImpl>(key = "meeting_list_${type.name}") {
-        meetingsViewModelFactory.meetingListViewModel(type)
+fun meetingListViewModel(
+    type: MeetingsTabItem,
+): MeetingListViewModel =
+    sessionKeyedAssistedMetroViewModel<MeetingListViewModelImpl, MeetingsManualViewModelFactory>(
+        key = "meeting_list_${type.name}",
+    ) {
+        meetingListViewModel(type)
     }
 
 @Composable
 fun meetingOptionsMenuListViewModel(): MeetingOptionsMenuViewModel =
-    metroViewModel<MeetingsViewModelGraph, MeetingOptionsMenuViewModelImpl> {
-        meetingsViewModelFactory.meetingOptionsMenuViewModel()
-    }
+    sessionKeyedMetroViewModel<MeetingOptionsMenuViewModelImpl>()
 
 @Composable
 fun newMeetingViewModel(type: NewMeetingType): NewMeetingViewModel =
-    metroViewModel<MeetingsViewModelGraph, NewMeetingViewModelImpl>(key = "new_meeting_${type.name}") {
-        meetingsViewModelFactory.newMeetingViewModel(type)
+    sessionKeyedAssistedMetroViewModel<NewMeetingViewModelImpl, MeetingsManualViewModelFactory>(
+        key = "new_meeting_${type.name}",
+    ) {
+        newMeetingViewModel(type)
     }

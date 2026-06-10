@@ -18,9 +18,9 @@
 package com.wire.android.ui
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.ViewModel
 import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.metroSavedStateViewModel
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
@@ -35,49 +35,37 @@ interface MiscViewModelGraph : MetroViewModelGraph {
 }
 
 @Composable
+inline fun <reified VM> miscViewModel(): VM where VM : ViewModel =
+    sessionKeyedMetroViewModel()
+
+@Composable
 fun analyticsUsageViewModel(): AnalyticsUsageViewModel =
-    metroViewModel<MiscViewModelGraph, AnalyticsUsageViewModel> {
-        miscViewModelFactory.analyticsUsageViewModel()
-    }
+    miscViewModel()
 
 @Composable
 fun initialSyncViewModel(): InitialSyncViewModel =
-    metroViewModel<MiscViewModelGraph, InitialSyncViewModel> {
-        miscViewModelFactory.initialSyncViewModel()
-    }
+    miscViewModel()
 
 @Composable
 fun legalHoldRequestedViewModel(): LegalHoldRequestedViewModel =
-    metroViewModel<MiscViewModelGraph, LegalHoldRequestedViewModel> {
-        miscViewModelFactory.legalHoldRequestedViewModel()
-    }
+    miscViewModel()
 
 @Composable
 fun e2EIEnrollmentViewModel(): E2EIEnrollmentViewModel =
-    metroViewModel<MiscViewModelGraph, E2EIEnrollmentViewModel> {
-        miscViewModelFactory.e2EIEnrollmentViewModel()
-    }
+    miscViewModel()
 
 @Composable
 fun getE2EICertificateViewModel(): GetE2EICertificateViewModel =
-    metroViewModel<MiscViewModelGraph, GetE2EICertificateViewModel> {
-        miscViewModelFactory.getE2EICertificateViewModel()
-    }
+    miscViewModel()
 
 @Composable
 fun e2eiCertificateDetailsViewModel(): E2eiCertificateDetailsViewModel =
-    metroSavedStateViewModel<MiscViewModelGraph, E2eiCertificateDetailsViewModel> {
-        miscViewModelFactory.e2eiCertificateDetailsViewModel(it)
-    }
+    miscViewModel()
 
 @Composable
 fun importMediaAuthenticatedViewModel(): ImportMediaAuthenticatedViewModel =
-    metroViewModel<MiscViewModelGraph, ImportMediaAuthenticatedViewModel> {
-        miscViewModelFactory.importMediaAuthenticatedViewModel()
-    }
+    miscViewModel()
 
 @Composable
 fun joinConversationViaCodeViewModel(): JoinConversationViaCodeViewModel =
-    metroViewModel<MiscViewModelGraph, JoinConversationViaCodeViewModel> {
-        miscViewModelFactory.joinConversationViaCodeViewModel()
-    }
+    miscViewModel()

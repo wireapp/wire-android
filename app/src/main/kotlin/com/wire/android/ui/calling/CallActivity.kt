@@ -40,8 +40,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.appLogger
-import com.wire.android.di.metro.LocalMetroViewModelGraph
+import com.wire.android.di.metro.LocalWireViewModelScopeKey
+import com.wire.android.di.metro.createCurrentSessionViewModelGraph
 import com.wire.android.di.metro.wireApplicationGraph
+import com.wire.android.model.LocalWireSessionImageLoader
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.LocalActivity
@@ -57,6 +59,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import dev.zacsweers.metro.HasMemberInjections
 import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 
 @HasMemberInjections
 abstract class CallActivity : BaseActivity() {
@@ -116,9 +119,12 @@ abstract class CallActivity : BaseActivity() {
 
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
+            val sessionViewModelGraph = remember { wireApplicationGraph.createCurrentSessionViewModelGraph() }
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelGraph provides imageAssetViewModelGraph,
+                LocalMetroViewModelFactory provides wireApplicationGraph.metroViewModelFactory,
+                LocalWireViewModelScopeKey provides sessionViewModelGraph.viewModelScopeKey,
+                LocalWireSessionImageLoader provides sessionViewModelGraph.wireSessionImageLoader,
                 LocalActivity provides this
             ) {
                 WireTheme {

@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMessageArgs
@@ -77,7 +78,12 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     conversationDetailsData: ConversationDetailsData,
     accent: Accent = Accent.Unknown,
 ) {
-    val conversationAssetPathsViewModel = conversationAssetPathsViewModel(message.conversationId.toString())
+    val conversationAssetPathsViewModel = when {
+        LocalInspectionMode.current -> ConversationAssetPathsViewModelPreview
+        else -> conversationAssetPathsViewModel(
+            message.conversationId.toString()
+        )
+    }
 
     val onAssetClickable = remember(message) {
         Clickable(enabled = isAvailable, onClick = {

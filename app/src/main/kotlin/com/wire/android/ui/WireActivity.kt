@@ -628,6 +628,10 @@ class WireActivity : AppCompatActivity() {
                     },
                     onDismiss = viewModel::dismissMaxAccountDialog
                 )
+                CrossBackendLoginBlockedDialog(
+                    shouldShow = viewModel.globalAppState.crossBackendLoginBlockedDialog,
+                    onDismiss = viewModel::dismissCrossBackendLoginBlockedDialog
+                )
                 AccountLoggedOutDialog(
                     viewModel.globalAppState.blockUserUI
                 ) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin)) }
@@ -642,6 +646,10 @@ class WireActivity : AppCompatActivity() {
                         )
                     },
                     viewModel::dismissNewClientsDialog
+                )
+                CrossBackendLoginBlockedDialog(
+                    shouldShow = viewModel.globalAppState.crossBackendLoginBlockedDialog,
+                    onDismiss = viewModel::dismissCrossBackendLoginBlockedDialog
                 )
             }
             if (showCallEndedBecauseOfConversationDegraded) {

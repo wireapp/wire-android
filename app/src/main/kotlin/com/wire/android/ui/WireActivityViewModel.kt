@@ -75,6 +75,7 @@ import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUse
 import com.wire.kalium.logic.feature.debug.SynchronizeExternalDataResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
+import com.wire.kalium.logic.feature.server.IsCrossBackendLoginBlockedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
@@ -344,7 +345,16 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             when (val result = deepLinkProcessor.get().invoke(intent?.data, intent?.action)) {
                 DeepLinkResult.AuthorizationNeeded -> sendAction(OnAuthorizationNeeded)
-                is DeepLinkResult.SSOLogin -> sendAction(OnSSOLogin(result))
+                is DeepLinkResult.SSOLogin -> {
+                    if (result is DeepLinkResult.SSOLogin.Success &&
+                        isCrossBackendLoginBlocked(IsCrossBackendLoginBlockedUseCase.Target.SsoConfigId(result.serverConfigId))
+                    ) {
+                        appLogger.w("Cross-backend SSO login blocked: deeplink target differs from active session backend")
+                        globalAppState = globalAppState.copy(crossBackendLoginBlockedDialog = true)
+                    } else {
+                        sendAction(OnSSOLogin(result))
+                    }
+                }
                 is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result.url, result.loginType)
                 is DeepLinkResult.SwitchAccountFailure.OngoingCall -> sendAction(ShowToast(R.string.cant_switch_account_in_call))
                 is DeepLinkResult.SwitchAccountFailure.Unknown -> appLogger.e("unknown deeplink failure")
@@ -455,8 +465,17 @@ class WireActivityViewModel @Inject constructor(
 
     fun onCustomServerConfig(customServerUrl: String, loginType: LoginType) {
         viewModelScope.launch(dispatchers.io()) {
-            val customBackendDialogData = loadServerConfig(customServerUrl)
-                ?.let { serverLinks -> CustomServerDetailsDialogState(serverLinks = serverLinks, loginType = loginType) }
+            val serverLinks = loadServerConfig(customServerUrl)
+            if (serverLinks != null &&
+                isCrossBackendLoginBlocked(IsCrossBackendLoginBlockedUseCase.Target.Links(serverLinks))
+            ) {
+                appLogger.w("Cross-backend login blocked: deeplink target differs from active session backend")
+                globalAppState = globalAppState.copy(crossBackendLoginBlockedDialog = true)
+                return@launch
+            }
+
+            val customBackendDialogData = serverLinks
+                ?.let { CustomServerDetailsDialogState(serverLinks = it, loginType = loginType) }
                 ?: CustomServerNoNetworkDialogState(customServerUrl = customServerUrl, loginType = loginType)
 
             globalAppState = globalAppState.copy(
@@ -464,6 +483,9 @@ class WireActivityViewModel @Inject constructor(
             )
         }
     }
+
+    private suspend fun isCrossBackendLoginBlocked(target: IsCrossBackendLoginBlockedUseCase.Target): Boolean =
+        coreLogic.get().getGlobalScope().isCrossBackendLoginBlocked(target)
 
     private suspend fun onConversationInviteDeepLink(
         code: String,
@@ -513,6 +535,10 @@ class WireActivityViewModel @Inject constructor(
 
     fun dismissMaxAccountDialog() {
         globalAppState = globalAppState.copy(maxAccountDialog = false)
+    }
+
+    fun dismissCrossBackendLoginBlockedDialog() {
+        globalAppState = globalAppState.copy(crossBackendLoginBlockedDialog = false)
     }
 
     fun applyPersistentWebSocketConfigFromMDM() {
@@ -642,6 +668,7 @@ data class NewClientInfo(val date: String, val deviceInfo: UIText) {
 data class GlobalAppState(
     val customBackendDialog: CustomServerDialogState? = null,
     val maxAccountDialog: Boolean = false,
+    val crossBackendLoginBlockedDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,

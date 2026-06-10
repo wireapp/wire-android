@@ -21,8 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.work.WorkManager
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.wireMetroViewModelScoped
+import com.wire.android.di.wireManualMetroViewModelScoped
 import com.wire.android.ui.common.banner.SecurityClassificationArgs
 import com.wire.android.ui.common.banner.SecurityClassificationViewModel
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelImpl
@@ -58,41 +57,56 @@ import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.user.IsPreventAdminlessGroupsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-interface CommonViewModelGraph : MetroViewModelGraph {
+internal interface CommonManualViewModelFactory : ManualViewModelAssistedFactory {
+    fun securityClassificationViewModel(args: SecurityClassificationArgs): SecurityClassificationViewModelImpl
+    fun connectionActionButtonViewModel(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModelImpl
+    fun conversationOptionsMenuViewModel(): ConversationOptionsMenuViewModelImpl
+}
+
+interface CommonViewModelGraph {
     val commonViewModelFactory: CommonViewModelFactory
 }
 
 @Composable
-fun securityClassificationViewModel(args: SecurityClassificationArgs): SecurityClassificationViewModel =
-    wireMetroViewModelScoped<
-            CommonViewModelGraph,
+fun securityClassificationViewModel(
+    args: SecurityClassificationArgs,
+): SecurityClassificationViewModel =
+    wireManualMetroViewModelScoped<
             SecurityClassificationViewModelImpl,
             SecurityClassificationViewModel,
-            SecurityClassificationArgs
+            SecurityClassificationArgs,
+            CommonManualViewModelFactory
             >(
         arguments = args
     ) { _, arguments ->
-        commonViewModelFactory.securityClassificationViewModel(arguments)
+        securityClassificationViewModel(arguments)
     }
 
 @Composable
-fun connectionActionButtonViewModel(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModel =
-    wireMetroViewModelScoped<
-            CommonViewModelGraph,
+fun connectionActionButtonViewModel(
+    args: ConnectionActionButtonArgs,
+): ConnectionActionButtonViewModel =
+    wireManualMetroViewModelScoped<
             ConnectionActionButtonViewModelImpl,
             ConnectionActionButtonViewModel,
-            ConnectionActionButtonArgs
+            ConnectionActionButtonArgs,
+            CommonManualViewModelFactory
             >(
         arguments = args
     ) { _, arguments ->
-        commonViewModelFactory.connectionActionButtonViewModel(arguments)
+        connectionActionButtonViewModel(arguments)
     }
 
 @Composable
 fun conversationOptionsMenuViewModel(): ConversationOptionsMenuViewModel =
-    wireMetroViewModelScoped<CommonViewModelGraph, ConversationOptionsMenuViewModelImpl, ConversationOptionsMenuViewModel> {
-        commonViewModelFactory.conversationOptionsMenuViewModel()
+    wireManualMetroViewModelScoped<
+        ConversationOptionsMenuViewModelImpl,
+        ConversationOptionsMenuViewModel,
+        CommonManualViewModelFactory,
+    > {
+        conversationOptionsMenuViewModel()
     }
 
 @Suppress("LongParameterList")

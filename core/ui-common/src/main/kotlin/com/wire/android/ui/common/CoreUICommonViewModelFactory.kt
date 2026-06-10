@@ -19,8 +19,7 @@ package com.wire.android.ui.common
 
 import androidx.compose.runtime.Composable
 import com.wire.android.di.ViewModelScopedPreviews
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.wireMetroViewModelScoped
+import com.wire.android.di.wireManualMetroViewModelScoped
 import com.wire.android.ui.common.connection.ConnectionActionButtonArgs
 import com.wire.android.ui.common.connection.ConnectionActionButtonViewModel
 import com.wire.android.ui.common.connection.ConnectionActionButtonViewModelImpl
@@ -32,23 +31,26 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-interface CoreUICommonViewModelGraph : MetroViewModelGraph {
-    val coreUICommonViewModelFactory: CoreUICommonViewModelFactory
+internal interface CoreUICommonManualViewModelFactory : ManualViewModelAssistedFactory {
+    fun connectionActionButtonViewModel(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModelImpl
 }
 
 @Composable
-fun connectionActionButtonViewModel(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModel =
-    wireMetroViewModelScoped<
-            CoreUICommonViewModelGraph,
+fun connectionActionButtonViewModel(
+    args: ConnectionActionButtonArgs,
+): ConnectionActionButtonViewModel =
+    wireManualMetroViewModelScoped<
             ConnectionActionButtonViewModelImpl,
             ConnectionActionButtonViewModel,
-            ConnectionActionButtonArgs
+            ConnectionActionButtonArgs,
+            CoreUICommonManualViewModelFactory
             >(
         arguments = args,
         previewProvider = ViewModelScopedPreviews,
     ) { _, arguments ->
-        coreUICommonViewModelFactory.connectionActionButtonViewModel(arguments)
+        connectionActionButtonViewModel(arguments)
     }
 
 @Suppress("LongParameterList")

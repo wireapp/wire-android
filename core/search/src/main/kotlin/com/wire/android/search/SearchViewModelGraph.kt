@@ -15,33 +15,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.search
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.metroSavedStateViewModel
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
 import com.wire.android.search.apps.SearchAppsViewModel
 import com.wire.android.search.users.SearchUserViewModel
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-interface SearchViewModelGraph : MetroViewModelGraph {
-    val searchViewModelFactory: SearchViewModelFactory
+interface SearchManualViewModelFactory : ManualViewModelAssistedFactory {
+    fun searchUserViewModel(conversationId: ConversationId? = null): SearchUserViewModel
+    fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo? = null): SearchAppsViewModel
 }
 
 @Composable
 fun searchUserViewModel(conversationId: ConversationId? = null): SearchUserViewModel =
-    metroSavedStateViewModel<SearchViewModelGraph, SearchUserViewModel>(
+    sessionKeyedAssistedMetroViewModel<SearchUserViewModel, SearchManualViewModelFactory>(
         key = conversationId?.let { "search_user_conversation_id_$it" } ?: "search_user"
     ) {
-        searchViewModelFactory.searchUserViewModel(conversationId)
+        searchUserViewModel(conversationId)
     }
 
 @Composable
 fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel =
-    metroViewModel<SearchViewModelGraph, SearchAppsViewModel>(
+    sessionKeyedAssistedMetroViewModel<SearchAppsViewModel, SearchManualViewModelFactory>(
         key = "search_apps_protocol_info_${protocolInfo?.name()}"
     ) {
-        searchViewModelFactory.searchAppsViewModel(protocolInfo)
+        searchAppsViewModel(protocolInfo)
     }

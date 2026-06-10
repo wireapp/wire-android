@@ -12,4 +12,5 @@ dependencies {
     implementation(libs.metrox.viewModelCompose)
     implementation(libs.compose.material3)
     implementation(libs.resaca.core)
+    implementation(libs.resaca.metro)
 }

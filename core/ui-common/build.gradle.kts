@@ -33,6 +33,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.navigation)
     implementation(libs.compose.ui.preview)
+    implementation(libs.metrox.viewModelCompose)
     debugImplementation(libs.compose.ui.tooling)
 
     implementation(libs.visibilityModifiers)

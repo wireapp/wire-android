@@ -30,6 +30,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.navigation)
     implementation(libs.compose.ui.preview)
+    implementation(libs.metrox.viewModelCompose)
 
     implementation(libs.visibilityModifiers)
     implementation(libs.androidx.paging3)

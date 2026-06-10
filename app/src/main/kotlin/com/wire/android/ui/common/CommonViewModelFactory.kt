@@ -30,22 +30,14 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMe
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModelImpl
 import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.connection.ConnectionActionButtonArgs
-import com.wire.android.ui.connection.ConnectionActionButtonViewModel
-import com.wire.android.ui.connection.ConnectionActionButtonViewModelImpl
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
-import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
-import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
-import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
-import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
@@ -62,7 +54,6 @@ import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
 internal interface CommonManualViewModelFactory : ManualViewModelAssistedFactory {
     fun securityClassificationViewModel(args: SecurityClassificationArgs): SecurityClassificationViewModelImpl
-    fun connectionActionButtonViewModel(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModelImpl
     fun conversationOptionsMenuViewModel(): ConversationOptionsMenuViewModelImpl
 }
 

@@ -36,12 +36,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.cellImageViewerViewModel
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -59,7 +59,7 @@ import com.wire.android.ui.theme.WireTheme
 fun CellImageViewerScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    viewModel: CellImageViewerViewModel = hiltViewModel(),
+    viewModel: CellImageViewerViewModel = cellImageViewerViewModel(),
 ) {
     CellImageViewerScreenContent(
         localPath = viewModel.localPath,

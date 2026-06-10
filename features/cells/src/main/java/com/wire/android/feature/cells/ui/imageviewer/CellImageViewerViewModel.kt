@@ -20,13 +20,8 @@ package com.wire.android.feature.cells.ui.imageviewer
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
-@HiltViewModel
-class CellImageViewerViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-) : ViewModel() {
+class CellImageViewerViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
 
     private val navArgs: CellImageViewerNavArgs = CellImageViewerScreenDestination.argsFrom(savedStateHandle)
 

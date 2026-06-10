@@ -29,12 +29,6 @@ public fun com.wire.android.model.ImageAsset.UserAvatarAsset.paint(fallbackData:
     - withCrossfadeAnimation: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.model.remoteAssetImageViewModel(): com.wire.android.model.RemoteAssetImageViewModel
-  skippable: true
-  restartable: true
-  params:
-
-@Composable
 private fun com.wire.android.ui.common.ArrowIcon(arrowIcon: kotlin.Int, contentDescription: kotlin.Int?, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true

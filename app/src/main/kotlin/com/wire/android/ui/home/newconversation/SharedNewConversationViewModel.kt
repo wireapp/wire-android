@@ -38,7 +38,9 @@ fun sharedNewConversationViewModel(navigator: Navigator): NewConversationViewMod
     SideEffect {
         parentEntry?.let { rememberedParentEntry.value = it }
     }
-    return newConversationViewModel(checkNotNull(parentEntry ?: rememberedParentEntry.value) {
-        "NewConversationGraph back stack entry is missing"
-    })
+    return newConversationViewModel(
+        checkNotNull(parentEntry ?: rememberedParentEntry.value) {
+            "NewConversationGraph back stack entry is missing"
+        }
+    )
 }

@@ -621,9 +621,14 @@ private fun QuotedImageThumbnail(
     val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
     val viewModel: AssetLocalPathViewModel =
         if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
-            assetLocalPathViewModel(args, keyInScopeResolver)
+            assetLocalPathViewModel(
+                args,
+                keyInScopeResolver
+            )
         } else {
-            assetLocalPathViewModel(args)
+            assetLocalPathViewModel(
+                args
+            )
         }
 
     LaunchedEffect(Unit) {

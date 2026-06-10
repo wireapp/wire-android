@@ -17,15 +17,9 @@
  */
 package com.wire.android.di.metro
 
-import com.wire.android.ui.authentication.AuthenticationViewModelFactory
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
 import dev.zacsweers.metro.Inject
 
-class AppAuthenticationViewModelGraph @Inject constructor(
-    private val authenticationViewModelFactoryProvider: () -> AuthenticationViewModelFactory,
-) : AuthenticationViewModelGraph {
+class AppAuthenticationViewModelGraph @Inject constructor() : AuthenticationViewModelGraph {
     override val viewModelScopeKey: String = "authentication"
-
-    override val authenticationViewModelFactory: AuthenticationViewModelFactory
-        get() = authenticationViewModelFactoryProvider()
 }

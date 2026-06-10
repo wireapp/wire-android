@@ -62,7 +62,9 @@ fun MessageOptionsModalSheetLayout(
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
     viewModel: MessageOptionsMenuViewModel =
-        messageOptionsMenuViewModel(MessageOptionsMenuArgs(conversationId))
+        messageOptionsMenuViewModel(
+            args = MessageOptionsMenuArgs(conversationId)
+        )
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current

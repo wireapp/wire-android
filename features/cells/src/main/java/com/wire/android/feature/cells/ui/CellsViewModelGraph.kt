@@ -18,12 +18,10 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.metroSavedStateViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel
@@ -36,63 +34,56 @@ import com.wire.android.feature.cells.ui.search.SearchScreenViewModel
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel
 
-interface CellsViewModelGraph : MetroViewModelGraph {
-    val cellsViewModelFactory: CellsViewModelFactory
-}
-
 @Composable
 inline fun <reified VM> cellsViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
     key: String? = null,
-    crossinline create: CellsViewModelFactory.(SavedStateHandle) -> VM,
 ): VM where VM : ViewModel =
-    metroSavedStateViewModel<CellsViewModelGraph, VM>(
+    sessionKeyedMetroViewModel(
         viewModelStoreOwner = viewModelStoreOwner,
         key = key,
-    ) { savedStateHandle ->
-        cellsViewModelFactory.create(savedStateHandle)
-    }
+    )
 
 @Composable
 fun cellViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
-): CellViewModel = cellsViewModel(viewModelStoreOwner = viewModelStoreOwner) { cellViewModel(it) }
+): CellViewModel = cellsViewModel(viewModelStoreOwner = viewModelStoreOwner)
 
 @Composable
-fun createFileViewModel(): CreateFileViewModel = cellsViewModel { createFileViewModel(it) }
+fun createFileViewModel(): CreateFileViewModel = cellsViewModel()
 
 @Composable
-fun createFolderViewModel(): CreateFolderViewModel = cellsViewModel { createFolderViewModel(it) }
+fun createFolderViewModel(): CreateFolderViewModel = cellsViewModel()
 
 @Composable
-fun moveToFolderViewModel(): MoveToFolderViewModel = cellsViewModel { moveToFolderViewModel(it) }
+fun moveToFolderViewModel(): MoveToFolderViewModel = cellsViewModel()
 
 @Composable
-fun publicLinkViewModel(): PublicLinkViewModel = cellsViewModel { publicLinkViewModel(it) }
+fun publicLinkViewModel(): PublicLinkViewModel = cellsViewModel()
 
 @Composable
 internal fun publicLinkExpirationScreenViewModel(): PublicLinkExpirationScreenViewModel =
-    cellsViewModel { publicLinkExpirationScreenViewModel(it) }
+    cellsViewModel()
 
 @Composable
 internal fun publicLinkPasswordScreenViewModel(): PublicLinkPasswordScreenViewModel =
-    cellsViewModel { publicLinkPasswordScreenViewModel(it) }
+    cellsViewModel()
 
 @Composable
-fun renameNodeViewModel(): RenameNodeViewModel = cellsViewModel { renameNodeViewModel(it) }
+fun renameNodeViewModel(): RenameNodeViewModel = cellsViewModel()
 
 @Composable
-fun searchScreenViewModel(): SearchScreenViewModel = cellsViewModel { searchScreenViewModel(it) }
+fun searchScreenViewModel(): SearchScreenViewModel = cellsViewModel()
 
 @Composable
-fun addRemoveTagsViewModel(): AddRemoveTagsViewModel = cellsViewModel { addRemoveTagsViewModel(it) }
+fun addRemoveTagsViewModel(): AddRemoveTagsViewModel = cellsViewModel()
 
 @Composable
-fun versionHistoryViewModel(): VersionHistoryViewModel = cellsViewModel { versionHistoryViewModel(it) }
+fun versionHistoryViewModel(): VersionHistoryViewModel = cellsViewModel()
 
 @Composable
 fun cellImageViewerViewModel(): CellImageViewerViewModel = cellsViewModel { cellImageViewerViewModel(it) }

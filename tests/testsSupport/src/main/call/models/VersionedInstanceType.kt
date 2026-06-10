@@ -17,9 +17,12 @@
  */
 package call.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class VersionedInstanceType(
-    val name: String,
-    val version: String
+    val name: String = "",
+    val version: String = ""
 ) {
 
     fun getPath(): String {

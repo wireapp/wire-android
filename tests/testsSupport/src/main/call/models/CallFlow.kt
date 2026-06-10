@@ -17,23 +17,25 @@
  */
 package call.models
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CallFlow(
-    @SerializedName("audioPacketsReceived")
-    val audioPacketsReceived: Long,
+    @SerialName("audioPacketsReceived")
+    val audioPacketsReceived: Long = 0,
 
-    @SerializedName("audioPacketsSent")
-    val audioPacketsSent: Long,
+    @SerialName("audioPacketsSent")
+    val audioPacketsSent: Long = 0,
 
-    @SerializedName("videoPacketsReceived")
-    val videoPacketsReceived: Long,
+    @SerialName("videoPacketsReceived")
+    val videoPacketsReceived: Long = 0,
 
-    @SerializedName("videoPacketsSent")
-    val videoPacketsSent: Long,
+    @SerialName("videoPacketsSent")
+    val videoPacketsSent: Long = 0,
 
-    @SerializedName("remoteUserId")
-    val remoteUserId: String
+    @SerialName("remoteUserId")
+    val remoteUserId: String = ""
 ) {
 
     // Secondary constructor for parsing from raw pcStats string

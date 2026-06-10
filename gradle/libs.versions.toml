@@ -116,7 +116,6 @@ hamcrest = "3.0"
 rules = "1.7.0"
 zxing = "3.5.2"
 zxingAndroid = "4.3.0"
-gson = "2.13.2"
 allureKotlin = "2.4.0"
 androidx-test-services = "1.6.0"
 
@@ -303,7 +302,6 @@ androidx-test-work = { module = "androidx.work:work-testing", version.ref = "and
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroid" }
-gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 # Test
 androidx-espresso-accessibility = { module = "androidx.test.espresso:espresso-accessibility", version.ref = "androidx-espresso" }

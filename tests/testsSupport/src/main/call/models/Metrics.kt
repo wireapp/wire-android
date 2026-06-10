@@ -20,12 +20,15 @@
 )
 package call.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Metrics(
-    val success: Boolean,
-    val estabTimeMs: Long,
-    val setupTimeMs: Long,
-    val avgRateU: Long,
-    val avgRateD: Long
+    val success: Boolean = false,
+    val estabTimeMs: Long = 0,
+    val setupTimeMs: Long = 0,
+    val avgRateU: Long = 0,
+    val avgRateD: Long = 0
 ) {
     override fun toString(): String {
         return "Metrics(success=$success, estab_time_ms=$estabTimeMs, " +

@@ -99,16 +99,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.InputStream
 import java.io.InputStreamReader
 import dev.zacsweers.metro.Inject
@@ -620,11 +623,11 @@ class WireActivityViewModel @Inject constructor(
 
     fun resolveMissingCurrentSession(actions: SwitchAccountActions) {
         viewModelScope.launch {
-            syncCurrentUserIdFromSession(retries = CURRENT_SESSION_RESOLUTION_RETRIES)
+            syncCurrentUserIdFromSession(awaitValidSession = true)
             if (globalAppState.currentUserId == null) {
                 globalAppState = globalAppState.copy(blockUserUI = null)
                 val result = accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
-                syncCurrentUserIdFromSession(retries = CURRENT_SESSION_RESOLUTION_RETRIES)
+                syncCurrentUserIdFromSession(awaitValidSession = true)
                 result.callAction(actions)
             }
         }
@@ -632,7 +635,7 @@ class WireActivityViewModel @Inject constructor(
 
     fun resolveCurrentSessionUserId() {
         viewModelScope.launch {
-            syncCurrentUserIdFromSession(retries = CURRENT_SESSION_RESOLUTION_RETRIES)
+            syncCurrentUserIdFromSession(awaitValidSession = true)
         }
     }
 
@@ -735,18 +738,9 @@ class WireActivityViewModel @Inject constructor(
             ?.takeIf { it.isValid() }
             ?.userId
 
-    private suspend fun syncCurrentUserIdFromSession(retries: Int = 0) {
+    private suspend fun syncCurrentUserIdFromSession(awaitValidSession: Boolean = false) {
         val userId = withContext(dispatchers.io()) {
-            var resolvedUserId = currentSessionUserId()
-            repeat(retries) { attempt ->
-                if (resolvedUserId != null) return@repeat
-                delay(CURRENT_SESSION_RESOLUTION_RETRY_DELAY_MS)
-                resolvedUserId = currentSessionUserId()
-                if (resolvedUserId != null) {
-                    appLogger.i("Resolved current session after retry ${attempt + 1}")
-                }
-            }
-            resolvedUserId
+            resolveCurrentSessionUserId(awaitValidSession)
         }
         withContext(dispatchers.main()) {
             globalAppState = globalAppState.copy(
@@ -762,6 +756,22 @@ class WireActivityViewModel @Inject constructor(
                     globalAppState.sessionTransitionReason
                 },
             )
+        }
+    }
+
+    private suspend fun resolveCurrentSessionUserId(awaitValidSession: Boolean): UserId? {
+        val currentUserId = currentSessionUserId()
+        return if (currentUserId != null || !awaitValidSession) {
+            currentUserId
+        } else {
+            withTimeoutOrNull(CURRENT_SESSION_RESOLUTION_TIMEOUT_MS) {
+                coreLogic.value.getGlobalScope().session.currentSessionFlow()
+                    .filterIsInstance<CurrentSessionResult.Success>()
+                    .map { it.accountInfo }
+                    .filter { it.isValid() }
+                    .firstOrNull()
+                    ?.userId
+            }
         }
     }
 
@@ -848,8 +858,7 @@ class WireActivityViewModel @Inject constructor(
     }
 }
 
-private const val CURRENT_SESSION_RESOLUTION_RETRIES = 50
-private const val CURRENT_SESSION_RESOLUTION_RETRY_DELAY_MS = 100L
+private const val CURRENT_SESSION_RESOLUTION_TIMEOUT_MS = 5_000L
 
 sealed class CurrentSessionErrorState {
     data object RemovedClient : CurrentSessionErrorState()

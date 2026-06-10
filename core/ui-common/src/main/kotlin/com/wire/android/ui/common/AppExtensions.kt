@@ -20,11 +20,17 @@ package com.wire.android.ui.common
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
 import com.wire.android.model.Clickable
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -50,6 +56,16 @@ fun Modifier.selectableBackground(
         .semantics {
             if (isSelected) selected = true // So TalkBack ignores selection when it's not selected
         }
+}
+
+@Composable
+fun <T> rememberFlow(
+    flow: Flow<T>,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
+): Flow<T> {
+    return remember(key1 = flow, key2 = lifecycleOwner) {
+        flow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
 }
 
 fun monthYearHeader(month: Int, year: Int): String {

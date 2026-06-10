@@ -22,6 +22,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.sebaslogen.resaca.KeyInScopeResolver
 import com.wire.android.di.ScopedArgs
+import com.wire.android.di.ViewModelScopedPreviews
 import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.wireMetroViewModelScoped
 import com.wire.android.media.audiomessage.AudioMessageArgs
@@ -58,6 +59,7 @@ private inline fun <reified VM, reified S, reified R : ScopedArgs> scopedMessage
 ): S where VM : ViewModel, VM : S =
     wireMetroViewModelScoped<ScopedMessageViewModelGraph, VM, S, R>(
         arguments = arguments,
+        previewProvider = ViewModelScopedPreviews,
         clearDelay = clearDelay,
     ) { savedStateHandle, scopedArgs ->
         scopedMessageViewModelFactory.create(savedStateHandle, scopedArgs)
@@ -73,6 +75,7 @@ private inline fun <reified VM, reified S, reified R : ScopedArgs> scopedMessage
 ): S where VM : ViewModel, VM : S =
     wireMetroViewModelScoped<ScopedMessageViewModelGraph, VM, S, R>(
         arguments = arguments,
+        previewProvider = ViewModelScopedPreviews,
         keyInScopeResolver = keyInScopeResolver,
         clearDelay = clearDelay,
     ) { savedStateHandle, scopedArgs ->
@@ -86,6 +89,7 @@ private inline fun <reified VM, reified S> scopedMessageViewModel(
     noinline create: ScopedMessageViewModelFactory.(SavedStateHandle) -> VM,
 ): S where VM : ViewModel, VM : S =
     wireMetroViewModelScoped<ScopedMessageViewModelGraph, VM, S>(
+        previewProvider = ViewModelScopedPreviews,
         clearDelay = clearDelay,
     ) { savedStateHandle ->
         scopedMessageViewModelFactory.create(savedStateHandle)
@@ -147,7 +151,9 @@ fun isFileSharingEnabledViewModel(): IsFileSharingEnabledViewModel =
 
 @Composable
 fun recordAudioViewModel(): RecordAudioViewModel =
-    wireMetroViewModelScoped<ScopedMessageViewModelGraph, RecordAudioViewModel> {
+    wireMetroViewModelScoped<ScopedMessageViewModelGraph, RecordAudioViewModel>(
+        previewProvider = ViewModelScopedPreviews
+    ) {
         scopedMessageViewModelFactory.recordAudioViewModel()
     }
 

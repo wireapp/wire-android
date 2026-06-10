@@ -30,8 +30,8 @@ import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.search.HighlightName
-import com.wire.android.ui.home.conversations.search.HighlightSubtitle
+import com.wire.android.search.widget.HighlightName
+import com.wire.android.search.widget.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.model.Membership
 
 @Composable

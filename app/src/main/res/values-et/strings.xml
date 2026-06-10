@@ -31,7 +31,6 @@
     <string name="label_learn_more">Loe lähemalt</string>
     <string name="label_removing">Eemaldamine…</string>
     <string name="label_logging_in">Sisselogimine…</string>
-    <string name="label_user_deleted">Kustutatud</string>
     <string name="label_message_receive_failure">Allalaadimise viga</string>
     <string name="label_message_decryption_failure_message">Sõnumi dekrüpteerimine ebaõnnestus.</string>
     <string name="label_message_decryption_failure_informative_message">Proovi seanss lähtestada, et luua uued krüptimisvõtmed.</string>
@@ -43,7 +42,6 @@
     <string name="label_open_asset_externally">Ava</string>
     <string name="label_show">Kuva</string>
     <string name="label_show_all">Kuva kõik</string>
-    <string name="label_show_less">Kuva vähem</string>
     <string name="label_message_status_edited_with_date">Muudetud: %s</string>
     <string name="label_on">SEES</string>
     <string name="label_off">VÄLJAS</string>
@@ -51,7 +49,6 @@
     <string name="label_disable">Keela</string>
     <string name="folder_label_access">Juurdepääs</string>
     <string name="folder_label_messaging">Sõnumside</string>
-    <string name="label_user_blocked">Blokeeritud</string>
     <string name="label_and">ja</string>
     <string name="label_retry">Proovi uuesti</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
@@ -266,8 +263,6 @@
     <string name="blocking_user_success">%s blokeeritud</string>
     <!-- Archiving -->
     <!-- Favorite -->
-    <!-- Animation label -->
-    <string name="label_open_conversation">Ava vestlus</string>
     <string name="email_label">E-post</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->

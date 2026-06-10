@@ -36,7 +36,6 @@
     <string name="label_learn_more">Mehr erfahren</string>
     <string name="label_removing">Entfernen…</string>
     <string name="label_logging_in">Anmelden…</string>
-    <string name="label_user_deleted">Gelöscht</string>
     <string name="label_try_again">Erneut versuchen</string>
     <string name="label_done">Fertig</string>
     <string name="label_message_sent_failure">Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
@@ -65,7 +64,6 @@
     <string name="label_open_asset_externally">Öffnen</string>
     <string name="label_show">Anzeigen</string>
     <string name="label_show_all">Alle anzeigen</string>
-    <string name="label_show_less">Weniger anzeigen</string>
     <string name="label_show_details">Details anzeigen</string>
     <string name="label_hide_details">Details ausblenden</string>
     <string name="label_message_status_edited_with_date">Bearbeitet am %s</string>
@@ -76,7 +74,6 @@
     <string name="folder_label_access">Zugang</string>
     <string name="folder_label_protocol_details">Details zum Protokoll</string>
     <string name="folder_label_messaging">Messaging</string>
-    <string name="label_user_blocked">Blockiert</string>
     <string name="label_and">und</string>
     <string name="label_retry">Wiederholen</string>
     <string name="label_draft">*Entwurf*</string>
@@ -119,14 +116,12 @@
     <string name="content_description_avatar_preview">Vorschau des Profilbildes</string>
     <string name="content_description_choose_from_gallery">Aus Galerie wählen</string>
     <string name="content_description_take_a_picture">Ein Bild machen</string>
-    <string name="content_description_left_arrow">Zurück</string>
     <string name="content_description_attachment_item">Anhang hinzufügen</string>
     <string name="content_description_open_message_details">Nachrichtendetails öffnen</string>
     <string name="content_description_copy_the_message">Nachricht kopieren</string>
     <string name="content_description_delete_the_message">Nachricht löschen</string>
     <string name="content_description_edit_the_message">Nachricht bearbeiten</string>
     <string name="content_description_more_options">Weitere Optionen</string>
-    <string name="content_description_add_contact">Kontakt hinzufügen</string>
     <string name="content_description_image_message">Bildnachricht</string>
     <string name="content_description_pause_audio">Ton anhalten</string>
     <string name="content_description_play_audio">Ton wiedergeben</string>
@@ -185,24 +180,17 @@
     <string name="content_description_search_text_in_conversation_btn">Textnachrichten suchen</string>
     <string name="content_description_see_media_in_conversation_btn">Übersicht von Bildern und Dateien öffnen</string>
     <string name="content_description_add_participants_close">Ansicht Teilnehmer hinzufügen schließen</string>
-    <string name="content_description_add_participants_search_field">Personen nach Namen oder Benutzernamen suchen</string>
-    <string name="content_description_add_participants_back_btn">Zurück zum Hinzufügen von Teilnehmern</string>
     <string name="content_description_home_profile_btn">Ihr Profil</string>
     <string name="content_description_home_profile_btn_with_notification">Ihr Profil, ein ungelesener Hinweis.</string>
     <string name="content_description_open_label">Öffnen</string>
     <string name="content_description_join_call_label">Anruf annehmen</string>
     <string name="content_description_share_label">Teilen</string>
     <string name="content_description_edit_label">bearbeiten</string>
-    <string name="content_description_select_label">auswählen</string>
     <string name="content_description_selected_label">ausgewählt</string>
     <string name="content_description_toggle_setting_label">umschalten</string>
     <string name="content_description_edit_guests_option_back_btn">Zurück zu Unterhaltungsdetails</string>
     <string name="content_description_edit_self_delete_back_btn">Zurück zu Unterhaltungsdetails</string>
     <string name="content_description_accept_or_ignore_connection_label">Anfrage akzeptieren oder ignorieren</string>
-    <string name="content_description_open_user_profile_label">Profil öffnen</string>
-    <string name="content_description_open_conversation_label">Unterhaltung öffnen</string>
-    <string name="content_description_open_service_label">App öffnen</string>
-    <string name="content_description_open_link_label">Link öffnen</string>
     <string name="content_description_alert">Hinweis</string>
     <string name="content_description_drop_down">Auswahlliste</string>
     <string name="content_description_close_dropdown">Dropdown schließen</string>
@@ -563,7 +551,6 @@
     <string name="member_name_you_label_titlecase">Sie</string>
     <string name="member_name_you_label_lowercase">Sie</string>
     <string name="label_add_participants">Teilnehmer hinzufügen</string>
-    <string name="username_unavailable_label">Name nicht verfügbar</string>
     <string name="temporary_user_label">%s hat die Unterhaltung verlassen</string>
     <string name="conversation_unavailable_label">Unterhaltungsname nicht verfügbar</string>
     <string name="conversation_details_title">Unterhaltungsdetails</string>
@@ -655,7 +642,6 @@
     <string name="user_profile_conversation_role">ROLLE</string>
     <string name="user_profile_role_in_conversation">Benutzerrolle in ”%s”</string>
     <string name="user_profile_role_change_error">Beim Ändern der Rolle ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut</string>
-    <string name="user_profile_unblock_user">Benutzer freigeben</string>
     <string name="user_profile_conversation_remove_button">Aus Unterhaltung entfernen</string>
     <string name="user_profile_logging_out_progress">Abmelden...</string>
     <string name="user_profile_qr_code">QR-Code öffnen</string>
@@ -927,9 +913,6 @@
     <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
     <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
     <string name="conversation_search_files_button">Dateien suchen</string>
-    <!-- Search Contact-->
-    <string name="label_selected">Ausgewählt (%1$d)</string>
-    <string name="label_contacts">Kontakte</string>
     <string name="label_new_group">Neue Gruppe</string>
     <string name="label_new_channel">Neuer Channel</string>
     <string name="label_create_new_group">Neue Gruppe</string>
@@ -945,14 +928,7 @@
     <string name="label_browse_public_channels">Öffentliche Channels durchsuchen</string>
     <string name="label_learn_more_about_channels">Mehr über Channels erfahren</string>
     <string name="label_new_conversation">Neue Unterhaltung</string>
-    <string name="label_search_people">Personen suchen</string>
-    <string name="label_search_people_or_apps">Personen oder Apps suchen</string>
-    <string name="label_search_people_instruction">Nach Personen anhand ihres Profilnamens oder @Benutzernamens suchen</string>
-    <string name="label_learn_more_searching_user">Mehr erfahren</string>
-    <string name="label_no_results_found">Keine Ergebnisse, bitte erneut versuchen.</string>
     <string name="label_general_error">Ein Fehler ist aufgetreten</string>
-    <string name="label_add_member_people">Personen</string>
-    <string name="label_add_member_services">Apps</string>
     <string name="label_empty_contacts_list">Suchen Sie nach Personen anhand ihres Namens oder Benutzernamens, um eine Unterhaltung zu beginnen 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Ein Fehler ist aufgetreten</string>
@@ -985,7 +961,6 @@
     <string name="leave_conversation_error">Beim Verlassen der Unterhaltung ist ein Fehler aufgetreten</string>
     <string name="joined_conversation_success">Sie sind der Unterhaltung beigetreten.</string>
     <string name="left_conversation_success">Sie haben die Unterhaltung verlassen.</string>
-    <string name="error_unblocking_user">Benutzer konnte nicht freigegeben werden</string>
     <string name="delete_conversation_conversation_error">Beim Löschen der Unterhaltung ist ein Fehler aufgetreten</string>
     <string name="error_limit_number_assets_imported_exceeded">Sie können nur bis zu 20 Dateien gleichzeitig senden</string>
     <!-- Archiving -->
@@ -1001,9 +976,6 @@
     <string name="success_removing_from_favorite">“%s“ wurde aus Favoriten entfernt</string>
     <string name="error_adding_to_favorite">“%s” konnte nicht zu Favoriten hinzugefügt werden</string>
     <string name="error_removing_from_favorite">“%s” konnte nicht aus Favoriten entfernt werden</string>
-    <!-- Animation label -->
-    <string name="label_open_conversation">Unterhaltung öffnen</string>
-    <string name="label_start_conversation">Unterhaltung beginnen</string>
     <string name="email_label">E-Mail-Adresse</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
@@ -1096,34 +1068,16 @@
     <string name="connectivity_status_bar_return_to_outgoing_call">%1$s anrufen…</string>
     <string name="connectivity_status_bar_connecting">Entschlüsseln von Nachrichten</string>
     <string name="connectivity_status_bar_waiting_for_network">Warten auf Netzwerk</string>
-    <!-- Connections -->
-    <string name="connection_label_connect">Hinzufügen</string>
-    <string name="connection_label_cancel_request">Kontaktanfrage abbrechen</string>
     <string name="connection_label_member_not_belongs_to_team">Dieser Nutzer gehört nicht zu Ihrem Team. Wenn Ihre Kontaktanfrage akzeptiert wird, sind Sie verbunden</string>
     <string name="connection_label_member_not_conneted">Wenn Ihre Anfrage angenommen wird, können Sie direkt mit diesem Kontakt kommunizieren.</string>
-    <string name="connection_request_sent">Kontaktanfrage gesendet</string>
-    <string name="connection_request_canceled">Kontaktanfrage abgebrochen</string>
-    <string name="connection_request_ignored">Sie haben die Anfrage von %1$s ignoriert</string>
-    <string name="connection_request_accepted">Kontaktanfrage angenommen</string>
-    <string name="connection_request_sent_error">Kontaktanfrage konnte nicht gesendet werden</string>
-    <string name="connection_request_sent_federation_denied_error">Ihr Backend ist nicht mit dem Backend von %1$s verbunden. Sie können sich mit dieser Person nicht verbinden.</string>
-    <string name="connection_request_accept_error">Kontaktanfrage konnte nicht angenommen werden</string>
-    <string name="connection_request_ignore_error">Kontaktanfrage konnte nicht ignoriert werden</string>
-    <string name="connection_request_cancel_error">Kontaktanfrage konnte nicht abgebrochen werden</string>
     <string name="connection_pending_message">Möchte Sie als Kontakt hinzufügen</string>
-    <string name="connection_pending_label">ausstehend</string>
     <string name="connection_label_user_wants_to_conect">Dieser Benutzer möchte sich mit Ihnen verbinden.</string>
     <string name="connection_label_accepting_request_description">Wenn Sie die Anfrage annehmen, wird die Person als Kontakt hinzugefügt und Sie können direkt miteinander kommunizieren.</string>
-    <string name="connection_label_accept">Annehmen</string>
-    <string name="connection_label_ignore">Ignorieren</string>
     <string name="connection_label_send_unverified_warning">Verschaffen Sie sich Gewissheit über die Identität von %s, bevor Sie den Kontakt hinzufügen.</string>
     <string name="connection_label_received_unverified_warning">Bitte überprüfen Sie die Identität der Person, bevor Sie die Kontaktanfrage annehmen.</string>
     <string name="connection_label_unverified_support_disclaimer">Das Support-Team von Wire wird Sie niemals über die App kontaktieren.</string>
     <string name="connection_label_user_not_found_warning_title">Wire kann diese Person nicht finden</string>
     <string name="connection_label_user_not_found_warning_description">Entweder fehlt die Berechtigung für dieses Benutzerkonto oder die Person nutzt Wire nicht.</string>
-    <!-- Missing keyPackages dialog -->
-    <string name="missing_keypackage_dialog_title">Unterhaltung kann nicht beginnen</string>
-    <string name="missing_keypackage_dialog_body">Sie können die Unterhaltung mit %1$s im Moment nicht beginnen. %1$s muss Wire zuerst öffnen oder sich neu anmelden. Bitte versuchen Sie es später noch einmal.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Mediengalerie</string>
     <string name="media_gallery_on_image_downloaded">Im Download-Ordner gespeichert</string>
@@ -1137,7 +1091,6 @@
     </string>
     <string name="asset_download_dialog_default_title">Datei herunterladen</string>
     <string name="empty_conversation_label">Unterhaltung ohne Namen</string>
-    <string name="label_show_more">Mehr anzeigen</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Empfang von Bildern ist verboten</string>
     <string name="prohibited_videos_message">Empfang von Videos ist verboten</string>
@@ -1259,10 +1212,6 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="devices_title">Ihre Geräte</string>
     <string name="current_device_label">Aktuelles Gerät</string>
     <string name="other_devices_label">Andere Geräte</string>
-    <!--unblock user dialog -->
-    <string name="unblock_user_dialog_title">Benutzer freigeben?</string>
-    <string name="unblock_user_dialog_body">%1$s wird Sie kontaktieren oder Sie zu Gruppenunterhaltungen hinzufügen können. Sie können auf ein entsprechendes Einzelgespräch zugreifen.</string>
-    <string name="unblock_user_dialog_confirm_button">Freigeben</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">ein aktives Konto</item>
@@ -1659,7 +1608,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="legal_hold_requested_dialog_enter_password">Bitte zur Bestätigung das Passwort eingeben.</string>
     <string name="legal_hold_requested_dialog_accept_button">Akzeptieren</string>
     <string name="legal_hold_requested_dialog_not_now_button">Nicht jetzt</string>
-    <string name="legal_hold_learn_more_button">Mehr über die gesetzliche Aufbewahrung erfahren</string>
     <string name="legal_hold_deactivated_dialog_title">Gesetzliche Aufbewahrung deaktiviert</string>
     <string name="legal_hold_deactivated_dialog_description">Künftige Nachrichten werden nicht aufgezeichnet.</string>
     <string name="legal_hold_subject_dialog_title">%1$s unterliegt der gesetzlichen Aufbewahrung</string>
@@ -1670,8 +1618,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="legal_hold_subject_dialog_message_title">Unterhaltung unterliegt jetzt der gesetzlichen Aufbewahrung</string>
     <string name="legal_hold_subject_dialog_description_message">Möchten Sie Ihre Nachricht trotzdem senden?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Trotzdem senden</string>
-    <string name="legal_hold_connection_failed_dialog_title">Verbindung nicht möglich</string>
-    <string name="legal_hold_connection_failed_dialog_description">Sie können sich mit diesem Nutzer nicht verbinden, da die gesetzliche Aufbewahrung aktiviert ist.</string>
     <string name="legal_hold_subject_to">Unterliegt der %1$s.</string>
     <string name="legal_hold_label">gesetzlichen Aufbewahrung</string>
     <string name="legal_hold_is_active_label">Gesetzliche Aufbewahrung ist aktiv</string>
@@ -1813,14 +1759,8 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
         <item quantity="other">%1$d Dateien</item>
     </plurals>
     <!-- Apps-->
-    <string name="apps_upgrade_teams_for_apps_banner_title">Ihr Team verwendet noch keine Apps</string>
-    <string name="apps_upgrade_teams_for_apps_banner_content">Um Ihren Workflow mit Apps zu verbessern, muss Ihr Team angepasst werden. Bitte wenden Sie sich an Ihren Team-Admin.</string>
     <string name="apps_edit_apps_option_title">Apps</string>
     <string name="content_description_edit_apps_option_back_btn">Zurück zu Unterhaltungsdetails</string>
-    <string name="search_results_apps_empty_title">Ihr Team hat noch keine Apps hinzugefügt</string>
-    <string name="search_results_apps_empty_description_team_admin">Apps sind Helfer, die Ihren Workflow verbessern können. Als Team-Admin können Sie diese im Team-Management hinzufügen.</string>
-    <string name="search_results_apps_empty_description_non_team_admin">Apps sind Helfer, die Ihren Workflow verbessern können. Um sie zu verwenden, fragen Sie bitte Ihren Team-Admin.</string>
-    <string name="search_results_apps_empty_description_disabled_for_conversation">Apps sind in dieser Unterhaltung deaktiviert. Aktivieren Sie sie in den Unterhaltungsoptionen.</string>
     <string name="label_system_message_apps_access_enabled_by_self">%1$s haben **Apps** für diese Unterhaltung aktiviert</string>
     <string name="label_system_message_apps_access_disabled_by_self">%1$s haben **Apps** für diese Unterhaltung deaktiviert</string>
     <string name="label_system_message_apps_access_enabled_by_other">%1$s hat **Apps** für diese Unterhaltung aktiviert</string>

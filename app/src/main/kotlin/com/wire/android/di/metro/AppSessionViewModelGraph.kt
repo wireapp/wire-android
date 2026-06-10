@@ -24,6 +24,8 @@ import com.wire.android.feature.meetings.ui.MeetingsViewModelFactory
 import com.wire.android.feature.meetings.ui.MeetingsViewModelGraph
 import com.wire.android.model.ImageAssetViewModelFactory
 import com.wire.android.model.ImageAssetViewModelGraph
+import com.wire.android.search.SearchViewModelFactory
+import com.wire.android.search.SearchViewModelGraph
 import com.wire.android.ui.MiscViewModelFactory
 import com.wire.android.ui.MiscViewModelGraph
 import com.wire.android.ui.authentication.AuthenticationViewModelFactory
@@ -32,6 +34,8 @@ import com.wire.android.ui.calling.CallingViewModelFactory
 import com.wire.android.ui.calling.CallingViewModelGraph
 import com.wire.android.ui.common.CommonViewModelFactory
 import com.wire.android.ui.common.CommonViewModelGraph
+import com.wire.android.ui.common.CoreUICommonViewModelFactory
+import com.wire.android.ui.common.CoreUICommonViewModelGraph
 import com.wire.android.ui.debug.DebugInfoViewModelFactory
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
 import com.wire.android.ui.home.HomeViewModelFactory
@@ -67,6 +71,8 @@ class AppSessionViewModelGraph @Inject constructor(
     private val meetingsViewModelFactoryProvider: () -> MeetingsViewModelFactory,
     private val scopedMessageViewModelFactoryProvider: () -> ScopedMessageViewModelFactory,
     private val commonViewModelFactoryProvider: () -> CommonViewModelFactory,
+    private val coreUICommonViewModelFactoryProvider: () -> CoreUICommonViewModelFactory,
+    private val searchViewModelFactoryProvider: () -> SearchViewModelFactory,
 ) : ImageAssetViewModelGraph,
     CellsViewModelGraph,
     MiscViewModelGraph,
@@ -78,8 +84,10 @@ class AppSessionViewModelGraph @Inject constructor(
     ConversationCoreViewModelGraph,
     ConversationDetailsViewModelGraph,
     ConversationSearchFolderViewModelGraph,
+    SearchViewModelGraph,
     MeetingsViewModelGraph,
     ScopedMessageViewModelGraph,
+    CoreUICommonViewModelGraph,
     CommonViewModelGraph {
     override val viewModelScopeKey: String = currentAccount.toString()
 
@@ -124,4 +132,10 @@ class AppSessionViewModelGraph @Inject constructor(
 
     override val commonViewModelFactory: CommonViewModelFactory
         get() = commonViewModelFactoryProvider()
+
+    override val coreUICommonViewModelFactory: CoreUICommonViewModelFactory
+        get() = coreUICommonViewModelFactoryProvider()
+
+    override val searchViewModelFactory: SearchViewModelFactory
+        get() = searchViewModelFactoryProvider()
 }

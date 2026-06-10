@@ -39,6 +39,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -199,7 +200,7 @@ fun DebugDataOptionsContent(
                     enabled = true,
                     onClick = onShowFeatureFlags
                 ),
-                trailingIcon = R.drawable.ic_arrow_right,
+                trailingIcon = commonR.drawable.ic_arrow_right,
             )
 
             SettingsItem(
@@ -208,7 +209,7 @@ fun DebugDataOptionsContent(
                     enabled = true,
                     onClick = onShowCryptoStats
                 ),
-                trailingIcon = R.drawable.ic_arrow_right,
+                trailingIcon = commonR.drawable.ic_arrow_right,
             )
 
             if (BuildConfig.PRIVATE_BUILD && BuildConfig.DEBUG_SCREEN_ENABLED) {

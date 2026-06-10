@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
@@ -121,7 +122,7 @@ fun MessageEditActions(
         ) {
             WirePrimaryIconButton(
                 onButtonClicked = onEditSaveButtonClicked,
-                iconResource = R.drawable.ic_check_tick,
+                iconResource = commonR.drawable.ic_check_tick,
                 contentDescription = R.string.content_description_edit_the_message,
                 state = if (editButtonEnabled) WireButtonState.Default else WireButtonState.Disabled,
                 colors = wireSendPrimaryButtonColors(),

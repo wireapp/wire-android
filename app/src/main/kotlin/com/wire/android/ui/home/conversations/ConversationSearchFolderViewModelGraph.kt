@@ -29,11 +29,8 @@ import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVM
 import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVMImpl
 import com.wire.android.ui.home.conversations.folder.NewFolderViewModel
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel
-import com.wire.android.ui.home.conversations.search.SearchUserViewModel
 import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModel
-import com.wire.android.ui.home.conversations.search.apps.SearchAppsViewModel
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
-import com.wire.kalium.logic.data.conversation.Conversation
 
 interface ConversationSearchFolderViewModelGraph : MetroViewModelGraph {
     val conversationSearchFolderViewModelFactory: ConversationSearchFolderViewModelFactory
@@ -62,12 +59,6 @@ fun newFolderViewModel(): NewFolderViewModel =
     }
 
 @Composable
-fun searchUserViewModel(): SearchUserViewModel =
-    metroSavedStateViewModel<ConversationSearchFolderViewModelGraph, SearchUserViewModel> {
-        conversationSearchFolderViewModelFactory.searchUserViewModel(it)
-    }
-
-@Composable
 fun addMembersToConversationViewModel(): AddMembersToConversationViewModel =
     metroSavedStateViewModel<ConversationSearchFolderViewModelGraph, AddMembersToConversationViewModel> {
         conversationSearchFolderViewModelFactory.addMembersToConversationViewModel(it)
@@ -77,14 +68,6 @@ fun addMembersToConversationViewModel(): AddMembersToConversationViewModel =
 fun searchConversationMessagesViewModel(): SearchConversationMessagesViewModel =
     metroSavedStateViewModel<ConversationSearchFolderViewModelGraph, SearchConversationMessagesViewModel> {
         conversationSearchFolderViewModelFactory.searchConversationMessagesViewModel(it)
-    }
-
-@Composable
-fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel =
-    metroViewModel<ConversationSearchFolderViewModelGraph, SearchAppsViewModel>(
-        key = "search_apps_protocol_info_${protocolInfo?.name()}"
-    ) {
-        conversationSearchFolderViewModelFactory.searchAppsViewModel(protocolInfo)
     }
 
 @Composable

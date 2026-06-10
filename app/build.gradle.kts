@@ -206,6 +206,7 @@ dependencies {
     implementationWithCoverage(projects.core.di)
     implementationWithCoverage(projects.core.media)
     implementationWithCoverage(projects.core.notification)
+    implementationWithCoverage(projects.core.search)
     implementationWithCoverage(projects.features.cells)
     implementationWithCoverage(projects.features.sketch)
     implementationWithCoverage(projects.features.meetings)

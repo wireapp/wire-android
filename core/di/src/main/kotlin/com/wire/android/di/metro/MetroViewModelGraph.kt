@@ -46,6 +46,12 @@ val LocalMetroViewModelGraph = staticCompositionLocalOf<MetroViewModelGraph?> {
 }
 
 @Composable
+inline fun <reified Graph : MetroViewModelGraph> currentMetroViewModelGraph(): Graph =
+    checkNotNull(LocalMetroViewModelGraph.current as? Graph) {
+        "No Metro graph matching ${Graph::class.qualifiedName} was provided"
+    }
+
+@Composable
 inline fun <reified Graph, reified VM> metroViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"

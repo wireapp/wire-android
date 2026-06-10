@@ -16,4 +16,54 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="content_description_right_arrow">Jobbra nyíl</string>
+    <string name="content_description_left_arrow">Visszalépés</string>
+    <string name="label_user_deleted">Törölve</string>
+    <string name="label_user_blocked">Letiltva</string>
+    <string name="username_unavailable_label">A név nem elérhető</string>
+    <string name="content_description_add_contact">Kapcsolat hozzáadása</string>
+    <string name="content_description_open_link_label">hivatkozás megnyitása</string>
+    <string name="legal_hold_learn_more_button">Tudjon meg többet a dokumentum-megőrzési kötelezettségről</string>
+    <string name="legal_hold_connection_failed_dialog_title">Nem lehet kapcsolódni</string>
+    <string name="legal_hold_connection_failed_dialog_description">Nem kapcsolódhat ehhez a felhasználóhoz a dokumentum-megőrzési kötelezettség miatt.</string>
+    <string name="connection_request_sent">Kapcsolódási kérelem elküldve</string>
+    <string name="connection_request_sent_federation_denied_error">Az Ön kiszolgálója nincs szövetségben %1$s kiszolgálójával. Nem tud hozzájuk kapcsolódni.</string>
+    <string name="connection_request_sent_error">A kapcsolódási kérelmet nem sikerült elküldeni</string>
+    <string name="connection_request_cancel_error">A kapcsolódási kérelmet nem sikerült visszavonni</string>
+    <string name="connection_request_canceled">Kapcsolódási kérelem visszavonva</string>
+    <string name="connection_request_ignored">Ön elutasította %1$s kérelmét</string>
+    <string name="connection_request_accept_error">A kapcsolódási kérelmet nem sikerült jóváhagyni</string>
+    <string name="connection_request_accepted">Kapcsolódási kérelem elfogadva</string>
+    <string name="connection_request_ignore_error">A kapcsolódási kérelmet nem sikerült elutasítani</string>
+    <string name="error_unblocking_user">A felhasználó tiltását nem sikerült feloldani</string>
+    <string name="content_description_open_user_profile_label">profil megnyitása</string>
+    <string name="content_description_open_conversation_label">beszélgetés megnyitása</string>
+
+    <!--unblock user dialog -->
+    <string name="unblock_user_dialog_title">Feloldja a felhasználótiltást?</string>
+    <string name="unblock_user_dialog_body">%1$s kapcsolatba tud lépni Önnel, és hozzáadhatja csoportos beszélgetésekhez. Lehetővé válik négyszemközti beszélgetés vele.</string>
+    <string name="unblock_user_dialog_confirm_button">Tiltás feloldása</string>
+    <string name="connection_label_cancel_request">Kérelem visszavonása</string>
+    <!-- Animation label -->
+        <string name="label_open_conversation">Beszélgetés megnyitása</string>
+    <string name="label_start_conversation">Beszélgetés indítása</string>
+    <string name="connection_label_accept">Elfogadás</string>
+    <string name="connection_label_ignore">Elutasítás</string>
+    <string name="user_profile_unblock_user">Felhasználótiltás feloldása</string>
+    <!-- Connections -->
+        <string name="connection_label_connect">Kapcsolódás</string>
+    <!-- Missing keyPackages dialog -->
+        <string name="missing_keypackage_dialog_title">Nem sikerült elindítani a beszélgetést</string>
+    <string name="missing_keypackage_dialog_body">Nem tud beszélgetést kezdeni %1$s felhasználóval. %1$s részéről szükséges, hogy előbb megnyissa a Wire-t vagy bejelentkezzen. Próbálja újra később.</string>
+    <string name="connection_pending_label">függőben</string>
+    <string name="label_search_people_instruction">Személyek keresése profilnév vagy @felhasználónév alapján</string>
+    <string name="label_learn_more_searching_user">További információ</string>
+    <!-- Search Contact-->
+        <string name="label_contacts">Névjegyek</string>
+    <string name="label_public_wire">Nyilvános Wire</string>
+    <string name="content_description_select_label">kiválaszt</string>
+    <string name="content_description_unselect_label">kiválasztás megszüntetése</string>
+    <string name="label_show_more">Mutasson többet</string>
+    <string name="label_show_less">Kevesebb megjelenítése</string>
+</resources>

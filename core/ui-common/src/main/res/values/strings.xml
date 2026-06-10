@@ -24,7 +24,27 @@
     <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
     <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
     <string name="content_description_back_button">Back</string>
-    <string name="content_description_left_arrow">Go Back</string>
+    <string name="content_description_right_arrow">Right arrow</string>
+    <string name="content_description_left_arrow">Go back</string>
+    <string name="label_user_deleted">Deleted</string>
+    <string name="label_user_blocked">Blocked</string>
+    <string name="username_unavailable_label">Name not available</string>
+    <string name="content_description_add_contact">Add contact</string>
+    <string name="content_description_open_link_label">open link</string>
+    <string name="url_legal_hold_learn_more" translatable="false">https://support.wire.com/hc/articles/360002018278</string>
+    <string name="legal_hold_learn_more_button">Learn more about legal hold</string>
+    <string name="legal_hold_connection_failed_dialog_title">Connecting not possible</string>
+    <string name="legal_hold_connection_failed_dialog_description">You can not connect to this user due to legal hold.</string>
+    <string name="connection_request_sent">Connection request sent</string>
+    <string name="connection_request_sent_federation_denied_error">Your backend does not federate with the backend of %1$s. You can not connect with them.</string>
+    <string name="connection_request_sent_error">Connection request could not be sent</string>
+    <string name="connection_request_cancel_error">Connection request could not be canceled</string>
+    <string name="connection_request_canceled">Connection request canceled</string>
+    <string name="connection_request_ignored">You ignored %1$s\'s request</string>
+    <string name="connection_request_accept_error">Connection request could not be accepted</string>
+    <string name="connection_request_accepted">Connection request accepted</string>
+    <string name="connection_request_ignore_error">Connection request could not be ignored</string>
+    <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="content_description_close_button">Close</string>
     <string name="content_description_close">Close</string>
     <string name="content_description_menu_button">Main navigation</string>
@@ -32,7 +52,6 @@
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
     <string name="content_description_alert">Alert</string>
     <string name="content_description_show_more_options">Show more options</string>
-    <string name="content_description_select_label">select</string>
 
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
@@ -59,6 +78,11 @@
     <string name="label_cancel">Cancel</string>
     <string name="label_no_selected_date">No selected date</string>
     <string name="content_description_check">Check mark</string>
+    <string name="content_description_open_user_profile_label">open profile</string>
+    <string name="content_description_open_conversation_label">open conversation</string>
+    <string name="content_description_open_service_label">open app</string>
+    <string name="apps_upgrade_teams_for_apps_banner_title">Your team doesn\'t use apps yet</string>
+    <string name="apps_upgrade_teams_for_apps_banner_content">To improve your workflow with apps, your team needs configuration. Please contact your team admin.</string>
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
 
     <string name="size_unit_bytes">B</string>
@@ -71,4 +95,31 @@
     <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_clear_content">Clear content</string>
 
+    <!--unblock user dialog -->
+    <string name="unblock_user_dialog_title">Unblock user?</string>
+    <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
+    <string name="unblock_user_dialog_confirm_button">Unblock</string>
+    <string name="connection_label_cancel_request">Cancel Request</string>
+    <string name="label_open_conversation">Open Conversation</string>
+    <string name="label_start_conversation">Start Conversation</string>
+    <string name="connection_label_accept">Accept</string>
+    <string name="connection_label_ignore">Ignore</string>
+    <string name="user_profile_unblock_user">Unblock User</string>
+    <!-- Connections -->
+        <string name="connection_label_connect">Connect</string>
+    <!-- Missing keyPackages dialog -->
+        <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
+    <string name="missing_keypackage_dialog_body">You can\'t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
+    <string name="connection_pending_label">pending</string>
+    <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
+    <string name="label_learn_more_searching_user">Learn more</string>
+    <string name="url_learn_about_search" translatable="false">https://support.wire.com/hc/articles/203121850</string>
+    <!-- Search Contact-->
+        <string name="label_selected">Selected (%1$d)</string>
+    <string name="label_contacts">Contacts</string>
+    <string name="label_public_wire">Public Wire</string>
+    <string name="content_description_select_label">select</string>
+    <string name="content_description_unselect_label">unselect</string>
+    <string name="label_show_more">Show More</string>
+    <string name="label_show_less">Show Less</string>
 </resources>

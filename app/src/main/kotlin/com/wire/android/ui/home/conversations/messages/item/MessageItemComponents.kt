@@ -47,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -169,7 +170,7 @@ private fun MultiUserDeliveryFailure(
                         id = R.string.label_message_partial_delivery_participants_many_deliver_later,
                         partialDeliveryFailureContent.filteredRecipientsFailure
                             .filter {
-                                !it.asString(resources).contentEquals(resources.getString(R.string.username_unavailable_label))
+                                !it.asString(resources).contentEquals(resources.getString(commonR.string.username_unavailable_label))
                             }
                             .joinToString(", ") { it.asString(resources) }
                     ),
@@ -221,7 +222,7 @@ private fun SingleUserDeliveryFailure(
                 text = stringResource(
                     id = R.string.label_message_partial_delivery_participants_one_deliver_later,
                     partialDeliveryFailureContent.failedRecipients.joinToString(", ") {
-                        it.asString(resources).ifEmpty { resources.getString(R.string.username_unavailable_label) }
+                        it.asString(resources).ifEmpty { resources.getString(commonR.string.username_unavailable_label) }
                     }
                 ),
                 textAlign = messageStyle.textAlign()

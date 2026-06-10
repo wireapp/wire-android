@@ -26,7 +26,7 @@ import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
-import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.model.Contact
 import com.wire.kalium.logic.data.user.ConnectionState
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK

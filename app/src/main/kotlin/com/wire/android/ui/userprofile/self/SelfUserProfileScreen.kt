@@ -255,7 +255,7 @@ private fun SelfUserProfileContent(
                     .background(MaterialTheme.colorScheme.background)
                     .padding(internalPadding)
             ) {
-                val selectLabel = stringResource(R.string.content_description_select_label)
+                val selectLabel = stringResource(UICommonR.string.content_description_select_label)
                 Column(
                     modifier = Modifier
                         .weight(1F)
@@ -492,7 +492,7 @@ private fun AccountDetailButton(
         text = stringResource(R.string.settings_your_account_label),
         trailingIcon = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_right),
+                painter = painterResource(id = UICommonR.drawable.ic_arrow_right),
                 contentDescription = "",
                 tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
                 modifier = Modifier

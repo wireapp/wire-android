@@ -126,7 +126,7 @@ fun SystemMessageItem(
                     VerticalSpace.x8()
                     WireSecondaryButton(
                         onClick = { expanded = !expanded },
-                        text = stringResource(if (expanded) R.string.label_show_less else R.string.label_show_all),
+                        text = stringResource(if (expanded) commonR.string.label_show_less else R.string.label_show_all),
                         fillMaxWidth = false,
                         minSize = dimensions().buttonSmallMinSize,
                         minClickableSize = dimensions().buttonSmallMinSize,
@@ -261,7 +261,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     }
 
     is SystemMessage.CryptoSessionReset -> buildContent(
-        iconResId = R.drawable.ic_info,
+        iconResId = commonR.drawable.ic_info,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
     ) {
         stringResource(
@@ -318,14 +318,14 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     }
 
     is SystemMessage.HistoryLost -> buildContent(
-        iconResId = R.drawable.ic_info,
+        iconResId = commonR.drawable.ic_info,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
     ) {
         stringResource(R.string.label_system_message_conversation_history_lost).toMarkdownAnnotatedString()
     }
 
     is SystemMessage.MLSWrongEpochWarning -> buildContent(
-        iconResId = R.drawable.ic_info,
+        iconResId = commonR.drawable.ic_info,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
         learnMoreLinkResId = R.string.url_system_message_learn_more_about_mls
     ) {
@@ -363,14 +363,14 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     }
 
     is SystemMessage.HistoryLostProtocolChanged -> buildContent(
-        iconResId = R.drawable.ic_info,
+        iconResId = commonR.drawable.ic_info,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
     ) {
         stringResource(id = R.string.label_system_message_conversation_history_lost_protocol_changed).toMarkdownAnnotatedString()
     }
 
     is SystemMessage.ConversationProtocolChanged -> buildContent(
-        iconResId = R.drawable.ic_info,
+        iconResId = commonR.drawable.ic_info,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
         learnMoreLinkResId = when (protocol) {
             Conversation.Protocol.PROTEUS -> null
@@ -442,7 +442,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     }
 
     is SystemMessage.FederationStopped -> buildContent(
-        iconResId = R.drawable.ic_info,
+        iconResId = commonR.drawable.ic_info,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
         learnMoreLinkResId = R.string.url_federation_support,
     ) {
@@ -458,7 +458,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     is SystemMessage.LegalHold -> buildContent(
         iconResId = R.drawable.ic_legal_hold,
         iconTintColor = MaterialTheme.wireColorScheme.error,
-        learnMoreLinkResId = R.string.url_legal_hold_learn_more,
+        learnMoreLinkResId = commonR.string.url_legal_hold_learn_more,
     ) {
         stringResource(
             id = when (this) {
@@ -476,12 +476,12 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     }
 
     is SystemMessage.MemberFailedToAdd -> buildContent(
-        iconResId = R.drawable.ic_info,
+        iconResId = commonR.drawable.ic_info,
         iconTintColor = MaterialTheme.wireColorScheme.error,
         expandable = true,
         learnMoreLinkResId = when (type) {
             Type.Federation -> R.string.url_message_details_offline_backends_learn_more
-            Type.LegalHold -> R.string.url_legal_hold_learn_more
+            Type.LegalHold -> commonR.string.url_legal_hold_learn_more
             Type.Unknown -> null
             Type.MissingKeyPackages -> R.string.url_mls_learn_more
         }
@@ -640,7 +640,7 @@ private fun List<UIText>.limitList(
 private fun buildContent(
     expandable: Boolean = false,
     @StringRes learnMoreLinkResId: Int? = null,
-    @DrawableRes iconResId: Int = R.drawable.ic_info,
+    @DrawableRes iconResId: Int = commonR.drawable.ic_info,
     iconTintColor: Color? = MaterialTheme.wireColorScheme.onBackground,
     iconSize: Dp = MaterialTheme.wireDimensions.systemMessageIconSize,
     additionalVerticalPaddings: Dp = MaterialTheme.wireDimensions.spacing0x,

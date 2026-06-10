@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
@@ -287,7 +288,7 @@ fun ForgotPasswordLabel(
                     indication = null,
                     role = Role.Button,
                     onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
-                    onClickLabel = stringResource(R.string.content_description_open_link_label)
+                    onClickLabel = stringResource(commonR.string.content_description_open_link_label)
                 )
                 .testTag("Forgot password?")
         )

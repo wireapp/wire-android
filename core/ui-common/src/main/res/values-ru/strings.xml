@@ -24,7 +24,26 @@
     <string name="label_wait_until_synchronised">Пожалуйста, подождите, пока приложение синхронизируется</string>
     <string name="label_wait_until_connected">Пожалуйста, подождите, пока будет восстановлено подключение к интернету</string>
     <string name="content_description_back_button">Назад</string>
-    <string name="content_description_left_arrow">Назад</string>
+    <string name="content_description_right_arrow">Стрелка вправо</string>
+    <string name="content_description_left_arrow">Вернуться</string>
+    <string name="label_user_deleted">Удалено</string>
+    <string name="label_user_blocked">Заблокирован(-а)</string>
+    <string name="username_unavailable_label">Имя недоступно</string>
+    <string name="content_description_add_contact">Добавить контакт</string>
+    <string name="content_description_open_link_label">открыть ссылку</string>
+    <string name="legal_hold_learn_more_button">Подробнее о юридических ограничениях</string>
+    <string name="legal_hold_connection_failed_dialog_title">Невозможно добавить</string>
+    <string name="legal_hold_connection_failed_dialog_description">Вы не можете подключиться к этому пользователю из-за юридических ограничений.</string>
+    <string name="connection_request_sent">Запрос на добавление отправлен</string>
+    <string name="connection_request_sent_federation_denied_error">Ваш бэкэнд не взаимодействует с бэкэндом %1$s. Вы не можете соединиться с ним.</string>
+    <string name="connection_request_sent_error">Не удалось отправить запрос на добавление</string>
+    <string name="connection_request_cancel_error">Запрос на добавление не может быть отменен</string>
+    <string name="connection_request_canceled">Запрос на добавление отменен</string>
+    <string name="connection_request_ignored">Вы проигнорировали запрос %1$s</string>
+    <string name="connection_request_accept_error">Запрос на добавление не может быть принят</string>
+    <string name="connection_request_accepted">Запрос на добавление принят</string>
+    <string name="connection_request_ignore_error">Запрос на добавление не может быть проигнорирован</string>
+    <string name="error_unblocking_user">Пользователь не может быть разблокирован</string>
     <string name="content_description_close_button">Закрыть</string>
     <string name="content_description_close">Закрыть</string>
     <string name="content_description_menu_button">Основное меню</string>
@@ -32,7 +51,6 @@
     <string name="content_description_pending_connection_badge">ожидание подтверждения запроса</string>
     <string name="content_description_alert">Оповещение</string>
     <string name="content_description_show_more_options">Показать больше вариантов</string>
-    <string name="content_description_select_label">выбрать</string>
     <string name="label_membership_guest">Гость</string>
     <string name="label_membership_external">Внешний</string>
     <string name="label_membership_service">Приложение</string>
@@ -56,6 +74,11 @@
     <string name="label_cancel">Отмена</string>
     <string name="label_no_selected_date">Дата не выбрана</string>
     <string name="content_description_check">Отметка</string>
+    <string name="content_description_open_user_profile_label">открыть профиль</string>
+    <string name="content_description_open_conversation_label">открыть беседу</string>
+    <string name="content_description_open_service_label">открыть приложение</string>
+    <string name="apps_upgrade_teams_for_apps_banner_title">Ваша команда еще не использует приложения</string>
+    <string name="apps_upgrade_teams_for_apps_banner_content">Для улучшения рабочего процесса с приложениями, вашей команде требуется настройка. Пожалуйста, свяжитесь с администратором вашей команды.</string>
     <string name="label_no_application_found_open_downloads_folder">"Не найдено приложение для открытия папки загрузок"</string>
     <string name="size_unit_bytes">B</string>
     <string name="size_unit_kilobytes">KB</string>
@@ -65,4 +88,32 @@
     <string name="content_description_conversation_search_icon">Значок поиска</string>
     <string name="content_description_conversation_search_input">Поиск</string>
     <string name="content_description_clear_content">Очистить контент</string>
+
+    <!--unblock user dialog -->
+    <string name="unblock_user_dialog_title">Разблокировать пользователя?</string>
+    <string name="unblock_user_dialog_body">%1$s сможет связаться с вами или добавить вас в групповую беседу. Вы сможете получить доступ к беседе с ним в формате 1:1.</string>
+    <string name="unblock_user_dialog_confirm_button">Разблокировать</string>
+    <string name="connection_label_cancel_request">Отменить запрос</string>
+    <!-- Animation label -->
+        <string name="label_open_conversation">Открыть беседу</string>
+    <string name="label_start_conversation">Начать беседу</string>
+    <string name="connection_label_accept">Принять</string>
+    <string name="connection_label_ignore">Игнорировать</string>
+    <string name="user_profile_unblock_user">Разблокировать пользователя</string>
+    <!-- Connections -->
+        <string name="connection_label_connect">Связаться</string>
+    <!-- Missing keyPackages dialog -->
+        <string name="missing_keypackage_dialog_title">Невозможно начать беседу</string>
+    <string name="missing_keypackage_dialog_body">Вы не можете начать беседу с %1$s прямо сейчас. %1$s следует сначала открыть Wire или авторизоваться. Пожалуйста, повторите попытку позже.</string>
+    <string name="connection_pending_label">ожидание</string>
+    <string name="label_search_people_instruction">Поиск пользователей по названию их профиля или @псевдониму</string>
+    <string name="label_learn_more_searching_user">Подробнее</string>
+    <!-- Search Contact-->
+        <string name="label_selected">Выбрано (%1$d)</string>
+    <string name="label_contacts">Контакты</string>
+    <string name="label_public_wire">Wire Public</string>
+    <string name="content_description_select_label">выбрать</string>
+    <string name="content_description_unselect_label">отменить выбор</string>
+    <string name="label_show_more">Развернуть</string>
+    <string name="label_show_less">Свернуть</string>
 </resources>

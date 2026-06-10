@@ -34,14 +34,12 @@
     <string name="label_learn_more">Sužinokie daugiau</string>
     <string name="label_removing">Pašalinama…</string>
     <string name="label_logging_in">Prisijungiama…</string>
-    <string name="label_user_deleted">Ištrinta</string>
     <string name="label_update">Naujinti</string>
     <string name="label_close">Užverti</string>
     <string name="label_download">Atsisiųsti</string>
     <string name="label_open_asset_externally">Atverti</string>
     <string name="label_show">Rodyti</string>
     <string name="label_show_all">Rodyti viską</string>
-    <string name="label_show_less">Rodyti mažiau</string>
     <string name="label_message_status_edited_with_date">Pakeista %s</string>
     <string name="label_disable">Išjungti</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->

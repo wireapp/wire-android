@@ -81,8 +81,8 @@ internal class ViewModelScopedPreviewProcessor(private val codeGenerator: CodeGe
         val name = "ViewModelScopedPreviews"
         val content = "package $packageName\n\n" +
                 items.joinToString("\n") { "import ${it.packageName.asString()}.${it.previewName()}" } + "\n\n" +
-                "object $name : PreviewProvider {" + "\n" +
-                "\toverride val previews = listOf(\n\t\t" + items.joinToString(",\n\t") { it.previewName() } + "\n)" + "\n" +
+                "object $name : PreviewProvider {" + "\n\t" +
+                "override val previews = listOf(\n\t\t" + items.joinToString(",\n\t\t") { it.previewName() } + "\n\t)" + "\n" +
                 "}"
         val dependencies = Dependencies(aggregating = true, *items.mapNotNull { it.containingFile }.toTypedArray())
         codeGenerator.createNewFile(dependencies, packageName, name, "kt")

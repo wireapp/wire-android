@@ -146,11 +146,6 @@ jobs:
       - name: Fetch secrets.json (runtime only)
         run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
 
-      # Reuse the Android Testiny key from 1Password for this run.
-      - name: Export Testiny API key from runtime secrets
-        if: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName != '' }}
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh export-testiny-api-key
-
       - name: Build test APK (assemble once)
         run: bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
 

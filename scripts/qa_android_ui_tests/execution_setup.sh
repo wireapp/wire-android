@@ -4,7 +4,7 @@ set -euo pipefail
 # Set up runner, device, and app prerequisites for qa-android-ui-tests workflow.
 
 usage() {
-  echo "Usage: $0 {ensure-required-tools|resolve-flavor|download-apks|detect-target-devices|clear-allure-results-on-devices|install-apks-on-devices|fetch-runtime-secrets|export-testiny-api-key|build-test-apk|resolve-test-apk-path|resolve-test-services-apks}" >&2
+  echo "Usage: $0 {ensure-required-tools|resolve-flavor|download-apks|detect-target-devices|clear-allure-results-on-devices|install-apks-on-devices|fetch-runtime-secrets|build-test-apk|resolve-test-apk-path|resolve-test-services-apks}" >&2
   exit 2
 }
 
@@ -290,21 +290,6 @@ fetch_runtime_secrets() {
   grep -qxF "secrets.json" .git/info/exclude 2>/dev/null || echo "secrets.json" >> .git/info/exclude
 }
 
-export_testiny_api_key() {
-  : "${GITHUB_ENV:?GITHUB_ENV not set}"
-
-  local secrets_json_path="${SECRETS_JSON_PATH:-secrets.json}"
-  if [[ ! -f "${secrets_json_path}" ]]; then
-    echo "ERROR: secrets.json not found. Fetch runtime secrets first."
-    exit 1
-  fi
-
-  local testiny_api_key
-  testiny_api_key="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["TESTINY_API_KEY_ANDROID"]["fields"]["password"]["value"])' "${secrets_json_path}")"
-  echo "::add-mask::${testiny_api_key}"
-  echo "TESTINY_API_KEY=${testiny_api_key}" >> "${GITHUB_ENV}"
-}
-
 build_test_apk() {
   # Build the androidTest APK once on the runner, then reuse that same artifact
   # across all selected devices and retry attempts.
@@ -438,9 +423,6 @@ case "${1:-}" in
     ;;
   fetch-runtime-secrets)
     fetch_runtime_secrets
-    ;;
-  export-testiny-api-key)
-    export_testiny_api_key
     ;;
   build-test-apk)
     build_test_apk

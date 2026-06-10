@@ -22,7 +22,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.scopedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.debug.conversation.DebugConversationViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
@@ -42,7 +42,7 @@ inline fun <reified VM> debugInfoViewModel(
     },
     key: String? = null,
 ): VM where VM : ViewModel =
-    scopedMetroViewModel(
+    sessionKeyedMetroViewModel(
         viewModelStoreOwner = viewModelStoreOwner,
         key = key,
     )

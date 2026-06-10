@@ -47,10 +47,12 @@ import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.capitalizeFirstLetter
 import com.wire.android.util.toTitleCase
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
@@ -175,5 +177,18 @@ fun JoinConversationViaDeepLinkDialog(
             dismissOnBackPress = false,
             dismissOnClickOutside = false
         )
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun JoinConversationViaDeepLinkDialogPreview() = WireTheme {
+    JoinConversationViaDeepLinkDialog(
+        onFlowCompleted = { _ -> },
+        requirePassword = true,
+        name = "Test",
+        code = "123",
+        key = "123",
+        domain = "test.com"
     )
 }

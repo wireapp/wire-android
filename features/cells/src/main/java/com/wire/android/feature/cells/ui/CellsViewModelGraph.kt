@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.wire.android.di.metro.scopedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel
@@ -40,7 +40,7 @@ inline fun <reified VM> cellsViewModel(
     },
     key: String? = null,
 ): VM where VM : ViewModel =
-    scopedMetroViewModel(
+    sessionKeyedMetroViewModel(
         viewModelStoreOwner = viewModelStoreOwner,
         key = key,
     )

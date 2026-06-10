@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.conversations.details.options
 
-
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues

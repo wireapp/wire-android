@@ -86,7 +86,7 @@ import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.metro.WireApplicationGraph
 import com.wire.android.di.metro.createCurrentSessionViewModelGraph
 import com.wire.android.di.metro.createSessionViewModelGraph
-import com.wire.android.di.metro.scopedMetroViewModelKey
+import com.wire.android.di.metro.sessionKeyedMetroViewModelKey
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.NavigationSwitchAccountActions
@@ -376,35 +376,39 @@ class WireActivity : BaseActivity() {
         startDestinationBaseRoute: String,
         isUserUiBlocked: Boolean,
     ): WireActivityGraphContext? {
-        if (isUserUiBlocked) return null
-
-        val effectiveBaseRoute = currentBaseRoute ?: startDestinationBaseRoute
-        val sessionGraph = remember(
-            appGraph,
-            currentUserId,
-            currentBaseRoute,
-        ) {
-            when {
-                currentUserId != null -> appGraph.createSessionViewModelGraph(currentUserId)
-                currentBaseRoute in sessionBackedAuthenticationGraphRoutes -> appGraph.createCurrentSessionViewModelGraphOrNull()
+        var graphContext: WireActivityGraphContext? = null
+        if (!isUserUiBlocked) {
+            val effectiveBaseRoute = currentBaseRoute ?: startDestinationBaseRoute
+            val sessionGraph = remember(
+                appGraph,
+                currentUserId,
+                currentBaseRoute,
+            ) {
+                when {
+                    currentUserId != null -> appGraph.createSessionViewModelGraph(currentUserId)
+                    currentBaseRoute in sessionBackedAuthenticationGraphRoutes -> appGraph.createCurrentSessionViewModelGraphOrNull()
+                    else -> null
+                }
+            }
+            val graph = when {
+                sessionGraph != null -> sessionGraph
+                effectiveBaseRoute in authenticationGraphRoutes -> authenticationViewModelGraph
+                currentBaseRoute == null -> authenticationViewModelGraph
                 else -> null
             }
+            val activityViewModels = sessionGraph?.let {
+                wireActivityScopedViewModels(it)
+            }
+            graphContext = graph?.let {
+                WireActivityGraphContext(
+                    graph = it,
+                    viewModelFactory = (it as? ViewModelGraph)?.metroViewModelFactory ?: appGraph.metroViewModelFactory,
+                    sessionGraph = sessionGraph,
+                    activityViewModels = activityViewModels,
+                )
+            }
         }
-        val graph = when {
-            sessionGraph != null -> sessionGraph
-            effectiveBaseRoute in authenticationGraphRoutes -> authenticationViewModelGraph
-            currentBaseRoute == null -> authenticationViewModelGraph
-            else -> return null
-        }
-        val activityViewModels = sessionGraph?.let {
-            wireActivityScopedViewModels(it)
-        }
-        return WireActivityGraphContext(
-            graph = graph,
-            viewModelFactory = (graph as? ViewModelGraph)?.metroViewModelFactory ?: appGraph.metroViewModelFactory,
-            sessionGraph = sessionGraph,
-            activityViewModels = activityViewModels,
-        )
+        return graphContext
     }
 
     @Composable
@@ -429,7 +433,7 @@ class WireActivity : BaseActivity() {
         val scopeKey = graph.viewModelScopeKey
         return WireActivityScopedViewModels(
             callFeedbackViewModel = metroxViewModel(
-                key = scopedMetroViewModelKey(
+                key = sessionKeyedMetroViewModelKey(
                     defaultKey = CallFeedbackViewModel::class.qualifiedName,
                     key = null,
                     scopeKey = scopeKey,
@@ -921,11 +925,6 @@ private data class WireActivityGraphContext(
     val viewModelFactory: MetroViewModelFactory,
     val sessionGraph: AppSessionViewModelGraph?,
     val activityViewModels: WireActivityScopedViewModels?,
-)
-
-private val noSessionAuthenticationGraphRoutes = setOf(
-    NewLoginPasswordScreenDestination.baseRoute,
-    NewLoginVerificationCodeScreenDestination.baseRoute,
 )
 
 private val sessionBackedAuthenticationGraphRoutes = setOf(

@@ -27,7 +27,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.metro.LocalWireViewModelScopeKey
 import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.scopedMetroViewModelKey
+import com.wire.android.di.metro.sessionKeyedMetroViewModelKey
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
@@ -173,7 +173,7 @@ inline fun <reified VM : ViewModel> authenticationViewModelKey(
     viewModelStoreOwner: ViewModelStoreOwner,
     key: String? = null,
 ): String? =
-    scopedMetroViewModelKey(
+    sessionKeyedMetroViewModelKey(
         defaultKey = VM::class.qualifiedName,
         key = listOfNotNull(key, viewModelStoreOwner.hashCode().toString()).joinToString(":"),
         scopeKey = LocalWireViewModelScopeKey.current,

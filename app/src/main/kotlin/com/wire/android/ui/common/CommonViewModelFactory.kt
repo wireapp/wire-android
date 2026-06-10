@@ -102,11 +102,10 @@ fun connectionActionButtonViewModel(
 @Composable
 fun conversationOptionsMenuViewModel(): ConversationOptionsMenuViewModel =
     wireManualMetroViewModelScoped<
-            ConversationOptionsMenuViewModelImpl,
-            ConversationOptionsMenuViewModel,
-            CommonManualViewModelFactory
-            >(
-    ) {
+        ConversationOptionsMenuViewModelImpl,
+        ConversationOptionsMenuViewModel,
+        CommonManualViewModelFactory,
+    > {
         conversationOptionsMenuViewModel()
     }
 

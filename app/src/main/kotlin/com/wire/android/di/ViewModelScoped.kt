@@ -144,6 +144,10 @@ internal fun scopedResacaKey(scopeKey: String?, key: String? = null): String? =
         else -> listOfNotNull(key, scopeKey).joinToString(":")
     }
 
+@PublishedApi
+internal inline fun <reified S> viewModelScopedPreviewOrNull(): S? =
+    ViewModelScopedPreviews.firstNotNullOfOrNull { it as? S }
+
 val espresso
     get() = try {
         Class.forName("androidx.test.espresso.Espresso")

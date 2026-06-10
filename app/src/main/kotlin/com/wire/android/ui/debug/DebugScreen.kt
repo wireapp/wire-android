@@ -82,14 +82,23 @@ fun DebugScreen(
         onDeleteLogs = userDebugViewModel::deleteLogs,
         onFlushLogs = userDebugViewModel::flushLogs,
         onDatabaseLoggerEnabledChanged = userDebugViewModel::setDatabaseLoggerEnabledState,
-        onShowFeatureFlags = {
-            navigator.navigate(NavigationCommand(DebugFeatureFlagsScreenDestination))
+        debugDataOptionsContent = { debugContentState ->
+            DebugDataOptions(
+                appVersion = AppNameUtil.createAppName(),
+                buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
+                onCopyText = debugContentState::copyToClipboard,
+                onShowFeatureFlags = {
+                    navigator.navigate(NavigationCommand(DebugFeatureFlagsScreenDestination))
+                },
+                onShowCryptoStats = {
+                    navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
+                },
+                viewModel = debugDataOptionsViewModel,
+            )
         },
-        onShowCryptoStats = {
-            navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
+        dangerOptionsContent = {
+            DangerOptions(exportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel)
         },
-        debugDataOptionsViewModel = debugDataOptionsViewModel,
-        exportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel,
     )
 }
 
@@ -101,10 +110,8 @@ internal fun UserDebugContent(
     onDatabaseLoggerEnabledChanged: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
     onFlushLogs: () -> Deferred<Unit>,
-    onShowFeatureFlags: () -> Unit,
-    onShowCryptoStats: () -> Unit,
-    debugDataOptionsViewModel: DebugDataOptionsViewModel,
-    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel,
+    debugDataOptionsContent: @Composable (DebugContentState) -> Unit,
+    dangerOptionsContent: @Composable () -> Unit,
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
 
@@ -134,16 +141,9 @@ internal fun UserDebugContent(
                     onDBLoggerEnabledChange = onDatabaseLoggerEnabledChanged,
                     isPrivateBuild = BuildConfig.PRIVATE_BUILD,
                 )
-                DebugDataOptions(
-                    appVersion = AppNameUtil.createAppName(),
-                    buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
-                    onCopyText = debugContentState::copyToClipboard,
-                    onShowFeatureFlags = onShowFeatureFlags,
-                    onShowCryptoStats = onShowCryptoStats,
-                    viewModel = debugDataOptionsViewModel,
-                )
+                debugDataOptionsContent(debugContentState)
                 if (BuildConfig.PRIVATE_BUILD) {
-                    DangerOptions(exportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel)
+                    dangerOptionsContent()
                 }
             }
         }
@@ -152,8 +152,8 @@ internal fun UserDebugContent(
 
 @Composable
 fun DangerOptions(
-    modifier: Modifier = Modifier,
     exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel,
+    modifier: Modifier = Modifier,
 ) {
 
     Column(modifier = modifier) {
@@ -257,9 +257,18 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onDeleteLogs = {},
         onFlushLogs = { CompletableDeferred(Unit) },
         onDatabaseLoggerEnabledChanged = {},
-        onShowFeatureFlags = {},
-        onShowCryptoStats = {},
-        debugDataOptionsViewModel = object : DebugDataOptionsViewModel {},
-        exportObfuscatedCopyViewModel = object : ExportObfuscatedCopyViewModel {},
+        debugDataOptionsContent = {
+            DebugDataOptions(
+                appVersion = AppNameUtil.createAppName(),
+                buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
+                onCopyText = it::copyToClipboard,
+                onShowFeatureFlags = {},
+                onShowCryptoStats = {},
+                viewModel = object : DebugDataOptionsViewModel {},
+            )
+        },
+        dangerOptionsContent = {
+            DangerOptions(exportObfuscatedCopyViewModel = object : ExportObfuscatedCopyViewModel {})
+        },
     )
 }

@@ -70,9 +70,11 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.launch
 
@@ -257,4 +259,20 @@ enum class LoginTabItem(@StringRes val titleResId: Int) : TabItem {
     SSO(R.string.login_tab_sso);
 
     override val title: UIText = UIText.StringResource(titleResId)
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewLoginScreen() = WireTheme {
+    WireTheme {
+        MainLoginContent(
+            onBackPressed = {},
+            onSuccess = { _, _ -> },
+            onRemoveDeviceNeeded = {},
+            loginNavArgs = LoginNavArgs(),
+            loginEmailViewModel = loginEmailViewModel(LoginNavArgs()),
+            ssoLoginResult = null,
+            ssoCodeAutoLogin = null
+        )
+    }
 }

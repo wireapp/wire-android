@@ -15,14 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.wire.android.di.metro.scopedAssistedMetroViewModel
-import com.wire.android.di.metro.scopedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
@@ -38,20 +40,20 @@ interface HomeManualViewModelFactory : ManualViewModelAssistedFactory {
 
 @Composable
 fun homeViewModel(): HomeViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun appSyncViewModel(): AppSyncViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun homeDrawerViewModel(): HomeDrawerViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun conversationListViewModel(conversationsSource: ConversationsSource): ConversationListViewModel = when {
     LocalInspectionMode.current -> ConversationListViewModelPreview()
-    else -> scopedAssistedMetroViewModel<ConversationListViewModelImpl, HomeManualViewModelFactory>(
+    else -> sessionKeyedAssistedMetroViewModel<ConversationListViewModelImpl, HomeManualViewModelFactory>(
         key = "list_$conversationsSource",
     ) {
         conversationListViewModel(conversationsSource)
@@ -64,10 +66,10 @@ fun newConversationViewModel(
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
 ): NewConversationViewModel =
-    scopedMetroViewModel(
+    sessionKeyedMetroViewModel(
         viewModelStoreOwner = viewModelStoreOwner,
     )
 
 @Composable
 fun featureFlagNotificationViewModel(): FeatureFlagNotificationViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()

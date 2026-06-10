@@ -1,4 +1,4 @@
-@file:Suppress("TooManyFunctions")
+@file:Suppress("MatchingDeclarationName", "TooManyFunctions")
 
 /*
  * Wire
@@ -22,8 +22,8 @@ package com.wire.android.ui.home.conversations
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModel
-import com.wire.android.di.metro.scopedAssistedMetroViewModel
-import com.wire.android.di.metro.scopedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
@@ -114,7 +114,7 @@ fun conversationInfoViewModel(): ConversationInfoViewModel =
 
 @Composable
 fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModel =
-    scopedAssistedMetroViewModel<MultipartAttachmentsViewModelImpl, ConversationCoreManualViewModelFactory>(
+    sessionKeyedAssistedMetroViewModel<MultipartAttachmentsViewModelImpl, ConversationCoreManualViewModelFactory>(
         key = conversationId.value,
     ) {
         multipartAttachmentsViewModel(conversationId)
@@ -124,4 +124,4 @@ fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAtta
 private inline fun <reified VM> conversationCoreViewModel(
     key: String? = null,
 ): VM where VM : ViewModel =
-    scopedMetroViewModel(key)
+    sessionKeyedMetroViewModel(key)

@@ -19,8 +19,8 @@ package com.wire.android.ui.calling
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
-import com.wire.android.di.metro.scopedAssistedMetroViewModel
-import com.wire.android.di.metro.scopedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.calling.common.SharedCallingViewModel
 import com.wire.android.ui.calling.incoming.IncomingCallViewModel
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
@@ -47,7 +47,7 @@ interface CallingViewModelGraph {
 
 @Composable
 fun incomingCallViewModel(conversationId: ConversationId): IncomingCallViewModel =
-    scopedAssistedMetroViewModel<IncomingCallViewModel, CallingManualViewModelFactory>(
+    sessionKeyedAssistedMetroViewModel<IncomingCallViewModel, CallingManualViewModelFactory>(
         key = "incoming_$conversationId",
     ) {
         incomingCallViewModel(conversationId)
@@ -55,7 +55,7 @@ fun incomingCallViewModel(conversationId: ConversationId): IncomingCallViewModel
 
 @Composable
 fun outgoingCallViewModel(conversationId: ConversationId): OutgoingCallViewModel =
-    scopedAssistedMetroViewModel<OutgoingCallViewModel, CallingManualViewModelFactory>(
+    sessionKeyedAssistedMetroViewModel<OutgoingCallViewModel, CallingManualViewModelFactory>(
         key = "outgoing_$conversationId",
     ) {
         outgoingCallViewModel(conversationId)
@@ -63,7 +63,7 @@ fun outgoingCallViewModel(conversationId: ConversationId): OutgoingCallViewModel
 
 @Composable
 fun ongoingCallViewModel(conversationId: ConversationId): OngoingCallViewModel =
-    scopedAssistedMetroViewModel<OngoingCallViewModel, CallingManualViewModelFactory>(
+    sessionKeyedAssistedMetroViewModel<OngoingCallViewModel, CallingManualViewModelFactory>(
         key = "ongoing_$conversationId",
     ) {
         ongoingCallViewModel(conversationId)
@@ -71,7 +71,7 @@ fun ongoingCallViewModel(conversationId: ConversationId): OngoingCallViewModel =
 
 @Composable
 fun sharedCallingViewModel(conversationId: ConversationId): SharedCallingViewModel =
-    scopedAssistedMetroViewModel<SharedCallingViewModel, CallingManualViewModelFactory>(
+    sessionKeyedAssistedMetroViewModel<SharedCallingViewModel, CallingManualViewModelFactory>(
         key = "shared_$conversationId",
     ) {
         sharedCallingViewModel(conversationId)
@@ -84,5 +84,5 @@ fun conversationCallViewModel(): ConversationCallViewModel =
 @Composable
 fun conversationListCallViewModel(conversationsSource: ConversationsSource): ConversationListCallViewModel = when {
     LocalInspectionMode.current -> ConversationListCallViewModelPreview
-    else -> scopedMetroViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
+    else -> sessionKeyedMetroViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
 }

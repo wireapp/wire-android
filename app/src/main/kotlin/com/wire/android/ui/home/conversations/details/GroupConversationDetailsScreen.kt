@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.details
 
+import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -135,6 +136,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @Suppress("CyclomaticComplexMethod")
+@SuppressLint("ComposeViewModelForwarding")
 @WireRootDestination(
     navArgs = GroupConversationDetailsNavArgs::class,
     style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
@@ -359,11 +361,11 @@ fun GroupConversationDetailsScreen(
 }
 
 @Suppress("CyclomaticComplexMethod")
+@SuppressLint("ComposeViewModelForwarding")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GroupConversationDetailsContent(
     groupConversationOptionsState: GroupConversationOptionsState,
-    viewModel: GroupConversationDetailsViewModel? = null,
     sheetState: WireModalSheetState<ConversationSheetState>,
     onBackPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
@@ -378,6 +380,7 @@ private fun GroupConversationDetailsContent(
     isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
+    viewModel: GroupConversationDetailsViewModel? = null,
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     onLeftConversation: () -> Unit = {},
     onDeletedConversation: () -> Unit = {},

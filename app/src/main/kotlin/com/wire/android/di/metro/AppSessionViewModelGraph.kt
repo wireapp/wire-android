@@ -43,7 +43,8 @@ import kotlinx.coroutines.runBlocking
 annotation class MetroSessionScope
 
 @GraphExtension(MetroSessionScope::class, bindingContainers = [WireMetroViewModelBindings::class])
-interface AppSessionViewModelGraph : ViewModelGraph,
+interface AppSessionViewModelGraph :
+    ViewModelGraph,
     MiscViewModelGraph,
     AuthenticationViewModelGraph,
     CallingViewModelGraph,

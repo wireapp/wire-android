@@ -20,7 +20,7 @@ package com.wire.android.ui
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.scopedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
@@ -36,7 +36,7 @@ interface MiscViewModelGraph : MetroViewModelGraph {
 
 @Composable
 inline fun <reified VM> miscViewModel(): VM where VM : ViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun analyticsUsageViewModel(): AnalyticsUsageViewModel =

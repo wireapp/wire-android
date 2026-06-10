@@ -23,7 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.wire.android.di.metro.scopedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModel
 import com.wire.android.ui.home.appLock.set.SetLockScreenViewModel
 import com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModel
@@ -57,7 +57,7 @@ inline fun <reified VM> settingsViewModel(
     },
     key: String? = null,
 ): VM where VM : ViewModel =
-    scopedMetroViewModel(
+    sessionKeyedMetroViewModel(
         viewModelStoreOwner = viewModelStoreOwner,
         key = key,
     )

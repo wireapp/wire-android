@@ -18,7 +18,7 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.metro.scopedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessViewModel
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel
@@ -31,36 +31,36 @@ import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewMo
 
 @Composable
 fun groupConversationDetailsViewModel(): GroupConversationDetailsViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun groupConversationParticipantsViewModel(): GroupConversationParticipantsViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun editConversationMetadataViewModel(): EditConversationMetadataViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun editSelfDeletingMessagesViewModel(): EditSelfDeletingMessagesViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun updateChannelAccessViewModel(): UpdateChannelAccessViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun updateAppsAccessViewModel(): UpdateAppsAccessViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun editGuestAccessViewModel(): EditGuestAccessViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun createPasswordGuestLinkViewModel(): CreatePasswordGuestLinkViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun checkAssetRestrictionsViewModel(): CheckAssetRestrictionsViewModel =
-    scopedMetroViewModel()
+    sessionKeyedMetroViewModel()

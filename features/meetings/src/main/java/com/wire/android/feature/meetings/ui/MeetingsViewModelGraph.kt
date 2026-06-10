@@ -15,11 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.feature.meetings.ui
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.metro.scopedAssistedMetroViewModel
-import com.wire.android.di.metro.scopedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.feature.meetings.ui.create.NewMeetingType
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModelImpl
@@ -38,7 +40,7 @@ interface MeetingsManualViewModelFactory : ManualViewModelAssistedFactory {
 fun meetingListViewModel(
     type: MeetingsTabItem,
 ): MeetingListViewModel =
-    scopedAssistedMetroViewModel<MeetingListViewModelImpl, MeetingsManualViewModelFactory>(
+    sessionKeyedAssistedMetroViewModel<MeetingListViewModelImpl, MeetingsManualViewModelFactory>(
         key = "meeting_list_${type.name}",
     ) {
         meetingListViewModel(type)
@@ -46,11 +48,11 @@ fun meetingListViewModel(
 
 @Composable
 fun meetingOptionsMenuListViewModel(): MeetingOptionsMenuViewModel =
-    scopedMetroViewModel<MeetingOptionsMenuViewModelImpl>()
+    sessionKeyedMetroViewModel<MeetingOptionsMenuViewModelImpl>()
 
 @Composable
 fun newMeetingViewModel(type: NewMeetingType): NewMeetingViewModel =
-    scopedAssistedMetroViewModel<NewMeetingViewModelImpl, MeetingsManualViewModelFactory>(
+    sessionKeyedAssistedMetroViewModel<NewMeetingViewModelImpl, MeetingsManualViewModelFactory>(
         key = "new_meeting_${type.name}",
     ) {
         newMeetingViewModel(type)

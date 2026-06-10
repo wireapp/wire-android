@@ -28,6 +28,7 @@ import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
@@ -40,6 +41,7 @@ class ClearSessionViewModel @Inject constructor(
     private val deleteSession: DeleteSessionUseCase,
     private val switchAccount: AccountSwitchUseCase,
     private val logout: LogoutUseCase,
+    private val cancelUserId: UserId? = null,
 ) : ViewModel() {
     var state: ClearSessionState by mutableStateOf(
         ClearSessionState(showCancelLoginDialog = false)
@@ -57,21 +59,12 @@ class ClearSessionViewModel @Inject constructor(
     fun onCancelLoginClicked(switchAccountActions: SwitchAccountActions) {
         state = state.copy(showCancelLoginDialog = false)
         viewModelScope.launch {
-            currentSession().let {
-                when (it) {
-                    is CurrentSessionResult.Success -> {
-                        // logout to cancel all session-related actions, remove all sensitive data and free up resources
-                        logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
-                        // delete the session to make it seem like the session was never logged in
-                        deleteSession(it.accountInfo.userId)
-                    }
-                    is CurrentSessionResult.Failure.Generic -> {
-                        appLogger.e("$TAG: failed to get current session")
-                    }
-                    CurrentSessionResult.Failure.SessionNotFound -> {
-                        appLogger.e("$TAG: session not found")
-                    }
-                }
+            val userId = cancelUserId ?: currentSessionUserId()
+            if (userId != null) {
+                // logout to cancel all session-related actions, remove all sensitive data and free up resources
+                logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
+                // delete the session to make it seem like the session was never logged in
+                deleteSession(userId)
             }
         }.invokeOnCompletion {
             viewModelScope.launch {
@@ -80,6 +73,19 @@ class ClearSessionViewModel @Inject constructor(
             }
         }
     }
+
+    private suspend fun currentSessionUserId(): UserId? =
+        when (val result = currentSession()) {
+            is CurrentSessionResult.Success -> result.accountInfo.userId
+            is CurrentSessionResult.Failure.Generic -> {
+                appLogger.e("$TAG: failed to get current session")
+                null
+            }
+            CurrentSessionResult.Failure.SessionNotFound -> {
+                appLogger.e("$TAG: session not found")
+                null
+            }
+        }
 
     companion object {
         private const val TAG = "ClearSessionViewModel"

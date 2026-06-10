@@ -5,20 +5,45 @@
 //   ./gradlew :di:stabilityDump
 
 @Composable
-public fun com.wire.android.di.metro.metroSavedStateViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner, key: kotlin.String?, create: @[ExtensionFunctionType] kotlin.Function2<Graph of com.wire.android.di.metro.metroSavedStateViewModel, androidx.lifecycle.SavedStateHandle, VM of com.wire.android.di.metro.metroSavedStateViewModel>): VM of com.wire.android.di.metro.metroSavedStateViewModel
-  skippable: false
+internal fun com.wire.android.di.metro.metroPreviewViewModelOrNull(previewProvider: kotlin.Function0<VM of com.wire.android.di.metro.metroPreviewViewModelOrNull?>?): VM of com.wire.android.di.metro.metroPreviewViewModelOrNull?
+  skippable: true
   restartable: true
   params:
-    - viewModelStoreOwner: RUNTIME (requires runtime check)
-    - key: STABLE (class with no mutable properties)
-    - create: STABLE (function type)
+    - previewProvider: STABLE (function type)
 
 @Composable
-public fun com.wire.android.di.metro.metroViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner, key: kotlin.String?, create: @[ExtensionFunctionType] kotlin.Function1<Graph of com.wire.android.di.metro.metroViewModel, VM of com.wire.android.di.metro.metroViewModel>): VM of com.wire.android.di.metro.metroViewModel
+public fun com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel(key: kotlin.String?, previewProvider: kotlin.Function0<VM of com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel?>?, createViewModel: @[ExtensionFunctionType] kotlin.Function1<Factory of com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel, VM of com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel>): VM of com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
+  skippable: true
+  restartable: true
+  params:
+    - key: STABLE (class with no mutable properties)
+    - previewProvider: STABLE (function type)
+    - createViewModel: STABLE (function type)
+
+@Composable
+public fun com.wire.android.di.metro.sessionKeyedAssistedMetroViewModelAs(key: kotlin.String?, previewProvider: kotlin.Function0<S of com.wire.android.di.metro.sessionKeyedAssistedMetroViewModelAs?>?, createViewModel: @[ExtensionFunctionType] kotlin.Function1<Factory of com.wire.android.di.metro.sessionKeyedAssistedMetroViewModelAs, VM of com.wire.android.di.metro.sessionKeyedAssistedMetroViewModelAs>): S of com.wire.android.di.metro.sessionKeyedAssistedMetroViewModelAs
+  skippable: true
+  restartable: true
+  params:
+    - key: STABLE (class with no mutable properties)
+    - previewProvider: STABLE (function type)
+    - createViewModel: STABLE (function type)
+
+@Composable
+public fun com.wire.android.di.metro.sessionKeyedMetroViewModel(key: kotlin.String?, previewProvider: kotlin.Function0<VM of com.wire.android.di.metro.sessionKeyedMetroViewModel?>?, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): VM of com.wire.android.di.metro.sessionKeyedMetroViewModel
   skippable: false
   restartable: true
   params:
-    - viewModelStoreOwner: RUNTIME (requires runtime check)
     - key: STABLE (class with no mutable properties)
-    - create: STABLE (function type)
+    - previewProvider: STABLE (function type)
+    - viewModelStoreOwner: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.di.metro.sessionKeyedMetroViewModelAs(key: kotlin.String?, previewProvider: kotlin.Function0<S of com.wire.android.di.metro.sessionKeyedMetroViewModelAs?>?, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): S of com.wire.android.di.metro.sessionKeyedMetroViewModelAs
+  skippable: false
+  restartable: true
+  params:
+    - key: STABLE (class with no mutable properties)
+    - previewProvider: STABLE (function type)
+    - viewModelStoreOwner: RUNTIME (requires runtime check)
 

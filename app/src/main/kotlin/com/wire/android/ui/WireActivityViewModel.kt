@@ -99,10 +99,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -757,10 +755,13 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private suspend fun resolveInitialCurrentUserId(): UserId? {
-        currentSessionUserId()?.let { return it }
-        if (validSessions.value.isEmpty()) return null
-        accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
-        return currentSessionUserId()
+        val currentUserId = currentSessionUserId()
+        return if (currentUserId != null || validSessions.value.isEmpty()) {
+            currentUserId
+        } else {
+            accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
+            currentSessionUserId()
+        }
     }
 
     fun finishSessionTransition() {

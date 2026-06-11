@@ -19,6 +19,7 @@
 package com.wire.android.di
 
 import android.content.Context
+import com.wire.android.di.metro.MetroSessionScope
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
@@ -26,14 +27,16 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 
 /**
  * Module that holds everything necessary to load images.
- * It's installed in [ViewModelComponent] as it is something that depends on the currently active user session
+ * It is session-scoped because the asset use cases are tied to the active account.
  */
 @BindingContainer
 class ImageLoadingModule {
 
+    @SingleIn(MetroSessionScope::class)
     @Provides
     fun provideImageLoaderFactory(
         @ApplicationContext context: Context,
@@ -50,6 +53,7 @@ class ImageLoadingModule {
     )
 
     // For better performance/caching. We shouldn't create many of these ImageLoaders.
+    @SingleIn(MetroSessionScope::class)
     @Provides
     fun provideWireImageLoader(imageLoaderFactory: WireSessionImageLoader.Factory): WireSessionImageLoader =
         imageLoaderFactory.newImageLoader()

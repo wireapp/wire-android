@@ -32,16 +32,16 @@ import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProf
 import com.wire.android.model.ItemActionType
 import com.wire.android.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.ContinueButton
-import com.wire.android.ui.home.newconversation.sharedNewConversationViewModel
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @WireNewConversationDestination
 @Composable
 fun NewGroupConversationSearchPeopleScreen(
     navigator: Navigator,
+    newConversationViewModel: NewConversationViewModel,
 ) {
-    val newConversationViewModel = sharedNewConversationViewModel(navigator)
     val onBackClicked = remember(Unit) {
         {
             newConversationViewModel.resetState()

@@ -18,6 +18,7 @@
 package com.wire.android.di.metro
 
 import com.wire.android.di.CurrentAccount
+import com.wire.android.di.ImageLoadingModule
 import com.wire.android.ui.MiscViewModelFactory
 import com.wire.android.ui.MiscViewModelGraph
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
@@ -40,7 +41,7 @@ import dev.zacsweers.metrox.viewmodel.ViewModelGraph
 @Scope
 annotation class MetroSessionScope
 
-@GraphExtension(MetroSessionScope::class, bindingContainers = [WireMetroViewModelBindings::class])
+@GraphExtension(MetroSessionScope::class, bindingContainers = [WireMetroViewModelBindings::class, ImageLoadingModule::class])
 interface AppSessionViewModelGraph :
     ViewModelGraph,
     MiscViewModelGraph,

@@ -17,53 +17,8 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="content_description_right_arrow">දකුණු ඊතලය</string>
-    <string name="content_description_left_arrow">ආපසු යන්න</string>
-    <string name="label_user_deleted">මකා ඇත</string>
-    <string name="label_user_blocked">අවහිර කර ඇත</string>
-    <string name="username_unavailable_label">නම නොතිබේ</string>
-    <string name="content_description_add_contact">සබඳතාවය යොදන්න</string>
-    <string name="content_description_open_link_label">සබැඳිය විවෘත කරන්න</string>
-    <string name="legal_hold_learn_more_button">නෛතික රැඳවුම ගැන තව දැනගන්න</string>
-    <string name="legal_hold_connection_failed_dialog_title">සබැඳීමට නොහැකිය</string>
-    <string name="legal_hold_connection_failed_dialog_description">නෛතික රැඳවුම නිසා මෙම පරිශ්‍රීලකයාට සම්බන්ධ වීමට නොහැකිය.</string>
-    <string name="connection_request_sent">සම්බන්ධතා ඉල්ලීම යැවිණි</string>
-    <string name="connection_request_sent_federation_denied_error">%1$s සහ ඔබගේ සේවාදායක එකිනෙක ඒකාබද්ධ නොවන බැවින් ඔබට ඔවුන් සමඟ සම්බන්ධ වීමට නොහැකිය.</string>
-    <string name="connection_request_sent_error">සම්බන්ධතා ඉල්ලීම යැවීමට නොහැකි විය</string>
-    <string name="connection_request_cancel_error">සම්බන්ධතා ඉල්ලීම ඉවතලීමට නොහැකි විය</string>
-    <string name="connection_request_canceled">සම්බන්ධතා ඉල්ලීම ඉවතලිණි</string>
-    <string name="connection_request_ignored">ඔබ %1$sගේ ඉල්ලීම නොසලකා හැර ඇත</string>
-    <string name="connection_request_accept_error">සම්බන්ධතා ඉල්ලීම පිළිගැනීමට නොහැකි විය</string>
-    <string name="connection_request_accepted">සම්බන්ධතා ඉල්ලීම පිළිගැනිණි</string>
-    <string name="connection_request_ignore_error">සම්බන්ධතා ඉල්ලීම නොසැලකීමට නොහැකි විය</string>
-    <string name="error_unblocking_user">පරිශ්‍රීලකයා අනවහිර කිරීමට නොහැකි විය</string>
-    <string name="content_description_open_user_profile_label">පැතිකඩ විවෘත කරන්න</string>
-    <string name="content_description_open_conversation_label">විවෘත සංවාදය</string>
-
     <!--unblock user dialog -->
-    <string name="unblock_user_dialog_title">අනවහිර කරන්නද?</string>
-    <string name="unblock_user_dialog_body">%1$s හට ඔබ ඇමතීමට සහ ඔබව සමූහ සංවාද වලට එක් කිරීමට හැකි වනු ඇත. ඔබට ඔවුන් සමඟ සෘජු සංවාදයකට ප්‍රවේශ වීමට හැකිය.</string>
-    <string name="unblock_user_dialog_confirm_button">අනවහිර</string>
-    <string name="connection_label_cancel_request">ඉල්ලීම ඉවතලන්න</string>
-    <!-- Animation label -->
-        <string name="label_open_conversation">සංවාදය අරින්න</string>
-    <string name="label_start_conversation">සංවාදය අරඹන්න</string>
-    <string name="connection_label_accept">පිළිගන්න</string>
-    <string name="connection_label_ignore">නොසලකන්න</string>
-    <string name="user_profile_unblock_user">අනවහිර කරන්න</string>
     <!-- Connections -->
-        <string name="connection_label_connect">සබඳින්න</string>
     <!-- Missing keyPackages dialog -->
-        <string name="missing_keypackage_dialog_title">සංවාදය ඇරඹීමට නොහැකිය</string>
-    <string name="missing_keypackage_dialog_body">ඔබට දැන් %1$s සමඟ සංවාදය ආරම්භ කළ නොහැක. %1$s හට Wire විවෘත කිරීමට හෝ පළමුව නැවත ලොග් වීමට අවශ්‍ය වේ. කරුණාකර පසුව නැවත උත්සාහ කරන්න.</string>
-    <string name="connection_pending_label">පොරොත්තු</string>
-    <string name="label_search_people_instruction">සරල නමින් හෝ @නමින් පුද්ගලයින් සොයාගන්න</string>
-    <string name="label_learn_more_searching_user">තව දැනගන්න</string>
     <!-- Search Contact-->
-        <string name="label_contacts">සම්බන්ධතා</string>
-    <string name="label_public_wire">පොදු වයර්</string>
-    <string name="content_description_select_label">තෝරන්න</string>
-    <string name="content_description_unselect_label">තේරීම ඉවත් කරන්න</string>
-    <string name="label_show_more">තව පෙන්වන්න</string>
-    <string name="label_show_less">අඩුවෙන් පෙන්වන්න</string>
 </resources>

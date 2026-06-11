@@ -17,7 +17,8 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="label_user_blocked">Заблокований(-на)</string>
-    <string name="content_description_add_contact">Додати контакт</string>
-    <string name="label_show_less">Згорнути</string>
+    <!--unblock user dialog -->
+    <!-- Connections -->
+    <!-- Missing keyPackages dialog -->
+    <!-- Search Contact-->
 </resources>

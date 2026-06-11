@@ -1063,6 +1063,7 @@
     <string name="success_removing_from_favorite">“%s” был удален из избранного</string>
     <string name="error_adding_to_favorite">“%s” не удалось добавить в избранное</string>
     <string name="error_removing_from_favorite">“%s” не может быть удален из избранного</string>
+    <!-- Animation label -->
     <string name="email_label">Email</string>
     <string name="phone_label">Телефон</string>
     <!-- Notifications -->

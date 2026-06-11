@@ -616,6 +616,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="error_limit_number_assets_imported_exceeded">Solo puedes enviar hasta 20 archivos a la vez.</string>
     <!-- Archiving -->
     <!-- Favorite -->
+    <!-- Animation label -->
     <string name="email_label">Correo electr&#243;nico</string>
     <string name="phone_label">Tel&#233;fono</string>
     <!-- Notifications -->
@@ -667,7 +668,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="connection_pending_message">Quiere conectarse</string>
     <string name="connection_label_user_wants_to_conect">Este usuario desea conectarse contigo.</string>
     <string name="connection_label_accepting_request_description">Si acepta su solicitud de conexi&#243;n, se agregar&#225;n como contacto y podr&#225;n comunicarse directamente.</string>
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galer&#237;a multimedia</string>
     <string name="media_gallery_on_image_downloaded">Guardado en la carpeta Descargas</string>

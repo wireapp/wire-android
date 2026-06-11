@@ -261,15 +261,15 @@ class LoginEmailViewModel @AssistedInject constructor(
             }.let {
                 when (it) {
                     is RegisterClientResult.Success -> {
-                        updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false))
+                        updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false, storedUserId))
                     }
 
                     is RegisterClientResult.E2EICertificateRequired -> {
-                        updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), true))
+                        updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), true, storedUserId))
                     }
 
                     is RegisterClientResult.Failure.TooManyClients -> {
-                        updateEmailFlowState(LoginState.Error.TooManyDevicesError)
+                        updateEmailFlowState(LoginState.Error.TooManyDevicesError(storedUserId))
                     }
 
                     is RegisterClientResult.Failure -> {

@@ -29,7 +29,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.EnterLockCode
 import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.appLogger
 import com.wire.android.di.metro.LocalWireViewModelScopeKey
-import com.wire.android.di.metro.createCurrentSessionViewModelGraph
+import com.wire.android.di.metro.createSessionViewModelGraph
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.model.LocalWireSessionImageLoader
 import com.wire.android.navigation.LoginTypeSelector
@@ -38,6 +38,7 @@ import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 
@@ -46,19 +47,29 @@ class AppLockActivity : BaseActivity() {
     @Inject
     lateinit var loginTypeSelector: LoginTypeSelector
 
+    private val qualifiedIdMapper = QualifiedIdMapper(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
+        val sessionViewModelGraph = intent.getStringExtra(EXTRA_USER_ID)
+            ?.let(qualifiedIdMapper::fromStringToQualifiedID)
+            ?.let(wireApplicationGraph::createSessionViewModelGraph)
+            ?: run {
+                appLogger.e("appLock: missing session user id, closing app lock activity")
+                finish()
+                return
+            }
         setupOrientationForDevice()
         enableEdgeToEdge()
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
-            val sessionViewModelGraph = remember { wireApplicationGraph.createCurrentSessionViewModelGraph() }
+            val rememberedSessionViewModelGraph = remember { sessionViewModelGraph }
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelFactory provides wireApplicationGraph.metroViewModelFactory,
-                LocalWireViewModelScopeKey provides sessionViewModelGraph.viewModelScopeKey,
-                LocalWireSessionImageLoader provides sessionViewModelGraph.wireSessionImageLoader,
+                LocalMetroViewModelFactory provides rememberedSessionViewModelGraph.metroViewModelFactory,
+                LocalWireViewModelScopeKey provides rememberedSessionViewModelGraph.viewModelScopeKey,
+                LocalWireSessionImageLoader provides rememberedSessionViewModelGraph.wireSessionImageLoader,
                 LocalActivity provides this
             ) {
                 WireTheme {
@@ -93,5 +104,6 @@ class AppLockActivity : BaseActivity() {
 
     companion object {
         const val SET_TEAM_APP_LOCK = "set_team_app_lock"
+        const val EXTRA_USER_ID = "user_id"
     }
 }

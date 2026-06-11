@@ -23,7 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
@@ -77,7 +77,7 @@ import dev.zacsweers.metro.Inject
 @Suppress("TooManyFunctions", "LongParameterList")
 class SelfUserProfileViewModel @Inject constructor(
     @CurrentAccount private val selfUserId: UserId,
-    private val dataStore: UserDataStore,
+    userDataStoreProvider: UserDataStoreProvider,
     private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val observeSelfUserWithTeam: ObserveSelfUserWithTeamUseCase,
     private val syncSelfTeamInfo: SyncSelfTeamInfoUseCase,
@@ -99,6 +99,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val getTeamUrl: GetTeamUrlUseCase,
     private val isProfileQRCodeEnabled: IsProfileQRCodeEnabledUseCase,
 ) : ViewModel() {
+    private val dataStore = userDataStoreProvider.getOrCreate(selfUserId)
+
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
         private set
     private lateinit var establishedCallsList: StateFlow<List<Call>>

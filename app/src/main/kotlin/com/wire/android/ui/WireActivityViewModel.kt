@@ -111,7 +111,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import java.io.InputStream
 import java.io.InputStreamReader
 import dev.zacsweers.metro.Inject
@@ -335,14 +334,18 @@ class WireActivityViewModel @Inject constructor(
 
     suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
         initValidSessionsFlowIfNeeded()
-        val currentValidUserId = currentValidUserId()
+        val currentValidUserId = resolveInitialCurrentUserId()
         withContext(dispatchers.main()) {
-            globalAppState = globalAppState.copy(currentUserId = currentValidUserId)
+            globalAppState = globalAppState.copy(
+                currentUserId = currentValidUserId,
+                isSessionTransitionInProgress = false,
+                sessionTransitionReason = null,
+            )
         }
         when {
-            currentValidUserId == null -> InitialAppState.NOT_LOGGED_IN
-            shouldEnrollToE2ei(currentValidUserId) -> InitialAppState.ENROLL_E2EI
-            else -> InitialAppState.LOGGED_IN
+            currentValidUserId == null -> InitialAppState.NotLoggedIn
+            shouldEnrollToE2ei(currentValidUserId) -> InitialAppState.EnrollE2EI(currentValidUserId)
+            else -> InitialAppState.LoggedIn
         }
     }
 
@@ -623,19 +626,13 @@ class WireActivityViewModel @Inject constructor(
 
     fun resolveMissingCurrentSession(actions: SwitchAccountActions) {
         viewModelScope.launch {
-            syncCurrentUserIdFromSession(awaitValidSession = true)
+            syncCurrentUserIdFromSession()
             if (globalAppState.currentUserId == null) {
                 globalAppState = globalAppState.copy(blockUserUI = null)
                 val result = accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
-                syncCurrentUserIdFromSession(awaitValidSession = true)
+                syncCurrentUserIdFromSession()
                 result.callAction(actions)
             }
-        }
-    }
-
-    fun resolveCurrentSessionUserId() {
-        viewModelScope.launch {
-            syncCurrentUserIdFromSession(awaitValidSession = true)
         }
     }
 
@@ -738,9 +735,9 @@ class WireActivityViewModel @Inject constructor(
             ?.takeIf { it.isValid() }
             ?.userId
 
-    private suspend fun syncCurrentUserIdFromSession(awaitValidSession: Boolean = false) {
+    private suspend fun syncCurrentUserIdFromSession() {
         val userId = withContext(dispatchers.io()) {
-            resolveCurrentSessionUserId(awaitValidSession)
+            currentSessionUserId()
         }
         withContext(dispatchers.main()) {
             globalAppState = globalAppState.copy(
@@ -759,20 +756,11 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private suspend fun resolveCurrentSessionUserId(awaitValidSession: Boolean): UserId? {
-        val currentUserId = currentSessionUserId()
-        return if (currentUserId != null || !awaitValidSession) {
-            currentUserId
-        } else {
-            withTimeoutOrNull(CURRENT_SESSION_RESOLUTION_TIMEOUT_MS) {
-                coreLogic.value.getGlobalScope().session.currentSessionFlow()
-                    .filterIsInstance<CurrentSessionResult.Success>()
-                    .map { it.accountInfo }
-                    .filter { it.isValid() }
-                    .firstOrNull()
-                    ?.userId
-            }
-        }
+    private suspend fun resolveInitialCurrentUserId(): UserId? {
+        currentSessionUserId()?.let { return it }
+        if (validSessions.value.isEmpty()) return null
+        accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
+        return currentSessionUserId()
     }
 
     fun finishSessionTransition() {
@@ -858,8 +846,6 @@ class WireActivityViewModel @Inject constructor(
     }
 }
 
-private const val CURRENT_SESSION_RESOLUTION_TIMEOUT_MS = 5_000L
-
 sealed class CurrentSessionErrorState {
     data object RemovedClient : CurrentSessionErrorState()
     data object DeletedAccount : CurrentSessionErrorState()
@@ -932,8 +918,10 @@ enum class SessionTransitionReason {
     REMOVED_CLIENT,
 }
 
-enum class InitialAppState {
-    NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
+sealed interface InitialAppState {
+    data object NotLoggedIn : InitialAppState
+    data object LoggedIn : InitialAppState
+    data class EnrollE2EI(val userId: UserId) : InitialAppState
 }
 
 sealed interface WireActivityViewAction

@@ -868,6 +868,7 @@
     <string name="success_removing_from_favorite">\"%s\" eltávolítva a Kedvencek közül</string>
     <string name="error_adding_to_favorite">\"%s\"-t nem sikerült a Kedvencek közé tenni</string>
     <string name="error_removing_from_favorite">\"%s\"-t nem lehetett eltávolítani a Kedvencek közül</string>
+    <!-- Animation label -->
     <string name="email_label">E-mail</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->

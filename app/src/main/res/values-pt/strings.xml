@@ -823,6 +823,7 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="success_removing_from_favorite">“%s” foi removido dos Favoritos</string>
     <string name="error_adding_to_favorite">“%s” não pôde ser adicionado aos Favoritos</string>
     <string name="error_removing_from_favorite">“%s” não pôde ser removido dos Favoritos</string>
+    <!-- Animation label -->
     <string name="email_label">E-mail</string>
     <string name="phone_label">Telefone</string>
     <!-- Notifications -->

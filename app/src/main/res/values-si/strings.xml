@@ -884,6 +884,7 @@
     <string name="success_removing_from_favorite">“%s” ප්‍රියතම ලැයිස්තුවෙන් ඉවත් කරන ලදී.</string>
     <string name="error_adding_to_favorite">“%s” ප්‍රියතමයන් වෙත එක් කළ නොහැකි විය.</string>
     <string name="error_removing_from_favorite">“%s” ප්‍රියතමයන්ගෙන් ඉවත් කළ නොහැකි විය.</string>
+    <!-- Animation label -->
     <string name="email_label">වි-තැපෑල</string>
     <string name="phone_label">දුරකථනය</string>
     <!-- Notifications -->

@@ -16,4 +16,11 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="content_description_right_arrow">右矢印</string>
+    <string name="content_description_left_arrow">戻る</string>
+    <string name="label_user_deleted">削除済み</string>
+    <string name="label_user_blocked">ブロック中</string>
+    <string name="content_description_add_contact">連絡先を追加</string>
+    <string name="label_show_less">一部のみ表示</string>
+</resources>

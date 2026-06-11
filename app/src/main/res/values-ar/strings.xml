@@ -36,7 +36,6 @@
     <string name="label_learn_more">اعرف المزيد</string>
     <string name="label_removing">جارٍ الإزالة…</string>
     <string name="label_logging_in">تسجيل الدخول…</string>
-    <string name="label_user_deleted">محذوف</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_receive_failure">خطأ في التحميل</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">لن يحصل %s على رسالتك.</string>
@@ -47,10 +46,8 @@
     <string name="label_open_asset_externally">افتح</string>
     <string name="label_show">إظهار</string>
     <string name="label_show_all">إظهار الكل</string>
-    <string name="label_show_less">أظهِر أقل</string>
     <string name="label_show_details">إظهار التفاصيل</string>
     <string name="label_hide_details">إخفاء التفاصيل</string>
-    <string name="label_user_blocked">محظور</string>
     <string name="label_retry">حاول مجددًا</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_reveal_password">إظهار كلمة المرور</string>

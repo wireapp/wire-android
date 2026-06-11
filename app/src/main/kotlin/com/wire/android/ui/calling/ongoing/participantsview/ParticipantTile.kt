@@ -82,6 +82,7 @@ import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarType
 import com.wire.android.ui.common.colorsScheme
@@ -261,7 +262,7 @@ private fun BottomRow(
     isSelfUserMuted: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val defaultUserName = stringResource(id = R.string.username_unavailable_label)
+    val defaultUserName = stringResource(id = commonR.string.username_unavailable_label)
     Layout(
         modifier = modifier,
         content = {

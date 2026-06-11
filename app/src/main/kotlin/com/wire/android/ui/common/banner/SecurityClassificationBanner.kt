@@ -44,6 +44,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.securityClassificationViewModel
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -175,9 +176,9 @@ private fun getDividerColorFor(securityClassificationType: SecurityClassificatio
 @Composable
 private fun getIconFor(securityClassificationType: SecurityClassificationType): Painter {
     return if (securityClassificationType == SecurityClassificationType.CLASSIFIED) {
-        painterResource(id = R.drawable.ic_check_tick)
+        painterResource(id = commonR.drawable.ic_check_tick)
     } else {
-        painterResource(id = R.drawable.ic_info)
+        painterResource(id = commonR.drawable.ic_info)
     }
 }
 

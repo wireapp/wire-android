@@ -31,4 +31,3 @@ class CellImageViewerViewModel(savedStateHandle: SavedStateHandle) : ViewModel()
     val contentHash: String? = navArgs.contentHash
     val fileName: String? = navArgs.fileName
 }
-

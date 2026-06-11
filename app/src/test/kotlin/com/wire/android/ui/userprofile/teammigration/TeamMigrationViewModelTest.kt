@@ -20,8 +20,10 @@ package com.wire.android.ui.userprofile.teammigration
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.util.TestUser
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -31,6 +33,7 @@ import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUse
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
@@ -157,10 +160,14 @@ class TeamMigrationViewModelTest {
         @MockK
         lateinit var dataStore: UserDataStore
 
+        @MockK
+        lateinit var userDataStoreProvider: UserDataStoreProvider
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { getSelfUser() } returns flowOf()
             coEvery { getTeamUrl() } returns "TeamUrl"
+            every { userDataStoreProvider.getOrCreate(TestUser.SELF_USER.id) } returns dataStore
             coEvery { dataStore.isCreateTeamNoticeRead() } returns flowOf(false)
         }
 
@@ -168,8 +175,9 @@ class TeamMigrationViewModelTest {
             anonymousAnalyticsManager = anonymousAnalyticsManager,
             migrateFromPersonalToTeam = migrateFromPersonalToTeam,
             observeSelfUser = getSelfUser,
-            dataStore = dataStore,
-            getTeamUrl = getTeamUrl
+            userDataStoreProvider = userDataStoreProvider,
+            selfUserId = TestUser.SELF_USER.id,
+            getTeamUrl = getTeamUrl,
         ).also { viewModel ->
             viewModel.teamMigrationState.teamNameTextState.setTextAndPlaceCursorAtEnd(TEAM_NAME)
         }

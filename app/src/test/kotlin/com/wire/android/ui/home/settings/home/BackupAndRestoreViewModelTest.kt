@@ -24,7 +24,9 @@ import androidx.core.net.toUri
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.framework.FakeKaliumFileSystem
+import com.wire.android.util.TestUser
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
 import com.wire.android.ui.home.settings.backup.BackupCreationProgress
@@ -503,6 +505,7 @@ class BackupAndRestoreViewModelTest {
             mockkStatic(Uri::class)
             withGetLastBackupDateSeconds()
             every { Uri.parse("some-backup") } returns mockUri
+            every { userDataStoreProvider.getOrCreate(TestUser.SELF_USER.id) } returns userDataStore
             coEvery { importBackup(any(), any()) } returns RestoreBackupResult.Success
             coEvery { createMpBackupFile(any(), any()) } returns CreateBackupResult.Success("".toPath(), "")
             coEvery { verifyBackup(any()) } returns VerifyBackupResult.Success(BackupFileFormat.ANDROID, true)
@@ -532,6 +535,9 @@ class BackupAndRestoreViewModelTest {
         @MockK
         lateinit var userDataStore: UserDataStore
 
+        @MockK
+        lateinit var userDataStoreProvider: UserDataStoreProvider
+
         val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
         private val viewModel = BackupAndRestoreViewModel(
@@ -543,7 +549,8 @@ class BackupAndRestoreViewModelTest {
             dispatcher = dispatcher,
             fileManager = fileManager,
             validatePassword = validatePassword,
-            userDataStore = userDataStore,
+            userDataStoreProvider = userDataStoreProvider,
+            selfUserId = TestUser.SELF_USER.id,
             createBackupFile = createBackupFile,
             mpBackupSettings = MPBackupSettings.Enabled,
         )

@@ -16,4 +16,42 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="content_description_right_arrow">Freccia destra</string>
+    <string name="content_description_left_arrow">Torna indietro</string>
+    <string name="label_user_deleted">Cancellato</string>
+    <string name="label_user_blocked">Bloccato</string>
+    <string name="username_unavailable_label">Nome non disponibile</string>
+    <string name="content_description_add_contact">Aggiungi contatto</string>
+    <string name="legal_hold_learn_more_button">Scopri di più sulla sospensione legale</string>
+    <string name="legal_hold_connection_failed_dialog_title">Impossibile connettersi</string>
+    <string name="legal_hold_connection_failed_dialog_description">Non puoi connetterti con questo utente, a causa di una sospensione legale.</string>
+    <string name="connection_request_sent">Richiesta di connessione inviata</string>
+    <string name="connection_request_sent_federation_denied_error">Il tuo backend non si federa con il backend di %1$s. Non puoi connetterti.</string>
+    <string name="connection_request_sent_error">Impossibile inviare la richiesta di connessione</string>
+    <string name="connection_request_cancel_error">Impossibile annullare la richiesta di connessione</string>
+    <string name="connection_request_canceled">Richiesta di connessione annullata</string>
+    <string name="connection_request_ignored">Hai ignorato la richiesta di %1$s</string>
+    <string name="connection_request_accept_error">Impossibile accettare la richiesta di connessione</string>
+    <string name="connection_request_accepted">Richiesta di connessione accettata</string>
+    <string name="connection_request_ignore_error">Impossibile ignorare la richiesta di connessione</string>
+    <string name="error_unblocking_user">Impossibile sbloccare l\'utente.</string>
+
+    <!--unblock user dialog -->
+    <string name="unblock_user_dialog_title">Sbloccare l\'Utente?</string>
+    <string name="unblock_user_dialog_body">%1$s potr&#224; contattarti o aggiungerti alle conversazioni di gruppo. Potrai accedere ad una conversazione 1:1 con loro.</string>
+    <string name="unblock_user_dialog_confirm_button">Sblocca</string>
+    <string name="connection_label_cancel_request">Cancella Richiesta</string>
+    <!-- Animation label -->
+        <string name="label_open_conversation">Apri la conversazione.</string>
+    <string name="connection_label_accept">Accetta</string>
+    <string name="connection_label_ignore">Ignora</string>
+    <string name="user_profile_unblock_user">Sblocca Utente</string>
+    <!-- Connections -->
+        <string name="connection_label_connect">Connettiti</string>
+    <string name="connection_pending_label">in attesa</string>
+    <string name="label_search_people_instruction">Cerca persone per il loro nome del profilo o @nomeutente</string>
+    <string name="label_learn_more_searching_user">Scopri di pi&#249;</string>
+    <string name="label_show_more">Mostra altro</string>
+    <string name="label_show_less">Mostra meno</string>
+</resources>

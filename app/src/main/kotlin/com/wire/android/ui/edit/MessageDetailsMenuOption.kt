@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun MessageDetailsMenuOption(
@@ -30,7 +31,7 @@ fun MessageDetailsMenuOption(
     MenuBottomSheetItem(
         leading = {
             MenuItemIcon(
-                id = R.drawable.ic_info,
+                id = commonR.drawable.ic_info,
                 contentDescription = stringResource(R.string.content_description_open_message_details),
             )
         },

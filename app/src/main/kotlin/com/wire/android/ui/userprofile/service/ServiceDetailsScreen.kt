@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.settings.serviceDetailsViewModel
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.NameBasedAvatar
@@ -307,9 +308,9 @@ private fun ServiceDetailsStartOrOpenConversation(
                     state = if (isActionLoading) WireButtonState.Disabled else WireButtonState.Default,
                     text = stringResource(
                         id = if (isConversationStarted) {
-                            R.string.label_open_conversation
+                            commonR.string.label_open_conversation
                         } else {
-                            R.string.label_start_conversation
+                            commonR.string.label_start_conversation
                         }
                     ),
                     onClick = onOpenConversation,

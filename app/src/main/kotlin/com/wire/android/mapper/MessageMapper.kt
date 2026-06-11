@@ -18,9 +18,9 @@
 
 package com.wire.android.mapper
 
-import com.wire.android.R
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageEditStatus
@@ -146,7 +146,7 @@ class MessageMapper @Inject constructor(
 
     private fun provideMessageHeader(sender: User?, message: Message.Standalone): MessageHeader = MessageHeader(
         username = sender?.name?.let { UIText.DynamicString(it) }
-            ?: UIText.StringResource(R.string.username_unavailable_label),
+            ?: UIText.StringResource(commonR.string.username_unavailable_label),
         membership = when (sender) {
             is OtherUser -> userTypeMapper.toMembership(sender.userType)
             is SelfUser, null -> Membership.None

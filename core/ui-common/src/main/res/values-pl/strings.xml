@@ -16,4 +16,37 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="content_description_right_arrow">Strza&#322;ka w prawo</string>
+    <string name="content_description_left_arrow">Cofnij</string>
+    <string name="label_user_deleted">Usuni&#281;te</string>
+    <string name="label_user_blocked">Zablokowane</string>
+    <string name="content_description_add_contact">Dodaj kontakt</string>
+    <string name="connection_request_sent">Pro&#347;ba o po&#322;&#261;czenie wys&#322;ana</string>
+    <string name="connection_request_sent_error">Nie uda&#322;o si&#281; wys&#322;a&#263; pro&#347;by o po&#322;&#261;czenie</string>
+    <string name="connection_request_cancel_error">Nie mo&#380;na anulowa&#263; pro&#347;by o po&#322;&#261;czenie</string>
+    <string name="connection_request_canceled">Anulowano pro&#347;b&#281; o po&#322;&#261;czenie</string>
+    <string name="connection_request_ignored">Zignorowa&#322;e&#347; pro&#347;b&#281; u&#380;ytkownika %1$s</string>
+    <string name="connection_request_accept_error">Nie mo&#380;na zaakceptowa&#263; pro&#347;by o po&#322;&#261;czenie</string>
+    <string name="connection_request_accepted">Pro&#347;ba o po&#322;&#261;czenie zaakceptowana</string>
+    <string name="connection_request_ignore_error">Nie mo&#380;na zignorowa&#263; pro&#347;by o po&#322;&#261;czenie</string>
+    <string name="error_unblocking_user">Nie mo&#380;na odblokowa&#263; u&#380;ytkownika.</string>
+
+    <!--unblock user dialog -->
+    <string name="unblock_user_dialog_title">Odblokowa&#263; u&#380;ytkownika?</string>
+    <string name="unblock_user_dialog_body">%1$s b&#281;dzie m&#243;g&#322; si&#281; z tob&#261; skontaktowa&#263; lub doda&#263; do rozm&#243;w grupowych. B&#281;dziesz m&#243;g&#322; uzyska&#263; dost&#281;p do prywatnej rozmowy z nimi.</string>
+    <string name="unblock_user_dialog_confirm_button">Odblokuj</string>
+    <string name="connection_label_cancel_request">Anuluj pro&#347;b&#281;</string>
+    <!-- Animation label -->
+        <string name="label_open_conversation">Otw&#243;rz konwersacj&#281;</string>
+    <string name="connection_label_accept">Zaakceptuj</string>
+    <string name="connection_label_ignore">Zignoruj</string>
+    <string name="user_profile_unblock_user">Odblokuj u&#380;ytkownika</string>
+    <!-- Connections -->
+        <string name="connection_label_connect">Po&#322;&#261;cz</string>
+    <string name="connection_pending_label">oczekuj&#261;ce</string>
+    <string name="label_search_people_instruction">Wyszukaj ludzi po ich nazwie profilowej lub @nazwie u&#380;ytkownika</string>
+    <string name="label_learn_more_searching_user">Dowiedz si&#281; wi&#281;cej</string>
+    <string name="label_show_more">Poka&#380; wi&#281;cej</string>
+    <string name="label_show_less">Poka&#380; mniej</string>
+</resources>

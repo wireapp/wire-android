@@ -20,6 +20,7 @@ package com.wire.android.mapper
 
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.DEFAULT_LOCATION_ZOOM
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
@@ -372,7 +373,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
 
 private fun String?.orUnknownName(): UIText = when {
     this != null -> UIText.DynamicString(this)
-    else -> UIText.StringResource(R.string.username_unavailable_label)
+    else -> UIText.StringResource(commonR.string.username_unavailable_label)
 }
 
 private fun mapRecipientsFailure(userList: List<User>, deliveryStatus: DeliveryStatus?): DeliveryStatusContent {

@@ -17,5 +17,22 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
+    <string name="content_description_right_arrow">Höger-pil</string>
+    <string name="content_description_left_arrow">Gå tillbaka</string>
+    <string name="label_user_deleted">Togs bort</string>
+    <string name="label_user_blocked">Blockerades</string>
+    <string name="content_description_add_contact">Lägg till kontakt</string>
     <string name="label_membership_service">App</string>
+    <string name="connection_label_ignore">Ignorera</string>
+    <string name="user_profile_unblock_user">Avblockera användare</string>
+    <!-- Connections -->
+        <string name="connection_label_connect">Anslut</string>
+    <!-- Missing keyPackages dialog -->
+        <string name="missing_keypackage_dialog_body">Du kan inte starta konversationen med %1$s just nu. %1$s måste öppna Wire eller logga in igen först. Försök igen senare.</string>
+    <string name="label_learn_more_searching_user">Läs mer</string>
+    <!-- Search Contact-->
+        <string name="label_contacts">Kontakter</string>
+    <!--sso dialog-->
+        <string name="label_show_more">Visa mer</string>
+    <string name="label_show_less">Visa mindre</string>
 </resources>

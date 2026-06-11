@@ -100,9 +100,7 @@ import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPat
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelImpl
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel
-import com.wire.android.ui.home.conversations.search.SearchUserViewModel
 import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModel
-import com.wire.android.ui.home.conversations.search.apps.SearchAppsViewModel
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.conversations.ScopedMessageManualViewModelFactory
@@ -146,8 +144,6 @@ import com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModel
 import com.wire.android.ui.common.banner.SecurityClassificationArgs
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelImpl
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModelImpl
-import com.wire.android.ui.connection.ConnectionActionButtonArgs
-import com.wire.android.ui.connection.ConnectionActionButtonViewModelImpl
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
@@ -169,7 +165,6 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel
 import com.wire.android.ui.userprofile.service.ServiceDetailsViewModelImpl
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
@@ -274,9 +269,6 @@ object WireMetroViewModelBindings {
         object : CommonManualViewModelFactory {
             override fun securityClassificationViewModel(args: SecurityClassificationArgs): SecurityClassificationViewModelImpl =
                 factory.securityClassificationViewModel(args)
-
-            override fun connectionActionButtonViewModel(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModelImpl =
-                factory.connectionActionButtonViewModel(args)
 
             override fun conversationOptionsMenuViewModel(): ConversationOptionsMenuViewModelImpl =
                 factory.conversationOptionsMenuViewModel()
@@ -787,9 +779,6 @@ object WireMetroViewModelBindings {
 
             override fun moveConversationToFolderViewModel(args: MoveConversationToFolderArgs): MoveConversationToFolderVMImpl =
                 factory.moveConversationToFolderViewModel(args)
-
-            override fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel =
-                factory.searchAppsViewModel(protocolInfo)
         }
 
     @Provides
@@ -797,15 +786,6 @@ object WireMetroViewModelBindings {
     @ViewModelKey(NewFolderViewModel::class)
     fun newFolderViewModel(factory: ConversationSearchFolderViewModelFactory): ViewModel =
         factory.newFolderViewModel()
-
-    @Provides
-    @IntoMap
-    @ViewModelAssistedFactoryKey(SearchUserViewModel::class)
-    fun searchUserViewModel(factory: ConversationSearchFolderViewModelFactory): ViewModelAssistedFactory =
-        object : ViewModelAssistedFactory {
-            override fun create(extras: CreationExtras): ViewModel =
-                factory.searchUserViewModel(extras.createSavedStateHandle())
-        }
 
     @Provides
     @IntoMap

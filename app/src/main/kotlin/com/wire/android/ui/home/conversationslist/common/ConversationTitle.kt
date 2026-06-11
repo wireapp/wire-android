@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.LegalHoldIndicator
-import com.wire.android.ui.home.conversations.search.HighlightName
+import com.wire.android.search.widget.HighlightName
 import com.wire.android.ui.theme.wireTypography
 
 @Composable

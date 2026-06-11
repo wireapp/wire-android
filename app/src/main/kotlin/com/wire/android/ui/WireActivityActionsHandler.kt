@@ -21,12 +21,12 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import com.ramcosta.composedestinations.utils.destination
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.safeRoute
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
 import com.wire.android.ui.common.HandleActions
@@ -94,7 +94,7 @@ private fun openImportMediaScreen(navigator: Navigator) {
 }
 
 private fun openSsoLogin(navigator: Navigator, action: OnSSOLogin) {
-    when (navigator.navController.currentBackStackEntry?.destination()?.baseRoute) {
+    when (navigator.navController.currentBackStackEntry?.safeRoute()?.baseRoute) {
         // if SSO login started from new login screen, deliver result via savedStateHandle
         // to avoid recreating the ViewModel (which would happen with UPDATE_EXISTED + new nav args)
         NewLoginScreenDestination.baseRoute -> {

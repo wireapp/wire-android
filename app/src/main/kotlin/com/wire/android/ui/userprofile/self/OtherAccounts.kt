@@ -15,8 +15,8 @@ import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.search.HighlightName
-import com.wire.android.ui.home.conversations.search.HighlightSubtitle
+import com.wire.android.search.widget.HighlightName
+import com.wire.android.search.widget.HighlightSubtitle
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.self.model.OtherAccount

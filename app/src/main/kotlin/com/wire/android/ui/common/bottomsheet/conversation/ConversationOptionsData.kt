@@ -19,6 +19,7 @@ package com.wire.android.ui.common.bottomsheet.conversation
 
 import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
@@ -132,7 +133,7 @@ fun ConversationDetails.toConversationOptionsData(selfUser: SelfUser): Conversat
         is ConversationDetails.OneOne -> ConversationOptionsData(
             conversationId = conversation.id,
             title = if (otherUser.isUnavailableUser) {
-                UIText.StringResource(R.string.username_unavailable_label)
+                UIText.StringResource(commonR.string.username_unavailable_label)
             } else {
                 UIText.DynamicString(otherUser.name.orEmpty())
             },

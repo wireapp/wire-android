@@ -34,13 +34,13 @@ import com.wire.android.mapper.toConversationItem
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.PlayingAudioMessage
+import com.wire.android.model.BadgeEventType
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.home.HomeSnackBarMessage
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
-import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationSection
@@ -358,6 +358,7 @@ private fun List<ConversationItem>.unreadToReadConversationsItems(): Pair<List<C
                 BadgeEventType.UnreadMention -> true
                 is BadgeEventType.UnreadMessage -> true
                 BadgeEventType.UnreadReply -> true
+                else -> false
             }
 
             MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->

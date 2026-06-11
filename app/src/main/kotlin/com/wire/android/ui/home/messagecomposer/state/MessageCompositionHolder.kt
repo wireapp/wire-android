@@ -34,7 +34,7 @@ import com.wire.android.ui.home.conversations.model.toUiMention
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.model.toDraft
 import com.wire.android.ui.home.messagecomposer.model.update
-import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.model.Contact
 import com.wire.android.util.EMPTY
 import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL

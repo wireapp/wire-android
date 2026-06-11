@@ -20,6 +20,7 @@ package com.wire.android.ui.home
 
 import com.wire.android.R
 import com.wire.android.model.SnackBarMessage
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.util.ui.UIText
 
 sealed class HomeSnackBarMessage(override val uiText: UIText) : SnackBarMessage {
@@ -33,7 +34,7 @@ sealed class HomeSnackBarMessage(override val uiText: UIText) : SnackBarMessage 
     )
 
     class SuccessConnectionIgnoreRequest(val userName: String) :
-        HomeSnackBarMessage(UIText.StringResource(R.string.connection_request_ignored, userName))
+        HomeSnackBarMessage(UIText.StringResource(commonR.string.connection_request_ignored, userName))
 
     data object MutingOperationError : HomeSnackBarMessage(UIText.StringResource(R.string.error_updating_muting_setting))
     data object BlockingUserOperationError : HomeSnackBarMessage(UIText.StringResource(R.string.error_blocking_user))
@@ -42,7 +43,7 @@ sealed class HomeSnackBarMessage(override val uiText: UIText) : SnackBarMessage 
     data class UnblockingUserOperationSuccess(val userName: String) :
         HomeSnackBarMessage(UIText.StringResource(R.string.unblocking_user_success, userName))
 
-    data object UnblockingUserOperationError : HomeSnackBarMessage(UIText.StringResource(R.string.error_unblocking_user))
+    data object UnblockingUserOperationError : HomeSnackBarMessage(UIText.StringResource(commonR.string.error_unblocking_user))
     data class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackBarMessage(
         UIText.StringResource(
             R.string.conversation_removed_success,

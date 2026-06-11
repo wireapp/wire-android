@@ -20,8 +20,7 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.viewModelScopedPreviewOrNull
-import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
+import com.wire.android.di.ViewModelScopedPreviews
 import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModelAs
 import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
@@ -32,17 +31,13 @@ import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVM
 import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVMImpl
 import com.wire.android.ui.home.conversations.folder.NewFolderViewModel
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel
-import com.wire.android.ui.home.conversations.search.SearchUserViewModel
 import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModel
-import com.wire.android.ui.home.conversations.search.apps.SearchAppsViewModel
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
-import com.wire.kalium.logic.data.conversation.Conversation
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
 interface ConversationSearchFolderManualViewModelFactory : ManualViewModelAssistedFactory {
     fun conversationFoldersViewModel(args: ConversationFoldersStateArgs): ConversationFoldersVMImpl
     fun moveConversationToFolderViewModel(args: MoveConversationToFolderArgs): MoveConversationToFolderVMImpl
-    fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel
 }
 
 @Composable
@@ -55,7 +50,7 @@ fun conversationFoldersViewModel(
         ConversationSearchFolderManualViewModelFactory,
         >(
         key = "conversation_folders_${args.selectedFolderId}",
-        previewProvider = { viewModelScopedPreviewOrNull<ConversationFoldersVM>() },
+        previewProvider = ViewModelScopedPreviews,
     ) {
         conversationFoldersViewModel(args)
     }
@@ -70,7 +65,7 @@ fun moveConversationToFolderViewModel(
         ConversationSearchFolderManualViewModelFactory,
         >(
         key = "move_conversation_to_folder_${args.conversationId}_${args.currentFolderId}",
-        previewProvider = { viewModelScopedPreviewOrNull<MoveConversationToFolderVM>() },
+        previewProvider = ViewModelScopedPreviews,
     ) {
         moveConversationToFolderViewModel(args)
     }
@@ -80,24 +75,12 @@ fun newFolderViewModel(): NewFolderViewModel =
     sessionKeyedMetroViewModel()
 
 @Composable
-fun searchUserViewModel(): SearchUserViewModel =
-    sessionKeyedMetroViewModel()
-
-@Composable
 fun addMembersToConversationViewModel(): AddMembersToConversationViewModel =
     sessionKeyedMetroViewModel()
 
 @Composable
 fun searchConversationMessagesViewModel(): SearchConversationMessagesViewModel =
     sessionKeyedMetroViewModel()
-
-@Composable
-fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel =
-    sessionKeyedAssistedMetroViewModel<SearchAppsViewModel, ConversationSearchFolderManualViewModelFactory>(
-        key = "search_apps_protocol_info_${protocolInfo?.name()}"
-    ) {
-        searchAppsViewModel(protocolInfo)
-    }
 
 @Composable
 fun promoteAdminViewModel(): PromoteAdminViewModel =

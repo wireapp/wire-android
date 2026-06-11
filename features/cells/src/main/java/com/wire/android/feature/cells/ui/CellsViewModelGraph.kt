@@ -86,4 +86,4 @@ fun addRemoveTagsViewModel(): AddRemoveTagsViewModel = cellsViewModel()
 fun versionHistoryViewModel(): VersionHistoryViewModel = cellsViewModel()
 
 @Composable
-fun cellImageViewerViewModel(): CellImageViewerViewModel = cellsViewModel { cellImageViewerViewModel(it) }
+fun cellImageViewerViewModel(): CellImageViewerViewModel = cellsViewModel()

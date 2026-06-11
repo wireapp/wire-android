@@ -57,6 +57,7 @@ import coil3.compose.SubcomposeAsyncImage
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.clickable
@@ -367,7 +368,7 @@ private fun QuotedMessageTopRow(
 @Composable
 fun QuotedUnavailable(style: QuotedMessageStyle) {
     QuotedMessageContent(
-        stringResource(id = R.string.username_unavailable_label),
+        stringResource(id = commonR.string.username_unavailable_label),
         style = style,
         centerContent = {
             MainContentText(
@@ -621,9 +622,14 @@ private fun QuotedImageThumbnail(
     val keyInScopeResolver = LocalAssetLocalPathKeyInScopeResolver.current
     val viewModel: AssetLocalPathViewModel =
         if (keyInScopeResolver != null && keyInScopeResolver(args.key)) {
-            assetLocalPathViewModel(args, keyInScopeResolver)
+            assetLocalPathViewModel(
+                args,
+                keyInScopeResolver
+            )
         } else {
-            assetLocalPathViewModel(args)
+            assetLocalPathViewModel(
+                args
+            )
         }
 
     LaunchedEffect(Unit) {

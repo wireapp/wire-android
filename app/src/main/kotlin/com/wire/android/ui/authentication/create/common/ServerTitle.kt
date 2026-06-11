@@ -45,6 +45,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -90,7 +91,7 @@ fun ServerTitle(
             )
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_info),
+                painter = painterResource(id = commonR.drawable.ic_info),
                 contentDescription = stringResource(R.string.more_information_about_this_server),
                 modifier = Modifier
                     .size(iconSizeDp)

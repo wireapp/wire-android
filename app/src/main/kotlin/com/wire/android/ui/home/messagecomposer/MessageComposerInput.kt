@@ -183,7 +183,9 @@ private fun InputContent(
     onPlusClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SelfDeletingMessageActionViewModel =
-        selfDeletingMessageActionViewModel(SelfDeletingMessageActionArgs(conversationId = conversationId)),
+        selfDeletingMessageActionViewModel(
+            SelfDeletingMessageActionArgs(conversationId = conversationId)
+        ),
 ) {
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()
@@ -245,7 +247,9 @@ private fun InputContent(
         ) {
             if (isTextExpanded) {
                 Box(modifier = Modifier.align(Alignment.BottomCenter)) {
-                    UsersTypingIndicatorForConversation(conversationId = conversationId)
+                    UsersTypingIndicatorForConversation(
+                        conversationId = conversationId,
+                    )
                 }
             }
             // Only show send button when not in editing mode

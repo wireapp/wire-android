@@ -9,5 +9,8 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.compose.activity)
     implementation(libs.androidx.lifecycle.viewModelCompose)
+    implementation(libs.metrox.viewModelCompose)
     implementation(libs.compose.material3)
+    implementation(libs.resaca.core)
+    implementation(libs.resaca.metro)
 }

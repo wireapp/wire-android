@@ -122,7 +122,7 @@ private fun NetworkQualityItem(
                     modifier = Modifier.weight(1f, fill = true)
                 )
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_right),
+                    painter = painterResource(id = commonR.drawable.ic_arrow_right),
                     contentDescription = stringResource(R.string.content_description_call_network_quality_view_details),
                     tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
                     modifier = Modifier.size(dimensions().spacing16x)

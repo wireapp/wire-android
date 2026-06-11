@@ -64,7 +64,7 @@ fun CreateFileScreen(
     navigator: WireNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
     modifier: Modifier = Modifier,
-    createFileViewModel: CreateFileViewModel = createFileViewModel()
+    createFileViewModel: CreateFileViewModel = createFileViewModel(),
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
 

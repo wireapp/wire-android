@@ -20,6 +20,7 @@ package com.wire.android.ui.legalhold.dialog.subject
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -34,7 +35,7 @@ fun LegalHoldSubjectConnectionDialog(
         withDefaultInfo = true,
         cancelText = stringResource(id = R.string.label_cancel),
         dialogDismissed = dialogDismissed,
-        action = stringResource(id = R.string.connection_label_connect) to connectClicked,
+        action = stringResource(id = commonR.string.connection_label_connect) to connectClicked,
     )
 }
 

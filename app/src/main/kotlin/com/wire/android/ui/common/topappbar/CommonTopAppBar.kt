@@ -51,6 +51,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.WireTheme
@@ -300,7 +301,7 @@ private fun IncomingCallContent(callerName: String?, modifier: Modifier = Modifi
     ) {
         StatusLabelWithValue(
             stringResource = R.string.connectivity_status_bar_return_to_incoming_call,
-            callerName = callerName ?: stringResource(R.string.username_unavailable_label),
+            callerName = callerName ?: stringResource(commonR.string.username_unavailable_label),
             color = MaterialTheme.wireColorScheme.onPositive
         )
     }
@@ -315,7 +316,7 @@ private fun OutgoingCallContent(conversationName: String?, modifier: Modifier = 
     ) {
         StatusLabelWithValue(
             stringResource = R.string.connectivity_status_bar_return_to_outgoing_call,
-            callerName = conversationName ?: stringResource(R.string.username_unavailable_label),
+            callerName = conversationName ?: stringResource(commonR.string.username_unavailable_label),
             color = MaterialTheme.wireColorScheme.onPositive
         )
     }
@@ -352,7 +353,7 @@ private fun StatusLabelWithValue(
     callerName: String?,
     color: Color = MaterialTheme.wireColorScheme.onPrimary
 ) {
-    val defaultCallerName = stringResource(R.string.username_unavailable_label)
+    val defaultCallerName = stringResource(commonR.string.username_unavailable_label)
     Text(
         text = stringResource(id = stringResource, callerName ?: defaultCallerName).uppercase(),
         color = color,

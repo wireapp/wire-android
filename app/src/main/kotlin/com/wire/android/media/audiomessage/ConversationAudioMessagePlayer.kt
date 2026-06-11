@@ -21,10 +21,10 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.media.MediaPlayer.SEEK_CLOSEST_SYNC
 import android.net.Uri
-import com.wire.android.R
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.services.ServicesManager
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.ui.UIText
@@ -217,7 +217,7 @@ class ConversationAudioMessagePlayer
                 else -> {
                     val authorName = getSenderNameByMessageId(currentMessageId.conversationId, currentMessageId.messageId)
                         ?.let { UIText.DynamicString(it) }
-                        ?: UIText.StringResource(R.string.username_unavailable_label)
+                        ?: UIText.StringResource(commonR.string.username_unavailable_label)
 
                     PlayingAudioMessage.Some(
                         conversationId = currentMessageId.conversationId,

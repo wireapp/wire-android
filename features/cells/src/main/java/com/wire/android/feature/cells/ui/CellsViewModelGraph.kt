@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
+import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkViewModel
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationScreenViewModel
@@ -83,3 +84,6 @@ fun addRemoveTagsViewModel(): AddRemoveTagsViewModel = cellsViewModel()
 
 @Composable
 fun versionHistoryViewModel(): VersionHistoryViewModel = cellsViewModel()
+
+@Composable
+fun cellImageViewerViewModel(): CellImageViewerViewModel = cellsViewModel()

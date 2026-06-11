@@ -32,11 +32,11 @@ import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
+import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
-import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
-import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
+import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
@@ -46,7 +46,6 @@ import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
-import kotlinx.coroutines.flow.MutableStateFlow
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -56,6 +55,7 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -131,23 +131,61 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when file clicked and local file is present file is opened`() = runTest {
+    fun `given view model when image file clicked and local file is present then in-app viewer is opened`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
 
-        viewModel.sendIntent(CellViewIntent.OnItemClick(testFiles[0].toUiModel()))
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFiles[0].toUiModel()))
+
+            val action = awaitItem()
+            assert(action is OpenImageViewer)
+            coVerify(exactly = 0) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+        }
+    }
+
+    @Test
+    fun `given view model when non-image file clicked and local file is present then external app is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        val nonImageFile = testFiles[0].copy(mimeType = "application/pdf").toUiModel()
+
+        viewModel.sendIntent(CellViewIntent.OnItemClick(nonImageFile))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
     @Test
-    fun `given view model when file clicked and local file is not present and url is openable then url is opened`() = runTest {
+    fun `given view model when image file clicked and local file is not present and url is openable then in-app viewer is opened`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
 
         val testFile = testFiles[0].copy(
+            localPath = null,
+            contentUrl = "https://example.com/file"
+        )
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+
+            val action = awaitItem()
+            assert(action is OpenImageViewer)
+            coVerify(exactly = 0) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+        }
+    }
+
+    @Test
+    fun `given view model when non-image file clicked and local file is not present and url is openable then url is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        val testFile = testFiles[0].copy(
+            mimeType = "application/pdf",
             localPath = null,
             contentUrl = "https://example.com/file"
         )
@@ -185,7 +223,8 @@ class CellViewModelTest {
             .arrange()
 
         // File has localPath from DB but also carries an error state (stale UI state)
-        val testFile = testFiles[0].copy(localPath = "localPath", contentUrl = null).toUiModel()
+        // Use a non-image file so we can verify the external app opener is called
+        val testFile = testFiles[0].copy(localPath = "localPath", contentUrl = null, mimeType = "application/pdf").toUiModel()
             .copy(openLoadState = OpenLoadState.Error)
 
         viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))

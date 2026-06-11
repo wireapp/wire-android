@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Wire
   ~ Copyright (C) 2026 Wire Swiss GmbH
   ~
@@ -15,10 +16,4 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources>
-    <string name="label_no_results_found">Nincs találat. Kérjük, próbálja újra.</string>
-    <string name="content_description_add_participants_back_btn">Vissza a résztvevők hozzáadása lapra</string>
-    <string name="content_description_add_participants_search_field">Személyek keresése név vagy felhasználónév alapján</string>
-    <string name="label_add_member_people">Partner</string>
-    <string name="label_search_people">Személyek keresése</string>
-</resources>
+<resources></resources>

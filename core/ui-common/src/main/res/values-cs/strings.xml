@@ -17,5 +17,8 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="label_user_deleted">Odstranit</string>
+    <!--unblock user dialog -->
+    <!-- Connections -->
+    <!-- Missing keyPackages dialog -->
+    <!-- Search Contact-->
 </resources>

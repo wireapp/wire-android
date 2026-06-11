@@ -361,18 +361,17 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Medya</string>
     <string name="label_conversation_pictures">Resimler</string>
-    <!-- Search Contact-->
     <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
     <!-- Favorite -->
+    <!-- Animation label -->
     <!-- Notifications -->
     <string name="label_type_a_message">Bir mesaj yazın</string>
     <!-- Calling-->
     <!-- Connectivity Status Bar -->
     <string name="connection_label_member_not_belongs_to_team">Bu kullanıcı sizin ekibinize ait değil. Eğer sizin bağlanma isteğinizi kabul ederse, bir kişi olarak kullanılabilir</string>
     <string name="connection_label_send_unverified_warning">Bağlanmadan önce %s\'nin kimliği hakkında bilgi edinin.</string>
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <!--sso dialog-->
     <!--prohibited asset messages -->
@@ -387,7 +386,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--Privacy Settings -->
     <!--Privacy Settings, App lock -->
     <!--Devices -->
-    <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--nomad account blocks login dialog-->
     <string name="label_textfield_optional_password">Parola (seçime bağlı)</string>

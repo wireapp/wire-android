@@ -513,7 +513,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <!--Typing Indicator-->
     <!-- Search Messages -->
     <!-- Conversation Media -->
-    <!-- Search Contact-->
     <string name="label_new_group">Nowa grupa</string>
     <!-- Search Channels -->
     <string name="label_new_conversation">Nowa rozmowa</string>
@@ -546,6 +545,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="error_limit_number_assets_imported_exceeded">Mo&#380;esz przes&#322;a&#263; jednocze&#347;nie maksymalnie 20 plik&#243;w</string>
     <!-- Archiving -->
     <!-- Favorite -->
+    <!-- Animation label -->
     <string name="email_label">E-mail</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
@@ -595,7 +595,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="connection_pending_message">Chce si&#281; po&#322;&#261;czy&#263;</string>
     <string name="connection_label_user_wants_to_conect">Ten u&#380;ytkownik chce si&#281; z Tob&#261; po&#322;&#261;czy&#263;.</string>
     <string name="connection_label_accepting_request_description">Je&#347;li zaakceptujesz jego/jej pro&#347;b&#281;, zostanie dodany(a) jako kontakt, a Ty b&#281;dziesz m&#243;g&#322; z nim/ni&#261; bezpo&#347;rednio porozmawia&#263;.</string>
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galeria multimedi&#243;w</string>
     <string name="media_gallery_on_image_downloaded">Zapisane do folderu Pobrane</string>

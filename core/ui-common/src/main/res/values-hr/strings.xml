@@ -17,23 +17,8 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="content_description_right_arrow">Desna strelica</string>
-    <string name="content_description_left_arrow">Povratak</string>
-    <string name="label_user_deleted">Izbrisano</string>
-    <string name="label_user_blocked">Blokiran</string>
-    <string name="username_unavailable_label">Ime nije dostupno</string>
-    <string name="content_description_add_contact">Dodaj kontakt</string>
-    <string name="connection_request_cancel_error">Zahtjev za povezivanje nije mogao biti poništen</string>
-    <string name="connection_request_canceled">Zahtjev za povezivanje je poništen</string>
-    <string name="connection_label_cancel_request">Poništi zahtjev</string>
-    <!-- Animation label -->
-        <string name="label_open_conversation">Otvori razgovor</string>
-    <string name="connection_label_accept">Prihvati</string>
-    <string name="connection_label_ignore">Ignoriraj</string>
-    <string name="user_profile_unblock_user">Odblokiraj korisnika</string>
+    <!--unblock user dialog -->
     <!-- Connections -->
-        <string name="connection_label_connect">Povežite se</string>
-    <string name="label_learn_more_searching_user">Saznaj više</string>
-    <string name="label_show_more">Prikaži više</string>
-    <string name="label_show_less">Prikaži manje</string>
+    <!-- Missing keyPackages dialog -->
+    <!-- Search Contact-->
 </resources>

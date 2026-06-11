@@ -420,6 +420,7 @@
     <string name="connectivity_status_bar_return_to_outgoing_call">Ringer %1$s…</string>
     <string name="connectivity_status_bar_waiting_for_network">Väntar på nätverk</string>
     <!-- Gallery -->
+    <!--sso dialog-->
     <!--prohibited asset messages -->
     <!--wire dropdown-->
     <string name="change">Ändra</string>
@@ -461,7 +462,6 @@
     <string name="devices_title">Dina enheter</string>
     <string name="current_device_label">Nuvarande enhet</string>
     <string name="other_devices_label">Andra enheter</string>
-    <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--nomad account blocks login dialog-->
     <string name="label_text_copied">Text kopierades till urklipp</string>

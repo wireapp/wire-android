@@ -30,17 +30,18 @@ import com.wire.android.BuildConfig
 import com.wire.android.feature.AppLockSource
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.sha256
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 @Suppress("TooManyFunctions")
-@Singleton
+@SingleIn(AppScope::class)
 class GlobalDataStore @Inject constructor(@ApplicationContext private val context: Context) {
 
     companion object {

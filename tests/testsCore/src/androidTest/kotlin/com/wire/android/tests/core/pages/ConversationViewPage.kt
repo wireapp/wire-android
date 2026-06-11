@@ -75,6 +75,8 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val selfDeletingMessageLabel = UiSelectorParams(description = " Self-deleting message")
     private val pingButton = UiSelectorParams(description = "Ping")
     private val pingButtonOnModal = UiSelectorParams(text = "Ping")
+    private val guestsAndAppsBanner = UiSelectorParams(textContains = "Guests and apps are present")
+    private val topOfConversationViewPageMessage = UiSelectorParams(textContains = "You made it to the top")
 
     private val mlsUpgradeMessageSelectors = listOf(
         UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
@@ -155,6 +157,15 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun longPressOnMessage(message: String): ConversationViewPage {
+        val messageElement = UiWaitUtils.waitElement(UiSelectorParams(text = message))
+        val center = messageElement.visibleCenter
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            .swipe(center.x, center.y, center.x, center.y, 120)
+
+        return this
+    }
+
     fun assertBottomSheetIsVisible(): ConversationViewPage {
         val bottomSheet = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             .findObject(UiSelector().className("android.view.View").instance(4))
@@ -178,6 +189,40 @@ data class ConversationViewPage(private val device: UiDevice) {
             assertTrue("Button with text '$expectedText' is not visible", !element.visibleBounds.isEmpty)
             assertEquals(expectedText, element.text, "Button text does not match expected")
         }
+
+        return this
+    }
+
+    fun assertTextMessageReactionOptionsVisible(): ConversationViewPage {
+        val expectedOptions = listOf(
+            "REACTIONS",
+            "Message Details",
+            "Copy text",
+            "Reply",
+            "Delete"
+        )
+
+        expectedOptions.forEach { expectedText ->
+            val element = UiWaitUtils.waitElement(UiSelectorParams(text = expectedText))
+            assertTrue("Option with text '$expectedText' is not visible", !element.visibleBounds.isEmpty)
+            assertEquals(expectedText, element.text, "Option text does not match expected")
+        }
+
+        return this
+    }
+
+    fun tapReactionIcon(reaction: String): ConversationViewPage {
+        val reactionIcon = UiWaitUtils.waitElement(UiSelectorParams(text = reaction))
+        reactionIcon.click()
+        return this
+    }
+
+    fun assertReactionAndUserCountVisible(reaction: String, userCount: Int): ConversationViewPage {
+        val reactionElement = UiWaitUtils.waitElement(UiSelectorParams(text = reaction))
+        val countElement = UiWaitUtils.waitElement(UiSelectorParams(text = userCount.toString()))
+
+        assertTrue("Reaction '$reaction' is not visible", !reactionElement.visibleBounds.isEmpty)
+        assertTrue("Reaction count '$userCount' is not visible", !countElement.visibleBounds.isEmpty)
 
         return this
     }
@@ -467,6 +512,38 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertChannelConversationInForeground(conversationName: String): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(conversationDetailsGroup(conversationName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Channel conversation '$conversationName' is not in foreground.", e)
+        }
+        return this
+    }
+
+    fun assertGuestsAndAppsBannerVisible(): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(guestsAndAppsBanner)
+        } catch (e: AssertionError) {
+            throw AssertionError("'Guests and apps are present' banner is not visible in conversation view", e)
+        }
+
+        return this
+    }
+
+    fun assertTopOfConversationViewPageVisible(): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(topOfConversationViewPageMessage)
+        } catch (e: AssertionError) {
+            throw AssertionError(
+                "Top-of-conversation message is not visible in conversation view.",
+                e
+            )
+        }
+
+        return this
+    }
+
     fun click1On1ConversationDetails(userName: String): ConversationViewPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val userName = device.findObject(conversationDetails1On1(userName))
@@ -487,6 +564,10 @@ data class ConversationViewPage(private val device: UiDevice) {
 
         UiWaitUtils.waitElement(params).click()
         return this
+    }
+
+    fun clickOnChannelConversationDetails(conversationName: String): ConversationViewPage {
+        return clickOnGroupConversationDetails(conversationName)
     }
 
     fun iTapStartCallButton(): ConversationViewPage {

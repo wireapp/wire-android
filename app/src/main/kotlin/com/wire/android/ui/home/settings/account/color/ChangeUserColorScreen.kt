@@ -36,7 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.home.settings.changeUserColorViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
@@ -83,7 +83,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 fun ChangeUserColorScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<Boolean>,
-    viewModel: ChangeUserColorViewModel = hiltViewModel()
+    viewModel: ChangeUserColorViewModel = changeUserColorViewModel()
 ) {
     with(viewModel) {
         ChangeUserColorContent(

@@ -136,7 +136,7 @@ class SystemMessageContentMapperTest {
                 Locale.getDefault()
             )
 
-        assertIs<SystemMessage.ConversationMessageCreated>(resultConversationCreated)
+        assertIs<SystemMessage.ConversationMessageCreated>(resultConversationCreated!!)
         assertEquals(10584735, (resultConversationCreated.author as UIText.StringResource).resId)
         assertEquals(expectedFormattedDate, resultConversationCreated.date)
     }
@@ -201,6 +201,28 @@ class SystemMessageContentMapperTest {
             assertEquals(it.memberNames[0].asString(arrangement.resources), member2.name)
             assertEquals(it.memberNames[1].asString(arrangement.resources), member3.name)
         }
+    }
+
+    @Test
+    fun givenSelfUserPromotedToAdminContent_whenMapping_thenReturnsSelfUserPromotedSystemMessage() {
+        val (_, mapper) = Arrangement().arrange()
+        val members = listOf(TestUser.SELF_USER, TestUser.OTHER_USER)
+        val content = MessageContent.MemberChange.UserPromotedToAdmin(listOf(TestUser.SELF_USER_ID))
+
+        val result = mapper.mapMemberChangeMessage(content, TestUser.SELF_USER_ID, members)
+
+        assertEquals(SystemMessage.SelfUserPromotedToAdmin, result)
+    }
+
+    @Test
+    fun givenOtherUserPromotedToAdminContent_whenMapping_thenReturnsNull() {
+        val (_, mapper) = Arrangement().arrange()
+        val members = listOf(TestUser.SELF_USER, TestUser.OTHER_USER)
+        val content = MessageContent.MemberChange.UserPromotedToAdmin(listOf(TestUser.OTHER_USER.id))
+
+        val result = mapper.mapMemberChangeMessage(content, TestUser.SELF_USER_ID, members)
+
+        assertEquals(null, result)
     }
 
     @Test

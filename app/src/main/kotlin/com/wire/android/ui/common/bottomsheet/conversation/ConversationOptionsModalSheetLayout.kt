@@ -24,8 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.conversationOptionsMenuViewModel
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
@@ -39,8 +39,10 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupLocallyDialog
+import com.wire.android.ui.home.conversations.details.menu.LeaveConversationAdminOptionsDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
+import com.wire.android.ui.home.conversationslist.model.DeleteGroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
@@ -53,15 +55,27 @@ fun ConversationOptionsModalSheetLayout(
     onLeftConversation: () -> Unit = {},
     onDeletedConversation: () -> Unit = {},
     onDeletedConversationLocally: () -> Unit = {},
+    onPromoteAdmin: (ConversationId) -> Unit = {},
     openConversationDebugMenu: (ConversationId) -> Unit = {},
     viewModel: ConversationOptionsMenuViewModel =
-        hiltViewModelScoped<ConversationOptionsMenuViewModelImpl, ConversationOptionsMenuViewModel>()
+        conversationOptionsMenuViewModel()
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
     LeaveConversationGroupDialog(
         dialogState = viewModel.leaveGroupDialogState,
         onLeaveGroup = { viewModel.leaveGroup(it.conversationId, it.conversationName, it.shouldDelete) }
+    )
+    LeaveConversationAdminOptionsDialog(
+        dialogState = viewModel.leaveGroupOptionsDialogState,
+        onPromoteAdmin = { state ->
+            viewModel.leaveGroupOptionsDialogState.dismiss()
+            onPromoteAdmin(state.conversationId)
+        },
+        onDeleteGroup = { state ->
+            viewModel.leaveGroupOptionsDialogState.dismiss()
+            viewModel.deleteGroupDialogState.show(DeleteGroupDialogState(state.conversationId, state.conversationName))
+        },
     )
     DeleteConversationGroupDialog(
         dialogState = viewModel.deleteGroupDialogState,

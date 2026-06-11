@@ -22,26 +22,23 @@ import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -50,7 +47,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.home.settings.selfUserProfileViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
@@ -93,6 +90,7 @@ import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileSelfDialog
+import com.wire.android.ui.legalHoldRequestedViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -108,6 +106,10 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
+val LocalSelfUserProfileLogoutAction = staticCompositionLocalOf<((wipeData: Boolean) -> Unit)?> {
+    null
+}
+
 @WireRootDestination(
     style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
 )
@@ -117,10 +119,11 @@ fun SelfUserProfileScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
     avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>,
-    viewModelSelf: SelfUserProfileViewModel = hiltViewModel(),
-    legalHoldRequestedViewModel: LegalHoldRequestedViewModel = hiltViewModel()
+    viewModelSelf: SelfUserProfileViewModel = selfUserProfileViewModel(),
+    legalHoldRequestedViewModel: LegalHoldRequestedViewModel = legalHoldRequestedViewModel()
 ) {
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
+    val logoutAction = LocalSelfUserProfileLogoutAction.current
 
     LaunchedEffect(Unit) {
         // Check if the user is able to migrate to a team account, every time the screen is shown
@@ -131,7 +134,8 @@ fun SelfUserProfileScreen(
         state = viewModelSelf.userProfileState,
         onCloseClick = navigator::navigateBack,
         logout = {
-            viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
+            logoutAction?.invoke(it)
+                ?: viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
         },
         onChangeUserProfilePicture = {
             navigator.navigate(
@@ -202,7 +206,6 @@ fun SelfUserProfileScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SelfUserProfileContent(
     state: SelfUserProfileState,
@@ -255,110 +258,93 @@ private fun SelfUserProfileContent(
             val context = LocalContext.current
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .scrollable(state = scrollState, orientation = Orientation.Vertical)
+                    .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(internalPadding)
             ) {
-                val selectLabel = stringResource(R.string.content_description_select_label)
-                LazyColumn(
+                val selectLabel = stringResource(UICommonR.string.content_description_select_label)
+                Column(
                     modifier = Modifier
                         .weight(1F)
                         .fillMaxWidth()
-                        .fillMaxHeight()
-                        .scrollable(state = scrollState, orientation = Orientation.Vertical)
+                        .verticalScroll(scrollState)
                 ) {
                     if (state.isAbleToMigrateToTeamAccount) {
-                        stickyHeader {
-                            Column(
-                                modifier = Modifier
-                                    .padding(
-                                        top = dimensions().spacing16x,
-                                        start = dimensions().spacing16x,
-                                        end = dimensions().spacing16x
-                                    )
-                            ) {
-                                CreateTeamInfoCard(onCreateAccount)
-                            }
+                        Column(
+                            modifier = Modifier
+                                .padding(
+                                    top = dimensions().spacing16x,
+                                    start = dimensions().spacing16x,
+                                    end = dimensions().spacing16x
+                                )
+                        ) {
+                            CreateTeamInfoCard(onCreateAccount)
                         }
                     }
-                    stickyHeader {
-                        UserProfileInfo(
-                            userId = state.userId,
-                            isLoading = state.isAvatarLoading,
-                            avatarAsset = state.avatarAsset,
-                            fullName = fullName,
-                            userName = userName,
-                            teamName = teamName,
-                            onUserProfileClick = onChangeUserProfilePicture,
-                            editableState = EditableState.IsEditable(onEditClick),
-                            onQrCodeClick = onQrCodeClick,
-                            accentId = accentId,
-                            showQrCode = state.showQrCode,
-                        )
-                    }
+                    UserProfileInfo(
+                        userId = state.userId,
+                        isLoading = state.isAvatarLoading,
+                        avatarAsset = state.avatarAsset,
+                        fullName = fullName,
+                        userName = userName,
+                        teamName = teamName,
+                        onUserProfileClick = onChangeUserProfilePicture,
+                        editableState = EditableState.IsEditable(onEditClick),
+                        onQrCodeClick = onQrCodeClick,
+                        accentId = accentId,
+                        showQrCode = state.showQrCode,
+                    )
                     if (state.legalHoldStatus != LegalHoldUIState.None) {
-                        stickyHeader {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = dimensions().spacing8x)
-                            ) {
-                                when (state.legalHoldStatus) {
-                                    LegalHoldUIState.Active -> LegalHoldSubjectBanner(onClick = onLegalHoldLearnMoreClick)
-                                    LegalHoldUIState.Pending -> LegalHoldPendingBanner(onClick = onLegalHoldAcceptClick)
-                                    LegalHoldUIState.None -> {
-                                        /* no banner */
-                                    }
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = dimensions().spacing8x)
+                        ) {
+                            when (state.legalHoldStatus) {
+                                LegalHoldUIState.Active -> LegalHoldSubjectBanner(onClick = onLegalHoldLearnMoreClick)
+                                LegalHoldUIState.Pending -> LegalHoldPendingBanner(onClick = onLegalHoldAcceptClick)
+                                LegalHoldUIState.None -> {
+                                    /* no banner */
                                 }
                             }
                         }
                     }
                     if (!state.teamName.isNullOrBlank()) {
-                        stickyHeader {
-                            CurrentSelfUserStatus(
-                                userStatus = status,
-                                onStatusClicked = onStatusClicked,
-                            )
-                        }
+                        CurrentSelfUserStatus(
+                            userStatus = status,
+                            onStatusClicked = onStatusClicked,
+                        )
                     }
-                    stickyHeader {
-                        VerticalSpace.x8()
-                        Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)) {
-                            AccountDetailButton(onAccountDetailsClick = onAccountDetailsClick)
-                        }
+                    VerticalSpace.x8()
+                    Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)) {
+                        AccountDetailButton(onAccountDetailsClick = onAccountDetailsClick)
                     }
                     if (state.otherAccounts.isNotEmpty()) {
-                        stickyHeader {
-                            VerticalSpace.x16()
-                            OtherAccountsHeader()
-                        }
-                        items(
-                            items = otherAccounts,
-                            itemContent = { account ->
-                                OtherAccountItem(
-                                    account = account,
-                                    clickable = remember {
-                                        Clickable(
-                                            enabled = true,
-                                            onClickDescription = selectLabel,
-                                            onClick = {
-                                                if (isUserInCall()) {
-                                                    Toast.makeText(
-                                                        context,
-                                                        R.string.cant_switch_account_in_call,
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                } else {
-                                                    onOtherAccountClick(account.id)
-                                                }
+                        VerticalSpace.x16()
+                        OtherAccountsHeader()
+                        otherAccounts.forEach { account ->
+                            OtherAccountItem(
+                                account = account,
+                                clickable = remember(account.id) {
+                                    Clickable(
+                                        enabled = true,
+                                        onClickDescription = selectLabel,
+                                        onClick = {
+                                            if (isUserInCall()) {
+                                                Toast.makeText(
+                                                    context,
+                                                    R.string.cant_switch_account_in_call,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            } else {
+                                                onOtherAccountClick(account.id)
                                             }
-                                        )
-                                    }
-                                )
-                            }
-                        )
+                                        }
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
 
@@ -513,7 +499,7 @@ private fun AccountDetailButton(
         text = stringResource(R.string.settings_your_account_label),
         trailingIcon = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_right),
+                painter = painterResource(id = UICommonR.drawable.ic_arrow_right),
                 contentDescription = "",
                 tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
                 modifier = Modifier

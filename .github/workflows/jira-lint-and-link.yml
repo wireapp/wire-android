@@ -17,9 +17,12 @@ jobs:
     steps:
       - name: Get version name from source
         id: version
+        env:
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
-          VERSION=$(curl -s https://raw.githubusercontent.com/${{ github.repository }}/${{ github.head_ref || github.ref_name }}/build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt | grep 'const val versionName' | sed -E 's/.*"([^"]+)".*/\1/')
-          echo "version_name=$VERSION" >> $GITHUB_OUTPUT
+          VERSION=$(curl -s "https://raw.githubusercontent.com/${REPO}/${BRANCH}/build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt" | grep 'const val versionName' | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "version_name=$VERSION" >> "$GITHUB_OUTPUT"
 
   add-jira-description:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}

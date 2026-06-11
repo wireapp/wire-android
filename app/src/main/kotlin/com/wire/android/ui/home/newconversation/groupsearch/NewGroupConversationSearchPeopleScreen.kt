@@ -21,23 +21,27 @@ import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.ramcosta.composedestinations.generated.app.destinations.NewGroupNameScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
-import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
-import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.model.ItemActionType
+import com.wire.android.search.SearchUsersAndAppsScreen
+import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.home.newconversation.common.ContinueButton
+import com.wire.android.ui.home.newconversation.sharedNewConversationViewModel
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @WireNewConversationDestination
 @Composable
 fun NewGroupConversationSearchPeopleScreen(
     navigator: Navigator,
-    newConversationViewModel: NewConversationViewModel,
 ) {
+    val newConversationViewModel = sharedNewConversationViewModel(navigator)
     val onBackClicked = remember(Unit) {
         {
             newConversationViewModel.resetState()
@@ -58,16 +62,19 @@ fun NewGroupConversationSearchPeopleScreen(
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
-        shouldShowChannelPromotion = false,
-        isUserAllowedToCreateChannels = false,
         onContactChecked = newConversationViewModel::updateSelectedContacts,
-        onContinue = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
-        isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = onBackClicked,
-        screenType = SearchPeopleScreenType.NEW_GROUP_CONVERSATION,
+        navigationIconType = NavigationIconType.Back(R.string.content_description_new_conversation_back_btn),
+        itemActionType = ItemActionType.CHECK,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
         onAppClicked = { },
         isAppsTabVisible = false,
-        conversationProtocol = null
+        conversationProtocol = null,
+        peopleBottomActions = { focusRequester ->
+            ContinueButton(
+                onContinue = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
+                buttonModifier = Modifier.focusRequester(focusRequester),
+            )
+        }
     )
 }

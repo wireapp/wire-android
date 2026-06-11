@@ -24,15 +24,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.util.getDependenciesVersion
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class DependenciesViewModel @Inject constructor(
-    @ApplicationContext val context: Context
+class DependenciesViewModel(
+    val context: Context
 ) : ViewModel() {
 
     var state: DependenciesState by mutableStateOf(DependenciesState())

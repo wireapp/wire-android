@@ -25,16 +25,17 @@ import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.AttachmentType
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.IOException
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 class FileManager @Inject constructor(@ApplicationContext private val context: Context) {
     suspend fun saveToExternalStorage(
         assetName: String,

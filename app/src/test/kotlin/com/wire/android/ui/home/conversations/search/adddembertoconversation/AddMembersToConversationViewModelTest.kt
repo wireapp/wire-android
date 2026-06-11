@@ -24,7 +24,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.model.Contact
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId

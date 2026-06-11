@@ -24,16 +24,13 @@ import com.wire.kalium.logic.data.featureConfig.ChannelFeatureConfiguration
 import com.wire.kalium.logic.data.featureConfig.Status
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigResult
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import javax.inject.Inject
 
-@HiltViewModel
-class DebugFeatureFlagsViewModel @Inject constructor(
+class DebugFeatureFlagsViewModel(
     private val getFeatureConfig: GetFeatureConfigUseCase,
 ) : ViewModel() {
 
@@ -69,6 +66,7 @@ class DebugFeatureFlagsViewModel @Inject constructor(
                             addFeature("Allowed Global Operations", allowedGlobalOperationsModel?.status, allowedGlobalOperationsModel)
                             addFeature("Wire Cells", cellsModel?.status)
                             addFeature("User Profile QR code", enableUserProfileQRCodeConfigModel?.status)
+                            addFeature("Prevent Adminless Groups", preventAdminlessGroupsModel?.status)
                             add(
                                 Feature(
                                     name = "Channels",

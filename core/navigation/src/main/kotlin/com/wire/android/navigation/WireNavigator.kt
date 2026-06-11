@@ -17,6 +17,9 @@
  */
 package com.wire.android.navigation
 
+import androidx.compose.runtime.Stable
+
+@Stable
 interface WireNavigator {
     fun navigate(navigationCommand: NavigationCommand)
     fun navigateBack()

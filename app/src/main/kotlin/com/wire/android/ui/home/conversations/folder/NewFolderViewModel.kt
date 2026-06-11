@@ -30,16 +30,13 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.feature.conversation.folder.CreateConversationFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class NewFolderViewModel @Inject constructor(
+class NewFolderViewModel(
     private val observeUserFolders: ObserveUserFoldersUseCase,
     private val createConversationFolder: CreateConversationFolderUseCase
 ) : ViewModel() {

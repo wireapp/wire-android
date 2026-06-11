@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.home.conversations.details
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
+import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -46,7 +46,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,16 +59,17 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
-import com.wire.android.navigation.style.PopUpNavigationAnimation
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.LoadingWireTabRow
@@ -104,7 +104,9 @@ import com.ramcosta.composedestinations.generated.app.destinations.SearchConvers
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.UpdateAppsAccessScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.PromoteAdminScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
+import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.options.LoadingGroupConversation
@@ -115,6 +117,7 @@ import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateApp
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
+import com.wire.android.ui.home.conversations.groupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
@@ -133,6 +136,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @Suppress("CyclomaticComplexMethod")
+@SuppressLint("ComposeViewModelForwarding")
 @WireRootDestination(
     navArgs = GroupConversationDetailsNavArgs::class,
     style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
@@ -145,13 +149,13 @@ fun GroupConversationDetailsScreen(
     editChannelAccessResultRecipient: ResultRecipient<ChannelAccessOnUpdateScreenDestination, UpdateChannelAccessArgs>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
+    viewModel: GroupConversationDetailsViewModel = groupConversationDetailsViewModel(),
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
     val snackbarHostState = LocalSnackbarHostState.current
     val sheetState = rememberWireModalSheetState<ConversationSheetState>()
-    val groupOptions by viewModel.groupOptionsState.collectAsState()
+    val groupOptions by viewModel.groupOptionsState.collectAsStateWithLifecycle()
 
     val onSearchConversationMessagesClick: () -> Unit = {
         navigator.navigate(
@@ -191,6 +195,7 @@ fun GroupConversationDetailsScreen(
     GroupConversationDetailsContent(
         sheetState = sheetState,
         groupConversationOptionsState = groupOptions,
+        viewModel = viewModel,
         onBackPressed = navigator::navigateBack,
         onProfilePressed = { participant ->
             when {
@@ -299,6 +304,9 @@ fun GroupConversationDetailsScreen(
                 )
             )
         },
+        onPromoteAdmin = { conversationId ->
+            navigator.navigate(NavigationCommand(PromoteAdminScreenDestination(PromoteAdminNavArgs(conversationId))))
+        },
         openConversationDebugMenu = {
             navigator.navigate(
                 NavigationCommand(
@@ -353,6 +361,7 @@ fun GroupConversationDetailsScreen(
 }
 
 @Suppress("CyclomaticComplexMethod")
+@SuppressLint("ComposeViewModelForwarding")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GroupConversationDetailsContent(
@@ -371,9 +380,11 @@ private fun GroupConversationDetailsContent(
     isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
+    viewModel: GroupConversationDetailsViewModel? = null,
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     onLeftConversation: () -> Unit = {},
     onDeletedConversation: () -> Unit = {},
+    onPromoteAdmin: (ConversationId) -> Unit = {},
     openConversationDebugMenu: (ConversationId) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
     isScreenLoading: StateFlow<Boolean> = MutableStateFlow(false),
@@ -386,6 +397,7 @@ private fun GroupConversationDetailsContent(
     )
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
+    val isLoading by isScreenLoading.collectAsStateWithLifecycle()
 
     CollapsingTopBarScaffold(
         topBarHeader = {
@@ -422,7 +434,7 @@ private fun GroupConversationDetailsContent(
             }
 
             AnimatedContent(
-                targetState = isScreenLoading.collectAsState().value,
+                targetState = isLoading,
                 transitionSpec = {
                     val enter = fadeIn(tween(durationMillis = 500, delayMillis = 100))
                     val exit = fadeOut()
@@ -450,8 +462,8 @@ private fun GroupConversationDetailsContent(
             }
         },
         topBarFooter = {
-            Crossfade(isScreenLoading.collectAsState().value) {
-                if (it) {
+            Crossfade(isLoading) { loading ->
+                if (loading) {
                     LoadingWireTabRow()
                 } else {
                     WireTabRow(
@@ -502,7 +514,7 @@ private fun GroupConversationDetailsContent(
         contentLazyListState = lazyListStates[currentTabState],
     ) {
         AnimatedVisibility(
-            visible = isScreenLoading.collectAsState().value,
+            visible = isLoading,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
@@ -514,7 +526,7 @@ private fun GroupConversationDetailsContent(
         val focusManager = LocalFocusManager.current
 
         AnimatedVisibility(
-            visible = !isScreenLoading.collectAsState().value,
+            visible = !isLoading,
             enter = fadeIn(
                 animationSpec = tween(durationMillis = 500, delayMillis = 100)
             ),
@@ -532,6 +544,9 @@ private fun GroupConversationDetailsContent(
                             onAppsAccessItemClicked = onAppsAccessItemClicked,
                             onChannelAccessItemClicked = onChannelAccessItemClicked,
                             onEditSelfDeletingMessages = onEditSelfDeletingMessages,
+                            viewModel = requireNotNull(viewModel) {
+                                "GroupConversationDetailsContent requires GroupConversationDetailsViewModel outside preview"
+                            },
                             onEditGroupName = onEditGroupName
                         )
 
@@ -559,6 +574,7 @@ private fun GroupConversationDetailsContent(
         openConversationFolders = onMoveToFolder,
         onLeftConversation = onLeftConversation,
         onDeletedConversation = onDeletedConversation,
+        onPromoteAdmin = onPromoteAdmin,
         openConversationDebugMenu = openConversationDebugMenu,
     )
 

@@ -28,29 +28,37 @@ import com.ramcosta.composedestinations.generated.app.destinations.AppUnlockWith
 import com.ramcosta.composedestinations.generated.app.destinations.EnterLockCodeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.appLogger
+import com.wire.android.di.metro.LocalWireViewModelScopeKey
+import com.wire.android.di.metro.createCurrentSessionViewModelGraph
+import com.wire.android.di.metro.wireApplicationGraph
+import com.wire.android.model.LocalWireSessionImageLoader
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 
-@AndroidEntryPoint
 class AppLockActivity : BaseActivity() {
 
     @Inject
     lateinit var loginTypeSelector: LoginTypeSelector
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
         setupOrientationForDevice()
         enableEdgeToEdge()
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
+            val sessionViewModelGraph = remember { wireApplicationGraph.createCurrentSessionViewModelGraph() }
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
+                LocalMetroViewModelFactory provides wireApplicationGraph.metroViewModelFactory,
+                LocalWireViewModelScopeKey provides sessionViewModelGraph.viewModelScopeKey,
+                LocalWireSessionImageLoader provides sessionViewModelGraph.wireSessionImageLoader,
                 LocalActivity provides this
             ) {
                 WireTheme {
@@ -76,7 +84,7 @@ class AppLockActivity : BaseActivity() {
                     MainNavHost(
                         navigator = navigator,
                         loginTypeSelector = loginTypeSelector,
-                        startDestination = startDestination
+                        startDestination = startDestination,
                     )
                 }
             }

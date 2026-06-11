@@ -21,26 +21,39 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.sync.ForegroundActionsUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import javax.inject.Inject
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-@HiltViewModel
-class AppSyncViewModel @Inject constructor(
+class AppSyncViewModel(
     private val foregroundActionsUseCase: ForegroundActionsUseCase,
+    observeDebugCRLExpirationAfterOneMinute: ObserveDebugCRLExpirationAfterOneMinuteUseCase,
     private val dispatcher: DispatcherProvider,
 ) : ViewModel() {
 
-    private val minIntervalBetweenPulls: Duration = MIN_INTERVAL_BETWEEN_PULLS
+    private var minIntervalBetweenPulls: Duration = MIN_INTERVAL_BETWEEN_PULLS
 
     private var lastPullInstant: Instant? = null
     private var syncDataJob: Job? = null
+
+    init {
+        observeDebugCRLExpirationAfterOneMinute()
+            .onEach { isForced ->
+                minIntervalBetweenPulls = if (isForced) {
+                    MIN_INTERVAL_BETWEEN_FORCED_CRL_PULLS
+                } else {
+                    MIN_INTERVAL_BETWEEN_PULLS
+                }
+            }
+            .launchIn(viewModelScope)
+    }
 
     fun startSyncingAppConfig() {
         if (isSyncing()) return
@@ -75,5 +88,6 @@ class AppSyncViewModel @Inject constructor(
 
     companion object {
         val MIN_INTERVAL_BETWEEN_PULLS = 60.minutes
+        val MIN_INTERVAL_BETWEEN_FORCED_CRL_PULLS = 1.minutes
     }
 }

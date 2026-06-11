@@ -59,7 +59,7 @@ import com.wire.android.feature.meetings.ui.mock.ongoingAttendingOneOnOneMeeting
 import com.wire.android.feature.meetings.ui.mock.scheduledChannelMeetingStartingSoon
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
-import com.wire.android.feature.meetings.ui.util.rememberCurrentTimeProvider
+import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarsRow
 import com.wire.android.ui.common.button.WireItemLabel
@@ -108,7 +108,7 @@ fun MeetingItem(
         },
         subtitle = {
             Column {
-                MeetingTimeInfoRow(status = meeting.status)
+                MeetingTimeInfoRow(status = meeting.status, repeatingInterval = meeting.repeatingInterval)
                 MeetingBelongingInfoRow(conversationId = meeting.conversationId, type = meeting.belongingType)
                 MeetingOngoingAttendingRow(status = meeting.status, onJoinClick = { /* TODO */ })
             }
@@ -160,6 +160,16 @@ internal fun VideoCallIcon(tint: Color, modifier: Modifier = Modifier) {
 }
 
 @Composable
+internal fun CalendarIcon(tint: Color, modifier: Modifier = Modifier) {
+    Icon(
+        painter = painterResource(id = UICommonR.drawable.ic_calendar),
+        contentDescription = stringResource(R.string.content_description_meeting_icon),
+        tint = tint,
+        modifier = modifier.size(dimensions().spacing16x)
+    )
+}
+
+@Composable
 internal fun MeetingLeadingIcon() {
     val (cornerRadius, borderWidth) = dimensions().groupAvatarCornerRadius to dimensions().avatarBorderWidth
     Box(
@@ -170,7 +180,7 @@ internal fun MeetingLeadingIcon() {
             .background(color = colorsScheme().surface, shape = RoundedCornerShape(cornerRadius + borderWidth))
             .border(color = colorsScheme().outline, width = borderWidth, shape = RoundedCornerShape(cornerRadius + borderWidth))
     ) {
-        VideoCallIcon(tint = colorsScheme().onSurface)
+        CalendarIcon(tint = colorsScheme().onSurface)
     }
 }
 
@@ -195,7 +205,7 @@ private fun RepeatingIntervalInfoLabel(repeatingInterval: RepeatingInterval?) {
 }
 
 @Composable
-private fun MeetingTimeInfoRow(status: Status) {
+private fun MeetingTimeInfoRow(status: Status, repeatingInterval: RepeatingInterval?) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing3x)
@@ -203,7 +213,6 @@ private fun MeetingTimeInfoRow(status: Status) {
         when (status) {
             is Status.Scheduled -> {
                 SublineText(DateAndTimeParsers.meetingTime(status.startTime) + " - " + DateAndTimeParsers.meetingTime(status.endTime))
-                RepeatingIntervalInfoLabel(status.repeatingInterval)
             }
 
             is Status.Ongoing -> {
@@ -220,6 +229,7 @@ private fun MeetingTimeInfoRow(status: Status) {
                 SublineText(text = "%d:%02d".format(status.duration.inWholeMinutes / 60, status.duration.inWholeMinutes % 60))
             }
         }
+        RepeatingIntervalInfoLabel(repeatingInterval)
     }
 }
 

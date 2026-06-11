@@ -18,6 +18,7 @@
 
 package com.wire.android.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -51,6 +52,9 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
@@ -59,22 +63,33 @@ import com.ramcosta.composedestinations.generated.app.destinations.DebugScreenDe
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.LogManagementScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewWelcomeEmptyStartScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.RegisterDeviceScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfDevicesScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.ramcosta.composedestinations.spec.Direction
-import com.ramcosta.composedestinations.utils.destination
-import com.ramcosta.composedestinations.utils.route
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.di.assistedViewModels
+import com.wire.android.di.metro.AppAuthenticationViewModelGraph
+import com.wire.android.di.metro.AppSessionViewModelGraph
+import com.wire.android.di.metro.LocalWireViewModelScopeKey
+import com.wire.android.di.metro.MetroViewModelGraph
+import com.wire.android.di.metro.WireApplicationGraph
+import com.wire.android.di.metro.createCurrentSessionViewModelGraph
+import com.wire.android.di.metro.createSessionViewModelGraph
+import com.wire.android.di.metro.sessionKeyedMetroViewModelKey
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.NavigationSwitchAccountActions
+import com.wire.android.model.LocalWireSessionImageLoader
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
@@ -83,16 +98,20 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.baseRoute
 import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.navigation.safeDestination
+import com.wire.android.navigation.safeRoute
 import com.wire.android.navigation.startDestination
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
+import com.wire.android.ui.authentication.LocalAuthenticationCancelUserId
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
+import com.wire.android.ui.common.topappbar.CommonTopAppBarState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.WireTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -103,6 +122,7 @@ import com.wire.android.ui.home.E2EIResultDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
+import com.wire.android.ui.home.featureFlagNotificationViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedDialog
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedState
@@ -113,6 +133,7 @@ import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewMode
 import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.userprofile.self.LocalSelfUserProfileLogoutAction
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.CurrentScreenManager
@@ -123,8 +144,7 @@ import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.launchUpdateTheApp
-import dagger.Lazy
-import dagger.hilt.android.AndroidEntryPoint
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
@@ -132,10 +152,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelGraph
+import dev.zacsweers.metrox.viewmodel.metroViewModel as metroxViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
-@AndroidEntryPoint
 @Suppress("TooManyFunctions", "LargeClass")
 class WireActivity : BaseActivity() {
 
@@ -157,15 +180,13 @@ class WireActivity : BaseActivity() {
     @Inject
     lateinit var managedConfigurationsManager: ManagedConfigurationsManager
 
-    private val viewModel: WireActivityViewModel by viewModels()
-    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
-    private val callFeedbackViewModel: CallFeedbackViewModel by viewModels()
-
-    private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
-        factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true))
+    private val viewModel: WireActivityViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                wireApplicationGraph.wireActivityViewModel
+            }
+        }
     }
-    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
-    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
 
     private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
     private lateinit var shakeDetector: ShakeDetector
@@ -180,6 +201,7 @@ class WireActivity : BaseActivity() {
         // Otherwise a white screen is displayed.
         // It's an API limitation, at some point we may need to remove it
         val splashScreen = installSplashScreen()
+        wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
         splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
 
@@ -192,11 +214,7 @@ class WireActivity : BaseActivity() {
             appLogger.i("$TAG persistent connection status")
             viewModel.observePersistentConnectionStatus()
 
-            appLogger.i("$TAG legal hold requested status")
-            legalHoldRequestedViewModel.observeLegalHoldRequest()
-
             appLogger.i("$TAG init login type selector")
-
             appLogger.i("$TAG start destination")
             val startDestination = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_LOGGED_IN -> when (loginTypeSelector.canUseNewLogin()) {
@@ -249,73 +267,388 @@ class WireActivity : BaseActivity() {
         newIntents.send(intent to savedInstanceState)
     }
 
-    @Suppress("LongMethod")
     private fun setComposableContent(startDestination: Direction) {
         setContent {
-            val snackbarHostState = remember { SnackbarHostState() }
+            WireActivityRoot(startDestination)
+        }
+    }
 
+    @Composable
+    private fun WireActivityRoot(startDestination: Direction) {
+        val snackbarHostState = remember { SnackbarHostState() }
+        val context = LocalContext.current
+        val appGraph = context.wireApplicationGraph
+        val authenticationViewModelGraph = remember(appGraph) {
+            appGraph.authenticationViewModelGraph
+        }
+
+        CompositionLocalProvider(
+            LocalMetroViewModelFactory provides appGraph.metroViewModelFactory,
+            LocalWireViewModelScopeKey provides null,
+            LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
+            LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
+            LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
+            LocalSnackbarHostState provides snackbarHostState,
+            LocalActivity provides this
+        ) {
             HandleThemeChanges(viewModel.globalAppState.themeOption)
+            WireTheme(accent = viewModel.globalAppState.userAccent) {
+                WireActivityThemedContent(
+                    startDestination = startDestination,
+                    appGraph = appGraph,
+                    authenticationViewModelGraph = authenticationViewModelGraph,
+                    context = context,
+                )
+            }
+        }
+    }
 
-            CompositionLocalProvider(
-                LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
-                LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
-                LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
-                LocalSnackbarHostState provides snackbarHostState,
-                LocalActivity provides this
-            ) {
-                WireTheme(accent = viewModel.globalAppState.userAccent) {
-                    val navigator = rememberNavigator(
-                        finish = this@WireActivity::finish,
-                        isAllowedToNavigate = { navigationCommand ->
-                            when {
-                                navigationCommand.destination.baseRoute == NewLoginScreenDestination.baseRoute -> {
-                                    /**
-                                     * This is a case when the app tries to open the "enterprise login" screen so first it needs to verify
-                                     * whether it's possible to have another session, if not then do not navigate and show proper dialog.
-                                     */
-                                    viewModel.checkNumberOfSessions()
-                                }
-
-                                else -> true
-                            }
-                        }
-                    )
-                    val currentBackStackEntryState = navigator.navController.currentBackStackEntryAsState()
-                    val backgroundType by remember {
-                        derivedStateOf {
-                            currentBackStackEntryState.value?.destination()?.style.let {
-                                (it as? BackgroundStyle)?.backgroundType() ?: BackgroundType.Default
-                            }
-                        }
-                    }
-                    if (backgroundType == BackgroundType.Auth) {
-                        WireAuthBackgroundLayout()
-                    }
-                    Column(
-                        modifier = Modifier
-                            .semantics { testTagsAsResourceId = true }
-                    ) {
-                        WireTopAppBar(
-                            commonTopAppBarState = commonTopAppBarViewModel.state,
-                            backgroundType = backgroundType,
-                        )
-                        MainNavHost(
-                            navigator = navigator,
-                            loginTypeSelector = loginTypeSelector,
-                            startDestination = startDestination,
-                            modifier = Modifier.consumeWindowInsets(WindowInsets.statusBars)
-                        )
-
-                        // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
-                        // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-                        SetUpNavigation(navigator)
-                        HandleScreenshotCensoring()
-                        HandleDialogs(navigator)
-                        HandleViewActions(viewModel.actions, navigator, loginTypeSelector)
-                    }
+    @Composable
+    private fun WireActivityThemedContent(
+        startDestination: Direction,
+        appGraph: WireApplicationGraph,
+        authenticationViewModelGraph: AppAuthenticationViewModelGraph,
+        context: Context,
+    ) {
+        val navigator = rememberNavigator(
+            finish = this@WireActivity::finish,
+            isAllowedToNavigate = ::isNavigationAllowed
+        )
+        val currentBackStackEntryState = navigator.navController.currentBackStackEntryAsState()
+        val currentBaseRoute = currentBackStackEntryState.value
+            ?.destination
+            ?.route
+            ?.getBaseRoute()
+        val currentUserId = viewModel.globalAppState.currentUserId
+        val isUserUiBlocked = viewModel.globalAppState.blockUserUI != null
+        val isAuthenticationRoute = currentBaseRoute in authenticationGraphRoutes
+        val isSessionTransitionInProgress = viewModel.globalAppState.isSessionTransitionInProgress
+        val graphContext = rememberWireActivityGraphContext(
+            appGraph = appGraph,
+            authenticationViewModelGraph = authenticationViewModelGraph,
+            currentUserId = currentUserId,
+            currentBaseRoute = currentBaseRoute,
+            startDestinationBaseRoute = startDestination.baseRoute,
+            isUserUiBlocked = isUserUiBlocked,
+            isSessionTransitionInProgress = isSessionTransitionInProgress,
+        )
+        val backgroundType by remember {
+            derivedStateOf {
+                currentBackStackEntryState.value?.safeDestination()?.style.let {
+                    (it as? BackgroundStyle)?.backgroundType() ?: BackgroundType.Default
                 }
             }
         }
+
+        HandleSessionGraphEffects(
+            currentUserId = currentUserId,
+            currentBaseRoute = currentBaseRoute,
+            isAuthenticationRoute = isAuthenticationRoute,
+            isUserUiBlocked = isUserUiBlocked,
+            isSessionTransitionInProgress = isSessionTransitionInProgress,
+            graphContext = graphContext,
+            navigator = navigator,
+        )
+        WireActivityMainContent(
+            startDestination = startDestination,
+            navigator = navigator,
+            graphContext = graphContext,
+            backgroundType = backgroundType,
+            context = context,
+        )
+    }
+
+    private fun isNavigationAllowed(navigationCommand: NavigationCommand): Boolean {
+        if (navigationCommand.destination.baseRoute != NewLoginScreenDestination.baseRoute) return true
+
+        // Enterprise login first needs to verify whether another session can be created.
+        return viewModel.checkNumberOfSessions()
+    }
+
+    @Composable
+    private fun HandleSessionGraphEffects(
+        currentUserId: UserId?,
+        currentBaseRoute: String?,
+        isAuthenticationRoute: Boolean,
+        isUserUiBlocked: Boolean,
+        isSessionTransitionInProgress: Boolean,
+        graphContext: WireActivityGraphContext?,
+        navigator: Navigator,
+    ) {
+        graphContext?.activityViewModels?.let {
+            LaunchedEffect(it.legalHoldRequestedViewModel) {
+                it.legalHoldRequestedViewModel.observeLegalHoldRequest()
+            }
+        }
+        LaunchedEffect(currentBaseRoute, currentUserId, graphContext?.sessionGraph) {
+            if (currentBaseRoute in sessionBackedAuthenticationGraphRoutes && currentUserId == null) {
+                appLogger.i("$TAG session-backed auth route=$currentBaseRoute without user id, resolving current session")
+                viewModel.resolveCurrentSessionUserId()
+            }
+            appLogger.i(
+                "$TAG graph route=$currentBaseRoute userId=$currentUserId " +
+                        "sessionGraph=${graphContext?.sessionGraph != null} " +
+                        "selected=${graphContext?.graph?.viewModelScopeKey}"
+            )
+        }
+        LaunchedEffect(isSessionTransitionInProgress, isAuthenticationRoute) {
+            if (isSessionTransitionInProgress && isAuthenticationRoute) {
+                viewModel.finishSessionTransition()
+            }
+        }
+        LaunchedEffect(currentUserId, currentBaseRoute, isSessionTransitionInProgress, isUserUiBlocked) {
+            handleSessionNavigationState(
+                SessionNavigationState(
+                    currentUserId = currentUserId,
+                    currentBaseRoute = currentBaseRoute,
+                    isAuthenticationRoute = isAuthenticationRoute,
+                    isUserUiBlocked = isUserUiBlocked,
+                    isSessionTransitionInProgress = isSessionTransitionInProgress,
+                ),
+                navigator = navigator,
+            )
+        }
+    }
+
+    @Composable
+    private fun WireActivityMainContent(
+        startDestination: Direction,
+        navigator: Navigator,
+        graphContext: WireActivityGraphContext?,
+        backgroundType: BackgroundType,
+        context: Context,
+    ) {
+        if (backgroundType == BackgroundType.Auth) {
+            WireAuthBackgroundLayout()
+        }
+        if (graphContext == null) {
+            HandleDialogs(navigator, null)
+            return
+        }
+        graphContext.ProvideViewModelGraph(
+            logoutAction = { wipeData ->
+                viewModel.doHardLogout(
+                    clearUserData = { userId -> UserDataStore(context, userId) },
+                    switchAccountActions = NavigationSwitchAccountActions(
+                        navigate = navigator::navigate,
+                        canUseNewLogin = loginTypeSelector::canUseNewLogin
+                    ),
+                    wipeData = wipeData
+                )
+            }
+        ) {
+            Column(
+                modifier = Modifier
+                    .semantics { testTagsAsResourceId = true }
+            ) {
+                WireTopAppBar(
+                    commonTopAppBarState = graphContext.activityViewModels
+                        ?.commonTopAppBarViewModel
+                        ?.state ?: CommonTopAppBarState(),
+                    backgroundType = backgroundType,
+                )
+                MainNavHost(
+                    navigator = navigator,
+                    loginTypeSelector = loginTypeSelector,
+                    startDestination = startDestination,
+                    modifier = Modifier.consumeWindowInsets(WindowInsets.statusBars)
+                )
+
+                // Navigation graph creation is async enough that commands issued too early
+                // can crash before the graph is fully built.
+                SetUpNavigation(navigator)
+                HandleScreenshotCensoring()
+                HandleDialogs(navigator, graphContext.activityViewModels)
+                HandleViewActions(viewModel.actions, navigator, loginTypeSelector)
+            }
+        }
+    }
+
+    @Composable
+    private fun rememberWireActivityGraphContext(
+        appGraph: WireApplicationGraph,
+        authenticationViewModelGraph: AppAuthenticationViewModelGraph,
+        currentUserId: UserId?,
+        currentBaseRoute: String?,
+        startDestinationBaseRoute: String,
+        isUserUiBlocked: Boolean,
+        isSessionTransitionInProgress: Boolean,
+    ): WireActivityGraphContext? {
+        if (isUserUiBlocked) return null
+
+        val effectiveBaseRoute = currentBaseRoute ?: startDestinationBaseRoute
+        val usesNoSessionAuthenticationGraph = effectiveBaseRoute in noSessionAuthenticationGraphRoutes
+        val usesAuthenticationGraph = effectiveBaseRoute in authenticationGraphRoutes
+        val sessionGraph = remember(
+            appGraph,
+            currentUserId,
+            currentBaseRoute,
+            usesNoSessionAuthenticationGraph,
+            isSessionTransitionInProgress,
+        ) {
+            appGraph.resolveSessionGraph(
+                currentUserId = currentUserId,
+                currentBaseRoute = currentBaseRoute,
+                usesNoSessionAuthenticationGraph = usesNoSessionAuthenticationGraph,
+                isSessionTransitionInProgress = isSessionTransitionInProgress,
+            )
+        }
+        val graph = resolveActiveGraph(
+            ActiveGraphRequest(
+                authenticationViewModelGraph = authenticationViewModelGraph,
+                sessionGraph = sessionGraph,
+                effectiveBaseRoute = effectiveBaseRoute,
+                currentBaseRoute = currentBaseRoute,
+                usesAuthenticationGraph = usesAuthenticationGraph,
+                usesNoSessionAuthenticationGraph = usesNoSessionAuthenticationGraph,
+                isSessionTransitionInProgress = isSessionTransitionInProgress,
+            )
+        )
+        val activityViewModels = sessionGraph?.let {
+            wireActivityScopedViewModels(it)
+        }
+        return graph?.let {
+            WireActivityGraphContext(
+                graph = it,
+                viewModelFactory = (it as? ViewModelGraph)?.metroViewModelFactory ?: appGraph.metroViewModelFactory,
+                sessionGraph = sessionGraph,
+                activityViewModels = activityViewModels,
+            )
+        }
+    }
+
+    private fun WireApplicationGraph.resolveSessionGraph(
+        currentUserId: UserId?,
+        currentBaseRoute: String?,
+        usesNoSessionAuthenticationGraph: Boolean,
+        isSessionTransitionInProgress: Boolean,
+    ): AppSessionViewModelGraph? = when {
+        usesNoSessionAuthenticationGraph -> null
+        isSessionTransitionInProgress -> null
+        currentUserId != null -> createSessionViewModelGraph(currentUserId)
+        currentBaseRoute in sessionBackedAuthenticationGraphRoutes -> createCurrentSessionViewModelGraphOrNull()
+        else -> null
+    }
+
+    private fun resolveActiveGraph(request: ActiveGraphRequest): MetroViewModelGraph? = when {
+        request.isSessionTransitionInProgress && !request.usesAuthenticationGraph -> null
+        request.usesNoSessionAuthenticationGraph -> request.authenticationViewModelGraph
+        request.sessionGraph != null -> request.sessionGraph
+        request.effectiveBaseRoute in authenticationGraphRoutes -> request.authenticationViewModelGraph
+        request.currentBaseRoute == null -> request.authenticationViewModelGraph
+        else -> null
+    }
+
+    private fun handleSessionNavigationState(
+        state: SessionNavigationState,
+        navigator: Navigator,
+    ) {
+        when {
+            state.isUserUiBlocked -> {
+                appLogger.i("$TAG blocking session dialog visible on route=${state.currentBaseRoute}, waiting for user action")
+            }
+            state.isSessionTransitionInProgress -> {
+                handleSessionTransition(state.currentBaseRoute, state.isAuthenticationRoute, navigator)
+            }
+            state.currentUserId != null && state.currentBaseRoute == NewWelcomeEmptyStartScreenDestination.baseRoute -> {
+                appLogger.i("$TAG valid session on empty auth start, navigating to home")
+                navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+            }
+            state.currentUserId == null && state.currentBaseRoute == NewWelcomeEmptyStartScreenDestination.baseRoute -> {
+                appLogger.i("$TAG no session left on empty auth start, navigating to login")
+                navigator.navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+            }
+            state.currentUserId == null && state.currentBaseRoute != null && !state.isAuthenticationRoute -> {
+                appLogger.i("$TAG no session left on route=${state.currentBaseRoute}, trying to switch account")
+                resolveMissingCurrentSession(navigator)
+            }
+        }
+    }
+
+    private fun handleSessionTransition(
+        currentBaseRoute: String?,
+        isAuthenticationRoute: Boolean,
+        navigator: Navigator,
+    ) {
+        if (
+            currentBaseRoute != null &&
+            !isAuthenticationRoute &&
+            viewModel.globalAppState.sessionTransitionReason != SessionTransitionReason.SELF_LOGOUT
+        ) {
+            appLogger.i("$TAG session transition on route=$currentBaseRoute, resolving current session")
+            resolveMissingCurrentSession(navigator)
+        }
+    }
+
+    private fun resolveMissingCurrentSession(navigator: Navigator) {
+        viewModel.resolveMissingCurrentSession(
+            NavigationSwitchAccountActions(
+                navigate = navigator::navigate,
+                canUseNewLogin = loginTypeSelector::canUseNewLogin,
+            )
+        )
+    }
+
+    @Composable
+    private fun WireActivityGraphContext.ProvideViewModelGraph(
+        logoutAction: (wipeData: Boolean) -> Unit,
+        content: @Composable () -> Unit,
+    ) {
+        CompositionLocalProvider(
+            LocalMetroViewModelFactory provides viewModelFactory,
+            LocalWireViewModelScopeKey provides graph.viewModelScopeKey,
+            LocalAuthenticationCancelUserId provides sessionGraph?.currentAccount,
+            LocalWireSessionImageLoader provides sessionGraph?.wireSessionImageLoader,
+            LocalSelfUserProfileLogoutAction provides logoutAction,
+        ) {
+            content()
+        }
+    }
+
+    private fun WireApplicationGraph.createCurrentSessionViewModelGraphOrNull(): AppSessionViewModelGraph? =
+        runCatching {
+            createCurrentSessionViewModelGraph()
+        }.getOrNull()
+
+    @Composable
+    private fun wireActivityScopedViewModels(graph: AppSessionViewModelGraph): WireActivityScopedViewModels {
+        val scopeKey = graph.viewModelScopeKey
+        return WireActivityScopedViewModels(
+            callFeedbackViewModel = metroxViewModel(
+                key = sessionKeyedMetroViewModelKey(
+                    defaultKey = CallFeedbackViewModel::class.qualifiedName,
+                    key = null,
+                    scopeKey = scopeKey,
+                ),
+            ),
+            featureFlagNotificationViewModel = featureFlagNotificationViewModel(),
+            commonTopAppBarViewModel = viewModel(
+                key = "CommonTopAppBarViewModel:$scopeKey",
+                factory = viewModelFactory {
+                    initializer {
+                        graph.commonViewModelFactory.commonTopAppBarViewModel(
+                            CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true)
+                        )
+                    }
+                }
+            ),
+            legalHoldRequestedViewModel = viewModel(
+                key = "LegalHoldRequestedViewModel:$scopeKey",
+                factory = viewModelFactory {
+                    initializer {
+                        graph.miscViewModelFactory.legalHoldRequestedViewModel()
+                    }
+                }
+            ),
+            legalHoldDeactivatedViewModel = viewModel(
+                key = "LegalHoldDeactivatedViewModel:$scopeKey",
+                factory = viewModelFactory {
+                    initializer {
+                        graph.miscViewModelFactory.legalHoldDeactivatedViewModel()
+                    }
+                }
+            ),
+        )
     }
 
     @Composable
@@ -405,9 +738,44 @@ class WireActivity : BaseActivity() {
 
     @Suppress("ComplexMethod")
     @Composable
-    private fun HandleDialogs(navigator: Navigator) {
+    private fun HandleDialogs(
+        navigator: Navigator,
+        activityViewModels: WireActivityScopedViewModels?,
+    ) {
         val navigate: (NavigationCommand) -> Unit = { navigator.navigate(it) }
         val context = LocalContext.current
+        if (activityViewModels == null) {
+            UpdateAppDialog(viewModel.globalAppState.updateAppDialog, ::updateTheApp)
+            CustomBackendDialog(
+                state = viewModel.globalAppState.customBackendDialog,
+                onDismiss = {
+                    viewModel.dismissCustomBackendDialog()
+                    if (navigator.isEmptyWelcomeStartDestination()) {
+                        navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+                    }
+                },
+                onConfirm = viewModel::customBackendDialogProceedButtonClicked,
+                onTryAgain = viewModel::onCustomServerConfig
+            )
+            MaxAccountDialog(
+                shouldShow = viewModel.globalAppState.maxAccountDialog,
+                onConfirm = {
+                    viewModel.dismissMaxAccountDialog()
+                    navigate(NavigationCommand(SelfUserProfileScreenDestination))
+                },
+                onDismiss = viewModel::dismissMaxAccountDialog
+            )
+            AccountLoggedOutDialog(
+                viewModel.globalAppState.blockUserUI
+            ) {
+                viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin))
+            }
+            return
+        }
+        val callFeedbackViewModel = activityViewModels.callFeedbackViewModel
+        val featureFlagNotificationViewModel = activityViewModels.featureFlagNotificationViewModel
+        val legalHoldRequestedViewModel = activityViewModels.legalHoldRequestedViewModel
+        val legalHoldDeactivatedViewModel = activityViewModels.legalHoldDeactivatedViewModel
         val callFeedbackSheetState =
             rememberWireModalSheetState<Unit>(onDismissAction = {
                 callFeedbackViewModel.skipCallFeedback(false)
@@ -614,7 +982,7 @@ class WireActivity : BaseActivity() {
         shakeDetector.start()
 
         lifecycleScope.launch {
-            lockCodeTimeManager.get().observeAppLock()
+            lockCodeTimeManager.value.observeAppLock()
                 // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
                 .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                 .first().let {
@@ -731,8 +1099,63 @@ class WireActivity : BaseActivity() {
     }
 }
 
+private data class WireActivityScopedViewModels(
+    val callFeedbackViewModel: CallFeedbackViewModel,
+    val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel,
+    val commonTopAppBarViewModel: CommonTopAppBarViewModel,
+    val legalHoldRequestedViewModel: LegalHoldRequestedViewModel,
+    val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel,
+)
+
+private data class WireActivityGraphContext(
+    val graph: MetroViewModelGraph,
+    val viewModelFactory: MetroViewModelFactory,
+    val sessionGraph: AppSessionViewModelGraph?,
+    val activityViewModels: WireActivityScopedViewModels?,
+)
+
+private data class ActiveGraphRequest(
+    val authenticationViewModelGraph: AppAuthenticationViewModelGraph,
+    val sessionGraph: AppSessionViewModelGraph?,
+    val effectiveBaseRoute: String,
+    val currentBaseRoute: String?,
+    val usesAuthenticationGraph: Boolean,
+    val usesNoSessionAuthenticationGraph: Boolean,
+    val isSessionTransitionInProgress: Boolean,
+)
+
+private data class SessionNavigationState(
+    val currentUserId: UserId?,
+    val currentBaseRoute: String?,
+    val isAuthenticationRoute: Boolean,
+    val isUserUiBlocked: Boolean,
+    val isSessionTransitionInProgress: Boolean,
+)
+
+private val noSessionAuthenticationGraphRoutes = setOf(
+    NewLoginPasswordScreenDestination.baseRoute,
+    NewLoginVerificationCodeScreenDestination.baseRoute,
+)
+
+private val sessionBackedAuthenticationGraphRoutes = setOf(
+    RegisterDeviceScreenDestination.baseRoute,
+    RemoveDeviceScreenDestination.baseRoute,
+    E2EIEnrollmentScreenDestination.baseRoute,
+)
+
+private val authenticationGraphRoutes = setOf(
+    WelcomeScreenDestination.baseRoute,
+    NewWelcomeEmptyStartScreenDestination.baseRoute,
+    LoginScreenDestination.baseRoute,
+    NewLoginScreenDestination.baseRoute,
+    NewLoginPasswordScreenDestination.baseRoute,
+    NewLoginVerificationCodeScreenDestination.baseRoute,
+    RegisterDeviceScreenDestination.baseRoute,
+    RemoveDeviceScreenDestination.baseRoute,
+)
+
 internal fun Navigator.shouldReplaceWelcomeLoginStartDestination(): Boolean {
-    val firstDestinationBaseRoute = navController.startDestination()?.route()?.baseRoute
+    val firstDestinationBaseRoute = navController.startDestination()?.safeRoute()?.baseRoute
     val welcomeScreens = listOf(WelcomeScreenDestination, NewWelcomeEmptyStartScreenDestination)
     val loginScreens = listOf(LoginScreenDestination, NewLoginScreenDestination)
     val welcomeAndLoginBaseRoutes = (welcomeScreens + loginScreens).map { it.baseRoute }
@@ -740,7 +1163,7 @@ internal fun Navigator.shouldReplaceWelcomeLoginStartDestination(): Boolean {
 }
 
 internal fun Navigator.isEmptyWelcomeStartDestination(): Boolean {
-    val firstDestinationBaseRoute = navController.startDestination()?.route()?.baseRoute
+    val firstDestinationBaseRoute = navController.startDestination()?.safeRoute()?.baseRoute
     return firstDestinationBaseRoute == NewWelcomeEmptyStartScreenDestination.baseRoute
 }
 

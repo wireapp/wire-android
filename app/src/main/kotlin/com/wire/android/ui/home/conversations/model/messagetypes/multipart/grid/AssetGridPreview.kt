@@ -28,11 +28,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
@@ -90,6 +93,20 @@ internal fun AssetGridPreview(
                 else -> {
                     FileAssetGridPreview(item, messageStyle)
                 }
+            }
+
+            if (item.isAvailableOffline) {
+                Icon(
+                    modifier = Modifier
+                        .padding(
+                            end = dimensions().spacing6x,
+                            top = dimensions().spacing6x
+                        )
+                        .align(Alignment.TopEnd),
+                    painter = painterResource(R.drawable.ic_downloaded),
+                    contentDescription = null,
+                    tint = colorsScheme().secondaryText,
+                )
             }
 
             item.progress?.let {

@@ -49,7 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.home.settings.otherUserProfileScreenViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -80,7 +80,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.connection.ConnectionActionButton
+import com.wire.android.ui.common.connection.ConnectionActionButton
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationMediaScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
@@ -121,7 +121,7 @@ fun OtherUserProfileScreen(
     resultNavigator: ResultBackNavigator<String>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    viewModel: OtherUserProfileScreenViewModel = hiltViewModel()
+    viewModel: OtherUserProfileScreenViewModel = otherUserProfileScreenViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current
@@ -145,7 +145,7 @@ fun OtherUserProfileScreen(
     OtherProfileScreenContent(
         scope = scope,
         state = viewModel.state,
-        conversationOptionsSheetState = conversationOptionsSheetState,
+                conversationOptionsSheetState = conversationOptionsSheetState,
         changeRoleSheetState = changeRoleSheetState,
         removeMemberDialogState = viewModel.removeConversationMemberDialogState,
         eventsHandler = viewModel as OtherUserProfileEventsHandler,
@@ -309,7 +309,7 @@ fun OtherProfileScreenContent(
         sheetState = conversationOptionsSheetState,
         openConversationFolders = onMoveToFolder,
         openConversationDebugMenu = openConversationDebugMenu,
-    )
+            )
     EditGroupRoleBottomSheet(
         sheetState = changeRoleSheetState,
         changeMemberRole = onChangeMemberRole,
@@ -376,7 +376,11 @@ private fun TopBarCollapsing(
             UserProfileInfo(
                 userId = targetState.userId,
                 isLoading = targetState.isAvatarLoading,
-                avatarAsset = targetState.userAvatarAsset,
+                avatarAsset = targetState.userAvatarAsset
+                    .takeUnless {
+                        targetState.connectionState == ConnectionState.PENDING &&
+                                targetState.userId.domain == WIRE_DOMAIN
+                    },
                 fullName = targetState.fullName,
                 userName = targetState.userName,
                 teamName = targetState.teamName,
@@ -546,6 +550,8 @@ fun ContentFooter(
         }
     }
 }
+
+private const val WIRE_DOMAIN = "wire.com"
 
 enum class OtherUserProfileTabItem(@StringRes val titleResId: Int) : TabItem {
     GROUP(R.string.user_profile_conversation_tab),

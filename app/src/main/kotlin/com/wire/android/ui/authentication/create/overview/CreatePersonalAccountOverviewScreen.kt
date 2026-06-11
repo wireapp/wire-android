@@ -41,8 +41,9 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.authentication.createAccountOverviewViewModel
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
@@ -64,7 +65,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun CreatePersonalAccountOverviewScreen(
     navigator: Navigator,
-    viewModel: CreateAccountOverviewViewModel = hiltViewModel()
+    viewModel: CreateAccountOverviewViewModel = createAccountOverviewViewModel()
 ) {
     CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreatePersonalAccount, viewModel)
 }
@@ -73,7 +74,7 @@ fun CreatePersonalAccountOverviewScreen(
 @Composable
 fun CreateTeamAccountOverviewScreen(
     navigator: Navigator,
-    viewModel: CreateAccountOverviewViewModel = hiltViewModel()
+    viewModel: CreateAccountOverviewViewModel = createAccountOverviewViewModel()
 ) {
     CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreateTeam, viewModel)
 }
@@ -203,7 +204,7 @@ private fun OverviewTexts(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = onLearnMoreClick,
-                    onClickLabel = stringResource(R.string.content_description_open_link_label)
+                    onClickLabel = stringResource(commonR.string.content_description_open_link_label)
                 )
         )
     }

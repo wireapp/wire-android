@@ -49,6 +49,8 @@ private fun DebugToolsOptionsPreview() {
             onRestartSlowSyncForRecovery = {},
             onForceUpdateApiVersions = {},
             checkCrlRevocationList = {},
+            forceCRLExpirationAfterOneMinute = false,
+            onForceCRLExpirationAfterOneMinuteChange = {},
             onResendFCMToken = {},
             isAsyncNotificationsEnabled = true,
             onEnableAsyncNotificationsChange = {}
@@ -63,6 +65,8 @@ internal fun DebugToolsOptions(
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
     checkCrlRevocationList: () -> Unit,
+    forceCRLExpirationAfterOneMinute: Boolean,
+    onForceCRLExpirationAfterOneMinuteChange: (Boolean) -> Unit,
     onResendFCMToken: () -> Unit,
     isAsyncNotificationsEnabled: Boolean,
     onEnableAsyncNotificationsChange: (Boolean) -> Unit,
@@ -76,6 +80,8 @@ internal fun DebugToolsOptions(
                 onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
                 checkCrlRevocationList = checkCrlRevocationList,
+                forceCRLExpirationAfterOneMinute = forceCRLExpirationAfterOneMinute,
+                onForceCRLExpirationAfterOneMinuteChange = onForceCRLExpirationAfterOneMinuteChange,
                 isAsyncNotificationsEnabled = isAsyncNotificationsEnabled,
                 onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
             )
@@ -91,6 +97,8 @@ private fun PrivateBuildDebugToolsOptions(
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
     checkCrlRevocationList: () -> Unit,
+    forceCRLExpirationAfterOneMinute: Boolean,
+    onForceCRLExpirationAfterOneMinuteChange: (Boolean) -> Unit,
     isAsyncNotificationsEnabled: Boolean,
     onEnableAsyncNotificationsChange: (Boolean) -> Unit,
 ) {
@@ -100,6 +108,10 @@ private fun PrivateBuildDebugToolsOptions(
             onCheckedChange = onDisableEventProcessingChange
         )
         RestartSlowSyncButton(onClick = onRestartSlowSyncForRecovery)
+        ForceCRLExpirationAfterOneMinuteSwitch(
+            isEnabled = forceCRLExpirationAfterOneMinute,
+            onCheckedChange = onForceCRLExpirationAfterOneMinuteChange
+        )
         CheckCrlRevocationButton(onClick = checkCrlRevocationList)
         ForceUpdateApiVersionsButton(onClick = onForceUpdateApiVersions)
         EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
@@ -124,6 +136,35 @@ private fun DisableEventProcessingSwitch(
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.onBackground,
                 text = stringResource(R.string.label_disable_event_processing),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WireSwitch(
+                checked = isEnabled,
+                onCheckedChange = onCheckedChange,
+                modifier = Modifier
+                    .padding(end = dimensions().spacing8x)
+                    .size(
+                        width = dimensions().buttonSmallMinSize.width,
+                        height = dimensions().buttonSmallMinSize.height
+                    )
+            )
+        }
+    )
+}
+
+@Composable
+private fun ForceCRLExpirationAfterOneMinuteSwitch(
+    isEnabled: Boolean = false,
+    onCheckedChange: ((Boolean) -> Unit)?,
+) {
+    RowItemTemplate(
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = "Force CRL expiry after 1 minute",
                 modifier = Modifier.padding(start = dimensions().spacing8x)
             )
         },

@@ -94,6 +94,7 @@ internal fun CellScreenContent(
     isRecycleBin: Boolean = false,
     isAllFiles: Boolean = false,
     isSearchResult: Boolean = false,
+    isOffline: Boolean = false,
     isPullToRefreshEnabled: Boolean = true,
     lazyListState: LazyListState = rememberLazyListState(),
     retryEditNodeError: (String) -> Unit = {},
@@ -145,6 +146,7 @@ internal fun CellScreenContent(
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,
+                showConversationName = !isOffline || isAllFiles || isRecycleBin,
             )
     }
 
@@ -220,6 +222,7 @@ internal fun CellScreenContent(
             }
         )
     }
+    val offlineFileSavedToastDescription = stringResource(R.string.offline_file_saved_message)
 
     HandleActions(actionsFlow) { action ->
         when (action) {
@@ -248,6 +251,13 @@ internal fun CellScreenContent(
             is ShowFileDeletedMessage -> showDeleteConfirmation(context, action.isFile, action.permanently)
             is OpenFolder -> openFolder(action.path, action.title, action.parentFolderUuid)
             is ShowEditErrorDialog -> editNodeError = action.nodeUuid
+            is ShowOfflineFileSaved -> {
+                Toast.makeText(
+                    context,
+                    offlineFileSavedToastDescription,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             is OpenImageViewer -> showImageViewer(action.file)
             is OpenVideoViewer -> showVideoViewer(action.file)
             is OpenAudioPlayer -> showAudioPlayer(action.file)

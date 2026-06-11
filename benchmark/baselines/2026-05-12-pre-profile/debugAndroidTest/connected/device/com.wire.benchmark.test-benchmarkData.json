@@ -1,0 +1,264 @@
+{
+    "context": {
+        "build": {
+            "brand": "samsung",
+            "device": "beyond1",
+            "fingerprint": "samsung/beyond1lteeea/beyond1:12/SP1A.210812.016/G973FXXSGHWC2:user/release-keys",
+            "id": "SP1A.210812.016",
+            "model": "SM-G973F",
+            "type": "user",
+            "version": {
+                "codename": "REL",
+                "sdk": 31
+            }
+        },
+        "cpuCoreCount": 8,
+        "cpuLocked": false,
+        "cpuMaxFreqHz": 2730000000,
+        "memTotalBytes": 7780278272,
+        "sustainedPerformanceModeEnabled": false,
+        "artMainlineVersion": -1,
+        "osCodenameAbbreviated": "S",
+        "compilationMode": "run-from-apk"
+    },
+    "benchmarks": [
+        {
+            "name": "startUpWithoutBaselineProfiler",
+            "params": {},
+            "className": "com.wire.benchmark.StartupBenchmarkWithLogin",
+            "totalRunTimeNs": 115069511341,
+            "metrics": {
+                "frameCount": {
+                    "minimum": 9.0,
+                    "maximum": 17.0,
+                    "median": 15.0,
+                    "runs": [
+                        17.0,
+                        15.0,
+                        15.0,
+                        13.0,
+                        9.0
+                    ]
+                },
+                "timeToInitialDisplayMs": {
+                    "minimum": 1723.123999,
+                    "maximum": 2951.96419,
+                    "median": 2599.657806,
+                    "runs": [
+                        2500.532268,
+                        1723.123999,
+                        2647.364883,
+                        2951.96419,
+                        2599.657806
+                    ]
+                }
+            },
+            "sampledMetrics": {
+                "frameDurationCpuMs": {
+                    "P50": 20.813884,
+                    "P90": 162.27387720000007,
+                    "P95": 319.4071384,
+                    "P99": 531.255910439996,
+                    "runs": [
+                        [
+                            325.692769,
+                            68.380077,
+                            54.908615,
+                            15.018462,
+                            11.697115,
+                            7.781462,
+                            7.829269,
+                            132.79523,
+                            29.866423,
+                            7.719462,
+                            5.551346,
+                            9.040462,
+                            9.100384,
+                            6.647154,
+                            7.282462,
+                            7.249269,
+                            7.858154
+                        ],
+                        [
+                            319.750846,
+                            15.858769,
+                            8.890115,
+                            11.328924,
+                            9.437308,
+                            9.278539,
+                            10.240615,
+                            6.429269,
+                            9.088039,
+                            10.856538,
+                            8.113154,
+                            931.652961,
+                            176.019846,
+                            20.749231,
+                            15.590192
+                        ],
+                        [
+                            318.891577,
+                            65.248269,
+                            89.330538,
+                            14.030192,
+                            12.652461,
+                            158.837385,
+                            37.513039,
+                            13.484423,
+                            16.567615,
+                            25.585154,
+                            24.468154,
+                            24.952269,
+                            23.125193,
+                            24.475154,
+                            24.199346
+                        ],
+                        [
+                            312.659154,
+                            53.641385,
+                            49.1325,
+                            8.453308,
+                            8.755538,
+                            100.812577,
+                            27.346615,
+                            20.813884,
+                            22.833692,
+                            14.436769,
+                            21.239885,
+                            25.688616,
+                            23.515847
+                        ],
+                        [
+                            342.833769,
+                            90.992346,
+                            18.095654,
+                            48.197577,
+                            44.546385,
+                            31.585846,
+                            14.741307,
+                            45.167308,
+                            12.529961
+                        ]
+                    ]
+                },
+                "frameOverrunMs": {
+                    "P50": 17.499871,
+                    "P90": 395.2889302000001,
+                    "P95": 446.9477457999998,
+                    "P99": 982.9506878399989,
+                    "runs": [
+                        [
+                            915.668533,
+                            381.348445,
+                            75.854817,
+                            47.450116,
+                            1.384337,
+                            0.587482,
+                            0.436439,
+                            117.357932,
+                            106.680959,
+                            17.769072,
+                            2.453411,
+                            0.782926,
+                            0.656099,
+                            0.704277,
+                            0.752101,
+                            0.599516,
+                            0.62544
+                        ],
+                        [
+                            388.7575,
+                            311.144949,
+                            9.783801,
+                            -4.239268,
+                            -5.022047,
+                            -5.461053,
+                            -4.905269,
+                            -8.621463,
+                            -5.789697,
+                            -4.571522,
+                            -6.740523,
+                            931.727492,
+                            1091.799979,
+                            186.398294,
+                            -0.707661
+                        ],
+                        [
+                            461.140845,
+                            354.794748,
+                            96.44043,
+                            68.131771,
+                            -1.590777,
+                            144.400401,
+                            133.158378,
+                            33.844493,
+                            17.216292,
+                            17.15948,
+                            17.233297,
+                            17.398024,
+                            17.305488,
+                            18.869413,
+                            17.499871
+                        ],
+                        [
+                            425.658097,
+                            342.122287,
+                            60.08663,
+                            34.26431,
+                            0.468035,
+                            86.187997,
+                            76.439461,
+                            34.020423,
+                            17.300776,
+                            17.373953,
+                            17.18826,
+                            17.357145,
+                            17.379381
+                        ],
+                        [
+                            424.496833,
+                            421.414651,
+                            105.428551,
+                            49.438119,
+                            63.145233,
+                            16.527307,
+                            17.109163,
+                            39.768467,
+                            39.35054
+                        ]
+                    ]
+                }
+            },
+            "warmupIterations": 0,
+            "repeatIterations": 5,
+            "thermalThrottleSleepSeconds": 0,
+            "profilerOutputs": [
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 0",
+                    "filename": "StartupBenchmarkWithLogin_startUpWithoutBaselineProfiler_iter000_2026-05-12-17-15-22.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 1",
+                    "filename": "StartupBenchmarkWithLogin_startUpWithoutBaselineProfiler_iter001_2026-05-12-17-15-42.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 2",
+                    "filename": "StartupBenchmarkWithLogin_startUpWithoutBaselineProfiler_iter002_2026-05-12-17-16-03.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 3",
+                    "filename": "StartupBenchmarkWithLogin_startUpWithoutBaselineProfiler_iter003_2026-05-12-17-16-22.perfetto-trace"
+                },
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace Iteration 4",
+                    "filename": "StartupBenchmarkWithLogin_startUpWithoutBaselineProfiler_iter004_2026-05-12-17-16-43.perfetto-trace"
+                }
+            ]
+        }
+    ]
+}

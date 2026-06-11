@@ -34,16 +34,17 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.handleNavigation
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.debug.aboutThisAppViewModel
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -52,7 +53,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun AboutThisAppScreen(
     navigator: Navigator,
-    viewModel: AboutThisAppViewModel = hiltViewModel()
+    viewModel: AboutThisAppViewModel = aboutThisAppViewModel()
 ) {
     val context = LocalContext.current
     AboutThisAppContent(
@@ -95,7 +96,7 @@ private fun AboutThisAppContent(
         ) {
             SettingsItem(
                 text = stringResource(id = R.string.settings_wire_website_label),
-                trailingIcon = R.drawable.ic_arrow_right,
+                trailingIcon = commonR.drawable.ic_arrow_right,
                 onRowPressed = Clickable(
                     enabled = true,
                     onClick = {
@@ -105,7 +106,7 @@ private fun AboutThisAppContent(
             )
             SettingsItem(
                 text = stringResource(id = R.string.settings_terms_of_use_label),
-                trailingIcon = R.drawable.ic_arrow_right,
+                trailingIcon = commonR.drawable.ic_arrow_right,
                 onRowPressed = Clickable(
                     enabled = true,
                     onClick = {
@@ -115,7 +116,7 @@ private fun AboutThisAppContent(
             )
             SettingsItem(
                 text = stringResource(id = R.string.settings_privacy_policy_label),
-                trailingIcon = R.drawable.ic_arrow_right,
+                trailingIcon = commonR.drawable.ic_arrow_right,
                 onRowPressed = Clickable(
                     enabled = true,
                     onClick = {
@@ -125,7 +126,7 @@ private fun AboutThisAppContent(
             )
             SettingsItem(
                 text = stringResource(id = R.string.settings_licenses_settings_label),
-                trailingIcon = R.drawable.ic_arrow_right,
+                trailingIcon = commonR.drawable.ic_arrow_right,
                 onRowPressed = Clickable(
                     enabled = true,
                     onClick = {
@@ -135,7 +136,7 @@ private fun AboutThisAppContent(
             )
             SettingsItem(
                 text = stringResource(id = R.string.settings_dependencies_label),
-                trailingIcon = R.drawable.ic_arrow_right,
+                trailingIcon = commonR.drawable.ic_arrow_right,
                 onRowPressed = Clickable(
                     enabled = true,
                     onClick = {

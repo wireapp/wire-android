@@ -43,13 +43,9 @@ class KoverConventionPlugin : Plugin<Project> {
                                 "**/*Test*.*",
                                 "*NavArgs*",
                                 "*ComposableSingletons*",
-                                "*_HiltModules*",
-                                "*Hilt_*",
                             )
                             packages(
-                                "hilt_aggregated_deps",
                                 "com.wire.android.di",
-                                "dagger.hilt.internal.aggregatedroot.codegen",
                                 "com.wire.android.ui.home.conversations.mock",
                             )
                             annotatedBy(

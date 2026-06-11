@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversationslist.filter
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
@@ -50,7 +51,7 @@ fun ConversationFiltersSheetContent(
                     title = ConversationFilter.All.toSheetItemLabel().asString(),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
-                        onClickDescription = stringResource(id = R.string.content_description_select_label),
+                        onClickDescription = stringResource(id = commonR.string.content_description_select_label),
                         onClick = { onChangeFilter(ConversationFilter.All) },
                     ),
                     state = state
@@ -66,7 +67,7 @@ fun ConversationFiltersSheetContent(
                     title = ConversationFilter.Favorites.toSheetItemLabel().asString(),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
-                        onClickDescription = stringResource(id = R.string.content_description_select_label),
+                        onClickDescription = stringResource(id = commonR.string.content_description_select_label),
                         onClick = { onChangeFilter(ConversationFilter.Favorites) },
                     ),
                     state = state
@@ -82,7 +83,7 @@ fun ConversationFiltersSheetContent(
                     title = ConversationFilter.Channels.toSheetItemLabel().asString(),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
-                        onClickDescription = stringResource(id = R.string.content_description_select_label),
+                        onClickDescription = stringResource(id = commonR.string.content_description_select_label),
                         onClick = { onChangeFilter(ConversationFilter.Channels) },
                     ),
                     state = state
@@ -98,7 +99,7 @@ fun ConversationFiltersSheetContent(
                     title = ConversationFilter.Groups.toSheetItemLabel().asString(),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
-                        onClickDescription = stringResource(id = R.string.content_description_select_label),
+                        onClickDescription = stringResource(id = commonR.string.content_description_select_label),
                         onClick = { onChangeFilter(ConversationFilter.Groups) },
                     ),
                     state = state
@@ -114,7 +115,7 @@ fun ConversationFiltersSheetContent(
                     title = ConversationFilter.OneOnOne.toSheetItemLabel().asString(),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
-                        onClickDescription = stringResource(id = R.string.content_description_select_label),
+                        onClickDescription = stringResource(id = commonR.string.content_description_select_label),
                         onClick = { onChangeFilter(ConversationFilter.OneOnOne) },
                     ),
                     state = state
@@ -131,7 +132,7 @@ fun ConversationFiltersSheetContent(
                     description = (sheetData.currentFilter as? ConversationFilter.Folder)?.folderName,
                     onItemClick = Clickable(
                         enabled = true,
-                        onClickDescription = stringResource(id = R.string.content_description_select_label),
+                        onClickDescription = stringResource(id = commonR.string.content_description_select_label),
                         onClick = { showFoldersBottomSheet((sheetData.currentFilter as? ConversationFilter.Folder)?.folderId) },
                     ),
                     state = state

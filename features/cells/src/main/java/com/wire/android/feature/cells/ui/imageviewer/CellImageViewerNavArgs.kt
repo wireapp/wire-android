@@ -24,4 +24,3 @@ data class CellImageViewerNavArgs(
     val contentHash: String? = null,
     val fileName: String? = null,
 )
-

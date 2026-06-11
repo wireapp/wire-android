@@ -21,9 +21,7 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
-import com.wire.android.util.cellFileDateTime
 import com.wire.kalium.cells.domain.model.Node
-import kotlinx.datetime.Instant
 
 sealed class CellNodeUi {
     abstract val name: String?
@@ -32,36 +30,45 @@ sealed class CellNodeUi {
     abstract val userHandle: String?
     abstract val ownerUserId: String?
     abstract val conversationName: String?
-    abstract val modifiedTime: String?
+    abstract val modifiedTime: Long?
     abstract val publicLinkId: String?
     abstract val remotePath: String?
     abstract val size: Long?
     abstract val tags: List<String>
-    abstract val openLoadState: OpenLoadState?
+    internal abstract val openLoadState: OpenLoadState?
+    abstract val downloadProgress: Float?
 
-    data class Folder(
+    /** True when this file has been saved for offline use (persisted in the offline files DB). */
+    abstract val isAvailableOffline: Boolean
+
+    val isOpenLoading: Boolean get() = openLoadState is OpenLoadState.Loading
+    val openLoadProgress: Float? get() = (openLoadState as? OpenLoadState.Loading)?.progress
+
+    data class Folder internal constructor(
         override val name: String?,
         override val uuid: String,
         override val userName: String?,
         override val userHandle: String?,
         override val ownerUserId: String?,
         override val conversationName: String?,
-        override val modifiedTime: String?,
+        override val modifiedTime: Long?,
         override val publicLinkId: String? = null,
         override val remotePath: String? = null,
         override val size: Long?,
         override val tags: List<String> = emptyList(),
-        override val openLoadState: OpenLoadState? = null,
+        internal override val openLoadState: OpenLoadState? = null,
+        override val downloadProgress: Float? = null,
+        override val isAvailableOffline: Boolean = false,
     ) : CellNodeUi()
 
-    data class File(
+    data class File internal constructor(
         override val name: String?,
         override val uuid: String,
         override val userName: String?,
         override val userHandle: String?,
         override val ownerUserId: String?,
         override val conversationName: String?,
-        override val modifiedTime: String?,
+        override val modifiedTime: Long?,
         override val publicLinkId: String? = null,
         override val remotePath: String? = null,
         override val size: Long?,
@@ -73,17 +80,24 @@ sealed class CellNodeUi {
         val previewUrl: String? = null,
         override val tags: List<String> = emptyList(),
         val isEditSupported: Boolean = false,
-        override val openLoadState: OpenLoadState? = null,
+        internal override val openLoadState: OpenLoadState? = null,
+        override val downloadProgress: Float? = null,
+        override val isAvailableOffline: Boolean = false,
+        val conversationId: String?,
     ) : CellNodeUi()
 }
 
-internal fun Node.File.toUiModel() = CellNodeUi.File(
+internal fun Node.File.toUiModel(
+    openLoadState: OpenLoadState? = null,
+    downloadProgress: Float? = null,
+    isAvailableOffline: Boolean = false,
+) = CellNodeUi.File(
     uuid = uuid,
     name = name,
     mimeType = mimeType,
     assetType = AttachmentFileType.fromMimeType(mimeType),
     size = size,
-    localPath = localPath,
+    localPath = (openLoadState as? OpenLoadState.Ready)?.localPath?.toString() ?: localPath,
     remotePath = remotePath,
     contentHash = contentHash,
     contentUrl = contentUrl,
@@ -92,10 +106,14 @@ internal fun Node.File.toUiModel() = CellNodeUi.File(
     userHandle = userHandle,
     ownerUserId = ownerUserId,
     conversationName = conversationName,
+    conversationId = conversationId,
     publicLinkId = publicLinkId,
-    modifiedTime = formattedModifiedTime(),
+    modifiedTime = modifiedTime,
     tags = tags,
     isEditSupported = isEditSupported,
+    openLoadState = openLoadState,
+    downloadProgress = downloadProgress,
+    isAvailableOffline = isAvailableOffline,
 )
 
 internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
@@ -105,26 +123,22 @@ internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
     userHandle = userHandle,
     ownerUserId = ownerUserId,
     conversationName = conversationName,
-    modifiedTime = formattedModifiedTime(),
+    modifiedTime = modifiedTime,
     remotePath = remotePath,
     size = size,
     tags = tags,
     publicLinkId = publicLinkId,
 )
 
-private fun Node.File.formattedModifiedTime() = modifiedTime?.let {
-    Instant.fromEpochMilliseconds(it).cellFileDateTime()
-}
-
-private fun Node.Folder.formattedModifiedTime() = modifiedTime?.let {
-    Instant.fromEpochMilliseconds(it).cellFileDateTime()
-}
-
-internal fun CellNodeUi.File.withOpenLoadState(
-    state: OpenLoadState?,
+internal fun CellNodeUi.File.withSessionState(
+    openLoadState: OpenLoadState?,
+    downloadProgress: Float?,
+    isAvailableOffline: Boolean,
 ): CellNodeUi.File = copy(
-    openLoadState = state,
-    localPath = (state as? OpenLoadState.Ready)?.localPath?.toString() ?: localPath,
+    openLoadState = openLoadState,
+    localPath = (openLoadState as? OpenLoadState.Ready)?.localPath?.toString() ?: localPath,
+    downloadProgress = downloadProgress,
+    isAvailableOffline = isAvailableOffline,
 )
 
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null

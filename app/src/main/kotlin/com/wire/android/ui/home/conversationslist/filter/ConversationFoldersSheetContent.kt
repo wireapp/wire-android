@@ -37,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowLeftIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -94,7 +95,7 @@ fun ConversationFoldersSheetContent(
                             title = folder.name,
                             onItemClick = Clickable(
                                 enabled = state == RichMenuItemState.DEFAULT,
-                                onClickDescription = stringResource(id = R.string.content_description_select_label),
+                                onClickDescription = stringResource(id = commonR.string.content_description_select_label),
                                 onClick = { onChangeFolder(ConversationFilter.Folder(folder.name, folder.id)) }
                             ),
                             state = state

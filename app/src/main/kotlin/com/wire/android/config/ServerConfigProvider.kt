@@ -20,10 +20,11 @@ package com.wire.android.config
 import com.wire.android.BuildConfig
 import com.wire.android.emm.ManagedServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 class ServerConfigProvider @Inject constructor() {
 
     fun getDefaultServerConfig(managedServerConfig: ManagedServerConfig? = null): ServerConfig.Links {

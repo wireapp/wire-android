@@ -66,9 +66,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.authentication.welcomeViewModel
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -113,7 +114,7 @@ import kotlinx.coroutines.flow.scan
 @Composable
 fun WelcomeScreen(
     navigator: Navigator,
-    viewModel: WelcomeViewModel = hiltViewModel()
+    viewModel: WelcomeViewModel = welcomeViewModel()
 ) {
     WelcomeContent(
         viewModel.state.isThereActiveSession,
@@ -421,7 +422,7 @@ private fun WelcomeFooter(onPrivateAccountClick: () -> Unit, modifier: Modifier 
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = onPrivateAccountClick,
-                    onClickLabel = stringResource(R.string.content_description_open_link_label)
+                    onClickLabel = stringResource(commonR.string.content_description_open_link_label)
                 )
         )
 

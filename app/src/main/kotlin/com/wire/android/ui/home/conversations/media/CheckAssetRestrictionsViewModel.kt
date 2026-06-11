@@ -24,11 +24,8 @@ import androidx.lifecycle.ViewModel
 import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.sharing.ImportedMediaAsset
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
-@HiltViewModel
-class CheckAssetRestrictionsViewModel @Inject constructor() : ViewModel() {
+class CheckAssetRestrictionsViewModel : ViewModel() {
 
     var state: RestrictionCheckState by mutableStateOf(RestrictionCheckState.None)
         private set

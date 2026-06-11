@@ -25,14 +25,10 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStore
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class AnalyticsUsageViewModel @Inject constructor(
+class AnalyticsUsageViewModel(
     private val analyticsEnabled: AnalyticsConfiguration,
     private val dataStore: Lazy<UserDataStore>,
     private val selfServerConfig: Lazy<SelfServerConfigUseCase>,
@@ -42,10 +38,10 @@ class AnalyticsUsageViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val isDialogSeen = dataStore.get().isAnalyticsDialogSeen().first()
-            val isAnalyticsUsageEnabled = dataStore.get().isAnonymousUsageDataEnabled().first()
+            val isDialogSeen = dataStore.value.isAnalyticsDialogSeen().first()
+            val isAnalyticsUsageEnabled = dataStore.value.isAnonymousUsageDataEnabled().first()
             val isAnalyticsConfigurationEnabled = analyticsEnabled is AnalyticsConfiguration.Enabled
-            val isValidBackend = when (val serverConfig = selfServerConfig.get().invoke()) {
+            val isValidBackend = when (val serverConfig = selfServerConfig.value.invoke()) {
                 is SelfServerConfigUseCase.Result.Success ->
                     serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
                             || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
@@ -62,8 +58,8 @@ class AnalyticsUsageViewModel @Inject constructor(
 
     fun agreeAnalyticsUsage() {
         viewModelScope.launch {
-            dataStore.get().setIsAnonymousAnalyticsEnabled(enabled = true)
-            dataStore.get().setIsAnalyticsDialogSeen()
+            dataStore.value.setIsAnonymousAnalyticsEnabled(enabled = true)
+            dataStore.value.setIsAnalyticsDialogSeen()
 
             hideDialog()
         }
@@ -71,8 +67,8 @@ class AnalyticsUsageViewModel @Inject constructor(
 
     fun declineAnalyticsUsage() {
         viewModelScope.launch {
-            dataStore.get().setIsAnonymousAnalyticsEnabled(enabled = false)
-            dataStore.get().setIsAnalyticsDialogSeen()
+            dataStore.value.setIsAnonymousAnalyticsEnabled(enabled = false)
+            dataStore.value.setIsAnalyticsDialogSeen()
 
             hideDialog()
         }

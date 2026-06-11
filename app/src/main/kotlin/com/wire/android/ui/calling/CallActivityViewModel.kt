@@ -28,16 +28,13 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class CallActivityViewModel @Inject constructor(
+class CallActivityViewModel(
     private val dispatchers: DispatcherProvider,
     private val currentSession: CurrentSessionUseCase,
     private val observeScreenshotCensoringConfigUseCaseProviderFactory:

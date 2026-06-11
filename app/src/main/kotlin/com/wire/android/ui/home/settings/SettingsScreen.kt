@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -37,6 +36,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.handleNavigation
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.home.HomeStateHolder
@@ -50,7 +50,7 @@ import com.wire.android.util.ui.UIText
 @Composable
 fun SettingsScreen(
     homeStateHolder: HomeStateHolder,
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = settingsScreenViewModel()
 ) {
     val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
     val onAppLockSwitchClicked: (Boolean) -> Unit = remember {
@@ -156,6 +156,7 @@ fun SettingsScreenContent(
                 header = UIText.StringResource(R.string.settings_other_group_title),
                 items = buildList {
                     add(SettingsItem.Support)
+                    add(SettingsItem.ReportMisuse)
                     if (BuildConfig.DEBUG_SCREEN_ENABLED) {
                         add(SettingsItem.DebugSettings)
                     }
@@ -188,7 +189,7 @@ private fun LazyListScope.sectionWithElements(
                     (settingsItem as? SettingsItem.DirectionItem)?.let(onItemClicked)
                 }
             },
-            trailingIcon = if (settingsItem is SettingsItem.DirectionItem) R.drawable.ic_arrow_right else null,
+            trailingIcon = if (settingsItem is SettingsItem.DirectionItem) commonR.drawable.ic_arrow_right else null,
             trailingText = trailingText?.invoke(settingsItem),
         )
     }

@@ -46,10 +46,10 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
+import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -105,7 +105,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun NewLoginPasswordScreen(
     navigator: Navigator,
     navArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
+    loginEmailViewModel: LoginEmailViewModel = loginEmailViewModel(navArgs)
 ) {
     clearAutofillTree()
     LoginStateNavigationAndDialogs(loginEmailViewModel, navigator)
@@ -206,13 +206,34 @@ internal fun LoginPasswordContent(
                     },
                     isEnabled = loginEmailState.userIdentifierEnabled,
                 )
+                val invalidCredentialsErrorText = if (loginEmailState.showInvalidCredentialsError) {
+                    stringResource(R.string.login_error_invalid_credentials_message)
+                } else {
+                    null
+                }
                 PasswordInput(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = dimensions().spacing8x)
                         .testTag("PasswordInput"),
                     passwordState = passwordTextState,
+                    state = if (loginEmailState.showInvalidCredentialsError) {
+                        WireTextFieldState.Error()
+                    } else {
+                        WireTextFieldState.Default
+                    },
                 )
+                if (loginEmailState.showInvalidCredentialsError) {
+                    Text(
+                        text = invalidCredentialsErrorText.orEmpty(),
+                        style = typography().body01,
+                        color = colorsScheme().error,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = dimensions().spacing16x)
+                            .testTag("invalidCredentialsError")
+                    )
+                }
                 if (serverConfig.isProxyAuthRequired) {
                     ForgotPasswordLabel(
                         forgotPasswordUrl = serverConfig.forgotPassword,
@@ -288,10 +309,11 @@ fun EmailInput(
 }
 
 @Composable
-fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
+fun PasswordInput(passwordState: TextFieldState, state: WireTextFieldState, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = passwordState,
+        state = state,
         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
         onKeyboardAction = { keyboardController?.hide() },
         semanticDescription = stringResource(R.string.content_description_login_password_field),

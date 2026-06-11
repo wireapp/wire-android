@@ -30,6 +30,7 @@ import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetPaginatedCellConversationsFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.id.ConversationId
@@ -77,6 +78,9 @@ class SearchScreenViewModelTest {
     @MockK
     private lateinit var getPaginatedConversations: GetPaginatedCellConversationsFlowUseCase
 
+    @MockK
+    private lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
+
     private val sharedPathCache = CellFileLocalPathCache()
 
     private lateinit var savedStateHandle: SavedStateHandle
@@ -103,6 +107,7 @@ class SearchScreenViewModelTest {
         coEvery { getCellFilesPaged(any(), any(), any(), any()) } returns emptyFlow<PagingData<Node>>()
         coEvery { getOwners(any()) } returns GetOwnersUseCaseResult.Failure(CoreFailure.InvalidEventSenderID)
         every { getPaginatedConversations(any()) } returns emptyFlow()
+        every { observeOfflineFiles() } returns emptyFlow()
     }
 
     @AfterEach
@@ -166,6 +171,7 @@ class SearchScreenViewModelTest {
             getOwners = getOwners,
             getPaginatedConversations = getPaginatedConversations,
             sharedPathCache = sharedPathCache,
+            observeOfflineFiles = observeOfflineFiles,
         )
         advanceUntilIdle()
 
@@ -365,6 +371,7 @@ class SearchScreenViewModelTest {
             getOwners = getOwners,
             getPaginatedConversations = getPaginatedConversations,
             sharedPathCache = sharedPathCache,
+            observeOfflineFiles = observeOfflineFiles,
         )
     }
 
@@ -382,6 +389,7 @@ class SearchScreenViewModelTest {
             getOwners = getOwners,
             getPaginatedConversations = getPaginatedConversations,
             sharedPathCache = sharedPathCache,
+            observeOfflineFiles = observeOfflineFiles,
         )
     }
 }

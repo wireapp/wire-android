@@ -19,17 +19,21 @@ package com.wire.android.ui.home.conversations.search.adddembertoconversation
 
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
+import com.wire.android.model.Contact
+import com.wire.android.model.ItemActionType
+import com.wire.android.search.SearchUsersAndAppsScreen
+import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.home.conversations.addMembersToConversationViewModel
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
-import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
-import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
-import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.home.newconversation.common.ContinueButton
 import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.BotService
@@ -42,7 +46,7 @@ import com.wire.kalium.logic.data.user.UserId
 fun AddMembersSearchScreen(
     navigator: Navigator,
     navArgs: AddMembersSearchNavArgs,
-    addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel(),
+    addMembersToConversationViewModel: AddMembersToConversationViewModel = addMembersToConversationViewModel(),
 ) {
     if (addMembersToConversationViewModel.newGroupState.isCompleted) {
         navigator.navigateBack()
@@ -55,8 +59,6 @@ fun AddMembersSearchScreen(
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         onContactChecked = addMembersToConversationViewModel::updateSelectedContacts,
-        onContinue = addMembersToConversationViewModel::addMembersToConversation,
-        isGroupSubmitVisible = true,
         onClose = navigator::navigateBack,
         onAppClicked = { contact: Contact ->
             val serviceId = when (navArgs.shouldUseNewAppsUi) {
@@ -69,12 +71,18 @@ fun AddMembersSearchScreen(
                 serviceId
             ).let { navigator.navigate(NavigationCommand(it)) }
         },
-        screenType = SearchPeopleScreenType.CONVERSATION_DETAILS,
+        navigationIconType = NavigationIconType.Close(R.string.content_description_add_participants_close),
+        itemActionType = ItemActionType.CHECK,
         selectedContacts = addMembersToConversationViewModel.newGroupState.selectedContacts,
         isAppsTabVisible = navArgs.isSelfPartOfATeam,
-        isUserAllowedToCreateChannels = false,
-        shouldShowChannelPromotion = false,
         isConversationAppsEnabled = navArgs.isConversationAppsEnabled,
-        conversationProtocol = navArgs.protocolInfo
+        shouldHideBottomActionForServices = true,
+        conversationProtocol = navArgs.protocolInfo,
+        peopleBottomActions = { focusRequester ->
+            ContinueButton(
+                onContinue = addMembersToConversationViewModel::addMembersToConversation,
+                buttonModifier = Modifier.focusRequester(focusRequester),
+            )
+        }
     )
 }

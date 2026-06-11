@@ -50,7 +50,6 @@ import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCa
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -63,11 +62,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel
-class GroupConversationDetailsViewModel @Inject constructor(
+class GroupConversationDetailsViewModel(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     observeConversationMembers: ObserveParticipantsForConversationUseCase,
@@ -154,7 +151,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 }
 
                 val shouldUseNewAppsUi = computeShouldUseNewAppsUi(groupDetails, appsAllowedResult)
-                val isAppsAllowedForConversation = computeAppsEnabledStatus(groupDetails, appsAllowedResult)
                 val isUpdatingAppsAllowedForConversation =
                     computeAppsAllowedStatus(canSelfPerformAdminTasks, isSelfInTeamThatOwnsConversation, groupDetails, appsAllowedResult)
 
@@ -175,7 +171,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isUpdatingNameAllowed = canSelfPerformAdminTasks && !isSelfExternalMember,
                         isUpdatingGuestAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isUpdatingChannelAccessAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
-                        isAppsAllowed = isAppsAllowedForConversation,
+                        isAppsAllowed = groupDetails.conversation.isServicesAllowed(),
                         shouldUseNewAppsUi = shouldUseNewAppsUi,
                         isUpdatingAppsAllowed = isUpdatingAppsAllowedForConversation,
                         isUpdatingReadReceiptAllowed = canSelfPerformAdminTasks && groupDetails.conversation.isTeamGroup(),
@@ -213,16 +209,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         appsAllowedResult: AppsAllowedResult
     ) = canSelfPerformAdminTasks &&
         isSelfInTeamThatOwnsConversation &&
-        isServicesSupportedForConversation(groupDetails.conversation.protocol, appsAllowedResult)
-
-    /**
-     * Determine apps visibility based on feature flag and team settings
-     * Or just should be protocol based in case of current logic
-     */
-    private fun computeAppsEnabledStatus(
-        groupDetails: ConversationDetails.Group,
-        appsAllowedResult: AppsAllowedResult
-    ) = groupDetails.conversation.isServicesAllowed() &&
         isServicesSupportedForConversation(groupDetails.conversation.protocol, appsAllowedResult)
 
     private fun isServicesSupportedForConversation(

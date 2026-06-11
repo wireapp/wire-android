@@ -66,13 +66,14 @@ class SearchBarState(
     }
 
     companion object {
-        fun saver(): Saver<SearchBarState, *> = Saver(
+        fun saver(): Saver<SearchBarState, List<Any?>> = Saver(
             save = {
                 listOf(
                     it.isSearchActive,
                     with(TextFieldState.Saver) {
                         save(it.searchQueryTextState)
-                    }
+                    },
+                    it.isSearchVisible,
                 )
             },
             restore = {
@@ -82,7 +83,8 @@ class SearchBarState(
                         with(TextFieldState.Saver) {
                             restore(it)
                         }
-                    } ?: TextFieldState()
+                    } ?: TextFieldState(),
+                    isSearchVisible = (it.getOrNull(2) as? Boolean) ?: true
                 )
             }
         )

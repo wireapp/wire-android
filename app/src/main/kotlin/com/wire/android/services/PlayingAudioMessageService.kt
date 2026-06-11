@@ -33,6 +33,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.notification.NotificationConstants.PLAYING_AUDIO_CHANNEL_ID
@@ -41,16 +42,14 @@ import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.notification.playPauseAudioPendingIntent
 import com.wire.android.notification.stopAudioPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@AndroidEntryPoint
 class PlayingAudioMessageService : Service() {
 
     @Inject
@@ -68,6 +67,7 @@ class PlayingAudioMessageService : Service() {
     }
 
     override fun onCreate() {
+        wireApplicationGraph.inject(this)
         super.onCreate()
         appLogger.i("$TAG: starting foreground")
         isServiceStarted = true

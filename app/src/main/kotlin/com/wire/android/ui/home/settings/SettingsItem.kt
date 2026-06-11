@@ -36,9 +36,11 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.GiveFeedbackDestination
 import com.wire.android.navigation.PrivacyPolicyScreenDestination
 import com.wire.android.navigation.ReportBugDestination
+import com.wire.android.navigation.ReportMisuseScreenDestination
 import com.wire.android.navigation.SupportScreenDestination
 import com.wire.android.navigation.TermsOfUseScreenDestination
 import com.wire.android.navigation.WireWebsiteScreenDestination
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.RowItemTemplate
@@ -223,6 +225,12 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
         direction = SupportScreenDestination
     )
 
+    data object ReportMisuse : DirectionItem(
+        id = "other_report_misuse",
+        title = UIText.StringResource(R.string.report_misuse_screen_title),
+        direction = ReportMisuseScreenDestination
+    )
+
     data object DebugSettings : DirectionItem(
         id = "other_debug_settings",
         title = UIText.StringResource(R.string.debug_settings_screen_title),
@@ -261,7 +269,7 @@ fun PreviewSettingsItem() {
         SettingsItem(
             title = "Some Setting",
             text = "This is the value of the setting",
-            trailingIcon = R.drawable.ic_arrow_right
+            trailingIcon = commonR.drawable.ic_arrow_right
         )
     }
 }
@@ -273,7 +281,7 @@ fun PreviewSettingsItemTrailingComposable() {
         SettingsItem(
             title = "Some Setting",
             text = "This is the value of the setting",
-            trailingIcon = R.drawable.ic_arrow_right,
+            trailingIcon = commonR.drawable.ic_arrow_right,
             trailingText = "Longlonglonglonglonglonglonglong Name"
         )
     }
@@ -286,7 +294,7 @@ fun PreviewSettingsItemTrailingShortComposable() {
         SettingsItem(
             title = "Some Setting",
             text = "This is the value of the setting",
-            trailingIcon = R.drawable.ic_arrow_right,
+            trailingIcon = commonR.drawable.ic_arrow_right,
             trailingText = "Short Name"
         )
     }

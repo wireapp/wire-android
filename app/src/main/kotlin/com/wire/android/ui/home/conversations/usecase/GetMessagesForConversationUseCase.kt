@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import java.lang.Integer.max
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class GetMessagesForConversationUseCase @Inject constructor(
     private val getMessages: GetPaginatedFlowOfMessagesByConversationUseCase,

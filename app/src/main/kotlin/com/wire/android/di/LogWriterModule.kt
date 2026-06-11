@@ -20,21 +20,18 @@ package com.wire.android.di
 
 import android.content.Context
 import com.wire.android.BuildConfig
-import com.wire.android.util.logging.LogFileWriterV1Impl
-   import com.wire.android.util.logging.LogFileWriter
 import com.wire.android.util.logging.LogFileWriterV2Impl
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import com.wire.android.util.logging.LogFileWriter
+import com.wire.android.util.logging.LogFileWriterV1Impl
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Module
-@InstallIn(SingletonComponent::class)
+@BindingContainer
 class LogWriterModule {
 
-    @Singleton
+    @SingleIn(AppScope::class)
     @Provides
     fun provideKaliumFileWriter(@ApplicationContext context: Context): LogFileWriter {
         if (BuildConfig.USE_ASYNC_FLUSH_LOGGING) {

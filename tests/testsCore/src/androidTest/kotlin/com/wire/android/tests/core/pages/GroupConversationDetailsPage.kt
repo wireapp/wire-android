@@ -20,8 +20,12 @@ package com.wire.android.tests.core.pages
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.toBySelector
 
 data class GroupConversationDetailsPage(private val device: UiDevice) {
+    private val groupNameInputField = UiSelectorParams(className = "android.widget.EditText")
+
+    private val okButton = UiSelectorParams(text = "OK")
 
     private val showMoreOptionsButton = UiSelectorParams(description = "Open conversation options")
 
@@ -36,6 +40,26 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
     private val continueButton = UiSelectorParams(text = "Continue")
 
     private val closeButtonOnGroupConversationDetailsPage = UiSelectorParams(description = "Close conversation details")
+
+    private val conversationDetailsHeading = UiSelectorParams(text = "Conversation Details")
+
+    private val removeFromConversationButton = UiSelectorParams(text = "Remove From Conversation")
+
+    private val addToConversationButton = UiSelectorParams(text = "Add To Conversation")
+
+    private fun textViewSelector(text: String) = UiSelectorParams(
+        className = "android.widget.TextView",
+        text = text
+    )
+
+    fun assertGroupDetailsPageVisible(): GroupConversationDetailsPage {
+        try {
+            UiWaitUtils.waitElement(conversationDetailsHeading)
+        } catch (e: AssertionError) {
+            throw AssertionError("Group details page is not visible.", e)
+        }
+        return this
+    }
 
     fun tapShowMoreOptionsButton() {
         UiWaitUtils.waitElement(showMoreOptionsButton).click()
@@ -58,10 +82,7 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
     }
 
     fun assertUsernameInSuggestionsListIs(expectedHandle: String): GroupConversationDetailsPage {
-        val handleSelector = UiSelectorParams(
-            className = "android.widget.TextView",
-            text = expectedHandle
-        )
+        val handleSelector = textViewSelector(expectedHandle)
         try {
             UiWaitUtils.waitElement(params = handleSelector)
         } catch (e: AssertionError) {
@@ -74,10 +95,7 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
     }
 
     fun selectUserInSuggestionList(expectedHandle: String): GroupConversationDetailsPage {
-        val handleSelector = UiSelectorParams(
-            className = "android.widget.TextView",
-            text = expectedHandle
-        )
+        val handleSelector = textViewSelector(expectedHandle)
 
         val handleTextView = try {
             UiWaitUtils.waitElement(params = handleSelector)
@@ -97,11 +115,30 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         UiWaitUtils.waitElement(continueButton).click()
     }
 
+    fun assertChannelNameVisible(expectedName: String): GroupConversationDetailsPage {
+        try {
+            UiWaitUtils.waitElement(textViewSelector(expectedName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Expected channel name '$expectedName' is not visible.", e)
+        }
+        return this
+    }
+
+    fun tapOnChannelName(expectedName: String): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(textViewSelector(expectedName)).click()
+        return this
+    }
+
+    fun changeChannelName(newName: String): GroupConversationDetailsPage {
+        val channelNameInput = UiWaitUtils.waitElement(groupNameInputField)
+        channelNameInput.text = ""
+        channelNameInput.text = newName
+        UiWaitUtils.waitElement(okButton).click()
+        return this
+    }
+
     fun assertUsernameIsAddedToParticipantsList(expectedHandle: String): GroupConversationDetailsPage {
-        val handleSelector = UiSelectorParams(
-            className = "android.widget.TextView",
-            text = expectedHandle
-        )
+        val handleSelector = textViewSelector(expectedHandle)
         try {
             UiWaitUtils.waitElement(params = handleSelector)
         } catch (e: AssertionError) {
@@ -113,8 +150,55 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         return this
     }
 
+    fun tapUserInParticipantsList(expectedHandle: String): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(textViewSelector(expectedHandle)).parent.click()
+        return this
+    }
+
+    fun assertRemoveFromConversationButtonForAppVisible(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(removeFromConversationButton)
+        return this
+    }
+
+    fun tapRemoveFromConversationButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(removeFromConversationButton).click()
+        return this
+    }
+
+    fun assertRemoveFromConversationButtonNotVisible(): GroupConversationDetailsPage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = removeFromConversationButton.toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Remove From Conversation button is still visible."
+        )
+        return this
+    }
+
+    fun assertAddToConversationButtonVisible(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(addToConversationButton)
+        return this
+    }
+
+    fun tapBackButton(): GroupConversationDetailsPage {
+        device.pressBack()
+        return this
+    }
+
+    fun assertUserIsNotInParticipantsList(expectedHandle: String): GroupConversationDetailsPage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = textViewSelector(expectedHandle).toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "User '$expectedHandle' is still visible in participants list."
+        )
+        return this
+    }
+
     fun tapCloseButtonOnGroupConversationDetailsPage(): GroupConversationDetailsPage {
         UiWaitUtils.waitElement(closeButtonOnGroupConversationDetailsPage).click()
         return this
+    }
+
+    fun tapCloseButtonOnChannelConversationDetailsPage(): GroupConversationDetailsPage {
+        return tapCloseButtonOnGroupConversationDetailsPage()
     }
 }

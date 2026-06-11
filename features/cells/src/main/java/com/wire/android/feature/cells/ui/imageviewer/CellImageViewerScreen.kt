@@ -17,34 +17,26 @@
  */
 package com.wire.android.feature.cells.ui.imageviewer
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.cellImageViewerViewModel
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.image.ZoomableImageContainer
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -59,7 +51,7 @@ import com.wire.android.ui.theme.WireTheme
 fun CellImageViewerScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    viewModel: CellImageViewerViewModel = hiltViewModel(),
+    viewModel: CellImageViewerViewModel = cellImageViewerViewModel(),
 ) {
     CellImageViewerScreenContent(
         localPath = viewModel.localPath,
@@ -112,7 +104,7 @@ internal fun CellImageViewerScreenContent(
 }
 
 @Composable
-private fun CellZoomableImage(
+fun CellZoomableImage(
     localPath: String?,
     contentUrl: String?,
     previewUrl: String?,
@@ -120,58 +112,39 @@ private fun CellZoomableImage(
     contentDescription: String,
     modifier: Modifier = Modifier,
 ) {
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
-    var zoom by remember { mutableStateOf(1f) }
-    val minScale = 1.0f
-    val maxScale = 3f
+    val context = LocalContext.current
 
     val painter = when {
-        localPath != null -> rememberAsyncImagePainter(localPath)
-        contentUrl != null -> rememberAsyncImagePainter(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(contentUrl)
-                .diskCacheKey(contentHash)
-                .memoryCacheKey(contentHash)
-                .diskCachePolicy(CachePolicy.ENABLED)
-                .build(),
-            placeholder = previewUrl?.let {
-                rememberAsyncImagePainter(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(it)
-                        .diskCacheKey(contentHash)
-                        .memoryCacheKey(contentHash)
-                        .crossfade(true)
-                        .build()
-                )
-            },
-        )
+        localPath != null ->
+            rememberAsyncImagePainter(localPath)
+
+        contentUrl != null ->
+            rememberAsyncImagePainter(
+                ImageRequest.Builder(context)
+                    .data(contentUrl)
+                    .diskCacheKey(contentHash)
+                    .memoryCacheKey(contentHash)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .build(),
+                placeholder = previewUrl?.let {
+                    rememberAsyncImagePainter(
+                        ImageRequest.Builder(context)
+                            .data(it)
+                            .diskCacheKey(contentHash)
+                            .memoryCacheKey(contentHash)
+                            .crossfade(true)
+                            .build()
+                    )
+                }
+            )
+
         else -> return
     }
 
-    Image(
+    ZoomableImageContainer(
         painter = painter,
         contentDescription = contentDescription,
         modifier = modifier
-            .graphicsLayer(
-                scaleX = zoom,
-                scaleY = zoom,
-                translationX = offsetX,
-                translationY = offsetY,
-            )
-            .pointerInput(Unit) {
-                detectTransformGestures { _, pan, gestureZoom, _ ->
-                    zoom = (zoom * gestureZoom).coerceIn(minScale, maxScale)
-                    if (zoom > 1) {
-                        offsetX += pan.x * zoom
-                        offsetY += pan.y * zoom
-                    } else {
-                        offsetX = 0f
-                        offsetY = 0f
-                    }
-                }
-            },
-        contentScale = ContentScale.Fit,
     )
 }
 

@@ -45,7 +45,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.home.settings.deviceDetailsViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -107,7 +107,7 @@ import kotlinx.datetime.Instant
 @Composable
 fun DeviceDetailsScreen(
     navigator: Navigator,
-    viewModel: DeviceDetailsViewModel = hiltViewModel()
+    viewModel: DeviceDetailsViewModel = deviceDetailsViewModel()
 ) {
     when {
         viewModel.state.error is RemoveDeviceError.InitError -> navigator.navigateBack()
@@ -156,7 +156,7 @@ fun DeviceDetailsContent(
     onUpdateClientVerification: (Boolean) -> Unit = {},
     onEnrollE2EIErrorDismiss: () -> Unit = {},
     onEnrollE2EISuccessDismiss: () -> Unit = {},
-    onBreakSession: () -> Unit = {}
+    onBreakSession: () -> Unit = {},
 ) {
     val screenState = rememberConversationScreenState()
     WireScaffold(

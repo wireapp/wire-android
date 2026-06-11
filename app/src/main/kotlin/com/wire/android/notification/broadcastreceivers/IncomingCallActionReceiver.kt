@@ -25,6 +25,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
+import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logger.obfuscateId
@@ -32,13 +33,11 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.UserId
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@AndroidEntryPoint
 class IncomingCallActionReceiver : BroadcastReceiver() {
 
     @Inject
@@ -61,6 +60,7 @@ class IncomingCallActionReceiver : BroadcastReceiver() {
 
     @Suppress("ReturnCount")
     override fun onReceive(context: Context, intent: Intent) {
+        context.wireApplicationGraph.inject(this)
         val conversationIdString: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: run {
             appLogger.e("CallNotificationDismissReceiver: onReceive, conversation ID is missing")
             return

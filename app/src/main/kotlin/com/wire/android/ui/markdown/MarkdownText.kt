@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import com.wire.android.ui.common.ClickableText
+import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.markdown.MarkdownConstants.TAG_MENTION
 import com.wire.android.ui.markdown.MarkdownConstants.TAG_URL
 
@@ -47,7 +48,7 @@ fun MarkdownText(
     clickable: Boolean = true,
     onClickLink: ((linkText: String) -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
-    onOpenProfile: ((String) -> Unit)? = null
+    onOpenProfile: ((senderId: MessageSenderId) -> Unit)? = null
 ) {
 
     if (clickable) {
@@ -75,7 +76,7 @@ fun MarkdownText(
                     start = offset,
                     end = offset
                 ).firstOrNull()?.let { result ->
-                    onOpenProfile?.invoke(result.item)
+                    onOpenProfile?.invoke(MessageSenderId.User(result.item))
                 }
             },
             onLongClick = onLongClick

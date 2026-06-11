@@ -1,0 +1,38 @@
+/*
+ * Wire
+ * Copyright (C) 2026 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+package com.wire.benchmark
+
+import androidx.benchmark.macro.MacrobenchmarkScope
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Until
+import kotlin.time.Duration.Companion.seconds
+
+fun MacrobenchmarkScope.openContactsAndReturn() {
+    device.findObject(By.desc("New. Start a new conversation"))?.click()
+    device.wait(Until.hasObject(By.text("Contacts")), 10.seconds.inWholeMilliseconds)
+    device.pressBack()
+    device.wait(Until.hasObject(By.text("Conversations")), 10.seconds.inWholeMilliseconds)
+}
+
+fun MacrobenchmarkScope.openConversation(conversationName: String) {
+    val conversationTarget = device.findObject(By.text(conversationName))
+    conversationTarget?.click()
+    device.wait(Until.hasObject(By.desc(" Type a message")), 10.seconds.inWholeMilliseconds)
+    device.pressBack()
+    device.wait(Until.hasObject(By.text("Conversations")), 10.seconds.inWholeMilliseconds)
+}

@@ -23,21 +23,23 @@ plugins {
     kotlin("plugin.serialization") version embeddedKotlinVersion
 }
 
-// Configure the build-logic plugins to target JDK 17
+// Configure the build-logic plugins to target JDK 21
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
+        jvmTarget.set(JvmTarget.JVM_21)
     }
 }
 
 dependencies {
     compileOnly(libs.android.gradlePlugin)
+    compileOnly(libs.compose.compiler.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.kover.gradlePlugin)
+    compileOnly(libs.metro.gradlePlugin)
 
     testImplementation(libs.junit4)
     testImplementation(kotlin("test"))
@@ -55,10 +57,6 @@ gradlePlugin {
             id = libs.plugins.wire.android.application.get().pluginId
             implementationClass = "AndroidApplicationConventionPlugin"
         }
-        register("wireHiltConventionPlugin") {
-            id = libs.plugins.wire.hilt.get().pluginId
-            implementationClass = "HiltConventionPlugin"
-        }
         register("wireKoverConventionPlugin") {
             id = libs.plugins.wire.kover.get().pluginId
             implementationClass = "KoverConventionPlugin"
@@ -74,6 +72,10 @@ gradlePlugin {
         register("androidNavigationConventionPlugin") {
             id = libs.plugins.wire.android.navigation.get().pluginId
             implementationClass = "AndroidNavigationConventionPlugin"
+        }
+        register("composeCompilerConventionPlugin") {
+            id = libs.plugins.wire.compose.compiler.get().pluginId
+            implementationClass = "ComposeCompilerConventionPlugin"
         }
         register("kmpLibraryConventionPlugin") {
             id = libs.plugins.wire.kmp.library.get().pluginId

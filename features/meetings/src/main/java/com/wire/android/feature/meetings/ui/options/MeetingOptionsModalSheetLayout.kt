@@ -25,14 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingItem
+import com.wire.android.feature.meetings.ui.list.CalendarIcon
 import com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon
-import com.wire.android.feature.meetings.ui.list.VideoCallIcon
+import com.wire.android.feature.meetings.ui.meetingOptionsMenuListViewModel
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
-import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -45,6 +44,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.ui.common.R as UICommonR
 
 @Composable
@@ -53,7 +53,7 @@ fun MeetingOptionsModalSheetLayout(
     sheetState: WireModalSheetState<String>,
     viewModel: MeetingOptionsMenuViewModel = when {
         LocalInspectionMode.current -> MeetingOptionsMenuViewModelPreview(CurrentTimeProvider.Preview)
-        else -> hiltViewModel<MeetingOptionsMenuViewModelImpl>()
+        else -> meetingOptionsMenuListViewModel()
     }
 ) {
     val deletedMeetingOptionsClosedMessage = stringResource(R.string.deleted_meeting_options_closed)
@@ -99,7 +99,7 @@ private fun MeetingOptionsModalContent(
             add {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_start_meeting),
-                    leading = { VideoCallIcon(tint = colorsScheme().onSurface) },
+                    leading = { CalendarIcon(tint = colorsScheme().onSurface) },
                     onItemClick = onStartMeeting,
                 )
             }

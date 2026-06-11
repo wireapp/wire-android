@@ -20,7 +20,6 @@ package com.wire.android.ui.authentication.login.email
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeScreenContent
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
@@ -29,7 +28,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun LoginEmailVerificationCodeScreen(
-    viewModel: LoginEmailViewModel = hiltViewModel()
+    viewModel: LoginEmailViewModel
 ) = VerificationCodeScreenContent(
     viewModel.secondFactorVerificationCodeTextState,
     viewModel.secondFactorVerificationCodeState,

@@ -23,7 +23,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class NetworkUtil @Inject constructor(private val context: Context) {
 

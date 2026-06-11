@@ -20,7 +20,7 @@ package com.wire.android.ui.home.conversations
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * WARNING:

@@ -23,6 +23,7 @@
     <string name="content_description_close_button">schließen</string>
     <string name="title_color_picker">Farbe</string>
     <string name="confirm_changes_title">Zeichnung verwerfen?</string>
+    <string name="confirm_changes_text">Ohne Absenden geht Ihre Zeichnung verloren.</string>
     <string name="confirm_changes_confirm">Abbrechen</string>
     <string name="confirm_changes_dismiss">Verwerfen</string>
 </resources>

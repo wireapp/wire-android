@@ -49,7 +49,6 @@
     <string name="label_open_asset_externally">Вiдкрити</string>
     <string name="label_show">Показати</string>
     <string name="label_show_all">Розгорнути</string>
-    <string name="label_show_less">Згорнути</string>
     <string name="label_show_details">Показати деталі</string>
     <string name="label_hide_details">Приховати деталі</string>
     <string name="label_message_status_edited_with_date">Відредаговано %s</string>
@@ -59,7 +58,6 @@
     <string name="label_disable">Вимкнути</string>
     <string name="folder_label_access">Доступ</string>
     <string name="folder_label_messaging">Обмін повідомленнями</string>
-    <string name="label_user_blocked">Заблокований(-на)</string>
     <string name="label_and">і</string>
     <string name="label_retry">Повторити</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
@@ -78,7 +76,6 @@
     <string name="content_description_send_button">Надіслати</string>
     <string name="content_description_remove_devices_screen_remove_icon">Видалити пристрій</string>
     <string name="content_description_take_a_picture">Зробити фото</string>
-    <string name="content_description_add_contact">Додати контакт</string>
     <string name="content_description_ping_everyone">Пінг</string>
     <string name="content_description_calling_flip_camera_on">Перемкнутись на передню камеру</string>
     <string name="content_description_calling_flip_camera_off">Перемкнутись на задню камеру</string>
@@ -143,7 +140,6 @@
     <string name="label_search_button">Пошук</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Медіа</string>
-    <!-- Search Contact-->
     <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
@@ -153,8 +149,6 @@
     <string name="label_type_a_message">Напишіть повідомлення</string>
     <!-- Calling-->
     <!-- Connectivity Status Bar -->
-    <!-- Connections -->
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <!--sso dialog-->
     <!--prohibited asset messages -->
@@ -175,7 +169,6 @@
     <!--Privacy Settings -->
     <!--Privacy Settings, App lock -->
     <!--Devices -->
-    <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--nomad account blocks login dialog-->
     <string name="label_share_logs">Поширити Логи</string>

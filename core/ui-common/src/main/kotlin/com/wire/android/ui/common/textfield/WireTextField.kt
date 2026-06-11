@@ -65,6 +65,7 @@ import com.wire.android.util.PreviewMultipleThemes
 fun WireTextField(
     textState: TextFieldState,
     modifier: Modifier = Modifier,
+    inputModifier: Modifier = Modifier,
     placeholderText: String? = null,
     labelText: String? = null,
     labelMandatoryIcon: Boolean = false,
@@ -92,6 +93,7 @@ fun WireTextField(
     onTap: (() -> Unit)? = null,
     testTag: String = String.EMPTY,
     validateKeyboardOptions: Boolean = true,
+    enabled: Boolean = state !is WireTextFieldState.Disabled,
 ) {
     if (validateKeyboardOptions) {
         assert(
@@ -146,10 +148,10 @@ fun WireTextField(
                 outputTransformation = outputTransformation,
                 scrollState = scrollState,
                 readOnly = state is WireTextFieldState.ReadOnly,
-                enabled = state !is WireTextFieldState.Disabled,
+                enabled = enabled,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 interactionSource = interactionSource,
-                modifier = textFieldModifier,
+                modifier = textFieldModifier.then(inputModifier),
                 decorator = decorator,
                 onTextLayout = onTextLayout(
                     textState,

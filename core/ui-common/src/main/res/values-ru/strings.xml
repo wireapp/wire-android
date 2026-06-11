@@ -24,7 +24,6 @@
     <string name="label_wait_until_synchronised">Пожалуйста, подождите, пока приложение синхронизируется</string>
     <string name="label_wait_until_connected">Пожалуйста, подождите, пока будет восстановлено подключение к интернету</string>
     <string name="content_description_back_button">Назад</string>
-    <string name="content_description_left_arrow">Назад</string>
     <string name="content_description_close_button">Закрыть</string>
     <string name="content_description_close">Закрыть</string>
     <string name="content_description_menu_button">Основное меню</string>
@@ -32,7 +31,6 @@
     <string name="content_description_pending_connection_badge">ожидание подтверждения запроса</string>
     <string name="content_description_alert">Оповещение</string>
     <string name="content_description_show_more_options">Показать больше вариантов</string>
-    <string name="content_description_select_label">выбрать</string>
     <string name="label_membership_guest">Гость</string>
     <string name="label_membership_external">Внешний</string>
     <string name="label_membership_service">Приложение</string>
@@ -65,4 +63,9 @@
     <string name="content_description_conversation_search_icon">Значок поиска</string>
     <string name="content_description_conversation_search_input">Поиск</string>
     <string name="content_description_clear_content">Очистить контент</string>
+    <!--unblock user dialog -->
+    <!-- Connections -->
+    <!-- Missing keyPackages dialog -->
+    <!-- Search Contact-->
+    <string name="content_description_select_label">выбрать</string>
 </resources>

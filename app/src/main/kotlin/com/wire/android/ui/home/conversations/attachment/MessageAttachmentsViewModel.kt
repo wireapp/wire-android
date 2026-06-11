@@ -52,7 +52,6 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.util.fileExtension
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,11 +61,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import java.io.File
-import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel
-class MessageAttachmentsViewModel @Inject constructor(
+class MessageAttachmentsViewModel(
     val savedStateHandle: SavedStateHandle,
     private val handleUriAsset: HandleUriAssetUseCase,
     private val observeAttachments: ObserveAttachmentDraftsUseCase,

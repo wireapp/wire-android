@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
+import com.wire.android.mapper.UsernameMapper
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
@@ -310,7 +311,7 @@ private fun processFullName(
                 if (isLoading) {
                     ""
                 } else {
-                    UIText.StringResource(R.string.username_unavailable_label).asString()
+                    UIText.StringResource(commonR.string.username_unavailable_label).asString()
                 }
             }
         )

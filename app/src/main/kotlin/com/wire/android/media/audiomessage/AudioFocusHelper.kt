@@ -20,7 +20,7 @@ package com.wire.android.media.audiomessage
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.Build
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class AudioFocusHelper @Inject constructor(private val audioManager: AudioManager) {
 

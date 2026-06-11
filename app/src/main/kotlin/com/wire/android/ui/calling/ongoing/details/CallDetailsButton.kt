@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.OverlapDirection
 import com.wire.android.ui.common.OverlappingCirclesRow
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
@@ -98,7 +99,7 @@ private fun LowNetworkItem(callQuality: CallQualityState.Quality) {
 @Composable
 private fun InfoItem() {
     Icon(
-        painter = painterResource(id = R.drawable.ic_info),
+        painter = painterResource(id = commonR.drawable.ic_info),
         contentDescription = stringResource(R.string.content_description_call_open_calling_details),
         tint = colorsScheme().onBackground,
         modifier = Modifier.size(dimensions().wireIconButtonSize)

@@ -40,11 +40,10 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
                 compileSdk = AndroidSdk.compile
                 minSdk = AndroidSdk.min
                 compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_17)
+                    jvmTarget.set(JvmTarget.JVM_21)
                 }
             }
 
-            iosX64()
             iosArm64()
             iosSimulatorArm64()
         }

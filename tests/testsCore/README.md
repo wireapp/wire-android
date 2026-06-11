@@ -68,6 +68,15 @@ Example annotation:
 -Pandroid.testInstrumentationRunnerArguments.tagValue=calling
 
 Note: Only runs tests where both key AND value match.
+
+Important:
+- CI passes `android.testInstrumentationRunnerArguments.appPackage` explicitly.
+- Local runs keep using the package selected in each test setup.
+- Change the local `UiAutomatorSetup.APP_*` selection in the test when you want a different local flavor.
+- Example values:
+  - `com.wire.internal` for alpha release candidate
+  - `com.wire.android.internal` for alpha beta
+  - `com.wire` for production
 ---
 
 ## Pulling Allure Results From Device

@@ -22,17 +22,17 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.LoginContext
-import dagger.Lazy
 import kotlinx.coroutines.flow.first
-import javax.inject.Inject
-import javax.inject.Named
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Named
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 /**
  * Selector for login type, used to determine if the new login flow should be used. If the [LoginContext] for the given
  * [ServerConfig.Links] is [LoginContext.EnterpriseLogin] then the new login flow can be used, otherwise fallback to the old login flow.
  */
-@Singleton
+@SingleIn(AppScope::class)
 class LoginTypeSelector @Inject constructor(
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     @Named("useNewLoginForDefaultBackend") private val useNewLoginForDefaultBackend: Boolean,
@@ -42,7 +42,7 @@ class LoginTypeSelector @Inject constructor(
      * Observe the [LoginContext] for the given [ServerConfig.Links].
      */
     private suspend fun loginContextFlow(serverLinks: ServerConfig.Links) =
-        coreLogic.get().getGlobalScope().observeLoginContext(serverLinks)
+        coreLogic.value.getGlobalScope().observeLoginContext(serverLinks)
 
     /**
      *  Determine if the new login flow can be used for the given [ServerConfig.Links].

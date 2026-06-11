@@ -17,11 +17,11 @@
  */
 package com.wire.android
 
-import com.wire.android.ui.home.conversations.CurrentTimeProvider
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.StringResourceProvider
 import com.wire.android.ui.home.conversations.StringResourceType
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
+import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.logic.data.message.Message
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
@@ -492,7 +492,7 @@ class SelfDeletionTimerTest {
                 withLeftText: Boolean
             ): String = "${type.name}: $quantity"
         }
-        private val currentTime: CurrentTimeProvider = { Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime) }
+        private val currentTime = CurrentTimeProvider { Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime) }
 
         private val selfDeletionTimerHelper by lazy { SelfDeletionTimerHelper(stringsProvider, currentTime) }
         fun arrange() = this to selfDeletionTimerHelper

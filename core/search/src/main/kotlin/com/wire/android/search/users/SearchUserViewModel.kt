@@ -50,6 +50,7 @@ import kotlinx.coroutines.launch
 
 class SearchUserViewModel(
     private val conversationId: ConversationId?,
+    private val onlyConnectedContacts: Boolean,
     private val searchUserUseCase: SearchUsersUseCase,
     private val searchByHandleUseCase: SearchByHandleUseCase,
     private val contactMapper: ContactMapper,
@@ -142,6 +143,7 @@ class SearchUserViewModel(
         searchByHandleUseCase(
             searchTerm,
             excludingConversation = conversationId,
+            excludingRemote = onlyConnectedContacts,
             customDomain = domain
         )
 
@@ -149,6 +151,7 @@ class SearchUserViewModel(
         searchUserUseCase(
             searchTerm,
             excludingMembersOfConversation = conversationId,
+            excludingRemote = onlyConnectedContacts,
             customDomain = domain
         )
 }

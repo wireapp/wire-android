@@ -123,4 +123,5 @@
     <string name="content_description_unselect_label">unselect</string>
     <string name="label_show_more">Show More</string>
     <string name="label_show_less">Show Less</string>
+    <string name="label_select">Select</string>
 </resources>

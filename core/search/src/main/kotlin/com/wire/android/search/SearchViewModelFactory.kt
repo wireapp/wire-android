@@ -52,8 +52,12 @@ class SearchViewModelFactory @Inject constructor(
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
     private val observeSelfUser: ObserveSelfUserUseCase,
 ) {
-    fun searchUserViewModel(conversationId: ConversationId? = null) = SearchUserViewModel(
+    fun searchUserViewModel(
+        conversationId: ConversationId? = null,
+        onlyConnectedContacts: Boolean = false,
+    ) = SearchUserViewModel(
         conversationId = conversationId,
+        onlyConnectedContacts = onlyConnectedContacts,
         searchUserUseCase = searchUsers,
         searchByHandleUseCase = searchByHandle,
         contactMapper = contactMapper,

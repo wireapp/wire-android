@@ -490,6 +490,7 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
     else -> null
 }
 
+@Suppress("MagicNumber")
 private fun Int.toTimeString(): String {
     val totalSec = this / 1000
     val min = totalSec / 60

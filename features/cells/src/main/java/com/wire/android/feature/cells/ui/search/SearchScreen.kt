@@ -223,7 +223,8 @@ fun SearchScreen(
                             BackStackMode.NONE,
                             launchSingleTop = false
                         )
-                    ) },
+                    )
+                },
                 showPublicLinkScreen = { publicLinkScreenData ->
                     navigator.navigate(
                         NavigationCommand(

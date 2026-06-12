@@ -19,6 +19,7 @@
 package com.wire.android.ui.common.search
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,6 +52,11 @@ class SearchBarState(
 
     fun closeSearch() {
         isSearchActive = false
+    }
+
+    fun clearSearch() {
+        searchQueryTextState.clearText()
+        closeSearch()
     }
 
     fun openSearch() {

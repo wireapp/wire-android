@@ -28,6 +28,19 @@ import org.junit.jupiter.api.Test
 class SearchBarStateTest {
 
     @Test
+    fun `given search is active with query, when search is cleared, then query is empty and search is closed`() {
+        val state = SearchBarState(
+            isSearchActive = true,
+            searchQueryTextState = TextFieldState(initialText = "query")
+        )
+
+        state.clearSearch()
+
+        assertFalse(state.isSearchActive)
+        assertEquals("", state.searchQueryTextState.text.toString())
+    }
+
+    @Test
     fun `given search visibility changed, when state is restored, then visibility is preserved`() {
         val state = SearchBarState(
             isSearchActive = true,

@@ -192,7 +192,9 @@ data class LoginPage(private val device: UiDevice) {
                 UiWaitUtils.waitUntilElementGone(device, proceedButtonGoneSelector, timeout = UiWaitUtils.POLLING_FAST)
             }.isSuccess
             val welcomeVisible = UiWaitUtils.findElementOrNull(emailWelcomeSelector)?.let { !it.visibleBounds.isEmpty } == true
-            val emailInputVisible = UiWaitUtils.findElementOrNull(emailInputFieldSelector)?.let { !it.visibleBounds.isEmpty } == true
+            val emailInputVisible = UiWaitUtils.findElementOrNull(emailInputFieldSelector)?.let {
+                !it.visibleBounds.isEmpty
+            } == true
             proceedGone && welcomeVisible && emailInputVisible
         }
         if (!welcomeReady) {

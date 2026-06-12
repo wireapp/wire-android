@@ -23,7 +23,7 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.util.TestUser
+import com.wire.android.framework.TestUser
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase

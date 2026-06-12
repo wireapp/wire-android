@@ -22,7 +22,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
-import com.wire.android.util.TestUser
+import com.wire.android.framework.TestUser
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase

@@ -26,7 +26,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.framework.FakeKaliumFileSystem
-import com.wire.android.util.TestUser
+import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
 import com.wire.android.ui.home.settings.backup.BackupCreationProgress

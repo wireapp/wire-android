@@ -256,4 +256,5 @@
     <string name="sort_name_z_to_a">Я-А</string>
     <string name="sort_size_smallest_first">Сначала маленькие</string>
     <string name="sort_size_largest_first">Сначала большие</string>
+    <string name="content_description_image_message">Изображение</string>
 </resources>

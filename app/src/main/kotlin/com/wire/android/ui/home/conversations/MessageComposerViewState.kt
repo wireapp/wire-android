@@ -28,6 +28,7 @@ import com.wire.kalium.logic.data.id.MessageId
 
 data class MessageComposerViewState(
     val isFileSharingEnabled: Boolean = true,
+    val areAttachmentOptionsEnabled: Boolean = true,
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val mentionSearchResult: List<Contact> = listOf(),
     val mentionSearchQuery: String = String.EMPTY,

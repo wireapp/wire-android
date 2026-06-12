@@ -27,17 +27,16 @@ jobs:
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: pr
-      # TODO: Restore Dev/Debug and remove s3-use-pr-folder after QA finishes validating this temporary Alpha/Compat artifact.
-      # This branch needs the PR S3 artifact to match the alpha compat path used by Jenkins/develop builds.
+      # TODO: Restore Dev/Debug after QA finishes validating the temporary Alpha/Release artifact.
+      # This branch needs the PR S3 artifact to match the alpha release variant used for playtests.
       build-config: |
         [
           {
             "flavor": "Alpha",
-            "variant": "Compat",
-            "keystore-type": "internal",
+            "variant": "Release",
+            "keystore-type": "prerelease",
             "build-type": "apk",
             "generate-version-file": false,
-            "s3-use-pr-folder": "false",
             "deployment-targets": [
               {
                 "type": "s3"

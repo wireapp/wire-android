@@ -19,10 +19,6 @@ inputs:
   build-variant:
     required: true
     description: "The build variant (benchmark, compat, compatrelease, debug, release)"
-  use-pr-folder:
-    required: false
-    default: "true"
-    description: "Whether pull_request uploads should be placed in a PR-number subfolder"
 runs:
   using: "composite"
   steps:
@@ -34,7 +30,7 @@ runs:
         echo "apk_full_path=$APK_FULL_PATH_REF" >> $GITHUB_OUTPUT
         unset APK_FULL_PATH_REF
     - name: Upload to S3 from PR
-      if: github.event.pull_request.number != '' && inputs.use-pr-folder == 'true'
+      if: github.event.pull_request.number != ''
       id: upload
       uses: hkusu/s3-upload-action@v2.1.0
       with:
@@ -43,19 +39,6 @@ runs:
         aws-region: 'eu-central-1'
         aws-bucket: ${{ inputs.aws-bucket }}
         destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/PR-${{ github.event.pull_request.number }}/"
-        file-path: ${{ steps.path.outputs.apk_full_path }}
-        output-file-url: 'false'
-        public: false
-    - name: Upload to S3 from PR root folder
-      if: github.event.pull_request.number != '' && inputs.use-pr-folder == 'false'
-      id: upload-from-pr-root
-      uses: hkusu/s3-upload-action@v2.1.0
-      with:
-        aws-access-key-id: ${{ inputs.aws-access-key-id }}
-        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-        aws-region: 'eu-central-1'
-        aws-bucket: ${{ inputs.aws-bucket }}
-        destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/"
         file-path: ${{ steps.path.outputs.apk_full_path }}
         output-file-url: 'false'
         public: false
@@ -138,7 +121,7 @@ runs:
         output-file-url: 'false'
         public: false
     - name: Upload mapping file to S3 from PR
-      if: ${{ github.event.pull_request.number != '' && inputs.use-pr-folder == 'true' && inputs.build-variant != 'debug' }}
+      if: ${{ github.event.pull_request.number != '' && inputs.build-variant != 'debug' }}
       id: upload-mapping-from-PR
       uses: hkusu/s3-upload-action@v2.1.0
       with:
@@ -147,19 +130,6 @@ runs:
         aws-region: 'eu-central-1'
         aws-bucket: ${{ inputs.aws-bucket }}
         destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/PR-${{ github.event.pull_request.number }}/"
-        file-path: ${{ env.new_mapping_file_name }}
-        output-file-url: 'false'
-        public: false
-    - name: Upload mapping file to S3 from PR root folder
-      if: ${{ github.event.pull_request.number != '' && inputs.use-pr-folder == 'false' && inputs.build-variant != 'debug' }}
-      id: upload-mapping-from-PR-root
-      uses: hkusu/s3-upload-action@v2.1.0
-      with:
-        aws-access-key-id: ${{ inputs.aws-access-key-id }}
-        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-        aws-region: 'eu-central-1'
-        aws-bucket: ${{ inputs.aws-bucket }}
-        destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/"
         file-path: ${{ env.new_mapping_file_name }}
         output-file-url: 'false'
         public: false

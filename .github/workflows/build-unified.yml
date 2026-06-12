@@ -429,7 +429,6 @@ jobs:
       deployment-targets: ${{ toJSON(matrix.deployment-targets) }}
       build-flavor: ${{ matrix.flavor }}
       build-variant: ${{ matrix.variant }}
-      s3-use-pr-folder: ${{ matrix.s3-use-pr-folder || 'true' }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

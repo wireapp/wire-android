@@ -19,11 +19,6 @@ on:
         description: "Build variant (debug, release, compat, compatrelease)"
         required: true
         type: string
-      s3-use-pr-folder:
-        description: "Whether S3 uploads from PR workflows should be placed in a PR-number subfolder"
-        required: false
-        type: string
-        default: "true"
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
@@ -75,7 +70,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           build-flavour: ${{ steps.lowercase.outputs.build-flavour }}
           build-variant: ${{ steps.lowercase.outputs.build-variant }}
-          use-pr-folder: ${{ inputs.s3-use-pr-folder }}
 
       - name: Create service_account.json
         if: matrix.target.type == 'google-play'

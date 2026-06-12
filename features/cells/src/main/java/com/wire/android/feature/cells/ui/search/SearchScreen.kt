@@ -37,11 +37,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.wire.android.feature.cells.ui.searchScreenViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
@@ -53,8 +51,6 @@ import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
-import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
-import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
@@ -62,6 +58,8 @@ import com.wire.android.feature.cells.ui.search.filter.bottomsheet.conversation.
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.owner.FilterByOwnerBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.tags.FilterByTagsBottomSheet
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
+import com.wire.android.feature.cells.ui.searchScreenViewModel
+import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
@@ -272,24 +270,11 @@ fun SearchScreen(
                         )
                     )
                 },
-                showVideoViewer = { file ->
+                showVideoPlayer = { file ->
                     navigator.navigate(
                         NavigationCommand(
                             VideoPlayerScreenDestination(
                                 VideoViewerNavArgs(
-                                    localPath = file.localPath,
-                                    contentUrl = file.contentUrl,
-                                    fileName = file.name,
-                                )
-                            )
-                        )
-                    )
-                },
-                showAudioPlayer = { file ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            CellAudioPlayerScreenDestination(
-                                AudioPlayerNavArgs(
                                     localPath = file.localPath,
                                     contentUrl = file.contentUrl,
                                     fileName = file.name,

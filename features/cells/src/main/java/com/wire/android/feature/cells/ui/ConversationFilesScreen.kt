@@ -45,7 +45,6 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CreateFileScreenDestination
@@ -59,7 +58,6 @@ import com.ramcosta.composedestinations.generated.cells.destinations.VersionHist
 import com.ramcosta.composedestinations.generated.cells.destinations.VideoPlayerScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
-import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
 import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
@@ -382,24 +380,11 @@ internal fun ConversationFilesScreenContent(
                         )
                     )
                 },
-                showVideoViewer = { file ->
+                showVideoPlayer = { file ->
                     navigator.navigate(
                         NavigationCommand(
                             VideoPlayerScreenDestination(
                                 VideoViewerNavArgs(
-                                    localPath = file.localPath,
-                                    contentUrl = file.contentUrl,
-                                    fileName = file.name,
-                                )
-                            )
-                        )
-                    )
-                },
-                showAudioPlayer = { file ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            CellAudioPlayerScreenDestination(
-                                AudioPlayerNavArgs(
                                     localPath = file.localPath,
                                     contentUrl = file.contentUrl,
                                     fileName = file.name,

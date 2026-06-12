@@ -21,7 +21,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.wire.android.feature.cells.ui.audioplayer.CellAudioPlayerViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel
@@ -121,19 +120,6 @@ object CellsMetroViewModelBindings {
     fun videoViewerViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
         savedStateViewModel {
             factory.cellVideoViewerViewModel(
-                context = checkNotNull(it[APPLICATION_KEY]) {
-                    "No Application was provided via CreationExtras"
-                },
-                savedStateHandle = it.createSavedStateHandle(),
-            )
-        }
-
-    @Provides
-    @IntoMap
-    @ViewModelAssistedFactoryKey(CellAudioPlayerViewModel::class)
-    fun audioPlayerViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel {
-            factory.cellAudioPlayerViewModel(
                 context = checkNotNull(it[APPLICATION_KEY]) {
                     "No Application was provided via CreationExtras"
                 },

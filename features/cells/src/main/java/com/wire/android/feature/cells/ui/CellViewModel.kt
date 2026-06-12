@@ -376,14 +376,12 @@ class CellViewModel(
                 sendAction(OpenImageViewer(file))
                 return
             }
+
             AttachmentFileType.VIDEO -> {
-                sendAction(OpenVideoViewer(file))
+                sendAction(OpenVideoPlayer(file))
                 return
             }
-            AttachmentFileType.AUDIO -> {
-                sendAction(OpenAudioPlayer(file))
-                return
-            }
+
             else -> Unit
         }
         file.contentUrl?.let { url ->
@@ -403,14 +401,12 @@ class CellViewModel(
                 sendAction(OpenImageViewer(file))
                 return
             }
+
             AttachmentFileType.VIDEO -> {
-                sendAction(OpenVideoViewer(file))
+                sendAction(OpenVideoPlayer(file))
                 return
             }
-            AttachmentFileType.AUDIO -> {
-                sendAction(OpenAudioPlayer(file))
-                return
-            }
+
             else -> Unit
         }
         file.localPath?.let { path ->
@@ -660,8 +656,7 @@ internal data class OpenFolder(val path: String, val title: String, val parentFo
 internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
 internal data object ShowOfflineFileSaved : CellViewAction
 internal data class OpenImageViewer(val file: CellNodeUi.File) : CellViewAction
-internal data class OpenVideoViewer(val file: CellNodeUi.File) : CellViewAction
-internal data class OpenAudioPlayer(val file: CellNodeUi.File) : CellViewAction
+internal data class OpenVideoPlayer(val file: CellNodeUi.File) : CellViewAction
 
 internal enum class CellError(val message: Int) {
     NO_APP_FOUND(R.string.no_app_found),

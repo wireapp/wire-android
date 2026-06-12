@@ -99,34 +99,11 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                 observeConversationsFromFromFolder(conversationFilter.folderId)
                     .map { staticPagingItems(it) }
             }
-        }
-            .map { pagingData ->
-                pagingData.mapConversationsWithTiming(selfUserTeamId)
+        }.map { pagingData ->
+                pagingData.map {
+                    it.toConversationItem(userTypeMapper, uiTextResolver, selfUserTeamId)
+                }
             }.flowOn(dispatchers.io())
-    }
-
-    private fun PagingData<ConversationDetailsWithEvents>.mapConversationsWithTiming(
-        selfUserTeamId: TeamId?
-    ): PagingData<ConversationItem> {
-        var pageIndex = 0
-        var itemsInPage = 0
-        var totalMappingNanos = 0L
-        return map {
-            val startNanos = SystemClock.elapsedRealtimeNanos()
-            val item = it.toConversationItem(userTypeMapper, uiTextResolver, selfUserTeamId)
-            totalMappingNanos += SystemClock.elapsedRealtimeNanos() - startNanos
-            itemsInPage++
-
-            val pageSize = if (pageIndex == 0) INITIAL_LOAD_SIZE else PAGE_SIZE
-            if (itemsInPage == pageSize) {
-                appLogger.d("$TAG: page=$pageIndex items=$itemsInPage totalMapperMs=${totalMappingNanos / NANOS_IN_MILLIS}")
-                pageIndex++
-                itemsInPage = 0
-                totalMappingNanos = 0L
-            }
-
-            item
-        }
     }
 
     private fun staticPagingItems(conversations: List<ConversationDetailsWithEvents>): PagingData<ConversationDetailsWithEvents> {
@@ -141,10 +118,8 @@ class GetConversationsFromSearchUseCase @Inject constructor(
     }
 
     private companion object {
-        const val TAG = "ConversationMapperTiming"
         const val PAGE_SIZE = 20
         const val INITIAL_LOAD_SIZE = 40
         const val PREFETCH_DISTANCE = 5
-        const val NANOS_IN_MILLIS = 1_000_000
     }
 }

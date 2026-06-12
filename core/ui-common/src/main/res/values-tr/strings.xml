@@ -23,26 +23,14 @@
     <string name="content_description_hide_password">Parolayı gizle</string>
     <string name="label_wait_until_synchronised">Lütfen uygulama senkronize edilene kadar bekleyin</string>
     <string name="label_wait_until_connected">Lütfen internet bağlantısı yeniden sağlanana kadar bekleyin</string>
-    <string name="content_description_right_arrow">Sağ ok</string>
-    <string name="content_description_left_arrow">Geri dön</string>
-    <string name="label_user_deleted">Silinmiş</string>
-    <string name="label_user_blocked">Engellenmiş</string>
-    <string name="content_description_add_contact">Kişi ekleme</string>
-    <string name="connection_request_sent">Bağlantı isteği gönderildi</string>
-    <string name="content_description_open_link_label">bağlantıyı aç</string>
     <string name="content_description_close">Kapat</string>
     <string name="content_description_menu_button">Ana navigasyon</string>
     <string name="content_description_drop_down_icon">Aşağı açılan ok</string>
     <string name="content_description_pending_connection_badge">bağlantı isteğinin onaylanması bekleniyor</string>
-    <string name="content_description_open_user_profile_label">profili aç</string>
-    <string name="content_description_open_conversation_label">açık konuşma</string>
     <string name="content_description_alert">Uyarı</string>
     <string name="content_description_show_more_options">Daha fazla seçenek göster</string>
+    <!--unblock user dialog -->
     <!-- Connections -->
-        <string name="connection_label_cancel_request">İsteği iptal et</string>
-    <!-- Animation label -->
-        <string name="label_open_conversation">Sohbeti aç</string>
-    <string name="content_description_select_label">seç</string>
-    <string name="content_description_unselect_label">seçimi kaldır</string>
-    <string name="label_show_less">Daha Az Göster</string>
+    <!-- Missing keyPackages dialog -->
+    <!-- Search Contact-->
 </resources>

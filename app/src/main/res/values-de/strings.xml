@@ -977,6 +977,7 @@
     <string name="success_removing_from_favorite">“%s“ wurde aus Favoriten entfernt</string>
     <string name="error_adding_to_favorite">“%s” konnte nicht zu Favoriten hinzugefügt werden</string>
     <string name="error_removing_from_favorite">“%s” konnte nicht aus Favoriten entfernt werden</string>
+    <!-- Animation label -->
     <string name="email_label">E-Mail-Adresse</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->

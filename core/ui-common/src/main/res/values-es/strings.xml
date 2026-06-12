@@ -17,41 +17,8 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="content_description_right_arrow">Flecha derecha</string>
-    <string name="content_description_left_arrow">Regresar</string>
-    <string name="label_user_deleted">Eliminado</string>
-    <string name="label_user_blocked">Bloqueado</string>
-    <string name="content_description_add_contact">Agregar contacto</string>
-    <string name="content_description_open_service_label">abrir aplicación</string>
-    <string name="apps_upgrade_teams_for_apps_banner_title">Tu equipo aún no utiliza aplicaciones</string>
-    <string name="apps_upgrade_teams_for_apps_banner_content">Para mejorar tu flujo de trabajo con las aplicaciones, tu equipo necesita configuración. Por favor, contacta al administrador de tu equipo.</string>
-    <string name="connection_request_sent">Solicitud de conexi&#243;n enviada</string>
-    <string name="connection_request_sent_error">No se pudo enviar la solicitud de conexi&#243;n</string>
-    <string name="connection_request_cancel_error">No se pudo cancelar la solicitud de conexi&#243;n</string>
-    <string name="connection_request_canceled">Solicitud de conexi&#243;n cancelada</string>
-    <string name="connection_request_ignored">Ignoraste la solicitud de %1$s</string>
-    <string name="connection_request_accept_error">No se pudo aceptar la solicitud de conexi&#243;n</string>
-    <string name="connection_request_accepted">Solicitud de conexi&#243;n aceptada</string>
-    <string name="connection_request_ignore_error">No se pudo ignorar la solicitud de conexi&#243;n</string>
-    <string name="error_unblocking_user">No se pudo desbloquear al usuario.</string>
-
     <!--unblock user dialog -->
-    <string name="unblock_user_dialog_title">&#191;Desbloquear usuario?</string>
-    <string name="unblock_user_dialog_body">%1$s podr&#225; ponerse en contacto contigo o agregarte a conversaciones de grupo. Podr&#225;s acceder a una conversaci&#243;n 1:1 con ellos.</string>
-    <string name="unblock_user_dialog_confirm_button">Desbloquear</string>
-    <string name="connection_label_cancel_request">Cancelar solicitud</string>
-    <!-- Animation label -->
-        <string name="label_open_conversation">Abrir conversaci&#243;n</string>
-    <string name="connection_label_accept">Aceptar</string>
-    <string name="connection_label_ignore">Ignorar</string>
-    <string name="user_profile_unblock_user">Desbloquear usuario</string>
     <!-- Connections -->
-        <string name="connection_label_connect">Conectar</string>
-    <string name="connection_pending_label">pendiente</string>
-    <string name="label_search_people_instruction">Busca personas por su nombre de perfil o @nombredeusuario</string>
-    <string name="label_learn_more_searching_user">Aprende m&#225;s</string>
+    <!-- Missing keyPackages dialog -->
     <!-- Search Contact-->
-        <string name="label_contacts">Contactos</string>
-    <string name="label_show_more">Mostrar m&#225;s</string>
-    <string name="label_show_less">Mostrar menos</string>
 </resources>

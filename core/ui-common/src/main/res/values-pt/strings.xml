@@ -17,53 +17,8 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="content_description_right_arrow">Seta para a direita</string>
-    <string name="content_description_left_arrow">Voltar</string>
-    <string name="label_user_deleted">Excluído</string>
-    <string name="label_user_blocked">Bloqueado</string>
-    <string name="username_unavailable_label">Nome indisponível</string>
-    <string name="content_description_add_contact">Adicionar contato</string>
-    <string name="content_description_open_link_label">abrir link</string>
-    <string name="legal_hold_learn_more_button">Saiba mais sobre retenção legal</string>
-    <string name="legal_hold_connection_failed_dialog_title">Não é possível conectar</string>
-    <string name="legal_hold_connection_failed_dialog_description">Você não pode se conectar a este usuário devido a restrição legal.</string>
-    <string name="connection_request_sent">Solicitação de conexão enviada</string>
-    <string name="connection_request_sent_federation_denied_error">Seu backend não federa com o backend de %1$s. Você não pode se conectar a eles.</string>
-    <string name="connection_request_sent_error">Não foi possível enviar a solicitação de conexão</string>
-    <string name="connection_request_cancel_error">Não foi possível cancelar a solicitação de conexão</string>
-    <string name="connection_request_canceled">Solicitação de conexão cancelada</string>
-    <string name="connection_request_ignored">Você ignorou a solicitação de %1$s</string>
-    <string name="connection_request_accept_error">Não foi possível aceitar a solicitação de conexão</string>
-    <string name="connection_request_accepted">Solicitação de conexão aceita</string>
-    <string name="connection_request_ignore_error">Não foi possível ignorar a solicitação de conexão</string>
-    <string name="error_unblocking_user">O usuário não pôde ser desbloqueado.</string>
-    <string name="content_description_open_user_profile_label">perfil aberto</string>
-    <string name="content_description_open_conversation_label">abrir conversa</string>
-
     <!--unblock user dialog -->
-    <string name="unblock_user_dialog_title">Desbloquear usuário?</string>
-    <string name="unblock_user_dialog_body">%1$s poderá contactá-lo e adicioná-lo a conversas em grupo. Você poderá acessar uma conversa com ele(a).</string>
-    <string name="unblock_user_dialog_confirm_button">Desbloquear</string>
-    <string name="connection_label_cancel_request">Cancelar solicitação</string>
-    <!-- Animation label -->
-        <string name="label_open_conversation">Abrir conversa</string>
-    <string name="label_start_conversation">Iniciar Conversa</string>
-    <string name="connection_label_accept">Aceitar</string>
-    <string name="connection_label_ignore">Ignorar</string>
-    <string name="user_profile_unblock_user">Desbloquear usuário</string>
     <!-- Connections -->
-        <string name="connection_label_connect">Conectar</string>
     <!-- Missing keyPackages dialog -->
-        <string name="missing_keypackage_dialog_title">Não foi possível iniciar a conversa</string>
-    <string name="missing_keypackage_dialog_body">Você não pode iniciar a conversa com %1$s agora. %1$s precisa abrir o Wire ou entrar novamente primeiro. Por favor, tente novamente mais tarde.</string>
-    <string name="connection_pending_label">pendente</string>
-    <string name="label_search_people_instruction">Pesquise pessoas pelo seu nome de perfil ou @nome.de.usuario</string>
-    <string name="label_learn_more_searching_user">Saiba mais</string>
     <!-- Search Contact-->
-        <string name="label_contacts">Contatos</string>
-    <string name="label_public_wire">Wire Público</string>
-    <string name="content_description_select_label">selecionar</string>
-    <string name="content_description_unselect_label">desmarcar</string>
-    <string name="label_show_more">Mostrar Mais</string>
-    <string name="label_show_less">Mostrar menos</string>
 </resources>

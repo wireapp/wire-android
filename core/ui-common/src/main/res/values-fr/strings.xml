@@ -17,12 +17,8 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="content_description_right_arrow">Flèche droite</string>
-    <string name="content_description_left_arrow">Revenir en arrière</string>
-    <string name="label_user_deleted">Supprimé.e</string>
-    <string name="label_user_blocked">Bloqué</string>
-    <string name="username_unavailable_label">Le nom n’est pas disponible</string>
-    <string name="content_description_add_contact">Ajouter un contact</string>
-    <string name="user_profile_unblock_user">Débloquer l\'utilisateur</string>
-    <string name="label_show_less">Afficher moins</string>
+    <!--unblock user dialog -->
+    <!-- Connections -->
+    <!-- Missing keyPackages dialog -->
+    <!-- Search Contact-->
 </resources>

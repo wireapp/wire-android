@@ -406,7 +406,6 @@
     <!--Typing Indicator-->
     <!-- Search Messages -->
     <!-- Conversation Media -->
-    <!-- Search Contact-->
     <string name="label_new_group">Nova Grupa</string>
     <!-- Search Channels -->
     <string name="label_new_conversation">Novi razgovor</string>
@@ -422,6 +421,7 @@
     <!-- Archiving -->
     <string name="dialog_archive_conversation_option">Arhiviraj</string>
     <!-- Favorite -->
+    <!-- Animation label -->
     <string name="email_label">E-mail</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
@@ -453,7 +453,6 @@
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_connecting">Dešifriranje poruka</string>
     <string name="connection_pending_message">Želi se povezati</string>
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galerija medija</string>
     <string name="media_gallery_on_image_downloaded">Spremi u Download mapu</string>
@@ -476,7 +475,6 @@
     <!--Privacy Settings -->
     <!--Privacy Settings, App lock -->
     <!--Devices -->
-    <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--nomad account blocks login dialog-->
     <string name="conversation_empty_list_description">Povežite se s drugima ili stvorite novu grupu da biste započeli suradnju!</string>

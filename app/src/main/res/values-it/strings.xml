@@ -601,7 +601,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="label_conversation_pictures">Immagini</string>
     <string name="label_conversation_pictures_empty">Nessuno ha ancora condiviso immagini in questa conversazione 🥲</string>
     <string name="label_conversation_files_empty">Nessuno ha ancora condiviso dei file in questa conversazione 🙀</string>
-    <!-- Search Contact-->
     <string name="label_new_group">Nuovo Gruppo</string>
     <!-- Search Channels -->
     <string name="label_new_conversation">Nuova Conversazione</string>
@@ -642,6 +641,7 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="dialog_archive_conversation_description">Questa conversazione si sposta nel tuo archivio. Ricevi comunque nuovi messaggi, file e chiamate, ma nessuna notifica. Puoi disarchiviarla in qualsiasi momento.</string>
     <string name="dialog_archive_conversation_option">Archivia</string>
     <!-- Favorite -->
+    <!-- Animation label -->
     <string name="email_label">E-mail</string>
     <string name="phone_label">Telefono</string>
     <!-- Notifications -->
@@ -701,7 +701,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="connection_label_accepting_request_description">Se accetti la loro richiesta, saranno aggiunti come contatto e potrete comunicare direttamente.</string>
     <string name="connection_label_send_unverified_warning">Ottieni la certezza sull\'identtà di %s, prima di connetterti.</string>
     <string name="connection_label_received_unverified_warning">Ti preghiamo di verificare l\'identità della persona prima di accettare la richiesta di connessione.</string>
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galleria multimediale</string>
     <string name="media_gallery_on_image_downloaded">Salvato nella cartella Download</string>

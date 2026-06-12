@@ -800,6 +800,20 @@ private fun com.wire.android.ui.WireActivity.HandleScreenshotCensoring(): kotlin
   params:
 
 @Composable
+private fun com.wire.android.ui.WireActivity.HandleSessionGraphEffects(currentUserId: com.wire.kalium.logic.data.id.QualifiedID?, sessionBackedAuthenticationUserId: com.wire.kalium.logic.data.id.QualifiedID?, currentBaseRoute: kotlin.String?, isAuthenticationRoute: kotlin.Boolean, isUserUiBlocked: kotlin.Boolean, isSessionTransitionInProgress: kotlin.Boolean, graphContext: com.wire.android.ui.WireActivityGraphContext?, navigator: com.wire.android.navigation.Navigator): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - currentUserId: UNSTABLE (has mutable properties or unstable members)
+    - sessionBackedAuthenticationUserId: UNSTABLE (has mutable properties or unstable members)
+    - currentBaseRoute: STABLE (class with no mutable properties)
+    - isAuthenticationRoute: STABLE (primitive type)
+    - isUserUiBlocked: STABLE (primitive type)
+    - isSessionTransitionInProgress: STABLE (primitive type)
+    - graphContext: UNSTABLE (has mutable properties or unstable members)
+    - navigator: STABLE (marked @Stable or @Immutable)
+
+@Composable
 private fun com.wire.android.ui.WireActivity.HandleThemeChanges(themeOption: com.wire.android.ui.theme.ThemeOption): kotlin.Unit
   skippable: true
   restartable: true
@@ -807,10 +821,11 @@ private fun com.wire.android.ui.WireActivity.HandleThemeChanges(themeOption: com
     - themeOption: STABLE (class with no mutable properties)
 
 @Composable
-private fun com.wire.android.ui.WireActivity.ProvideViewModelGraph(content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.WireActivity.ProvideViewModelGraph(logoutAction: kotlin.Function1<@[ParameterName(name = \, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
+    - logoutAction: STABLE (function type)
     - content: STABLE (composable function type)
 
 @Composable
@@ -821,16 +836,50 @@ private fun com.wire.android.ui.WireActivity.SetUpNavigation(navigator: com.wire
     - navigator: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.WireActivity.rememberWireActivityGraphContext(appGraph: com.wire.android.di.metro.WireApplicationGraph, authenticationViewModelGraph: com.wire.android.di.metro.AppAuthenticationViewModelGraph, currentUserId: com.wire.kalium.logic.data.id.QualifiedID?, currentBaseRoute: kotlin.String?, startDestinationBaseRoute: kotlin.String, isUserUiBlocked: kotlin.Boolean): com.wire.android.ui.WireActivityGraphContext?
+private fun com.wire.android.ui.WireActivity.WireActivityMainContent(startDestination: com.ramcosta.composedestinations.spec.Direction, navigator: com.wire.android.navigation.Navigator, graphContext: com.wire.android.ui.WireActivityGraphContext?, backgroundType: com.wire.android.navigation.style.BackgroundType, context: android.content.Context): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - startDestination: RUNTIME (requires runtime check)
+    - navigator: STABLE (marked @Stable or @Immutable)
+    - graphContext: UNSTABLE (has mutable properties or unstable members)
+    - backgroundType: STABLE (class with no mutable properties)
+    - context: RUNTIME (requires runtime check)
+
+@Composable
+private fun com.wire.android.ui.WireActivity.WireActivityRoot(startDestination: com.ramcosta.composedestinations.spec.Direction, appGraph: com.wire.android.di.metro.WireApplicationGraph, sessionGraphStore: com.wire.android.ui.SessionGraphStoreViewModel): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - startDestination: RUNTIME (requires runtime check)
+    - appGraph: RUNTIME (requires runtime check)
+    - sessionGraphStore: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+private fun com.wire.android.ui.WireActivity.WireActivityThemedContent(startDestination: com.ramcosta.composedestinations.spec.Direction, appGraph: com.wire.android.di.metro.WireApplicationGraph, authenticationViewModelGraph: com.wire.android.di.metro.AppAuthenticationViewModelGraph, sessionGraphStore: com.wire.android.ui.SessionGraphStoreViewModel, context: android.content.Context): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - startDestination: RUNTIME (requires runtime check)
+    - appGraph: RUNTIME (requires runtime check)
+    - authenticationViewModelGraph: STABLE (class with no mutable properties)
+    - sessionGraphStore: UNSTABLE (has mutable properties or unstable members)
+    - context: RUNTIME (requires runtime check)
+
+@Composable
+private fun com.wire.android.ui.WireActivity.rememberWireActivityGraphContext(appGraph: com.wire.android.di.metro.WireApplicationGraph, authenticationViewModelGraph: com.wire.android.di.metro.AppAuthenticationViewModelGraph, sessionGraphStore: com.wire.android.ui.SessionGraphStoreViewModel, currentUserId: com.wire.kalium.logic.data.id.QualifiedID?, sessionBackedAuthenticationUserId: com.wire.kalium.logic.data.id.QualifiedID?, currentBaseRoute: kotlin.String?, startDestinationBaseRoute: kotlin.String, isUserUiBlocked: kotlin.Boolean, isSessionTransitionInProgress: kotlin.Boolean): com.wire.android.ui.WireActivityGraphContext?
   skippable: false
   restartable: true
   params:
     - appGraph: RUNTIME (requires runtime check)
     - authenticationViewModelGraph: STABLE (class with no mutable properties)
+    - sessionGraphStore: UNSTABLE (has mutable properties or unstable members)
     - currentUserId: UNSTABLE (has mutable properties or unstable members)
+    - sessionBackedAuthenticationUserId: UNSTABLE (has mutable properties or unstable members)
     - currentBaseRoute: STABLE (class with no mutable properties)
     - startDestinationBaseRoute: STABLE (String is immutable)
     - isUserUiBlocked: STABLE (primitive type)
+    - isSessionTransitionInProgress: STABLE (primitive type)
 
 @Composable
 private fun com.wire.android.ui.WireActivity.wireActivityScopedViewModels(graph: com.wire.android.di.metro.AppSessionViewModelGraph): com.wire.android.ui.WireActivityScopedViewModels
@@ -1218,12 +1267,13 @@ private fun com.wire.android.ui.authentication.devices.register.RegisterDeviceCo
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.authentication.devices.register.RegisterDeviceScreen(navigator: com.wire.android.navigation.Navigator, loginTypeSelector: com.wire.android.navigation.LoginTypeSelector, viewModel: com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModel, clearSessionViewModel: com.wire.android.ui.authentication.devices.common.ClearSessionViewModel): kotlin.Unit
+public fun com.wire.android.ui.authentication.devices.register.RegisterDeviceScreen(navigator: com.wire.android.navigation.Navigator, loginTypeSelector: com.wire.android.navigation.LoginTypeSelector, sessionBackedAuthenticationNavArgs: com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs, viewModel: com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModel, clearSessionViewModel: com.wire.android.ui.authentication.devices.common.ClearSessionViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
     - loginTypeSelector: RUNTIME (requires runtime check)
+    - sessionBackedAuthenticationNavArgs: UNSTABLE (has mutable properties or unstable members)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
     - clearSessionViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -1274,12 +1324,13 @@ private fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceItemsL
     - onItemClicked: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceScreen(navigator: com.wire.android.navigation.Navigator, loginTypeSelector: com.wire.android.navigation.LoginTypeSelector, viewModel: com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel, clearSessionViewModel: com.wire.android.ui.authentication.devices.common.ClearSessionViewModel): kotlin.Unit
+public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceScreen(navigator: com.wire.android.navigation.Navigator, loginTypeSelector: com.wire.android.navigation.LoginTypeSelector, sessionBackedAuthenticationNavArgs: com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs, viewModel: com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel, clearSessionViewModel: com.wire.android.ui.authentication.devices.common.ClearSessionViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
     - loginTypeSelector: RUNTIME (requires runtime check)
+    - sessionBackedAuthenticationNavArgs: UNSTABLE (has mutable properties or unstable members)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
     - clearSessionViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -1300,7 +1351,7 @@ public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceVerific
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.LoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function2<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function0<kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.LoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1330,7 +1381,7 @@ public fun com.wire.android.ui.authentication.login.LoginScreen(navigator: com.w
     - loginEmailViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.MainLoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function2<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function0<kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.MainLoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1372,7 +1423,7 @@ public fun com.wire.android.ui.authentication.login.email.LoginButton(loading: k
     - onClick: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.email.LoginEmailContent(scrollState: androidx.compose.foundation.ScrollState, userIdentifierTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState, isProxyAuthRequired: kotlin.Boolean, apiProxyUrl: kotlin.String?, onDialogDismiss: kotlin.Function0<kotlin.Unit>, onRemoveDeviceOpen: kotlin.Function0<kotlin.Unit>, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, forgotPasswordUrl: kotlin.String, scope: kotlinx.coroutines.CoroutineScope, fillMaxHeight: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.email.LoginEmailContent(scrollState: androidx.compose.foundation.ScrollState, userIdentifierTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState, isProxyAuthRequired: kotlin.Boolean, apiProxyUrl: kotlin.String?, onDialogDismiss: kotlin.Function0<kotlin.Unit>, onRemoveDeviceOpen: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, forgotPasswordUrl: kotlin.String, scope: kotlinx.coroutines.CoroutineScope, fillMaxHeight: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1392,7 +1443,7 @@ private fun com.wire.android.ui.authentication.login.email.LoginEmailContent(scr
     - fillMaxHeight: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.email.LoginEmailScreen(onSuccess: kotlin.Function2<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function0<kotlin.Unit>, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, scrollState: androidx.compose.foundation.ScrollState, fillMaxHeight: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.authentication.login.email.LoginEmailScreen(onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, scrollState: androidx.compose.foundation.ScrollState, fillMaxHeight: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1473,7 +1524,7 @@ private fun com.wire.android.ui.authentication.login.sso.LoginButton(loading: ko
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.sso.LoginSSOContent(scrollState: androidx.compose.foundation.ScrollState, loginSSOState: com.wire.android.ui.authentication.login.sso.LoginSSOState, ssoCodeTextState: androidx.compose.foundation.text.input.TextFieldState, onErrorDialogDismiss: kotlin.Function0<kotlin.Unit>, onRemoveDeviceOpen: kotlin.Function0<kotlin.Unit>, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, onCustomServerDialogDismiss: kotlin.Function0<kotlin.Unit>, onCustomServerDialogConfirm: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.sso.LoginSSOContent(scrollState: androidx.compose.foundation.ScrollState, loginSSOState: com.wire.android.ui.authentication.login.sso.LoginSSOState, ssoCodeTextState: androidx.compose.foundation.text.input.TextFieldState, onErrorDialogDismiss: kotlin.Function0<kotlin.Unit>, onRemoveDeviceOpen: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, onCustomServerDialogDismiss: kotlin.Function0<kotlin.Unit>, onCustomServerDialogConfirm: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1487,7 +1538,7 @@ private fun com.wire.android.ui.authentication.login.sso.LoginSSOContent(scrollS
     - onCustomServerDialogConfirm: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.sso.LoginSSOScreen(onSuccess: kotlin.Function2<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function0<kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?, loginSSOViewModel: com.wire.android.ui.authentication.login.sso.LoginSSOViewModel, scrollState: androidx.compose.foundation.ScrollState): kotlin.Unit
+public fun com.wire.android.ui.authentication.login.sso.LoginSSOScreen(onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?, loginSSOViewModel: com.wire.android.ui.authentication.login.sso.LoginSSOViewModel, scrollState: androidx.compose.foundation.ScrollState): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -4187,12 +4238,13 @@ public fun com.wire.android.ui.e2eiCertificateDetailsViewModel(): com.wire.andro
   params:
 
 @Composable
-public fun com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentScreen(navigator: com.wire.android.navigation.Navigator, loginTypeSelector: com.wire.android.navigation.LoginTypeSelector, viewModel: com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel, clearSessionViewModel: com.wire.android.ui.authentication.devices.common.ClearSessionViewModel): kotlin.Unit
+public fun com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentScreen(navigator: com.wire.android.navigation.Navigator, loginTypeSelector: com.wire.android.navigation.LoginTypeSelector, sessionBackedAuthenticationNavArgs: com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs, viewModel: com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel, clearSessionViewModel: com.wire.android.ui.authentication.devices.common.ClearSessionViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
     - loginTypeSelector: RUNTIME (requires runtime check)
+    - sessionBackedAuthenticationNavArgs: UNSTABLE (has mutable properties or unstable members)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
     - clearSessionViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -9325,11 +9377,12 @@ private fun com.wire.android.ui.home.newconversation.channelaccess.AccessSection
     - onAccessChange: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessOnCreateScreen(navigator: com.wire.android.navigation.Navigator): kotlin.Unit
-  skippable: true
+public fun com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessOnCreateScreen(navigator: com.wire.android.navigation.Navigator, newConversationViewModel: com.wire.android.ui.home.newconversation.NewConversationViewModel): kotlin.Unit
+  skippable: false
   restartable: true
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
+    - newConversationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
 public fun com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessScreenContent(internalPadding: androidx.compose.foundation.layout.PaddingValues, selectedAccess: com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType, selectedPermission: com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType, modifier: androidx.compose.ui.Modifier, onAccessChange: kotlin.Function1<com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType, kotlin.Unit>, onPermissionChange: kotlin.Function1<com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType, kotlin.Unit>): kotlin.Unit
@@ -9389,11 +9442,12 @@ private fun com.wire.android.ui.home.newconversation.channelhistory.ChannelHisto
   params:
 
 @Composable
-public fun com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryScreen(navigator: com.wire.android.navigation.Navigator, customResultRecipient: com.ramcosta.composedestinations.result.ResultRecipient<com.ramcosta.composedestinations.generated.app.destinations.ChannelHistoryCustomScreenDestination, com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryCustomNavBackArgs>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
+public fun com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryScreen(navigator: com.wire.android.navigation.Navigator, newConversationViewModel: com.wire.android.ui.home.newconversation.NewConversationViewModel, customResultRecipient: com.ramcosta.composedestinations.result.ResultRecipient<com.ramcosta.composedestinations.generated.app.destinations.ChannelHistoryCustomScreenDestination, com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryCustomNavBackArgs>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: false
   restartable: true
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
+    - newConversationViewModel: UNSTABLE (has mutable properties or unstable members)
     - customResultRecipient: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
 
@@ -9526,11 +9580,12 @@ private fun com.wire.android.ui.home.newconversation.groupOptions.EnableWireCell
     - onEnableWireCell: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen(navigator: com.wire.android.navigation.Navigator): kotlin.Unit
-  skippable: true
+public fun com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen(navigator: com.wire.android.navigation.Navigator, newConversationViewModel: com.wire.android.ui.home.newconversation.NewConversationViewModel): kotlin.Unit
+  skippable: false
   restartable: true
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
+    - newConversationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
 private fun com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreenContent(groupOptionState: com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState, createGroupState: com.wire.android.ui.home.newconversation.common.CreateGroupState, groupMetadataState: com.wire.android.ui.common.groupname.GroupMetadataState, onAccessClicked: kotlin.Function0<kotlin.Unit>, onHistoryClicked: kotlin.Function0<kotlin.Unit>, onAllowGuestChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onAllowServicesChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onReadReceiptChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onEnableWireCellChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onAllowGuestsDialogDismissed: kotlin.Function0<kotlin.Unit>, onNotAllowGuestsClicked: kotlin.Function0<kotlin.Unit>, onAllowGuestsClicked: kotlin.Function0<kotlin.Unit>, onErrorDismissed: kotlin.Function0<kotlin.Unit>, onEditParticipantsClick: kotlin.Function0<kotlin.Unit>, onDiscardGroupCreationClick: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, channelsHistoryOptionsEnabled: kotlin.Boolean, mlsReadReceiptsEnabled: kotlin.Boolean): kotlin.Unit
@@ -9601,18 +9656,20 @@ private fun com.wire.android.ui.home.newconversation.groupOptions.ReadReceiptsOp
     - onReadReceiptChanged: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.newconversation.groupname.NewGroupNameScreen(navigator: com.wire.android.navigation.Navigator): kotlin.Unit
-  skippable: true
+public fun com.wire.android.ui.home.newconversation.groupname.NewGroupNameScreen(navigator: com.wire.android.navigation.Navigator, newConversationViewModel: com.wire.android.ui.home.newconversation.NewConversationViewModel): kotlin.Unit
+  skippable: false
   restartable: true
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
+    - newConversationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-public fun com.wire.android.ui.home.newconversation.groupsearch.NewGroupConversationSearchPeopleScreen(navigator: com.wire.android.navigation.Navigator): kotlin.Unit
-  skippable: true
+public fun com.wire.android.ui.home.newconversation.groupsearch.NewGroupConversationSearchPeopleScreen(navigator: com.wire.android.navigation.Navigator, newConversationViewModel: com.wire.android.ui.home.newconversation.NewConversationViewModel): kotlin.Unit
+  skippable: false
   restartable: true
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
+    - newConversationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
 public fun com.wire.android.ui.home.newconversation.search.ChannelNotAvailableDialog(onCreateTeam: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -9624,18 +9681,12 @@ public fun com.wire.android.ui.home.newconversation.search.ChannelNotAvailableDi
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.home.newconversation.search.NewConversationSearchPeopleScreen(navigator: com.wire.android.navigation.Navigator): kotlin.Unit
-  skippable: true
+public fun com.wire.android.ui.home.newconversation.search.NewConversationSearchPeopleScreen(navigator: com.wire.android.navigation.Navigator, newConversationViewModel: com.wire.android.ui.home.newconversation.NewConversationViewModel): kotlin.Unit
+  skippable: false
   restartable: true
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.newconversation.sharedNewConversationViewModel(navigator: com.wire.android.navigation.Navigator): com.wire.android.ui.home.newconversation.NewConversationViewModel
-  skippable: true
-  restartable: true
-  params:
-    - navigator: STABLE (marked @Stable or @Immutable)
+    - newConversationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
 public fun com.wire.android.ui.home.rememberHomeScreenState(navigator: com.wire.android.navigation.Navigator, coroutineScope: kotlinx.coroutines.CoroutineScope, navController: androidx.navigation.NavHostController, drawerState: androidx.compose.material3.DrawerState): com.wire.android.ui.home.HomeStateHolder
@@ -12459,4 +12510,3 @@ private fun com.wire.android.util.ui.createAnnotatedString(data: kotlin.collecti
   restartable: true
   params:
     - data: RUNTIME (requires runtime check)
-

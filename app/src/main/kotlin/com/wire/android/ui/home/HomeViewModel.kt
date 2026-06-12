@@ -114,10 +114,10 @@ class HomeViewModel(
     fun checkRequirements() {
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
-            if (isLoggedOut()) return@launch
+            val accountInfo = currentValidAccountInfo() ?: return@launch
             when {
                 needsToRegisterClient() -> // check if the client needs to be registered
-                    sendAction(HomeRequirement.RegisterDevice)
+                    sendAction(HomeRequirement.RegisterDevice(accountInfo.userId))
 
                 !dataStore.initialSyncCompleted.first() -> // check if the initial sync needs to be completed
                     sendAction(HomeRequirement.InitialSync)
@@ -128,8 +128,7 @@ class HomeViewModel(
         }
     }
 
-    private suspend fun isLoggedOut(): Boolean {
-        val accountInfo = (currentSessionFlow.value.invoke().firstOrNull() as? CurrentSessionResult.Success)?.accountInfo
-        return accountInfo !is AccountInfo.Valid
-    }
+    private suspend fun currentValidAccountInfo(): AccountInfo.Valid? =
+        (currentSessionFlow.value.invoke().firstOrNull() as? CurrentSessionResult.Success)
+            ?.accountInfo as? AccountInfo.Valid
 }

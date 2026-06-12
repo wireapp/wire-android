@@ -43,7 +43,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.search.util.ui.PreviewMultipleThemes
 
 @Composable
 fun EmptySearchQueryScreen(

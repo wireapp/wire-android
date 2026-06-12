@@ -21,9 +21,9 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.analytics.FinalizeRegistrationAnalyticsMetadataUseCase
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.CurrentAccount
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AccountSwitchUseCase
@@ -77,8 +77,8 @@ import dev.zacsweers.metro.Provider
 @Suppress("LongParameterList", "TooManyFunctions")
 class AuthenticationViewModelFactory @Inject constructor(
     private val globalDataStore: Provider<GlobalDataStore>,
-    private val userDataStore: Provider<UserDataStore>,
     private val userDataStoreProvider: Provider<UserDataStoreProvider>,
+    @CurrentAccount private val currentAccount: Provider<UserId>,
     @KaliumCoreLogic private val coreLogic: Provider<CoreLogic>,
     private val defaultServerConfig: Provider<ServerConfig.Links>,
     @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Provider<Boolean>,
@@ -164,7 +164,7 @@ class AuthenticationViewModelFactory @Inject constructor(
     fun registerDeviceViewModel() = RegisterDeviceViewModel(
         registerClientUseCase = getOrRegisterClient(),
         isPasswordRequired = isPasswordRequired(),
-        userDataStore = userDataStore(),
+        userDataStore = userDataStoreProvider().getOrCreate(currentAccount()),
         getSelfUser = getSelfUser(),
         requestSecondFactorVerificationCodeUseCase = requestSecondFactorVerificationCode(),
         resendCodeTimer = countdownTimer(),
@@ -175,7 +175,7 @@ class AuthenticationViewModelFactory @Inject constructor(
         deleteClientUseCase = deleteClient(),
         registerClientUseCase = getOrRegisterClient(),
         isPasswordRequired = isPasswordRequired(),
-        userDataStore = userDataStore(),
+        userDataStore = userDataStoreProvider().getOrCreate(currentAccount()),
         getSelfUser = getSelfUser(),
         requestSecondFactorVerificationCodeUseCase = requestSecondFactorVerificationCode(),
     )

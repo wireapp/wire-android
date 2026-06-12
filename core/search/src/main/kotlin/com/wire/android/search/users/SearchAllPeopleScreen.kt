@@ -63,7 +63,7 @@ import com.wire.android.ui.home.conversations.search.rememberSearchPeopleScreenS
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.FolderType
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.search.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.android.util.ui.sectionWithElements

@@ -367,12 +367,12 @@ class NewLoginViewModel(
                     }
 
                     is RegisterClientResult.E2EICertificateRequired -> {
-                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
+                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment(userId)))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
 
                     is RegisterClientResult.Failure.TooManyClients -> {
-                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
+                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices(userId)))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
 

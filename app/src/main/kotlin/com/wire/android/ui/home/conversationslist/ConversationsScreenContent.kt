@@ -138,8 +138,9 @@ fun ConversationsScreenContent(
         }
     }
 
-    val onOpenConversation: (ConversationItem) -> Unit = remember(navigator) {
+    val onOpenConversation: (ConversationItem) -> Unit = remember(navigator, searchBarState) {
         {
+            searchBarState.clearSearch()
             navigator.navigate(NavigationCommand(ConversationScreenDestination(it.conversationId)))
         }
     }

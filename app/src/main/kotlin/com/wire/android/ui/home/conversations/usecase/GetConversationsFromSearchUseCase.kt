@@ -38,11 +38,11 @@ import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversation
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
 import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import dev.zacsweers.metro.Inject
 
 class GetConversationsFromSearchUseCase @Inject constructor(
     private val useCase: GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase,

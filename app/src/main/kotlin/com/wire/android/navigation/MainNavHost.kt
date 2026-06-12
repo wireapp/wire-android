@@ -30,13 +30,16 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.ramcosta.composedestinations.generated.app.navtype.groupConversationDetailsNavBackArgsNavType
 import com.ramcosta.composedestinations.generated.app.navtype.imagesPreviewNavBackArgsNavType
 import com.ramcosta.composedestinations.generated.app.navtype.mediaGalleryNavBackArgsNavType
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
+import com.ramcosta.composedestinations.generated.meetings.navgraphs.NewMeetingGraph
 import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.ramcosta.composedestinations.generated.sketch.navtype.drawingCanvasNavBackArgsNavType
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
@@ -47,11 +50,15 @@ import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.feature.cells.ui.cellViewModel
+import com.wire.android.feature.meetings.navigation.MeetingNavigator
+import com.wire.android.feature.meetings.ui.newMeetingViewModel
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.ui.home.conversations.ConversationScreen
+import com.wire.android.ui.home.newConversationViewModel
 import com.wire.android.ui.home.settings.teamMigrationViewModel
+import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -62,6 +69,14 @@ fun MainNavHost(
     modifier: Modifier = Modifier,
 ) {
     val navHostEngine = rememberWireNavHostEngine(Alignment.Center)
+    val meetingNavigator = remember(navigator) {
+        MeetingNavigator(
+            navigator = navigator,
+            navigateToProfile = { userId: UserId ->
+                navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId = userId)))
+            }
+        )
+    }
     SharedTransitionLayout(modifier = modifier) {
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
             DestinationsNavHost(
@@ -77,6 +92,17 @@ fun MainNavHost(
 
                     // 👇 To make LoginTypeSelector available to all destinations as a non-navigation parameter if provided
                     if (loginTypeSelector != null) dependency(loginTypeSelector)
+
+                    // 👇 To tie NewConversationViewModel to nested NewConversationGraph,
+                    // making it shared between all screens that belong to it
+                    navGraph(NewConversationGraph) {
+                        val parentEntry = remember(navBackStackEntry) {
+                            navController.getBackStackEntry(NewConversationGraph.route)
+                        }
+                        dependency(
+                            newConversationViewModel(parentEntry)
+                        )
+                    }
 
                     // 👇 To reuse LoginEmailViewModel from NewLoginPasswordScreen on NewLoginVerificationCodeScreen
                     destination(NewLoginVerificationCodeScreenDestination) {
@@ -106,6 +132,20 @@ fun MainNavHost(
                             navController.getBackStackEntry(PersonalToTeamMigrationGraph.route)
                         }
                         dependency(teamMigrationViewModel(parentEntry))
+                    }
+
+                    // 👇 To tie NewMeetingViewModel to nested NewMeetingGraph,
+                    // making it shared between all screens that belong to it
+                    navGraph(NewMeetingGraph) {
+                        val parentEntry = remember(navBackStackEntry) {
+                            navController.getBackStackEntry(NewMeetingGraph.route)
+                        }
+                        dependency(newMeetingViewModel(parentEntry))
+                    }
+
+                    // 👇 To make MeetingNavigator available to all destinations from NewMeetingGraph as a non-navigation parameter
+                    navGraph(NewMeetingGraph) {
+                        dependency(meetingNavigator)
                     }
                 },
                 manualComposableCallsBuilder = {

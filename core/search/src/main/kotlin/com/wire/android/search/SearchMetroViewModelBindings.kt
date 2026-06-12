@@ -35,8 +35,8 @@ object SearchMetroViewModelBindings {
     @ManualViewModelAssistedFactoryKey(SearchManualViewModelFactory::class)
     fun searchManualViewModelFactory(factory: SearchViewModelFactory): ManualViewModelAssistedFactory =
         object : SearchManualViewModelFactory {
-            override fun searchUserViewModel(conversationId: ConversationId?): SearchUserViewModel =
-                factory.searchUserViewModel(conversationId)
+            override fun searchUserViewModel(conversationId: ConversationId?, onlyConnectedContacts: Boolean): SearchUserViewModel =
+                factory.searchUserViewModel(conversationId, onlyConnectedContacts)
 
             override fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel =
                 factory.searchAppsViewModel(protocolInfo)

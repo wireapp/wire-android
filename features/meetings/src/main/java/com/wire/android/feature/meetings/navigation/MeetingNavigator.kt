@@ -15,20 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.model
+package com.wire.android.feature.meetings.navigation
 
-import androidx.compose.runtime.Stable
-import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.android.navigation.WireNavigator
+import com.wire.kalium.logic.data.user.UserId
 
-@Stable
-data class Contact(
-    val id: String,
-    val domain: String,
-    val name: String,
-    val handle: String,
-    val avatarData: UserAvatarData = UserAvatarData(),
-    val label: String = "",
-    val connectionState: ConnectionState,
-    val membership: Membership
-)
+/**
+ * Navigator for the meetings feature. It extends [WireNavigator] and adds meeting-specific navigation functions that allows navigating to
+ * different screens from other modules without needing to know about the implementation details of the whole navigation system.
+ */
+class MeetingNavigator(
+    val navigator: WireNavigator,
+    val navigateToProfile: (userId: UserId) -> Unit
+) : WireNavigator by navigator

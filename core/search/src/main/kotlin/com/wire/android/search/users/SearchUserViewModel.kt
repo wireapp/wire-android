@@ -32,9 +32,9 @@ import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
 import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
-import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchUserResult
-import com.wire.kalium.logic.feature.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.search.SearchUsersByHandleUseCase
+import com.wire.kalium.logic.feature.search.SearchUsersByNameUseCase
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
@@ -50,8 +50,9 @@ import kotlinx.coroutines.launch
 
 class SearchUserViewModel(
     private val conversationId: ConversationId?,
-    private val searchUserUseCase: SearchUsersUseCase,
-    private val searchByHandleUseCase: SearchByHandleUseCase,
+    private val onlyConnectedContacts: Boolean,
+    private val searchUsersByName: SearchUsersByNameUseCase,
+    private val searchUsersByHandle: SearchUsersByHandleUseCase,
     private val contactMapper: ContactMapper,
     private val federatedSearchParser: FederatedSearchParser,
     private val validateUserHandle: ValidateUserHandleUseCase,
@@ -139,16 +140,18 @@ class SearchUserViewModel(
     }
 
     private suspend fun searchByHandle(searchTerm: String, domain: String?): SearchUserResult =
-        searchByHandleUseCase(
+        searchUsersByHandle(
             searchTerm,
             excludingConversation = conversationId,
+            excludingNotConnected = onlyConnectedContacts,
             customDomain = domain
         )
 
     private suspend fun searchByName(searchTerm: String, domain: String?): SearchUserResult =
-        searchUserUseCase(
+        searchUsersByName(
             searchTerm,
             excludingMembersOfConversation = conversationId,
+            excludingNotConnected = onlyConnectedContacts,
             customDomain = domain
         )
 }

@@ -59,7 +59,7 @@ import com.ramcosta.composedestinations.generated.cells.destinations.VersionHist
 import com.ramcosta.composedestinations.generated.cells.destinations.VideoPlayerScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
-import com.wire.android.feature.cells.ui.audioplayer.CellAudioPlayerNavArgs
+import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
 import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
@@ -67,7 +67,7 @@ import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.model.CellNodeUi
-import com.wire.android.feature.cells.ui.videoplayer.CellVideoViewerNavArgs
+import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.PreviewNavigator
@@ -386,7 +386,7 @@ internal fun ConversationFilesScreenContent(
                     navigator.navigate(
                         NavigationCommand(
                             VideoPlayerScreenDestination(
-                                CellVideoViewerNavArgs(
+                                VideoViewerNavArgs(
                                     localPath = file.localPath,
                                     contentUrl = file.contentUrl,
                                     fileName = file.name,
@@ -399,7 +399,7 @@ internal fun ConversationFilesScreenContent(
                     navigator.navigate(
                         NavigationCommand(
                             CellAudioPlayerScreenDestination(
-                                CellAudioPlayerNavArgs(
+                                AudioPlayerNavArgs(
                                     localPath = file.localPath,
                                     contentUrl = file.contentUrl,
                                     fileName = file.name,

@@ -17,7 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.audioplayer
 
-data class CellAudioPlayerNavArgs(
+data class AudioPlayerNavArgs(
     val localPath: String? = null,
     val contentUrl: String? = null,
     val fileName: String? = null,

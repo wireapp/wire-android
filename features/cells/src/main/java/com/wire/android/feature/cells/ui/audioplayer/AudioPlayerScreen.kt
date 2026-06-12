@@ -17,8 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.audioplayer
 
-import android.media.MediaPlayer
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -49,11 +47,8 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -63,7 +58,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -71,6 +65,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.cellAudioPlayerViewModel
 import com.wire.android.navigation.WireNavigator
@@ -82,10 +77,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 
-private const val POSITION_POLL_MS = 200L
 private const val SKIP_MS = 15_000
 
 private val BackgroundTop = Color(0xFF1A1A2E)
@@ -95,7 +87,7 @@ private val AccentLight = Color(0xFFA29BFE)
 
 @WireCellsDestination(
     style = PopUpNavigationAnimation::class,
-    navArgs = CellAudioPlayerNavArgs::class,
+    navArgs = AudioPlayerNavArgs::class,
 )
 @Composable
 fun CellAudioPlayerScreen(
@@ -103,10 +95,13 @@ fun CellAudioPlayerScreen(
     modifier: Modifier = Modifier,
     viewModel: CellAudioPlayerViewModel = cellAudioPlayerViewModel(),
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
     CellAudioPlayerContent(
-        localPath = viewModel.localPath,
-        contentUrl = viewModel.contentUrl,
+        state = state,
         fileName = viewModel.fileName,
+        onTogglePlayPause = viewModel::togglePlayPause,
+        onSeek = viewModel::seekTo,
+        onStop = viewModel::pause,
         onNavigateBack = navigator::navigateBack,
         modifier = modifier,
     )
@@ -115,101 +110,22 @@ fun CellAudioPlayerScreen(
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 internal fun CellAudioPlayerContent(
-    localPath: String?,
-    contentUrl: String?,
+    state: AudioPlaybackState,
     fileName: String?,
+    onTogglePlayPause: () -> Unit,
+    onSeek: (Int) -> Unit,
+    onStop: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
-
-    var isPlaying by remember { mutableStateOf(false) }
-    var isCompleted by remember { mutableStateOf(false) }
-    var currentPositionMs by remember { mutableIntStateOf(0) }
-    var durationMs by remember { mutableIntStateOf(0) }
+    // UI-only state. Playback state (playing, position, duration, …) lives in the ViewModel so it
+    // survives configuration changes; the values below are pure presentation concerns.
     var isSeeking by remember { mutableStateOf(false) }
     var seekProgress by remember { mutableFloatStateOf(0f) }
-    var isPrepared by remember { mutableStateOf(false) }
-
-    val mediaPlayer = remember {
-        MediaPlayer().apply {
-            setOnPreparedListener { mp ->
-                durationMs = mp.duration
-                isPrepared = true
-            }
-            setOnCompletionListener {
-                isPlaying = false
-                isCompleted = true
-            }
-        }
-    }
-
-    // Initialise the media source
-    LaunchedEffect(localPath, contentUrl) {
-        try {
-            mediaPlayer.reset()
-            isPrepared = false
-            when {
-                localPath != null -> mediaPlayer.setDataSource(localPath)
-                contentUrl != null -> mediaPlayer.setDataSource(context, Uri.parse(contentUrl))
-                else -> return@LaunchedEffect
-            }
-            mediaPlayer.prepareAsync()
-        } catch (_: Exception) {
-            // handle silently — file may not exist yet
-        }
-    }
-
-    // Poll playback position while playing
-    LaunchedEffect(isPlaying) {
-        while (isActive && isPlaying) {
-            if (!isSeeking) {
-                currentPositionMs = mediaPlayer.currentPosition
-            }
-            delay(POSITION_POLL_MS)
-        }
-    }
-
-    // Cleanup
-    DisposableEffect(Unit) {
-        onDispose {
-            try { mediaPlayer.stop() } catch (_: Exception) { }
-            mediaPlayer.release()
-        }
-    }
 
     fun stopAndBack() {
-        try { mediaPlayer.stop() } catch (_: Exception) { }
+        onStop()
         onNavigateBack()
-    }
-
-    fun play() {
-        if (isPrepared) {
-            mediaPlayer.start()
-            isPlaying = true
-            isCompleted = false
-        }
-    }
-
-    fun pause() {
-        mediaPlayer.pause()
-        isPlaying = false
-    }
-
-    fun seekTo(ms: Int) {
-        mediaPlayer.seekTo(ms)
-        currentPositionMs = ms
-    }
-
-    fun togglePlayPause() {
-        if (isCompleted) {
-            seekTo(0)
-            play()
-        } else if (isPlaying) {
-            pause()
-        } else {
-            play()
-        }
     }
 
     BackHandler { stopAndBack() }
@@ -246,12 +162,12 @@ internal fun CellAudioPlayerContent(
                 Spacer(modifier = Modifier.height(dimensions().spacing24x))
 
                 // — Animated album art circle
-                PulsingAlbumArt(isPlaying = isPlaying)
+                PulsingAlbumArt(isPlaying = state.isPlaying)
 
                 Spacer(modifier = Modifier.height(dimensions().spacing32x))
 
                 // — Equalizer bars
-                EqualizerBars(isPlaying = isPlaying)
+                EqualizerBars(isPlaying = state.isPlaying)
 
                 Spacer(modifier = Modifier.height(dimensions().spacing24x))
 
@@ -270,8 +186,8 @@ internal fun CellAudioPlayerContent(
                 Spacer(modifier = Modifier.height(dimensions().spacing32x))
 
                 // — Seek slider
-                val progress = if (durationMs > 0 && !isSeeking) {
-                    currentPositionMs.toFloat() / durationMs
+                val progress = if (state.durationMs > 0 && !isSeeking) {
+                    state.currentPositionMs.toFloat() / state.durationMs
                 } else if (isSeeking) {
                     seekProgress
                 } else {
@@ -285,9 +201,7 @@ internal fun CellAudioPlayerContent(
                         seekProgress = value
                     },
                     onValueChangeFinished = {
-                        val targetMs = (seekProgress * durationMs).toInt()
-                        seekTo(targetMs)
-                        currentPositionMs = targetMs
+                        onSeek((seekProgress * state.durationMs).toInt())
                         isSeeking = false
                     },
                     colors = SliderDefaults.colors(
@@ -306,12 +220,12 @@ internal fun CellAudioPlayerContent(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = currentPositionMs.toTimeString(),
+                        text = state.currentPositionMs.toTimeString(),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 12.sp,
                     )
                     Text(
-                        text = durationMs.toTimeString(),
+                        text = state.durationMs.toTimeString(),
                         color = Color.White.copy(alpha = 0.5f),
                         fontSize = 12.sp,
                     )
@@ -328,8 +242,7 @@ internal fun CellAudioPlayerContent(
                     // Skip back 15s
                     IconButton(
                         onClick = {
-                            val target = (currentPositionMs - SKIP_MS).coerceAtLeast(0)
-                            seekTo(target)
+                            onSeek((state.currentPositionMs - SKIP_MS).coerceAtLeast(0))
                         }
                     ) {
                         Icon(
@@ -344,7 +257,7 @@ internal fun CellAudioPlayerContent(
 
                     // Play / Pause button (large, spring-animated)
                     val buttonScale by animateFloatAsState(
-                        targetValue = if (isPrepared) 1f else 0.7f,
+                        targetValue = if (state.isPrepared) 1f else 0.7f,
                         animationSpec = spring(
                             dampingRatio = Spring.DampingRatioMediumBouncy,
                             stiffness = Spring.StiffnessMedium,
@@ -359,7 +272,7 @@ internal fun CellAudioPlayerContent(
                             .clip(CircleShape)
                             .background(AccentColor)
                             .then(
-                                if (isPrepared) {
+                                if (state.isPrepared) {
                                     Modifier.padding(0.dp)
                                 } else {
                                     Modifier
@@ -367,9 +280,9 @@ internal fun CellAudioPlayerContent(
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
-                        val iconRes = if (isPlaying) R.drawable.ic_cell_pause else R.drawable.ic_cell_play
+                        val iconRes = if (state.isPlaying) R.drawable.ic_cell_pause else R.drawable.ic_cell_play
                         IconButton(
-                            onClick = { if (isPrepared) togglePlayPause() },
+                            onClick = { if (state.isPrepared) onTogglePlayPause() },
                             modifier = Modifier.fillMaxSize(),
                         ) {
                             Icon(
@@ -386,8 +299,7 @@ internal fun CellAudioPlayerContent(
                     // Skip forward 15s
                     IconButton(
                         onClick = {
-                            val target = (currentPositionMs + SKIP_MS).coerceAtMost(durationMs)
-                            seekTo(target)
+                            onSeek((state.currentPositionMs + SKIP_MS).coerceAtMost(state.durationMs))
                         }
                     ) {
                         Icon(
@@ -511,9 +423,11 @@ private fun Int.toTimeString(): String {
 fun PreviewCellAudioPlayerScreen() {
     WireTheme {
         CellAudioPlayerContent(
-            localPath = null,
-            contentUrl = null,
+            state = AudioPlaybackState(),
             fileName = "awesome_track.mp3",
+            onTogglePlayPause = {},
+            onSeek = {},
+            onStop = {},
             onNavigateBack = {},
         )
     }

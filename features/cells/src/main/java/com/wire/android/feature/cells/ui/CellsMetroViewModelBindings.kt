@@ -132,7 +132,14 @@ object CellsMetroViewModelBindings {
     @IntoMap
     @ViewModelAssistedFactoryKey(CellAudioPlayerViewModel::class)
     fun audioPlayerViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.cellAudioPlayerViewModel(it.createSavedStateHandle()) }
+        savedStateViewModel {
+            factory.cellAudioPlayerViewModel(
+                context = checkNotNull(it[APPLICATION_KEY]) {
+                    "No Application was provided via CreationExtras"
+                },
+                savedStateHandle = it.createSavedStateHandle(),
+            )
+        }
 
     private fun savedStateViewModel(create: (CreationExtras) -> ViewModel): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {

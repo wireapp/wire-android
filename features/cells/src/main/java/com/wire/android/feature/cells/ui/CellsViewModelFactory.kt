@@ -226,7 +226,11 @@ class CellsViewModelFactory @Inject constructor(
         savedStateHandle = savedStateHandle,
     )
 
-    internal fun cellAudioPlayerViewModel(savedStateHandle: SavedStateHandle) = CellAudioPlayerViewModel(
+    internal fun cellAudioPlayerViewModel(
+        context: Context,
+        savedStateHandle: SavedStateHandle
+    ) = CellAudioPlayerViewModel(
+        context = context,
         savedStateHandle = savedStateHandle,
     )
 }

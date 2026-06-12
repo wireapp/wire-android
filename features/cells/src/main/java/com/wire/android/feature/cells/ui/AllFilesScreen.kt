@@ -35,8 +35,8 @@ import com.ramcosta.composedestinations.generated.cells.destinations.SearchScree
 import com.ramcosta.composedestinations.generated.cells.destinations.VideoPlayerScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.OfflineBanner
-import com.wire.android.feature.cells.ui.videoplayer.CellVideoViewerNavArgs
-import com.wire.android.feature.cells.ui.audioplayer.CellAudioPlayerNavArgs
+import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
+import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.navigation.NavigationCommand
@@ -141,7 +141,7 @@ fun AllFilesScreen(
                 navigator.navigate(
                     NavigationCommand(
                         VideoPlayerScreenDestination(
-                            CellVideoViewerNavArgs(
+                            VideoViewerNavArgs(
                                 localPath = file.localPath,
                                 contentUrl = file.contentUrl,
                                 fileName = file.name,
@@ -154,7 +154,7 @@ fun AllFilesScreen(
                 navigator.navigate(
                     NavigationCommand(
                         CellAudioPlayerScreenDestination(
-                            CellAudioPlayerNavArgs(
+                            AudioPlayerNavArgs(
                                 localPath = file.localPath,
                                 contentUrl = file.contentUrl,
                                 fileName = file.name,

@@ -17,7 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.videoplayer
 
-data class CellVideoViewerNavArgs(
+data class VideoViewerNavArgs(
     val localPath: String? = null,
     val contentUrl: String? = null,
     val fileName: String? = null,

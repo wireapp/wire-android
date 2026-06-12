@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.videoplayer
 
-import android.app.Application
 import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
@@ -43,7 +42,7 @@ class VideoPlayerViewModel(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val navArgs: CellVideoViewerNavArgs = VideoPlayerScreenDestination.argsFrom(savedStateHandle)
+    private val navArgs: VideoViewerNavArgs = VideoPlayerScreenDestination.argsFrom(savedStateHandle)
 
     val localPath: String? = navArgs.localPath
     val contentUrl: String? = navArgs.contentUrl

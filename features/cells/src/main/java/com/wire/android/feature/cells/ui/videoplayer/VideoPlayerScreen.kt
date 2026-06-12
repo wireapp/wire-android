@@ -108,7 +108,7 @@ private const val CONTROLS_AUTO_HIDE_MS = 3_000L
 
 @WireCellsDestination(
     style = PopUpNavigationAnimation::class,
-    navArgs = CellVideoViewerNavArgs::class,
+    navArgs = VideoViewerNavArgs::class,
 )
 @Composable
 fun VideoPlayerScreen(

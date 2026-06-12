@@ -36,7 +36,6 @@
     <string name="label_learn_more">もっと知る</string>
     <string name="label_removing">削除中…</string>
     <string name="label_logging_in">ログイン中…</string>
-    <string name="label_user_deleted">削除済み</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">接続に問題が発生したため編集したメッセージを送信できませんでした。</string>
     <string name="label_message_sent_remotely_failure">%sのバックエンドに到達できなかったため、メッセージを送信できませんでした。</string>
@@ -61,7 +60,6 @@
     <string name="label_open_asset_externally">開く</string>
     <string name="label_show">表示</string>
     <string name="label_show_all">全て表示</string>
-    <string name="label_show_less">一部のみ表示</string>
     <string name="label_show_details">詳細を表示</string>
     <string name="label_hide_details">詳細を非表示</string>
     <string name="label_message_status_edited_with_date">%sに編集済み</string>
@@ -72,7 +70,6 @@
     <string name="folder_label_access">アクセス</string>
     <string name="folder_label_protocol_details">プロトコルの詳細</string>
     <string name="folder_label_messaging">メッセージ</string>
-    <string name="label_user_blocked">ブロック中</string>
     <string name="label_and">と</string>
     <string name="label_retry">再試行</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
@@ -100,8 +97,6 @@
     <string name="content_description_avatar_preview">プロフィール画像のプレビュー</string>
     <string name="content_description_choose_from_gallery">ギャラリーから選択</string>
     <string name="content_description_take_a_picture">写真を撮影</string>
-    <string name="content_description_right_arrow">右矢印</string>
-    <string name="content_description_left_arrow">戻る</string>
     <string name="content_description_mention_icon">メンションアイコン</string>
     <string name="content_description_open_message_details">メッセージの詳細を開く</string>
     <string name="content_description_copy_the_message">メッセージをコピー</string>
@@ -109,7 +104,6 @@
     <string name="content_description_delete_the_message">メッセージを削除</string>
     <string name="content_description_edit_the_message">メッセージを編集</string>
     <string name="content_description_more_options">その他のオプション</string>
-    <string name="content_description_add_contact">連絡先を追加</string>
     <string name="content_description_image_message">画像メッセージ</string>
     <string name="content_description_file_message">ファイルメッセージ</string>
     <string name="content_description_ping_everyone">Ping</string>
@@ -307,7 +301,6 @@
     <!--Typing Indicator-->
     <!-- Search Messages -->
     <!-- Conversation Media -->
-    <!-- Search Contact-->
     <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
@@ -316,8 +309,6 @@
     <!-- Notifications -->
     <!-- Calling-->
     <!-- Connectivity Status Bar -->
-    <!-- Connections -->
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <!--sso dialog-->
     <!--prohibited asset messages -->
@@ -330,7 +321,6 @@
     <!--Privacy Settings -->
     <!--Privacy Settings, App lock -->
     <!--Devices -->
-    <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--nomad account blocks login dialog-->
     <!--create and restore backup-->

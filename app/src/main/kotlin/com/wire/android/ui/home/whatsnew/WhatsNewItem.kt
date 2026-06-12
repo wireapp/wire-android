@@ -36,6 +36,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.AndroidReleaseNotesDestination
 import com.wire.android.navigation.ExternalUriDirection
 import com.wire.android.navigation.WelcomeToNewAndroidAppDestination
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.shimmerPlaceholder
@@ -147,7 +148,7 @@ fun PreviewFileRestrictionDialog() {
         WhatsNewItem(
             title = "What's new item",
             text = "This is the text of the item",
-            trailingIcon = R.drawable.ic_arrow_right,
+            trailingIcon = commonR.drawable.ic_arrow_right,
             isLoading = false,
             onRowPressed = Clickable(enabled = true) {}
         )
@@ -161,7 +162,7 @@ fun PreviewFileRestrictionDialogLoading() {
         WhatsNewItem(
             title = "What's new item",
             text = "This is the text of the item",
-            trailingIcon = R.drawable.ic_arrow_right,
+            trailingIcon = commonR.drawable.ic_arrow_right,
             isLoading = true,
             onRowPressed = Clickable(enabled = false) {}
         )

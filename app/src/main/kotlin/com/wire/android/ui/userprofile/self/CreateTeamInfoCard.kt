@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.card.WireOutlinedCard
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -40,7 +41,7 @@ fun CreateTeamInfoCard(
         onMainActionClick = onCreateAccount,
         trailingIcon = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_info),
+                painter = painterResource(id = commonR.drawable.ic_info),
                 contentDescription = null,
                 tint = colorsScheme().onBackground
             )

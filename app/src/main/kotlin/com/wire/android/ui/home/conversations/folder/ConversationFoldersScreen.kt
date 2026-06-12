@@ -39,6 +39,7 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -188,7 +189,7 @@ private fun Content(
                             title = folder.name,
                             onItemClick = Clickable(
                                 enabled = state == RichMenuItemState.DEFAULT,
-                                onClickDescription = stringResource(id = R.string.content_description_select_label),
+                                onClickDescription = stringResource(id = commonR.string.content_description_select_label),
                                 onClick = { onFolderSelected(folder.id) }
                             ),
                             state = state,

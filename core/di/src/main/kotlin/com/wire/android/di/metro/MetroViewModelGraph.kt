@@ -19,10 +19,12 @@ package com.wire.android.di.metro
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import com.wire.android.di.EmptyPreviewProvider
+import com.wire.android.di.PreviewProvider
+import com.wire.android.di.findPreviewOr
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
 import dev.zacsweers.metrox.viewmodel.metroViewModel
@@ -55,12 +57,12 @@ fun sessionKeyedMetroViewModelKey(defaultKey: String?, key: String?, scopeKey: S
 @Composable
 inline fun <reified VM> sessionKeyedMetroViewModel(
     key: String? = null,
-    noinline previewProvider: (() -> VM?)? = null,
+    previewProvider: PreviewProvider = EmptyPreviewProvider,
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
-): VM where VM : ViewModel =
-    metroPreviewViewModelOrNull(previewProvider) ?: metroViewModel(
+): VM where VM : ViewModel = previewProvider.findPreviewOr {
+    metroViewModel(
         viewModelStoreOwner = viewModelStoreOwner,
         key = sessionKeyedMetroViewModelKey(
             defaultKey = VM::class.qualifiedName,
@@ -68,6 +70,7 @@ inline fun <reified VM> sessionKeyedMetroViewModel(
             scopeKey = LocalWireViewModelScopeKey.current,
         ),
     )
+}
 
 /**
  * Creates a Metro-backed ViewModel and exposes it as a narrower interface type.
@@ -81,12 +84,12 @@ inline fun <reified VM> sessionKeyedMetroViewModel(
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 inline fun <reified VM, reified S> sessionKeyedMetroViewModelAs(
     key: String? = null,
-    noinline previewProvider: (() -> S?)? = null,
+    previewProvider: PreviewProvider = EmptyPreviewProvider,
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
-): S where VM : ViewModel, VM : S =
-    metroPreviewViewModelOrNull(previewProvider) ?: metroViewModel<VM>(
+): S where VM : ViewModel, VM : S = previewProvider.findPreviewOr {
+    metroViewModel<VM>(
         viewModelStoreOwner = viewModelStoreOwner,
         key = sessionKeyedMetroViewModelKey(
             defaultKey = VM::class.qualifiedName,
@@ -94,6 +97,7 @@ inline fun <reified VM, reified S> sessionKeyedMetroViewModelAs(
             scopeKey = LocalWireViewModelScopeKey.current,
         ),
     )
+}
 
 /**
  * Creates an assisted Metro-backed ViewModel using the current Wire ViewModel scope key.
@@ -107,10 +111,10 @@ inline fun <reified VM, reified S> sessionKeyedMetroViewModelAs(
 @Composable
 inline fun <reified VM, reified Factory> sessionKeyedAssistedMetroViewModel(
     key: String? = null,
-    noinline previewProvider: (() -> VM?)? = null,
+    previewProvider: PreviewProvider = EmptyPreviewProvider,
     crossinline createViewModel: Factory.() -> VM,
-): VM where VM : ViewModel, Factory : ManualViewModelAssistedFactory =
-    metroPreviewViewModelOrNull(previewProvider) ?: assistedMetroViewModel<VM, Factory>(
+): VM where VM : ViewModel, Factory : ManualViewModelAssistedFactory = previewProvider.findPreviewOr {
+    assistedMetroViewModel<VM, Factory>(
         key = sessionKeyedMetroViewModelKey(
             defaultKey = VM::class.qualifiedName,
             key = key,
@@ -119,6 +123,7 @@ inline fun <reified VM, reified Factory> sessionKeyedAssistedMetroViewModel(
     ) {
         createViewModel()
     }
+}
 
 /**
  * Creates an assisted Metro-backed ViewModel and exposes it as a narrower interface type.
@@ -131,10 +136,10 @@ inline fun <reified VM, reified Factory> sessionKeyedAssistedMetroViewModel(
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 inline fun <reified VM, reified S, reified Factory> sessionKeyedAssistedMetroViewModelAs(
     key: String? = null,
-    noinline previewProvider: (() -> S?)? = null,
+    previewProvider: PreviewProvider = EmptyPreviewProvider,
     crossinline createViewModel: Factory.() -> VM,
-): S where VM : ViewModel, VM : S, Factory : ManualViewModelAssistedFactory =
-    metroPreviewViewModelOrNull(previewProvider) ?: assistedMetroViewModel<VM, Factory>(
+): S where VM : ViewModel, VM : S, Factory : ManualViewModelAssistedFactory = previewProvider.findPreviewOr {
+    assistedMetroViewModel<VM, Factory>(
         key = sessionKeyedMetroViewModelKey(
             defaultKey = VM::class.qualifiedName,
             key = key,
@@ -143,12 +148,4 @@ inline fun <reified VM, reified S, reified Factory> sessionKeyedAssistedMetroVie
     ) {
         createViewModel()
     }
-
-@Composable
-@PublishedApi
-internal fun <VM> metroPreviewViewModelOrNull(previewProvider: (() -> VM?)?): VM? =
-    if (LocalInspectionMode.current) {
-        previewProvider?.invoke()
-    } else {
-        null
-    }
+}

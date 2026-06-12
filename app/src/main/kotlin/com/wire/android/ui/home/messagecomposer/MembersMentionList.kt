@@ -29,7 +29,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.model.Contact
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.user.ConnectionState

@@ -371,6 +371,10 @@ class CellViewModel(
     }
 
     private fun openFileContentUrl(file: CellNodeUi.File) {
+        if (file.assetType == AttachmentFileType.IMAGE) {
+            sendAction(OpenImageViewer(file))
+            return
+        }
         file.contentUrl?.let { url ->
             fileHelper.openAssetUrlWithExternalApp(
                 url = url,
@@ -383,6 +387,10 @@ class CellViewModel(
     }
 
     private fun openLocalFile(file: CellNodeUi.File) {
+        if (file.assetType == AttachmentFileType.IMAGE) {
+            sendAction(OpenImageViewer(file))
+            return
+        }
         file.localPath?.let { path ->
             fileHelper.openAssetFileWithExternalApp(
                 localPath = path.toPath(),
@@ -629,6 +637,7 @@ internal data object RefreshData : CellViewAction
 internal data class OpenFolder(val path: String, val title: String, val parentFolderUuid: String?) : CellViewAction
 internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
 internal data object ShowOfflineFileSaved : CellViewAction
+internal data class OpenImageViewer(val file: CellNodeUi.File) : CellViewAction
 
 internal enum class CellError(val message: Int) {
     NO_APP_FOUND(R.string.no_app_found),

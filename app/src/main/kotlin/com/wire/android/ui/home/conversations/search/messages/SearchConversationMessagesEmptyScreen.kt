@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -72,7 +73,7 @@ fun SearchConversationMessagesEmptyScreen(
                 ),
                 modifier = Modifier.clickable(
                     onClickLabel = stringResource(
-                        R.string.content_description_open_link_label
+                        commonR.string.content_description_open_link_label
                     )
                 ) {
                     CustomTabsHelper.launchUrl(context, searchUrl)

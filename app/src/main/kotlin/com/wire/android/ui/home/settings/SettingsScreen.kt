@@ -36,6 +36,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.handleNavigation
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.home.HomeStateHolder
@@ -188,7 +189,7 @@ private fun LazyListScope.sectionWithElements(
                     (settingsItem as? SettingsItem.DirectionItem)?.let(onItemClicked)
                 }
             },
-            trailingIcon = if (settingsItem is SettingsItem.DirectionItem) R.drawable.ic_arrow_right else null,
+            trailingIcon = if (settingsItem is SettingsItem.DirectionItem) commonR.drawable.ic_arrow_right else null,
             trailingText = trailingText?.invoke(settingsItem),
         )
     }

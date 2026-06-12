@@ -53,6 +53,7 @@ import com.wire.android.notification.broadcastreceivers.NomadLogoutReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
 import com.wire.android.notification.broadcastreceivers.PlayPauseAudioMessageReceiver
 import com.wire.android.notification.broadcastreceivers.StopAudioMessageReceiver
+import com.wire.android.search.SearchMetroViewModelBindings
 import com.wire.android.services.CallService
 import com.wire.android.services.PersistentWebSocketService
 import com.wire.android.services.PlayingAudioMessageService
@@ -62,6 +63,7 @@ import com.wire.android.ui.WireActivityViewModel
 import com.wire.android.ui.debug.StartServiceReceiver
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.ongoing.OngoingCallActivity
+import com.wire.android.ui.common.CoreUICommonMetroViewModelBindings
 import com.wire.android.util.NetworkUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.WireWorkerFactory
@@ -103,6 +105,8 @@ import dev.zacsweers.metrox.viewmodel.ViewModelGraph
         WireMetroViewModelBindings::class,
         CellsMetroViewModelBindings::class,
         MeetingsMetroViewModelBindings::class,
+        CoreUICommonMetroViewModelBindings::class,
+        SearchMetroViewModelBindings::class,
     ]
 )
 @Suppress("TooManyFunctions")

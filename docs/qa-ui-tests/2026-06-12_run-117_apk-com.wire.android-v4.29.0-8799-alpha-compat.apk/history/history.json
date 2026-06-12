@@ -1,0 +1,1 @@
+{"6d4996aebd9cfa06a40b97da940cb3cd":{"statistic":{"failed":1,"broken":0,"skipped":0,"passed":0,"unknown":0,"total":1},"items":[{"uid":"ed50732c97c8b182","status":"failed","statusDetails":"Login flow did not complete: login button or 'Setting up Wire' is still visible","time":{"start":1781270821974,"stop":1781270854171,"duration":32197}}]}}

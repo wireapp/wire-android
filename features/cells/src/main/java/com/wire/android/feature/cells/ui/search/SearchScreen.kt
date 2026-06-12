@@ -43,18 +43,18 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CellVideoViewerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.VideoPlayerScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.audioplayer.CellAudioPlayerNavArgs
-import com.wire.android.feature.cells.ui.videoviewer.CellVideoViewerNavArgs
+import com.wire.android.feature.cells.ui.videoplayer.CellVideoViewerNavArgs
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
@@ -275,7 +275,7 @@ fun SearchScreen(
                 showVideoViewer = { file ->
                     navigator.navigate(
                         NavigationCommand(
-                            CellVideoViewerScreenDestination(
+                            VideoPlayerScreenDestination(
                                 CellVideoViewerNavArgs(
                                     localPath = file.localPath,
                                     contentUrl = file.contentUrl,

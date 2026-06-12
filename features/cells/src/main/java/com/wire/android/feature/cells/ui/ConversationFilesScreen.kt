@@ -47,7 +47,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CellVideoViewerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CreateFileScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CreateFolderScreenDestination
@@ -57,6 +56,7 @@ import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinS
 import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.VideoPlayerScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.audioplayer.CellAudioPlayerNavArgs
@@ -67,7 +67,7 @@ import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.model.CellNodeUi
-import com.wire.android.feature.cells.ui.videoviewer.CellVideoViewerNavArgs
+import com.wire.android.feature.cells.ui.videoplayer.CellVideoViewerNavArgs
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.PreviewNavigator
@@ -385,7 +385,7 @@ internal fun ConversationFilesScreenContent(
                 showVideoViewer = { file ->
                     navigator.navigate(
                         NavigationCommand(
-                            CellVideoViewerScreenDestination(
+                            VideoPlayerScreenDestination(
                                 CellVideoViewerNavArgs(
                                     localPath = file.localPath,
                                     contentUrl = file.contentUrl,

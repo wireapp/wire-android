@@ -33,7 +33,7 @@ import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel
 import com.wire.android.feature.cells.ui.search.SearchScreenViewModel
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel
-import com.wire.android.feature.cells.ui.videoviewer.CellVideoViewerViewModel
+import com.wire.android.feature.cells.ui.videoplayer.VideoPlayerViewModel
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
 import dev.zacsweers.metro.Provides
@@ -117,7 +117,7 @@ object CellsMetroViewModelBindings {
 
     @Provides
     @IntoMap
-    @ViewModelAssistedFactoryKey(CellVideoViewerViewModel::class)
+    @ViewModelAssistedFactoryKey(VideoPlayerViewModel::class)
     fun videoViewerViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
         savedStateViewModel {
             factory.cellVideoViewerViewModel(

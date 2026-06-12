@@ -34,7 +34,7 @@ import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel
 import com.wire.android.feature.cells.ui.search.SearchScreenViewModel
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel
-import com.wire.android.feature.cells.ui.videoviewer.CellVideoViewerViewModel
+import com.wire.android.feature.cells.ui.videoplayer.VideoPlayerViewModel
 
 @Composable
 inline fun <reified VM> cellsViewModel(
@@ -91,7 +91,7 @@ fun versionHistoryViewModel(): VersionHistoryViewModel = cellsViewModel()
 fun cellImageViewerViewModel(): CellImageViewerViewModel = cellsViewModel()
 
 @Composable
-fun cellVideoViewerViewModel(): CellVideoViewerViewModel = cellsViewModel()
+fun cellVideoViewerViewModel(): VideoPlayerViewModel = cellsViewModel()
 
 @Composable
 fun cellAudioPlayerViewModel(): CellAudioPlayerViewModel = cellsViewModel()

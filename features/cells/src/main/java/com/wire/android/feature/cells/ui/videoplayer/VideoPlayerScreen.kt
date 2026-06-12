@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.videoviewer
+package com.wire.android.feature.cells.ui.videoplayer
 
 import android.app.Activity
 import android.content.Context
@@ -82,7 +82,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.media3.common.Player
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil3.compose.AsyncImage
@@ -102,26 +102,29 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 private const val CONTROLS_AUTO_HIDE_MS = 3_000L
-private const val POSITION_POLL_MS = 200L
 
 @WireCellsDestination(
     style = PopUpNavigationAnimation::class,
     navArgs = CellVideoViewerNavArgs::class,
 )
 @Composable
-fun CellVideoViewerScreen(
+fun VideoPlayerScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    viewModel: CellVideoViewerViewModel = cellVideoViewerViewModel(),
+    viewModel: VideoPlayerViewModel = cellVideoViewerViewModel(),
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
     CellVideoViewerScreenContent(
         player = viewModel.player,
+        state = state,
         localPath = viewModel.localPath,
         fileName = viewModel.fileName,
+        onTogglePlayPause = viewModel::togglePlayPause,
+        onToggleMute = viewModel::toggleMute,
+        onSeek = viewModel::seekTo,
         onNavigateBack = navigator::navigateBack,
         modifier = modifier,
     )
@@ -131,8 +134,12 @@ fun CellVideoViewerScreen(
 @Composable
 internal fun CellVideoViewerScreenContent(
     player: ExoPlayer,
+    state: VideoPlaybackState,
     localPath: String?,
     fileName: String?,
+    onTogglePlayPause: () -> Unit,
+    onToggleMute: () -> Unit,
+    onSeek: (Long) -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -145,16 +152,9 @@ internal fun CellVideoViewerScreenContent(
     // Flag to track if the screen is immediately exiting
     var isExiting by remember { mutableStateOf(false) }
 
-    // Playback state — initialised from the player so it is correct after the activity is recreated
-    // on rotation (the player itself, held by the ViewModel, keeps its real state).
-    var isPlaying by remember { mutableStateOf(player.isPlaying) }
-    var isStarted by remember { mutableStateOf(player.currentPosition > 0L || player.isPlaying) }
-    var isCompleted by remember { mutableStateOf(player.playbackState == Player.STATE_ENDED) }
-    var isBuffering by remember { mutableStateOf(player.playbackState == Player.STATE_BUFFERING) }
-    var isMuted by remember { mutableStateOf(player.volume == 0f) }
+    // UI-only state. Playback state (playing, position, duration, mute, …) lives in the ViewModel so
+    // it survives the activity recreation on rotation; the values below are pure presentation concerns.
     var controlsVisible by remember { mutableStateOf(true) }
-    var currentPositionMs by remember { mutableIntStateOf(player.currentPosition.toInt()) }
-    var durationMs by remember { mutableIntStateOf(player.duration.coerceAtLeast(0).toInt()) }
     var isSeeking by remember { mutableStateOf(false) }
     var seekProgress by remember { mutableFloatStateOf(0f) }
 
@@ -171,14 +171,14 @@ internal fun CellVideoViewerScreenContent(
         }
     }
 
-    fun showControls(autoHide: Boolean = isPlaying) {
+    fun showControls(autoHide: Boolean = state.isPlaying) {
         controlsVisible = true
         if (autoHide) scheduleAutoHide()
     }
 
     fun toggleControls() {
         if (controlsVisible) {
-            if (isPlaying) {
+            if (state.isPlaying) {
                 autoHideJob?.cancel()
                 controlsVisible = false
             }
@@ -187,73 +187,19 @@ internal fun CellVideoViewerScreenContent(
         }
     }
 
-    fun play() {
-        player.play()
-        isStarted = true
-        isCompleted = false
-        scheduleAutoHide()
-    }
-
-    fun pause() {
-        player.pause()
-        autoHideJob?.cancel()
-        showControls(autoHide = false)
-    }
-
-    fun replay() {
-        player.seekTo(0)
-        play()
-    }
-
-    fun togglePlayPause() {
-        if (isCompleted) {
-            replay()
-        } else if (isPlaying) {
-            pause()
-        } else {
-            play()
-        }
-    }
-
-    fun toggleMute() {
-        isMuted = !isMuted
-        player.volume = if (isMuted) 0f else 1f
-    }
-
-    // Reflect player state into Compose state
-    DisposableEffect(player) {
-        val listener = object : Player.Listener {
-            override fun onIsPlayingChanged(playing: Boolean) {
-                isPlaying = playing
+    // auto-hide while playing, keep visible while paused or completed.
+    LaunchedEffect(state.isPlaying, state.isCompleted) {
+        when {
+            state.isCompleted -> {
+                autoHideJob?.cancel()
+                controlsVisible = true
             }
 
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                isBuffering = playbackState == Player.STATE_BUFFERING
-                when (playbackState) {
-                    Player.STATE_READY -> durationMs = player.duration.coerceAtLeast(0).toInt()
-                    Player.STATE_ENDED -> {
-                        isCompleted = true
-                        controlsVisible = true
-                        autoHideJob?.cancel()
-                    }
-                }
+            state.isPlaying -> scheduleAutoHide()
+            else -> {
+                autoHideJob?.cancel()
+                showControls(autoHide = false)
             }
-        }
-        player.addListener(listener)
-        onDispose {
-            // The player is owned by the ViewModel; only detach the listener here, do not release it
-            player.removeListener(listener)
-        }
-    }
-
-    // Poll playback position while playing
-    LaunchedEffect(isPlaying) {
-        while (isActive && isPlaying) {
-            if (!isSeeking) {
-                currentPositionMs = player.currentPosition.toInt()
-                durationMs = player.duration.coerceAtLeast(0).toInt()
-            }
-            delay(POSITION_POLL_MS)
         }
     }
 
@@ -266,12 +212,10 @@ internal fun CellVideoViewerScreenContent(
         }
     }
 
-    // Apply the requested orientation
     LaunchedEffect(lockedOrientation) {
         context.findActivity()?.requestedOrientation = lockedOrientation
     }
 
-    // Go immersive while in landscape full screen
     DisposableEffect(isLandscape) {
         val controller = context.findActivity()?.window?.let { WindowInsetsControllerCompat(it, view) }
         if (isLandscape) {
@@ -286,16 +230,13 @@ internal fun CellVideoViewerScreenContent(
         }
     }
 
-    // Cleanup
     DisposableEffect(Unit) {
         onDispose {
             autoHideJob?.cancel()
         }
     }
 
-    // Set exiting state, tear down the layout, and pause the player so it doesn't keep playing during
-    // the exit animation. The ViewModel releases the player when it is cleared.
-    fun stopAndNavigateBack() {
+   fun stopAndNavigateBack() {
         isExiting = true
         player.pause()
         context.findActivity()?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER
@@ -313,7 +254,7 @@ internal fun CellVideoViewerScreenContent(
     WireScaffold(
         modifier = modifier,
         topBar = {
-            if (!isLandscape && !isExiting) { // Don't show topBar when exiting
+            if (!isLandscape && !isExiting) {
                 WireCenterAlignedTopAppBar(
                     title = fileName ?: stringResource(R.string.conversation_files_title),
                     navigationIconType = NavigationIconType.Back(),
@@ -334,7 +275,6 @@ internal fun CellVideoViewerScreenContent(
                 ) { if (!isExiting) toggleControls() },
             contentAlignment = Alignment.Center,
         ) {
-            // Tear down the AndroidView during the exit animation so playback stops instantly
             if (!isExiting) {
                 AndroidView(
                     factory = { ctx ->
@@ -349,8 +289,7 @@ internal fun CellVideoViewerScreenContent(
                 )
             }
 
-            // — Buffering / loading indicator
-            if (isBuffering && !isExiting) {
+            if (state.isBuffering && !isExiting) {
                 WireCircularProgressIndicator(
                     progressColor = Color.White,
                     size = dimensions().spacing48x,
@@ -358,9 +297,8 @@ internal fun CellVideoViewerScreenContent(
                 )
             }
 
-            // — Thumbnail overlay
             AnimatedVisibility(
-                visible = !isStarted && !isExiting,
+                visible = !state.isStarted && !isExiting,
                 exit = fadeOut(animationSpec = tween(durationMillis = 600)),
             ) {
                 if (localPath != null) {
@@ -378,8 +316,7 @@ internal fun CellVideoViewerScreenContent(
                 }
             }
 
-            // — Center play / pause / replay button (hidden while exiting or buffering)
-            if (!isExiting && !isBuffering) {
+            if (!isExiting && !state.isBuffering) {
                 val buttonScale by animateFloatAsState(
                     targetValue = if (controlsVisible) 1f else 0f,
                     animationSpec = spring(
@@ -391,20 +328,20 @@ internal fun CellVideoViewerScreenContent(
 
                 Box(
                     modifier = Modifier
-                        .size(72.dp)
+                        .size(dimensions().spacing72x)
                         .scale(buttonScale)
                         .clip(CircleShape)
                         .background(Color.Black.copy(alpha = 0.45f))
                         .clickable(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() },
-                        ) { togglePlayPause() },
+                        ) { onTogglePlayPause() },
                     contentAlignment = Alignment.Center,
                 ) {
                     AnimatedContent(
                         targetState = when {
-                            isCompleted -> VideoButtonState.REPLAY
-                            isPlaying -> VideoButtonState.PAUSE
+                            state.isCompleted -> VideoButtonState.REPLAY
+                            state.isPlaying -> VideoButtonState.PAUSE
                             else -> VideoButtonState.PLAY
                         },
                         transitionSpec = {
@@ -412,8 +349,8 @@ internal fun CellVideoViewerScreenContent(
                                     (scaleOut() + fadeOut())
                         },
                         label = "videoButtonIcon",
-                    ) { state ->
-                        val res = when (state) {
+                    ) { buttonState ->
+                        val res = when (buttonState) {
                             VideoButtonState.PLAY -> R.drawable.ic_cell_play
                             VideoButtonState.PAUSE -> R.drawable.ic_cell_pause
                             VideoButtonState.REPLAY -> R.drawable.ic_cell_replay
@@ -428,7 +365,6 @@ internal fun CellVideoViewerScreenContent(
                 }
             }
 
-            // — Bottom controls bar (Only show if not exiting)
             AnimatedVisibility(
                 visible = controlsVisible && !isExiting,
                 enter = fadeIn(tween(300)) + slideInVertically(
@@ -454,8 +390,8 @@ internal fun CellVideoViewerScreenContent(
                         )
                         .padding(horizontal = dimensions().spacing8x, vertical = dimensions().spacing4x),
                 ) {
-                    val progress = if (durationMs > 0 && !isSeeking) {
-                        currentPositionMs.toFloat() / durationMs
+                    val progress = if (state.durationMs > 0 && !isSeeking) {
+                        state.currentPositionMs.toFloat() / state.durationMs
                     } else if (isSeeking) {
                         seekProgress
                     } else {
@@ -469,9 +405,7 @@ internal fun CellVideoViewerScreenContent(
                             seekProgress = value
                         },
                         onValueChangeFinished = {
-                            val target = (seekProgress * durationMs).toLong()
-                            player.seekTo(target)
-                            currentPositionMs = target.toInt()
+                            onSeek((seekProgress * state.durationMs).toLong())
                             isSeeking = false
                         },
                         colors = SliderDefaults.colors(
@@ -490,7 +424,7 @@ internal fun CellVideoViewerScreenContent(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = currentPositionMs.toTimeString(),
+                            text = state.currentPositionMs.toTimeString(),
                             color = Color.White,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
@@ -501,25 +435,25 @@ internal fun CellVideoViewerScreenContent(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = durationMs.toTimeString(),
+                                text = state.durationMs.toTimeString(),
                                 color = Color.White.copy(alpha = 0.7f),
                                 fontSize = 12.sp,
                             )
                             Icon(
                                 painter = painterResource(
-                                    if (isMuted) R.drawable.ic_cell_volume_off else R.drawable.ic_cell_volume_on
+                                    if (state.isMuted) R.drawable.ic_cell_volume_off else R.drawable.ic_cell_volume_on
                                 ),
                                 contentDescription = stringResource(
-                                    if (isMuted) R.string.cells_video_unmute else R.string.cells_video_mute
+                                    if (state.isMuted) R.string.cells_video_unmute else R.string.cells_video_mute
                                 ),
                                 tint = Color.White,
                                 modifier = Modifier
-                                    .size(24.dp)
+                                    .size(dimensions().spacing24x)
                                     .clip(CircleShape)
                                     .clickable(
                                         indication = null,
                                         interactionSource = remember { MutableInteractionSource() },
-                                    ) { toggleMute() },
+                                    ) { onToggleMute() },
                             )
                             Icon(
                                 painter = painterResource(
@@ -572,10 +506,13 @@ fun PreviewCellVideoViewerScreen() {
     WireTheme {
         CellVideoViewerScreenContent(
             player = player,
+            state = VideoPlaybackState(),
             localPath = null,
             fileName = "video.mp4",
+            onTogglePlayPause = {},
+            onToggleMute = {},
+            onSeek = {},
             onNavigateBack = {},
         )
     }
 }
-

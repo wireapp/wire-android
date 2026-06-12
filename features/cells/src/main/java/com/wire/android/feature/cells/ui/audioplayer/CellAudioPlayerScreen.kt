@@ -71,8 +71,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.cellAudioPlayerViewModel
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -101,7 +101,7 @@ private val AccentLight = Color(0xFFA29BFE)
 fun CellAudioPlayerScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    viewModel: CellAudioPlayerViewModel = hiltViewModel(),
+    viewModel: CellAudioPlayerViewModel = cellAudioPlayerViewModel(),
 ) {
     CellAudioPlayerContent(
         localPath = viewModel.localPath,

@@ -24,14 +24,10 @@ import androidx.lifecycle.ViewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import com.ramcosta.composedestinations.generated.cells.destinations.CellVideoViewerScreenDestination
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
-import javax.inject.Inject
 
-@HiltViewModel
-class CellVideoViewerViewModel @Inject constructor(
-    @ApplicationContext context: Context,
+class CellVideoViewerViewModel(
+    context: Context,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -61,4 +57,3 @@ class CellVideoViewerViewModel @Inject constructor(
         player.release()
     }
 }
-

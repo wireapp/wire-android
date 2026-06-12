@@ -20,11 +20,8 @@ package com.wire.android.feature.cells.ui.audioplayer
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
-@HiltViewModel
-class CellAudioPlayerViewModel @Inject constructor(
+class CellAudioPlayerViewModel(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val navArgs = CellAudioPlayerScreenDestination.argsFrom(savedStateHandle)

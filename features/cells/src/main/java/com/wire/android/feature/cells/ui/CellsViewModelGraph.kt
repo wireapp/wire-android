@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.metro.sessionKeyedMetroViewModel
+import com.wire.android.feature.cells.ui.audioplayer.CellAudioPlayerViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel
@@ -33,6 +34,7 @@ import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel
 import com.wire.android.feature.cells.ui.search.SearchScreenViewModel
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel
+import com.wire.android.feature.cells.ui.videoviewer.CellVideoViewerViewModel
 
 @Composable
 inline fun <reified VM> cellsViewModel(
@@ -87,3 +89,9 @@ fun versionHistoryViewModel(): VersionHistoryViewModel = cellsViewModel()
 
 @Composable
 fun cellImageViewerViewModel(): CellImageViewerViewModel = cellsViewModel()
+
+@Composable
+fun cellVideoViewerViewModel(): CellVideoViewerViewModel = cellsViewModel()
+
+@Composable
+fun cellAudioPlayerViewModel(): CellAudioPlayerViewModel = cellsViewModel()

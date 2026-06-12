@@ -59,6 +59,16 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountDataDetailScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountEmailScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountSelectorScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountSummaryScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountUsernameScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountVerificationCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreatePersonalAccountOverviewScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateTeamAccountOverviewScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.DebugScreenDestination
@@ -1180,6 +1190,16 @@ private data class SessionNavigationState(
 private val noSessionAuthenticationGraphRoutes = setOf(
     NewLoginPasswordScreenDestination.baseRoute,
     NewLoginVerificationCodeScreenDestination.baseRoute,
+    CreateAccountSelectorScreenDestination.baseRoute,
+    CreateAccountDataDetailScreenDestination.baseRoute,
+    CreateAccountVerificationCodeScreenDestination.baseRoute,
+    CreatePersonalAccountOverviewScreenDestination.baseRoute,
+    CreateTeamAccountOverviewScreenDestination.baseRoute,
+    CreateAccountEmailScreenDestination.baseRoute,
+    CreateAccountDetailsScreenDestination.baseRoute,
+    CreateAccountCodeScreenDestination.baseRoute,
+    CreateAccountSummaryScreenDestination.baseRoute,
+    CreateAccountUsernameScreenDestination.baseRoute,
 )
 
 private val authenticationGraphRoutes = setOf(
@@ -1191,6 +1211,16 @@ private val authenticationGraphRoutes = setOf(
     NewLoginVerificationCodeScreenDestination.baseRoute,
     RegisterDeviceScreenDestination.baseRoute,
     RemoveDeviceScreenDestination.baseRoute,
+    CreateAccountSelectorScreenDestination.baseRoute,
+    CreateAccountDataDetailScreenDestination.baseRoute,
+    CreateAccountVerificationCodeScreenDestination.baseRoute,
+    CreatePersonalAccountOverviewScreenDestination.baseRoute,
+    CreateTeamAccountOverviewScreenDestination.baseRoute,
+    CreateAccountEmailScreenDestination.baseRoute,
+    CreateAccountDetailsScreenDestination.baseRoute,
+    CreateAccountCodeScreenDestination.baseRoute,
+    CreateAccountSummaryScreenDestination.baseRoute,
+    CreateAccountUsernameScreenDestination.baseRoute,
 )
 
 private fun Bundle.sessionBackedAuthenticationUserId(): UserId? {

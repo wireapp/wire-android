@@ -52,11 +52,11 @@ class TextListTruncationTransformation(
         if (allItems.isEmpty()) return
 
         fun visibleNames(visibleCount: Int): String = allItems.take(visibleCount).joinToString(separator)
-        fun ellipsisText(visibleCount: Int): String = if (visibleCount < allItems.size) ellipsis else ""
         fun suffixText(remainingCount: Int): String = if (remainingCount > 0) provideSuffixText(remainingCount) else ""
 
         for (i in allItems.size downTo 0) {
-            val text = visibleNames(i) + ellipsisText(i)
+            val ellipsis = if (i < allItems.size) ellipsis else ""
+            val text = visibleNames(i) + ellipsis
             val suffix = suffixText(allItems.size - i)
             if (textMeasurer.measure(text + suffix, textStyle).size.width <= availableWidthPx) {
                 if (i < allItems.size) {
@@ -64,7 +64,8 @@ class TextListTruncationTransformation(
                     for (j in currentItem.length downTo 1) {
                         val truncatedItem = currentItem.take(j)
                         val separatorBeforeTruncatedItem = if (i > 0) separator else ""
-                        val textWithTruncated = visibleNames(i) + separatorBeforeTruncatedItem + truncatedItem + ellipsisText(i + 1)
+                        val ellipsisAfterTruncatedItem = if (i + 1 < allItems.size || j < currentItem.length) ellipsis else ""
+                        val textWithTruncated = visibleNames(i) + separatorBeforeTruncatedItem + truncatedItem + ellipsisAfterTruncatedItem
                         val suffixWithoutTruncated = suffixText(allItems.size - i - 1)
                         if (textMeasurer.measure(textWithTruncated + suffixWithoutTruncated, textStyle).size.width <= availableWidthPx) {
                             applyVisuals(this, textWithTruncated, suffixWithoutTruncated)

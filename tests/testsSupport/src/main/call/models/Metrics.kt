@@ -20,6 +20,9 @@
 )
 package call.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Metrics(
     val success: Boolean,
     val estabTimeMs: Long,

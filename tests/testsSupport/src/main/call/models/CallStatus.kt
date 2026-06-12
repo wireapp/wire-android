@@ -17,6 +17,9 @@
  */
 package call.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class CallStatus {
     NON_EXISTENT,
     WAITING,

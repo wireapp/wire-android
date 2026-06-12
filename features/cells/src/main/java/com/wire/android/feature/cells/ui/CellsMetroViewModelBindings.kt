@@ -15,13 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.feature.cells.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
+import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkViewModel
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationScreenViewModel
@@ -30,6 +35,7 @@ import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel
 import com.wire.android.feature.cells.ui.search.SearchScreenViewModel
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel
+import com.wire.android.feature.cells.ui.videoplayer.VideoPlayerViewModel
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
 import dev.zacsweers.metro.Provides
@@ -104,6 +110,25 @@ object CellsMetroViewModelBindings {
     @ViewModelAssistedFactoryKey(VersionHistoryViewModel::class)
     fun versionHistoryViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
         savedStateViewModel { factory.versionHistoryViewModel(it.createSavedStateHandle()) }
+
+    @Provides
+    @IntoMap
+    @ViewModelAssistedFactoryKey(CellImageViewerViewModel::class)
+    fun imageViewerViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.cellImageViewerViewModel(it.createSavedStateHandle()) }
+
+    @Provides
+    @IntoMap
+    @ViewModelAssistedFactoryKey(VideoPlayerViewModel::class)
+    fun videoViewerViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
+        savedStateViewModel {
+            factory.cellVideoViewerViewModel(
+                context = checkNotNull(it[APPLICATION_KEY]) {
+                    "No Application was provided via CreationExtras"
+                },
+                savedStateHandle = it.createSavedStateHandle(),
+            )
+        }
 
     private fun savedStateViewModel(create: (CreationExtras) -> ViewModel): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {

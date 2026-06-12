@@ -41,6 +41,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination.invoke
 import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
@@ -60,6 +62,7 @@ import com.wire.android.feature.cells.ui.search.filter.bottomsheet.tags.FilterBy
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.feature.cells.ui.searchScreenViewModel
 import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
@@ -209,7 +212,18 @@ fun SearchScreen(
                 isSearchResult = true,
                 isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
                 isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,
-                openFolder = { _, _, _ -> },
+                openFolder = { path, title, parentFolderUuid ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            ConversationFilesWithSlideInTransitionScreenDestination(
+                                conversationId = path,
+                                screenTitle = title,
+                                parentFolderUuid = parentFolderUuid,
+                            ),
+                            BackStackMode.NONE,
+                            launchSingleTop = false
+                        )
+                    ) },
                 showPublicLinkScreen = { publicLinkScreenData ->
                     navigator.navigate(
                         NavigationCommand(

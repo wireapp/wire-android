@@ -99,6 +99,7 @@ internal fun CellScreenContent(
     lazyListState: LazyListState = rememberLazyListState(),
     retryEditNodeError: (String) -> Unit = {},
     showVersionHistoryScreen: (String, String) -> Unit = { _, _ -> },
+    showImageViewer: (CellNodeUi.File) -> Unit = {},
     fileReadyFlow: Flow<CellNodeUi.File>? = emptyFlow(),
 ) {
 
@@ -255,6 +256,7 @@ internal fun CellScreenContent(
                     Toast.LENGTH_SHORT
                 ).show()
             }
+            is OpenImageViewer -> showImageViewer(action.file)
         }
     }
 

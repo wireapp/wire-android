@@ -301,7 +301,6 @@
     <!--Typing Indicator-->
     <!-- Search Messages -->
     <!-- Conversation Media -->
-    <!-- Search Contact-->
     <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
@@ -310,8 +309,6 @@
     <!-- Notifications -->
     <!-- Calling-->
     <!-- Connectivity Status Bar -->
-    <!-- Connections -->
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <!--sso dialog-->
     <!--prohibited asset messages -->
@@ -324,7 +321,6 @@
     <!--Privacy Settings -->
     <!--Privacy Settings, App lock -->
     <!--Devices -->
-    <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--nomad account blocks login dialog-->
     <!--create and restore backup-->

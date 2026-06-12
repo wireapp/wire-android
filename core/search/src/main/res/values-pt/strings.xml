@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Wire
   ~ Copyright (C) 2026 Wire Swiss GmbH
   ~
@@ -15,10 +16,4 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources>
-    <string name="label_no_results_found">Não foi possível encontrar nenhum resultado. Por favor, tente novamente.</string>
-    <string name="content_description_add_participants_back_btn">Voltar para a visualização de adição de participantes</string>
-    <string name="content_description_add_participants_search_field">Pesquisar pessoas por nome ou nome de usuário</string>
-    <string name="label_add_member_people">Pessoas</string>
-    <string name="label_search_people">Procurar pessoas</string>
-</resources>
+<resources></resources>

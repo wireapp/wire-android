@@ -140,7 +140,6 @@
     <string name="label_search_button">Пошук</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Медіа</string>
-    <!-- Search Contact-->
     <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
@@ -150,8 +149,6 @@
     <string name="label_type_a_message">Напишіть повідомлення</string>
     <!-- Calling-->
     <!-- Connectivity Status Bar -->
-    <!-- Connections -->
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <!--sso dialog-->
     <!--prohibited asset messages -->
@@ -172,7 +169,6 @@
     <!--Privacy Settings -->
     <!--Privacy Settings, App lock -->
     <!--Devices -->
-    <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--nomad account blocks login dialog-->
     <string name="label_share_logs">Поширити Логи</string>

@@ -44,8 +44,6 @@ class CellAudioPlayerViewModel(
     val contentUrl: String? = navArgs.contentUrl
     val fileName: String? = navArgs.fileName
 
-    // Playback state lives here so it survives configuration changes; the screen only renders it and
-    // forwards user intents back through the action functions below.
     private val _state = MutableStateFlow(AudioPlaybackState())
     val state: StateFlow<AudioPlaybackState> = _state.asStateFlow()
 
@@ -135,11 +133,3 @@ class CellAudioPlayerViewModel(
         const val POSITION_POLL_MS = 200L
     }
 }
-
-data class AudioPlaybackState(
-    val isPlaying: Boolean = false,
-    val isCompleted: Boolean = false,
-    val isPrepared: Boolean = false,
-    val currentPositionMs: Int = 0,
-    val durationMs: Int = 0,
-)

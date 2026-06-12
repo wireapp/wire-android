@@ -118,8 +118,6 @@ internal fun CellAudioPlayerContent(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // UI-only state. Playback state (playing, position, duration, …) lives in the ViewModel so it
-    // survives configuration changes; the values below are pure presentation concerns.
     var isSeeking by remember { mutableStateOf(false) }
     var seekProgress by remember { mutableFloatStateOf(0f) }
 
@@ -161,17 +159,14 @@ internal fun CellAudioPlayerContent(
 
                 Spacer(modifier = Modifier.height(dimensions().spacing24x))
 
-                // — Animated album art circle
                 PulsingAlbumArt(isPlaying = state.isPlaying)
 
                 Spacer(modifier = Modifier.height(dimensions().spacing32x))
 
-                // — Equalizer bars
                 EqualizerBars(isPlaying = state.isPlaying)
 
                 Spacer(modifier = Modifier.height(dimensions().spacing24x))
 
-                // — File name
                 Text(
                     text = fileName ?: stringResource(R.string.conversation_files_title),
                     color = Color.White,
@@ -185,7 +180,6 @@ internal fun CellAudioPlayerContent(
 
                 Spacer(modifier = Modifier.height(dimensions().spacing32x))
 
-                // — Seek slider
                 val progress = if (state.durationMs > 0 && !isSeeking) {
                     state.currentPositionMs.toFloat() / state.durationMs
                 } else if (isSeeking) {
@@ -212,7 +206,6 @@ internal fun CellAudioPlayerContent(
                     modifier = Modifier.fillMaxWidth(),
                 )
 
-                // — Time row
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -233,13 +226,11 @@ internal fun CellAudioPlayerContent(
 
                 Spacer(modifier = Modifier.height(dimensions().spacing24x))
 
-                // — Controls row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    // Skip back 15s
                     IconButton(
                         onClick = {
                             onSeek((state.currentPositionMs - SKIP_MS).coerceAtLeast(0))
@@ -255,7 +246,6 @@ internal fun CellAudioPlayerContent(
 
                     Spacer(modifier = Modifier.width(dimensions().spacing24x))
 
-                    // Play / Pause button (large, spring-animated)
                     val buttonScale by animateFloatAsState(
                         targetValue = if (state.isPrepared) 1f else 0.7f,
                         animationSpec = spring(
@@ -267,7 +257,7 @@ internal fun CellAudioPlayerContent(
 
                     Box(
                         modifier = Modifier
-                            .size(72.dp)
+                            .size(dimensions().spacing72x)
                             .scale(buttonScale)
                             .clip(CircleShape)
                             .background(AccentColor)
@@ -296,7 +286,6 @@ internal fun CellAudioPlayerContent(
 
                     Spacer(modifier = Modifier.width(dimensions().spacing24x))
 
-                    // Skip forward 15s
                     IconButton(
                         onClick = {
                             onSeek((state.currentPositionMs + SKIP_MS).coerceAtMost(state.durationMs))
@@ -306,7 +295,7 @@ internal fun CellAudioPlayerContent(
                             painter = painterResource(R.drawable.ic_cell_skip_forward),
                             contentDescription = null,
                             tint = Color.White.copy(alpha = 0.75f),
-                            modifier = Modifier.size(32.dp),
+                            modifier = Modifier.size(dimensions().spacing32x),
                         )
                     }
                 }
@@ -317,7 +306,6 @@ internal fun CellAudioPlayerContent(
     }
 }
 
-// — Animated pulsing album art placeholder
 @Composable
 private fun PulsingAlbumArt(isPlaying: Boolean) {
     val infiniteTransition = rememberInfiniteTransition(label = "albumArtPulse")
@@ -334,7 +322,7 @@ private fun PulsingAlbumArt(isPlaying: Boolean) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .size(200.dp)
+            .size(dimensions().spacing200x)
             .scale(scale)
             .clip(CircleShape)
             .background(
@@ -343,7 +331,6 @@ private fun PulsingAlbumArt(isPlaying: Boolean) {
                 )
             ),
     ) {
-        // Outer glow ring
         Box(
             modifier = Modifier
                 .size(190.dp)
@@ -388,7 +375,7 @@ private fun EqualizerBars(isPlaying: Boolean) {
         )
     }
 
-    val maxBarHeightPx = 32.dp
+    val maxBarHeightPx = dimensions().spacing32x
     Row(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -398,9 +385,9 @@ private fun EqualizerBars(isPlaying: Boolean) {
             val fraction by heightState
             Box(
                 modifier = Modifier
-                    .width(5.dp)
+                    .width(dimensions().spacing6x)
                     .height(maxBarHeightPx * fraction)
-                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(3.dp))
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(dimensions().spacing3x))
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(AccentLight, AccentColor)

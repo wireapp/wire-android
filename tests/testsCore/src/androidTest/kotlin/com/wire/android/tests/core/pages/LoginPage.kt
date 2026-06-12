@@ -20,22 +20,32 @@ package com.wire.android.tests.core.pages
 import android.content.Intent
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
+import androidx.test.uiautomator.Until
+import com.wire.android.tests.support.UiAutomatorSetup
 import backendUtils.BackendClient
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import kotlin.time.Duration.Companion.seconds
 
 data class LoginPage(private val device: UiDevice) {
     val backendClient = BackendClient.loadBackend("STAGING")
 
     // Locators
     private val emailInputField = UiSelector().resourceId("userIdentifierInput")
+    private val emailInputFieldSelector = UiSelectorParams(resourceId = "userIdentifierInput")
     private val passwordInputFieldSelector = UiSelectorParams(resourceId = "PasswordInput")
     private val loginButtonSelector = UiSelectorParams(resourceId = "loginButton")
     private val proceedButtonSelector = UiSelectorParams(text = "Proceed")
+    private val proceedButtonGoneSelector = UiSelector().text("Proceed")
     private val confirmButtonSelector = UiSelectorParams(text = "Confirm")
+    private val androidResolverWireDevSelector = UiSelectorParams(text = "Wire Dev")
+    private val androidResolverJustOnceSelector = UiSelectorParams(text = "Just once")
+    private val emailWelcomeSelector = UiSelectorParams(textMatches = "Enter your (email to start!|credentials to log in)")
 
     fun enterPersonalUserLoggingEmail(email: String): LoginPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
@@ -50,16 +60,12 @@ data class LoginPage(private val device: UiDevice) {
     }
 
     fun enterPersonalUserLoginPassword(password: String): LoginPage {
-        val passwordInputField = UiWaitUtils.waitElement(passwordInputFieldSelector)
-        passwordInputField.click()
-        passwordInputField.text = password
+        enterPassword(password)
         return this
     }
 
     fun enterTeamMemberLoggingPassword(password: String): LoginPage {
-        val passwordInputField = UiWaitUtils.waitElement(passwordInputFieldSelector)
-        passwordInputField.click()
-        passwordInputField.text = password
+        enterPassword(password)
         return this
     }
 
@@ -100,17 +106,16 @@ data class LoginPage(private val device: UiDevice) {
     }
 
     fun enterTeamOwnerLoggingPassword(password: String): LoginPage {
-        val passwordInputField = UiWaitUtils.waitElement(passwordInputFieldSelector)
-        passwordInputField.click()
-        passwordInputField.text = password
+        enterPassword(password)
         return this
     }
 
     fun clickStagingDeepLink(): LoginPage {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val deepLinkUrl = "wire://access/?config=${backendClient?.deeplink}"
+        val deepLinkUrl = "wire://access/?config=${backendClient.deeplink}"
         val intent = Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse(deepLinkUrl)
+            setPackage(UiAutomatorSetup.appPackage)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
 
@@ -135,8 +140,34 @@ data class LoginPage(private val device: UiDevice) {
     }
 
     fun clickProceedButtonOnDeeplinkOverlay(): LoginPage {
-        val proceedButton = UiWaitUtils.waitElement(proceedButtonSelector)
-        proceedButton.click()
+        val proceeded = UiWaitUtils.retryUntilTimeout(timeout = UiWaitUtils.LONG_TIMEOUT) {
+            UiWaitUtils.findElementOrNull(androidResolverWireDevSelector)?.let { wireDevOption ->
+                runCatching { wireDevOption.click() }
+                val resolverHandled = UiWaitUtils.clickWhenClickable(androidResolverJustOnceSelector, timeout = 5.seconds)
+                if (!resolverHandled) {
+                    throw AssertionError("Android app resolver was visible, but 'Just once' could not be clicked.")
+                }
+            }
+
+            try {
+                UiWaitUtils.findElementOrNull(proceedButtonSelector)?.let { proceedButton ->
+                    if (!proceedButton.visibleBounds.isEmpty && proceedButton.isEnabled) {
+                        proceedButton.click()
+                        return@retryUntilTimeout true
+                    }
+                }
+            } catch (_: StaleObjectException) {
+                return@retryUntilTimeout false
+            }
+
+            false
+        }
+
+        if (!proceeded) {
+            throw AssertionError("Staging backend deeplink confirmation was not shown.")
+        }
+
+        waitForWelcomeScreenAfterBackendDeeplink()
         return this
     }
 
@@ -144,5 +175,30 @@ data class LoginPage(private val device: UiDevice) {
         val confirmButton = UiWaitUtils.waitElement(confirmButtonSelector)
         confirmButton.click()
         return this
+    }
+
+    private fun enterPassword(password: String) {
+        val passwordInputField = UiWaitUtils.waitElement(passwordInputFieldSelector)
+        val input = passwordInputField.findObject(By.clazz("android.widget.EditText"))
+        input.click()
+        input.text = password
+    }
+
+    private fun waitForWelcomeScreenAfterBackendDeeplink() {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        device.wait(Until.hasObject(By.pkg(UiAutomatorSetup.appPackage).depth(0)), 10_000)
+        val welcomeReady = UiWaitUtils.retryUntilTimeout(timeout = UiWaitUtils.LONG_TIMEOUT) {
+            val proceedGone = runCatching {
+                UiWaitUtils.waitUntilElementGone(device, proceedButtonGoneSelector, timeout = UiWaitUtils.POLLING_FAST)
+            }.isSuccess
+            val welcomeVisible = UiWaitUtils.findElementOrNull(emailWelcomeSelector)?.let { !it.visibleBounds.isEmpty } == true
+            val emailInputVisible = UiWaitUtils.findElementOrNull(emailInputFieldSelector)?.let { !it.visibleBounds.isEmpty } == true
+            proceedGone && welcomeVisible && emailInputVisible
+        }
+        if (!welcomeReady) {
+            throw AssertionError("Welcome screen was not ready after staging backend deeplink.")
+        }
+        UiWaitUtils.waitElement(emailWelcomeSelector, timeout = UiWaitUtils.LONG_TIMEOUT)
+        UiWaitUtils.waitElement(emailInputFieldSelector, timeout = UiWaitUtils.LONG_TIMEOUT)
     }
 }

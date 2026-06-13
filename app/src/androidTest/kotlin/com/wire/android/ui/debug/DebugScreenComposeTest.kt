@@ -105,7 +105,10 @@ class DebugScreenComposeTest {
                     onNavigationPressed = {},
                     onDownloadAiModel = {},
                     onDownloadEmbeddingModel = {},
+                    onCreateEmbeddings = {},
                     onModelSelected = {},
+                    onInferenceBackendSelected = {},
+                    onCpuThreadsSelected = {},
                     onDismissAuthorizationDialog = {},
                     onAuthorizeModelAccess = {}
                 )
@@ -136,7 +139,10 @@ class DebugScreenComposeTest {
                     onNavigationPressed = {},
                     onDownloadAiModel = {},
                     onDownloadEmbeddingModel = {},
+                    onCreateEmbeddings = {},
                     onModelSelected = {},
+                    onInferenceBackendSelected = {},
+                    onCpuThreadsSelected = {},
                     onDismissAuthorizationDialog = {},
                     onAuthorizeModelAccess = {}
                 )
@@ -164,7 +170,10 @@ class DebugScreenComposeTest {
                     onNavigationPressed = {},
                     onDownloadAiModel = {},
                     onDownloadEmbeddingModel = {},
+                    onCreateEmbeddings = {},
                     onModelSelected = {},
+                    onInferenceBackendSelected = {},
+                    onCpuThreadsSelected = {},
                     onDismissAuthorizationDialog = {},
                     onAuthorizeModelAccess = {}
                 )
@@ -197,7 +206,10 @@ class DebugScreenComposeTest {
                     onNavigationPressed = {},
                     onDownloadAiModel = {},
                     onDownloadEmbeddingModel = {},
+                    onCreateEmbeddings = {},
                     onModelSelected = {},
+                    onInferenceBackendSelected = {},
+                    onCpuThreadsSelected = {},
                     onDismissAuthorizationDialog = {},
                     onAuthorizeModelAccess = {}
                 )
@@ -230,7 +242,10 @@ class DebugScreenComposeTest {
                     onNavigationPressed = {},
                     onDownloadAiModel = {},
                     onDownloadEmbeddingModel = {},
+                    onCreateEmbeddings = {},
                     onModelSelected = {},
+                    onInferenceBackendSelected = {},
+                    onCpuThreadsSelected = {},
                     onDismissAuthorizationDialog = {},
                     onAuthorizeModelAccess = {}
                 )
@@ -263,7 +278,10 @@ class DebugScreenComposeTest {
                     onNavigationPressed = {},
                     onDownloadAiModel = {},
                     onDownloadEmbeddingModel = {},
+                    onCreateEmbeddings = {},
                     onModelSelected = {},
+                    onInferenceBackendSelected = {},
+                    onCpuThreadsSelected = {},
                     onDismissAuthorizationDialog = {},
                     onAuthorizeModelAccess = {}
                 )
@@ -273,6 +291,51 @@ class DebugScreenComposeTest {
         composeTestRule.waitUntilExists("Embedding model")
         composeTestRule.waitUntilExists("Downloaded")
         composeTestRule.onAllNodesWithText("Download").assertCountEquals(0)
+    }
+
+    @Test
+    fun givenAiAssistantDebugScreen_CreateEmbeddingsButtonShouldBeDisplayed() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                AiAssistantDebugScreenContent(
+                    state = AiAssistantDebugState(),
+                    onNavigationPressed = {},
+                    onDownloadAiModel = {},
+                    onDownloadEmbeddingModel = {},
+                    onCreateEmbeddings = {},
+                    onModelSelected = {},
+                    onInferenceBackendSelected = {},
+                    onCpuThreadsSelected = {},
+                    onDismissAuthorizationDialog = {},
+                    onAuthorizeModelAccess = {}
+                )
+            }
+        }
+
+        composeTestRule.waitUntilExists("Message embeddings")
+        composeTestRule.waitUntilExists("Create embeddings")
+    }
+
+    @Test
+    fun givenEmbeddingsAreCreating_AiAssistantDebugScreenShouldDisableCreateEmbeddingsButton() = runTest {
+        composeTestRule.setContent {
+            WireTestTheme {
+                AiAssistantDebugScreenContent(
+                    state = AiAssistantDebugState(isCreatingEmbeddings = true),
+                    onNavigationPressed = {},
+                    onDownloadAiModel = {},
+                    onDownloadEmbeddingModel = {},
+                    onCreateEmbeddings = {},
+                    onModelSelected = {},
+                    onInferenceBackendSelected = {},
+                    onCpuThreadsSelected = {},
+                    onDismissAuthorizationDialog = {},
+                    onAuthorizeModelAccess = {}
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Create embeddings").assertIsNotEnabled()
     }
 
     @Test
@@ -291,7 +354,10 @@ class DebugScreenComposeTest {
                     onNavigationPressed = {},
                     onDownloadAiModel = {},
                     onDownloadEmbeddingModel = {},
+                    onCreateEmbeddings = {},
                     onModelSelected = {},
+                    onInferenceBackendSelected = {},
+                    onCpuThreadsSelected = {},
                     onDismissAuthorizationDialog = {},
                     onAuthorizeModelAccess = {}
                 )

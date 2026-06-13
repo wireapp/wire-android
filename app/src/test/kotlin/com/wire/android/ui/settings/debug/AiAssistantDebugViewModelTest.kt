@@ -39,6 +39,8 @@ import com.wire.android.ui.debug.AiModelUiStatus
 import com.wire.android.ui.debug.extractFirstUrl
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.resolveForTest
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -54,6 +56,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -531,6 +534,85 @@ class AiAssistantDebugViewModelTest {
             )
         }
     }
+
+    @Test
+    fun `when creating embeddings, then use case is called and success message is emitted`() = runTest {
+        // given
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withCreateEmbeddingsResult(
+                CreateEmbeddingsForExistingMessagesUseCase.Result.Success(
+                    processedMessages = 10,
+                    createdEmbeddings = 7,
+                    skippedMessages = 2,
+                    failedMessages = 1,
+                    modelId = "deterministic-local-v1"
+                )
+            )
+            .arrange()
+
+        viewModel.infoMessage.test {
+            // when
+            viewModel.createEmbeddings()
+
+            // then
+            assertEquals(
+                UIText.StringResource(R.string.debug_settings_ai_create_embeddings_success, 7, 2, 1),
+                awaitItem()
+            )
+        }
+        coVerify(exactly = 1) { arrangement.createEmbeddingsForExistingMessages() }
+        assertEquals(false, viewModel.state.isCreatingEmbeddings)
+    }
+
+    @Test
+    fun `given creating embeddings fails, when creating embeddings, then failure message is emitted`() = runTest {
+        // given
+        val failure = CoreFailure.Unknown(RuntimeException("Embedding failed"))
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withCreateEmbeddingsResult(CreateEmbeddingsForExistingMessagesUseCase.Result.Failure(failure))
+            .arrange()
+
+        viewModel.infoMessage.test {
+            // when
+            viewModel.createEmbeddings()
+
+            // then
+            assertEquals(
+                UIText.StringResource(R.string.debug_settings_ai_create_embeddings_failed, failure.toString()),
+                awaitItem()
+            )
+        }
+        assertEquals(false, viewModel.state.isCreatingEmbeddings)
+    }
+
+    @Test
+    fun `given creating embeddings is running, when creating embeddings again, then use case is not called again`() = runTest {
+        // given
+        val result = CompletableDeferred<CreateEmbeddingsForExistingMessagesUseCase.Result>()
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withCreateEmbeddingsResult { result.await() }
+            .arrange()
+
+        // when
+        viewModel.createEmbeddings()
+        viewModel.createEmbeddings()
+
+        // then
+        assertEquals(true, viewModel.state.isCreatingEmbeddings)
+        coVerify(exactly = 1) { arrangement.createEmbeddingsForExistingMessages() }
+
+        result.complete(
+            CreateEmbeddingsForExistingMessagesUseCase.Result.Success(
+                processedMessages = 1,
+                createdEmbeddings = 1,
+                skippedMessages = 0,
+                failedMessages = 0,
+                modelId = "deterministic-local-v1"
+            )
+        )
+        runCurrent()
+        assertEquals(false, viewModel.state.isCreatingEmbeddings)
+    }
 }
 
 private val testDescriptor = AiModelDescriptor(
@@ -560,6 +642,9 @@ private class AiAssistantDebugArrangement {
     @MockK
     lateinit var aiModelTestEngine: AiModelTestEngine
 
+    @MockK
+    lateinit var createEmbeddingsForExistingMessages: CreateEmbeddingsForExistingMessagesUseCase
+
     val inferenceConfigStore = FakeAiInferenceConfigStore()
 
     private val viewModel by lazy {
@@ -567,7 +652,8 @@ private class AiAssistantDebugArrangement {
             aiModelManager = aiModelManager,
             aiEmbeddingModelManager = aiEmbeddingModelManager,
             aiModelTestEngine = aiModelTestEngine,
-            inferenceConfigStore = inferenceConfigStore
+            inferenceConfigStore = inferenceConfigStore,
+            createEmbeddingsForExistingMessages = createEmbeddingsForExistingMessages
         )
     }
 
@@ -582,6 +668,15 @@ private class AiAssistantDebugArrangement {
         withEmbeddingModelDownloadState()
         withAiModelHealthCheckResult(AiModelHealthCheckResult.Healthy)
         withInferenceConfig(AiInferenceConfig.DEFAULT)
+        withCreateEmbeddingsResult(
+            CreateEmbeddingsForExistingMessagesUseCase.Result.Success(
+                processedMessages = 0,
+                createdEmbeddings = 0,
+                skippedMessages = 0,
+                failedMessages = 0,
+                modelId = "deterministic-local-v1"
+            )
+        )
     }
 
     fun withAiModelStatus(status: AiModelStatus) = apply {
@@ -635,6 +730,20 @@ private class AiAssistantDebugArrangement {
     fun withAiModelHealthCheckResult(result: suspend () -> AiModelHealthCheckResult) = apply {
         coEvery {
             aiModelTestEngine.runHealthCheck(any(), any())
+        } coAnswers {
+            result()
+        }
+    }
+
+    fun withCreateEmbeddingsResult(result: CreateEmbeddingsForExistingMessagesUseCase.Result) = apply {
+        coEvery {
+            createEmbeddingsForExistingMessages()
+        } returns result
+    }
+
+    fun withCreateEmbeddingsResult(result: suspend () -> CreateEmbeddingsForExistingMessagesUseCase.Result) = apply {
+        coEvery {
+            createEmbeddingsForExistingMessages()
         } coAnswers {
             result()
         }

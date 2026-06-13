@@ -73,6 +73,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -96,6 +97,7 @@ fun AiAssistantDebugScreen(
         onNavigationPressed = navigator::navigateBack,
         onDownloadAiModel = viewModel::downloadAiModel,
         onDownloadEmbeddingModel = viewModel::downloadEmbeddingModel,
+        onCreateEmbeddings = viewModel::createEmbeddings,
         onModelSelected = viewModel::selectModel,
         onInferenceBackendSelected = viewModel::selectInferenceBackend,
         onCpuThreadsSelected = viewModel::selectCpuThreads,
@@ -117,6 +119,7 @@ fun AiAssistantDebugScreenContent(
     onNavigationPressed: () -> Unit,
     onDownloadAiModel: () -> Unit,
     onDownloadEmbeddingModel: () -> Unit,
+    onCreateEmbeddings: () -> Unit,
     onModelSelected: (AiModelDescriptor) -> Unit,
     onInferenceBackendSelected: (AiInferenceBackend) -> Unit,
     onCpuThreadsSelected: (Int?) -> Unit,
@@ -178,6 +181,10 @@ fun AiAssistantDebugScreenContent(
                     title = stringResource(R.string.debug_settings_ai_embedding_model),
                     state = state.embeddingModelOptionState,
                     onDownloadAiModel = onDownloadEmbeddingModel
+                )
+                AiCreateEmbeddingsOption(
+                    isCreatingEmbeddings = state.isCreatingEmbeddings,
+                    onCreateEmbeddings = onCreateEmbeddings
                 )
                 AiModelHealthCheckOption(state = state.healthCheckState)
             }
@@ -350,6 +357,35 @@ private fun AiModelOptionState.statusText(): String =
     }
 
 @Composable
+private fun AiCreateEmbeddingsOption(
+    isCreatingEmbeddings: Boolean,
+    onCreateEmbeddings: () -> Unit,
+) {
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Text(
+                modifier = Modifier.padding(start = dimensions().spacing8x),
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = stringResource(R.string.debug_settings_ai_message_embeddings)
+            )
+        },
+        actions = {
+            WirePrimaryButton(
+                minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                onClick = onCreateEmbeddings,
+                text = stringResource(R.string.debug_settings_ai_create_embeddings),
+                fillMaxWidth = false,
+                loading = isCreatingEmbeddings,
+                state = if (isCreatingEmbeddings) WireButtonState.Disabled else WireButtonState.Default
+            )
+        }
+    )
+}
+
+@Composable
 private fun AiModelHealthCheckOption(state: AiModelHealthCheckState) {
     RowItemTemplate(
         modifier = Modifier.wrapContentWidth(),
@@ -386,6 +422,7 @@ interface AiAssistantDebugViewModel {
     val state: AiAssistantDebugState get() = AiAssistantDebugState()
     fun downloadAiModel() {}
     fun downloadEmbeddingModel() {}
+    fun createEmbeddings() {}
     fun selectModel(descriptor: AiModelDescriptor) {}
     fun selectInferenceBackend(backend: AiInferenceBackend) {}
     fun selectCpuThreads(cpuThreads: Int?) {}
@@ -398,6 +435,7 @@ class AiAssistantDebugViewModelImpl(
     private val aiEmbeddingModelManager: AiEmbeddingModelManager,
     private val aiModelTestEngine: AiModelTestEngine,
     private val inferenceConfigStore: AiInferenceConfigStore,
+    private val createEmbeddingsForExistingMessages: CreateEmbeddingsForExistingMessagesUseCase,
 ) : ViewModel(), AiAssistantDebugViewModel {
 
     override var state by mutableStateOf(AiAssistantDebugState())
@@ -451,12 +489,10 @@ class AiAssistantDebugViewModelImpl(
     }
 
     override fun downloadEmbeddingModel() {
-        android.util.Log.d("AiAssistantDebug", "downloadEmbeddingModel clicked, isDownloading=${state.embeddingModelOptionState.isDownloading}")
         if (state.embeddingModelOptionState.isDownloading) return
 
         viewModelScope.launch {
             aiEmbeddingModelManager.downloadModel().collect { downloadState ->
-                android.util.Log.d("AiAssistantDebug", "embedding downloadState=$downloadState")
                 when (downloadState) {
                     is AiModelDownloadState.AuthRequired ->
                         state = state.copy(
@@ -477,6 +513,44 @@ class AiAssistantDebugViewModelImpl(
                         // Status is exposed through observeEmbeddingModelStatus.
                     }
                 }
+            }
+        }
+    }
+
+    override fun createEmbeddings() {
+        if (state.isCreatingEmbeddings) return
+
+        state = state.copy(isCreatingEmbeddings = true)
+        viewModelScope.launch {
+            try {
+                when (val result = createEmbeddingsForExistingMessages()) {
+                    is CreateEmbeddingsForExistingMessagesUseCase.Result.Success ->
+                        _infoMessage.emit(
+                            UIText.StringResource(
+                                R.string.debug_settings_ai_create_embeddings_success,
+                                result.createdEmbeddings,
+                                result.skippedMessages,
+                                result.failedMessages
+                            )
+                        )
+
+                    is CreateEmbeddingsForExistingMessagesUseCase.Result.Failure ->
+                        _infoMessage.emit(
+                            UIText.StringResource(
+                                R.string.debug_settings_ai_create_embeddings_failed,
+                                result.coreFailure.toString()
+                            )
+                        )
+                }
+            } catch (throwable: Throwable) {
+                _infoMessage.emit(
+                    UIText.StringResource(
+                        R.string.debug_settings_ai_create_embeddings_failed,
+                        throwable.toString()
+                    )
+                )
+            } finally {
+                state = state.copy(isCreatingEmbeddings = false)
             }
         }
     }
@@ -665,6 +739,7 @@ data class AiAssistantDebugState(
     val inferenceConfig: AiInferenceConfig = AiInferenceConfig.DEFAULT,
     val aiModelOptionState: AiModelOptionState = AiModelOptionState(),
     val embeddingModelOptionState: AiModelOptionState = AiModelOptionState(),
+    val isCreatingEmbeddings: Boolean = false,
     val healthCheckState: AiModelHealthCheckState = AiModelHealthCheckState.Unavailable,
     val authorizationDialogState: AiModelAuthorizationDialogState? = null
 )
@@ -714,6 +789,7 @@ fun PreviewAiAssistantDebugScreen() = WireTheme {
         onNavigationPressed = {},
         onDownloadAiModel = {},
         onDownloadEmbeddingModel = {},
+        onCreateEmbeddings = {},
         onModelSelected = {},
         onInferenceBackendSelected = {},
         onCpuThreadsSelected = {},

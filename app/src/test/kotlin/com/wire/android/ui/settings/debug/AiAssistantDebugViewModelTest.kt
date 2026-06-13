@@ -23,6 +23,9 @@ import app.cash.turbine.test
 import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.feature.aiassistant.AiEmbeddingModelManager
+import com.wire.android.feature.aiassistant.AiInferenceBackend
+import com.wire.android.feature.aiassistant.AiInferenceConfig
+import com.wire.android.feature.aiassistant.AiInferenceConfigStore
 import com.wire.android.feature.aiassistant.AiModelManager
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
@@ -46,6 +49,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -128,7 +132,7 @@ class AiAssistantDebugViewModelTest {
         assertEquals(AiModelUiStatus.Downloaded, viewModel.state.embeddingModelOptionState.status)
         assertEquals(false, viewModel.state.embeddingModelOptionState.showDownloadButton)
         assertEquals(false, viewModel.state.embeddingModelOptionState.isDownloading)
-        coVerify(exactly = 0) { arrangement.aiModelTestEngine.runHealthCheck("embeddingPath") }
+        coVerify(exactly = 0) { arrangement.aiModelTestEngine.runHealthCheck("embeddingPath", any()) }
     }
 
     @Test
@@ -139,7 +143,7 @@ class AiAssistantDebugViewModelTest {
             .arrange()
 
         // then
-        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath") }
+        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath", AiInferenceConfig.DEFAULT) }
     }
 
     @Test
@@ -151,7 +155,7 @@ class AiAssistantDebugViewModelTest {
 
         // then
         assertEquals(AiModelHealthCheckState.Unavailable, viewModel.state.healthCheckState)
-        coVerify(exactly = 0) { arrangement.aiModelTestEngine.runHealthCheck(any()) }
+        coVerify(exactly = 0) { arrangement.aiModelTestEngine.runHealthCheck(any(), any()) }
     }
 
     @Test
@@ -163,7 +167,7 @@ class AiAssistantDebugViewModelTest {
 
         // then
         assertEquals(AiModelHealthCheckState.Unavailable, viewModel.state.healthCheckState)
-        coVerify(exactly = 0) { arrangement.aiModelTestEngine.runHealthCheck(any()) }
+        coVerify(exactly = 0) { arrangement.aiModelTestEngine.runHealthCheck(any(), any()) }
     }
 
     @Test
@@ -226,7 +230,80 @@ class AiAssistantDebugViewModelTest {
             .arrange()
 
         // then
-        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath") }
+        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath", AiInferenceConfig.DEFAULT) }
+    }
+
+    @Test
+    fun `given stored inference config, then state contains inference config`() = runTest {
+        val config = AiInferenceConfig(backend = AiInferenceBackend.CPU, cpuThreads = 4)
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withInferenceConfig(config)
+            .arrange()
+
+        assertEquals(config, viewModel.state.inferenceConfig)
+    }
+
+    @Test
+    fun `given ready model, when cpu inference is selected, then config is persisted and health check reruns`() = runTest {
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withInferenceConfig(AiInferenceConfig(backend = AiInferenceBackend.GPU, cpuThreads = 4))
+            .withAiModelStatus(AiModelStatus.Ready("localPath"))
+            .arrange()
+
+        viewModel.selectInferenceBackend(AiInferenceBackend.CPU)
+
+        val expectedConfig = AiInferenceConfig(backend = AiInferenceBackend.CPU, cpuThreads = 4)
+        assertEquals(expectedConfig, arrangement.inferenceConfigStore.config.value)
+        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath", expectedConfig) }
+    }
+
+    @Test
+    fun `given ready model, when cpu threads are selected, then config is persisted and health check reruns`() = runTest {
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withAiModelStatus(AiModelStatus.Ready("localPath"))
+            .arrange()
+
+        viewModel.selectCpuThreads(4)
+
+        val expectedConfig = AiInferenceConfig(backend = AiInferenceBackend.CPU, cpuThreads = 4)
+        assertEquals(expectedConfig, arrangement.inferenceConfigStore.config.value)
+        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath", expectedConfig) }
+    }
+
+    @Test
+    fun `given ready model, when gpu inference test succeeds, then gpu config is persisted`() = runTest {
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withAiModelStatus(AiModelStatus.Ready("localPath"))
+            .withAiModelHealthCheckResult(AiModelHealthCheckResult.Healthy)
+            .arrange()
+
+        viewModel.selectInferenceBackend(AiInferenceBackend.GPU)
+
+        val expectedConfig = AiInferenceConfig(backend = AiInferenceBackend.GPU)
+        assertEquals(expectedConfig, arrangement.inferenceConfigStore.config.value)
+        assertEquals(AiModelHealthCheckState.Healthy, viewModel.state.healthCheckState)
+        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath", expectedConfig) }
+    }
+
+    @Test
+    fun `given ready model, when gpu inference test fails, then gpu config is not persisted`() = runTest {
+        val initialConfig = AiInferenceConfig(backend = AiInferenceBackend.CPU, cpuThreads = 2)
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withInferenceConfig(initialConfig)
+            .withAiModelStatus(AiModelStatus.Ready("localPath"))
+            .withAiModelHealthCheckResult(AiModelHealthCheckResult.InferenceFailed("GPU unavailable"))
+            .arrange()
+
+        viewModel.selectInferenceBackend(AiInferenceBackend.GPU)
+
+        assertEquals(initialConfig, arrangement.inferenceConfigStore.config.value)
+        assertEquals(AiModelHealthCheckState.Failed("GPU unavailable"), viewModel.state.healthCheckState)
+        coVerify(exactly = 1) {
+            arrangement.aiModelTestEngine.runHealthCheck(
+                "localPath",
+                AiInferenceConfig(backend = AiInferenceBackend.GPU, cpuThreads = 2)
+            )
+        }
     }
 
     @Test
@@ -483,11 +560,14 @@ private class AiAssistantDebugArrangement {
     @MockK
     lateinit var aiModelTestEngine: AiModelTestEngine
 
+    val inferenceConfigStore = FakeAiInferenceConfigStore()
+
     private val viewModel by lazy {
         AiAssistantDebugViewModelImpl(
             aiModelManager = aiModelManager,
             aiEmbeddingModelManager = aiEmbeddingModelManager,
-            aiModelTestEngine = aiModelTestEngine
+            aiModelTestEngine = aiModelTestEngine,
+            inferenceConfigStore = inferenceConfigStore
         )
     }
 
@@ -501,6 +581,7 @@ private class AiAssistantDebugArrangement {
         withAiModelDownloadState()
         withEmbeddingModelDownloadState()
         withAiModelHealthCheckResult(AiModelHealthCheckResult.Healthy)
+        withInferenceConfig(AiInferenceConfig.DEFAULT)
     }
 
     fun withAiModelStatus(status: AiModelStatus) = apply {
@@ -513,6 +594,10 @@ private class AiAssistantDebugArrangement {
 
     fun withSelectedModel(descriptor: AiModelDescriptor) = apply {
         every { aiModelManager.selectedModel } returns MutableStateFlow(descriptor)
+    }
+
+    fun withInferenceConfig(config: AiInferenceConfig) = apply {
+        inferenceConfigStore.config.value = config
     }
 
     fun withAiModelStatuses(vararg statuses: AiModelStatus) = apply {
@@ -549,11 +634,23 @@ private class AiAssistantDebugArrangement {
 
     fun withAiModelHealthCheckResult(result: suspend () -> AiModelHealthCheckResult) = apply {
         coEvery {
-            aiModelTestEngine.runHealthCheck(any())
+            aiModelTestEngine.runHealthCheck(any(), any())
         } coAnswers {
             result()
         }
     }
 
     fun arrange() = this to viewModel
+}
+
+private class FakeAiInferenceConfigStore(
+    initialConfig: AiInferenceConfig = AiInferenceConfig.DEFAULT
+) : AiInferenceConfigStore {
+    val config = MutableStateFlow(initialConfig)
+
+    override fun observeConfig(): Flow<AiInferenceConfig> = config
+
+    override suspend fun setConfig(config: AiInferenceConfig) {
+        this.config.value = config
+    }
 }

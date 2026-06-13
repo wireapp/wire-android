@@ -79,6 +79,13 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:allowBackup,android:supportsRtl">
 
+        <uses-native-library
+            android:name="libvndksupport.so"
+            android:required="false" />
+        <uses-native-library
+            android:name="libOpenCL.so"
+            android:required="false" />
+
         <activity
             android:name=".ui.AppLockActivity"
             android:exported="false"

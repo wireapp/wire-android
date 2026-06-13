@@ -1843,6 +1843,12 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_feature_flags" translatable="false">Feature Flags</string>
     <string name="debug_settings_conversation_crypto_stats" translatable="false">Conversation Crypto Stats</string>
     <string name="debug_settings_ai_assistant" translatable="false">AI assistant</string>
+    <string name="debug_settings_ai_inference" translatable="false">Inference</string>
+    <string name="debug_settings_ai_inference_backend" translatable="false">Backend</string>
+    <string name="debug_settings_ai_inference_cpu" translatable="false">CPU</string>
+    <string name="debug_settings_ai_inference_gpu" translatable="false">GPU</string>
+    <string name="debug_settings_ai_inference_cpu_threads" translatable="false">CPU threads</string>
+    <string name="debug_settings_ai_inference_cpu_threads_auto" translatable="false">Auto</string>
     <string name="debug_settings_ai_assistant_model" translatable="false">AI assistant model</string>
     <string name="debug_settings_ai_embedding_model" translatable="false">Embedding model</string>
     <string name="debug_settings_ai_model_select" translatable="false">Select model</string>

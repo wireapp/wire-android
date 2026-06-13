@@ -14,21 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.aiassistant.test
+package com.wire.android.feature.aiassistant
 
-import com.wire.android.feature.aiassistant.AiInferenceConfig
+import com.wire.android.datastore.GlobalDataStore
+import kotlinx.coroutines.flow.Flow
 
-interface AiModelTestEngine {
-    suspend fun runHealthCheck(
-        modelPath: String,
-        config: AiInferenceConfig
-    ): AiModelHealthCheckResult
-}
+class GlobalDataStoreAiInferenceConfigStore(
+    private val globalDataStore: GlobalDataStore
+) : AiInferenceConfigStore {
 
-sealed interface AiModelHealthCheckResult {
-    data object Healthy : AiModelHealthCheckResult
-    data object MissingModel : AiModelHealthCheckResult
-    data object UnsupportedModel : AiModelHealthCheckResult
-    data object EmptyResponse : AiModelHealthCheckResult
-    data class InferenceFailed(val message: String) : AiModelHealthCheckResult
+    override fun observeConfig(): Flow<AiInferenceConfig> =
+        globalDataStore.observeAiInferenceConfig()
+
+    override suspend fun setConfig(config: AiInferenceConfig) {
+        globalDataStore.setAiInferenceConfig(config)
+    }
 }

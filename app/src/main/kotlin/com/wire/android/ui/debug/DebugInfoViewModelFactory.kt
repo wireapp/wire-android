@@ -22,6 +22,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.aiassistant.AiEmbeddingModelManager
+import com.wire.android.feature.aiassistant.AiInferenceConfigStore
 import com.wire.android.feature.aiassistant.AiModelManager
 import com.wire.android.feature.aiassistant.test.AiModelTestEngine
 import com.wire.android.ui.debug.conversation.DebugConversationViewModel
@@ -101,6 +102,7 @@ class DebugInfoViewModelFactory @Inject constructor(
     private val aiModelManager: AiModelManager,
     private val aiEmbeddingModelManager: AiEmbeddingModelManager,
     private val aiModelTestEngine: AiModelTestEngine,
+    private val aiInferenceConfigStore: AiInferenceConfigStore,
 ) {
     fun userDebugViewModel() = UserDebugViewModel(
         currentAccount = currentAccount,
@@ -142,6 +144,7 @@ class DebugInfoViewModelFactory @Inject constructor(
         aiModelManager = aiModelManager,
         aiEmbeddingModelManager = aiEmbeddingModelManager,
         aiModelTestEngine = aiModelTestEngine,
+        inferenceConfigStore = aiInferenceConfigStore,
     )
 
     fun exportObfuscatedCopyViewModel() = ExportObfuscatedCopyViewModelImpl(

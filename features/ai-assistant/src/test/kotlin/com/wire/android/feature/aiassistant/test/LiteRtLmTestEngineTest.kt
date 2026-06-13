@@ -16,6 +16,8 @@
  */
 package com.wire.android.feature.aiassistant.test
 
+import com.wire.android.feature.aiassistant.AiInferenceBackend
+import com.wire.android.feature.aiassistant.AiInferenceConfig
 import java.io.File
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -34,7 +36,7 @@ class LiteRtLmTestEngineTest {
             inferenceFactory = FakeLiteRtLmInferenceFactory(response = "OK")
         )
 
-        val result = engine.runHealthCheck(File(tempDir, "missing-model.litertlm").absolutePath)
+        val result = engine.runHealthCheck(File(tempDir, "missing-model.litertlm").absolutePath, AiInferenceConfig.DEFAULT)
 
         assertEquals(AiModelHealthCheckResult.MissingModel, result)
     }
@@ -45,7 +47,7 @@ class LiteRtLmTestEngineTest {
             val factory = FakeLiteRtLmInferenceFactory(response = "OK")
             val engine = LiteRtLmTestEngine(inferenceFactory = factory)
 
-            val result = engine.runHealthCheck(modelFile("model.task").absolutePath)
+            val result = engine.runHealthCheck(modelFile("model.task").absolutePath, AiInferenceConfig.DEFAULT)
 
             assertEquals(AiModelHealthCheckResult.UnsupportedModel, result)
             assertEquals(0, factory.createCount)
@@ -56,10 +58,35 @@ class LiteRtLmTestEngineTest {
         val factory = FakeLiteRtLmInferenceFactory(response = "OK")
         val engine = LiteRtLmTestEngine(inferenceFactory = factory)
 
-        val result = engine.runHealthCheck(modelFile().absolutePath)
+        val result = engine.runHealthCheck(modelFile().absolutePath, AiInferenceConfig.DEFAULT)
 
         assertEquals(AiModelHealthCheckResult.Healthy, result)
         assertEquals(true, factory.inference.isClosed)
+        assertEquals(AiInferenceConfig.DEFAULT, factory.config)
+    }
+
+    @Test
+    fun `given gpu config, when health check runs, then config is passed to inference factory`() = runTest {
+        val config = AiInferenceConfig(backend = AiInferenceBackend.GPU)
+        val factory = FakeLiteRtLmInferenceFactory(response = "OK")
+        val engine = LiteRtLmTestEngine(inferenceFactory = factory)
+
+        val result = engine.runHealthCheck(modelFile().absolutePath, config)
+
+        assertEquals(AiModelHealthCheckResult.Healthy, result)
+        assertEquals(config, factory.config)
+    }
+
+    @Test
+    fun `given cpu threads config, when health check runs, then config is passed to inference factory`() = runTest {
+        val config = AiInferenceConfig(backend = AiInferenceBackend.CPU, cpuThreads = 4)
+        val factory = FakeLiteRtLmInferenceFactory(response = "OK")
+        val engine = LiteRtLmTestEngine(inferenceFactory = factory)
+
+        val result = engine.runHealthCheck(modelFile().absolutePath, config)
+
+        assertEquals(AiModelHealthCheckResult.Healthy, result)
+        assertEquals(config, factory.config)
     }
 
     @Test
@@ -68,7 +95,7 @@ class LiteRtLmTestEngineTest {
             inferenceFactory = FakeLiteRtLmInferenceFactory(response = " ")
         )
 
-        val result = engine.runHealthCheck(modelFile().absolutePath)
+        val result = engine.runHealthCheck(modelFile().absolutePath, AiInferenceConfig.DEFAULT)
 
         assertEquals(AiModelHealthCheckResult.EmptyResponse, result)
     }
@@ -79,7 +106,7 @@ class LiteRtLmTestEngineTest {
             inferenceFactory = FakeLiteRtLmInferenceFactory(throwable = IllegalStateException("Engine init failed"))
         )
 
-        val result = engine.runHealthCheck(modelFile().absolutePath)
+        val result = engine.runHealthCheck(modelFile().absolutePath, AiInferenceConfig.DEFAULT)
 
         assertTrue(result is AiModelHealthCheckResult.InferenceFailed)
         assertEquals("Engine init failed", (result as AiModelHealthCheckResult.InferenceFailed).message)
@@ -96,9 +123,16 @@ private class FakeLiteRtLmInferenceFactory(
     val inference = FakeLiteRtLmInference(response, throwable)
     var createCount = 0
         private set
+    var config: AiInferenceConfig? = null
+        private set
 
-    override fun create(modelPath: String, initialExchanges: List<Pair<String, String>>): LiteRtLmInference {
+    override fun create(
+        modelPath: String,
+        config: AiInferenceConfig,
+        initialExchanges: List<Pair<String, String>>
+    ): LiteRtLmInference {
         createCount++
+        this.config = config
         return inference
     }
 }

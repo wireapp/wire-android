@@ -27,6 +27,7 @@ import kotlinx.coroutines.withContext
 
 class DefaultAiMessageComposerAgent @Inject constructor(
     private val aiModelManager: AiModelManager,
+    private val inferenceConfigStore: AiInferenceConfigStore,
     private val inferenceFactory: LiteRtLmInferenceFactory
 ) : AiMessageComposerAgent {
 
@@ -67,8 +68,9 @@ class DefaultAiMessageComposerAgent @Inject constructor(
             }
 
             val promptRequest = promptBuilder(selectedModel)
+            val inferenceConfig = inferenceConfigStore.observeConfig().first()
             runCatching {
-                inferenceFactory.create(modelStatus.localPath, promptRequest.initialExchanges).use { inference ->
+                inferenceFactory.create(modelStatus.localPath, inferenceConfig, promptRequest.initialExchanges).use { inference ->
                     inference.generateResponse(promptRequest.userMessage)
                 }
             }.fold(

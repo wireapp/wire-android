@@ -39,6 +39,9 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.feature.aiassistant.AiEmbeddingModelManager
+import com.wire.android.feature.aiassistant.AiInferenceBackend
+import com.wire.android.feature.aiassistant.AiInferenceConfig
+import com.wire.android.feature.aiassistant.AiInferenceConfigStore
 import com.wire.android.feature.aiassistant.AiModelManager
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
@@ -94,6 +97,8 @@ fun AiAssistantDebugScreen(
         onDownloadAiModel = viewModel::downloadAiModel,
         onDownloadEmbeddingModel = viewModel::downloadEmbeddingModel,
         onModelSelected = viewModel::selectModel,
+        onInferenceBackendSelected = viewModel::selectInferenceBackend,
+        onCpuThreadsSelected = viewModel::selectCpuThreads,
         onDismissAuthorizationDialog = viewModel::dismissAuthorizationDialog,
         onAuthorizeModelAccess = viewModel::authorizeModelAccess,
         modifier = modifier
@@ -113,6 +118,8 @@ fun AiAssistantDebugScreenContent(
     onDownloadAiModel: () -> Unit,
     onDownloadEmbeddingModel: () -> Unit,
     onModelSelected: (AiModelDescriptor) -> Unit,
+    onInferenceBackendSelected: (AiInferenceBackend) -> Unit,
+    onCpuThreadsSelected: (Int?) -> Unit,
     onDismissAuthorizationDialog: () -> Unit,
     onAuthorizeModelAccess: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -157,6 +164,11 @@ fun AiAssistantDebugScreenContent(
                         onModelSelected = onModelSelected
                     )
                 }
+                AiInferenceConfigOption(
+                    config = state.inferenceConfig,
+                    onInferenceBackendSelected = onInferenceBackendSelected,
+                    onCpuThreadsSelected = onCpuThreadsSelected
+                )
                 AiModelOption(
                     title = stringResource(R.string.debug_settings_ai_assistant_model),
                     state = state.aiModelOptionState,
@@ -198,6 +210,63 @@ private fun AiModelAuthorizationDialog(
         }
     )
 }
+
+@Composable
+private fun AiInferenceConfigOption(
+    config: AiInferenceConfig,
+    onInferenceBackendSelected: (AiInferenceBackend) -> Unit,
+    onCpuThreadsSelected: (Int?) -> Unit,
+) {
+    val backendItems = AiInferenceBackend.entries.map { it.displayName() }
+    val selectedBackendIndex = AiInferenceBackend.entries.indexOf(config.backend).takeIf { it >= 0 } ?: 0
+    val cpuThreadValues = listOf<Int?>(null) + AiInferenceConfig.CPU_THREADS_RANGE.toList()
+    val cpuThreadItems = cpuThreadValues.map { it?.toString() ?: stringResource(R.string.debug_settings_ai_inference_cpu_threads_auto) }
+    val selectedCpuThreadIndex = cpuThreadValues.indexOf(config.cpuThreads).takeIf { it >= 0 } ?: 0
+
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Column(modifier = Modifier.padding(start = dimensions().spacing8x)) {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = stringResource(R.string.debug_settings_ai_inference)
+                )
+                WireDropDown(
+                    items = backendItems,
+                    label = stringResource(R.string.debug_settings_ai_inference_backend),
+                    selectedItemIndex = selectedBackendIndex,
+                    autoUpdateSelection = false,
+                    showDefaultTextIndicator = false,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = dimensions().spacing8x, end = dimensions().spacing24x),
+                    onSelected = { index -> onInferenceBackendSelected(AiInferenceBackend.entries[index]) }
+                )
+                if (config.backend == AiInferenceBackend.CPU) {
+                    WireDropDown(
+                        items = cpuThreadItems,
+                        label = stringResource(R.string.debug_settings_ai_inference_cpu_threads),
+                        selectedItemIndex = selectedCpuThreadIndex,
+                        autoUpdateSelection = false,
+                        showDefaultTextIndicator = false,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = dimensions().spacing8x, end = dimensions().spacing24x),
+                        onSelected = { index -> onCpuThreadsSelected(cpuThreadValues[index]) }
+                    )
+                }
+            }
+        }
+    )
+}
+
+@Composable
+private fun AiInferenceBackend.displayName(): String =
+    when (this) {
+        AiInferenceBackend.CPU -> stringResource(R.string.debug_settings_ai_inference_cpu)
+        AiInferenceBackend.GPU -> stringResource(R.string.debug_settings_ai_inference_gpu)
+    }
 
 @Composable
 private fun AiModelSelectorOption(
@@ -318,6 +387,8 @@ interface AiAssistantDebugViewModel {
     fun downloadAiModel() {}
     fun downloadEmbeddingModel() {}
     fun selectModel(descriptor: AiModelDescriptor) {}
+    fun selectInferenceBackend(backend: AiInferenceBackend) {}
+    fun selectCpuThreads(cpuThreads: Int?) {}
     fun dismissAuthorizationDialog() {}
     fun authorizeModelAccess(url: String) {}
 }
@@ -326,6 +397,7 @@ class AiAssistantDebugViewModelImpl(
     private val aiModelManager: AiModelManager,
     private val aiEmbeddingModelManager: AiEmbeddingModelManager,
     private val aiModelTestEngine: AiModelTestEngine,
+    private val inferenceConfigStore: AiInferenceConfigStore,
 ) : ViewModel(), AiAssistantDebugViewModel {
 
     override var state by mutableStateOf(AiAssistantDebugState())
@@ -335,7 +407,8 @@ class AiAssistantDebugViewModelImpl(
     private val _authorizationUrl = MutableSharedFlow<String>()
     override val authorizationUrl = _authorizationUrl.asSharedFlow()
     private var healthCheckJob: Job? = null
-    private var checkedModelPath: String? = null
+    private var checkedHealthCheckKey: HealthCheckKey? = null
+    private var currentAiModelStatus: AiModelStatus = AiModelStatus.NotDownloaded
 
     init {
         state = state.copy(
@@ -343,6 +416,7 @@ class AiAssistantDebugViewModelImpl(
             selectedModel = aiModelManager.selectedModel.value
         )
         observeSelectedModel()
+        observeInferenceConfig()
         observeAiModelStatus()
         observeEmbeddingModelStatus()
     }
@@ -411,6 +485,26 @@ class AiAssistantDebugViewModelImpl(
         aiModelManager.selectModel(descriptor)
     }
 
+    override fun selectInferenceBackend(backend: AiInferenceBackend) {
+        if (backend == state.inferenceConfig.backend) return
+
+        when (backend) {
+            AiInferenceBackend.CPU -> persistInferenceConfig(state.inferenceConfig.copy(backend = AiInferenceBackend.CPU))
+            AiInferenceBackend.GPU -> testAndCommitGpuInference()
+        }
+    }
+
+    override fun selectCpuThreads(cpuThreads: Int?) {
+        if (cpuThreads == state.inferenceConfig.cpuThreads) return
+
+        persistInferenceConfig(
+            state.inferenceConfig.copy(
+                backend = AiInferenceBackend.CPU,
+                cpuThreads = cpuThreads
+            )
+        )
+    }
+
     override fun dismissAuthorizationDialog() {
         state = state.copy(authorizationDialogState = null)
     }
@@ -430,9 +524,21 @@ class AiAssistantDebugViewModelImpl(
         }
     }
 
+    private fun observeInferenceConfig() {
+        viewModelScope.launch {
+            inferenceConfigStore.observeConfig().collect { config ->
+                if (state.inferenceConfig != config) {
+                    state = state.copy(inferenceConfig = config)
+                    updateHealthCheck(currentAiModelStatus)
+                }
+            }
+        }
+    }
+
     private fun observeAiModelStatus() {
         viewModelScope.launch {
             aiModelManager.observeModelStatus().collect { modelStatus ->
+                currentAiModelStatus = modelStatus
                 state = state.copy(aiModelOptionState = modelStatus.toUiState())
                 updateHealthCheck(modelStatus)
             }
@@ -451,7 +557,7 @@ class AiAssistantDebugViewModelImpl(
         when (modelStatus) {
             AiModelStatus.NotDownloaded,
             is AiModelStatus.Downloading -> {
-                checkedModelPath = null
+                checkedHealthCheckKey = null
                 healthCheckJob?.cancel()
                 healthCheckJob = null
                 state = state.copy(healthCheckState = AiModelHealthCheckState.Unavailable)
@@ -462,13 +568,50 @@ class AiAssistantDebugViewModelImpl(
     }
 
     private fun runHealthCheckIfNeeded(modelPath: String) {
-        if (checkedModelPath == modelPath) return
+        val healthCheckKey = HealthCheckKey(modelPath, state.inferenceConfig)
+        if (checkedHealthCheckKey == healthCheckKey) return
 
         healthCheckJob?.cancel()
-        checkedModelPath = modelPath
+        checkedHealthCheckKey = healthCheckKey
         state = state.copy(healthCheckState = AiModelHealthCheckState.Running)
         healthCheckJob = viewModelScope.launch {
-            state = state.copy(healthCheckState = aiModelTestEngine.runHealthCheck(modelPath).toUiState())
+            state = state.copy(healthCheckState = aiModelTestEngine.runHealthCheck(modelPath, healthCheckKey.config).toUiState())
+        }
+    }
+
+    private fun persistInferenceConfig(config: AiInferenceConfig) {
+        viewModelScope.launch {
+            inferenceConfigStore.setConfig(config)
+        }
+    }
+
+    private fun testAndCommitGpuInference() {
+        val modelStatus = currentAiModelStatus
+        if (modelStatus !is AiModelStatus.Ready) {
+            state = state.copy(healthCheckState = AiModelHealthCheckState.Unavailable)
+            return
+        }
+
+        val gpuConfig = AiInferenceConfig(
+            backend = AiInferenceBackend.GPU,
+            cpuThreads = state.inferenceConfig.cpuThreads
+        )
+        val healthCheckKey = HealthCheckKey(modelStatus.localPath, gpuConfig)
+        healthCheckJob?.cancel()
+        checkedHealthCheckKey = healthCheckKey
+        state = state.copy(healthCheckState = AiModelHealthCheckState.Running)
+        healthCheckJob = viewModelScope.launch {
+            when (val result = aiModelTestEngine.runHealthCheck(modelStatus.localPath, gpuConfig)) {
+                AiModelHealthCheckResult.Healthy -> {
+                    inferenceConfigStore.setConfig(gpuConfig)
+                    state = state.copy(healthCheckState = AiModelHealthCheckState.Healthy)
+                }
+
+                else -> {
+                    checkedHealthCheckKey = null
+                    state = state.copy(healthCheckState = result.toUiState())
+                }
+            }
         }
     }
 
@@ -519,6 +662,7 @@ class AiAssistantDebugViewModelImpl(
 data class AiAssistantDebugState(
     val availableModels: List<AiModelDescriptor> = emptyList(),
     val selectedModel: AiModelDescriptor? = null,
+    val inferenceConfig: AiInferenceConfig = AiInferenceConfig.DEFAULT,
     val aiModelOptionState: AiModelOptionState = AiModelOptionState(),
     val embeddingModelOptionState: AiModelOptionState = AiModelOptionState(),
     val healthCheckState: AiModelHealthCheckState = AiModelHealthCheckState.Unavailable,
@@ -552,8 +696,13 @@ sealed interface AiModelHealthCheckState {
 private const val PERCENT_MULTIPLIER = 100
 private const val EMPTY_RESPONSE_FAILURE_REASON = "Model returned an empty response"
 private const val MISSING_MODEL_FAILURE_REASON = "Model file is missing"
-private const val UNSUPPORTED_MODEL_FAILURE_REASON = "Model type is not supported by the MediaPipe health check"
+private const val UNSUPPORTED_MODEL_FAILURE_REASON = "Model type is not supported by the LiteRT-LM health check"
 private val URL_REGEX = Regex("""https?://[^\s"'<>]+""")
+
+private data class HealthCheckKey(
+    val modelPath: String,
+    val config: AiInferenceConfig
+)
 
 internal fun String.extractFirstUrl(): String? = URL_REGEX.find(this)?.value
 
@@ -566,6 +715,8 @@ fun PreviewAiAssistantDebugScreen() = WireTheme {
         onDownloadAiModel = {},
         onDownloadEmbeddingModel = {},
         onModelSelected = {},
+        onInferenceBackendSelected = {},
+        onCpuThreadsSelected = {},
         onDismissAuthorizationDialog = {},
         onAuthorizeModelAccess = {}
     )

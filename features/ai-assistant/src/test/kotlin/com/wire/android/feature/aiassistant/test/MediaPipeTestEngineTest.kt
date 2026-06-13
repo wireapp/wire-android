@@ -16,8 +16,9 @@
  */
 package com.wire.android.feature.aiassistant.test
 
-import java.io.File
+import com.wire.android.feature.aiassistant.AiInferenceConfig
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
+import java.io.File
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -38,7 +39,7 @@ class MediaPipeTestEngineTest {
         )
 
         // when
-        val result = engine.runHealthCheck(File(tempDir, "missing-model.litertlm").absolutePath)
+        val result = engine.runHealthCheck(File(tempDir, "missing-model.litertlm").absolutePath, AiInferenceConfig.DEFAULT)
 
         // then
         assertEquals(AiModelHealthCheckResult.MissingModel, result)
@@ -54,7 +55,7 @@ class MediaPipeTestEngineTest {
         )
 
         // when
-        val result = engine.runHealthCheck(modelFile().absolutePath)
+        val result = engine.runHealthCheck(modelFile().absolutePath, AiInferenceConfig.DEFAULT)
 
         // then
         assertEquals(AiModelHealthCheckResult.Healthy, result)
@@ -70,7 +71,7 @@ class MediaPipeTestEngineTest {
         )
 
         // when
-        val result = engine.runHealthCheck(modelFile().absolutePath)
+        val result = engine.runHealthCheck(modelFile().absolutePath, AiInferenceConfig.DEFAULT)
 
         // then
         assertEquals(AiModelHealthCheckResult.EmptyResponse, result)
@@ -85,7 +86,7 @@ class MediaPipeTestEngineTest {
         )
 
         // when
-        val result = engine.runHealthCheck(modelFile().absolutePath)
+        val result = engine.runHealthCheck(modelFile().absolutePath, AiInferenceConfig.DEFAULT)
 
         // then
         assertTrue(result is AiModelHealthCheckResult.InferenceFailed)
@@ -105,7 +106,7 @@ class MediaPipeTestEngineTest {
         )
 
         // when
-        val result = engine.runHealthCheck(modelFile().absolutePath)
+        val result = engine.runHealthCheck(modelFile().absolutePath, AiInferenceConfig.DEFAULT)
 
         // then
         assertEquals(AiModelHealthCheckResult.UnsupportedModel, result)

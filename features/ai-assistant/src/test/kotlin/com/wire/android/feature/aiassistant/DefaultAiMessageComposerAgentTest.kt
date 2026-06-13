@@ -140,6 +140,21 @@ class DefaultAiMessageComposerAgentTest {
     }
 
     @Test
+    fun givenInferenceConfig_whenProofreadIsCalled_thenConfigIsPassedToInferenceFactory() = runTest {
+        val config = AiInferenceConfig(backend = AiInferenceBackend.GPU)
+        val arrangement = Arrangement()
+            .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
+            .withInferenceConfig(config)
+            .withInferenceResponse("Hello, this is a message.")
+            .arrange()
+
+        val result = arrangement.agent.proofread("Helo, this is a mesage.")
+
+        assertEquals(AiMessageComposerResult.Success("Hello, this is a message."), result)
+        assertEquals(config, arrangement.inferenceFactory.config)
+    }
+
+    @Test
     fun givenInferenceReturnsTextWrappedInCurlyQuotes_whenProofreadIsCalled_thenQuotesAreStripped() = runTest {
         val arrangement = Arrangement()
             .withModelStatus(AiModelStatus.Ready(MODEL_PATH))
@@ -573,6 +588,7 @@ class DefaultAiMessageComposerAgentTest {
         private var response: String = ""
         private var inferenceThrowable: Throwable? = null
         private var factoryThrowable: Throwable? = null
+        private var inferenceConfig: AiInferenceConfig = AiInferenceConfig.DEFAULT
 
         fun withModelStatus(status: AiModelStatus) = apply {
             modelStatus = status
@@ -594,11 +610,16 @@ class DefaultAiMessageComposerAgentTest {
             factoryThrowable = throwable
         }
 
+        fun withInferenceConfig(config: AiInferenceConfig) = apply {
+            inferenceConfig = config
+        }
+
         fun arrange(): Result {
             val inferenceFactory = FakeLiteRtLmInferenceFactory(response, inferenceThrowable, factoryThrowable)
             return Result(
                 agent = DefaultAiMessageComposerAgent(
                     aiModelManager = FakeAiModelManager(modelStatus, descriptor),
+                    inferenceConfigStore = FakeAiInferenceConfigStore(inferenceConfig),
                     inferenceFactory = inferenceFactory
                 ),
                 inferenceFactory = inferenceFactory
@@ -639,14 +660,28 @@ private class FakeLiteRtLmInferenceFactory(
         private set
     var initialExchanges: List<Pair<String, String>> = emptyList()
         private set
+    var config: AiInferenceConfig? = null
+        private set
 
-    override fun create(modelPath: String, initialExchanges: List<Pair<String, String>>): LiteRtLmInference {
+    override fun create(
+        modelPath: String,
+        config: AiInferenceConfig,
+        initialExchanges: List<Pair<String, String>>
+    ): LiteRtLmInference {
         createCount++
         this.modelPath = modelPath
+        this.config = config
         this.initialExchanges = initialExchanges
         factoryThrowable?.let { throw it }
         return inference
     }
+}
+
+private class FakeAiInferenceConfigStore(
+    private val config: AiInferenceConfig
+) : AiInferenceConfigStore {
+    override fun observeConfig(): Flow<AiInferenceConfig> = flowOf(config)
+    override suspend fun setConfig(config: AiInferenceConfig) = Unit
 }
 
 private class FakeLiteRtLmInference(

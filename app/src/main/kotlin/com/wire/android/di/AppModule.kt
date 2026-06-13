@@ -27,7 +27,9 @@ import android.media.MediaPlayer
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.aiassistant.AiInferenceConfigStore
 import com.wire.android.feature.aiassistant.AiModelSelectionStore
+import com.wire.android.feature.aiassistant.GlobalDataStoreAiInferenceConfigStore
 import com.wire.android.feature.aiassistant.GlobalDataStoreAiModelSelectionStore
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
@@ -132,4 +134,8 @@ object AppModule {
     @SingleIn(AppScope::class)
     @Provides
     fun provideAiModelSelectionStore(store: GlobalDataStore): AiModelSelectionStore = GlobalDataStoreAiModelSelectionStore(store)
+
+    @SingleIn(AppScope::class)
+    @Provides
+    fun provideAiInferenceConfigStore(store: GlobalDataStore): AiInferenceConfigStore = GlobalDataStoreAiInferenceConfigStore(store)
 }

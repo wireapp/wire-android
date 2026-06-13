@@ -14,21 +14,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.aiassistant.test
+package com.wire.android.feature.aiassistant
 
-import com.wire.android.feature.aiassistant.AiInferenceConfig
+import kotlinx.coroutines.flow.Flow
 
-interface AiModelTestEngine {
-    suspend fun runHealthCheck(
-        modelPath: String,
-        config: AiInferenceConfig
-    ): AiModelHealthCheckResult
+enum class AiInferenceBackend {
+    CPU,
+    GPU
 }
 
-sealed interface AiModelHealthCheckResult {
-    data object Healthy : AiModelHealthCheckResult
-    data object MissingModel : AiModelHealthCheckResult
-    data object UnsupportedModel : AiModelHealthCheckResult
-    data object EmptyResponse : AiModelHealthCheckResult
-    data class InferenceFailed(val message: String) : AiModelHealthCheckResult
+data class AiInferenceConfig(
+    val backend: AiInferenceBackend = AiInferenceBackend.CPU,
+    val cpuThreads: Int? = null
+) {
+    init {
+        require(cpuThreads == null || cpuThreads in CPU_THREADS_RANGE) {
+            "CPU threads must be null or in $CPU_THREADS_RANGE"
+        }
+    }
+
+    companion object {
+        val DEFAULT = AiInferenceConfig()
+        val CPU_THREADS_RANGE = 1..8
+    }
+}
+
+interface AiInferenceConfigStore {
+    fun observeConfig(): Flow<AiInferenceConfig>
+    suspend fun setConfig(config: AiInferenceConfig)
 }

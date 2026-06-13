@@ -16,6 +16,7 @@
  */
 package com.wire.android.feature.aiassistant.test
 
+import com.wire.android.feature.aiassistant.AiInferenceConfig
 import dev.zacsweers.metro.Inject
 import java.io.File
 import kotlinx.coroutines.CancellationException
@@ -25,7 +26,10 @@ import kotlinx.coroutines.withContext
 class LiteRtLmTestEngine @Inject constructor(
     private val inferenceFactory: LiteRtLmInferenceFactory
 ) : AiModelTestEngine {
-    override suspend fun runHealthCheck(modelPath: String): AiModelHealthCheckResult =
+    override suspend fun runHealthCheck(
+        modelPath: String,
+        config: AiInferenceConfig
+    ): AiModelHealthCheckResult =
         withContext(Dispatchers.IO) {
             if (!File(modelPath).exists()) {
                 return@withContext AiModelHealthCheckResult.MissingModel
@@ -35,7 +39,7 @@ class LiteRtLmTestEngine @Inject constructor(
             }
 
             runCatching {
-                inferenceFactory.create(modelPath).use { inference ->
+                inferenceFactory.create(modelPath, config).use { inference ->
                     inference.generateResponse(HEALTH_CHECK_PROMPT)
                 }
             }.fold(

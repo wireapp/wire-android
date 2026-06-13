@@ -27,18 +27,20 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
+import com.wire.android.di.ApplicationContext
 import com.wire.android.feature.AppLockSource
+import com.wire.android.feature.aiassistant.AiInferenceBackend
+import com.wire.android.feature.aiassistant.AiInferenceConfig
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.sha256
-import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import java.util.UUID
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.SingleIn
 
 @Suppress("TooManyFunctions")
 @SingleIn(AppScope::class)
@@ -59,6 +61,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val IS_ANONYMOUS_REGISTRATION_ENABLED = booleanPreferencesKey("is_anonymous_registration_enabled")
         private val PERSISTENT_WEBSOCKET_ENFORCED_BY_MDM = booleanPreferencesKey("persistent_websocket_enforced_by_mdm")
         private val SELECTED_AI_MODEL_ID = stringPreferencesKey("selected_ai_model_id")
+        private val AI_INFERENCE_BACKEND = stringPreferencesKey("ai_inference_backend")
+        private val AI_INFERENCE_CPU_THREADS = intPreferencesKey("ai_inference_cpu_threads")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
@@ -143,6 +147,29 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun setSelectedAiModelId(modelId: String) {
         context.dataStore.edit { it[SELECTED_AI_MODEL_ID] = modelId }
+    }
+
+    fun observeAiInferenceConfig(): Flow<AiInferenceConfig> =
+        context.dataStore.data.map { preferences ->
+            val backend = preferences[AI_INFERENCE_BACKEND]
+                ?.let { stored -> runCatching { AiInferenceBackend.valueOf(stored) }.getOrNull() }
+                ?: AiInferenceConfig.DEFAULT.backend
+            val cpuThreads = preferences[AI_INFERENCE_CPU_THREADS]
+                ?.takeIf { it in AiInferenceConfig.CPU_THREADS_RANGE }
+
+            AiInferenceConfig(
+                backend = backend,
+                cpuThreads = cpuThreads
+            )
+        }
+
+    suspend fun setAiInferenceConfig(config: AiInferenceConfig) {
+        context.dataStore.edit {
+            it[AI_INFERENCE_BACKEND] = config.backend.name
+            config.cpuThreads?.let { cpuThreads ->
+                it[AI_INFERENCE_CPU_THREADS] = cpuThreads
+            } ?: it.remove(AI_INFERENCE_CPU_THREADS)
+        }
     }
 
     /**

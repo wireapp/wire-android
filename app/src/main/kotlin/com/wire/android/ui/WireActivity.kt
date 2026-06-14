@@ -1187,9 +1187,12 @@ private data class SessionNavigationState(
     val isSessionTransitionInProgress: Boolean,
 )
 
-private val noSessionAuthenticationGraphRoutes = setOf(
+private val loginContinuationAuthenticationRoutes = setOf(
     NewLoginPasswordScreenDestination.baseRoute,
     NewLoginVerificationCodeScreenDestination.baseRoute,
+)
+
+private val accountCreationAuthenticationRoutes = setOf(
     CreateAccountSelectorScreenDestination.baseRoute,
     CreateAccountDataDetailScreenDestination.baseRoute,
     CreateAccountVerificationCodeScreenDestination.baseRoute,
@@ -1202,26 +1205,20 @@ private val noSessionAuthenticationGraphRoutes = setOf(
     CreateAccountUsernameScreenDestination.baseRoute,
 )
 
+private val noSessionAuthenticationGraphRoutes = loginContinuationAuthenticationRoutes + accountCreationAuthenticationRoutes
+
+private val sessionBackedAuthenticationGraphRoutes = setOf(
+    RegisterDeviceScreenDestination.baseRoute,
+    RemoveDeviceScreenDestination.baseRoute,
+    E2EIEnrollmentScreenDestination.baseRoute,
+)
+
 private val authenticationGraphRoutes = setOf(
     WelcomeScreenDestination.baseRoute,
     NewWelcomeEmptyStartScreenDestination.baseRoute,
     LoginScreenDestination.baseRoute,
     NewLoginScreenDestination.baseRoute,
-    NewLoginPasswordScreenDestination.baseRoute,
-    NewLoginVerificationCodeScreenDestination.baseRoute,
-    RegisterDeviceScreenDestination.baseRoute,
-    RemoveDeviceScreenDestination.baseRoute,
-    CreateAccountSelectorScreenDestination.baseRoute,
-    CreateAccountDataDetailScreenDestination.baseRoute,
-    CreateAccountVerificationCodeScreenDestination.baseRoute,
-    CreatePersonalAccountOverviewScreenDestination.baseRoute,
-    CreateTeamAccountOverviewScreenDestination.baseRoute,
-    CreateAccountEmailScreenDestination.baseRoute,
-    CreateAccountDetailsScreenDestination.baseRoute,
-    CreateAccountCodeScreenDestination.baseRoute,
-    CreateAccountSummaryScreenDestination.baseRoute,
-    CreateAccountUsernameScreenDestination.baseRoute,
-)
+) + noSessionAuthenticationGraphRoutes + sessionBackedAuthenticationGraphRoutes
 
 private fun Bundle.sessionBackedAuthenticationUserId(): UserId? {
     val value = getString(SessionBackedAuthenticationNavArgs.USER_ID_VALUE_KEY)

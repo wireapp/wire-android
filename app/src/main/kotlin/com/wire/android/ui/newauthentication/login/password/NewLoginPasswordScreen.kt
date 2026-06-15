@@ -55,6 +55,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
@@ -407,7 +408,9 @@ fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Na
         when (it) {
             is LoginState.Success -> {
                 val destination = when {
-                    it.isE2EIRequired -> E2EIEnrollmentScreenDestination
+                    it.isE2EIRequired -> E2EIEnrollmentScreenDestination(
+                        SessionBackedAuthenticationNavArgs.from(it.userId)
+                    )
                     it.initialSyncCompleted -> HomeScreenDestination
                     else -> InitialSyncScreenDestination
                 }
@@ -416,7 +419,12 @@ fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Na
 
             is LoginState.Error.TooManyDevicesError -> {
                 viewModel.clearLoginErrors()
-                navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+                navigator.navigate(
+                    NavigationCommand(
+                        RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(it.userId)),
+                        BackStackMode.CLEAR_WHOLE,
+                    )
+                )
             }
 
             is LoginState.Canceled -> {

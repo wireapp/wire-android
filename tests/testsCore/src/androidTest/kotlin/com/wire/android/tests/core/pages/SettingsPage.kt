@@ -104,6 +104,7 @@ data class SettingsPage(private val device: UiDevice) {
 
     private val saveButton = UiSelectorParams(text = "Save")
     fun assertSendAnonymousUsageDataToggleIsOn(): SettingsPage {
+        scrollTextIntoView("Send anonymous usage data")
         val container = device.findObject(
             UiSelector().className("android.view.View").childSelector(anonymousUsageDataText)
         )
@@ -213,12 +214,38 @@ data class SettingsPage(private val device: UiDevice) {
     }
 
     fun scrollTextIntoView(text: String): SettingsPage {
-        val scrollable = UiScrollable(UiSelector().scrollable(true))
-        scrollable.setAsVerticalList()
-        scrollable.setMaxSearchSwipes(20)
-        val found = scrollable.scrollIntoView(UiSelector().textContains(text))
+        if (device.findObject(UiSelector().textContains(text)).exists()) {
+            return this
+        }
+
+        val foundByScrollable = runCatching {
+            val scrollable = UiScrollable(UiSelector().scrollable(true))
+            scrollable.setAsVerticalList()
+            scrollable.setMaxSearchSwipes(20)
+            scrollable.scrollIntoView(UiSelector().textContains(text))
+        }.getOrDefault(false)
+
+        val found = foundByScrollable || scrollToTextByGesture(text)
         assertTrue("Text '$text' was not found in scrollable view", found)
         return this
+    }
+
+    private fun scrollToTextByGesture(text: String): Boolean {
+        val selector = UiSelector().textContains(text)
+        repeat(MAX_SCROLL_ATTEMPTS) {
+            if (device.findObject(selector).exists()) {
+                return true
+            }
+            device.swipe(
+                device.displayWidth / 2,
+                (device.displayHeight * SCROLL_START_RATIO).toInt(),
+                device.displayWidth / 2,
+                (device.displayHeight * SCROLL_END_RATIO).toInt(),
+                SCROLL_STEPS
+            )
+            device.waitForIdle()
+        }
+        return device.findObject(selector).exists()
     }
 
     fun assertAnalyticsTrackingIdentifierIsDispayed(): SettingsPage {
@@ -484,5 +511,12 @@ data class SettingsPage(private val device: UiDevice) {
     fun clickOkButtonOnBackupAlert(): SettingsPage {
         UiWaitUtils.waitElement(okButton).click()
         return this
+    }
+
+    private companion object {
+        const val MAX_SCROLL_ATTEMPTS = 8
+        const val SCROLL_START_RATIO = 0.8f
+        const val SCROLL_END_RATIO = 0.35f
+        const val SCROLL_STEPS = 40
     }
 }

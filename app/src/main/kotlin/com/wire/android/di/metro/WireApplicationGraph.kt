@@ -24,7 +24,6 @@ import com.wire.android.di.AppModule
 import com.wire.android.di.CoreLogicModule
 import com.wire.android.di.CoroutinesDispatchersModule
 import com.wire.android.di.CoroutinesScopesModule
-import com.wire.android.di.ImageLoadingModule
 import com.wire.android.di.KaliumConfigsModule
 import com.wire.android.di.LogWriterModule
 import com.wire.android.di.ManagedConfigurationsModule
@@ -86,7 +85,6 @@ import dev.zacsweers.metrox.viewmodel.ViewModelGraph
         LogWriterModule::class,
         CoroutinesScopesModule::class,
         CoroutinesDispatchersModule::class,
-        ImageLoadingModule::class,
         AppsModule::class,
         AuthenticationModule::class,
         BackupModule::class,

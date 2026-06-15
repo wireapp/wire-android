@@ -20,12 +20,13 @@ package com.wire.android.ui.authentication.login
 
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.logic.data.user.UserId
 
 sealed class LoginState {
     data object Default : LoginState()
     data object Loading : LoginState()
     data object Canceled : LoginState()
-    data class Success(val initialSyncCompleted: Boolean, val isE2EIRequired: Boolean) : LoginState()
+    data class Success(val initialSyncCompleted: Boolean, val isE2EIRequired: Boolean, val userId: UserId) : LoginState()
     sealed class Error : LoginState() {
         sealed class TextFieldError : Error() {
             data object InvalidValue : TextFieldError()
@@ -45,6 +46,6 @@ sealed class LoginState {
             data object AccountSuspended : DialogError()
             data object AccountPendingActivation : DialogError()
         }
-        data object TooManyDevicesError : Error()
+        data class TooManyDevicesError(val userId: UserId) : Error()
     }
 }

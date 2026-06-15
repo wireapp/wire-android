@@ -80,17 +80,21 @@ class WireSessionImageLoader(
         fallbackData: Any? = null,
         withCrossfadeAnimation: Boolean = false,
     ): Painter {
+        val context = LocalContext.current
         var retryHash by remember { mutableStateOf(0) }
         val exponentialDurationHelper = remember { ExponentialDurationHelper(MIN_RETRY_DELAY, MAX_RETRY_DELAY) }
-        val painter = rememberAsyncImagePainter(
-            model = ImageRequest.Builder(LocalContext.current)
+        val request = remember(context, asset?.uniqueKey, fallbackData, retryHash, withCrossfadeAnimation) {
+            ImageRequest.Builder(context)
                 .memoryCacheKey(asset?.uniqueKey)
                 .data(asset ?: fallbackData)
                 .apply {
                     extras[OPTION_PARAMETER_RETRY_KEY] = retryHash
                 }
                 .crossfade(withCrossfadeAnimation)
-                .build(),
+                .build()
+        }
+        val painter = rememberAsyncImagePainter(
+            model = request,
             error = (fallbackData as? Int)?.let { painterResource(id = it) },
             imageLoader = coilImageLoader
         )

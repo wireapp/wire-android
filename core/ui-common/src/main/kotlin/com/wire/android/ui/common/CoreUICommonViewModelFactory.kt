@@ -18,7 +18,7 @@
 package com.wire.android.ui.common
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.ViewModelScopedPreviews
+import com.wire.android.di.CoreUICommonViewModelScopedPreviews
 import com.wire.android.di.wireManualMetroViewModelScoped
 import com.wire.android.ui.common.connection.ConnectionActionButtonArgs
 import com.wire.android.ui.common.connection.ConnectionActionButtonViewModel
@@ -48,7 +48,7 @@ fun connectionActionButtonViewModel(
             CoreUICommonManualViewModelFactory
             >(
         arguments = args,
-        previewProvider = ViewModelScopedPreviews,
+        previewProvider = CoreUICommonViewModelScopedPreviews,
     ) { _, arguments ->
         connectionActionButtonViewModel(arguments)
     }

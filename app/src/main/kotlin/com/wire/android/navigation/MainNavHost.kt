@@ -125,6 +125,15 @@ fun MainNavHost(
                         dependency(cellViewModel(parentEntry ?: navBackStackEntry))
                     }
 
+                    // 👇 To tie NewConversationViewModel to NewConversationGraph,
+                    // making it shared between all screens that belong to it
+                    navGraph(NewConversationGraph) {
+                        val parentEntry = remember(navBackStackEntry) {
+                            navController.getBackStackEntry(NewConversationGraph.route)
+                        }
+                        dependency(newConversationViewModel(parentEntry))
+                    }
+
                     // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph,
                     // making it shared between all screens that belong to it
                     navGraph(PersonalToTeamMigrationGraph) {

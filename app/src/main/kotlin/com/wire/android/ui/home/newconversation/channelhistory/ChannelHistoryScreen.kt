@@ -51,6 +51,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun ChannelHistoryScreen(
     navigator: Navigator,
+    newConversationViewModel: NewConversationViewModel,
     customResultRecipient: ResultRecipient<ChannelHistoryCustomScreenDestination, ChannelHistoryCustomNavBackArgs>,
     newConversationViewModel: NewConversationViewModel,
     modifier: Modifier = Modifier,

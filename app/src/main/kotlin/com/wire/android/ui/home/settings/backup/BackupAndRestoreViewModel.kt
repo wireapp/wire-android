@@ -26,13 +26,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.backup.BackupFileFormat
@@ -67,10 +69,13 @@ class BackupAndRestoreViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val fileManager: FileManager,
-    private val userDataStore: UserDataStore,
+    userDataStoreProvider: UserDataStoreProvider,
+    @CurrentAccount selfUserId: UserId,
     private val dispatcher: DispatcherProvider,
     private val mpBackupSettings: MPBackupSettings,
 ) : ViewModel() {
+    private val userDataStore = userDataStoreProvider.getOrCreate(selfUserId)
+
     val createBackupPasswordState: TextFieldState = TextFieldState()
     val restoreBackupPasswordState: TextFieldState = TextFieldState()
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)

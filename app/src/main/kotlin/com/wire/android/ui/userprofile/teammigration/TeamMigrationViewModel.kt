@@ -21,9 +21,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamResult
@@ -34,9 +36,12 @@ class TeamMigrationViewModel @Inject constructor(
     private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
     private val migrateFromPersonalToTeam: MigrateFromPersonalToTeamUseCase,
     private val observeSelfUser: ObserveSelfUserUseCase,
-    private val dataStore: UserDataStore,
+    userDataStoreProvider: UserDataStoreProvider,
+    @CurrentAccount selfUserId: UserId,
     private val getTeamUrl: GetTeamUrlUseCase
 ) : ViewModel() {
+    private val dataStore = userDataStoreProvider.getOrCreate(selfUserId)
+
     var teamMigrationState by mutableStateOf(TeamMigrationState())
         private set
     init {

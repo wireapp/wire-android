@@ -43,6 +43,7 @@ fun ArchiveScreen(homeStateHolder: HomeStateHolder) {
             lazyListState = lazyListStateFor(HomeDestination.Archive),
             emptySearchResultFocusRequester = emptySearchResultFocusRequester,
             firstConversationFocusRequester = firstConversationFocusRequester,
+            onConversationOpened = homeStateHolder::requestClearSearchOnNextResume,
             emptyListContent = { ArchiveEmptyContent() }
         )
     }

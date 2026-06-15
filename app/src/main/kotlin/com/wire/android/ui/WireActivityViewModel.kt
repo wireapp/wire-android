@@ -81,6 +81,7 @@ import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUse
 import com.wire.kalium.logic.feature.debug.SynchronizeExternalDataResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
+import com.wire.kalium.logic.feature.server.IsCrossBackendLoginBlockedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
@@ -99,10 +100,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -111,7 +110,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import java.io.InputStream
 import java.io.InputStreamReader
 import dev.zacsweers.metro.Inject
@@ -335,14 +333,18 @@ class WireActivityViewModel @Inject constructor(
 
     suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
         initValidSessionsFlowIfNeeded()
-        val currentValidUserId = currentValidUserId()
+        val currentValidUserId = resolveInitialCurrentUserId()
         withContext(dispatchers.main()) {
-            globalAppState = globalAppState.copy(currentUserId = currentValidUserId)
+            globalAppState = globalAppState.copy(
+                currentUserId = currentValidUserId,
+                isSessionTransitionInProgress = false,
+                sessionTransitionReason = null,
+            )
         }
         when {
-            currentValidUserId == null -> InitialAppState.NOT_LOGGED_IN
-            shouldEnrollToE2ei(currentValidUserId) -> InitialAppState.ENROLL_E2EI
-            else -> InitialAppState.LOGGED_IN
+            currentValidUserId == null -> InitialAppState.NotLoggedIn
+            shouldEnrollToE2ei(currentValidUserId) -> InitialAppState.EnrollE2EI(currentValidUserId)
+            else -> InitialAppState.LoggedIn
         }
     }
 
@@ -415,7 +417,16 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             when (val result = deepLinkProcessor.value.invoke(intent?.data, intent?.action)) {
                 DeepLinkResult.AuthorizationNeeded -> sendAction(OnAuthorizationNeeded)
-                is DeepLinkResult.SSOLogin -> sendAction(OnSSOLogin(result))
+                is DeepLinkResult.SSOLogin -> {
+                    if (result is DeepLinkResult.SSOLogin.Success &&
+                        isCrossBackendLoginBlocked(IsCrossBackendLoginBlockedUseCase.Target.SsoConfigId(result.serverConfigId))
+                    ) {
+                        appLogger.w("Cross-backend SSO login blocked: deeplink target differs from active session backend")
+                        globalAppState = globalAppState.copy(crossBackendLoginBlockedDialog = true)
+                    } else {
+                        sendAction(OnSSOLogin(result))
+                    }
+                }
                 is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result.url, result.loginType)
                 is DeepLinkResult.SwitchAccountFailure.OngoingCall -> sendAction(ShowToast(R.string.cant_switch_account_in_call))
                 is DeepLinkResult.SwitchAccountFailure.Unknown -> appLogger.e("unknown deeplink failure")
@@ -623,19 +634,13 @@ class WireActivityViewModel @Inject constructor(
 
     fun resolveMissingCurrentSession(actions: SwitchAccountActions) {
         viewModelScope.launch {
-            syncCurrentUserIdFromSession(awaitValidSession = true)
+            syncCurrentUserIdFromSession()
             if (globalAppState.currentUserId == null) {
                 globalAppState = globalAppState.copy(blockUserUI = null)
                 val result = accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
-                syncCurrentUserIdFromSession(awaitValidSession = true)
+                syncCurrentUserIdFromSession()
                 result.callAction(actions)
             }
-        }
-    }
-
-    fun resolveCurrentSessionUserId() {
-        viewModelScope.launch {
-            syncCurrentUserIdFromSession(awaitValidSession = true)
         }
     }
 
@@ -672,8 +677,17 @@ class WireActivityViewModel @Inject constructor(
 
     fun onCustomServerConfig(customServerUrl: String, loginType: LoginType) {
         viewModelScope.launch(dispatchers.io()) {
-            val customBackendDialogData = loadServerConfig(customServerUrl)
-                ?.let { serverLinks -> CustomServerDetailsDialogState(serverLinks = serverLinks, loginType = loginType) }
+            val serverLinks = loadServerConfig(customServerUrl)
+            if (serverLinks != null &&
+                isCrossBackendLoginBlocked(IsCrossBackendLoginBlockedUseCase.Target.Links(serverLinks))
+            ) {
+                appLogger.w("Cross-backend login blocked: deeplink target differs from active session backend")
+                globalAppState = globalAppState.copy(crossBackendLoginBlockedDialog = true)
+                return@launch
+            }
+
+            val customBackendDialogData = serverLinks
+                ?.let { CustomServerDetailsDialogState(serverLinks = it, loginType = loginType) }
                 ?: CustomServerNoNetworkDialogState(customServerUrl = customServerUrl, loginType = loginType)
 
             globalAppState = globalAppState.copy(
@@ -681,6 +695,9 @@ class WireActivityViewModel @Inject constructor(
             )
         }
     }
+
+    private suspend fun isCrossBackendLoginBlocked(target: IsCrossBackendLoginBlockedUseCase.Target): Boolean =
+        coreLogic.value.getGlobalScope().isCrossBackendLoginBlocked(target)
 
     private suspend fun onConversationInviteDeepLink(
         code: String,
@@ -738,9 +755,9 @@ class WireActivityViewModel @Inject constructor(
             ?.takeIf { it.isValid() }
             ?.userId
 
-    private suspend fun syncCurrentUserIdFromSession(awaitValidSession: Boolean = false) {
+    private suspend fun syncCurrentUserIdFromSession() {
         val userId = withContext(dispatchers.io()) {
-            resolveCurrentSessionUserId(awaitValidSession)
+            currentSessionUserId()
         }
         withContext(dispatchers.main()) {
             globalAppState = globalAppState.copy(
@@ -759,19 +776,13 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private suspend fun resolveCurrentSessionUserId(awaitValidSession: Boolean): UserId? {
+    private suspend fun resolveInitialCurrentUserId(): UserId? {
         val currentUserId = currentSessionUserId()
-        return if (currentUserId != null || !awaitValidSession) {
+        return if (currentUserId != null || validSessions.value.isEmpty()) {
             currentUserId
         } else {
-            withTimeoutOrNull(CURRENT_SESSION_RESOLUTION_TIMEOUT_MS) {
-                coreLogic.value.getGlobalScope().session.currentSessionFlow()
-                    .filterIsInstance<CurrentSessionResult.Success>()
-                    .map { it.accountInfo }
-                    .filter { it.isValid() }
-                    .firstOrNull()
-                    ?.userId
-            }
+            accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
+            currentSessionUserId()
         }
     }
 
@@ -784,6 +795,10 @@ class WireActivityViewModel @Inject constructor(
 
     fun dismissMaxAccountDialog() {
         globalAppState = globalAppState.copy(maxAccountDialog = false)
+    }
+
+    fun dismissCrossBackendLoginBlockedDialog() {
+        globalAppState = globalAppState.copy(crossBackendLoginBlockedDialog = false)
     }
 
     fun applyPersistentWebSocketConfigFromMDM() {
@@ -858,8 +873,6 @@ class WireActivityViewModel @Inject constructor(
     }
 }
 
-private const val CURRENT_SESSION_RESOLUTION_TIMEOUT_MS = 5_000L
-
 sealed class CurrentSessionErrorState {
     data object RemovedClient : CurrentSessionErrorState()
     data object DeletedAccount : CurrentSessionErrorState()
@@ -916,6 +929,7 @@ data class GlobalAppState(
     val currentUserId: UserId? = null,
     val customBackendDialog: CustomServerDialogState? = null,
     val maxAccountDialog: Boolean = false,
+    val crossBackendLoginBlockedDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
@@ -932,8 +946,10 @@ enum class SessionTransitionReason {
     REMOVED_CLIENT,
 }
 
-enum class InitialAppState {
-    NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
+sealed interface InitialAppState {
+    data object NotLoggedIn : InitialAppState
+    data object LoggedIn : InitialAppState
+    data class EnrollE2EI(val userId: UserId) : InitialAppState
 }
 
 sealed interface WireActivityViewAction

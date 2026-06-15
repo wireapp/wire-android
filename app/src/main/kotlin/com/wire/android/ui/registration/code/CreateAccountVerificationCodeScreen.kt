@@ -49,6 +49,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
 import com.wire.android.ui.common.WireDialog
@@ -116,12 +117,13 @@ fun CreateAccountVerificationCodeScreen(
             if (codeState.result is CreateAccountCodeResult.Success) {
                 navigateToUsernameScreen()
             }
-            if (codeState.result is CreateAccountCodeResult.Error.TooManyDevicesError) {
+            val tooManyDevicesError = codeState.result as? CreateAccountCodeResult.Error.TooManyDevicesError
+            if (tooManyDevicesError != null) {
                 clearCodeError()
                 clearCodeField()
                 navigator.navigate(
                     NavigationCommand(
-                        RemoveDeviceScreenDestination,
+                        RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(tooManyDevicesError.userId)),
                         BackStackMode.CLEAR_WHOLE
                     )
                 )

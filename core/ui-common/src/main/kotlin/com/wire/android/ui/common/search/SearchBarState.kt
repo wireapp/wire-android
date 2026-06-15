@@ -19,6 +19,7 @@
 package com.wire.android.ui.common.search
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,7 +41,8 @@ fun rememberSearchbarState(
 class SearchBarState(
     isSearchActive: Boolean = false,
     isSearchVisible: Boolean = true,
-    val searchQueryTextState: TextFieldState
+    val searchQueryTextState: TextFieldState,
+    shouldClearSearchOnResume: Boolean = false,
 ) {
 
     var isSearchActive by mutableStateOf(isSearchActive)
@@ -49,8 +51,16 @@ class SearchBarState(
     var isSearchVisible by mutableStateOf(isSearchVisible)
         private set
 
+    private var shouldClearSearchOnResume = shouldClearSearchOnResume
+
     fun closeSearch() {
         isSearchActive = false
+    }
+
+    fun clearSearch() {
+        shouldClearSearchOnResume = false
+        searchQueryTextState.clearText()
+        closeSearch()
     }
 
     fun openSearch() {
@@ -65,6 +75,17 @@ class SearchBarState(
         this.isSearchVisible = isSearchVisible
     }
 
+    fun requestClearSearchOnNextResume() {
+        shouldClearSearchOnResume = isSearchActive || searchQueryTextState.text.isNotEmpty()
+    }
+
+    fun clearSearchOnResumeIfRequested() {
+        if (shouldClearSearchOnResume) {
+            shouldClearSearchOnResume = false
+            clearSearch()
+        }
+    }
+
     companion object {
         fun saver(): Saver<SearchBarState, List<Any?>> = Saver(
             save = {
@@ -74,19 +95,26 @@ class SearchBarState(
                         save(it.searchQueryTextState)
                     },
                     it.isSearchVisible,
+                    it.shouldClearSearchOnResume,
                 )
             },
             restore = {
                 SearchBarState(
-                    isSearchActive = (it.getOrNull(0) as? Boolean) ?: false,
-                    searchQueryTextState = it.getOrNull(1)?.let {
+                    isSearchActive = (it.getOrNull(IS_SEARCH_ACTIVE_INDEX) as? Boolean) ?: false,
+                    searchQueryTextState = it.getOrNull(SEARCH_QUERY_TEXT_STATE_INDEX)?.let {
                         with(TextFieldState.Saver) {
                             restore(it)
                         }
                     } ?: TextFieldState(),
-                    isSearchVisible = (it.getOrNull(2) as? Boolean) ?: true
+                    isSearchVisible = (it.getOrNull(IS_SEARCH_VISIBLE_INDEX) as? Boolean) ?: true,
+                    shouldClearSearchOnResume = (it.getOrNull(SHOULD_CLEAR_SEARCH_ON_RESUME_INDEX) as? Boolean) ?: false
                 )
             }
         )
+
+        private const val IS_SEARCH_ACTIVE_INDEX = 0
+        private const val SEARCH_QUERY_TEXT_STATE_INDEX = 1
+        private const val IS_SEARCH_VISIBLE_INDEX = 2
+        private const val SHOULD_CLEAR_SEARCH_ON_RESUME_INDEX = 3
     }
 }

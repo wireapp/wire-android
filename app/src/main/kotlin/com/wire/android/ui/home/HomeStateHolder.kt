@@ -102,6 +102,14 @@ class HomeStateHolder(
         lazyListStateFor(Conversations, conversationFilterState.filter).requestScrollToItem(0, 0) // reset scroll for previous filter
         conversationFilterState.changeFilter(filter)
     }
+
+    fun requestClearSearchOnNextResume() {
+        searchBarState.requestClearSearchOnNextResume()
+    }
+
+    fun clearSearchOnResumeIfRequested() {
+        searchBarState.clearSearchOnResumeIfRequested()
+    }
 }
 
 @Composable

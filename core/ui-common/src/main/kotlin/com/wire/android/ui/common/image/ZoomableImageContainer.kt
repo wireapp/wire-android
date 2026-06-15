@@ -36,7 +36,7 @@ import com.wire.android.ui.common.preview.MultipleThemePreviews
 
 @Composable
 fun ZoomableImageContainer(
-    painter: Painter,
+    painter: () -> Painter,
     contentDescription: String,
     modifier: Modifier = Modifier,
 ) {
@@ -48,7 +48,7 @@ fun ZoomableImageContainer(
     val maxScale = 3f
 
     Image(
-        painter = painter,
+        painter = painter(),
         contentDescription = contentDescription,
         contentScale = ContentScale.Fit,
         modifier = modifier
@@ -78,8 +78,9 @@ fun ZoomableImageContainer(
 @MultipleThemePreviews
 @Composable
 fun ZoomableImageContainerPreview() {
+    val painter = painterResource(id = R.drawable.mock_image)
     ZoomableImageContainer(
-        painter = painterResource(id = R.drawable.mock_image),
+        painter = { painter },
         contentDescription = "Placeholder image"
     )
 }

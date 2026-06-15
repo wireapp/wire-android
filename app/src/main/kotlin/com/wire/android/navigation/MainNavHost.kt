@@ -134,17 +134,13 @@ fun MainNavHost(
                         dependency(teamMigrationViewModel(parentEntry))
                     }
 
-                    // 👇 To tie NewMeetingViewModel to nested NewMeetingGraph,
-                    // making it shared between all screens that belong to it
+                    // 👇 To tie NewMeetingViewModel to nested NewMeetingGraph, making it shared between all screens that belong to it
+                    // Also, make MeetingNavigator available to all destinations from NewMeetingGraph as a non-navigation parameter
                     navGraph(NewMeetingGraph) {
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(NewMeetingGraph.route)
                         }
                         dependency(newMeetingViewModel(parentEntry))
-                    }
-
-                    // 👇 To make MeetingNavigator available to all destinations from NewMeetingGraph as a non-navigation parameter
-                    navGraph(NewMeetingGraph) {
                         dependency(meetingNavigator)
                     }
                 },

@@ -343,7 +343,7 @@ class SearchUserViewModelTest {
             arrangement.searchUsersByHandleUseCase.invoke(
                 searchHandle = query,
                 excludingConversation = null,
-                excludingNotConnected = false,
+                skipRemoteSearch = false,
                 customDomain = "domain"
             )
         }
@@ -364,7 +364,7 @@ class SearchUserViewModelTest {
             arrangement.searchUsersByHandleUseCase.invoke(
                 searchHandle = query,
                 excludingConversation = null,
-                excludingNotConnected = true,
+                skipRemoteSearch = true,
                 customDomain = "domain"
             )
         }
@@ -385,7 +385,7 @@ class SearchUserViewModelTest {
             arrangement.searchUsersByNameUseCase.invoke(
                 searchQuery = query,
                 excludingMembersOfConversation = null,
-                excludingNotConnected = false,
+                skipRemoteSearch = false,
                 customDomain = "domain"
             )
         }
@@ -406,7 +406,7 @@ class SearchUserViewModelTest {
             arrangement.searchUsersByNameUseCase.invoke(
                 searchQuery = query,
                 excludingMembersOfConversation = null,
-                excludingNotConnected = true,
+                skipRemoteSearch = true,
                 customDomain = "domain"
             )
         }

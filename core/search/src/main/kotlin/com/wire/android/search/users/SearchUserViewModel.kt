@@ -143,7 +143,7 @@ class SearchUserViewModel(
         searchUsersByHandle(
             searchTerm,
             excludingConversation = conversationId,
-            excludingNotConnected = onlyConnectedContacts,
+            skipRemoteSearch = onlyConnectedContacts,
             customDomain = domain
         )
 
@@ -151,7 +151,7 @@ class SearchUserViewModel(
         searchUsersByName(
             searchTerm,
             excludingMembersOfConversation = conversationId,
-            excludingNotConnected = onlyConnectedContacts,
+            skipRemoteSearch = onlyConnectedContacts,
             customDomain = domain
         )
 }

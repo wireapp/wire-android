@@ -70,4 +70,23 @@ class SearchBarStateTest {
         assertTrue(restored.isSearchVisible)
         assertEquals("query", restored.searchQueryTextState.text.toString())
     }
+
+    @Test
+    fun `given clear on next resume is requested, when state is restored, then request is preserved`() {
+        val state = SearchBarState(
+            isSearchActive = true,
+            searchQueryTextState = TextFieldState(initialText = "query")
+        )
+        state.requestClearSearchOnNextResume()
+
+        val restored = with(SearchBarState.saver()) {
+            val saved = SaverScope { true }.save(state)
+            restore(saved!!)
+        }!!
+
+        restored.clearSearchOnResumeIfRequested()
+
+        assertFalse(restored.isSearchActive)
+        assertEquals("", restored.searchQueryTextState.text.toString())
+    }
 }

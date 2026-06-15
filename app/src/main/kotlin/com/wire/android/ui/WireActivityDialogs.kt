@@ -289,6 +289,22 @@ fun MaxAccountDialog(shouldShow: Boolean, onConfirm: () -> Unit, onDismiss: () -
 }
 
 @Composable
+fun CrossBackendLoginBlockedDialog(shouldShow: Boolean, onDismiss: () -> Unit) {
+    if (shouldShow) {
+        WireDialog(
+            title = stringResource(id = R.string.cross_backend_login_blocked_title),
+            text = stringResource(id = R.string.cross_backend_login_blocked_message),
+            onDismiss = onDismiss,
+            optionButton1Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.label_ok),
+                onClick = onDismiss,
+                type = WireDialogButtonType.Primary
+            )
+        )
+    }
+}
+
+@Composable
 fun AccountLoggedOutDialog(blockUserUI: CurrentSessionErrorState?, navigateAway: () -> Unit) {
     blockUserUI?.let {
         AccountLoggedOutDialogContent(reason = it, navigateAway)

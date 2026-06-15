@@ -74,6 +74,7 @@ import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
+import com.wire.kalium.logic.feature.server.IsCrossBackendLoginBlockedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
@@ -849,6 +850,9 @@ class WireActivityViewModelTest {
             every { observeSelfUserFactory.create(any()).observeSelfUser } returns observeSelfUserUseCase
             coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)
             every { managedConfigurationsManager.persistentWebSocketEnforcedByMDM } returns persistentWebSocketEnforcedByMDMFlow
+            coEvery {
+                coreLogic.getGlobalScope().isCrossBackendLoginBlocked(any<IsCrossBackendLoginBlockedUseCase.Target>())
+            } returns false
         }
 
         @MockK

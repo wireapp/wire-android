@@ -165,5 +165,6 @@
     "collabora_integration": true,
     "db_invalidation_control_enabled": false,
     "call_reactions_enabled": true,
-    "show_debug_tools": false
+    "show_debug_tools": false,
+    "block_cross_backend_login": false
 }

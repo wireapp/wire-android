@@ -62,7 +62,8 @@ class KaliumConfigsModule {
             collaboraIntegration = BuildConfig.COLLABORA_INTEGRATION_ENABLED,
             dbInvalidationControlEnabled = BuildConfig.DB_INVALIDATION_CONTROL_ENABLED,
             domainWithFaultyKeysMap = BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR,
-            isDebug = BuildConfig.DEBUG
+            isDebug = BuildConfig.DEBUG,
+            blockCrossBackendLogin = BuildConfig.BLOCK_CROSS_BACKEND_LOGIN,
         )
     }
 }

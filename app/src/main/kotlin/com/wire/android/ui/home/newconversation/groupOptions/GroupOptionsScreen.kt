@@ -19,7 +19,6 @@
 
 package com.wire.android.ui.home.newconversation.groupOptions
 
-import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,12 +35,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import com.ramcosta.composedestinations.generated.app.destinations.ChannelAccessOnCreateScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ChannelHistoryScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import com.wire.android.ui.common.TextWithLinkSuffix
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -55,18 +60,12 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.common.upgradetoapps.UpgradeToGetAppsBanner
-import com.ramcosta.composedestinations.generated.app.destinations.ChannelAccessOnCreateScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ChannelHistoryScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryType
 import com.wire.android.ui.home.newconversation.channelhistory.name
-import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.settings.SwitchState

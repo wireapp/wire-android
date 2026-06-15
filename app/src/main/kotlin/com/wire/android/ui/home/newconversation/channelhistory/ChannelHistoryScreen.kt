@@ -53,7 +53,6 @@ fun ChannelHistoryScreen(
     navigator: Navigator,
     newConversationViewModel: NewConversationViewModel,
     customResultRecipient: ResultRecipient<ChannelHistoryCustomScreenDestination, ChannelHistoryCustomNavBackArgs>,
-    newConversationViewModel: NewConversationViewModel,
     modifier: Modifier = Modifier,
 ) {
     customResultRecipient.onNavResult { result ->

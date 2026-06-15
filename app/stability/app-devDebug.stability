@@ -7626,7 +7626,7 @@ public fun com.wire.android.ui.home.conversations.updateChannelAccessViewModel()
   params:
 
 @Composable
-public fun com.wire.android.ui.home.conversationslist.ConversationsScreenContent(navigator: com.wire.android.navigation.Navigator, searchBarState: com.wire.android.ui.common.search.SearchBarState, modifier: androidx.compose.ui.Modifier, emptyListContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, lazyListState: androidx.compose.foundation.lazy.LazyListState, loadingListContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, conversationsSource: com.wire.android.ui.home.conversationslist.model.ConversationsSource, emptySearchResultFocusRequester: androidx.compose.ui.focus.FocusRequester?, firstConversationFocusRequester: androidx.compose.ui.focus.FocusRequester?, conversationListCallViewModel: com.wire.android.ui.home.conversationslist.ConversationListCallViewModel, conversationListViewModel: com.wire.android.ui.home.conversationslist.ConversationListViewModel): kotlin.Unit
+public fun com.wire.android.ui.home.conversationslist.ConversationsScreenContent(navigator: com.wire.android.navigation.Navigator, searchBarState: com.wire.android.ui.common.search.SearchBarState, modifier: androidx.compose.ui.Modifier, emptyListContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, lazyListState: androidx.compose.foundation.lazy.LazyListState, loadingListContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, conversationsSource: com.wire.android.ui.home.conversationslist.model.ConversationsSource, emptySearchResultFocusRequester: androidx.compose.ui.focus.FocusRequester?, firstConversationFocusRequester: androidx.compose.ui.focus.FocusRequester?, onConversationOpened: kotlin.Function0<kotlin.Unit>, conversationListCallViewModel: com.wire.android.ui.home.conversationslist.ConversationListCallViewModel, conversationListViewModel: com.wire.android.ui.home.conversationslist.ConversationListViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -7639,6 +7639,7 @@ public fun com.wire.android.ui.home.conversationslist.ConversationsScreenContent
     - conversationsSource: STABLE (class with no mutable properties)
     - emptySearchResultFocusRequester: STABLE (marked @Stable or @Immutable)
     - firstConversationFocusRequester: STABLE (marked @Stable or @Immutable)
+    - onConversationOpened: STABLE (function type)
     - conversationListCallViewModel: RUNTIME (requires runtime check)
     - conversationListViewModel: RUNTIME (requires runtime check)
 

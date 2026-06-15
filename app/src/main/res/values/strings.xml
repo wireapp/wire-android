@@ -43,6 +43,7 @@
     <string name="label_leave">Leave</string>
     <string name="label_add_device">Add Device</string>
     <string name="label_learn_more">Learn more</string>
+    <string name="label_learn_more_about_mls">Learn more about MLS</string>
     <string name="label_removing">Removing…</string>
     <string name="label_logging_in">Logging in…</string>
     <string name="label_user_deleted">Deleted</string>

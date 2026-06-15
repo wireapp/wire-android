@@ -114,7 +114,7 @@ fun SystemMessageItem(
                     textStyle = MaterialTheme.wireTypography.body01,
                     text = annotatedStringBuilder(expanded),
                     linkText = when {
-                        learnMoreLink != null && (!expandable || expanded) -> stringResource(id = R.string.label_learn_more)
+                        learnMoreLink != null && (!expandable || expanded) -> stringResource(id = learnMoreTextResId)
                         else -> null
                     },
                     textColor = MaterialTheme.wireColorScheme.secondaryText,
@@ -367,8 +367,13 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
         learnMoreLinkResId = when (protocol) {
             Conversation.Protocol.PROTEUS -> null
-            Conversation.Protocol.MIXED -> null
+            Conversation.Protocol.MIXED -> R.string.url_system_message_learn_more_about_mls
             Conversation.Protocol.MLS -> R.string.url_system_message_learn_more_about_mls
+        },
+        learnMoreTextResId = when (protocol) {
+            Conversation.Protocol.PROTEUS -> R.string.label_learn_more
+            Conversation.Protocol.MIXED,
+            Conversation.Protocol.MLS -> R.string.label_learn_more_about_mls
         }
     ) {
         stringResource(
@@ -624,6 +629,7 @@ private fun List<UIText>.limitList(
 private fun buildContent(
     expandable: Boolean = false,
     @StringRes learnMoreLinkResId: Int? = null,
+    @StringRes learnMoreTextResId: Int = R.string.label_learn_more,
     @DrawableRes iconResId: Int = R.drawable.ic_info,
     iconTintColor: Color? = MaterialTheme.wireColorScheme.onBackground,
     iconSize: Dp = MaterialTheme.wireDimensions.systemMessageIconSize,
@@ -633,6 +639,7 @@ private fun buildContent(
 ) = SystemMessageContent(
     expandable = expandable,
     learnMoreLinkResId = learnMoreLinkResId,
+    learnMoreTextResId = learnMoreTextResId,
     iconResId = iconResId,
     iconTintColor = iconTintColor,
     iconSize = iconSize,
@@ -653,6 +660,7 @@ val DefaultMarkdownTextStyle
 data class SystemMessageContent(
     val expandable: Boolean,
     @get:StringRes val learnMoreLinkResId: Int?,
+    @get:StringRes val learnMoreTextResId: Int,
     @get:DrawableRes val iconResId: Int?,
     val iconTintColor: Color?,
     val iconSize: Dp,

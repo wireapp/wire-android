@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -93,8 +94,15 @@ fun ConversationsScreenContent(
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     emptySearchResultFocusRequester: FocusRequester? = null,
     firstConversationFocusRequester: FocusRequester? = null,
-    conversationListCallViewModel: ConversationListCallViewModel = conversationListCallViewModel(conversationsSource),
-    conversationListViewModel: ConversationListViewModel = conversationListViewModel(conversationsSource),
+    onConversationOpened: () -> Unit = {},
+    conversationListCallViewModel: ConversationListCallViewModel = when {
+        LocalInspectionMode.current -> ConversationListCallViewModelPreview
+        else -> conversationListCallViewModel(conversationsSource)
+    },
+    conversationListViewModel: ConversationListViewModel = when {
+        LocalInspectionMode.current -> ConversationListViewModelPreview()
+        else -> conversationListViewModel(conversationsSource)
+    },
 ) {
     val sheetState = rememberWireModalSheetState<ConversationSheetState>()
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -131,9 +139,10 @@ fun ConversationsScreenContent(
         }
     }
 
-    val onOpenConversation: (ConversationItem) -> Unit = remember(navigator) {
+    val onOpenConversation: (ConversationItem) -> Unit = remember(navigator, onConversationOpened) {
         {
             navigator.navigate(NavigationCommand(ConversationScreenDestination(it.conversationId)))
+            onConversationOpened()
         }
     }
     val onOpenUserProfile: (UserId) -> Unit = remember(navigator) {

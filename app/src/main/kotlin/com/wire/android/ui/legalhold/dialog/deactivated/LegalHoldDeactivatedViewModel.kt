@@ -55,7 +55,13 @@ class LegalHoldDeactivatedViewModel(
 
                     CurrentSessionResult.Failure.SessionNotFound -> flowOf(noSession)
                     is CurrentSessionResult.Success ->
-                        currentSessionResult.accountInfo.userId.let { coreLogic.value.getSessionScope(it).session(it) }
+                        currentSessionResult.accountInfo.userId.let { userId ->
+                            runCatching { coreLogic.value.getSessionScope(userId).session(userId) }
+                                .getOrElse {
+                                    appLogger.e("$TAG: Failed to get session scope for current session: $userId")
+                                    flowOf(noSession)
+                                }
+                        }
                 }
             }
 
@@ -74,7 +80,7 @@ class LegalHoldDeactivatedViewModel(
                                 when (it.legalHoldState) {
                                     is LegalHoldState.Disabled -> LegalHoldDeactivatedState.Visible(userId)
                                     is LegalHoldState.Enabled -> { // for enabled we don't show the dialog, just mark as already notified
-                                        coreLogic.value.getSessionScope(userId).markLegalHoldChangeAsNotifiedForSelf()
+                                        markLegalHoldChangeAsNotified(userId)
                                         LegalHoldDeactivatedState.Hidden
                                     }
                                 }
@@ -87,14 +93,23 @@ class LegalHoldDeactivatedViewModel(
     fun dismiss() {
         viewModelScope.launch {
             (state as? LegalHoldDeactivatedState.Visible)?.let {
-                coreLogic.value.getSessionScope(it.userId).markLegalHoldChangeAsNotifiedForSelf().let {
-                    if (it is MarkLegalHoldChangeAsNotifiedForSelfUseCase.Result.Success) {
+                markLegalHoldChangeAsNotified(it.userId).let { result ->
+                    if (result is MarkLegalHoldChangeAsNotifiedForSelfUseCase.Result.Success) {
                         state = LegalHoldDeactivatedState.Hidden
                     }
                 }
             }
         }
     }
+
+    private suspend fun markLegalHoldChangeAsNotified(
+        userId: UserId
+    ): MarkLegalHoldChangeAsNotifiedForSelfUseCase.Result? =
+        runCatching { coreLogic.value.getSessionScope(userId).markLegalHoldChangeAsNotifiedForSelf() }
+            .getOrElse {
+                appLogger.e("$TAG: Failed to mark legal hold change as notified because session scope is not available")
+                null
+            }
 
     companion object {
         private const val TAG = "LegalHoldDeactivatedViewModel"

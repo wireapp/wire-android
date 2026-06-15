@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
@@ -76,13 +77,14 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginEmailScreen(
-    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
-    onRemoveDeviceNeeded: () -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
+    onRemoveDeviceNeeded: (UserId) -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     scrollState: ScrollState = rememberScrollState(),
     fillMaxHeight: Boolean = true,
@@ -101,9 +103,9 @@ fun LoginEmailScreen(
         isProxyAuthRequired = loginEmailViewModel.serverConfig.isProxyAuthRequired,
         apiProxyUrl = loginEmailViewModel.serverConfig.apiProxy?.host,
         onDialogDismiss = loginEmailViewModel::clearLoginErrors,
-        onRemoveDeviceOpen = {
+        onRemoveDeviceOpen = { userId ->
             loginEmailViewModel.clearLoginErrors()
-            onRemoveDeviceNeeded()
+            onRemoveDeviceNeeded(userId)
         },
         onLoginButtonClick = loginEmailViewModel::login,
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
@@ -113,7 +115,7 @@ fun LoginEmailScreen(
 
     LaunchedEffect(loginEmailViewModel.loginState.flowState) {
         (loginEmailViewModel.loginState.flowState as? LoginState.Success)?.let {
-            onSuccess(it.initialSyncCompleted, it.isE2EIRequired)
+            onSuccess(it.initialSyncCompleted, it.isE2EIRequired, it.userId)
         }
     }
 }
@@ -130,7 +132,7 @@ private fun LoginEmailContent(
     isProxyAuthRequired: Boolean,
     apiProxyUrl: String?,
     onDialogDismiss: () -> Unit,
-    onRemoveDeviceOpen: () -> Unit,
+    onRemoveDeviceOpen: (UserId) -> Unit,
     onLoginButtonClick: () -> Unit,
     forgotPasswordUrl: String,
     scope: CoroutineScope,
@@ -241,7 +243,7 @@ private fun LoginEmailContent(
     if (loginEmailState.flowState is LoginState.Error.DialogError) {
         LoginErrorDialog(loginEmailState.flowState.toLoginDialogErrorData(), onDialogDismiss)
     } else if (loginEmailState.flowState is LoginState.Error.TooManyDevicesError) {
-        onRemoveDeviceOpen()
+        onRemoveDeviceOpen(loginEmailState.flowState.userId)
     }
 }
 
@@ -309,7 +311,7 @@ fun ForgotPasswordLabel(
                     indication = null,
                     role = Role.Button,
                     onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
-                    onClickLabel = stringResource(R.string.content_description_open_link_label)
+                    onClickLabel = stringResource(commonR.string.content_description_open_link_label)
                 )
                 .testTag("Forgot password?")
         )

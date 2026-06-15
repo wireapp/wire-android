@@ -113,6 +113,7 @@ fun HomeScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 appSyncViewModel.startSyncingAppConfig()
+                homeScreenState.clearSearchOnResumeIfRequested()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

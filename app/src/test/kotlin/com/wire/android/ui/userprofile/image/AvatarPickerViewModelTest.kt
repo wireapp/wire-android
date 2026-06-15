@@ -25,8 +25,10 @@ import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
+import com.wire.android.framework.TestUser
 import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.toByteArray
@@ -168,6 +170,8 @@ class AvatarPickerViewModelTest {
 
         val userDataStore = mockk<UserDataStore>()
 
+        val userDataStoreProvider = mockk<UserDataStoreProvider>()
+
         val getAvatarAsset = mockk<GetAvatarAssetUseCase>()
 
         val uploadUserAvatarUseCase = mockk<UploadUserAvatarUseCase>()
@@ -183,14 +187,15 @@ class AvatarPickerViewModelTest {
 
         val viewModel by lazy {
             AvatarPickerViewModel(
-                userDataStore,
+                userDataStoreProvider,
+                TestUser.SELF_USER.id,
                 getAvatarAsset,
                 uploadUserAvatarUseCase,
                 avatarImageManager,
                 dispatcherProvider,
                 fakeKaliumFileSystem,
                 qualifiedIdMapper,
-                context
+                context,
             )
         }
 
@@ -199,6 +204,7 @@ class AvatarPickerViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            every { userDataStoreProvider.getOrCreate(TestUser.SELF_USER.id) } returns userDataStore
         }
 
         fun withSuccessfulInitialAvatarLoad(): Arrangement {

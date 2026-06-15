@@ -151,7 +151,7 @@ fun ImportMediaScreen(
         is FeatureFlagState.FileSharingState.AllowSome -> {
             ImportMediaAuthenticatedContent(
                 navigator = navigator,
-                isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.FileSharingState.DisabledByTeam,
+                                isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.FileSharingState.DisabledByTeam,
             )
         }
     }

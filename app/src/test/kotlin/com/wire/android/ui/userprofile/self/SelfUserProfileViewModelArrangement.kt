@@ -21,6 +21,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.TestTeam
@@ -45,12 +46,16 @@ import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 
 class SelfUserProfileViewModelArrangement {
     @MockK
     lateinit var userDataStore: UserDataStore
+
+    @MockK
+    lateinit var userDataStoreProvider: UserDataStoreProvider
 
     @MockK
     lateinit var getSelfTeamId: GetSelfTeamIdUseCase
@@ -115,7 +120,7 @@ class SelfUserProfileViewModelArrangement {
     private val viewModel by lazy {
         SelfUserProfileViewModel(
             selfUserId = TestUser.SELF_USER.id,
-            dataStore = userDataStore,
+            userDataStoreProvider = userDataStoreProvider,
             getSelfTeamId = getSelfTeamId,
             observeSelfUserWithTeam = observeSelfUserWithTeam,
             syncSelfTeamInfo = syncSelfTeamInfo,
@@ -143,6 +148,7 @@ class SelfUserProfileViewModelArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
 
+        every { userDataStoreProvider.getOrCreate(TestUser.SELF_USER.id) } returns userDataStore
         coEvery { getSelfTeamId.invoke() } returns TestUser.SELF_USER.teamId
         coEvery { observeSelfUserWithTeam.invoke() } returns flowOf(TestUser.SELF_USER to TestTeam.TEAM)
         coEvery { syncSelfTeamInfo.invoke() } returns TestTeam.TEAM

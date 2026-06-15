@@ -26,7 +26,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.legalhold.dialog.common.LearnMoreAboutLegalHoldButton
+import com.wire.android.ui.common.legalhold.dialog.common.LearnMoreAboutLegalHoldButton
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes

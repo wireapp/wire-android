@@ -28,7 +28,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import user.UserClient
 import user.utils.ClientUser
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
@@ -394,7 +393,7 @@ class TeamCreationTest : BaseUiTest() {
         }
 
         step("When I enter incorrect OTP on team verification page") {
-            val incorrectOtp = UserClient.RandomStringGenerator.randomNumeric(6)
+            val incorrectOtp = "0".repeat(6)
             pages.teamCreationPage.apply {
                 enterVerificationCode(incorrectOtp)
             }

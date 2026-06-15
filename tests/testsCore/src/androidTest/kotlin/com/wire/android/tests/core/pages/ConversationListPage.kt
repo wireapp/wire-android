@@ -35,9 +35,7 @@ import kotlin.time.Duration.Companion.seconds
 data class ConversationListPage(private val device: UiDevice) {
 
     private val searchField = UiSelectorParams(description = "Search conversations")
-    private val userProfileButtonNoPhoto = UiSelectorParams(description = "Your profile")
-
-    private val userProfileButton = UiSelectorParams(resourceId = "User avatar")
+    private val userProfileButton = UiSelectorParams(description = "Your profile")
     private val conversationListHeading = UiSelectorParams(
         textContains = "Conversations"
     )
@@ -410,13 +408,7 @@ data class ConversationListPage(private val device: UiDevice) {
     }
 
     fun clickUserProfileButton(): ConversationListPage {
-        val buttonWithPhoto = UiWaitUtils.findElementOrNull(userProfileButton)
-        if (buttonWithPhoto != null && !buttonWithPhoto.visibleBounds.isEmpty) {
-            buttonWithPhoto.click()
-        } else {
-            val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
-            buttonNoPhoto.click()
-        }
+        UiWaitUtils.waitElement(userProfileButton).click()
         return this
     }
 

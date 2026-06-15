@@ -1178,11 +1178,12 @@ public fun com.wire.android.ui.common.chip.WireFilterChip(label: kotlin.String, 
     - trailingIconResource: STABLE (class with no mutable properties)
 
 @Composable
-public fun com.wire.android.ui.common.clickable(clickable: com.wire.android.model.Clickable?): androidx.compose.ui.Modifier
+public fun com.wire.android.ui.common.clickable(clickable: com.wire.android.model.Clickable?, role: androidx.compose.ui.semantics.Role?): androidx.compose.ui.Modifier
   skippable: true
   restartable: true
   params:
     - clickable: STABLE (class with no mutable properties)
+    - role: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.common.colorsScheme(accent: com.wire.android.ui.theme.Accent?): com.wire.android.ui.theme.WireColorScheme
@@ -1338,6 +1339,15 @@ public fun com.wire.android.ui.common.image.WireImage(model: kotlin.Any?, conten
     - modifier: STABLE (marked @Stable or @Immutable)
     - contentScale: STABLE (marked @Stable or @Immutable)
     - placeholder: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.ui.common.image.ZoomableImageContainer(painter: androidx.compose.ui.graphics.painter.Painter, contentDescription: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - painter: RUNTIME (requires runtime check)
+    - contentDescription: STABLE (String is immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.common.legalhold.dialog.common.LearnMoreAboutLegalHoldButton(modifier: androidx.compose.ui.Modifier): kotlin.Unit

@@ -119,19 +119,38 @@ jobs:
       - name: Resolve run inputs
         id: resolve_run_inputs
         shell: bash
+        env:
+          APP_BUILD_NUMBER_INPUT: ${{ inputs.appBuildNumber }}
+          IS_UPGRADE_INPUT: ${{ inputs.isUpgrade }}
+          OLD_BUILD_NUMBER_INPUT: ${{ inputs.oldBuildNumber }}
+          ENFORCE_APP_INSTALL_INPUT: ${{ inputs.enforceAppInstall }}
+          FLAVOR_INPUT: ${{ inputs.flavor }}
+          TAGS_INPUT: ${{ inputs.TAGS }}
+          TESTINY_RUN_NAME_INPUT: ${{ inputs.testinyRunName }}
+          ANDROID_DEVICE_ID_INPUT: ${{ inputs.androidDeviceId }}
+          RERUN_FAILED_ENABLED_INPUT: ${{ inputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT_INPUT: ${{ inputs.rerunFailedCount }}
         run: |
+          trim_surrounding_whitespace() {
+            local value="$1"
+            value="${value#"${value%%[![:space:]]*}"}"
+            value="${value%"${value##*[![:space:]]}"}"
+            printf '%s' "${value}"
+          }
+
           if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            testiny_run_name="$(trim_surrounding_whitespace "${TESTINY_RUN_NAME_INPUT}")"
             {
-              echo "appBuildNumber=${{ inputs.appBuildNumber }}"
-              echo "isUpgrade=${{ inputs.isUpgrade }}"
-              echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"
-              echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
-              echo "flavor=${{ inputs.flavor }}"
-              echo "TAGS=${{ inputs.TAGS }}"
-              echo "testinyRunName=${{ inputs.testinyRunName }}"
-              echo "androidDeviceId=${{ inputs.androidDeviceId }}"
-              echo "rerunFailedEnabled=${{ inputs.rerunFailedEnabled }}"
-              echo "rerunFailedCount=${{ inputs.rerunFailedCount }}"
+              echo "appBuildNumber=${APP_BUILD_NUMBER_INPUT}"
+              echo "isUpgrade=${IS_UPGRADE_INPUT}"
+              echo "oldBuildNumber=${OLD_BUILD_NUMBER_INPUT}"
+              echo "enforceAppInstall=${ENFORCE_APP_INSTALL_INPUT}"
+              echo "flavor=${FLAVOR_INPUT}"
+              echo "TAGS=${TAGS_INPUT}"
+              echo "testinyRunName=${testiny_run_name}"
+              echo "androidDeviceId=${ANDROID_DEVICE_ID_INPUT}"
+              echo "rerunFailedEnabled=${RERUN_FAILED_ENABLED_INPUT}"
+              echo "rerunFailedCount=${RERUN_FAILED_COUNT_INPUT}"
             } >> "${GITHUB_OUTPUT}"
             exit 0
           fi
@@ -250,7 +269,8 @@ jobs:
           APP_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAppBuildNumber }}
           IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
           OLD_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedOldBuildNumber }}
-        run: S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
+          S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
 
       # Select device(s): use input device when provided, otherwise auto-pick.
       - name: Detect target device(s)
@@ -275,7 +295,9 @@ jobs:
 
       # Fetch runtime secrets only for this run.
       - name: Fetch secrets.json (runtime only)
-        run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
 
       # Build androidTest APK once and reuse it across selected devices.
       - name: Build test APK (assemble once)
@@ -298,6 +320,10 @@ jobs:
           RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
+          # Testiny sync is keyed by testcase ids but grouped under one run name.
+          TESTINY_PROJECT_NAME: Wire Android
+          TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
+          TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           if [[ "${IS_UPGRADE}" == "true" && ( "${RESOLVED_CATEGORY}" == "upgrade" || -n "${RESOLVED_TESTCASE_ID}" ) ]]; then
             # Single upgrade-tagged runs do not need the normal phase. They only

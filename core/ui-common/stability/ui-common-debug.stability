@@ -2557,4 +2557,3 @@ public fun com.wire.android.util.ui.rememberLazyListStateProvider(): com.wire.an
   skippable: true
   restartable: true
   params:
-

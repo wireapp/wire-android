@@ -18,7 +18,6 @@
 package com.wire.android.ui
 
 import androidx.lifecycle.SavedStateHandle
-import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
@@ -53,7 +52,6 @@ import dev.zacsweers.metro.Inject
 @Suppress("LongParameterList")
 class MiscViewModelFactory @Inject constructor(
     private val analyticsEnabled: AnalyticsConfiguration,
-    private val dataStore: Lazy<UserDataStore>,
     private val selfServerConfig: Lazy<SelfServerConfigUseCase>,
     private val observeSyncState: ObserveSyncStateUseCase,
     private val userDataStoreProvider: UserDataStoreProvider,
@@ -75,7 +73,7 @@ class MiscViewModelFactory @Inject constructor(
 ) {
     fun analyticsUsageViewModel() = AnalyticsUsageViewModel(
         analyticsEnabled = analyticsEnabled,
-        dataStore = dataStore,
+        dataStore = lazy { userDataStoreProvider.getOrCreate(userId) },
         selfServerConfig = selfServerConfig,
     )
 

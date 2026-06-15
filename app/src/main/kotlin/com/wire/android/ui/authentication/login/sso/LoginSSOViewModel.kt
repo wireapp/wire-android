@@ -353,14 +353,14 @@ class LoginSSOViewModel : LoginViewModel {
                     if (setLastDeviceId) {
                         coreLogic.getSessionScope(userId).backup.setLastDeviceId(it.client.id.value)
                     }
-                    updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(userId), false))
+                    updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(userId), false, userId))
                 }
 
                 is RegisterClientResult.E2EICertificateRequired ->
-                    updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(userId), true))
+                    updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(userId), true, userId))
 
                 is RegisterClientResult.Failure.TooManyClients ->
-                    updateSSOFlowState(LoginState.Error.TooManyDevicesError)
+                    updateSSOFlowState(LoginState.Error.TooManyDevicesError(userId))
 
                 is RegisterClientResult.Failure -> {
                     revertSSOSession(userId)
@@ -395,7 +395,7 @@ class LoginSSOViewModel : LoginViewModel {
 
         when (restoreResult) {
             is RestoreCryptoStateResult.Success -> {
-                updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false))
+                updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false, storedUserId))
             }
             is RestoreCryptoStateResult.NoBackupAvailable -> {
                 registerClientAndUpdateState(storedUserId, setLastDeviceId = true)

@@ -17,38 +17,72 @@
  */
 package com.wire.android.feature.meetings.ui.create
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.rememberTextMeasurer
+import com.ramcosta.composedestinations.generated.meetings.destinations.NewMeetingParticipantsScreenDestination
 import com.wire.android.feature.meetings.R
-import com.wire.android.feature.meetings.ui.newMeetingViewModel
+import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.MEETING_NAME_MAX_COUNT
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
+import com.wire.android.model.Contact
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.meetings.WireNewMeetingDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.animation.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.DefaultEmailDone
+import com.wire.android.ui.common.textfield.DefaultText
 import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.maxLengthWithCallback
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.kalium.logic.data.user.ConnectionState
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.toPersistentSet
+import com.wire.android.ui.common.R as commonR
 
 @WireNewMeetingDestination(
     start = true,
@@ -59,24 +93,37 @@ import com.wire.android.ui.theme.wireDimensions
 fun NewMeetingScreen(
     navigator: WireNavigator,
     navArgs: NewMeetingNavArgs,
+    newMeetingViewModel: NewMeetingViewModel,
 ) {
-    val meetingListViewModel: NewMeetingViewModel = when {
-        LocalInspectionMode.current -> NewMeetingViewModelPreview(navArgs.type)
-        else -> newMeetingViewModel(navArgs.type)
-    }
     NewMeetingContent(
         type = navArgs.type,
         onBackPressed = navigator::navigateBack,
-        titleState = meetingListViewModel.titleTextState,
+        state = newMeetingViewModel.state,
+        titleState = newMeetingViewModel.titleTextState,
+        onParticipantsClicked = {
+            navigator.navigate(NavigationCommand(NewMeetingParticipantsScreenDestination))
+        },
+        onCreateClicked = {
+            newMeetingViewModel.createMeeting()
+        }
     )
+
+    HandleActions(newMeetingViewModel.actions) { action ->
+        when (action) {
+            is NewMeetingViewActions.Success -> navigator.navigateBack()
+        }
+    }
 }
 
 @Composable
 fun NewMeetingContent(
+    state: NewMeetingState,
     titleState: TextFieldState,
     type: NewMeetingType,
-    onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
+    onBackPressed: () -> Unit = {},
+    onParticipantsClicked: () -> Unit = {},
+    onCreateClicked: () -> Unit = {},
 ) {
     WireScaffold(
         modifier = modifier,
@@ -86,7 +133,7 @@ fun NewMeetingContent(
                 title = stringResource(type.title),
                 onNavigationPressed = onBackPressed,
                 navigationIconType = NavigationIconType.Back(
-                    contentDescription = R.string.contnt_description_new_meeting_back_icon
+                    contentDescription = R.string.content_description_new_meeting_back_icon
                 ),
             )
         },
@@ -101,7 +148,15 @@ fun NewMeetingContent(
                         end = dimensions().spacing16x,
                     )
             ) {
-                TitleInput(titleState = titleState)
+                TitleInput(
+                    titleState = titleState,
+                    titleError = state.titleError,
+                )
+                VerticalSpace.x24()
+                ParticipantsInput(
+                    participants = state.confirmedContacts,
+                    onClick = onParticipantsClicked,
+                )
             }
         },
         bottomBar = {
@@ -110,21 +165,21 @@ fun NewMeetingContent(
                 color = MaterialTheme.wireColorScheme.background,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                    WirePrimaryButton(
-                        text = stringResource(type.action),
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(type.icon),
-                                contentDescription = null, // no separate content description as the text already describes the action
-                                modifier = Modifier.padding(dimensions().spacing4x),
-                            )
-                        },
-                        state = WireButtonState.Disabled, // TODO
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(dimensions().spacing16x),
-                    )
+                WirePrimaryButton(
+                    text = stringResource(type.action),
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(type.icon),
+                            contentDescription = null, // no separate content description as the text already describes the action
+                            modifier = Modifier.padding(dimensions().spacing4x),
+                        )
+                    },
+                    state = if (state.continueButtonEnabled) WireButtonState.Default else WireButtonState.Disabled,
+                    onClick = onCreateClicked,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensions().spacing16x),
+                )
             }
         }
     )
@@ -133,14 +188,104 @@ fun NewMeetingContent(
 @Composable
 private fun TitleInput(
     titleState: TextFieldState,
+    titleError: NewMeetingState.TitleError?,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    ShakeAnimation { animate ->
+        WireTextField(
+            textState = titleState,
+            state = when (titleError) {
+                is NewMeetingState.TitleError.TitleEmptyError ->
+                    WireTextFieldState.Error(stringResource(R.string.new_meeting_title_name_error_empty))
+                is NewMeetingState.TitleError.TitleExceedsLimitError ->
+                    WireTextFieldState.Error(stringResource(R.string.new_meeting_title_name_error_exceeded_limit))
+                else -> WireTextFieldState.Default
+            },
+            placeholderText = stringResource(R.string.new_meeting_title_input_placeholder),
+            labelText = stringResource(R.string.new_meeting_title_input_label).uppercase(),
+            semanticDescription = stringResource(R.string.new_meeting_title_input_placeholder),
+            keyboardOptions = KeyboardOptions.DefaultText,
+            onKeyboardAction = { keyboardController?.hide() },
+            testTag = "titleInput",
+            inputTransformation = InputTransformation.maxLengthWithCallback(MEETING_NAME_MAX_COUNT, animate),
+            trailingIcon = {
+                Box(
+                    modifier = Modifier
+                        .width(dimensions().spacing64x)
+                        .height(dimensions().spacing40x),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    AnimatedVisibility(
+                        visible = titleState.text.isNotBlank(),
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        IconButton(
+                            modifier = Modifier.padding(start = dimensions().spacing12x),
+                            onClick = titleState::clearText,
+                        ) {
+                            Icon(
+                                painter = painterResource(id = commonR.drawable.ic_clear_search),
+                                contentDescription = stringResource(commonR.string.content_description_clear_content)
+                            )
+                        }
+                    }
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun ParticipantsInput(
+    participants: ImmutableSet<Contact>,
+    onClick: () -> Unit,
+) {
+    val resources = LocalResources.current
+    val textStyle = typography().body01
+    val textColor = colorsScheme().onSurface
+    val suffixColor = colorsScheme().secondaryText
+    val textMeasurer = rememberTextMeasurer()
+    val textFieldState = rememberTextFieldState(participants.joinToString(", ") { it.name })
+    var innerTextWidthPx by remember { mutableIntStateOf(0) }
+    val truncationTransformation = remember(innerTextWidthPx) {
+        TextListTruncationTransformation(
+            availableWidthPx = innerTextWidthPx,
+            textMeasurer = textMeasurer,
+            textStyle = textStyle,
+            textColor = textColor,
+            suffixColor = suffixColor,
+            provideSuffixText = { count ->
+                resources.getQuantityString(R.plurals.new_meeting_participants_input_more_suffix, count, count)
+            },
+        )
+    }
+
+    LaunchedEffect(participants) {
+        textFieldState.setTextAndPlaceCursorAtEnd(participants.joinToString(", ") { it.name })
+    }
+
     WireTextField(
-        textState = titleState,
-        placeholderText = stringResource(R.string.new_meeting_title_input_placeholder),
-        labelText = stringResource(R.string.new_meeting_title_input_label).uppercase(),
-        semanticDescription = stringResource(R.string.new_meeting_title_input_placeholder),
+        textState = textFieldState,
+        placeholderText = stringResource(R.string.new_meeting_participants_input_placeholder),
+        labelText = stringResource(R.string.new_meeting_participants_input_label).uppercase(),
+        semanticDescription = stringResource(R.string.new_meeting_participants_input_placeholder),
         keyboardOptions = KeyboardOptions.DefaultEmailDone,
-        testTag = "titleInput",
+        state = WireTextFieldState.ReadOnly,
+        onInputSizeChanged = { innerTextWidthPx = it.width },
+        outputTransformation = truncationTransformation,
+        onTap = onClick,
+        trailingIcon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_expand),
+                contentDescription = null,
+                tint = colorsScheme().onSurfaceVariant,
+                modifier = Modifier
+                    .padding(dimensions().spacing16x)
+                    .size(dimensions().spacing16x)
+            )
+        }
     )
 }
 
@@ -148,9 +293,9 @@ private fun TitleInput(
 @Composable
 fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
     NewMeetingContent(
-        titleState = rememberTextFieldState(),
+        titleState = rememberTextFieldState("Meeting with 9 users"),
         type = NewMeetingType.MeetNow,
-        onBackPressed = {},
+        state = NewMeetingState(confirmedContacts = buildContacts(names.size), continueButtonEnabled = true),
     )
 }
 
@@ -160,6 +305,22 @@ fun PreviewNewMeetingScreen_Schedule() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState(),
         type = NewMeetingType.Schedule,
-        onBackPressed = {},
+        state = NewMeetingState(),
     )
 }
+
+private val names: List<String> = listOf(
+    "Alice Smith", "Bob Johnson", "Charlie Brown", "David Wilson", "Eve Davis", "Frank Miller", "Grace Lee", "Hank Taylor", "Ivy Anderson"
+)
+
+private fun buildContacts(count: Int) = List(count) {
+    Contact(
+        id = "id_$it",
+        domain = "domain",
+        name = names[it % names.size],
+        handle = names[it % names.size].lowercase().replace(" ", "."),
+        label = names[it % names.size].lowercase().replace(" ", "."),
+        membership = Membership.Standard,
+        connectionState = ConnectionState.ACCEPTED,
+    )
+}.toPersistentSet()

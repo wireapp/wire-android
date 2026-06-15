@@ -200,7 +200,7 @@ private fun MeetingOngoingDurationTimeSublineText(startedTime: Instant) {
 @Composable
 private fun RepeatingIntervalInfoLabel(repeatingInterval: RepeatingInterval?) {
     repeatingInterval?.let {
-        WireItemLabel(text = stringResource(repeatingInterval.nameResId))
+        WireItemLabel(text = stringResource(repeatingInterval.nameResId), textStyle = typography().label01)
     }
 }
 

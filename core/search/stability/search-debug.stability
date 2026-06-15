@@ -5,7 +5,7 @@
 //   ./gradlew :search:stabilityDump
 
 @Composable
-private fun com.wire.android.search.SearchAllPeopleOrContactsScreen(searchQuery: kotlin.String, contactsSelected: kotlinx.collections.immutable.ImmutableSet<com.wire.android.model.Contact>, isSearchActive: kotlin.Boolean, actionType: com.wire.android.model.ItemActionType, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onContactChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, searchUserViewModel: com.wire.android.search.users.SearchUserViewModel, lazyListState: androidx.compose.foundation.lazy.LazyListState, firstContactFocusRequester: androidx.compose.ui.focus.FocusRequester?, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
+private fun com.wire.android.search.SearchAllPeopleOrContactsScreen(searchQuery: kotlin.String, contactsSelected: kotlinx.collections.immutable.ImmutableSet<com.wire.android.model.Contact>, isSearchActive: kotlin.Boolean, actionType: com.wire.android.model.ItemActionType, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onContactChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, conversationId: com.wire.kalium.logic.data.id.QualifiedID?, onlyConnectedContacts: kotlin.Boolean, searchUserViewModel: com.wire.android.search.users.SearchUserViewModel, lazyListState: androidx.compose.foundation.lazy.LazyListState, firstContactFocusRequester: androidx.compose.ui.focus.FocusRequester?, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -15,25 +15,27 @@ private fun com.wire.android.search.SearchAllPeopleOrContactsScreen(searchQuery:
     - actionType: STABLE (class with no mutable properties)
     - onOpenUserProfile: STABLE (function type)
     - onContactChecked: STABLE (function type)
+    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - onlyConnectedContacts: STABLE (primitive type)
     - searchUserViewModel: UNSTABLE (has mutable properties or unstable members)
     - lazyListState: STABLE (marked @Stable or @Immutable)
     - firstContactFocusRequester: STABLE (marked @Stable or @Immutable)
     - nextFocusRequester: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.search.SearchUsersAndAppsScreen(searchTitle: kotlin.String, selectedContacts: kotlinx.collections.immutable.ImmutableSet<com.wire.android.model.Contact>, onContactChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onAppClicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onClose: kotlin.Function0<kotlin.Unit>, navigationIconType: com.wire.android.ui.common.topappbar.NavigationIconType, itemActionType: com.wire.android.model.ItemActionType, modifier: androidx.compose.ui.Modifier, shouldHideBottomActionForSearch: kotlin.Boolean, shouldHideBottomActionForServices: kotlin.Boolean, isAppsTabVisible: kotlin.Boolean, isConversationAppsEnabled: kotlin.Boolean, initialPage: com.wire.android.search.SearchPeopleTabItem, conversationProtocol: com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo?, peopleBottomActions: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<androidx.compose.ui.focus.FocusRequester, kotlin.Unit>?): kotlin.Unit
+public fun com.wire.android.search.SearchUsersAndAppsScreen(searchTitle: kotlin.String, selectedContacts: kotlinx.collections.immutable.ImmutableSet<com.wire.android.model.Contact>, onContactChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onClose: kotlin.Function0<kotlin.Unit>, navigationIconType: com.wire.android.ui.common.topappbar.NavigationIconType, itemActionType: com.wire.android.model.ItemActionType, modifier: androidx.compose.ui.Modifier, conversationId: com.wire.kalium.logic.data.id.QualifiedID?, onlyConnectedContacts: kotlin.Boolean, shouldHideBottomActionForSearch: kotlin.Boolean, shouldHideBottomActionForServices: kotlin.Boolean, isAppsTabVisible: kotlin.Boolean, isConversationAppsEnabled: kotlin.Boolean, initialPage: com.wire.android.search.SearchPeopleTabItem, conversationProtocol: com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo?, peopleBottomActions: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<androidx.compose.ui.focus.FocusRequester, kotlin.Unit>?, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onAppClicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - searchTitle: STABLE (String is immutable)
     - selectedContacts: STABLE (known stable type)
     - onContactChecked: STABLE (function type)
-    - onOpenUserProfile: STABLE (function type)
-    - onAppClicked: STABLE (function type)
     - onClose: STABLE (function type)
     - navigationIconType: STABLE (marked @Stable or @Immutable)
     - itemActionType: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - onlyConnectedContacts: STABLE (primitive type)
     - shouldHideBottomActionForSearch: STABLE (primitive type)
     - shouldHideBottomActionForServices: STABLE (primitive type)
     - isAppsTabVisible: STABLE (primitive type)
@@ -41,6 +43,8 @@ public fun com.wire.android.search.SearchUsersAndAppsScreen(searchTitle: kotlin.
     - initialPage: STABLE (class with no mutable properties)
     - conversationProtocol: UNSTABLE (has mutable properties or unstable members)
     - peopleBottomActions: STABLE (composable function type)
+    - onOpenUserProfile: STABLE (function type)
+    - onAppClicked: STABLE (function type)
 
 @Composable
 private fun com.wire.android.search.apps.AppsList(searchQuery: kotlin.String, apps: kotlin.collections.List<com.wire.android.model.Contact>, onServiceClicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
@@ -112,11 +116,12 @@ public fun com.wire.android.search.searchAppsViewModel(protocolInfo: com.wire.ka
     - protocolInfo: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-public fun com.wire.android.search.searchUserViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID?): com.wire.android.search.users.SearchUserViewModel
+public fun com.wire.android.search.searchUserViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID?, onlyConnectedContacts: kotlin.Boolean): com.wire.android.search.users.SearchUserViewModel
   skippable: false
   restartable: true
   params:
     - conversationId: UNSTABLE (has mutable properties or unstable members)
+    - onlyConnectedContacts: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.search.users.SearchAllPeopleScreen(searchQuery: kotlin.String, contactsSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, publicSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, contactsSelectedSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, isLoading: kotlin.Boolean, isSearchActive: kotlin.Boolean, actionType: com.wire.android.model.ItemActionType, onChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, firstContactFocusRequester: androidx.compose.ui.focus.FocusRequester?, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?, selectedContactResultsExpanded: kotlin.Boolean, onSelectedContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, contactResultsExpanded: kotlin.Boolean, onContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, publicResultsExpanded: kotlin.Boolean, onPublicResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit

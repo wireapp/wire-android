@@ -89,11 +89,6 @@ class DateAndTimeParsers private constructor() {
                 this.timeZone = java.util.TimeZone.getDefault()
             }
 
-        private val longDateFormat =
-            java.text.DateFormat.getDateInstance(java.text.DateFormat.LONG, Locale.getDefault()).apply {
-                this.timeZone = java.util.TimeZone.getDefault()
-            }
-
         private val shortTimeFormat =
             java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT, Locale.getDefault()).apply {
                 this.timeZone = java.util.TimeZone.getDefault()
@@ -118,12 +113,8 @@ class DateAndTimeParsers private constructor() {
         private val videoMessageTimeFormat = DateTimeFormatter.ofPattern("mm:ss", Locale.getDefault())
             .withZone(ZoneId.systemDefault())
 
-        private val linkExpirationDateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM dd", Locale.getDefault())
+        private val dayOfWeekMonthDayDateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM dd", Locale.getDefault())
             .withZone(ZoneId.systemDefault())
-
-        private val linkExpirationTimeFormat = java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT, Locale.getDefault()).apply {
-            this.timeZone = java.util.TimeZone.getDefault()
-        }
 
         @Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
         fun serverDate(stringDate: String): Date? {
@@ -203,10 +194,10 @@ class DateAndTimeParsers private constructor() {
 
         fun videoMessageTime(timeMs: Long): String = videoMessageTimeFormat.format(java.time.Instant.ofEpochMilli(timeMs))
 
-        fun meetingDate(instant: Instant): String = longDateFormat.format(Date.from(instant.toJavaInstant()))
+        fun meetingDate(instant: Instant): String = dayOfWeekMonthDayDateFormat.format(instant.toJavaInstant())
         fun meetingTime(instant: Instant): String = shortTimeFormat.format(Date.from(instant.toJavaInstant()))
 
-        fun linkExpirationDate(timeMs: Long): String = linkExpirationDateFormat.format(java.time.Instant.ofEpochMilli(timeMs))
-        fun linkExpirationTime(timeMs: Long): String = linkExpirationTimeFormat.format(Date.from(java.time.Instant.ofEpochMilli(timeMs)))
+        fun linkExpirationDate(timeMs: Long): String = dayOfWeekMonthDayDateFormat.format(java.time.Instant.ofEpochMilli(timeMs))
+        fun linkExpirationTime(timeMs: Long): String = shortTimeFormat.format(Date.from(java.time.Instant.ofEpochMilli(timeMs)))
     }
 }

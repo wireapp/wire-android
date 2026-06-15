@@ -51,11 +51,23 @@
     <string name="meetings_empty_text_next">"Start a meeting with team members, guests or external parties."</string>
     <string name="meetings_empty_text_past">Previous meetings will be listed here.</string>
     <string name="new_meeting_title">New Meeting</string>
+    <string name="new_meeting_participants_title">Select participants</string>
     <string name="new_meeting_now">Meet Now</string>
     <string name="new_meeting_schedule">Schedule a Meeting</string>v
     <string name="new_meeting_action_start">Start Meeting</string>
     <string name="new_meeting_action_schedule">Schedule</string>
     <string name="new_meeting_title_input_label">Title</string>
     <string name="new_meeting_title_input_placeholder">Enter meeting title</string>
-    <string name="contnt_description_new_meeting_back_icon">Close new meeting view</string>
+    <string name="new_meeting_participants_input_label">Participants</string>
+    <string name="new_meeting_participants_input_placeholder">Select participants</string>
+    <string name="content_description_new_meeting_back_icon">Close new meeting view</string>
+    <string name="content_description_new_meeting_participants_back_icon">Close select participants view</string>
+    <string name="new_meeting_title_name_error_empty">Please enter a meeting name</string>
+    <string name="new_meeting_title_name_error_exceeded_limit">Meeting name should not exceed 64 characters</string>
+
+    <plurals name="new_meeting_participants_input_more_suffix">
+        <item quantity="one">+%1$d more</item>
+        <item quantity="other">+%1$d more</item>
+    </plurals>
+
 </resources>

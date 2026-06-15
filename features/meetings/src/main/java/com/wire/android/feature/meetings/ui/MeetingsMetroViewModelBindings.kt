@@ -18,7 +18,8 @@
 package com.wire.android.feature.meetings.ui
 
 import androidx.lifecycle.ViewModel
-import com.wire.android.feature.meetings.ui.create.NewMeetingType
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.CreationExtras
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModelImpl
 import com.wire.android.feature.meetings.ui.list.MeetingListViewModelImpl
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModelImpl
@@ -27,6 +28,8 @@ import dev.zacsweers.metro.IntoMap
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 
 @BindingContainer
@@ -39,9 +42,6 @@ object MeetingsMetroViewModelBindings {
         object : MeetingsManualViewModelFactory {
             override fun meetingListViewModel(type: MeetingsTabItem): MeetingListViewModelImpl =
                 factory.meetingListViewModel(type)
-
-            override fun newMeetingViewModel(type: NewMeetingType): NewMeetingViewModelImpl =
-                factory.newMeetingViewModel(type)
         }
 
     @Provides
@@ -49,4 +49,13 @@ object MeetingsMetroViewModelBindings {
     @ViewModelKey(MeetingOptionsMenuViewModelImpl::class)
     fun meetingOptionsMenuViewModel(factory: MeetingsViewModelFactory): ViewModel =
         factory.meetingOptionsMenuViewModel()
+
+    @Provides
+    @IntoMap
+    @ViewModelAssistedFactoryKey(NewMeetingViewModelImpl::class)
+    fun newMeetingViewModel(factory: MeetingsViewModelFactory): ViewModelAssistedFactory =
+        object : ViewModelAssistedFactory {
+            override fun create(extras: CreationExtras): ViewModel =
+                factory.newMeetingViewModel(extras.createSavedStateHandle())
+        }
 }

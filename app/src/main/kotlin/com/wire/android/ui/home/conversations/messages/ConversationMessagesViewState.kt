@@ -39,6 +39,7 @@ data class ConversationMessagesViewState(
     val searchedMessageId: String? = null,
     val isFetchingOlderMessages: Boolean = false,
     val hasMoreRemoteMessages: Boolean = true,
+    val isNetworkAvailable: Boolean = false,
 )
 
 sealed class DownloadedAssetDialogVisibilityState {

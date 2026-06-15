@@ -65,6 +65,7 @@ fun AllConversationsScreen(
                 lazyListState = lazyListStateFor(HomeDestination.Conversations, filter),
                 emptySearchResultFocusRequester = emptySearchResultFocusRequester,
                 firstConversationFocusRequester = firstConversationFocusRequester,
+                onConversationOpened = homeStateHolder::requestClearSearchOnNextResume,
                 emptyListContent = { ConversationsEmptyContent(filter = filter, navigator = navigator) }
             )
         }

@@ -94,6 +94,7 @@ fun ConversationsScreenContent(
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     emptySearchResultFocusRequester: FocusRequester? = null,
     firstConversationFocusRequester: FocusRequester? = null,
+    onConversationOpened: () -> Unit = {},
     conversationListCallViewModel: ConversationListCallViewModel = when {
         LocalInspectionMode.current -> ConversationListCallViewModelPreview
         else -> conversationListCallViewModel(conversationsSource)
@@ -138,9 +139,10 @@ fun ConversationsScreenContent(
         }
     }
 
-    val onOpenConversation: (ConversationItem) -> Unit = remember(navigator) {
+    val onOpenConversation: (ConversationItem) -> Unit = remember(navigator, onConversationOpened) {
         {
             navigator.navigate(NavigationCommand(ConversationScreenDestination(it.conversationId)))
+            onConversationOpened()
         }
     }
     val onOpenUserProfile: (UserId) -> Unit = remember(navigator) {

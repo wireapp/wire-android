@@ -1340,6 +1340,15 @@ public fun com.wire.android.ui.common.image.WireImage(model: kotlin.Any?, conten
     - placeholder: RUNTIME (requires runtime check)
 
 @Composable
+public fun com.wire.android.ui.common.image.ZoomableImageContainer(painter: androidx.compose.ui.graphics.painter.Painter, contentDescription: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - painter: RUNTIME (requires runtime check)
+    - contentDescription: STABLE (String is immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 public fun com.wire.android.ui.common.legalhold.dialog.common.LearnMoreAboutLegalHoldButton(modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true

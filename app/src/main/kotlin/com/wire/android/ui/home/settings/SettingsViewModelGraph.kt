@@ -20,13 +20,10 @@
 package com.wire.android.ui.home.settings
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.metroSavedStateViewModel
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModel
 import com.wire.android.ui.home.appLock.set.SetLockScreenViewModel
 import com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModel
@@ -53,24 +50,17 @@ import com.wire.android.ui.userprofile.service.ServiceDetailsViewModel
 import com.wire.android.ui.userprofile.service.ServiceDetailsViewModelImpl
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 
-interface SettingsViewModelGraph : MetroViewModelGraph {
-    val settingsViewModelFactory: SettingsViewModelFactory
-}
-
 @Composable
 inline fun <reified VM> settingsViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
     key: String? = null,
-    crossinline create: SettingsViewModelFactory.() -> VM,
 ): VM where VM : ViewModel =
-    metroViewModel<SettingsViewModelGraph, VM>(
+    sessionKeyedMetroViewModel(
         viewModelStoreOwner = viewModelStoreOwner,
         key = key,
-    ) {
-        settingsViewModelFactory.create()
-    }
+    )
 
 @Composable
 inline fun <reified VM> settingsSavedStateViewModel(
@@ -78,92 +68,104 @@ inline fun <reified VM> settingsSavedStateViewModel(
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
     key: String? = null,
-    crossinline create: SettingsViewModelFactory.(SavedStateHandle) -> VM,
 ): VM where VM : ViewModel =
-    metroSavedStateViewModel<SettingsViewModelGraph, VM>(
+    settingsViewModel(
         viewModelStoreOwner = viewModelStoreOwner,
         key = key,
-    ) { savedStateHandle ->
-        settingsViewModelFactory.create(savedStateHandle)
-    }
+    )
 
 @Composable
-fun settingsScreenViewModel(): SettingsViewModel = settingsViewModel { settingsViewModel() }
+fun settingsScreenViewModel(): SettingsViewModel = settingsViewModel()
 
 @Composable
-fun myAccountViewModel(): MyAccountViewModel = settingsViewModel { myAccountViewModel() }
+fun myAccountViewModel(): MyAccountViewModel = settingsViewModel()
 
 @Composable
-fun deleteAccountViewModel(): DeleteAccountViewModel = settingsViewModel { deleteAccountViewModel() }
+fun deleteAccountViewModel(): DeleteAccountViewModel =
+    settingsViewModel()
 
 @Composable
-fun changeDisplayNameViewModel(): ChangeDisplayNameViewModel = settingsViewModel { changeDisplayNameViewModel() }
+fun changeDisplayNameViewModel(): ChangeDisplayNameViewModel =
+    settingsViewModel()
 
 @Composable
-fun changeUserColorViewModel(): ChangeUserColorViewModel = settingsViewModel { changeUserColorViewModel() }
+fun changeUserColorViewModel(): ChangeUserColorViewModel =
+    settingsViewModel()
 
 @Composable
-fun changeEmailViewModel(): ChangeEmailViewModel = settingsViewModel { changeEmailViewModel() }
+fun changeEmailViewModel(): ChangeEmailViewModel = settingsViewModel()
 
 @Composable
-fun verifyEmailViewModel(): VerifyEmailViewModel = settingsSavedStateViewModel { verifyEmailViewModel(it) }
+fun verifyEmailViewModel(): VerifyEmailViewModel =
+    settingsSavedStateViewModel()
 
 @Composable
-fun changeHandleViewModel(): ChangeHandleViewModel = settingsViewModel { changeHandleViewModel() }
+fun changeHandleViewModel(): ChangeHandleViewModel = settingsViewModel()
 
 @Composable
-fun customizationViewModel(): CustomizationViewModel = settingsViewModel { customizationViewModel() }
+fun customizationViewModel(): CustomizationViewModel =
+    settingsViewModel()
 
 @Composable
-fun networkSettingsViewModel(): NetworkSettingsViewModel = settingsViewModel { networkSettingsViewModel() }
+fun networkSettingsViewModel(): NetworkSettingsViewModel =
+    settingsViewModel()
 
 @Composable
-fun privacySettingsViewModel(): PrivacySettingsViewModel = settingsViewModel { privacySettingsViewModel() }
+fun privacySettingsViewModel(): PrivacySettingsViewModel =
+    settingsViewModel()
 
 @Composable
-fun backupAndRestoreViewModel(): BackupAndRestoreViewModel = settingsViewModel { backupAndRestoreViewModel() }
+fun backupAndRestoreViewModel(): BackupAndRestoreViewModel =
+    settingsViewModel()
 
 @Composable
-fun setLockScreenViewModel(): SetLockScreenViewModel = settingsViewModel { setLockScreenViewModel() }
+fun setLockScreenViewModel(): SetLockScreenViewModel =
+    settingsViewModel()
 
 @Composable
-fun forgotLockScreenViewModel(): ForgotLockScreenViewModel = settingsViewModel { forgotLockScreenViewModel() }
+fun forgotLockScreenViewModel(): ForgotLockScreenViewModel =
+    settingsViewModel()
 
 @Composable
 fun appUnlockWithBiometricsViewModel(): AppUnlockWithBiometricsViewModel =
-    settingsViewModel { appUnlockWithBiometricsViewModel() }
+    settingsViewModel()
 
 @Composable
-fun enterLockScreenViewModel(): EnterLockScreenViewModel = settingsViewModel { enterLockScreenViewModel() }
+fun enterLockScreenViewModel(): EnterLockScreenViewModel =
+    settingsViewModel()
 
 @Composable
-fun selfDevicesViewModel(): SelfDevicesViewModel = settingsViewModel { selfDevicesViewModel() }
+fun selfDevicesViewModel(): SelfDevicesViewModel = settingsViewModel()
 
 @Composable
-fun deviceDetailsViewModel(): DeviceDetailsViewModel = settingsSavedStateViewModel { deviceDetailsViewModel(it) }
+fun deviceDetailsViewModel(): DeviceDetailsViewModel =
+    settingsSavedStateViewModel()
 
 @Composable
 fun e2eiCertificateDetailsViewModel(): E2eiCertificateDetailsViewModel =
-    settingsSavedStateViewModel { e2eiCertificateDetailsViewModel(it) }
+    settingsSavedStateViewModel()
 
 @Composable
-fun avatarPickerViewModel(): AvatarPickerViewModel = settingsViewModel { avatarPickerViewModel() }
+fun avatarPickerViewModel(): AvatarPickerViewModel =
+    settingsViewModel()
 
 @Composable
-fun selfUserProfileViewModel(): SelfUserProfileViewModel = settingsViewModel { selfUserProfileViewModel() }
+fun selfUserProfileViewModel(): SelfUserProfileViewModel =
+    settingsViewModel()
 
 @Composable
-fun selfQRCodeViewModel(): SelfQRCodeViewModel = settingsSavedStateViewModel { selfQRCodeViewModel(it) }
+fun selfQRCodeViewModel(): SelfQRCodeViewModel =
+    settingsSavedStateViewModel()
 
 @Composable
 fun teamMigrationViewModel(
     viewModelStoreOwner: ViewModelStoreOwner,
-): TeamMigrationViewModel = settingsViewModel(viewModelStoreOwner = viewModelStoreOwner) { teamMigrationViewModel() }
+): TeamMigrationViewModel = settingsViewModel(viewModelStoreOwner = viewModelStoreOwner)
 
 @Composable
 fun otherUserProfileScreenViewModel(): OtherUserProfileScreenViewModel =
-    settingsSavedStateViewModel { otherUserProfileScreenViewModel(it) }
+    settingsSavedStateViewModel()
 
 @Composable
 fun serviceDetailsViewModel(): ServiceDetailsViewModel =
-    settingsSavedStateViewModel<ServiceDetailsViewModelImpl> { serviceDetailsViewModel(it) }
+    settingsSavedStateViewModel<ServiceDetailsViewModelImpl>()

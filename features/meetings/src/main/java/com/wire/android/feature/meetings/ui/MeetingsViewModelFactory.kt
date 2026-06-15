@@ -17,6 +17,8 @@
  */
 package com.wire.android.feature.meetings.ui
 
+import com.wire.android.feature.meetings.ui.create.NewMeetingType
+import com.wire.android.feature.meetings.ui.create.NewMeetingViewModelImpl
 import com.wire.android.feature.meetings.ui.list.MeetingListViewModelImpl
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModelImpl
 import com.wire.android.feature.meetings.ui.usecase.GetMeetingUseCase
@@ -39,4 +41,6 @@ class MeetingsViewModelFactory @Inject constructor(
     )
 
     internal fun meetingOptionsMenuViewModel() = MeetingOptionsMenuViewModelImpl(getMeeting = getMeeting)
+
+    internal fun newMeetingViewModel(type: NewMeetingType) = NewMeetingViewModelImpl(type)
 }

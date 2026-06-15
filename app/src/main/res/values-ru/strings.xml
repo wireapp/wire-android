@@ -36,7 +36,6 @@
     <string name="label_learn_more">Подробнее</string>
     <string name="label_removing">Удаление...</string>
     <string name="label_logging_in">Авторизация…</string>
-    <string name="label_user_deleted">Удалено</string>
     <string name="label_try_again">Повторить</string>
     <string name="label_done">Готово</string>
     <string name="label_message_sent_failure">Не удалось отправить сообщение из-за проблем с подключением.</string>
@@ -47,6 +46,7 @@
     <string name="label_message_decryption_failure_message">Не удалось расшифровать сообщение.</string>
     <string name="label_message_decryption_failure_message_with_error_code">Не удалось расшифровать сообщение (ошибка %s).</string>
     <string name="label_message_decryption_failure_informative_message">Попробуйте сбросить сессию для генерации новых ключей шифрования.</string>
+    <string name="label_system_message_offline">**Вы не в сети.** Ваши сообщения будут отправлены, как только вы снова подключитесь к сети.</string>
     <string name="label_system_message_self_user_knock">%s отправили пинг</string>
     <string name="label_system_message_other_user_knock">%s отправил(-а) пинг</string>
     <string name="label_message_partial_delivery_participants_count">%1$d участников не получили ваше сообщение.</string>
@@ -67,7 +67,6 @@
     <string name="label_open_asset_externally">Открыть</string>
     <string name="label_show">Показать</string>
     <string name="label_show_all">Показать все</string>
-    <string name="label_show_less">Свернуть</string>
     <string name="label_show_details">Подробнее</string>
     <string name="label_hide_details">Скрыть сведения</string>
     <string name="label_message_status_edited_with_date">Изменено %s</string>
@@ -78,7 +77,6 @@
     <string name="folder_label_access">Доступ</string>
     <string name="folder_label_protocol_details">Информация о протоколе</string>
     <string name="folder_label_messaging">Обмен сообщениями</string>
-    <string name="label_user_blocked">Заблокирован(-а)</string>
     <string name="label_and">и</string>
     <string name="label_retry">Повторить</string>
     <string name="label_draft">*Черновик*</string>
@@ -125,8 +123,6 @@
     <string name="content_description_avatar_preview">Предпросмотр изображения профиля</string>
     <string name="content_description_choose_from_gallery">Выбрать из галереи</string>
     <string name="content_description_take_a_picture">Сделать фото</string>
-    <string name="content_description_right_arrow">Стрелка вправо</string>
-    <string name="content_description_left_arrow">Вернуться</string>
     <string name="content_description_mention_icon">Значок упоминания</string>
     <string name="content_description_attachment_item">Добавить вложение</string>
     <string name="content_description_open_message_details">Сведения о сообщении</string>
@@ -135,7 +131,6 @@
     <string name="content_description_delete_the_message">Удалить сообщение</string>
     <string name="content_description_edit_the_message">Изменить сообщение</string>
     <string name="content_description_more_options">Больше вариантов</string>
-    <string name="content_description_add_contact">Добавить контакт</string>
     <string name="content_description_image_message">Изображение</string>
     <string name="content_description_pause_audio">Приостановить аудио</string>
     <string name="content_description_play_audio">Воспроизвести аудио</string>
@@ -207,26 +202,18 @@
     <string name="content_description_search_text_in_conversation_btn">Поиск текстовых сообщений</string>
     <string name="content_description_see_media_in_conversation_btn">Открыть обзор изображений и файлов</string>
     <string name="content_description_add_participants_close">Закрыть вид добавления участников</string>
-    <string name="content_description_add_participants_search_field">Поиск по имени или псевдониму</string>
-    <string name="content_description_add_participants_back_btn">Вернуться к просмотру добавления участников</string>
     <string name="content_description_home_profile_btn">Ваш профиль</string>
     <string name="content_description_home_profile_btn_with_notification">Ваш профиль, одна непрочитанная подсказка.</string>
     <string name="content_description_open_label">открыть</string>
     <string name="content_description_join_call_label">присоединиться к вызову</string>
     <string name="content_description_share_label">поделиться</string>
     <string name="content_description_edit_label">редактировать</string>
-    <string name="content_description_select_label">выбрать</string>
-    <string name="content_description_unselect_label">отменить выбор</string>
     <string name="content_description_selected_label">выбрано</string>
     <string name="content_description_toggle_setting_label">переключить настройку</string>
     <string name="content_description_edit_guests_option_back_btn">Вернуться к сведениям о беседе</string>
     <string name="content_description_edit_self_delete_back_btn">Вернуться к сведениям о беседе</string>
     <string name="content_description_accept_or_ignore_connection_label">принять или игнорировать запрос</string>
-    <string name="content_description_open_user_profile_label">открыть профиль</string>
-    <string name="content_description_open_conversation_label">открыть беседу</string>
-    <string name="content_description_open_service_label">открыть приложение</string>
     <string name="content_description_change_it_label">изменить</string>
-    <string name="content_description_open_link_label">открыть ссылку</string>
     <string name="content_description_alert">Оповещение</string>
     <string name="content_description_drop_down">Раскрывающийся список</string>
     <string name="content_description_close_dropdown">закрыть раскрывающийся список</string>
@@ -588,7 +575,6 @@
     <string name="member_name_you_label_titlecase">Вы</string>
     <string name="member_name_you_label_lowercase">вы</string>
     <string name="label_add_participants">Добавить участников</string>
-    <string name="username_unavailable_label">Имя недоступно</string>
     <string name="temporary_user_label">%s покинул(-а)</string>
     <string name="conversation_unavailable_label">Название беседы недоступно</string>
     <string name="conversation_details_title">Информация о беседе</string>
@@ -692,7 +678,6 @@
     <string name="user_profile_conversation_role">РОЛЬ</string>
     <string name="user_profile_role_in_conversation">Роль в ”%s”</string>
     <string name="user_profile_role_change_error">При попытке изменить роль возникла ошибка. Проверьте, пожалуйста, подключение к интернету и повторите попытку</string>
-    <string name="user_profile_unblock_user">Разблокировать пользователя</string>
     <string name="user_profile_conversation_remove_button">Удалить из беседы</string>
     <string name="user_profile_logging_out_progress">Выход...</string>
     <string name="user_profile_qr_code">Открыть QR-код</string>
@@ -1012,9 +997,6 @@
     <string name="label_conversation_pictures_empty">Никто не делился фотографиями в этой беседе 🥲</string>
     <string name="label_conversation_files_empty">Никто не делился файлами в этой беседе 🙀</string>
     <string name="conversation_search_files_button">Поиск файлов</string>
-    <!-- Search Contact-->
-    <string name="label_selected">Выбрано (%1$d)</string>
-    <string name="label_contacts">Контакты</string>
     <string name="label_new_group">Новая группа</string>
     <string name="label_new_channel">Новый канал</string>
     <string name="label_create_new_group">Новая группа</string>
@@ -1033,15 +1015,7 @@
     <string name="label_search_channels_empty_title">Для этой команды еще не создано ни одного публичного канала.</string>
     <string name="label_learn_more_about_channels">Подробнее о каналах</string>
     <string name="label_new_conversation">Новая беседа</string>
-    <string name="label_search_people">Поиск пользователей</string>
-    <string name="label_search_people_or_apps">Поиск людей или приложений</string>
-    <string name="label_public_wire">Wire Public</string>
-    <string name="label_search_people_instruction">Поиск пользователей по названию их профиля или @псевдониму</string>
-    <string name="label_learn_more_searching_user">Подробнее</string>
-    <string name="label_no_results_found">Результатов не найдено. Пожалуйста, попробуйте еще раз.</string>
     <string name="label_general_error">Что-то пошло не так</string>
-    <string name="label_add_member_people">Контакты</string>
-    <string name="label_add_member_services">Приложения</string>
     <string name="label_empty_contacts_list">Ищите контакты по имени или псевдониму для начала беседы 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Что-то пошло не так</string>
@@ -1075,7 +1049,6 @@
     <string name="leave_conversation_error">При выходе из беседы произошла ошибка</string>
     <string name="joined_conversation_success">Вы присоединились к беседе.</string>
     <string name="left_conversation_success">Вы покинули беседу.</string>
-    <string name="error_unblocking_user">Пользователь не может быть разблокирован</string>
     <string name="delete_conversation_conversation_error">При удалении беседы произошла ошибка</string>
     <string name="error_limit_number_assets_imported_exceeded">Одновременно можно отправить не более 20 файлов</string>
     <!-- Archiving -->
@@ -1092,8 +1065,6 @@
     <string name="error_adding_to_favorite">“%s” не удалось добавить в избранное</string>
     <string name="error_removing_from_favorite">“%s” не может быть удален из избранного</string>
     <!-- Animation label -->
-    <string name="label_open_conversation">Открыть беседу</string>
-    <string name="label_start_conversation">Начать беседу</string>
     <string name="email_label">Email</string>
     <string name="phone_label">Телефон</string>
     <!-- Notifications -->
@@ -1187,34 +1158,16 @@
     <string name="connectivity_status_bar_return_to_outgoing_call">Вызов %1$s…</string>
     <string name="connectivity_status_bar_connecting">Расшифровка сообщений</string>
     <string name="connectivity_status_bar_waiting_for_network">Ожидание сети</string>
-    <!-- Connections -->
-    <string name="connection_label_connect">Связаться</string>
-    <string name="connection_label_cancel_request">Отменить запрос</string>
     <string name="connection_label_member_not_belongs_to_team">Этот пользователь не принадлежит к вашей команде. Если он примет ваш запрос на добавление, он станет доступен в качестве контакта</string>
     <string name="connection_label_member_not_conneted">Когда запрос на добавление будет принят, вы сможете общаться с этим контактом напрямую.</string>
-    <string name="connection_request_sent">Запрос на добавление отправлен</string>
-    <string name="connection_request_canceled">Запрос на добавление отменен</string>
-    <string name="connection_request_ignored">Вы проигнорировали запрос %1$s</string>
-    <string name="connection_request_accepted">Запрос на добавление принят</string>
-    <string name="connection_request_sent_error">Не удалось отправить запрос на добавление</string>
-    <string name="connection_request_sent_federation_denied_error">Ваш бэкэнд не взаимодействует с бэкэндом %1$s. Вы не можете соединиться с ним.</string>
-    <string name="connection_request_accept_error">Запрос на добавление не может быть принят</string>
-    <string name="connection_request_ignore_error">Запрос на добавление не может быть проигнорирован</string>
-    <string name="connection_request_cancel_error">Запрос на добавление не может быть отменен</string>
     <string name="connection_pending_message">Хочет подключиться</string>
-    <string name="connection_pending_label">ожидание</string>
     <string name="connection_label_user_wants_to_conect">Этот пользователь хочет связаться с вами.</string>
     <string name="connection_label_accepting_request_description">Если вы примете запрос, он будет добавлен в список контактов, и вы сможете общаться напрямую.</string>
-    <string name="connection_label_accept">Принять</string>
-    <string name="connection_label_ignore">Игнорировать</string>
     <string name="connection_label_send_unverified_warning">Перед добавлением убедитесь в личности %s.</string>
     <string name="connection_label_received_unverified_warning">Прежде чем принять запрос на добавление, верифицируйте личность собеседника.</string>
     <string name="connection_label_unverified_support_disclaimer">Команда поддержки Wirex никогда не свяжется с вами в приложении.</string>
     <string name="connection_label_user_not_found_warning_title">Wire не может найти этого человека</string>
     <string name="connection_label_user_not_found_warning_description">Возможно, у вас нет разрешения на использование этой учетной записи, либо этот человек отсутствует в Wire.</string>
-    <!-- Missing keyPackages dialog -->
-    <string name="missing_keypackage_dialog_title">Невозможно начать беседу</string>
-    <string name="missing_keypackage_dialog_body">Вы не можете начать беседу с %1$s прямо сейчас. %1$s следует сначала открыть Wire или авторизоваться. Пожалуйста, повторите попытку позже.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Медиагалерея</string>
     <string name="media_gallery_on_image_downloaded">Сохранить в папку загрузок</string>
@@ -1228,7 +1181,6 @@
     </string>
     <string name="asset_download_dialog_default_title">Загрузить файл</string>
     <string name="empty_conversation_label">Безымянная беседа</string>
-    <string name="label_show_more">Развернуть</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Получение изображений запрещено</string>
     <string name="prohibited_videos_message">Получение видео запрещено</string>
@@ -1255,7 +1207,7 @@
     <string name="service_remove_error">Не удалось удалить приложение из беседы</string>
     <string name="service_add_success">Приложение добавлено в беседу</string>
     <string name="service_add_error">Не удалось добавить приложение в беседу</string>
-    <string name="service_conversation_creation_or_retrieval_error">Не удалось получить или создать беседу</string>
+    <string name="service_conversation_creation_or_retrieval_error">Не удалось открыть или создать беседу</string>
     <string name="service_no_information_available_title">Информация недоступна</string>
     <string name="service_no_information_available_subtitle">Попробуйте еще раз или свяжитесь с администратором группы</string>
     <string name="read_receipts">Отчеты о прочтении</string>
@@ -1352,10 +1304,6 @@
     <string name="current_device_label">Текущее устройство</string>
     <string name="other_devices_label">Другие устройства</string>
     <string name="devices_loading_error">При попытке получить данные об устройствах возникла ошибка. Пожалуйста, проверьте подключение к интернету и повторите попытку.</string>
-    <!--unblock user dialog -->
-    <string name="unblock_user_dialog_title">Разблокировать пользователя?</string>
-    <string name="unblock_user_dialog_body">%1$s сможет связаться с вами или добавить вас в групповую беседу. Вы сможете получить доступ к беседе с ним в формате 1:1.</string>
-    <string name="unblock_user_dialog_confirm_button">Разблокировать</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">активен один аккаунт</item>
@@ -1805,7 +1753,6 @@
     <string name="legal_hold_requested_dialog_enter_password">Введите пароль для подтверждения.</string>
     <string name="legal_hold_requested_dialog_accept_button">Принять</string>
     <string name="legal_hold_requested_dialog_not_now_button">Не сейчас</string>
-    <string name="legal_hold_learn_more_button">Подробнее о юридических ограничениях</string>
     <string name="legal_hold_deactivated_dialog_title">Юридические ограничения деактивированы</string>
     <string name="legal_hold_deactivated_dialog_description">Будущие сообщения записываться не будут.</string>
     <string name="legal_hold_subject_dialog_title">%1$s является субъектом юридических ограничений</string>
@@ -1816,8 +1763,6 @@
     <string name="legal_hold_subject_dialog_message_title">Эта беседа теперь является предметом юридических ограничений</string>
     <string name="legal_hold_subject_dialog_description_message">Вы все еще хотите отправить ваше сообщение?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Отправить в любом случае</string>
-    <string name="legal_hold_connection_failed_dialog_title">Невозможно добавить</string>
-    <string name="legal_hold_connection_failed_dialog_description">Вы не можете подключиться к этому пользователю из-за юридических ограничений.</string>
     <string name="legal_hold_subject_to">Субъект - %1$s.</string>
     <string name="legal_hold_label">юридические ограничения</string>
     <string name="legal_hold_is_active_label">Юридические ограничения активны</string>
@@ -1972,15 +1917,9 @@
         <item quantity="other">%1$d файлов</item>
     </plurals>
     <!-- Apps-->
-    <string name="apps_upgrade_teams_for_apps_banner_title">Ваша команда еще не использует приложения</string>
-    <string name="apps_upgrade_teams_for_apps_banner_content">Для улучшения рабочего процесса с приложениями, вашей команде требуется настройка. Пожалуйста, свяжитесь с администратором вашей команды.</string>
     <string name="apps_edit_apps_option_title">Приложения</string>
     <string name="content_description_edit_apps_option_back_btn">Вернуться к сведениям о беседе</string>
     <string name="content_description_conversation_details_apps_action">настройка доступа к приложениям</string>
-    <string name="search_results_apps_empty_title">Ваша команда еще не добавила приложения</string>
-    <string name="search_results_apps_empty_description_team_admin">Приложения - это помощники, которые могут улучшить ваш рабочий процесс. Как администратор команды, вы можете добавить их в управлении командой.</string>
-    <string name="search_results_apps_empty_description_non_team_admin">Приложения - это помощники, которые могут улучшить ваш рабочий процесс. Чтобы воспользоваться ими, обратитесь к администратору вашей команды.</string>
-    <string name="search_results_apps_empty_description_disabled_for_conversation">В этой беседе приложения отключены. Включите их в настройках беседы.</string>
     <string name="label_system_message_apps_access_enabled_by_self">%1$s ** приложений** включено для этой беседы</string>
     <string name="label_system_message_apps_access_disabled_by_self">%1$s ** приложений** отключено для этой беседы</string>
     <string name="label_system_message_apps_access_enabled_by_other">%1$s ** приложений** включено для этой беседы</string>

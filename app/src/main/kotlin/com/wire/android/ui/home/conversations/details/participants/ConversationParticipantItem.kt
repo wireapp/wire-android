@@ -34,6 +34,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MLSVerifiedIcon
@@ -45,14 +46,14 @@ import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarType.WithIndicators
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
-import com.wire.android.ui.home.conversations.search.HighlightName
-import com.wire.android.ui.home.conversations.search.HighlightSubtitle
+import com.wire.android.search.widget.HighlightName
+import com.wire.android.search.widget.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.common.UsernameMapper.fromExpirationToHandle
+import com.wire.android.mapper.UsernameMapper.fromExpirationToHandle
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.uiReadReceiptDateTime
@@ -86,7 +87,7 @@ fun ConversationParticipantItem(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 HighlightName(
-                    name = if (uiParticipant.unavailable) stringResource(R.string.username_unavailable_label) else uiParticipant.name,
+                    name = if (uiParticipant.unavailable) stringResource(commonR.string.username_unavailable_label) else uiParticipant.name,
                     searchQuery = searchQuery,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )

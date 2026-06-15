@@ -36,6 +36,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.handleNavigation
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.debug.whatsNewViewModel
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.util.ui.sectionWithElements
@@ -70,7 +71,7 @@ fun WhatsNewScreenContent(
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     val context = LocalContext.current
-    val openLinkLabel = stringResource(R.string.content_description_open_link_label)
+    val openLinkLabel = stringResource(commonR.string.content_description_open_link_label)
     LazyColumn(
         state = lazyListState,
         modifier = modifier.fillMaxSize()
@@ -155,7 +156,7 @@ private fun LazyListScope.sectionWithElements(
                 ) { onItemClicked(item) }
             },
             contentDescription = contentDescription,
-            trailingIcon = R.drawable.ic_arrow_right,
+            trailingIcon = commonR.drawable.ic_arrow_right,
             isLoading = isLoading,
         )
     }

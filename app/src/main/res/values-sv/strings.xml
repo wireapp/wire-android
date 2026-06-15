@@ -36,7 +36,6 @@
     <string name="label_learn_more">Läs mer</string>
     <string name="label_removing">Tar bort…</string>
     <string name="label_logging_in">Loggar in…</string>
-    <string name="label_user_deleted">Togs bort</string>
     <string name="label_done">Klar</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Det redigerade meddelandet kunde inte skickas till följd av problem med anslutningen.</string>
@@ -58,14 +57,12 @@
     <string name="label_open_asset_externally">Öppna</string>
     <string name="label_show">Visa</string>
     <string name="label_show_all">Visa alla</string>
-    <string name="label_show_less">Visa mindre</string>
     <string name="label_message_status_edited_with_date">Redigerades %s</string>
     <string name="label_on">PÅ</string>
     <string name="label_off">AV</string>
     <string name="label_value_copied">%s kopierat</string>
     <string name="label_disable">Inaktivera</string>
     <string name="folder_label_access">Åtkomst</string>
-    <string name="label_user_blocked">Blockerades</string>
     <string name="label_and">och</string>
     <string name="label_retry">Försök igen</string>
     <string name="label_draft">*Utkast*</string>
@@ -89,15 +86,12 @@
     <string name="content_description_avatar_preview">Förhandsgranskning av profilbild</string>
     <string name="content_description_choose_from_gallery">Välj från galleri</string>
     <string name="content_description_take_a_picture">Ta en bild</string>
-    <string name="content_description_right_arrow">Höger-pil</string>
-    <string name="content_description_left_arrow">Gå tillbaka</string>
     <string name="content_description_open_message_details">Öppna detaljer för meddelandet</string>
     <string name="content_description_copy_the_message">Kopiera meddelandet</string>
     <string name="content_description_share_the_file">Dela den valda filen med en annan app</string>
     <string name="content_description_delete_the_message">Ta bort meddelandet</string>
     <string name="content_description_edit_the_message">Redigera meddelandet</string>
     <string name="content_description_more_options">Fler alternativ</string>
-    <string name="content_description_add_contact">Lägg till kontakt</string>
     <string name="content_description_image_message">Bildmeddelande</string>
     <string name="content_description_file_message">Arkivera meddelandet</string>
     <string name="content_description_ping_everyone">Pinga</string>
@@ -309,7 +303,6 @@
     <string name="user_profile_status_availability">Tillgänglighet</string>
     <string name="user_profile_details_tab">Detaljer</string>
     <string name="user_profile_devices_tab">Enheter</string>
-    <string name="user_profile_unblock_user">Avblockera användare</string>
     <string name="user_profile_logging_out_progress">Loggar ut...</string>
     <string name="user_profile_qr_code">Öppna QR-kod</string>
     <string name="user_profile_qr_code_title">Dela profil</string>
@@ -390,13 +383,9 @@
     <!-- Conversation Media -->
     <string name="label_conversation_media">Media</string>
     <string name="label_conversation_pictures">Bilder</string>
-    <!-- Search Contact-->
-    <string name="label_contacts">Kontakter</string>
     <string name="label_new_group">Ny grupp</string>
     <!-- Search Channels -->
     <string name="label_new_conversation">Ny konversation</string>
-    <string name="label_learn_more_searching_user">Läs mer</string>
-    <string name="label_no_results_found">Inga resultat kunde hittas. Försök igen.</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_message">Försök igen</string>
     <string name="error_server_miscommunication_title">Serverfel</string>
@@ -430,14 +419,8 @@
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s ringer…</string>
     <string name="connectivity_status_bar_return_to_outgoing_call">Ringer %1$s…</string>
     <string name="connectivity_status_bar_waiting_for_network">Väntar på nätverk</string>
-    <!-- Connections -->
-    <string name="connection_label_connect">Anslut</string>
-    <string name="connection_label_ignore">Ignorera</string>
-    <!-- Missing keyPackages dialog -->
-    <string name="missing_keypackage_dialog_body">Du kan inte starta konversationen med %1$s just nu. %1$s måste öppna Wire eller logga in igen först. Försök igen senare.</string>
     <!-- Gallery -->
     <!--sso dialog-->
-    <string name="label_show_more">Visa mer</string>
     <!--prohibited asset messages -->
     <!--wire dropdown-->
     <string name="change">Ändra</string>
@@ -479,7 +462,6 @@
     <string name="devices_title">Dina enheter</string>
     <string name="current_device_label">Nuvarande enhet</string>
     <string name="other_devices_label">Andra enheter</string>
-    <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--nomad account blocks login dialog-->
     <string name="label_text_copied">Text kopierades till urklipp</string>

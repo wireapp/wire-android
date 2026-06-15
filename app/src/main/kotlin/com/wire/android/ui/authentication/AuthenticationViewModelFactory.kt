@@ -53,6 +53,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -179,11 +180,12 @@ class AuthenticationViewModelFactory @Inject constructor(
         requestSecondFactorVerificationCodeUseCase = requestSecondFactorVerificationCode(),
     )
 
-    fun clearSessionViewModel() = ClearSessionViewModel(
+    fun clearSessionViewModel(cancelUserId: UserId? = null) = ClearSessionViewModel(
         currentSession = currentSession(),
         deleteSession = deleteSession(),
         switchAccount = switchAccount(),
         logout = logout(),
+        cancelUserId = cancelUserId,
     )
 
     fun createAccountUsernameViewModel() = CreateAccountUsernameViewModel(

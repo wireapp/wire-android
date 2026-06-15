@@ -45,12 +45,15 @@ import com.wire.android.di.accountScoped.SearchModule
 import com.wire.android.di.accountScoped.ServicesModule
 import com.wire.android.di.accountScoped.TeamModule
 import com.wire.android.di.accountScoped.UserModule
+import com.wire.android.feature.cells.ui.CellsMetroViewModelBindings
+import com.wire.android.feature.meetings.ui.MeetingsMetroViewModelBindings
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.IncomingCallActionReceiver
 import com.wire.android.notification.broadcastreceivers.NomadLogoutReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
 import com.wire.android.notification.broadcastreceivers.PlayPauseAudioMessageReceiver
 import com.wire.android.notification.broadcastreceivers.StopAudioMessageReceiver
+import com.wire.android.search.SearchMetroViewModelBindings
 import com.wire.android.services.CallService
 import com.wire.android.services.PersistentWebSocketService
 import com.wire.android.services.PlayingAudioMessageService
@@ -60,6 +63,7 @@ import com.wire.android.ui.WireActivityViewModel
 import com.wire.android.ui.debug.StartServiceReceiver
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.ongoing.OngoingCallActivity
+import com.wire.android.ui.common.CoreUICommonMetroViewModelBindings
 import com.wire.android.util.NetworkUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.WireWorkerFactory
@@ -68,6 +72,7 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraphFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelGraph
 
 @DependencyGraph(
     scope = AppScope::class,
@@ -97,15 +102,19 @@ import dev.zacsweers.metro.createGraphFactory
         ServicesModule::class,
         TeamModule::class,
         UserModule::class,
+        WireMetroViewModelBindings::class,
+        CellsMetroViewModelBindings::class,
+        MeetingsMetroViewModelBindings::class,
+        CoreUICommonMetroViewModelBindings::class,
+        SearchMetroViewModelBindings::class,
     ]
 )
 @Suppress("TooManyFunctions")
-interface WireApplicationGraph {
+interface WireApplicationGraph : ViewModelGraph {
     val wireWorkerFactory: WireWorkerFactory
     val wireActivityViewModel: WireActivityViewModel
     val authenticationViewModelGraph: AppAuthenticationViewModelGraph
     val imageAssetViewModelGraph: AppImageAssetViewModelGraph
-    val sessionViewModelGraph: AppSessionViewModelGraph
 
     @get:KaliumCoreLogic
     val coreLogic: CoreLogic

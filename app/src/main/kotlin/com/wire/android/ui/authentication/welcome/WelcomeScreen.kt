@@ -69,6 +69,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.authentication.welcomeViewModel
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -421,7 +422,7 @@ private fun WelcomeFooter(onPrivateAccountClick: () -> Unit, modifier: Modifier 
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = onPrivateAccountClick,
-                    onClickLabel = stringResource(R.string.content_description_open_link_label)
+                    onClickLabel = stringResource(commonR.string.content_description_open_link_label)
                 )
         )
 

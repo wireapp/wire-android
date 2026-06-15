@@ -277,7 +277,7 @@ private fun DropdownItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val selectLabel = stringResource(R.string.content_description_select_label)
+    val selectLabel = stringResource(commonR.string.content_description_select_label)
     val closeDropdownLabel = stringResource(R.string.content_description_close_dropdown)
     return DropdownMenuItem(
         text = {

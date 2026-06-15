@@ -17,24 +17,16 @@
  */
 package com.wire.android.tests.core.e2eTests
 
-import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
-import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseUiTest
-import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.inject
-import service.TestServiceHelper
 import service.userSendsGenericMessageToConversation
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.iSeeSystemMessageContainingAll
@@ -45,32 +37,19 @@ import kotlin.time.Duration.Companion.seconds
 @Suppress("LargeClass")
 @RunWith(AndroidJUnit4::class)
 class ChannelTest : BaseUiTest() {
-    private val pages: AllPages by inject()
-    private lateinit var device: UiDevice
-    private lateinit var context: Context
-    private lateinit var backendClient: BackendClient
-    private lateinit var teamHelper: TeamHelper
-    private lateinit var testServiceHelper: TestServiceHelper
     private lateinit var teamOwner: ClientUser
     private lateinit var member1: ClientUser
     private lateinit var member2: ClientUser
 
     @Before
     fun setUp() {
-        context = InstrumentationRegistry.getInstrumentation().context
+        initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
         backendClient = BackendClient.loadBackend("STAGING")
-        teamHelper = TeamHelper()
-        testServiceHelper = TestServiceHelper(teamHelper.usersManager)
-    }
-
-    @After
-    fun tearDown() {
-        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8716", "TC-8717", "TC-8723")
+    @TestCaseId("TC-10985", "TC-10986", "TC-10992")
     @Category("channels", "regression", "RC")
     @Test
     fun givenTeamMemberWithChannelFeatureEnabled_whenCreatingChannelWithTeammateAndDeletingCreatedChannel_thenChannelConversationIsCreatedAndDeleted() {
@@ -189,7 +168,7 @@ class ChannelTest : BaseUiTest() {
                 tapAddParticipantsButton()
             }
         }
-        // TC-8723 - I want to add a participant to an existing channel conversation
+        // TC-10992 - I want to add a participant to an existing channel conversation
 
         step("And I select Member1 and Member2 from participant suggestions") {
             pages.groupConversationDetailsPage.apply {
@@ -270,7 +249,7 @@ class ChannelTest : BaseUiTest() {
                 assertChannelConversationVisible("TestChannel")
             }
         }
-        // TC-8717 - I want to be able to delete a channel of which I am the creator
+        // TC-10986 - I want to be able to delete a channel of which I am the creator
 
         step("And I long press on conversation name TestChannel in conversation list") {
             pages.conversationListPage.apply {
@@ -309,7 +288,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8719", "TC-8720", "TC-8721")
+    @TestCaseId("TC-10988", "TC-10989", "TC-10990")
     @Category("channels", "regression", "RC")
     @Test
     fun givenTeamMemberWithChannelFeatureEnabled_whenLeavingChannel_thenChannelHistoryRemainsVisibleAndNewMessagesAreNotVisible() {
@@ -523,7 +502,7 @@ class ChannelTest : BaseUiTest() {
             waitUntilToastIsDisplayed("You left the conversation.")
         }
 
-        // TC-8720 - I want to be able to see channel conversation history after I left the conversation
+        // TC-10989 - I want to be able to see channel conversation history after I left the conversation
 
         step("When I tap on conversation name LeavingChannel in conversation list") {
             pages.conversationListPage.apply {
@@ -547,7 +526,7 @@ class ChannelTest : BaseUiTest() {
             )
         }
 
-        // TC-8721- I should not be able to see new messages after I left the channel conversation
+        // TC-10990- I should not be able to see new messages after I left the channel conversation
 
         step("And I do not see the message Hello Again in current conversation") {
             pages.conversationViewPage.apply {
@@ -557,7 +536,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8724", "TC-8725", "TC-8727")
+    @TestCaseId("TC-10993", "TC-10994", "TC-10996")
     @Category("channels", "regression", "RC")
     @Test
     fun givenChannelConversationDeleted_whenSendingAndReceivingMessages_thenMessagesAreSentAndReceivedSuccessfully() {
@@ -708,7 +687,7 @@ class ChannelTest : BaseUiTest() {
             }
         }
 
-        // TC-8724- I want to be able to change channel group name as a Team owner
+        // TC-10993- I want to be able to change channel group name as a Team owner
 
         step("When I change channel name to NewDelete as new channel name") {
             pages.groupConversationDetailsPage.apply {
@@ -754,7 +733,7 @@ class ChannelTest : BaseUiTest() {
             }
         }
 
-        // TC-8727 I want to be able to receive and send messages after I deleted a channel conversation
+        // TC-10996 I want to be able to receive and send messages after I deleted a channel conversation
 
         step("And I start a new conversation flow") {
             pages.conversationListPage.apply {
@@ -819,7 +798,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8722", "TC-8726", "TC-8729")
+    @TestCaseId("TC-10991", "TC-10995", "TC-10998")
     @Category("channels", "regression", "RC")
     @Test
     fun givenChannelConversationMembersAreRemovedAndAdded_whenViewingParticipantList_thenParticipantListIsUpdatedCorrectly() {
@@ -968,7 +947,7 @@ class ChannelTest : BaseUiTest() {
             }
         }
 
-        // TC-8722 I want to remove a participant from a channel conversation
+        // TC-10991 I want to remove a participant from a channel conversation
 
         step("And I tap Remove from conversation button") {
             pages.connectedUserProfilePage.apply {
@@ -1000,7 +979,7 @@ class ChannelTest : BaseUiTest() {
             }
         }
 
-        // TC-8726 I want to be able to leave a channel conversation from the channel details page
+        // TC-10995 I want to be able to leave a channel conversation from the channel details page
 
         step("When I tap show more options button") {
             pages.groupConversationDetailsPage.apply {
@@ -1032,7 +1011,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-26060")
+    @TestCaseId("TC-11000")
     @Category("channels", "regression", "RC")
     @Test
     fun givenExternalUserInTeam_whenAttemptingToCreateChannelConversation_thenChannelConversationCannotBeCreated() {
@@ -1121,7 +1100,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-26086")
+    @TestCaseId("TC-10987")
     @Category("channels", "regression", "RC")
     @Test
     fun givenUserIsNotCreatorOfChannelConversation_whenViewingChannelConversationOptions_thenDeleteConversationButtonIsNotVisible() {
@@ -1337,7 +1316,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-26098")
+    @TestCaseId("TC-10997")
     @Category("channels", "regression", "RC")
     @Test
     fun givenAnotherChannelConversationIsDeletedByAnotherUser_whenSendingAndReceivingMessagesInRemainingChannel_thenMessagesAreSentAndReceivedSuccessfully() {

@@ -56,9 +56,9 @@ class OpenFileDownloadController @Inject constructor(
 
     private val activeDownloads = mutableMapOf<String, ActiveDownload>()
 
-    internal val openLoadStates = sharedPathCache.openLoadStates
+    val openLoadStates = sharedPathCache.openLoadStates
 
-    internal fun start(
+    fun start(
         scope: CoroutineScope,
         cellNode: CellNodeUi.File,
         onOpenFile: (CellNodeUi.File) -> Unit,
@@ -159,7 +159,7 @@ class OpenFileDownloadController @Inject constructor(
         }
     }
 
-    internal fun cancel(uuid: String, scope: CoroutineScope) {
+    fun cancel(uuid: String, scope: CoroutineScope) {
         val active = activeDownloads.remove(uuid) ?: return
         active.job.cancel()
         sharedPathCache.clearOpenLoadState(uuid)

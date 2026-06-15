@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -25,17 +24,20 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
+import com.wire.android.feature.cells.ui.CellFileLocalPathCache
+import com.wire.android.feature.cells.ui.OpenFileDownloadController
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
+import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
 import com.wire.android.ui.common.multipart.toUiModel
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
-import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
@@ -43,50 +45,58 @@ import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import javax.inject.Inject
 
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
+    val openLoadStates: StateFlow<Map<String, MultipartAttachmentOpenLoadState>>
+
+    // Flow (not SharedFlow) so each error event is delivered to exactly one collector.
+    // Multiple MultipartAttachmentsView composables share the same ViewModel instance
+    // (keyed by conversationId), so using SharedFlow would broadcast to all of them.
+    val openAttachmentErrorEvent: Flow<Unit>
     fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit)
     fun mapAttachments(
         attachments: List<MessageAttachment>,
         offlineAttachmentIds: Set<String> = emptySet(),
+        openLoadStates: Map<String, MultipartAttachmentOpenLoadState> = emptyMap(),
     ): List<MultipartAttachmentGroup> {
 
         val result = mutableListOf<MultipartAttachmentGroup>()
         var group: MultipartAttachmentGroup? = null
 
         attachments.forEach {
-            val isAvailableOffline = it.assetId() in offlineAttachmentIds
+            val uiAttachment = it.toMappedUiAttachment(offlineAttachmentIds, openLoadStates)
             if (it.isMediaAttachment()) {
                 group = when (group) {
-                    null -> MultipartAttachmentGroup.Media(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
+                    null -> MultipartAttachmentGroup.Media(listOf(uiAttachment))
                     is MultipartAttachmentGroup.Media -> {
-                        val newAttachment = it.toUiModel(isAvailableOffline = isAvailableOffline)
-                        group.copy(attachments = group.attachments + newAttachment)
+                        group.copy(attachments = group.attachments + uiAttachment)
                     }
                     else -> {
                         result.add(group)
-                        MultipartAttachmentGroup.Media(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
+                        MultipartAttachmentGroup.Media(listOf(uiAttachment))
                     }
                 }
             } else {
                 group = when (group) {
-                    null -> MultipartAttachmentGroup.Files(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
+                    null -> MultipartAttachmentGroup.Files(listOf(uiAttachment))
                     is MultipartAttachmentGroup.Files -> {
-                        val newAttachment = it.toUiModel(isAvailableOffline = isAvailableOffline)
-                        group.copy(attachments = group.attachments + newAttachment)
+                        group.copy(attachments = group.attachments + uiAttachment)
                     }
                     else -> {
                         result.add(group)
-                        MultipartAttachmentGroup.Files(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
+                        MultipartAttachmentGroup.Files(listOf(uiAttachment))
                     }
                 }
             }
@@ -111,6 +121,8 @@ interface MultipartAttachmentsViewModel {
 @Suppress("EmptyFunctionBlock")
 object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
     override val offlineAttachmentIds: StateFlow<Set<String>> = MutableStateFlow(emptySet<String>())
+    override val openLoadStates: StateFlow<Map<String, MultipartAttachmentOpenLoadState>> = MutableStateFlow(emptyMap())
+    override val openAttachmentErrorEvent: Flow<Unit> = Channel<Unit>().receiveAsFlow()
     override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {}
     override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
@@ -119,17 +131,29 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
 @HiltViewModel
 class MultipartAttachmentsViewModelImpl @Inject constructor(
     private val refreshHelper: CellAssetRefreshHelper,
-    private val download: DownloadCellFileUseCase,
+    private val openFileDownloadController: OpenFileDownloadController,
+    private val sharedPathCache: CellFileLocalPathCache,
     private val getEditorUrl: GetEditorUrlUseCase,
     private val onlineEditor: OnlineEditor,
     private val fileManager: FileManager,
-    private val kaliumFileSystem: KaliumFileSystem,
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
 
-    private val uploadProgress = mutableStateMapOf<String, Float>()
+    // Channel instead of SharedFlow: each error is delivered to exactly one collector,
+    // preventing duplicate toasts when multiple message cards share this ViewModel.
+    private val _openAttachmentErrorEvent = Channel<Unit>(Channel.BUFFERED)
+    override val openAttachmentErrorEvent: Flow<Unit> = _openAttachmentErrorEvent.receiveAsFlow()
+
+    // Map shared OpenLoadState (from cells) to MultipartAttachmentOpenLoadState.
+    // Because CellFileLocalPathCache is @Singleton, state is shared with CellViewModel:
+    // downloading from the Cells browser immediately reflects in conversation messages too.
+    override val openLoadStates: StateFlow<Map<String, MultipartAttachmentOpenLoadState>> =
+        sharedPathCache.openLoadStates
+            .map { states -> states.mapValues { (_, state) -> state.toMultipartState() } }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
     override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFiles()
         .map { offlineFiles -> offlineFiles.mapTo(mutableSetOf()) { it.id } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
@@ -143,6 +167,19 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
     }
 
     override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {
+        // Always use the authoritative shared-cache state — the `attachment` snapshot may be stale
+        // if recomposition hasn't fired yet when the user taps.
+        val currentLoadState = sharedPathCache.openLoadStates.value[attachment.uuid]
+
+        if (currentLoadState != null) {
+            when (currentLoadState) {
+                is OpenLoadState.Loading -> openFileDownloadController.cancel(attachment.uuid, viewModelScope)
+                is OpenLoadState.Ready -> openFileAtPath(currentLoadState.localPath.toString(), attachment)
+                OpenLoadState.Error -> startDownload(attachment)
+            }
+            return
+        }
+
         when {
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
             attachment.isEditSupported && isCollaboraEnabled && featureFlags.collaboraIntegration ->
@@ -154,7 +191,7 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
 
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
-            else -> downloadAsset(attachment)
+            else -> startDownload(attachment)
         }
     }
 
@@ -173,6 +210,18 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
             mimeType = attachment.mimeType
         ) {
             appLogger.e("Failed to open: ${attachment.localPath}", tag = "MultipartAttachmentsViewModel")
+            _openAttachmentErrorEvent.trySend(Unit)
+        }
+    }
+
+    private fun openFileAtPath(localPath: String, attachment: MultipartAttachmentUi) {
+        fileManager.openWithExternalApp(
+            assetDataPath = localPath.toPath(),
+            assetName = attachment.fileName ?: "",
+            mimeType = attachment.mimeType
+        ) {
+            appLogger.e("Failed to open file at path: $localPath", tag = "MultipartAttachmentsViewModel")
+            _openAttachmentErrorEvent.trySend(Unit)
         }
     }
 
@@ -182,33 +231,23 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
             mimeType = attachment.mimeType
         ) {
             appLogger.e("Failed to open: ${attachment.previewUrl}", tag = "MultipartAttachmentsViewModel")
+            _openAttachmentErrorEvent.trySend(Unit)
         }
     }
 
-    private fun downloadAsset(attachment: MultipartAttachmentUi) = viewModelScope.launch {
-
-        // Move kaliumFileSystem to common kalium module so that it can be used in use case
-        val path = kaliumFileSystem.providePersistentAssetPath(attachment.fileName ?: error("No asset path"))
-
-        if (kaliumFileSystem.exists(path)) {
-            kaliumFileSystem.delete(path)
-        }
-
-        download(
-            assetId = attachment.uuid,
-            conversationId = conversationId,
-            outFilePath = path,
-            assetSize = attachment.assetSize ?: 0,
-        ) { progress ->
-            attachment.assetSize?.let {
-                val value = progress.toFloat() / it
-                if (value < 1) {
-                    uploadProgress[attachment.uuid] = value
-                } else {
-                    uploadProgress.remove(attachment.uuid)
-                }
-            }
-        }
+    private fun startDownload(attachment: MultipartAttachmentUi) {
+        openFileDownloadController.start(
+            scope = viewModelScope,
+            cellNode = attachment.toCellNode(conversationId),
+            onOpenFile = { cellNode ->
+                val localPath = cellNode.localPath ?: return@start
+                openFileAtPath(localPath, attachment)
+            },
+            onError = { error ->
+                appLogger.e("Download failed for ${attachment.uuid}: $error", tag = "MultipartAttachmentsViewModel")
+                _openAttachmentErrorEvent.trySend(Unit)
+            },
+        )
     }
 
     private fun openOnlineEditor(attachmentUuid: String) = viewModelScope.launch {
@@ -221,6 +260,7 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
     }
 
     override fun onCleared() {
+        _openAttachmentErrorEvent.close()
         refreshHelper.close()
     }
 
@@ -253,3 +293,50 @@ private fun MessageAttachment.isMediaAttachment() =
 private fun MultipartAttachmentUi.fileNotFound() = transferStatus == AssetTransferStatus.NOT_FOUND
 private fun MultipartAttachmentUi.localFileAvailable() = localPath != null
 private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)
+
+/**
+ * Maps [OpenLoadState] (cells-module type) to [MultipartAttachmentOpenLoadState].
+ * [OpenLoadState.Loading] uses 0f to signal indeterminate; [MultipartAttachmentOpenLoadState.Loading] uses null.
+ */
+private fun OpenLoadState.toMultipartState(): MultipartAttachmentOpenLoadState = when (this) {
+    is OpenLoadState.Loading -> MultipartAttachmentOpenLoadState.Loading(if (progress > 0f) progress else null)
+    is OpenLoadState.Ready -> MultipartAttachmentOpenLoadState.Ready(localPath.toString())
+    OpenLoadState.Error -> MultipartAttachmentOpenLoadState.Error
+}
+
+/**
+ * Converts [MultipartAttachmentUi] to a minimal [CellNodeUi.File] for use with [OpenFileDownloadController].
+ * Only fields used by the controller (uuid, name, size, conversationId) need to be set.
+ */
+private fun MultipartAttachmentUi.toCellNode(conversationId: String?): CellNodeUi.File = CellNodeUi.File(
+    uuid = uuid,
+    name = fileName,
+    mimeType = mimeType,
+    assetType = assetType,
+    size = assetSize,
+    localPath = localPath,
+    conversationId = conversationId,
+    userName = null,
+    userHandle = null,
+    ownerUserId = null,
+    conversationName = null,
+    modifiedTime = null,
+    remotePath = null,
+)
+
+private fun MessageAttachment.toMappedUiAttachment(
+    offlineAttachmentIds: Set<String>,
+    openLoadStates: Map<String, MultipartAttachmentOpenLoadState>,
+): MultipartAttachmentUi {
+    val openLoadState = openLoadStates[assetId()]
+    val loadingProgress = (openLoadState as? MultipartAttachmentOpenLoadState.Loading)?.progress
+    val readyLocalPath = (openLoadState as? MultipartAttachmentOpenLoadState.Ready)?.localPath
+    val base = toUiModel(
+        progress = loadingProgress,
+        isAvailableOffline = assetId() in offlineAttachmentIds,
+    )
+    return base.copy(
+        openLoadState = openLoadState,
+        localPath = readyLocalPath ?: base.localPath,
+    )
+}

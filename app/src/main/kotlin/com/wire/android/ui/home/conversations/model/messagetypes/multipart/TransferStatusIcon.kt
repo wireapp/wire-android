@@ -22,17 +22,22 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.common.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.android.feature.cells.R as cellsR
 
 @Composable
 internal fun BoxScope.TransferStatusIcon(
@@ -40,6 +45,51 @@ internal fun BoxScope.TransferStatusIcon(
     size: Dp = dimensions().spacing32x,
     onLoaded: @Composable () -> Unit = {}
 ) {
+
+    when (val openLoadState = item.openLoadState) {
+        is MultipartAttachmentOpenLoadState.Loading -> {
+            if (openLoadState.progress != null) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(size)
+                        .align(Alignment.Center),
+                    progress = { openLoadState.progress },
+                    color = colorsScheme().primary,
+                    trackColor = colorsScheme().primaryVariant,
+                    strokeWidth = dimensions().spacing2x,
+                    strokeCap = StrokeCap.Round,
+                )
+            } else {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(size)
+                        .align(Alignment.Center),
+                    color = colorsScheme().primary,
+                    trackColor = colorsScheme().primaryVariant,
+                    strokeWidth = dimensions().spacing2x,
+                    strokeCap = StrokeCap.Round,
+                )
+            }
+            return
+        }
+
+        is MultipartAttachmentOpenLoadState.Ready -> {
+            Icon(
+                modifier = Modifier
+                    .size(size)
+                    .background(color = colorsScheme().surface, shape = CircleShape)
+                    .padding(dimensions().spacing6x)
+                    .align(Alignment.Center),
+                painter = painterResource(R.drawable.ic_check_circle),
+                contentDescription = stringResource(cellsR.string.content_description_offline_available),
+                tint = colorsScheme().primary,
+            )
+            return
+        }
+
+        MultipartAttachmentOpenLoadState.Error,
+        null -> Unit
+    }
 
     when (item.transferStatus) {
 

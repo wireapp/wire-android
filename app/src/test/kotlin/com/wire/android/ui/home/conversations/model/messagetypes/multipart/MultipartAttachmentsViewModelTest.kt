@@ -17,19 +17,20 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.CellFileLocalPathCache
+import com.wire.android.feature.cells.ui.OpenFileDownloadController
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
-import com.wire.android.framework.FakeKaliumFileSystem
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
 import com.wire.android.util.FileManager
-import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
-import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
@@ -39,13 +40,19 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import kotlinx.coroutines.test.runTest
+import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
+import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 typealias OpenImageCallback = (s: String) -> Unit
 
+@ExtendWith(CoroutineTestExtension::class)
 class MultipartAttachmentsViewModelTest {
 
     @Test
@@ -169,6 +176,26 @@ class MultipartAttachmentsViewModelTest {
     }
 
     @Test
+    fun `with loading state when mapped then progress and open load state are exposed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .arrange()
+
+        val result = viewModel.mapAttachments(
+            attachments = listOf(testAssetContent.copy(id = "asset_1", mimeType = "application/pdf")),
+            openLoadStates = mapOf("asset_1" to MultipartAttachmentOpenLoadState.Loading(progress = 0.5f)),
+        )
+
+        assertEquals(
+            MultipartAttachmentOpenLoadState.Loading(progress = 0.5f),
+            (result.first() as MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files).attachments.first().openLoadState,
+        )
+        assertEquals(
+            0.5f,
+            (result.first() as MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files).attachments.first().progress,
+        )
+    }
+
+    @Test
     fun `with image attachment when clicked then image opened in internal viewer`() = runTest {
         val (_, viewModel) = Arrangement()
             .arrange()
@@ -253,19 +280,84 @@ class MultipartAttachmentsViewModelTest {
         coVerify(exactly = 1) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
     }
 
+    @Test
+    fun `givenFileActivelyDownloading_whenClickedAgain_thenDownloadIsCancelled`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        val pdfAttachment = testAttachmentUi.copy(
+            mimeType = "application/pdf",
+            assetType = AttachmentFileType.PDF,
+        )
+
+        // Put the file into Loading state in the shared cache (as the controller would after start())
+        arrangement.sharedPathCache.setOpenLoadState(pdfAttachment.uuid, OpenLoadState.Loading())
+
+        // Loading state is reflected in the VM
+        assertTrue(viewModel.openLoadStates.value[pdfAttachment.uuid] is MultipartAttachmentOpenLoadState.Loading)
+
+        // Click again with a stale attachment snapshot (no openLoadState set).
+        // The VM must use its own authoritative cache state — not the stale UI snapshot.
+        viewModel.onClick(pdfAttachment.copy(openLoadState = null), mockk())
+
+        // Controller.cancel() should have been called
+        verify(exactly = 1) { arrangement.openFileDownloadController.cancel(pdfAttachment.uuid, any()) }
+        // Loading state is cleared (by the cancel mock)
+        assertNull(viewModel.openLoadStates.value[pdfAttachment.uuid])
+    }
+
+    @Test
+    fun `givenDownloadCompleted_whenClickedDuringReadyState_thenFileIsOpenedImmediately`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        val pdfAttachment = testAttachmentUi.copy(
+            mimeType = "application/pdf",
+            assetType = AttachmentFileType.PDF,
+        )
+
+        // Simulate controller having finished download and set Ready state
+        val downloadedPath = "/downloads/test.pdf"
+        arrangement.sharedPathCache.setOpenLoadState(
+            pdfAttachment.uuid,
+            OpenLoadState.Ready(downloadedPath.toPath())
+        )
+
+        // Verify VM reflects Ready state
+        assertTrue(viewModel.openLoadStates.value[pdfAttachment.uuid] is MultipartAttachmentOpenLoadState.Ready)
+
+        // Tap while in Ready state (stale attachment without openLoadState)
+        viewModel.onClick(pdfAttachment.copy(openLoadState = null), mockk())
+
+        // File must open directly — no new download triggered
+        verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `givenNoActiveState_whenClicked_thenControllerStartIsCalled`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        val pdfAttachment = testAttachmentUi.copy(
+            mimeType = "application/pdf",
+            assetType = AttachmentFileType.PDF,
+        )
+
+        // No state in cache — VM delegates to the download controller
+        viewModel.onClick(pdfAttachment, mockk())
+
+        verify(exactly = 1) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
+    }
     // TODO: Refresh asset tests (part of refresh update PR)
 
     private class Arrangement {
 
         init {
-            MockKAnnotations.init(this)
+            MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
         @MockK
         lateinit var refreshHelper: CellAssetRefreshHelper
 
         @MockK
-        lateinit var download: DownloadCellFileUseCase
+        lateinit var openFileDownloadController: OpenFileDownloadController
+
+        val sharedPathCache = CellFileLocalPathCache()
 
         @MockK
         lateinit var getEditorUrl: GetEditorUrlUseCase
@@ -285,24 +377,38 @@ class MultipartAttachmentsViewModelTest {
         @MockK
         lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
 
-        val kaliumFileSystem: KaliumFileSystem = FakeKaliumFileSystem()
+        fun withSlowDownload() = apply {
+            every { openFileDownloadController.start(any(), any(), any(), any()) } answers {
+                // Simulate slow download — just set Loading, don't call onOpenFile
+                val cellNode = secondArg<com.wire.android.feature.cells.ui.model.CellNodeUi.File>()
+                sharedPathCache.setOpenLoadState(cellNode.uuid, OpenLoadState.Loading())
+            }
+        }
 
         fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
-
             coEvery { refreshHelper.refresh(any()) } returns Unit
             coEvery { fileManager.openWithExternalApp(any(), any(), any(), any()) } returns Unit
             coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
-            coEvery { download(any(), any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()
             coEvery { getWireCellsConfig() } returns null
             every { observeOfflineFiles() } returns flowOf(emptyList<OfflineFileInfo>())
 
+            // Default: controller.cancel() clears state from the shared cache
+            every { openFileDownloadController.cancel(any(), any()) } answers {
+                val uuid = firstArg<String>()
+                sharedPathCache.clearOpenLoadState(uuid)
+            }
+
+            // Default: controller.start() does nothing (no-op — tests that need specific behaviour
+            // can override via withSlowDownload() or by pre-seeding sharedPathCache)
+            every { openFileDownloadController.start(any(), any(), any(), any()) } returns Unit
+
             return this to MultipartAttachmentsViewModelImpl(
                 refreshHelper = refreshHelper,
-                download = download,
-                fileManager = fileManager,
+                openFileDownloadController = openFileDownloadController,
+                sharedPathCache = sharedPathCache,
                 getEditorUrl = getEditorUrl,
                 onlineEditor = onlineEditor,
-                kaliumFileSystem = kaliumFileSystem,
+                fileManager = fileManager,
                 featureFlags = kaliumConfigs,
                 getWireCellsConfig = getWireCellsConfig,
                 observeOfflineFiles = observeOfflineFiles,

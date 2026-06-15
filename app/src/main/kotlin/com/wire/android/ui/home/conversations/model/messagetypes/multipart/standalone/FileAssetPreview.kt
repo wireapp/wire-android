@@ -25,12 +25,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.applyIf
@@ -38,12 +42,11 @@ import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.AssetSource
+import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
-import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.getDownloadStatusText
-import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -51,12 +54,68 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isFailed
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.util.fileExtension
+import com.wire.android.feature.cells.R as cellsR
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 internal fun BoxScope.FileAssetPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle,
 ) {
+    val statusLabel = when (item.openLoadState) {
+        is MultipartAttachmentOpenLoadState.Loading -> stringResource(cellsR.string.tap_to_cancel_loading)
+        MultipartAttachmentOpenLoadState.Error -> stringResource(cellsR.string.unable_to_load_retry)
+        is MultipartAttachmentOpenLoadState.Ready -> null
+        null -> if (
+            item.transferStatus == AssetTransferStatus.NOT_DOWNLOADED ||
+            item.transferStatus == AssetTransferStatus.DOWNLOAD_IN_PROGRESS ||
+            item.transferStatus == AssetTransferStatus.SAVED_INTERNALLY
+        ) {
+            null
+        } else {
+            getDownloadStatusText(item.transferStatus)
+        }
+
+        else -> getDownloadStatusText(item.transferStatus)
+    }
+
+    val isOpenLoadError = item.openLoadState is MultipartAttachmentOpenLoadState.Error
+    val leadingContent: (@Composable () -> Unit)? = when (item.openLoadState) {
+        is MultipartAttachmentOpenLoadState.Loading -> {
+            val loadingProgress = item.openLoadState.progress
+            {
+                if (loadingProgress != null) {
+                    CircularProgressIndicator(
+                        progress = { loadingProgress },
+                        color = colorsScheme().primary,
+                        trackColor = colorsScheme().primaryVariant,
+                        strokeWidth = dimensions().spacing2x,
+                        strokeCap = StrokeCap.Round,
+                    )
+                } else {
+                    CircularProgressIndicator(
+                        color = colorsScheme().primary,
+                        trackColor = colorsScheme().primaryVariant,
+                        strokeWidth = dimensions().spacing2x,
+                        strokeCap = StrokeCap.Round,
+                    )
+                }
+            }
+        }
+
+        is MultipartAttachmentOpenLoadState.Ready -> {
+            {
+                Icon(
+                    painter = painterResource(commonR.drawable.ic_check_circle),
+                    contentDescription = stringResource(cellsR.string.content_description_offline_available),
+                    tint = colorsScheme().primary,
+                )
+            }
+        }
+
+        else -> null
+    }
+
     Column(
         modifier = Modifier
             .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
@@ -74,9 +133,11 @@ internal fun BoxScope.FileAssetPreview(
             extension = item.fileName?.fileExtension() ?: item.mimeType.substringAfter("/"),
             type = item.assetType,
             size = item.assetSize,
-            label = getDownloadStatusText(item.transferStatus),
-            labelColor = if (item.transferStatus.isFailed()) colorsScheme().error else null,
-            messageStyle = messageStyle
+            label = statusLabel,
+            labelColor = if (item.transferStatus.isFailed() || isOpenLoadError) colorsScheme().error else null,
+            messageStyle = messageStyle,
+            showLabelInBubble = true,
+            leadingContent = leadingContent,
         )
         item.fileName?.let {
             Box(modifier = Modifier.weight(1f)) {
@@ -92,16 +153,6 @@ internal fun BoxScope.FileAssetPreview(
                 )
             }
         }
-    }
-    item.progress?.let {
-        WireLinearProgressIndicator(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomStart),
-            progress = { item.progress },
-            color = transferProgressColor(item.transferStatus),
-            trackColor = Color.Transparent,
-        )
     }
 }
 

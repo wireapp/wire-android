@@ -35,7 +35,7 @@ sealed class CellNodeUi {
     abstract val remotePath: String?
     abstract val size: Long?
     abstract val tags: List<String>
-    internal abstract val openLoadState: OpenLoadState?
+    abstract val openLoadState: OpenLoadState?
     abstract val downloadProgress: Float?
 
     /** True when this file has been saved for offline use (persisted in the offline files DB). */
@@ -56,12 +56,12 @@ sealed class CellNodeUi {
         override val remotePath: String? = null,
         override val size: Long?,
         override val tags: List<String> = emptyList(),
-        internal override val openLoadState: OpenLoadState? = null,
+        override val openLoadState: OpenLoadState? = null,
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
     ) : CellNodeUi()
 
-    data class File internal constructor(
+    data class File constructor(
         override val name: String?,
         override val uuid: String,
         override val userName: String?,
@@ -80,7 +80,7 @@ sealed class CellNodeUi {
         val previewUrl: String? = null,
         override val tags: List<String> = emptyList(),
         val isEditSupported: Boolean = false,
-        internal override val openLoadState: OpenLoadState? = null,
+        override val openLoadState: OpenLoadState? = null,
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
         val conversationId: String?,

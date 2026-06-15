@@ -46,7 +46,7 @@ class CellFileLocalPathCache @Inject constructor() {
     val fileReadyEvents: Flow<CellNodeUi.File> = _fileReadyChannel.receiveAsFlow()
 
     private val _openLoadStates = MutableStateFlow<Map<String, OpenLoadState>>(emptyMap())
-    internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = _openLoadStates.asStateFlow()
+    val openLoadStates: StateFlow<Map<String, OpenLoadState>> = _openLoadStates.asStateFlow()
 
     private val _downloadProgresses = MutableStateFlow<Map<String, Float?>>(emptyMap())
     internal val downloadProgresses: StateFlow<Map<String, Float?>> = _downloadProgresses.asStateFlow()
@@ -69,10 +69,10 @@ class CellFileLocalPathCache @Inject constructor() {
         _fileReadyChannel.trySend(file)
     }
 
-    internal fun setOpenLoadState(uuid: String, state: OpenLoadState) =
+    fun setOpenLoadState(uuid: String, state: OpenLoadState) =
         _openLoadStates.update { it + (uuid to state) }
 
-    internal fun clearOpenLoadState(uuid: String) = _openLoadStates.update { it - uuid }
+    fun clearOpenLoadState(uuid: String) = _openLoadStates.update { it - uuid }
 
     internal fun setDownloadProgress(uuid: String, progress: Float?) =
         _downloadProgresses.update { it + (uuid to progress) }

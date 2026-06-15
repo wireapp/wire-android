@@ -633,7 +633,7 @@ internal data class OpenFolder(val path: String, val title: String, val parentFo
 internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
 internal data object ShowOfflineFileSaved : CellViewAction
 
-internal enum class CellError(val message: Int) {
+enum class CellError(val message: Int) {
     NO_APP_FOUND(R.string.no_app_found),
     OTHER_ERROR(R.string.action_failed),
     DOWNLOAD_FAILED(R.string.action_failed),

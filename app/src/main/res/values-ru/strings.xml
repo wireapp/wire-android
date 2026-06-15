@@ -158,6 +158,11 @@
     <string name="content_description_calling_microphone_on">Микрофон включен</string>
     <string name="content_description_calling_microphone_off">Микрофон отключен</string>
     <string name="content_description_calling_active_speaker">Активный спикер</string>
+    <string name="content_description_calling_participants_list_drag_handle">Развернуть список участников</string>
+    <string name="content_description_calling_expand">Развернуть</string>
+    <string name="content_description_calling_collapse">Свернуть</string>
+    <string name="content_description_calling_expanded_participants_list">Развернутый список участников</string>
+    <string name="content_description_calling_collapsed_participants_list">Свернутый список участников</string>
     <string name="content_description_calling_in_call_reactions_show">Показать в панели реакций вызова</string>
     <string name="content_description_calling_in_call_reactions_hide">Скрыть в панели реакций вызова</string>
     <string name="content_description_call_open_calling_details">Открыть информацию о вызове</string>

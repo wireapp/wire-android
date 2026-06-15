@@ -114,6 +114,8 @@
     <string name="rename_folder_renamed">Ordner wurde umbenannt</string>
     <string name="rename_failure">Umbenennen nicht möglich</string>
     <string name="rename_invalid_name">Nicht mit einem . beginnen und kein / \\ \" verwenden</string>
+    <string name="rename_file_already_exist">Eine Datei mit diesem Namen ist bereits vorhanden</string>
+    <string name="rename_folder_already_exist">Ein Ordner mit dem Namen existiert bereits</string>
     <string name="add_or_remove_tags_title">Tags hinzufügen oder entfernen</string>
     <string name="tags_description">Alle Mitglieder Ihres Teams können diese Tags sehen und verwenden.</string>
     <string name="added_tags_label">Hinzugefügte Tags</string>
@@ -194,6 +196,7 @@
     <string name="file_type_bottom_sheet_document">Dokument</string>
     <string name="file_type_bottom_sheet_spreadsheet">Tabelle</string>
     <string name="file_type_bottom_sheet_presentation">Präsentation</string>
+    <string name="create_file_screen_title">Datei %1$s erstellen</string>
     <string name="empty_screen_learn_more_conversation">Erfahren Sie mehr über Geteiltes Drive</string>
     <string name="empty_screen_learn_more">Mehr erfahren</string>
     <string name="bottom_sheet_title_search_tags">Tags suchen</string>

@@ -11,6 +11,12 @@ public fun com.ramcosta.composedestinations.generated.cells.destinations.AddRemo
   params:
 
 @Composable
+public fun com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination.Content(): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination.Content(): kotlin.Unit
   skippable: true
   restartable: true
@@ -134,7 +140,7 @@ internal fun com.wire.android.feature.cells.ui.CellListItem(cell: com.wire.andro
     - showConversationName: STABLE (primitive type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, openFolder: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String?, kotlin.Unit>, menuState: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.MenuOptions?>, showPublicLinkScreen: kotlin.Function1<com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData, kotlin.Unit>, showRenameScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, showMoveToFolderScreen: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String, kotlin.Unit>, showAddRemoveTagsScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, isRestoreInProgress: kotlin.Boolean, isDeleteInProgress: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, isRecycleBin: kotlin.Boolean, isAllFiles: kotlin.Boolean, isSearchResult: kotlin.Boolean, isOffline: kotlin.Boolean, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, showVersionHistoryScreen: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>?): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, openFolder: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String?, kotlin.Unit>, menuState: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.MenuOptions?>, showPublicLinkScreen: kotlin.Function1<com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData, kotlin.Unit>, showRenameScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, showMoveToFolderScreen: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String, kotlin.Unit>, showAddRemoveTagsScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, isRestoreInProgress: kotlin.Boolean, isDeleteInProgress: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, isRecycleBin: kotlin.Boolean, isAllFiles: kotlin.Boolean, isSearchResult: kotlin.Boolean, isOffline: kotlin.Boolean, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, showVersionHistoryScreen: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, showImageViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -160,6 +166,7 @@ internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: ko
     - lazyListState: STABLE (marked @Stable or @Immutable)
     - retryEditNodeError: STABLE (function type)
     - showVersionHistoryScreen: STABLE (function type)
+    - showImageViewer: STABLE (function type)
     - fileReadyFlow: RUNTIME (requires runtime check)
 
 @Composable
@@ -287,6 +294,12 @@ internal fun com.wire.android.feature.cells.ui.ReadyIconPreview(): kotlin.Unit
 
 @Composable
 public fun com.wire.android.feature.cells.ui.addRemoveTagsViewModel(): com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.feature.cells.ui.cellImageViewerViewModel(): com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel
   skippable: true
   restartable: true
   params:
@@ -521,6 +534,40 @@ private fun com.wire.android.feature.cells.ui.dialog.ShowRecycleBinItem(title: k
     - title: STABLE (String is immutable)
     - onClicked: STABLE (function type)
     - enabled: STABLE (primitive type)
+
+@Composable
+public fun com.wire.android.feature.cells.ui.imageviewer.CellImageViewerScreen(navigator: com.wire.android.navigation.WireNavigator, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - navigator: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - viewModel: STABLE (class with no mutable properties)
+
+@Composable
+internal fun com.wire.android.feature.cells.ui.imageviewer.CellImageViewerScreenContent(localPath: kotlin.String?, contentUrl: kotlin.String?, previewUrl: kotlin.String?, contentHash: kotlin.String?, fileName: kotlin.String?, onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - localPath: STABLE (class with no mutable properties)
+    - contentUrl: STABLE (class with no mutable properties)
+    - previewUrl: STABLE (class with no mutable properties)
+    - contentHash: STABLE (class with no mutable properties)
+    - fileName: STABLE (class with no mutable properties)
+    - onNavigateBack: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.feature.cells.ui.imageviewer.CellZoomableImage(localPath: kotlin.String?, contentUrl: kotlin.String?, previewUrl: kotlin.String?, contentHash: kotlin.String?, contentDescription: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - localPath: STABLE (class with no mutable properties)
+    - contentUrl: STABLE (class with no mutable properties)
+    - previewUrl: STABLE (class with no mutable properties)
+    - contentHash: STABLE (class with no mutable properties)
+    - contentDescription: STABLE (String is immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.feature.cells.ui.moveToFolderViewModel(): com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel

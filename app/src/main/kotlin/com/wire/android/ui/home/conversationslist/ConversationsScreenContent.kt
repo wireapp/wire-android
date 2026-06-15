@@ -93,6 +93,7 @@ fun ConversationsScreenContent(
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     emptySearchResultFocusRequester: FocusRequester? = null,
     firstConversationFocusRequester: FocusRequester? = null,
+    onConversationOpened: () -> Unit = {},
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
         else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
@@ -142,9 +143,10 @@ fun ConversationsScreenContent(
         }
     }
 
-    val onOpenConversation: (ConversationItem) -> Unit = remember(navigator) {
+    val onOpenConversation: (ConversationItem) -> Unit = remember(navigator, onConversationOpened) {
         {
             navigator.navigate(NavigationCommand(ConversationScreenDestination(it.conversationId)))
+            onConversationOpened()
         }
     }
     val onOpenUserProfile: (UserId) -> Unit = remember(navigator) {

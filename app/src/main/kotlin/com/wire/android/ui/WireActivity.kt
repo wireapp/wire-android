@@ -805,6 +805,10 @@ class WireActivity : BaseActivity() {
             ) {
                 viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin))
             }
+            CrossBackendLoginBlockedDialog(
+                shouldShow = viewModel.globalAppState.crossBackendLoginBlockedDialog,
+                onDismiss = viewModel::dismissCrossBackendLoginBlockedDialog
+            )
             return
         }
         val callFeedbackViewModel = activityViewModels.callFeedbackViewModel
@@ -959,6 +963,10 @@ class WireActivity : BaseActivity() {
                         navigate(NavigationCommand(SelfUserProfileScreenDestination))
                     },
                     onDismiss = viewModel::dismissMaxAccountDialog
+                )
+                CrossBackendLoginBlockedDialog(
+                    shouldShow = viewModel.globalAppState.crossBackendLoginBlockedDialog,
+                    onDismiss = viewModel::dismissCrossBackendLoginBlockedDialog
                 )
                 AccountLoggedOutDialog(
                     viewModel.globalAppState.blockUserUI

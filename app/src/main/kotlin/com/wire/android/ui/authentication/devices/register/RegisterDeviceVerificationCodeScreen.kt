@@ -20,7 +20,6 @@ package com.wire.android.ui.authentication.devices.register
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
-import com.wire.android.ui.authentication.registerDeviceViewModel
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeScreenContent
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.theme.WireTheme
@@ -28,7 +27,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun RegisterDeviceVerificationCodeScreen(
-    viewModel: RegisterDeviceViewModel = registerDeviceViewModel()
+    viewModel: RegisterDeviceViewModel
 ) = VerificationCodeScreenContent(
     viewModel.secondFactorVerificationCodeTextState,
     viewModel.secondFactorVerificationCodeState,

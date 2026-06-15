@@ -51,6 +51,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import com.wire.android.R
 import com.wire.android.ui.common.TextWithLearnMore
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.colorsScheme
@@ -125,7 +126,7 @@ fun MessageComposer(
             InteractionAvailability.LEGAL_HOLD -> DisabledInteractionMessageComposer(
                 conversationId = conversationId,
                 warningText = warningTextWithStyledArgs(R.string.legal_hold_system_message_interaction_disabled),
-                learnMoreLink = stringResource(id = R.string.url_legal_hold_learn_more),
+                learnMoreLink = stringResource(id = commonR.string.url_legal_hold_learn_more),
                 messageListContent = messageListContent
             )
 
@@ -214,7 +215,7 @@ private fun DisabledInteractionMessageComposer(
                         .padding(dimensions().spacing16x)
                 ) {
                     Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_info),
+                        imageVector = ImageVector.vectorResource(id = commonR.drawable.ic_info),
                         tint = MaterialTheme.colorScheme.onBackground,
                         contentDescription = "",
                         modifier = Modifier

@@ -117,7 +117,7 @@ private fun E2EIEnrollmentScreenContent(
     openCertificateDetails: () -> Unit,
     onBackButtonClicked: () -> Unit,
     onCancelEnrollmentClicked: () -> Unit,
-    onProceedEnrollmentClicked: () -> Unit
+    onProceedEnrollmentClicked: () -> Unit,
 ) {
     BackHandler {
         onBackButtonClicked()

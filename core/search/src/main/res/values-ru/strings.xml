@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Wire
+  ~ Copyright (C) 2026 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<resources>
+    <string name="label_no_results_found">Результатов не найдено. Пожалуйста, попробуйте еще раз.</string>
+    <string name="search_results_apps_empty_title">Ваша команда еще не добавила приложения</string>
+    <string name="search_results_apps_empty_description_team_admin">Приложения - это помощники, которые могут улучшить ваш рабочий процесс. Как администратор команды, вы можете добавить их в управлении командой.</string>
+    <string name="search_results_apps_empty_description_non_team_admin">Приложения - это помощники, которые могут улучшить ваш рабочий процесс. Чтобы воспользоваться ими, обратитесь к администратору вашей команды.</string>
+    <string name="search_results_apps_empty_description_disabled_for_conversation">В этой беседе приложения отключены. Включите их в настройках беседы.</string>
+    <string name="content_description_add_participants_back_btn">Вернуться к просмотру добавления участников</string>
+    <string name="content_description_add_participants_search_field">Поиск по имени или псевдониму</string>
+    <string name="label_add_member_people">Контакты</string>
+    <string name="label_add_member_services">Приложения</string>
+    <string name="label_search_people_or_apps">Поиск людей или приложений</string>
+    <string name="label_search_people">Поиск пользователей</string>
+</resources>

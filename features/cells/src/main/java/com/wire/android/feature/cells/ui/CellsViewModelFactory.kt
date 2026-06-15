@@ -21,6 +21,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
+import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkViewModel
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationScreenViewModel
@@ -208,5 +209,9 @@ class CellsViewModelFactory @Inject constructor(
         onlineEditor = onlineEditor,
         getEditorUrl = getEditorUrl,
         dispatchers = dispatchers,
+    )
+
+    internal fun cellImageViewerViewModel(savedStateHandle: SavedStateHandle) = CellImageViewerViewModel(
+        savedStateHandle = savedStateHandle,
     )
 }

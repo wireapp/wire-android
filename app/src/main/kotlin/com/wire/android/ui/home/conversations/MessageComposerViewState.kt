@@ -19,7 +19,7 @@
 package com.wire.android.ui.home.conversations
 
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
-import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.model.Contact
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
@@ -28,6 +28,7 @@ import com.wire.kalium.logic.data.id.MessageId
 
 data class MessageComposerViewState(
     val isFileSharingEnabled: Boolean = true,
+    val areAttachmentOptionsEnabled: Boolean = true,
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val mentionSearchResult: List<Contact> = listOf(),
     val mentionSearchQuery: String = String.EMPTY,

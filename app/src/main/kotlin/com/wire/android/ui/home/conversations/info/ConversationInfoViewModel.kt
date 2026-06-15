@@ -27,6 +27,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ui.UIText
@@ -180,7 +181,7 @@ class ConversationInfoViewModel(
     }.let {
         when {
             it.isNotEmpty() -> it.toUIText()
-            it.isEmpty() && isConversationUnavailable -> UIText.StringResource(R.string.username_unavailable_label)
+            it.isEmpty() && isConversationUnavailable -> UIText.StringResource(commonR.string.username_unavailable_label)
             else -> UIText.StringResource(R.string.member_name_deleted_label)
         }
     }

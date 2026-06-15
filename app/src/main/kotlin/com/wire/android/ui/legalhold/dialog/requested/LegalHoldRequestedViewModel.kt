@@ -97,7 +97,13 @@ class LegalHoldRequestedViewModel(
 
                     CurrentSessionResult.Failure.SessionNotFound -> flowOf(noSession)
                     is CurrentSessionResult.Success ->
-                        currentSessionResult.accountInfo.userId.let { coreLogic.value.getSessionScope(it).session(it) }
+                        currentSessionResult.accountInfo.userId.let { userId ->
+                            runCatching { coreLogic.value.getSessionScope(userId).session(userId) }
+                                .getOrElse {
+                                    appLogger.e("$TAG: Failed to get session scope for current session: $userId")
+                                    flowOf(noSession)
+                                }
+                        }
                 }
             }
 
@@ -150,34 +156,39 @@ class LegalHoldRequestedViewModel(
             } else {
                 val password = if (it.requiresPassword) passwordTextState.text.toString() else null
                 viewModelScope.launch {
-                    coreLogic.value.sessionScope(it.userId) {
-                        approveLegalHoldRequest(password).let { approveLegalHoldResult ->
-                            state = when (approveLegalHoldResult) {
-                                is ApproveLegalHoldRequestUseCase.Result.Success ->
-                                    LegalHoldRequestedState.Hidden
+                    runCatching {
+                        coreLogic.value.sessionScope(it.userId) {
+                            approveLegalHoldRequest(password).let { approveLegalHoldResult ->
+                                state = when (approveLegalHoldResult) {
+                                    is ApproveLegalHoldRequestUseCase.Result.Success ->
+                                        LegalHoldRequestedState.Hidden
 
-                                ApproveLegalHoldRequestUseCase.Result.Failure.InvalidPassword ->
-                                    it.copy(
-                                        loading = false,
-                                        error = LegalHoldRequestedError.InvalidCredentialsError
-                                    )
+                                    ApproveLegalHoldRequestUseCase.Result.Failure.InvalidPassword ->
+                                        it.copy(
+                                            loading = false,
+                                            error = LegalHoldRequestedError.InvalidCredentialsError
+                                        )
 
-                                ApproveLegalHoldRequestUseCase.Result.Failure.PasswordRequired ->
-                                    it.copy(
-                                        loading = false,
-                                        requiresPassword = true,
-                                        error = LegalHoldRequestedError.InvalidCredentialsError
-                                    )
+                                    ApproveLegalHoldRequestUseCase.Result.Failure.PasswordRequired ->
+                                        it.copy(
+                                            loading = false,
+                                            requiresPassword = true,
+                                            error = LegalHoldRequestedError.InvalidCredentialsError
+                                        )
 
-                                is ApproveLegalHoldRequestUseCase.Result.Failure.GenericFailure -> {
-                                    appLogger.e("$TAG: Failed to approve legal hold: ${approveLegalHoldResult.coreFailure}")
-                                    it.copy(
-                                        loading = false,
-                                        error = LegalHoldRequestedError.GenericError(approveLegalHoldResult.coreFailure)
-                                    )
+                                    is ApproveLegalHoldRequestUseCase.Result.Failure.GenericFailure -> {
+                                        appLogger.e("$TAG: Failed to approve legal hold: ${approveLegalHoldResult.coreFailure}")
+                                        it.copy(
+                                            loading = false,
+                                            error = LegalHoldRequestedError.GenericError(approveLegalHoldResult.coreFailure)
+                                        )
+                                    }
                                 }
                             }
                         }
+                    }.onFailure {
+                        appLogger.e("$TAG: Failed to approve legal hold because session scope is not available")
+                        state = LegalHoldRequestedState.Hidden
                     }
                 }
             }

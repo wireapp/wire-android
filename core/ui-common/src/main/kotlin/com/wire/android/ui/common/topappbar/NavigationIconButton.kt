@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,6 +44,7 @@ fun NavigationIconButton(iconType: NavigationIconType, onClick: () -> Unit, modi
     }
 }
 
+@Stable
 sealed class NavigationIconType(@DrawableRes val icon: Int, @StringRes open val contentDescription: Int) {
     data class Back(@StringRes override val contentDescription: Int = R.string.content_description_left_arrow) :
         NavigationIconType(R.drawable.ic_arrow_back, contentDescription)

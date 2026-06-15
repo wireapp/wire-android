@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.conversationslist.model
 
 import androidx.compose.runtime.Immutable
+import com.wire.android.model.BadgeEventType
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel

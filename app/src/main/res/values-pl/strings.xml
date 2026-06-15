@@ -35,7 +35,6 @@
     <string name="label_learn_more">Dowiedz si&#281; wi&#281;cej</string>
     <string name="label_removing">Usuwanie...</string>
     <string name="label_logging_in">Logowanie...</string>
-    <string name="label_user_deleted">Usuni&#281;te</string>
     <string name="label_try_again">Spróbuj ponownie</string>
     <string name="label_done">Gotowe</string>
     <string name="label_message_sent_failure">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
@@ -50,7 +49,6 @@
     <string name="label_download">Pobierz</string>
     <string name="label_show">Poka&#380;</string>
     <string name="label_show_all">Poka&#380; wszystko</string>
-    <string name="label_show_less">Poka&#380; mniej</string>
     <string name="label_message_status_edited_with_date">Edytowano %s</string>
     <string name="label_on">W&#322;&#261;czone</string>
     <string name="label_off">Wy&#322;&#261;czone</string>
@@ -58,7 +56,6 @@
     <string name="label_disable">Wy&#322;&#261;cz</string>
     <string name="folder_label_access">Dost&#281;p</string>
     <string name="folder_label_messaging">Komunikacja</string>
-    <string name="label_user_blocked">Zablokowane</string>
     <string name="label_and">i</string>
     <string name="label_retry">Pon&#243;w pr&#243;b&#281;</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
@@ -83,8 +80,6 @@
     <string name="content_description_avatar_preview">Podgl&#261;d zdj&#281;cia profilowego</string>
     <string name="content_description_choose_from_gallery">Wybierz z galerii</string>
     <string name="content_description_take_a_picture">Zr&#243;b zdj&#281;cie</string>
-    <string name="content_description_right_arrow">Strza&#322;ka w prawo</string>
-    <string name="content_description_left_arrow">Cofnij</string>
     <string name="content_description_mention_icon">Ikona wzmianki</string>
     <string name="content_description_open_message_details">Otw&#243;rz szczeg&#243;&#322;y wiadomo&#347;ci</string>
     <string name="content_description_copy_the_message">Skopiuj wiadomo&#347;&#263;</string>
@@ -92,7 +87,6 @@
     <string name="content_description_delete_the_message">Usu&#324; wiadomo&#347;&#263;</string>
     <string name="content_description_edit_the_message">Edytuj wiadomo&#347;&#263;</string>
     <string name="content_description_more_options">Wi&#281;cej opcji</string>
-    <string name="content_description_add_contact">Dodaj kontakt</string>
     <string name="content_description_image_message">Wiadomo&#347;&#263; z obrazkiem</string>
     <string name="content_description_file_message">Wiadomo&#347;&#263; z plikiem</string>
     <string name="content_description_ping_everyone">Zaczep</string>
@@ -360,7 +354,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="user_profile_details_tab">Szczeg&#243;&#322;y</string>
     <string name="user_profile_devices_tab">Urz&#261;dzenia</string>
     <string name="user_profile_role_change_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas zmiany roli. Sprawd&#378; swoje po&#322;&#261;czenie internetowe i spr&#243;buj ponownie.</string>
-    <string name="user_profile_unblock_user">Odblokuj u&#380;ytkownika</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) nie b&#281;dzie m&#243;g&#322; wysy&#322;a&#263; ani odbiera&#263; wiadomo&#347;ci w tej rozmowie.</string>
     <!-- Logout Wipe Data Dialog -->
@@ -520,14 +513,9 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <!--Typing Indicator-->
     <!-- Search Messages -->
     <!-- Conversation Media -->
-    <!-- Search Contact-->
     <string name="label_new_group">Nowa grupa</string>
     <!-- Search Channels -->
     <string name="label_new_conversation">Nowa rozmowa</string>
-    <string name="label_search_people">Szukaj ludzi</string>
-    <string name="label_search_people_instruction">Wyszukaj ludzi po ich nazwie profilowej lub @nazwie u&#380;ytkownika</string>
-    <string name="label_learn_more_searching_user">Dowiedz si&#281; wi&#281;cej</string>
-    <string name="label_no_results_found">Nie znaleziono wynik&#243;w. Prosz&#281; spr&#243;buj ponownie.</string>
     <string name="label_general_error">Wyst&#261;pi&#322; problem</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Wyst&#261;pi&#322; problem</string>
@@ -554,12 +542,10 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="conversation_on_file_downloaded">Plik %s zosta&#322; pomy&#347;lnie zapisany w folderze Pobrane.</string>
     <string name="error_blocking_user">Nie mo&#380;na zablokowa&#263; u&#380;ytkownika.</string>
     <string name="blocking_user_success">%s zosta&#322; zablokowany.</string>
-    <string name="error_unblocking_user">Nie mo&#380;na odblokowa&#263; u&#380;ytkownika.</string>
     <string name="error_limit_number_assets_imported_exceeded">Mo&#380;esz przes&#322;a&#263; jednocze&#347;nie maksymalnie 20 plik&#243;w</string>
     <!-- Archiving -->
     <!-- Favorite -->
     <!-- Animation label -->
-    <string name="label_open_conversation">Otw&#243;rz konwersacj&#281;</string>
     <string name="email_label">E-mail</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
@@ -604,26 +590,11 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Powr&#243;t do rozmowy</string>
     <string name="connectivity_status_bar_waiting_for_network">Oczekiwanie na po&#322;&#261;czenie</string>
-    <!-- Connections -->
-    <string name="connection_label_connect">Po&#322;&#261;cz</string>
-    <string name="connection_label_cancel_request">Anuluj pro&#347;b&#281;</string>
     <string name="connection_label_member_not_belongs_to_team">Ten u&#380;ytkownik nie nale&#380;y do Twojego zespo&#322;u. Je&#347;li zaakceptuje Twoj&#261; pro&#347;b&#281; o po&#322;&#261;czenie, b&#281;dzie dost&#281;pny jako kontakt</string>
     <string name="connection_label_member_not_conneted">Po zaakceptowaniu Twojej pro&#347;by po&#322;&#261;czenia, mo&#380;esz bezpo&#347;rednio komunikowa&#263; si&#281; z tym kontaktem.</string>
-    <string name="connection_request_sent">Pro&#347;ba o po&#322;&#261;czenie wys&#322;ana</string>
-    <string name="connection_request_canceled">Anulowano pro&#347;b&#281; o po&#322;&#261;czenie</string>
-    <string name="connection_request_ignored">Zignorowa&#322;e&#347; pro&#347;b&#281; u&#380;ytkownika %1$s</string>
-    <string name="connection_request_accepted">Pro&#347;ba o po&#322;&#261;czenie zaakceptowana</string>
-    <string name="connection_request_sent_error">Nie uda&#322;o si&#281; wys&#322;a&#263; pro&#347;by o po&#322;&#261;czenie</string>
-    <string name="connection_request_accept_error">Nie mo&#380;na zaakceptowa&#263; pro&#347;by o po&#322;&#261;czenie</string>
-    <string name="connection_request_ignore_error">Nie mo&#380;na zignorowa&#263; pro&#347;by o po&#322;&#261;czenie</string>
-    <string name="connection_request_cancel_error">Nie mo&#380;na anulowa&#263; pro&#347;by o po&#322;&#261;czenie</string>
     <string name="connection_pending_message">Chce si&#281; po&#322;&#261;czy&#263;</string>
-    <string name="connection_pending_label">oczekuj&#261;ce</string>
     <string name="connection_label_user_wants_to_conect">Ten u&#380;ytkownik chce si&#281; z Tob&#261; po&#322;&#261;czy&#263;.</string>
     <string name="connection_label_accepting_request_description">Je&#347;li zaakceptujesz jego/jej pro&#347;b&#281;, zostanie dodany(a) jako kontakt, a Ty b&#281;dziesz m&#243;g&#322; z nim/ni&#261; bezpo&#347;rednio porozmawia&#263;.</string>
-    <string name="connection_label_accept">Zaakceptuj</string>
-    <string name="connection_label_ignore">Zignoruj</string>
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galeria multimedi&#243;w</string>
     <string name="media_gallery_on_image_downloaded">Zapisane do folderu Pobrane</string>
@@ -633,7 +604,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="sso_error_dialog_message">Spr&#243;buj ponownie. Je&#347;li to nie pomo&#380;e, skontaktuj si&#281; z administratorem i podaj ten kod:
 %d</string>
     <string name="asset_download_dialog_default_title">Pobierz plik</string>
-    <string name="label_show_more">Poka&#380; wi&#281;cej</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Otrzymywanie obraz&#243;w jest zabronione</string>
     <string name="prohibited_videos_message">Otrzymywanie film&#243;w jest zabronione</string>
@@ -690,10 +660,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="devices_title">Twoje urz&#261;dzenia</string>
     <string name="current_device_label">Bie&#380;&#261;ce urz&#261;dzenie</string>
     <string name="other_devices_label">Inne urz&#261;dzenia</string>
-    <!--unblock user dialog -->
-    <string name="unblock_user_dialog_title">Odblokowa&#263; u&#380;ytkownika?</string>
-    <string name="unblock_user_dialog_body">%1$s b&#281;dzie m&#243;g&#322; si&#281; z tob&#261; skontaktowa&#263; lub doda&#263; do rozm&#243;w grupowych. B&#281;dziesz m&#243;g&#322; uzyska&#263; dost&#281;p do prywatnej rozmowy z nimi.</string>
-    <string name="unblock_user_dialog_confirm_button">Odblokuj</string>
     <!--max account reached dialog-->
     <string name="max_account_reached_dialog_button_open_profile">Otw&#243;rz profil</string>
     <!--nomad account blocks login dialog-->

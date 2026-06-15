@@ -21,8 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.work.WorkManager
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.wireMetroViewModelScoped
+import com.wire.android.di.ViewModelScopedPreviews
+import com.wire.android.di.wireManualMetroViewModelScoped
 import com.wire.android.ui.common.banner.SecurityClassificationArgs
 import com.wire.android.ui.common.banner.SecurityClassificationViewModel
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelImpl
@@ -30,22 +30,14 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMe
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModelImpl
 import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.connection.ConnectionActionButtonArgs
-import com.wire.android.ui.connection.ConnectionActionButtonViewModel
-import com.wire.android.ui.connection.ConnectionActionButtonViewModelImpl
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
-import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
-import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
-import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
-import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
@@ -58,41 +50,43 @@ import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.user.IsPreventAdminlessGroupsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-interface CommonViewModelGraph : MetroViewModelGraph {
+internal interface CommonManualViewModelFactory : ManualViewModelAssistedFactory {
+    fun securityClassificationViewModel(args: SecurityClassificationArgs): SecurityClassificationViewModelImpl
+    fun conversationOptionsMenuViewModel(): ConversationOptionsMenuViewModelImpl
+}
+
+interface CommonViewModelGraph {
     val commonViewModelFactory: CommonViewModelFactory
 }
 
 @Composable
-fun securityClassificationViewModel(args: SecurityClassificationArgs): SecurityClassificationViewModel =
-    wireMetroViewModelScoped<
-            CommonViewModelGraph,
+fun securityClassificationViewModel(
+    args: SecurityClassificationArgs,
+): SecurityClassificationViewModel =
+    wireManualMetroViewModelScoped<
             SecurityClassificationViewModelImpl,
             SecurityClassificationViewModel,
-            SecurityClassificationArgs
+            SecurityClassificationArgs,
+            CommonManualViewModelFactory
             >(
-        arguments = args
+        arguments = args,
+        previewProvider = ViewModelScopedPreviews,
     ) { _, arguments ->
-        commonViewModelFactory.securityClassificationViewModel(arguments)
-    }
-
-@Composable
-fun connectionActionButtonViewModel(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModel =
-    wireMetroViewModelScoped<
-            CommonViewModelGraph,
-            ConnectionActionButtonViewModelImpl,
-            ConnectionActionButtonViewModel,
-            ConnectionActionButtonArgs
-            >(
-        arguments = args
-    ) { _, arguments ->
-        commonViewModelFactory.connectionActionButtonViewModel(arguments)
+        securityClassificationViewModel(arguments)
     }
 
 @Composable
 fun conversationOptionsMenuViewModel(): ConversationOptionsMenuViewModel =
-    wireMetroViewModelScoped<CommonViewModelGraph, ConversationOptionsMenuViewModelImpl, ConversationOptionsMenuViewModel> {
-        commonViewModelFactory.conversationOptionsMenuViewModel()
+    wireManualMetroViewModelScoped<
+        ConversationOptionsMenuViewModelImpl,
+        ConversationOptionsMenuViewModel,
+        CommonManualViewModelFactory,
+    >(
+        previewProvider = ViewModelScopedPreviews,
+    ) {
+        conversationOptionsMenuViewModel()
     }
 
 @Suppress("LongParameterList")
@@ -117,11 +111,6 @@ class CommonViewModelFactory @Inject constructor(
     private val clearConversationContent: ClearConversationContentUseCase,
     private val workManager: WorkManager,
     private val dispatchers: DispatcherProvider,
-    private val sendConnectionRequest: SendConnectionRequestUseCase,
-    private val cancelConnectionRequest: CancelConnectionRequestUseCase,
-    private val acceptConnectionRequest: AcceptConnectionRequestUseCase,
-    private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
-    private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
 ) {
     fun commonTopAppBarViewModel(params: CommonTopAppBarParams) = CommonTopAppBarViewModel(
         currentScreenManager = currentScreenManager,
@@ -153,16 +142,5 @@ class CommonViewModelFactory @Inject constructor(
         clearConversationContent = clearConversationContent,
         workManager = workManager,
         dispatchers = dispatchers,
-    )
-
-    internal fun connectionActionButtonViewModel(args: ConnectionActionButtonArgs) = ConnectionActionButtonViewModelImpl(
-        dispatchers = dispatchers,
-        sendConnectionRequest = sendConnectionRequest,
-        cancelConnectionRequest = cancelConnectionRequest,
-        acceptConnectionRequest = acceptConnectionRequest,
-        ignoreConnectionRequest = ignoreConnectionRequest,
-        unblockUser = unblockUser,
-        getOrCreateOneToOneConversation = getOrCreateOneToOneConversation,
-        args = args,
     )
 }

@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
-import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.model.Contact
 
 @Composable
 fun DropDownMentionsSuggestions(

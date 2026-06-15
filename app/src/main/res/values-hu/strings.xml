@@ -36,7 +36,6 @@
     <string name="label_learn_more">További információ</string>
     <string name="label_removing">Eltávolít…</string>
     <string name="label_logging_in">Bejelentkezés…</string>
-    <string name="label_user_deleted">Törölve</string>
     <string name="label_try_again">Próbálja újra</string>
     <string name="label_done">Kész</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
@@ -65,7 +64,6 @@
     <string name="label_open_asset_externally">Megnyitás</string>
     <string name="label_show">Megjelenítés</string>
     <string name="label_show_all">Összes megjelenítése</string>
-    <string name="label_show_less">Kevesebb megjelenítése</string>
     <string name="label_show_details">Részletek megjelenítése</string>
     <string name="label_hide_details">Részletek elrejtése</string>
     <string name="label_message_status_edited_with_date">Szerkesztve ekkor: %s</string>
@@ -76,7 +74,6 @@
     <string name="folder_label_access">Hozzáférés</string>
     <string name="folder_label_protocol_details">Protokoll részletei</string>
     <string name="folder_label_messaging">Üzenetküldés</string>
-    <string name="label_user_blocked">Letiltva</string>
     <string name="label_and">és</string>
     <string name="label_retry">Újra</string>
     <string name="label_draft">*Piszkozat*</string>
@@ -109,8 +106,6 @@
     <string name="content_description_avatar_preview">Profilkép előnézete</string>
     <string name="content_description_choose_from_gallery">Választás a galériából</string>
     <string name="content_description_take_a_picture">Fotó készítése</string>
-    <string name="content_description_right_arrow">Jobbra nyíl</string>
-    <string name="content_description_left_arrow">Visszalépés</string>
     <string name="content_description_mention_icon">Említés ikon</string>
     <string name="content_description_open_message_details">Üzenet részleteinek megnyitása</string>
     <string name="content_description_copy_the_message">Üzenet másolása</string>
@@ -118,7 +113,6 @@
     <string name="content_description_delete_the_message">Üzenet törlése</string>
     <string name="content_description_edit_the_message">Üzenet szerkesztése</string>
     <string name="content_description_more_options">További lehetőségek</string>
-    <string name="content_description_add_contact">Kapcsolat hozzáadása</string>
     <string name="content_description_image_message">Képüzenet</string>
     <string name="content_description_pause_audio">Hanganyag megállítása</string>
     <string name="content_description_play_audio">Hanganyag lejátszása</string>
@@ -175,25 +169,18 @@
     <string name="content_description_search_text_in_conversation_btn">Szöveges üzenetek keresése</string>
     <string name="content_description_see_media_in_conversation_btn">Képek és fájlok áttekintésének megnyitása</string>
     <string name="content_description_add_participants_close">Résztvevők hozzáadása lap bezárása</string>
-    <string name="content_description_add_participants_search_field">Személyek keresése név vagy felhasználónév alapján</string>
-    <string name="content_description_add_participants_back_btn">Vissza a résztvevők hozzáadása lapra</string>
     <string name="content_description_home_profile_btn">Az Ön profilja</string>
     <string name="content_description_home_profile_btn_with_notification">Saját profil, egy olvasatlan értesítés.</string>
     <string name="content_description_open_label">megnyitás</string>
     <string name="content_description_join_call_label">híváshoz csatlakozás</string>
     <string name="content_description_share_label">megosztás</string>
     <string name="content_description_edit_label">szerkeszt</string>
-    <string name="content_description_select_label">kiválaszt</string>
-    <string name="content_description_unselect_label">kiválasztás megszüntetése</string>
     <string name="content_description_selected_label">kiválasztva</string>
     <string name="content_description_toggle_setting_label">beállításkapcsoló</string>
     <string name="content_description_edit_guests_option_back_btn">Vissza a beszélgetés részleteihez</string>
     <string name="content_description_edit_self_delete_back_btn">Vissza a beszélgetés részleteihez</string>
     <string name="content_description_accept_or_ignore_connection_label">a kérelem elfogadása vagy elutasítása</string>
-    <string name="content_description_open_user_profile_label">profil megnyitása</string>
-    <string name="content_description_open_conversation_label">beszélgetés megnyitása</string>
     <string name="content_description_change_it_label">megváltoztatás</string>
-    <string name="content_description_open_link_label">hivatkozás megnyitása</string>
     <string name="content_description_alert">Riasztás</string>
     <string name="content_description_drop_down">Lenyitás</string>
     <string name="content_description_close_dropdown">lenyíló elem összecsukása</string>
@@ -509,7 +496,6 @@
     <string name="member_name_you_label_titlecase">Ön</string>
     <string name="member_name_you_label_lowercase">ön</string>
     <string name="label_add_participants">Résztvevők hozzáadása</string>
-    <string name="username_unavailable_label">A név nem elérhető</string>
     <string name="temporary_user_label">%s kilépett</string>
     <string name="conversation_unavailable_label">Ez a beszélgetésnév nem elérhető</string>
     <string name="conversation_details_title">Beszélgetés részletei</string>
@@ -589,7 +575,6 @@
     <string name="user_profile_conversation_role">SZEREP</string>
     <string name="user_profile_role_in_conversation">Szerep ”%s” beszélgetésben</string>
     <string name="user_profile_role_change_error">Hiba lépett fel szerepcsere közben. Ellenőrizze internetkapcsolatát, és próbálja újra</string>
-    <string name="user_profile_unblock_user">Felhasználótiltás feloldása</string>
     <string name="user_profile_conversation_remove_button">Eltávolítás a beszélgetésből</string>
     <string name="user_profile_logging_out_progress">Kijelentkezés...</string>
     <string name="user_profile_qr_code">QR-kód megnyitása</string>
@@ -819,8 +804,6 @@
     <string name="label_conversation_pictures">Képek</string>
     <string name="label_conversation_pictures_empty">Ebben a beszélgetésben még senki nem osztott meg képet 🥲</string>
     <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
-    <!-- Search Contact-->
-    <string name="label_contacts">Névjegyek</string>
     <string name="label_new_group">Új csoport</string>
     <string name="label_new_channel">Új csatorna</string>
     <string name="label_create_new_group">Új csoport</string>
@@ -837,13 +820,7 @@
     <string name="label_search_channels_empty_title">Ennek a csapatnak még nincs nyilvános csatornája létrehozva.</string>
     <string name="label_learn_more_about_channels">Tudjon meg többet a csatornákról</string>
     <string name="label_new_conversation">Új beszélgetés</string>
-    <string name="label_search_people">Személyek keresése</string>
-    <string name="label_public_wire">Nyilvános Wire</string>
-    <string name="label_search_people_instruction">Személyek keresése profilnév vagy @felhasználónév alapján</string>
-    <string name="label_learn_more_searching_user">További információ</string>
-    <string name="label_no_results_found">Nincs találat. Kérjük, próbálja újra.</string>
     <string name="label_general_error">Valami hiba történt</string>
-    <string name="label_add_member_people">Partner</string>
     <string name="label_empty_contacts_list">Keressen személyeket nevük vagy felhasználónevük alapján beszélgetés indításához 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Valami hiba történt</string>
@@ -876,7 +853,6 @@
     <string name="leave_conversation_error">Hiba történt a beszélgetésből kilépés során</string>
     <string name="joined_conversation_success">Ön csatlakozott a beszélgetéshez.</string>
     <string name="left_conversation_success">Ön kilépett a beszélgetésből.</string>
-    <string name="error_unblocking_user">A felhasználó tiltását nem sikerült feloldani</string>
     <string name="delete_conversation_conversation_error">Hiba történt a beszélgetés törlése során</string>
     <string name="error_limit_number_assets_imported_exceeded">Egyszerre legfeljebb 20 fájlt küldhet</string>
     <!-- Archiving -->
@@ -893,8 +869,6 @@
     <string name="error_adding_to_favorite">\"%s\"-t nem sikerült a Kedvencek közé tenni</string>
     <string name="error_removing_from_favorite">\"%s\"-t nem lehetett eltávolítani a Kedvencek közül</string>
     <!-- Animation label -->
-    <string name="label_open_conversation">Beszélgetés megnyitása</string>
-    <string name="label_start_conversation">Beszélgetés indítása</string>
     <string name="email_label">E-mail</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
@@ -964,33 +938,15 @@
     <string name="connectivity_status_bar_return_to_outgoing_call">%1$s hívása…</string>
     <string name="connectivity_status_bar_connecting">Üzenetek visszafejtése</string>
     <string name="connectivity_status_bar_waiting_for_network">Várakozás hálózatra</string>
-    <!-- Connections -->
-    <string name="connection_label_connect">Kapcsolódás</string>
-    <string name="connection_label_cancel_request">Kérelem visszavonása</string>
     <string name="connection_label_member_not_belongs_to_team">Ez a felhasználó nem tartozik a csapatához. Ha ő elfogadja az Ön kapcsolódási kérelmét, elérhető lesz partnerként</string>
     <string name="connection_label_member_not_conneted">Ha a kapcsolódási kérelmét elfogadják, közvetlenül tud kommunikálni ezzel a partnerrel.</string>
-    <string name="connection_request_sent">Kapcsolódási kérelem elküldve</string>
-    <string name="connection_request_canceled">Kapcsolódási kérelem visszavonva</string>
-    <string name="connection_request_ignored">Ön elutasította %1$s kérelmét</string>
-    <string name="connection_request_accepted">Kapcsolódási kérelem elfogadva</string>
-    <string name="connection_request_sent_error">A kapcsolódási kérelmet nem sikerült elküldeni</string>
-    <string name="connection_request_sent_federation_denied_error">Az Ön kiszolgálója nincs szövetségben %1$s kiszolgálójával. Nem tud hozzájuk kapcsolódni.</string>
-    <string name="connection_request_accept_error">A kapcsolódási kérelmet nem sikerült jóváhagyni</string>
-    <string name="connection_request_ignore_error">A kapcsolódási kérelmet nem sikerült elutasítani</string>
-    <string name="connection_request_cancel_error">A kapcsolódási kérelmet nem sikerült visszavonni</string>
     <string name="connection_pending_message">Szeretne kapcsolódni</string>
-    <string name="connection_pending_label">függőben</string>
     <string name="connection_label_user_wants_to_conect">Ez a felhasználó szeretne kapcsolódni Önhöz.</string>
     <string name="connection_label_accepting_request_description">Ha jóváhagyja a kérelmét, bekerül a partnerek közé, és közvetlenül tudnak kommunikálni egymással.</string>
-    <string name="connection_label_accept">Elfogadás</string>
-    <string name="connection_label_ignore">Elutasítás</string>
     <string name="connection_label_send_unverified_warning">Győződjön meg %s személyazonosságáról mielőtt csatlakozik.</string>
     <string name="connection_label_received_unverified_warning">Ellenőrizze a személyazonosságot mielőtt elfogadja a kapcsolódási kérelmet.</string>
     <string name="connection_label_user_not_found_warning_title">A Wire nem találja ezt a személyt</string>
     <string name="connection_label_user_not_found_warning_description">Lehet, hogy nincsen rá engedélye ezzel a fiókkal, vagy a személy nincs fent a Wire-ön.</string>
-    <!-- Missing keyPackages dialog -->
-    <string name="missing_keypackage_dialog_title">Nem sikerült elindítani a beszélgetést</string>
-    <string name="missing_keypackage_dialog_body">Nem tud beszélgetést kezdeni %1$s felhasználóval. %1$s részéről szükséges, hogy előbb megnyissa a Wire-t vagy bejelentkezzen. Próbálja újra később.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Média galéria</string>
     <string name="media_gallery_on_image_downloaded">Mentve a Letöltések mappába</string>
@@ -1004,7 +960,6 @@
     </string>
     <string name="asset_download_dialog_default_title">Fájl letöltése</string>
     <string name="empty_conversation_label">Név nélküli beszélgetés</string>
-    <string name="label_show_more">Mutasson többet</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Képek fogadása tilos</string>
     <string name="prohibited_videos_message">Videók fogadása tilos</string>
@@ -1108,10 +1063,6 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="current_device_label">Ez az eszköz</string>
     <string name="other_devices_label">Egyéb eszközök</string>
     <string name="devices_loading_error">Hiba lépett fel az eszközlista letöltése közben. Ellenőrizze internetkapcsolatát, és próbálja újra.</string>
-    <!--unblock user dialog -->
-    <string name="unblock_user_dialog_title">Feloldja a felhasználótiltást?</string>
-    <string name="unblock_user_dialog_body">%1$s kapcsolatba tud lépni Önnel, és hozzáadhatja csoportos beszélgetésekhez. Lehetővé válik négyszemközti beszélgetés vele.</string>
-    <string name="unblock_user_dialog_confirm_button">Tiltás feloldása</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">egy fiók aktív</item>
@@ -1479,7 +1430,6 @@ Kérjük, próbálja meg újra.</string>
     <string name="legal_hold_requested_dialog_enter_password">A megerősítéshez adja meg jelszavát.</string>
     <string name="legal_hold_requested_dialog_accept_button">Elfogadás</string>
     <string name="legal_hold_requested_dialog_not_now_button">Most nem</string>
-    <string name="legal_hold_learn_more_button">Tudjon meg többet a dokumentum-megőrzési kötelezettségről</string>
     <string name="legal_hold_deactivated_dialog_title">Dokumentum-megőrzési kötelezettség kikapcsolva</string>
     <string name="legal_hold_deactivated_dialog_description">A jövőbeli üzenetek nem lesznek rögzítve.</string>
     <string name="legal_hold_subject_dialog_title">%1$s dokumentum-megőrzésre kötelezett</string>
@@ -1490,8 +1440,6 @@ Kérjük, próbálja meg újra.</string>
     <string name="legal_hold_subject_dialog_message_title">A beszélgetésre ezentúl dokumentum-megőrzési kötelezettség vonatkozik</string>
     <string name="legal_hold_subject_dialog_description_message">Még így is el szeretné küldeni üzenetét?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Küldés mindenképpen</string>
-    <string name="legal_hold_connection_failed_dialog_title">Nem lehet kapcsolódni</string>
-    <string name="legal_hold_connection_failed_dialog_description">Nem kapcsolódhat ehhez a felhasználóhoz a dokumentum-megőrzési kötelezettség miatt.</string>
     <string name="legal_hold_subject_to">%1$s alá tartozik.</string>
     <string name="legal_hold_label">dokumentum-megőrzési kötelezettség</string>
     <string name="legal_hold_is_active_label">Dokumentum-megőrzési kötelezettség érvényben</string>

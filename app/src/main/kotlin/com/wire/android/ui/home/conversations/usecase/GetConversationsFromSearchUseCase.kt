@@ -18,13 +18,11 @@
 
 package com.wire.android.ui.home.conversations.usecase
 
-import android.os.SystemClock
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -33,16 +31,15 @@ import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
-import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
 import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import dev.zacsweers.metro.Inject
 
 class GetConversationsFromSearchUseCase @Inject constructor(
     private val useCase: GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase,
@@ -99,34 +96,11 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                 observeConversationsFromFromFolder(conversationFilter.folderId)
                     .map { staticPagingItems(it) }
             }
-        }
-            .map { pagingData ->
-                pagingData.mapConversationsWithTiming(selfUserTeamId)
+        }.map { pagingData ->
+                pagingData.map {
+                    it.toConversationItem(userTypeMapper, uiTextResolver, selfUserTeamId)
+                }
             }.flowOn(dispatchers.io())
-    }
-
-    private fun PagingData<ConversationDetailsWithEvents>.mapConversationsWithTiming(
-        selfUserTeamId: TeamId?
-    ): PagingData<ConversationItem> {
-        var pageIndex = 0
-        var itemsInPage = 0
-        var totalMappingNanos = 0L
-        return map {
-            val startNanos = SystemClock.elapsedRealtimeNanos()
-            val item = it.toConversationItem(userTypeMapper, uiTextResolver, selfUserTeamId)
-            totalMappingNanos += SystemClock.elapsedRealtimeNanos() - startNanos
-            itemsInPage++
-
-            val pageSize = if (pageIndex == 0) INITIAL_LOAD_SIZE else PAGE_SIZE
-            if (itemsInPage == pageSize) {
-                appLogger.d("$TAG: page=$pageIndex items=$itemsInPage totalMapperMs=${totalMappingNanos / NANOS_IN_MILLIS}")
-                pageIndex++
-                itemsInPage = 0
-                totalMappingNanos = 0L
-            }
-
-            item
-        }
     }
 
     private fun staticPagingItems(conversations: List<ConversationDetailsWithEvents>): PagingData<ConversationDetailsWithEvents> {
@@ -141,10 +115,8 @@ class GetConversationsFromSearchUseCase @Inject constructor(
     }
 
     private companion object {
-        const val TAG = "ConversationMapperTiming"
         const val PAGE_SIZE = 20
         const val INITIAL_LOAD_SIZE = 40
         const val PREFETCH_DISTANCE = 5
-        const val NANOS_IN_MILLIS = 1_000_000
     }
 }

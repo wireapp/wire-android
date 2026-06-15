@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -166,6 +167,7 @@ private fun LoginEmailContent(
                         .padding(
                             vertical = MaterialTheme.wireDimensions.spacing16x
                         )
+                        .semantics { heading() }
                 )
             }
             val invalidCredentialsErrorText = if (loginEmailState.showInvalidCredentialsError) {

@@ -52,6 +52,7 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 fun MessageOptionsModalSheetLayout(
     conversationId: ConversationId,
     sheetState: WireModalSheetState<String>,
+    isNetworkAvailable: Boolean,
     onCopyClick: (text: String) -> Unit,
     onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -75,6 +76,7 @@ fun MessageOptionsModalSheetLayout(
                 is MessageOptionsMenuState.Message -> MessageOptionsModalContent( // message state - show the sheet with proper content
                     message = state.message,
                     sheetState = sheetState,
+                    isNetworkAvailable = isNetworkAvailable,
                     onCopyClick = onCopyClick,
                     onDeleteClick = onDeleteClick,
                     onReactionClick = onReactionClick,
@@ -108,6 +110,7 @@ fun MessageOptionsModalSheetLayout(
 private fun MessageOptionsModalContent(
     message: UIMessage.Regular,
     sheetState: WireModalSheetState<String>,
+    isNetworkAvailable: Boolean,
     onCopyClick: (text: String) -> Unit,
     onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -119,7 +122,7 @@ private fun MessageOptionsModalContent(
     onOpenAssetClick: (messageId: String) -> Unit,
 ) {
     val context = LocalContext.current
-    val isUploading = message.isPending
+    val isPending = message.isPending
     val isDeleted = message.isDeleted
     val isMyMessage = message.isMyMessage
     val isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable
@@ -131,7 +134,10 @@ private fun MessageOptionsModalContent(
             isUploading = message.isPending,
             isComposite = message.messageContent is UIMessageContent.Composite,
             isEphemeral = isEphemeral,
-            isEditable = !isUploading && !isDeleted && (message.messageContent?.isEditable() ?: false) && isMyMessage,
+            isEditable = !isDeleted &&
+                    (message.messageContent?.isEditable() ?: false) &&
+                    isMyMessage &&
+                    (!isPending || !isNetworkAvailable),
             isCopyable = message.isCopyable(),
             isOpenable = true,
             onCopyClick = remember(message.messageContent) {
@@ -252,6 +258,7 @@ fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
     MessageOptionsModalSheetLayout(
         conversationId = ConversationId("cid", "domain"),
         sheetState = rememberWireModalSheetState(initialValue = WireSheetValue.Expanded("id")),
+        isNetworkAvailable = true,
         onCopyClick = {},
         onDeleteClick = { _, _ -> },
         onReactionClick = { _, _ -> },

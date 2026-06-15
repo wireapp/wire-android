@@ -46,8 +46,8 @@ fun textMessageEditMenuItems(
             add { MessageDetailsMenuOption(onDetailsClick) }
             if (isCopyable) { add { CopyItemMenuOption(onCopyClick) } }
             if (!isEphemeral && !isComposite) add { ReplyMessageOption(onReplyClick) }
-            if (isEditable) add { EditMessageMenuOption(onEditClick) }
         }
+        if (isEditable) add { EditMessageMenuOption(onEditClick) }
         add { DeleteItemMenuOption(onDeleteClick) }
     }
 }

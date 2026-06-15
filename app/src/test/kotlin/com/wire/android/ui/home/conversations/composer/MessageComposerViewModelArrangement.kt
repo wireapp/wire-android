@@ -289,5 +289,3 @@ internal fun mockUIAudioMessage(id: String = "someId", userName: String = "mockU
         )
     }
 }
-
-

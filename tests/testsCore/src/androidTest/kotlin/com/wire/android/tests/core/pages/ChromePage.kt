@@ -21,13 +21,29 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import kotlin.time.Duration.Companion.seconds
 
 data class ChromePage(private val device: UiDevice) {
 
     private val useWithoutAccountLocator = UiSelectorParams(text = "Use without an account")
+    private val noThanksLocator = UiSelectorParams(text = "No thanks")
 
     fun clickUseWithoutAccount(): ChromePage {
         UiWaitUtils.waitElement(useWithoutAccountLocator).click()
+        return this
+    }
+
+    fun dismissFirstRunIfVisible(): ChromePage {
+        runCatching {
+            UiWaitUtils.waitElement(useWithoutAccountLocator, timeout = 2.seconds).click()
+        }
+        return this
+    }
+
+    fun dismissNotificationsPromptIfVisible(): ChromePage {
+        runCatching {
+            UiWaitUtils.waitElement(noThanksLocator, timeout = 2.seconds).click()
+        }
         return this
     }
 

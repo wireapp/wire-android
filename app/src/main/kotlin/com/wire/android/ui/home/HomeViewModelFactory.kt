@@ -20,7 +20,7 @@ package com.wire.android.ui.home
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.DisableAppLockUseCase
@@ -62,7 +62,7 @@ import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
 class HomeViewModelFactory @Inject constructor(
-    private val dataStore: UserDataStore,
+    private val userDataStoreProvider: UserDataStoreProvider,
     private val observeSelf: ObserveSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
@@ -98,7 +98,7 @@ class HomeViewModelFactory @Inject constructor(
 ) {
     fun homeViewModel(savedStateHandle: SavedStateHandle) = HomeViewModel(
         savedStateHandle = savedStateHandle,
-        dataStore = dataStore,
+        dataStore = userDataStoreProvider.getOrCreate(currentAccount),
         observeSelf = observeSelf,
         needsToRegisterClient = needsToRegisterClient,
         canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,

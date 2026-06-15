@@ -202,7 +202,7 @@ class CreateAccountCodeViewModel @Inject constructor(
             registerClient(storedUserId, registerParam.password).let {
                 when (it) {
                     is RegisterClientResult.Failure -> {
-                        updateCodeErrorState(it.toCodeError())
+                        updateCodeErrorState(it.toCodeError(storedUserId))
                         return@launch
                     }
 
@@ -232,8 +232,8 @@ class CreateAccountCodeViewModel @Inject constructor(
             )
         )
 
-    private fun RegisterClientResult.Failure.toCodeError() = when (this) {
-        is RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeResult.Error.TooManyDevicesError
+    private fun RegisterClientResult.Failure.toCodeError(userId: UserId) = when (this) {
+        is RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeResult.Error.TooManyDevicesError(userId)
         is RegisterClientResult.Failure.Generic -> CreateAccountCodeResult.Error.DialogError.GenericError(this.genericFailure)
         is RegisterClientResult.Failure.InvalidCredentials ->
             throw WillNeverOccurError("RegisterClient: wrong password when register client after creating a new account")

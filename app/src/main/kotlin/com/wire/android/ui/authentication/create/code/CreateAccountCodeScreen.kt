@@ -50,6 +50,7 @@ import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs
+import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -110,10 +111,16 @@ fun CreateAccountCodeScreen(
             if (codeState.result is CreateAccountCodeResult.Success) {
                 navigateToSummaryScreen()
             }
-            if (codeState.result is CreateAccountCodeResult.Error.TooManyDevicesError) {
+            val tooManyDevicesError = codeState.result as? CreateAccountCodeResult.Error.TooManyDevicesError
+            if (tooManyDevicesError != null) {
                 clearCodeError()
                 clearCodeField()
-                navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+                navigator.navigate(
+                    NavigationCommand(
+                        RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(tooManyDevicesError.userId)),
+                        BackStackMode.CLEAR_WHOLE
+                    )
+                )
             }
         }
     }

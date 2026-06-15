@@ -41,7 +41,7 @@ import com.wire.android.ui.common.typography
 import com.ramcosta.composedestinations.generated.app.destinations.ChannelHistoryCustomScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
-import com.wire.android.ui.home.newconversation.sharedNewConversationViewModel
+import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -51,10 +51,10 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun ChannelHistoryScreen(
     navigator: Navigator,
+    newConversationViewModel: NewConversationViewModel,
     customResultRecipient: ResultRecipient<ChannelHistoryCustomScreenDestination, ChannelHistoryCustomNavBackArgs>,
     modifier: Modifier = Modifier,
 ) {
-    val newConversationViewModel = sharedNewConversationViewModel(navigator)
     customResultRecipient.onNavResult { result ->
         when (result) {
             is NavResult.Canceled -> {}

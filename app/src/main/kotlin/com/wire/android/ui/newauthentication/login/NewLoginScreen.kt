@@ -63,6 +63,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireNewLoginDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
@@ -184,9 +185,11 @@ fun NewLoginScreen(
 
 private fun NewLoginAction.Success.NextStep.toDestination(): Direction = when (this) {
     NewLoginAction.Success.NextStep.None -> HomeScreenDestination
-    NewLoginAction.Success.NextStep.E2EIEnrollment -> E2EIEnrollmentScreenDestination
+    is NewLoginAction.Success.NextStep.E2EIEnrollment ->
+        E2EIEnrollmentScreenDestination(SessionBackedAuthenticationNavArgs.from(userId))
     NewLoginAction.Success.NextStep.InitialSync -> InitialSyncScreenDestination
-    NewLoginAction.Success.NextStep.TooManyDevices -> RemoveDeviceScreenDestination
+    is NewLoginAction.Success.NextStep.TooManyDevices ->
+        RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(userId))
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

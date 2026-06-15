@@ -383,14 +383,14 @@ class NewLoginViewModelTest {
     fun `given client registered and E2EI required, when handling SSO result, then call NextStep-E2EIEnrollment action`() =
         testHandleSSOResultRegisterClientResults(
             result = RegisterClientResult.E2EICertificateRequired(TestClient.CLIENT, UserId("user-id", "domain")),
-            expectedNextStep = NewLoginAction.Success.NextStep.E2EIEnrollment,
+            expectedNextStep = NewLoginAction.Success.NextStep.E2EIEnrollment(UserId("user-id", "domain")),
         )
 
     @Test
     fun `given too many clients, when handling SSO result, then call NextStep-TooManyDevices action`() =
         testHandleSSOResultRegisterClientResults(
             result = RegisterClientResult.Failure.TooManyClients,
-            expectedNextStep = NewLoginAction.Success.NextStep.TooManyDevices,
+            expectedNextStep = NewLoginAction.Success.NextStep.TooManyDevices(UserId("user-id", "domain")),
         )
 
     @Test

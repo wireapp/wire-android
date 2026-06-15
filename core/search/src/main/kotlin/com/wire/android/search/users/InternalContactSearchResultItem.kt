@@ -45,7 +45,7 @@ import com.wire.android.ui.home.conversationslist.common.ConnectPendingRequestBa
 import com.wire.android.ui.home.conversationslist.common.ConnectRequestBadge
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.search.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 

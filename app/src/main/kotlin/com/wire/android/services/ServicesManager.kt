@@ -138,6 +138,19 @@ class ServicesManager @Inject constructor(
     fun isPersistentWebSocketServiceRunning(): Boolean =
         PersistentWebSocketService.isServiceStarted
 
+    // Pending messages foreground sync
+    fun startPendingMessagesForegroundService(userId: UserId) {
+        if (PendingMessagesForegroundService.isServiceStarted) {
+            appLogger.i("$TAG: PendingMessagesForegroundService already started, not starting again")
+        } else {
+            startService(PendingMessagesForegroundService.newIntent(context, userId))
+        }
+    }
+
+    fun stopPendingMessagesForegroundService() {
+        stopService(PendingMessagesForegroundService.stopIntent(context))
+    }
+
     // Playing AudioMessage service
     fun startPlayingAudioMessageService() {
         if (PlayingAudioMessageService.isServiceStarted) {

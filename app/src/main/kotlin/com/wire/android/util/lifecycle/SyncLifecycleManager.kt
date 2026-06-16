@@ -22,12 +22,14 @@ import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logger.KaliumLogger.Companion.ApplicationFlow.SYNC
-import com.wire.kalium.logger.obfuscateDomain
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.sync.SyncRequestResult
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -36,9 +38,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.SingleIn
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -94,21 +93,43 @@ class SyncLifecycleManager @Inject constructor(
      * releasing sync.
      * If there are more ongoing sync requests, this will
      */
-    suspend fun syncTemporarily(userId: UserId, stayAliveExtraDuration: Duration = 0.seconds) {
-        logger.d(
-            "Handling connection policy for push notification of " +
-                    "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}"
-        )
+    suspend fun syncTemporarily(
+        userId: UserId,
+        stayAliveExtraDuration: Duration = 0.seconds,
+        waitForNextSyncState: Boolean = false
+    ) {
+        syncTemporarily(userId, stayAliveExtraDuration, waitForNextSyncState) {
+            Unit
+        }
+    }
+
+    /**
+     * Attempts to perform sync, runs [actionWhenLive] after reaching live sync, then holds
+     * the sync request for [stayAliveExtraDuration] before releasing it.
+     */
+    suspend fun syncTemporarily(
+        userId: UserId,
+        stayAliveExtraDuration: Duration = 0.seconds,
+        waitForNextSyncState: Boolean = false,
+        actionWhenLive: suspend () -> Unit
+    ) {
         coreLogic.getSessionScope(userId).run {
             logger.d("Starting Sync request")
             syncExecutor.request {
                 logger.d("Waiting until live")
-                when (waitUntilLiveOrFailure()) {
+                val syncRequestResult = if (waitForNextSyncState) {
+                    waitUntilNextLiveOrFailure()
+                } else {
+                    waitUntilLiveOrFailure()
+                }
+                when (syncRequestResult) {
                     is SyncRequestResult.Failure ->
                         logger.w("Failed waiting until live")
 
-                    is SyncRequestResult.Success ->
+                    is SyncRequestResult.Success -> {
+                        actionWhenLive()
                         delay(stayAliveExtraDuration)
+                    }
                 }
             }
         }

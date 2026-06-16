@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"failed","Tue Jun 16 10:25:47 CEST 2026","Tue Jun 16 10:27:42 CEST 2026","114748","","com.wire.android.tests.core.criticalFlows.SSODeviceBackup","","com.wire.android.tests.core.criticalFlows.SSODeviceBackup","givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored","givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored",""

@@ -40,6 +40,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
@@ -143,7 +145,9 @@ private fun ConversationScreenTopAppBarContent(
                     style = MaterialTheme.wireTypography.title02,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(weight = 1f, fill = false)
+                    modifier = Modifier
+                        .weight(weight = 1f, fill = false)
+                        .semantics { heading() }
                 )
                 ConversationVerificationIcons(
                     conversationInfoViewState.protocolInfo,

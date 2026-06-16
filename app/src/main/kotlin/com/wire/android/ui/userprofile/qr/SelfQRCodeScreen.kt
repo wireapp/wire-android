@@ -50,6 +50,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -187,7 +189,8 @@ private fun SelfQRCodeContent(
                 Text(
                     text = state.handle.ifNotEmpty { "@${state.handle}" },
                     style = MaterialTheme.wireTypography.title01,
-                    color = Color.Black
+                    color = Color.Black,
+                    modifier = Modifier.semantics { heading() }
                 )
 
                 // Full Link

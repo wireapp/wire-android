@@ -44,6 +44,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.net.toUri
 import com.wire.android.ui.authentication.createAccountSelectorViewModel
@@ -138,7 +140,8 @@ fun CreateAccountSelectorContent(
                 title = {
                     Text(
                         text = stringResource(id = R.string.create_account_selector_title),
-                        style = MaterialTheme.wireTypography.title01
+                        style = MaterialTheme.wireTypography.title01,
+                        modifier = Modifier.semantics { heading() }
                     )
                     if (customServerLinks?.isOnPremises == true) {
                         ServerTitle(
@@ -226,6 +229,7 @@ private fun AccountType(
                 modifier = Modifier
                     .padding(horizontal = dimensions().spacing8x)
                     .fillMaxWidth()
+                    .semantics { heading() }
             )
             Text(
                 text = subtitle,

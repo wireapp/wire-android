@@ -57,6 +57,8 @@ import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
+import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -96,10 +98,14 @@ fun CreateAccountSelectorScreen(
     }
 
     val startForResult = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+        val loginNavArgs = LoginNavArgs(
+            userHandle = PreFilledUserIdentifierType.PreFilled(viewModel.email),
+            loginPasswordPath = LoginPasswordPath(customServerConfig = viewModel.serverConfig)
+        )
         navigator.navigate(
             NavigationCommand(
-                NewLoginPasswordScreenDestination(PreFilledUserIdentifierType.PreFilled(viewModel.email)),
-                BackStackMode.REMOVE_CURRENT_NESTED_GRAPH
+                NewLoginPasswordScreenDestination(loginNavArgs),
+                BackStackMode.UPDATE_EXISTED
             )
         )
     }

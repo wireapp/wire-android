@@ -35,8 +35,8 @@ import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.conversationAssetPathsViewModel
+import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
 import com.wire.android.ui.home.conversations.messages.QuotedStyle
@@ -209,50 +209,100 @@ private fun MessageContent(
         }
 
         is UIMessageContent.TextMessage -> {
-            Column {
-                messageContent.messageBody.quotedMessage?.let {
-                    VerticalSpace.x4()
-                    when (it) {
-                        is UIQuotedMessage.UIQuotedData -> QuotedMessage(
-                            conversationId = message.conversationId,
-                            messageData = it,
-                            style = QuotedMessageStyle(
-                                quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle,
-                                selfAccent = accent,
-                                senderAccent = it.senderAccent
-                            ),
-                            clickable = onReplyClick
-                        )
-
-                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(
-                            style = QuotedMessageStyle(
-                                quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle,
-                                selfAccent = accent,
-                                senderAccent = Accent.Unknown
+            if (message.linkPreviews.isEmpty()) {
+                Column {
+                    messageContent.messageBody.quotedMessage?.let {
+                        VerticalSpace.x4()
+                        when (it) {
+                            is UIQuotedMessage.UIQuotedData -> QuotedMessage(
+                                conversationId = message.conversationId,
+                                messageData = it,
+                                style = QuotedMessageStyle(
+                                    quotedStyle = QuotedStyle.COMPLETE,
+                                    messageStyle = messageStyle,
+                                    selfAccent = accent,
+                                    senderAccent = it.senderAccent
+                                ),
+                                clickable = onReplyClick
                             )
+
+                            UIQuotedMessage.UnavailableData -> QuotedUnavailable(
+                                style = QuotedMessageStyle(
+                                    quotedStyle = QuotedStyle.COMPLETE,
+                                    messageStyle = messageStyle,
+                                    selfAccent = accent,
+                                    senderAccent = Accent.Unknown
+                                )
+                            )
+                        }
+                        VerticalSpace.x4()
+                    }
+                    MessageBody(
+                        messageBody = messageContent.messageBody,
+                        searchQuery = searchQuery,
+                        isAvailable = !message.isPending && message.isAvailable,
+                        onOpenProfile = onOpenProfile,
+                        buttonList = null,
+                        messageId = message.header.messageId,
+                        onLinkClick = onLinkClick,
+                        messageStyle = messageStyle,
+                        accent = accent,
+                        linkPreviews = message.linkPreviews
+                    )
+                }
+            } else {
+                Column {
+                    message.linkPreviews.takeIf { it.isNotEmpty() }?.let { previews ->
+                        LinkPreviewCard(preview = previews.first())
+                    }
+
+                    Column(
+                        modifier = Modifier.padding(
+                            start = dimensions().spacing10x,
+                            end = dimensions().spacing10x,
+                            top = dimensions().spacing8x
+                        )
+                    ) {
+                        messageContent.messageBody.quotedMessage?.let {
+                            when (it) {
+                                is UIQuotedMessage.UIQuotedData -> QuotedMessage(
+                                    conversationId = message.conversationId,
+                                    messageData = it,
+                                    style = QuotedMessageStyle(
+                                        quotedStyle = QuotedStyle.COMPLETE,
+                                        messageStyle = messageStyle,
+                                        selfAccent = accent,
+                                        senderAccent = it.senderAccent
+                                    ),
+                                    clickable = onReplyClick
+                                )
+
+                                UIQuotedMessage.UnavailableData -> QuotedUnavailable(
+                                    style = QuotedMessageStyle(
+                                        quotedStyle = QuotedStyle.COMPLETE,
+                                        messageStyle = messageStyle,
+                                        selfAccent = accent,
+                                        senderAccent = Accent.Unknown
+                                    )
+                                )
+                            }
+                            VerticalSpace.x4()
+                        }
+
+                        MessageBody(
+                            messageBody = messageContent.messageBody,
+                            searchQuery = searchQuery,
+                            isAvailable = !message.isPending && message.isAvailable,
+                            onOpenProfile = onOpenProfile,
+                            buttonList = null,
+                            messageId = message.header.messageId,
+                            onLinkClick = onLinkClick,
+                            messageStyle = messageStyle,
+                            accent = accent,
+                            linkPreviews = message.linkPreviews
                         )
                     }
-                    VerticalSpace.x4()
                 }
-                message.linkPreviews.takeIf { it.isNotEmpty() }?.let {
-                    val linkPreview = it.first()
-                    LinkPreviewCard(preview = linkPreview)
-                    VerticalSpace.x4()
-                }
-                MessageBody(
-                    messageBody = messageContent.messageBody,
-                    searchQuery = searchQuery,
-                    isAvailable = !message.isPending && message.isAvailable,
-                    onOpenProfile = onOpenProfile,
-                    buttonList = null,
-                    messageId = message.header.messageId,
-                    onLinkClick = onLinkClick,
-                    messageStyle = messageStyle,
-                    accent = accent,
-                    linkPreviews = message.linkPreviews
-                )
             }
         }
 

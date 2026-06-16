@@ -96,7 +96,18 @@ sealed interface UIMessage {
             else -> null
         }
 
-        val hasAssetParams: Boolean = assetParams != null && !decryptionFailed
+        val linkPreviewParams: VisualMediaParams? =
+            if (messageContent is UIMessageContent.TextMessage) {
+                linkPreviews.firstNotNullOfOrNull { preview ->
+                    preview.image
+                        ?.takeIf { it.assetWidth > 0 && it.assetHeight > 0 }
+                        ?.let { VisualMediaParams(it.assetWidth, it.assetHeight) }
+                }
+            } else {
+                null
+            }
+
+        val hasAssetParams: Boolean = (assetParams != null || linkPreviewParams != null) && !decryptionFailed
 
         private val isReplyableContent: Boolean
             get() = messageContent is UIMessageContent.TextMessage ||

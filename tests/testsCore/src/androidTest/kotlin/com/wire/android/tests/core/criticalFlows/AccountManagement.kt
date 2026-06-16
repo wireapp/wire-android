@@ -43,8 +43,8 @@ class AccountManagement : BaseUiTest() {
     @Before
     fun setUp() {
         initCommonTestHelpers()
-        appPackage = UiAutomatorSetup.APP_ALPHA
-        device = UiAutomatorSetup.start(appPackage)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
+        appPackage = UiAutomatorSetup.appPackage
         backendClient = BackendClient.loadBackend("STAGING")
     }
 
@@ -174,6 +174,8 @@ class AccountManagement : BaseUiTest() {
             step("Verify new email via Chrome") {
                 pages.settingsPage.apply {
                     clickEmailVerificationLink(activationLink)
+                    pages.chromePage.dismissFirstRunIfVisible()
+                    pages.chromePage.dismissNotificationsPromptIfVisible()
                     assertEmailVerifiedMessageVisibleOnChrome()
                 }
             }

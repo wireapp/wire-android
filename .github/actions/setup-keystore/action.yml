@@ -20,21 +20,25 @@ runs:
   steps:
     - name: Validate keystore type
       shell: bash
+      env:
+        KEYSTORE_TYPE_INPUT: ${{ inputs.keystore-type }}
       run: |
-        case "${{ inputs.keystore-type }}" in
+        case "${KEYSTORE_TYPE_INPUT}" in
           debug|prerelease|internal|public)
-            echo "Valid keystore type: ${{ inputs.keystore-type }}"
+            echo "Valid keystore type: ${KEYSTORE_TYPE_INPUT}"
             ;;
           *)
-            echo "Error: Invalid keystore type '${{ inputs.keystore-type }}'. Must be one of: debug, prerelease, internal, public"
+            echo "Error: Invalid keystore type '${KEYSTORE_TYPE_INPUT}'. Must be one of: debug, prerelease, internal, public"
             exit 1
             ;;
         esac
 
     - name: Setup keystore directory
       shell: bash
+      env:
+        KEYSTORE_PATH_INPUT: ${{ inputs.keystore-path }}
       run: |
-        mkdir -p "${{ inputs.keystore-path }}"
+        mkdir -p "${KEYSTORE_PATH_INPUT}"
 
     - name: Decode keystore
       id: setup

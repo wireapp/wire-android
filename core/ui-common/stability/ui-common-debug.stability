@@ -869,7 +869,7 @@ public fun com.wire.android.ui.common.button.WireButtonColors.rippleColor(state:
     - state: STABLE (class with no mutable properties)
 
 @Composable
-public fun com.wire.android.ui.common.button.WireItemLabel(text: kotlin.String, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, shape: androidx.compose.ui.graphics.Shape, contentDescription: kotlin.String): kotlin.Unit
+public fun com.wire.android.ui.common.button.WireItemLabel(text: kotlin.String, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, shape: androidx.compose.ui.graphics.Shape, textStyle: androidx.compose.ui.text.TextStyle, contentDescription: kotlin.String): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -877,6 +877,7 @@ public fun com.wire.android.ui.common.button.WireItemLabel(text: kotlin.String, 
     - modifier: STABLE (marked @Stable or @Immutable)
     - contentPadding: STABLE (marked @Stable or @Immutable)
     - shape: STABLE (marked @Stable or @Immutable)
+    - textStyle: STABLE (marked @Stable or @Immutable)
     - contentDescription: STABLE (String is immutable)
 
 @Composable
@@ -1340,6 +1341,15 @@ public fun com.wire.android.ui.common.image.WireImage(model: kotlin.Any?, conten
     - placeholder: RUNTIME (requires runtime check)
 
 @Composable
+public fun com.wire.android.ui.common.image.ZoomableImageContainer(painter: androidx.compose.ui.graphics.painter.Painter, contentDescription: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - painter: RUNTIME (requires runtime check)
+    - contentDescription: STABLE (String is immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 public fun com.wire.android.ui.common.legalhold.dialog.common.LearnMoreAboutLegalHoldButton(modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -1774,21 +1784,21 @@ public fun com.wire.android.ui.common.textfield.InnerBasicTextFieldBuilder.Build
     - textFieldModifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.common.textfield.InnerTextLayout(innerTextField: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, shouldShowPlaceholder: kotlin.Boolean, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, placeholderText: kotlin.String?, style: com.wire.android.ui.common.textfield.WireTextFieldState, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, inputMinHeight: androidx.compose.ui.unit.Dp, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onTap: kotlin.Function0<kotlin.Unit>?): kotlin.Unit
+private fun com.wire.android.ui.common.textfield.InnerTextLayout(innerTextField: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, shouldShowPlaceholder: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, placeholderText: kotlin.String?, style: com.wire.android.ui.common.textfield.WireTextFieldState, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onInputSizeChanged: kotlin.Function1<androidx.compose.ui.unit.IntSize, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - innerTextField: STABLE (composable function type)
     - shouldShowPlaceholder: STABLE (primitive type)
+    - modifier: STABLE (marked @Stable or @Immutable)
     - leadingIcon: STABLE (composable function type)
     - trailingIcon: STABLE (composable function type)
     - placeholderText: STABLE (class with no mutable properties)
     - style: STABLE (class with no mutable properties)
     - placeholderTextStyle: STABLE (marked @Stable or @Immutable)
     - placeholderAlignment: STABLE (marked @Stable or @Immutable)
-    - inputMinHeight: STABLE (marked @Stable or @Immutable)
     - colors: STABLE (marked @Stable or @Immutable)
-    - onTap: STABLE (function type)
+    - onInputSizeChanged: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.common.textfield.VisibilityIconButton(isVisible: kotlin.Boolean, onVisibleChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
@@ -1838,7 +1848,7 @@ public fun com.wire.android.ui.common.textfield.WirePasswordTextField(textState:
     - testTag: STABLE (String is immutable)
 
 @Composable
-public fun com.wire.android.ui.common.textfield.WireTextField(textState: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, inputModifier: androidx.compose.ui.Modifier, placeholderText: kotlin.String?, labelText: kotlin.String?, labelMandatoryIcon: kotlin.Boolean, descriptionText: kotlin.String?, semanticDescription: kotlin.String?, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, state: com.wire.android.ui.common.textfield.WireTextFieldState, autoFillType: com.wire.android.ui.common.textfield.WireAutoFillType, lineLimits: androidx.compose.foundation.text.input.TextFieldLineLimits, inputTransformation: androidx.compose.foundation.text.input.InputTransformation, outputTransformation: androidx.compose.foundation.text.input.OutputTransformation?, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, scrollState: androidx.compose.foundation.ScrollState, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource, textStyle: androidx.compose.ui.text.TextStyle, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, inputMinHeight: androidx.compose.ui.unit.Dp, shape: androidx.compose.ui.graphics.Shape, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>, onTap: kotlin.Function0<kotlin.Unit>?, testTag: kotlin.String, validateKeyboardOptions: kotlin.Boolean, enabled: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.common.textfield.WireTextField(textState: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, inputModifier: androidx.compose.ui.Modifier, placeholderText: kotlin.String?, labelText: kotlin.String?, labelMandatoryIcon: kotlin.Boolean, descriptionText: kotlin.String?, semanticDescription: kotlin.String?, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, state: com.wire.android.ui.common.textfield.WireTextFieldState, autoFillType: com.wire.android.ui.common.textfield.WireAutoFillType, lineLimits: androidx.compose.foundation.text.input.TextFieldLineLimits, inputTransformation: androidx.compose.foundation.text.input.InputTransformation, outputTransformation: androidx.compose.foundation.text.input.OutputTransformation?, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, scrollState: androidx.compose.foundation.ScrollState, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource, textStyle: androidx.compose.ui.text.TextStyle, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, inputMinHeight: androidx.compose.ui.unit.Dp, shape: androidx.compose.ui.graphics.Shape, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>, onInputSizeChanged: kotlin.Function1<androidx.compose.ui.unit.IntSize, kotlin.Unit>, onTap: kotlin.Function0<kotlin.Unit>?, testTag: kotlin.String, validateKeyboardOptions: kotlin.Boolean, enabled: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -1869,6 +1879,7 @@ public fun com.wire.android.ui.common.textfield.WireTextField(textState: android
     - colors: STABLE (marked @Stable or @Immutable)
     - onSelectedLineIndexChanged: STABLE (function type)
     - onLineBottomYCoordinateChanged: STABLE (function type)
+    - onInputSizeChanged: STABLE (function type)
     - onTap: STABLE (function type)
     - testTag: STABLE (String is immutable)
     - validateKeyboardOptions: STABLE (primitive type)
@@ -1940,7 +1951,7 @@ public fun com.wire.android.ui.common.textfield.WireTextFieldColors.textColor(st
     - state: STABLE (class with no mutable properties)
 
 @Composable
-internal fun com.wire.android.ui.common.textfield.WireTextFieldLayout(shouldShowPlaceholder: kotlin.Boolean, innerBasicTextField: com.wire.android.ui.common.textfield.InnerBasicTextFieldBuilder, modifier: androidx.compose.ui.Modifier, placeholderText: kotlin.String?, labelText: kotlin.String?, labelMandatoryIcon: kotlin.Boolean, descriptionText: kotlin.String?, semanticDescription: kotlin.String?, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, state: com.wire.android.ui.common.textfield.WireTextFieldState, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, inputMinHeight: androidx.compose.ui.unit.Dp, shape: androidx.compose.ui.graphics.Shape, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onTap: kotlin.Function0<kotlin.Unit>?, testTag: kotlin.String): kotlin.Unit
+internal fun com.wire.android.ui.common.textfield.WireTextFieldLayout(shouldShowPlaceholder: kotlin.Boolean, innerBasicTextField: com.wire.android.ui.common.textfield.InnerBasicTextFieldBuilder, modifier: androidx.compose.ui.Modifier, placeholderText: kotlin.String?, labelText: kotlin.String?, labelMandatoryIcon: kotlin.Boolean, descriptionText: kotlin.String?, semanticDescription: kotlin.String?, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, state: com.wire.android.ui.common.textfield.WireTextFieldState, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, inputMinHeight: androidx.compose.ui.unit.Dp, shape: androidx.compose.ui.graphics.Shape, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onInputSizeChanged: kotlin.Function1<androidx.compose.ui.unit.IntSize, kotlin.Unit>, onTap: kotlin.Function0<kotlin.Unit>?, testTag: kotlin.String): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1961,6 +1972,7 @@ internal fun com.wire.android.ui.common.textfield.WireTextFieldLayout(shouldShow
     - inputMinHeight: STABLE (marked @Stable or @Immutable)
     - shape: STABLE (marked @Stable or @Immutable)
     - colors: STABLE (marked @Stable or @Immutable)
+    - onInputSizeChanged: STABLE (function type)
     - onTap: STABLE (function type)
     - testTag: STABLE (String is immutable)
 
@@ -2548,4 +2560,3 @@ public fun com.wire.android.util.ui.rememberLazyListStateProvider(): com.wire.an
   skippable: true
   restartable: true
   params:
-

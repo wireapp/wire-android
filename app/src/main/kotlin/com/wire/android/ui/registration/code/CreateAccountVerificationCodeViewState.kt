@@ -19,6 +19,7 @@
 package com.wire.android.ui.registration.code
 
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.logic.data.user.UserId
 
 data class CreateAccountVerificationCodeViewState(
     val codeLength: Int = DEFAULT_VERIFICATION_CODE_LENGTH,
@@ -51,6 +52,6 @@ sealed interface CreateAccountCodeResult {
             data class GenericError(val coreFailure: CoreFailure) : DialogError()
         }
 
-        data object TooManyDevicesError : Error()
+        data class TooManyDevicesError(val userId: UserId) : Error()
     }
 }

@@ -41,7 +41,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.appLogger
 import com.wire.android.di.metro.LocalWireViewModelScopeKey
-import com.wire.android.di.metro.createCurrentSessionViewModelGraph
+import com.wire.android.di.metro.AppSessionViewModelGraph
+import com.wire.android.di.metro.createSessionViewModelGraph
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.model.LocalWireSessionImageLoader
 import com.wire.android.ui.AppLockActivity
@@ -112,6 +113,12 @@ abstract class CallActivity : BaseActivity() {
 
         enableEdgeToEdge()
 
+        val sessionViewModelGraph = createCallSessionViewModelGraph(intent) ?: run {
+            appLogger.e("$TAG missing call session user id, closing call activity")
+            finish()
+            return
+        }
+
         handleNewIntent(intent)
 
         appLogger.i("$TAG Initializing proximity sensor..")
@@ -119,12 +126,12 @@ abstract class CallActivity : BaseActivity() {
 
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
-            val sessionViewModelGraph = remember { wireApplicationGraph.createCurrentSessionViewModelGraph() }
+            val rememberedSessionViewModelGraph = remember { sessionViewModelGraph }
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelFactory provides wireApplicationGraph.metroViewModelFactory,
-                LocalWireViewModelScopeKey provides sessionViewModelGraph.viewModelScopeKey,
-                LocalWireSessionImageLoader provides sessionViewModelGraph.wireSessionImageLoader,
+                LocalMetroViewModelFactory provides rememberedSessionViewModelGraph.metroViewModelFactory,
+                LocalWireViewModelScopeKey provides rememberedSessionViewModelGraph.viewModelScopeKey,
+                LocalWireSessionImageLoader provides rememberedSessionViewModelGraph.wireSessionImageLoader,
                 LocalActivity provides this
             ) {
                 WireTheme {
@@ -151,6 +158,11 @@ abstract class CallActivity : BaseActivity() {
     @Composable
     protected abstract fun Content()
 
+    private fun createCallSessionViewModelGraph(intent: Intent): AppSessionViewModelGraph? =
+        intent.getStringExtra(EXTRA_USER_ID)
+            ?.let(qualifiedIdMapper::fromStringToQualifiedID)
+            ?.let(wireApplicationGraph::createSessionViewModelGraph)
+
     fun switchAccountIfNeeded(userId: String?) {
         userId?.let {
             qualifiedIdMapper.fromStringToQualifiedID(it).run {
@@ -163,6 +175,9 @@ abstract class CallActivity : BaseActivity() {
         Intent(this, AppLockActivity::class.java)
             .apply {
                 flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                intent.getStringExtra(EXTRA_USER_ID)?.let {
+                    putExtra(AppLockActivity.EXTRA_USER_ID, it)
+                }
             }.run {
                 startActivity(this)
             }

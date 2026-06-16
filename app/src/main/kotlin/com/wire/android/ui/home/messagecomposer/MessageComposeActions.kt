@@ -58,6 +58,7 @@ fun MessageComposeActions(
     onGifButtonClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit,
     isFileSharingEnabled: Boolean,
+    areAttachmentOptionsEnabled: Boolean,
     isMentionActive: Boolean = true,
     onDrawingModeClicked: () -> Unit
 ) {
@@ -81,7 +82,8 @@ fun MessageComposeActions(
             onPingButtonClicked = onPingButtonClicked,
             onMentionButtonClicked = onMentionButtonClicked,
             onDrawingModeClicked = onDrawingModeClicked,
-            isFileSharingEnabled = isFileSharingEnabled
+            isFileSharingEnabled = isFileSharingEnabled,
+            areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
         )
     }
 }
@@ -91,6 +93,7 @@ private fun ComposingActions(
     conversationId: ConversationId,
     selectedOption: AdditionalOptionSelectItem,
     isFileSharingEnabled: Boolean,
+    areAttachmentOptionsEnabled: Boolean,
     attachmentsVisible: Boolean,
     isMentionActive: Boolean,
     onAdditionalOptionButtonClicked: () -> Unit,
@@ -120,7 +123,10 @@ private fun ComposingActions(
                 onRichEditingButtonClicked
             )
             if (DrawingIcon && isFileSharingEnabled) {
-                DrawingModeAction(onDrawingModeClicked)
+                DrawingModeAction(
+                    onButtonClicked = onDrawingModeClicked,
+                    isEnabled = areAttachmentOptionsEnabled,
+                )
             }
             if (EmojiIcon) AddEmojiAction({})
             if (GifIcon) AddGifAction(onGifButtonClicked)
@@ -175,12 +181,12 @@ private fun RichTextEditingAction(isSelected: Boolean, onButtonClicked: () -> Un
 }
 
 @Composable
-private fun DrawingModeAction(onButtonClicked: () -> Unit) {
+private fun DrawingModeAction(onButtonClicked: () -> Unit, isEnabled: Boolean) {
     WireSecondaryIconButton(
         onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_drawing,
-        state = WireButtonState.Default,
+        state = if (isEnabled) WireButtonState.Default else WireButtonState.Disabled,
         contentDescription = R.string.content_description_conversation_enable_drawing_mode
     )
 }
@@ -293,7 +299,7 @@ fun PreviewMessageActionsBox() {
             .height(dimensions().spacing56x)
     ) {
         AdditionalOptionButton(isSelected = false, onClick = {})
-        DrawingModeAction {}
+        DrawingModeAction(onButtonClicked = {}, isEnabled = true)
         RichTextEditingAction(true) { }
         AddEmojiAction {}
         AddGifAction {}

@@ -53,6 +53,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.R
 import com.wire.android.ui.theme.WireTheme
@@ -90,6 +91,7 @@ fun WireTextField(
     colors: WireTextFieldColors = wireTextFieldColors(),
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
+    onInputSizeChanged: (IntSize) -> Unit = { },
     onTap: (() -> Unit)? = null,
     testTag: String = String.EMPTY,
     validateKeyboardOptions: Boolean = true,
@@ -132,6 +134,7 @@ fun WireTextField(
                 textState::setTextAndPlaceCursorAtEnd
             )
         ),
+        onInputSizeChanged = onInputSizeChanged,
         onTap = onTap,
         testTag = testTag,
         innerBasicTextField = { decorator, textFieldModifier ->

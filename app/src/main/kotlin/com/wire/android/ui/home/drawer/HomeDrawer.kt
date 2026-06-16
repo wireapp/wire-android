@@ -98,19 +98,19 @@ fun HomeDrawer(
                 .height(MaterialTheme.wireDimensions.homeDrawerLogoHeight)
         )
 
-        if (!isFocusTrapEnabled) {
-            return@Column
-        }
-
         val (topItems, bottomItems) = homeDrawerState.items
         val allItems = topItems + bottomItems
-        val focusRequesters = remember(allItems.size, firstItemFocusRequester, lastItemFocusRequester) {
-            List(allItems.size) { index ->
-                when (index) {
-                    0 -> firstItemFocusRequester ?: FocusRequester()
-                    allItems.lastIndex -> lastItemFocusRequester ?: FocusRequester()
-                    else -> FocusRequester()
+        val focusRequesters = remember(isFocusTrapEnabled, allItems.size, firstItemFocusRequester, lastItemFocusRequester) {
+            if (isFocusTrapEnabled) {
+                List(allItems.size) { index ->
+                    when (index) {
+                        0 -> firstItemFocusRequester ?: FocusRequester()
+                        allItems.lastIndex -> lastItemFocusRequester ?: FocusRequester()
+                        else -> FocusRequester()
+                    }
                 }
+            } else {
+                emptyList()
             }
         }
 

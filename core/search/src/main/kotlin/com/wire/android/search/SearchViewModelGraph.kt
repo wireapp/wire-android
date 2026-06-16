@@ -28,16 +28,27 @@ import com.wire.kalium.logic.data.id.ConversationId
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
 interface SearchManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun searchUserViewModel(conversationId: ConversationId? = null): SearchUserViewModel
+    fun searchUserViewModel(
+        conversationId: ConversationId? = null,
+        onlyConnectedContacts: Boolean = false,
+    ): SearchUserViewModel
+
     fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo? = null): SearchAppsViewModel
 }
 
 @Composable
-fun searchUserViewModel(conversationId: ConversationId? = null): SearchUserViewModel =
+fun searchUserViewModel(
+    conversationId: ConversationId? = null,
+    onlyConnectedContacts: Boolean = false,
+): SearchUserViewModel =
     sessionKeyedAssistedMetroViewModel<SearchUserViewModel, SearchManualViewModelFactory>(
-        key = conversationId?.let { "search_user_conversation_id_$it" } ?: "search_user"
+        key = listOfNotNull(
+            "search_user",
+            if (onlyConnectedContacts) "only_connected_contacts" else null,
+            if (conversationId != null) "conversation_id_${conversationId.value}" else null
+        ).joinToString("_")
     ) {
-        searchUserViewModel(conversationId)
+        searchUserViewModel(conversationId, onlyConnectedContacts)
     }
 
 @Composable

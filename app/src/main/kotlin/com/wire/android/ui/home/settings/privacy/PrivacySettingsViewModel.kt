@@ -22,9 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
@@ -52,8 +54,11 @@ class PrivacySettingsViewModel @Inject constructor(
     private val observeTypingIndicatorEnabled: ObserveTypingIndicatorEnabledUseCase,
     private val analyticsEnabled: AnalyticsConfiguration,
     private val selfServerConfig: SelfServerConfigUseCase,
-    private val dataStore: UserDataStore
+    userDataStoreProvider: UserDataStoreProvider,
+    @CurrentAccount selfUserId: UserId,
 ) : ViewModel() {
+    private val dataStore = userDataStoreProvider.getOrCreate(selfUserId)
+
     var state by mutableStateOf(PrivacySettingsState())
         private set
     init {

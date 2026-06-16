@@ -1118,6 +1118,7 @@ private fun ConversationScreen(
         MessageOptionsModalSheetLayout(
             conversationId = conversationInfoViewState.conversationId,
             sheetState = conversationScreenState.editSheetState,
+            isNetworkAvailable = conversationMessagesViewState.isNetworkAvailable,
             onCopyClick = conversationScreenState::copyMessage,
             onDeleteClick = onDeleteMessage,
             onReactionClick = onReactionClick,

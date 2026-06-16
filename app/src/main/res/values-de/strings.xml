@@ -34,6 +34,7 @@
     <string name="label_leave">Verlassen</string>
     <string name="label_add_device">Gerät hinzufügen</string>
     <string name="label_learn_more">Mehr erfahren</string>
+    <string name="label_learn_more_about_mls">Erfahren Sie mehr über MLS</string>
     <string name="label_removing">Entfernen…</string>
     <string name="label_logging_in">Anmelden…</string>
     <string name="label_try_again">Erneut versuchen</string>
@@ -107,12 +108,15 @@
     <string name="content_description_conversation_back_btn">Zurück zur Unterhaltungsliste</string>
     <string name="content_description_conversation_open_details_label">Unterhaltungsdetails öffnen</string>
     <string name="content_description_new_conversation">Neu. Neue Unterhaltung beginnen</string>
+    <string name="content_description_new_meeting">Meeting starten oder planen</string>
     <string name="content_description_back_button">Zurück</string>
     <string name="content_description_send_button">Senden</string>
     <string name="content_description_timed_message_button">Selbstlöschende Nachrichten, Taste</string>
     <string name="content_description_close_button">Schließen</string>
     <string name="content_description_menu_button">Hauptnavigation</string>
     <string name="content_description_drop_down_icon">Dropdown-Pfeil</string>
+    <string name="content_description_expand_text_icon">Textfeld erweitern</string>
+    <string name="content_description_collapse_text_icon">Textfeld einklappen</string>
     <string name="content_description_remove_devices_screen_remove_icon">Gerät entfernen</string>
     <string name="content_description_avatar_preview">Vorschau des Profilbildes</string>
     <string name="content_description_choose_from_gallery">Aus Galerie wählen</string>
@@ -120,6 +124,7 @@
     <string name="content_description_attachment_item">Anhang hinzufügen</string>
     <string name="content_description_open_message_details">Nachrichtendetails öffnen</string>
     <string name="content_description_copy_the_message">Nachricht kopieren</string>
+    <string name="content_description_share_the_file">Ausgewählte Datei mit anderer App teilen</string>
     <string name="content_description_delete_the_message">Nachricht löschen</string>
     <string name="content_description_edit_the_message">Nachricht bearbeiten</string>
     <string name="content_description_more_options">Weitere Optionen</string>
@@ -150,12 +155,19 @@
     <string name="content_description_calling_collapse">Ausblenden</string>
     <string name="content_description_calling_expanded_participants_list">Teilnehmerliste anzeigen</string>
     <string name="content_description_calling_collapsed_participants_list">Teilnehmerliste ausblenden</string>
+    <string name="content_description_calling_in_call_reactions_show">Optionen für Anrufreaktionen anzeigen</string>
+    <string name="content_description_calling_in_call_reactions_hide">Optionen für Anrufreaktionen ausblenden</string>
     <string name="content_description_call_open_calling_details">Anrufdetails öffnen</string>
     <string name="content_description_call_low_network_quality">Geringe Netzwerkqualität</string>
+    <string name="content_description_call_network_quality_view_details">Details anzeigen</string>
+    <string name="content_description_call_network_quality_close_details">Details schließen</string>
     <string name="content_description_reply_to_messge">Auf die Nachricht antworten</string>
+    <string name="content_description_reply_cancel">Antwort auf Nachricht abbrechen</string>
+    <string name="content_description_ping_message">Ping-Nachricht</string>
     <string name="content_description_copy">Kopieren</string>
     <string name="content_description_edit">Bearbeiten</string>
     <string name="content_description_calling_call_muted">Anruf stummgeschaltet</string>
+    <string name="content_description_calling_call_paused_camera">Kamera angehalten</string>
     <string name="content_description_more_emojis">Weitere Emojis</string>
     <string name="content_description_message_sending_status">Nachricht wird gesendet</string>
     <string name="content_description_message_sent_status">Nachricht wurde gesendet</string>
@@ -165,6 +177,7 @@
     <string name="content_description_record_audio_button_stop">Aufnahme stoppen</string>
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
     <string name="content_description_mls_certificate_valid">Alle Geräte sind überprüft (Ende-zu-Ende-Identität)</string>
+    <string name="content_description_proteus_certificate_valid">Alle Teilnehmer sind verifiziert (Proteus)</string>
     <string name="content_description_jump_to_last_message">Zum Ende der Unterhaltung scrollen</string>
     <string name="content_description_conversation_details_more_btn">Unterhaltungsoptionen öffnen</string>
     <string name="content_description_conversation_details_options_tab_header">Optionen</string>
@@ -228,6 +241,7 @@
     <string name="content_description_login_sso_code_field">Geben Sie Ihren SSO-Code oder Wire E-Mail-Adresse ein</string>
     <string name="content_description_whats_new_welcome_item">Willkommen bei der Android-App, Link zur Support-Seite</string>
     <string name="content_description_whats_new_all_releases_item">Alle Android Release Notizen, Link zur Release-Übersicht</string>
+    <string name="content_description_whats_new_release_item">%1$s, %2$s, verlinken zu dem Release-Details</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
@@ -316,7 +330,7 @@
     <string name="enterprise_login_create_account_label">Sie haben kein Benutzerkonto?</string>
     <string name="enterprise_login_create_account_text_button">Konto oder Team erstellen</string>
     <string name="enterprise_login_on_prem_welcome_title">Willkommen bei Wire Enterprise für %s!</string>
-    <string name="enterprise_login_verification_code_title">Du hast eine Mail bekommen</string>
+    <string name="enterprise_login_verification_code_title">Posteingang prüfen</string>
     <!-- Login -->
     <string name="login_title">Anmelden</string>
     <string name="login_forgot_password">Passwort vergessen?</string>
@@ -589,10 +603,16 @@
     <string name="leave_conversation_dialog_description">Sie können dann auf keinem Gerät mehr Nachrichten in dieser Gruppe senden oder lesen.</string>
     <string name="leave_conversation_dialog_delete_fully_check">Die Unterhaltung und ihren Inhalt für mich auf allen meinen Geräten löschen</string>
     <string name="leave_conversation_admin_options_dialog_description_with_promote">Sie sind der einzige Admin.\nErnennen Sie vor dem Verlassen der Gruppe einen anderen Teilnehmer zum Admin oder löschen Sie die Gruppe, wenn sie nicht mehr benötigt wird.</string>
+    <string name="leave_conversation_admin_options_dialog_description_with_promote_no_delete">Sie sind der einzige Admin\nErnennen Sie einen anderen Teilnehmer, bevor Sie gehen.</string>
+    <string name="leave_conversation_admin_options_dialog_description_no_promote">Sie sind der einzige Admin. Die anderen Teilnehmer können keine Admins sein.\nFügen Sie mindestens ein Team-Mitglied hinzu und ernennen Sie es zum Admin, bevor Sie gehen. Alternativ löschen Sie die Gruppe, wenn sie nicht mehr benötigt wird.</string>
+    <string name="leave_conversation_admin_options_dialog_promote_button">Neuen Admin ernennen</string>
     <string name="leave_conversation_admin_options_dialog_delete_button">Gruppe löschen</string>
+    <string name="promote_admin_screen_title">Neuen Admin ernennen</string>
     <string name="promote_admin_search_placeholder">Name oder E-Mail-Adresse eingeben</string>
+    <string name="promote_admin_button">Als Admin ernennen und Gruppe verlassen</string>
     <string name="delete_conversation_conversation_menu_item">Unterhaltung löschen…</string>
     <string name="delete_conversation_conversation_dialog_title">\"%s\" entfernen?</string>
+    <string name="delete_conversation_conversation_dialog_description">Dies wird die Gruppe und alle Inhalte für alle Teilnehmer auf allen Geräten löschen. Es gibt keine Möglichkeit, den Inhalt wiederherzustellen. Alle Teilnehmer werden darüber benachrichtigt.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Unterhaltung \"%s\" für mich löschen?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">Sie können dann nicht mehr auf die Unterhaltung und ihren Inhalt zugreifen. Es gibt keine Möglichkeit, sie wiederherzustellen.</string>
     <string name="delete_conversation_locally_delete_for_me_label">Für mich löschen</string>
@@ -680,6 +700,7 @@
     <string name="label_move_to_folder">In Ordner verschieben…</string>
     <string name="label_remove_from_folder">Aus dem Ordner “%1$s” entfernen</string>
     <string name="label_new_folder">Neuer Ordner</string>
+    <string name="folder_create_description">Erstellen Sie einen neuen Ordner durch Auswählen der\nSchaltfläche „Neuer Ordner“</string>
     <string name="label_move_to_archive">Ins Archiv verschieben</string>
     <string name="label_unarchive">Reaktivieren</string>
     <string name="label_clear_content">Verlauf löschen…</string>
@@ -780,7 +801,9 @@
     <string name="label_system_message_conversation_history_lost">Sie haben das Gerät eine Weile nicht benutzt. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Sie haben dieses Gerät schon seit einiger Zeit nicht mehr aktualisiert. In der Zwischenzeit wurde das Standard-Nachrichtenprotokoll von Proteus auf Messaging-Layer-Security (MLS) umgestellt. Aufgrund dieser Änderung werden einige Nachrichten hier möglicherweise nicht angezeigt.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Sie haben Ihre App nicht rechtzeitig aktualisiert. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
+    <string name="label_system_message_conversation_protocol_changed_proteus">Migration des Verschlüsselungsprotokolls wurde abgebrochen.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Aufgrund der Umstellung auf MLS haben Sie möglicherweise Probleme mit Ihrem aktuellen Anruf. Wenn das der Fall ist, legen Sie auf und rufen Sie erneut an.</string>
+    <string name="label_system_message_conversation_protocol_changed_mixed">Das Standard-Nachrichtenprotokoll wird von Proteus auf Messaging-Layer-Security (MLS) umgestellt.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Diese Unterhaltung verwendet jetzt das neue Protokoll namens Messaging-Layer-Security (MLS). Um eine reibungslose Kommunikation zu gewährleisten, verwenden Sie immer die neueste Wire-Version auf Ihren Geräten.</string>
     <string name="label_system_message_receipt_mode_on">ein</string>
     <string name="label_system_message_receipt_mode_off">aus</string>
@@ -802,6 +825,10 @@
     <plurals name="label_system_message_conversation_failed_add_members_details_unknown">
         <item quantity="one">%1$s konnte der Unterhaltung nicht hinzugefügt werden.</item>
         <item quantity="other">%1$s konnten der Unterhaltung nicht hinzugefügt werden.</item>
+    </plurals>
+    <plurals name="label_system_message_conversation_failed_add_members_details_missing_key_packages">
+        <item quantity="one">%1$s konnte nicht zur Unterhaltung hinzugefügt werden. Möglicherweise verfügt %1$s nicht über ein MLS-fähiges Gerät.</item>
+        <item quantity="other">%1$s konnten nicht zur Unterhaltung hinzugefügt werden. Möglicherweise verfügen sie nicht über MLS-fähige Geräte.</item>
     </plurals>
     <string name="label_system_message_conversation_degraded_mls">Diese Unterhaltung ist nicht mehr überprüft, da mindestens ein Teilnehmer ein neues Gerät verwendet oder ein ungültiges Zertifikat hat.</string>
     <string name="label_system_message_conversation_degraded_proteus">Diese Unterhaltung ist nicht mehr überprüft, da mindestens ein Teilnehmer ein neues Gerät verwendet oder ein ungültiges Zertifikat hat.</string>
@@ -927,6 +954,7 @@
     <string name="label_public_channels">Öffentliche Channels</string>
     <string name="label_search_public_channels">Öffentliche Channels suchen</string>
     <string name="label_browse_public_channels">Öffentliche Channels durchsuchen</string>
+    <string name="label_search_channels_empty_title">Für dieses Team wurden noch keine öffentlichen Channels erstellt.</string>
     <string name="label_learn_more_about_channels">Mehr über Channels erfahren</string>
     <string name="label_new_conversation">Neue Unterhaltung</string>
     <string name="label_general_error">Ein Fehler ist aufgetreten</string>
@@ -1645,6 +1673,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="app_permission_dialog_title">App-Berechtigungen</string>
     <string name="app_permission_dialog_settings_positive_button">Einstellungen</string>
     <string name="app_permission_dialog_settings_negative_button">Nicht jetzt</string>
+    <string name="notifications_permission_dialog_description">Um die App in vollem Umfang nutzen, Nachrichten empfangen und Anrufe entgegennehmen zu können, erlauben Sie Wire, Benachrichtigungen anzuzeigen.</string>
     <string name="call_permission_dialog_description">Um einen Anruf zu tätigen, erlauben Sie Wire den Zugriff auf Ihr Mikrofon in Ihren Geräteeinstellungen.</string>
     <string name="record_video_permission_dialog_description">Um ein Video aufzunehmen, erlauben Sie Wire den Zugriff auf Ihre Kamera in Ihren Geräteeinstellungen.</string>
     <string name="take_picture_permission_dialog_description">Um ein Bild aufzunehmen, erlauben Sie Wire den Zugriff auf Ihre Kamera in Ihren Geräteeinstellungen.</string>
@@ -1661,6 +1690,8 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <string name="no_gallery_app">Keine Galerie-App gefunden, um diese Aktion abzuschließen.</string>
+    <string name="no_file_manager_app">Keine App für Dateimanager gefunden, um diese Aktion abzuschließen.</string>
     <string name="restricted_asset_error_toast_message">Das Versenden von Dateien ist aufgrund von Firmenbeschränkungen verboten</string>
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">Ping senden</string>
@@ -1741,6 +1772,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="press_enter_to_send_text">Wenn diese Option aktiviert ist, können Sie Nachrichten mit der Eingabetaste auf Ihrer Tastatur senden.</string>
     <string name="customization_options_header_title">Optionen</string>
     <!-- enterprise configurations -->
+    <string name="restriction_sso_code_title">SSO-Code-Konfiguration</string>
     <string name="restriction_keep_websocket_title">WebSocket-Verbindung behalten</string>
     <string name="restriction_keep_websocket_description">Dauerhafte WebSocket-Verbindung für alle Benutzer erzwingen</string>
     <string name="settings_keep_websocket_enforced_by_organization">Diese Einstellung wird von Ihrer Organisation verwaltet.</string>
@@ -1770,4 +1802,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s hat **Apps** für diese Unterhaltung deaktiviert</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Hinzugefügte Apps haben Zugriff auf den Inhalt dieser Unterhaltung.</string>
     <string name="label_system_message_admin_role_assigned">Sie wurden zum Gruppen-Admin ernannt</string>
+    <string name="more_information_about_this_server">Mehr Informationen über dieses Backend</string>
 </resources>

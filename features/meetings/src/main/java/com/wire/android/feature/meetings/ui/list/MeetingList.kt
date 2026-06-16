@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
@@ -52,7 +53,7 @@ fun MeetingList(
     openMeetingOptions: (meetingId: String) -> Unit = {},
 ) {
     val meetingListViewModel: MeetingListViewModel = when {
-        LocalInspectionMode.current -> MeetingListViewModelPreview(type = type)
+        LocalInspectionMode.current -> remember(type) { MeetingListViewModelPreview(type = type) }
         else -> meetingListViewModel(type)
     }
     val lazyPagingItems = meetingListViewModel.meetings.collectAsLazyPagingItems()

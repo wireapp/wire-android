@@ -20,7 +20,9 @@ package com.wire.android.ui.home.settings.privacy
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
+import com.wire.android.framework.TestUser
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -120,6 +122,7 @@ class PrivacySettingsViewModelTest {
         val observeTypingIndicatorEnabled = mockk<ObserveTypingIndicatorEnabledUseCase>()
         val selfServerConfig = mockk<SelfServerConfigUseCase>()
         val dataStore = mockk<UserDataStore>()
+        val userDataStoreProvider = mockk<UserDataStoreProvider>()
 
         val viewModel by lazy {
             PrivacySettingsViewModel(
@@ -132,7 +135,8 @@ class PrivacySettingsViewModelTest {
                 observeTypingIndicatorEnabled = observeTypingIndicatorEnabled,
                 analyticsEnabled = AnalyticsConfiguration.Enabled,
                 selfServerConfig = selfServerConfig,
-                dataStore = dataStore
+                userDataStoreProvider = userDataStoreProvider,
+                selfUserId = TestUser.SELF_USER.id,
             )
         }
 
@@ -146,6 +150,7 @@ class PrivacySettingsViewModelTest {
                     flowOf(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)
             coEvery { persistTypingIndicatorStatusConfig.invoke(true) } returns TypingIndicatorConfigResult.Success
             coEvery { observeTypingIndicatorEnabled() } returns flowOf(true)
+            every { userDataStoreProvider.getOrCreate(TestUser.SELF_USER.id) } returns dataStore
             coEvery { dataStore.setIsAnonymousAnalyticsEnabled(any()) } returns Unit
             coEvery { selfServerConfig.invoke() } returns SelfServerConfigUseCase.Result.Success(
                 serverLinks = newServerConfig(1).copy(links = ServerConfig.STAGING)

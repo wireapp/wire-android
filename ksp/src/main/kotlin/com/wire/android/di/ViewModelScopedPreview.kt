@@ -33,10 +33,19 @@ import com.google.devtools.ksp.validate
 
 class ViewModelScopedPreviewProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor =
-        ViewModelScopedPreviewProcessor(environment.codeGenerator)
+        ViewModelScopedPreviewProcessor(
+            codeGenerator = environment.codeGenerator,
+            aggregateName = environment.options[AGGREGATE_NAME_OPTION] ?: DEFAULT_AGGREGATE_NAME,
+        )
 }
 
-internal class ViewModelScopedPreviewProcessor(private val codeGenerator: CodeGenerator) : SymbolProcessor {
+private const val AGGREGATE_NAME_OPTION = "wire.viewmodelScopedPreview.aggregateName"
+private const val DEFAULT_AGGREGATE_NAME = "ViewModelScopedPreviews"
+
+internal class ViewModelScopedPreviewProcessor(
+    private val codeGenerator: CodeGenerator,
+    private val aggregateName: String,
+) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val viewModelScopedPreviews: List<KSClassDeclaration> = resolver
             .getSymbolsWithAnnotation("com.wire.android.di.ViewModelScopedPreview")
@@ -78,7 +87,7 @@ internal class ViewModelScopedPreviewProcessor(private val codeGenerator: CodeGe
     private fun createListFile(items: List<KSClassDeclaration>) {
         if (!items.iterator().hasNext()) return
         val packageName = "com.wire.android.di"
-        val name = "ViewModelScopedPreviews"
+        val name = aggregateName
         val content = "package $packageName\n\n" +
                 items.joinToString("\n") { "import ${it.packageName.asString()}.${it.previewName()}" } + "\n\n" +
                 "object $name : PreviewProvider {" + "\n\t" +

@@ -20,6 +20,7 @@ package com.wire.android.tests.core.pages
 import android.view.KeyEvent
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
@@ -66,14 +67,14 @@ class TeamCreationPage(private val device: UiDevice) {
     }
 
     fun enterPassword(password: String?): TeamCreationPage {
-        val passwordField = device.findObjects(By.clazz("android.widget.EditText"))[3]
+        val passwordField = passwordTextFields().first()
         passwordField.click()
         passwordField.text = password
         return this
     }
 
     fun enterConfirmPassword(password: String?): TeamCreationPage {
-        val confirmPasswordField = device.findObjects(By.clazz("android.widget.EditText"))[4]
+        val confirmPasswordField = passwordTextFields().last()
         confirmPasswordField.click()
         confirmPasswordField.text = password
         return this
@@ -135,5 +136,22 @@ class TeamCreationPage(private val device: UiDevice) {
         if (!checkbox.isChecked) {
             checkbox.click()
         }
+    }
+
+    private fun passwordTextFields(): List<UiObject2> {
+        val textFields = sortedTextFields()
+        if (textFields.size < PASSWORD_FIELD_COUNT) {
+            throw AssertionError("Expected at least $PASSWORD_FIELD_COUNT text fields on Create a team page, but found ${textFields.size}")
+        }
+        return textFields.takeLast(PASSWORD_FIELD_COUNT)
+    }
+
+    private fun sortedTextFields(): List<UiObject2> =
+        device.findObjects(By.clazz("android.widget.EditText"))
+            .filter { !it.visibleBounds.isEmpty }
+            .sortedWith(compareBy({ it.visibleBounds.top }, { it.visibleBounds.left }))
+
+    private companion object {
+        const val PASSWORD_FIELD_COUNT = 2
     }
 }

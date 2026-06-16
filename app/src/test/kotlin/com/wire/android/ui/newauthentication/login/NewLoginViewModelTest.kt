@@ -504,14 +504,26 @@ class NewLoginViewModelTest {
     fun `given default path, when enterprise login, then call EmailPassword action with creation`() =
         testEnterpriseLoginActions(
             result = EnterpriseLoginResult.Success(LoginRedirectPath.Default),
-            expected = NewLoginAction.EmailPassword(email, LoginPasswordPath(isCloudAccountCreationPossible = true)),
+            expected = NewLoginAction.EmailPassword(
+                email,
+                LoginPasswordPath(
+                    customServerConfig = ServerConfig.STAGING,
+                    isCloudAccountCreationPossible = true
+                )
+            ),
         )
 
     @Test
     fun `given no registration path, when enterprise login, then call EmailPassword action with no creation`() =
         testEnterpriseLoginActions(
             result = EnterpriseLoginResult.Success(LoginRedirectPath.NoRegistration),
-            expected = NewLoginAction.EmailPassword(email, LoginPasswordPath(isCloudAccountCreationPossible = false)),
+            expected = NewLoginAction.EmailPassword(
+                email,
+                LoginPasswordPath(
+                    customServerConfig = ServerConfig.STAGING,
+                    isCloudAccountCreationPossible = false
+                )
+            ),
         )
 
     @Test
@@ -521,6 +533,7 @@ class NewLoginViewModelTest {
             expected = NewLoginAction.EmailPassword(
                 userIdentifier = email,
                 loginPasswordPath = LoginPasswordPath(
+                    customServerConfig = ServerConfig.STAGING,
                     isCloudAccountCreationPossible = false,
                     isDomainClaimedByOrg = DomainClaimedByOrg.Claimed("claimed-domain"),
                 )

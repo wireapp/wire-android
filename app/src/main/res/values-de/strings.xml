@@ -34,6 +34,7 @@
     <string name="label_leave">Verlassen</string>
     <string name="label_add_device">Gerät hinzufügen</string>
     <string name="label_learn_more">Mehr erfahren</string>
+    <string name="label_learn_more_about_mls">Erfahren Sie mehr über MLS</string>
     <string name="label_removing">Entfernen…</string>
     <string name="label_logging_in">Anmelden…</string>
     <string name="label_user_deleted">Gelöscht</string>
@@ -763,7 +764,9 @@
     <string name="label_system_message_conversation_history_lost">Sie haben das Gerät eine Weile nicht benutzt. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Sie haben dieses Gerät schon seit einiger Zeit nicht mehr aktualisiert. In der Zwischenzeit wurde das Standard-Nachrichtenprotokoll von Proteus auf Messaging-Layer-Security (MLS) umgestellt. Aufgrund dieser Änderung werden einige Nachrichten hier möglicherweise nicht angezeigt.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Sie haben Ihre App nicht rechtzeitig aktualisiert. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
+    <string name="label_system_message_conversation_protocol_changed_proteus">Die Migration des Verschlüsselungsprotokolls wurde abgebrochen.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Aufgrund der Umstellung auf MLS haben Sie möglicherweise Probleme mit Ihrem aktuellen Anruf. Wenn das der Fall ist, legen Sie auf und rufen Sie erneut an.</string>
+    <string name="label_system_message_conversation_protocol_changed_mixed">Das Standard-Nachrichtenprotokoll wird von Proteus auf Messaging-Layer-Security (MLS) umgestellt.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Diese Unterhaltung verwendet jetzt das neue Protokoll namens Messaging-Layer-Security (MLS). Um eine reibungslose Kommunikation zu gewährleisten, verwenden Sie immer die neueste Wire-Version auf Ihren Geräten.</string>
     <string name="label_system_message_receipt_mode_on">ein</string>
     <string name="label_system_message_receipt_mode_off">aus</string>

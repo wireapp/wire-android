@@ -146,7 +146,7 @@ fun UserProfileInfo(
                 targetState = userAvatarData to showPlaceholderIfNoAsset.value,
                 label = "UserProfileInfoAvatar"
             ) { (userAvatarData, showPlaceholderIfNoAsset) ->
-                val onAvatarClickDescription = stringResource(R.string.content_description_change_it_label)
+                val onAvatarClickDescription = stringResource(commonR.string.content_description_change_it_label)
                 val contentDescription = if (editableState is EditableState.IsEditable) {
                     stringResource(R.string.content_description_self_profile_avatar)
                 } else {

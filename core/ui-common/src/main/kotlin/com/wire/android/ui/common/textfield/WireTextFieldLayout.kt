@@ -48,6 +48,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -204,6 +205,8 @@ private fun InnerTextLayout(
                     text = placeholderText,
                     style = placeholderTextStyle,
                     color = colors.placeholderColor(style).value,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .align(placeholderAlignment.toAlignment())
                         .clearAndSetSemantics {}

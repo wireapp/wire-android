@@ -213,10 +213,7 @@
     <string name="content_description_edit_guests_option_back_btn">Вернуться к сведениям о беседе</string>
     <string name="content_description_edit_self_delete_back_btn">Вернуться к сведениям о беседе</string>
     <string name="content_description_accept_or_ignore_connection_label">принять или игнорировать запрос</string>
-    <string name="content_description_change_it_label">изменить</string>
     <string name="content_description_alert">Оповещение</string>
-    <string name="content_description_drop_down">Раскрывающийся список</string>
-    <string name="content_description_close_dropdown">закрыть раскрывающийся список</string>
     <string name="content_description_open_notification_settings_label">открыть настройки уведомлений</string>
     <string name="content_description_new_conversation_close_btn">Закрыть просмотр новой беседы</string>
     <string name="content_description_new_conversation_back_btn">Вернуться к просмотру новой беседы</string>
@@ -1189,9 +1186,6 @@
     <string name="team_settings_changed">Настройки команды изменены</string>
     <string name="sharing_files_enabled">Обмен и получение файлов любого типа теперь включены</string>
     <string name="sharing_files_disabled">Обмен и получение файлов любого типа теперь отключены</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (по умолчанию)"</string>
-    <string name="wire_dropdown_placeholder">Выбрать элемент</string>
     <string name="change">Изменить</string>
     <string name="allow_guests">Разрешить гостей</string>
     <string name="allow_guest_switch_description">Открыть эту беседу для пользователей не из вашей команды. Вы всегда сможете изменить это позже.</string>

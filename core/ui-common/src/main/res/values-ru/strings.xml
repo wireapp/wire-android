@@ -114,4 +114,10 @@
     <string name="content_description_unselect_label">отменить выбор</string>
     <string name="label_show_more">Развернуть</string>
     <string name="label_show_less">Свернуть</string>
+    <string name="content_description_change_it_label">изменить</string>
+    <string name="wire_dropdown_placeholder">Выбрать элемент</string>
+    <string name="content_description_drop_down">Раскрывающийся список</string>
+    <string name="content_description_close_dropdown">закрыть раскрывающийся список</string>
+    <!--wire dropdown-->
+        <string name="wire_dropdown_default_indicator">" (по умолчанию)"</string>
 </resources>

@@ -21,4 +21,7 @@
     <!-- Connections -->
     <!-- Missing keyPackages dialog -->
     <!-- Search Contact-->
+    <string name="wire_dropdown_placeholder">Seleccionar una opci&#243;n</string>
+    <!--wire dropdown-->
+        <string name="wire_dropdown_default_indicator">" (predeterminado)"</string>
 </resources>

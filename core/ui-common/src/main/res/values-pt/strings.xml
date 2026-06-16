@@ -21,4 +21,10 @@
     <!-- Connections -->
     <!-- Missing keyPackages dialog -->
     <!-- Search Contact-->
+    <string name="content_description_change_it_label">alterar isto</string>
+    <string name="wire_dropdown_placeholder">Selecione um item</string>
+    <string name="content_description_drop_down">Menu suspenso</string>
+    <string name="content_description_close_dropdown">fechar menu suspenso</string>
+    <!--wire dropdown-->
+        <string name="wire_dropdown_default_indicator">" (padrão)"</string>
 </resources>

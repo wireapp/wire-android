@@ -221,10 +221,7 @@
     <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>
     <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>
     <string name="content_description_accept_or_ignore_connection_label">accept or ignore the request</string>
-    <string name="content_description_change_it_label">change it</string>
     <string name="content_description_alert">Alert</string>
-    <string name="content_description_drop_down">Dropdown</string>
-    <string name="content_description_close_dropdown">close dropdown</string>
     <string name="content_description_open_notification_settings_label">open notification settings</string>
     <string name="content_description_new_conversation_close_btn">Close new conversation view</string>
     <string name="content_description_new_conversation_back_btn">Go back to new conversation view</string>
@@ -1194,9 +1191,6 @@
     <string name="team_settings_changed">Team Settings Changed</string>
     <string name="sharing_files_enabled">Sharing and receiving files of any type is now enabled</string>
     <string name="sharing_files_disabled">Sharing and receiving files of any type is now disabled</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (default)"</string>
-    <string name="wire_dropdown_placeholder">Select an Item</string>
     <string name="change">Change</string>
     <string name="allow_guests">Allow guests</string>
     <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>

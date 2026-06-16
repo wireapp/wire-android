@@ -21,14 +21,17 @@ package com.wire.android.util.lifecycle
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreenManager
-import com.wire.kalium.logger.KaliumLogger.Companion.ApplicationFlow.SYNC
 import com.wire.kalium.logger.KaliumLogLevel
+import com.wire.kalium.logger.KaliumLogger.Companion.ApplicationFlow.SYNC
 import com.wire.kalium.logger.obfuscateDomain
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.sync.SyncRequestResult
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -37,9 +40,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.SingleIn
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -109,19 +109,42 @@ class SyncLifecycleManager @Inject constructor(
      * releasing sync.
      * If there are more ongoing sync requests, this will
      */
-    suspend fun syncTemporarily(userId: UserId, stayAliveExtraDuration: Duration = 0.seconds) {
+    suspend fun syncTemporarily(
+        userId: UserId,
+        stayAliveExtraDuration: Duration = 0.seconds,
+        waitForNextSyncState: Boolean = false
+    ) {
+        syncTemporarily(userId, stayAliveExtraDuration, waitForNextSyncState) {
+            Unit
+        }
+    }
+
+    /**
+     * Attempts to perform sync, runs [actionWhenLive] after reaching live sync, then holds
+     * the sync request for [stayAliveExtraDuration] before releasing it.
+     */
+    suspend fun syncTemporarily(
+        userId: UserId,
+        stayAliveExtraDuration: Duration = 0.seconds,
+        waitForNextSyncState: Boolean = false,
+        actionWhenLive: suspend () -> Unit
+    ) {
         val requestData = mapOf(
             "trigger" to AppSyncTelemetryTrigger.PUSH_NOTIFICATION.name,
             "userId" to userId.toTelemetryString(),
             "stayAliveInMillis" to stayAliveExtraDuration.inWholeMilliseconds,
         )
         logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_STARTED, requestData)
-        try {
-            coreLogic.getSessionScope(userId).run {
-                syncExecutor.request {
-                    logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_WAIT_STARTED, requestData)
-                    when (val result = waitUntilLiveOrFailure()) {
-                        is SyncRequestResult.Failure -> logger.logAppSyncTelemetry(
+        coreLogic.getSessionScope(userId).run {
+            syncExecutor.request {
+                logger.d("Waiting until live")
+                val syncRequestResult = if (waitForNextSyncState) {
+                    waitUntilNextLiveOrFailure()
+                } else {
+                    waitUntilLiveOrFailure()
+                }
+                when (syncRequestResult) {
+                    is SyncRequestResult.Failure -> logger.logAppSyncTelemetry(
                             event = AppSyncTelemetryEvent.APP_SYNC_WAIT_COMPLETED,
                             data = requestData + mapOf(
                                 "outcome" to AppSyncTelemetryOutcome.FAILURE.name,
@@ -130,13 +153,13 @@ class SyncLifecycleManager @Inject constructor(
                             level = KaliumLogLevel.WARN,
                         )
 
-                        is SyncRequestResult.Success -> {
-                            logger.logAppSyncTelemetry(
-                                event = AppSyncTelemetryEvent.APP_SYNC_WAIT_COMPLETED,
-                                data = requestData + ("outcome" to AppSyncTelemetryOutcome.SUCCESS.name),
-                            )
-                            delay(stayAliveExtraDuration)
-                        }
+                    is SyncRequestResult.Success -> {
+                        logger.logAppSyncTelemetry(
+                            event = AppSyncTelemetryEvent.APP_SYNC_WAIT_COMPLETED,
+                            data = requestData + ("outcome" to AppSyncTelemetryOutcome.SUCCESS.name),
+                        )
+                        actionWhenLive()
+                        delay(stayAliveExtraDuration)
                     }
                 }
             }

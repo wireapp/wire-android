@@ -112,9 +112,13 @@ inline fun <reified VM, reified S> sessionKeyedMetroViewModelAs(
 inline fun <reified VM, reified Factory> sessionKeyedAssistedMetroViewModel(
     key: String? = null,
     previewProvider: PreviewProvider = EmptyPreviewProvider,
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
     crossinline createViewModel: Factory.() -> VM,
 ): VM where VM : ViewModel, Factory : ManualViewModelAssistedFactory = previewProvider.findPreviewOr {
     assistedMetroViewModel<VM, Factory>(
+        viewModelStoreOwner = viewModelStoreOwner,
         key = sessionKeyedMetroViewModelKey(
             defaultKey = VM::class.qualifiedName,
             key = key,
@@ -137,9 +141,13 @@ inline fun <reified VM, reified Factory> sessionKeyedAssistedMetroViewModel(
 inline fun <reified VM, reified S, reified Factory> sessionKeyedAssistedMetroViewModelAs(
     key: String? = null,
     previewProvider: PreviewProvider = EmptyPreviewProvider,
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
     crossinline createViewModel: Factory.() -> VM,
 ): S where VM : ViewModel, VM : S, Factory : ManualViewModelAssistedFactory = previewProvider.findPreviewOr {
     assistedMetroViewModel<VM, Factory>(
+        viewModelStoreOwner = viewModelStoreOwner,
         key = sessionKeyedMetroViewModelKey(
             defaultKey = VM::class.qualifiedName,
             key = key,

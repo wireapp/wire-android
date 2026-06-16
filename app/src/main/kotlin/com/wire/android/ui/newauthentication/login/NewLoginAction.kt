@@ -20,6 +20,7 @@ package com.wire.android.ui.newauthentication.login
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.user.UserId
 
 sealed interface NewLoginAction {
     data class EnterpriseLoginNotSupported(val userIdentifier: String) : NewLoginAction
@@ -27,6 +28,11 @@ sealed interface NewLoginAction {
     data class CustomConfig(val userIdentifier: String, val customServerConfig: ServerConfig.Links) : NewLoginAction
     data class SSO(val url: String, val config: SSOUrlConfig) : NewLoginAction
     data class Success(val nextStep: NextStep) : NewLoginAction {
-        enum class NextStep { E2EIEnrollment, InitialSync, TooManyDevices, None; }
+        sealed interface NextStep {
+            data class E2EIEnrollment(val userId: UserId) : NextStep
+            data class TooManyDevices(val userId: UserId) : NextStep
+            data object InitialSync : NextStep
+            data object None : NextStep
+        }
     }
 }

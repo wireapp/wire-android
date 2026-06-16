@@ -21,6 +21,7 @@ package com.wire.android.ui.authentication.login
 import androidx.lifecycle.ViewModel
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.ClientCapability
@@ -64,7 +65,9 @@ fun AuthenticationResult.Failure.toLoginError() = when (this) {
 fun RegisterClientResult.Failure.toLoginError() = when (this) {
     is RegisterClientResult.Failure.Generic -> LoginState.Error.DialogError.GenericError(this.genericFailure)
     is RegisterClientResult.Failure.InvalidCredentials -> LoginState.Error.DialogError.InvalidCredentialsError
-    is RegisterClientResult.Failure.TooManyClients -> LoginState.Error.TooManyDevicesError
+    is RegisterClientResult.Failure.TooManyClients -> LoginState.Error.DialogError.GenericError(
+        CoreFailure.Unknown(IllegalStateException("TooManyClients requires a user id"))
+    )
     is RegisterClientResult.Failure.PasswordAuthRequired -> LoginState.Error.DialogError.PasswordNeededToRegisterClient
 }
 

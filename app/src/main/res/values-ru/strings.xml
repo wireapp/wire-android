@@ -46,6 +46,7 @@
     <string name="label_message_decryption_failure_message">Не удалось расшифровать сообщение.</string>
     <string name="label_message_decryption_failure_message_with_error_code">Не удалось расшифровать сообщение (ошибка %s).</string>
     <string name="label_message_decryption_failure_informative_message">Попробуйте сбросить сессию для генерации новых ключей шифрования.</string>
+    <string name="label_system_message_offline">**Вы не в сети.** Ваши сообщения будут отправлены, как только вы снова подключитесь к сети.</string>
     <string name="label_system_message_self_user_knock">%s отправили пинг</string>
     <string name="label_system_message_other_user_knock">%s отправил(-а) пинг</string>
     <string name="label_message_partial_delivery_participants_count">%1$d участников не получили ваше сообщение.</string>

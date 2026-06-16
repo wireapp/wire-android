@@ -48,6 +48,7 @@ fun AdditionalOptionsMenu(
     isEditing: Boolean,
     isMentionActive: Boolean,
     isFileSharingEnabled: Boolean,
+    areAttachmentOptionsEnabled: Boolean,
     onAdditionalOptionsMenuClicked: () -> Unit,
     onMentionButtonClicked: (() -> Unit),
     onPingOptionClicked: () -> Unit,
@@ -75,7 +76,8 @@ fun AdditionalOptionsMenu(
                     onRichEditingButtonClicked = onRichEditingButtonClicked,
                     onPingClicked = onPingOptionClicked,
                     onDrawingModeClicked = onDrawingModeClicked,
-                    isFileSharingEnabled = isFileSharingEnabled
+                    isFileSharingEnabled = isFileSharingEnabled,
+                    areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
                 )
             }
 
@@ -94,6 +96,7 @@ fun AdditionalOptionsMenu(
 @Composable
 fun AdditionalOptionSubMenu(
     isFileSharingEnabled: Boolean,
+    areAttachmentOptionsEnabled: Boolean,
     optionsVisible: Boolean,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     onLocationPickerClicked: () -> Unit,
@@ -115,6 +118,7 @@ fun AdditionalOptionSubMenu(
         tempWritableImageUri = tempWritableImageUri,
         tempWritableVideoUri = tempWritableVideoUri,
         isFileSharingEnabled = isFileSharingEnabled,
+        areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
         onRecordAudioMessageClicked = onRecordAudioMessageClicked,
         onLocationPickerClicked = onLocationPickerClicked,
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
@@ -139,6 +143,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     attachmentsVisible: Boolean,
     isMentionActive: Boolean,
     isFileSharingEnabled: Boolean,
+    areAttachmentOptionsEnabled: Boolean,
     onMentionButtonClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: (SelfDeletionTimer) -> Unit,
     modifier: Modifier = Modifier,
@@ -163,7 +168,8 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             onGifButtonClicked = onGifButtonClicked,
             onRichEditingButtonClicked = onRichEditingButtonClicked,
             onDrawingModeClicked = onDrawingModeClicked,
-            isFileSharingEnabled = isFileSharingEnabled
+            isFileSharingEnabled = isFileSharingEnabled,
+            areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
         )
     }
 }

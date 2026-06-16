@@ -28,8 +28,8 @@ import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
 import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
-import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
-import com.wire.kalium.logic.feature.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.search.SearchUsersByHandleUseCase
+import com.wire.kalium.logic.feature.search.SearchUsersByNameUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import com.wire.kalium.logic.feature.service.SyncServicesUseCase
@@ -38,8 +38,8 @@ import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
 class SearchViewModelFactory @Inject constructor(
-    private val searchUsers: SearchUsersUseCase,
-    private val searchByHandle: SearchByHandleUseCase,
+    private val searchUsersByName: SearchUsersByNameUseCase,
+    private val searchUsersByHandle: SearchUsersByHandleUseCase,
     private val contactMapper: ContactMapper,
     private val federatedSearchParser: FederatedSearchParser,
     private val validateUserHandle: ValidateUserHandleUseCase,
@@ -52,10 +52,14 @@ class SearchViewModelFactory @Inject constructor(
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
     private val observeSelfUser: ObserveSelfUserUseCase,
 ) {
-    fun searchUserViewModel(conversationId: ConversationId? = null) = SearchUserViewModel(
+    fun searchUserViewModel(
+        conversationId: ConversationId? = null,
+        onlyConnectedContacts: Boolean = false,
+    ) = SearchUserViewModel(
         conversationId = conversationId,
-        searchUserUseCase = searchUsers,
-        searchByHandleUseCase = searchByHandle,
+        onlyConnectedContacts = onlyConnectedContacts,
+        searchUsersByName = searchUsersByName,
+        searchUsersByHandle = searchUsersByHandle,
         contactMapper = contactMapper,
         federatedSearchParser = federatedSearchParser,
         validateUserHandle = validateUserHandle,

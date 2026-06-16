@@ -40,6 +40,7 @@ class RegistrationPage(private val device: UiDevice) {
     private val createAccountButton = UiSelectorParams(text = "Create account or team")
     private val createTeamButton = UiSelectorParams(text = "Create Team")
     private val createPersonalAccountButton = UiSelectorParams(text = "Create Personal Account")
+    private val createPersonalAccountTitle = UiSelectorParams(text = "Create Personal Account")
     private val continueButton = UiSelectorParams(text = "Continue")
     private val termsTitle = UiSelectorParams(text = "Terms of Use")
     private val termsOfUseText = UiSelectorParams(textContains = "Terms of Use and Privacy Policy")
@@ -275,7 +276,15 @@ class RegistrationPage(private val device: UiDevice) {
     }
 
     fun clickAgreeShareDataAlert(): RegistrationPage {
-        UiWaitUtils.waitElement(agreeButton).click()
+        val visibleElement = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(agreeButton, conversationsPage),
+            timeout = UiWaitUtils.LONG_TIMEOUT
+        )
+        when (visibleElement?.text) {
+            "Agree" -> visibleElement.click()
+            "Conversations" -> Unit
+            else -> throw AssertionError("Share data consent alert or conversations page was not visible.")
+        }
         return this
     }
 
@@ -307,7 +316,16 @@ class RegistrationPage(private val device: UiDevice) {
 
     fun checkIAgreeToShareAnonymousUsageData(): RegistrationPage {
         val checkbox = device.findObject(By.clazz("android.widget.CheckBox"))
-            ?: throw AssertionError("Checkbox not found in view hierarchy")
+        if (checkbox == null) {
+            val accountDetailsVisible = UiWaitUtils.findElementOrNull(createPersonalAccountTitle)
+                ?.let { !it.visibleBounds.isEmpty } == true
+            val continueVisible = UiWaitUtils.findElementOrNull(continueButton)
+                ?.let { !it.visibleBounds.isEmpty } == true
+            if (accountDetailsVisible && continueVisible) {
+                return this
+            }
+            throw AssertionError("Checkbox not found in view hierarchy")
+        }
         if (!checkbox.isChecked) {
             checkbox.click()
         }

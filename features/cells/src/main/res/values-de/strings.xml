@@ -21,6 +21,7 @@
     <string name="file_list_load_error">Die Liste der Dateien konnte nicht geladen werden. Bitte versuchen Sie es erneut.</string>
     <string name="file_list_page_load_error">Beim Laden der Dateiliste ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
     <string name="file_list_load_network_error_title">Dateien werden nicht geladen</string>
+    <string name="file_list_load_network_error">Ihre Datei-Liste konnte nicht geladen werden. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.</string>
     <string name="file_list_empty_message">Bei Unterhaltungen mit Dateiverwaltung finden Sie hier die geteilten Dateien.</string>
     <string name="conversation_file_list_empty_message">Hier finden Sie alle Dateien und Ordner, die in dieser Unterhaltung geteilt wurden.</string>
     <string name="file_list_search_empty_message">Versuchen Sie, Ihre Suche anzupassen</string>
@@ -45,6 +46,7 @@
     <string name="create_public_link">Öffentlichen Link erstellen</string>
     <string name="share_file_via_link">Datei über Link teilen</string>
     <string name="share_folder_via_link">Ordner per Link teilen</string>
+    <string name="no_app_found">Keine App zum Öffnen dieser Datei gefunden.</string>
     <string name="cell_files_load_failure_message">Laden nicht möglich. Bitte versuchen Sie es später erneut.</string>
     <string name="cancel">Abbrechen</string>
     <string name="confirm_delete_file_title">Datei löschen</string>
@@ -195,6 +197,7 @@
     <string name="date_label_today">Heute, %1$s</string>
     <string name="date_label_yesterday">Gestern, %1$s</string>
     <string name="versions_list_not_loaded_description_error">Beim Laden der Versionsliste ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
+    <string name="snackbar_download_cell_version_saved_to_downloads_folder_label">In Downloads gespeichert</string>
     <string name="snackbar_download_cell_version_show_label">Anzeigen</string>
     <string name="snackbar_download_cell_version_downloading_label">Herunterladen…</string>
     <string name="cells_create_file">Datei erstellen</string>
@@ -245,4 +248,5 @@
     <string name="sort_name_z_to_a">Z bis A</string>
     <string name="sort_size_smallest_first">Kleinste zuerst</string>
     <string name="sort_size_largest_first">Größte zuerst</string>
+    <string name="content_description_image_message">Bild</string>
 </resources>

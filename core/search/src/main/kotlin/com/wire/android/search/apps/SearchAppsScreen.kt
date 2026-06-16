@@ -51,7 +51,7 @@ import com.wire.android.search.widget.HighlightName
 import com.wire.android.search.widget.SearchFailureBox
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.search.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.ConnectionState

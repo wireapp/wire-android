@@ -171,6 +171,12 @@ interface ScopedArgs {
 @Stable
 interface PreviewProvider {
     val previews: List<Any> get() = emptyList()
+
+    companion object {
+        fun of(vararg previews: Any) = object : PreviewProvider {
+            override val previews: List<Any> = previews.toList()
+        }
+    }
 }
 object EmptyPreviewProvider : PreviewProvider
 

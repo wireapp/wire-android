@@ -62,6 +62,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isAltPressed
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
@@ -273,10 +274,29 @@ private fun ActiveSearchBarInput(
             .focusRequester(focusRequester)
             .focusProperties {
                 previous = backButtonFocusRequester
+                left = backButtonFocusRequester
                 if (hasSearchQuery) {
                     next = clearButtonFocusRequester
                 } else {
                     nextFocusRequester?.let { next = it }
+                }
+            }
+            .onPreviewKeyEvent { event ->
+                val isCursorAtStart = textState.selection.start == 0 && textState.selection.end == 0
+                val shouldFocusBackButton = if (event.type == KeyEventType.KeyDown) {
+                    when (event.key) {
+                        Key.Tab -> event.isShiftPressed
+                        Key.DirectionLeft -> isCursorAtStart && !event.hasModifierPressed
+                        else -> false
+                    }
+                } else {
+                    false
+                }
+                if (shouldFocusBackButton) {
+                    backButtonFocusRequester.requestFocus()
+                    true
+                } else {
+                    false
                 }
             }
             .onEscapeOrBackKey(
@@ -507,6 +527,9 @@ private val navigationKeys = setOf(
 
 private val KeyEvent.isSearchActivationKey: Boolean
     get() = type == KeyEventType.KeyDown && (key == Key.Enter || key == Key.Spacebar)
+
+private val KeyEvent.hasModifierPressed: Boolean
+    get() = isCtrlPressed || isMetaPressed || isAltPressed || isShiftPressed
 
 private val KeyEvent.printableCharacter: String?
     get() {

@@ -16,6 +16,33 @@ is_true() {
   [[ "${1:-}" == "true" ]]
 }
 
+trim_surrounding_whitespace() {
+  local value="$1"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  printf '%s' "${value}"
+}
+
+encode_testiny_arg() {
+  printf '%s' "$1" | base64 | tr -d '\r\n'
+}
+
+load_testiny_api_key() {
+  local secrets_json_path="${SECRETS_JSON_PATH:-secrets.json}"
+  if [[ ! -f "${secrets_json_path}" ]]; then
+    echo "ERROR: Testiny reporting needs runtime secrets, but ${secrets_json_path} was not found."
+    exit 1
+  fi
+
+  TESTINY_API_KEY_VALUE="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["TESTINY_API_KEY_ANDROID"]["fields"]["password"]["value"])' "${secrets_json_path}")"
+  if [[ -z "${TESTINY_API_KEY_VALUE}" ]]; then
+    echo "ERROR: TESTINY_API_KEY_ANDROID is missing from runtime secrets."
+    exit 1
+  fi
+
+  echo "::add-mask::${TESTINY_API_KEY_VALUE}"
+}
+
 RERUN_FAILED_ENABLED="${RERUN_FAILED_ENABLED:-true}"
 RERUN_FAILED_COUNT="${RERUN_FAILED_COUNT:-1}"
 ALLURE_RESULTS_ROOT="${ALLURE_RESULTS_ROOT:-${RUNNER_TEMP}/allure-results}"
@@ -23,6 +50,8 @@ ALLURE_PULL_MAX_ATTEMPTS="${ALLURE_PULL_MAX_ATTEMPTS:-3}"
 ALLURE_PULL_BASE_DELAY_SEC="${ALLURE_PULL_BASE_DELAY_SEC:-5}"
 RERUN_INLINE_PART_MAX_CHARS="${RERUN_INLINE_PART_MAX_CHARS:-7000}"
 INITIAL_FAILED_TESTS_FILE="${INITIAL_FAILED_TESTS_FILE:-}"
+TESTINY_RUN_NAME_TRIMMED="$(trim_surrounding_whitespace "${TESTINY_RUN_NAME:-}")"
+TESTINY_API_KEY_VALUE=""
 
 if [[ ! "${RERUN_FAILED_ENABLED}" =~ ^(true|false)$ ]]; then
   echo "ERROR: RERUN_FAILED_ENABLED must be true or false."
@@ -47,6 +76,11 @@ fi
 if [[ ! "${RERUN_INLINE_PART_MAX_CHARS}" =~ ^[0-9]+$ || $((10#${RERUN_INLINE_PART_MAX_CHARS})) -lt 256 ]]; then
   echo "ERROR: RERUN_INLINE_PART_MAX_CHARS must be a whole number >= 256."
   exit 1
+fi
+
+if [[ -n "${TESTINY_RUN_NAME_TRIMMED}" ]]; then
+  # Keep the Testiny key scoped to this script instead of exporting it to later workflow steps.
+  load_testiny_api_key
 fi
 
 MAX_RERUNS=0
@@ -409,6 +443,21 @@ run_attempt_on_devices() {
       args+=(-e filter "com.wire.android.tests.support.suite.TaggedFilter")
       # The tests must launch the exact app flavor CI installed for this run.
       args+=(-e appPackage "${APP_ID}")
+
+      # Only Testiny-enabled runs need the reporting config and secret.
+      if [[ -n "${TESTINY_RUN_NAME_TRIMMED}" ]]; then
+        if [[ -n "${TESTINY_PROJECT_NAME:-}" ]]; then
+          args+=(-e testinyProjectNameB64 "$(encode_testiny_arg "${TESTINY_PROJECT_NAME}")")
+        fi
+        args+=(-e testinyRunNameB64 "$(encode_testiny_arg "${TESTINY_RUN_NAME_TRIMMED}")")
+        local encoded_testiny_api_key
+        encoded_testiny_api_key="$(encode_testiny_arg "${TESTINY_API_KEY_VALUE}")"
+        echo "::add-mask::${encoded_testiny_api_key}"
+        args+=(-e testinyApiKeyB64 "${encoded_testiny_api_key}")
+        if [[ -n "${TESTINY_SOURCE_RUN_URL:-}" ]]; then
+          args+=(-e testinySourceRunUrlB64 "$(encode_testiny_arg "${TESTINY_SOURCE_RUN_URL}")")
+        fi
+      fi
 
       if attempt_uses_selector_mode "${attempt}"; then
         if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then

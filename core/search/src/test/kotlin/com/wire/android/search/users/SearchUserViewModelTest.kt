@@ -37,9 +37,9 @@ import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
 import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
-import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
+import com.wire.kalium.logic.feature.search.SearchUsersByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchUserResult
-import com.wire.kalium.logic.feature.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.search.SearchUsersByNameUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -79,7 +79,7 @@ class SearchUserViewModelTest {
 
         viewModel.searchQueryChanged(query)
         coVerify(exactly = 1) {
-            arrangement.searchUsersUseCase(
+            arrangement.searchUsersByNameUseCase(
                 query,
                 excludingMembersOfConversation = null,
                 customDomain = "domain"
@@ -117,7 +117,7 @@ class SearchUserViewModelTest {
             viewModel.searchQueryChanged(query)
 
             coVerify(exactly = 1) {
-                arrangement.searchUsersUseCase(
+                arrangement.searchUsersByNameUseCase(
                     query,
                     excludingMembersOfConversation = conversationId,
                     customDomain = "domain"
@@ -248,7 +248,7 @@ class SearchUserViewModelTest {
             viewModel.searchQueryChanged(query)
 
             coVerify(exactly = 1) {
-                arrangement.searchUsersUseCase(
+                arrangement.searchUsersByNameUseCase(
                     query,
                     excludingMembersOfConversation = null,
                     customDomain = "domain"
@@ -284,7 +284,7 @@ class SearchUserViewModelTest {
 
         viewModel.searchQueryChanged(query)
         coVerify(exactly = 1) {
-            arrangement.searchByHandleUseCase.invoke(
+            arrangement.searchUsersByHandleUseCase.invoke(
                 query,
                 excludingConversation = null,
                 customDomain = "domain"
@@ -328,10 +328,94 @@ class SearchUserViewModelTest {
         assertEquals(persistentListOf<Contact>(), viewModel.state.contactsResult)
     }
 
+    @Test
+    fun `given only connected contacts is false, when searching by handle, then do not exclude remote`() = runTest {
+        val query = "handle"
+        val (arrangement, viewModel) = Arrangement()
+            .withOnlyConnectedContacts(false)
+            .withSearchByHandleResult(SearchUserResult(connected = listOf(), notConnected = listOf()))
+            .withFederatedSearchParserResult(FederatedSearchParser.Result(searchTerm = query, domain = "domain"))
+            .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
+            .arrange()
+
+        viewModel.searchQueryChanged(query)
+        coVerify(exactly = 1) {
+            arrangement.searchUsersByHandleUseCase.invoke(
+                searchHandle = query,
+                excludingConversation = null,
+                skipRemoteSearch = false,
+                customDomain = "domain"
+            )
+        }
+    }
+
+    @Test
+    fun `given only connected contacts is true, when searching by handle, then exclude remote`() = runTest {
+        val query = "handle"
+        val (arrangement, viewModel) = Arrangement()
+            .withOnlyConnectedContacts(true)
+            .withSearchByHandleResult(SearchUserResult(connected = listOf(), notConnected = listOf()))
+            .withFederatedSearchParserResult(FederatedSearchParser.Result(searchTerm = query, domain = "domain"))
+            .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
+            .arrange()
+
+        viewModel.searchQueryChanged(query)
+        coVerify(exactly = 1) {
+            arrangement.searchUsersByHandleUseCase.invoke(
+                searchHandle = query,
+                excludingConversation = null,
+                skipRemoteSearch = true,
+                customDomain = "domain"
+            )
+        }
+    }
+
+    @Test
+    fun `given only connected contacts is false, when searching by name, then do not exclude remote`() = runTest {
+        val query = "Name"
+        val (arrangement, viewModel) = Arrangement()
+            .withOnlyConnectedContacts(false)
+            .withSearchResult(SearchUserResult(connected = listOf(), notConnected = listOf()))
+            .withFederatedSearchParserResult(FederatedSearchParser.Result(searchTerm = query, domain = "domain"))
+            .withIsValidHandleResult(ValidateUserHandleResult.Invalid.InvalidCharacters("ame", listOf('N')))
+            .arrange()
+
+        viewModel.searchQueryChanged(query)
+        coVerify(exactly = 1) {
+            arrangement.searchUsersByNameUseCase.invoke(
+                searchQuery = query,
+                excludingMembersOfConversation = null,
+                skipRemoteSearch = false,
+                customDomain = "domain"
+            )
+        }
+    }
+
+    @Test
+    fun `given only connected contacts is true, when searching by name, then exclude remote`() = runTest {
+        val query = "Name"
+        val (arrangement, viewModel) = Arrangement()
+            .withOnlyConnectedContacts(true)
+            .withSearchResult(SearchUserResult(connected = listOf(), notConnected = listOf()))
+            .withFederatedSearchParserResult(FederatedSearchParser.Result(searchTerm = query, domain = "domain"))
+            .withIsValidHandleResult(ValidateUserHandleResult.Invalid.InvalidCharacters("ame", listOf('N')))
+            .arrange()
+
+        viewModel.searchQueryChanged(query)
+        coVerify(exactly = 1) {
+            arrangement.searchUsersByNameUseCase.invoke(
+                searchQuery = query,
+                excludingMembersOfConversation = null,
+                skipRemoteSearch = true,
+                customDomain = "domain"
+            )
+        }
+    }
+
     private class Arrangement {
 
         @MockK
-        lateinit var searchUsersUseCase: SearchUsersUseCase
+        lateinit var searchUsersByNameUseCase: SearchUsersByNameUseCase
 
         @MockK
         lateinit var contactMapper: ContactMapper
@@ -343,12 +427,14 @@ class SearchUserViewModelTest {
         lateinit var validateUserHandle: ValidateUserHandleUseCase
 
         @MockK
-        lateinit var searchByHandleUseCase: SearchByHandleUseCase
+        lateinit var searchUsersByHandleUseCase: SearchUsersByHandleUseCase
 
         @MockK
         lateinit var isFederationSearchAllowedUseCase: IsFederationSearchAllowedUseCase
 
         private var conversationId: ConversationId? = null
+
+        private var onlyConnectedContacts: Boolean = false
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -393,8 +479,12 @@ class SearchUserViewModelTest {
             this.conversationId = conversationId
         }
 
+        fun withOnlyConnectedContacts(onlyConnectedContacts: Boolean) = apply {
+            this.onlyConnectedContacts = onlyConnectedContacts
+        }
+
         fun withSearchResult(result: SearchUserResult) = apply {
-            coEvery { searchUsersUseCase(any(), any(), any()) } returns result
+            coEvery { searchUsersByNameUseCase(any(), any(), any(), any()) } returns result
         }
 
         fun withFederatedSearchParserResult(result: FederatedSearchParser.Result) = apply {
@@ -406,7 +496,7 @@ class SearchUserViewModelTest {
         }
 
         fun withSearchByHandleResult(result: SearchUserResult) = apply {
-            coEvery { searchByHandleUseCase(any(), any(), any()) } returns result
+            coEvery { searchUsersByHandleUseCase(any(), any(), any(), any()) } returns result
         }
 
         fun withIsFederationSearchAllowedResult(isAllowed: Boolean = true) = apply {
@@ -418,8 +508,9 @@ class SearchUserViewModelTest {
         fun arrange() = apply {
             searchUserViewModel = SearchUserViewModel(
                 conversationId = conversationId,
-                searchUserUseCase = searchUsersUseCase,
-                searchByHandleUseCase = searchByHandleUseCase,
+                onlyConnectedContacts = onlyConnectedContacts,
+                searchUsersByName = searchUsersByNameUseCase,
+                searchUsersByHandle = searchUsersByHandleUseCase,
                 contactMapper = contactMapper,
                 federatedSearchParser = federatedSearchParser,
                 validateUserHandle = validateUserHandle,

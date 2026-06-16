@@ -15,20 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.model
+package com.wire.android.tests.support.testiny
 
-import androidx.compose.runtime.Stable
-import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.kalium.logic.data.user.ConnectionState
-
-@Stable
-data class Contact(
-    val id: String,
-    val domain: String,
-    val name: String,
-    val handle: String,
-    val avatarData: UserAvatarData = UserAvatarData(),
-    val label: String = "",
-    val connectionState: ConnectionState,
-    val membership: Membership
-)
+/**
+ * Failed Testiny request with the HTTP code kept for retry decisions.
+ */
+class TestinyRequestException(
+    override val message: String,
+    val returnCode: Int,
+    cause: Throwable? = null,
+) : RuntimeException(message, cause)

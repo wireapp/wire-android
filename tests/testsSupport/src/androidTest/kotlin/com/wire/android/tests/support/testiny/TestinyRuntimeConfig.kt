@@ -15,20 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.model
+package com.wire.android.tests.support.testiny
 
-import androidx.compose.runtime.Stable
-import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.kalium.logic.data.user.ConnectionState
-
-@Stable
-data class Contact(
-    val id: String,
-    val domain: String,
-    val name: String,
-    val handle: String,
-    val avatarData: UserAvatarData = UserAvatarData(),
-    val label: String = "",
-    val connectionState: ConnectionState,
-    val membership: Membership
-)
+/**
+ * Testiny values resolved from CI instrumentation args.
+ * The API key should only come from runtime args, not source files.
+ */
+data class TestinyRuntimeConfig(
+    val projectName: String,
+    val runName: String,
+    val apiKey: String,
+    val sourceRunUrl: String? = null,
+) {
+    /**
+     * True when the reporter has the project, run name, and API key needed for Testiny calls.
+     */
+    val isConfigured: Boolean
+        get() = projectName.isNotBlank() && runName.isNotBlank() && apiKey.isNotBlank()
+}

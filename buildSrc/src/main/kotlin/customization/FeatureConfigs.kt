@@ -148,4 +148,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     CALL_REACTIONS_ENABLED("call_reactions_enabled", ConfigType.BOOLEAN),
 
     SHOW_DEBUG_TOOLS("show_debug_tools", ConfigType.BOOLEAN),
+
+    BLOCK_CROSS_BACKEND_LOGIN("block_cross_backend_login", ConfigType.BOOLEAN),
 }

@@ -85,6 +85,7 @@ import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUse
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
+import com.wire.kalium.logic.feature.server.IsCrossBackendLoginBlockedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
@@ -133,7 +134,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null)
 
-        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+        assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
     }
 
     @Test
@@ -144,7 +145,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null)
 
-        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+        assertEquals(InitialAppState.NotLoggedIn, viewModel.initialAppState())
     }
 
     @Test
@@ -154,7 +155,18 @@ class WireActivityViewModelTest {
             .withCurrentSession(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
             .arrange()
 
-        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+        assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
+        assertEquals(TEST_ACCOUNT_INFO.userId, viewModel.globalAppState.currentUserId)
+    }
+
+    @Test
+    fun `given E2EI is required, when currentSession is present, then initialAppState carries user id`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withE2EIRequiredDuringLogin(required = true)
+            .arrange()
+
+        assertEquals(InitialAppState.EnrollE2EI(TEST_ACCOUNT_INFO.userId), viewModel.initialAppState())
         assertEquals(TEST_ACCOUNT_INFO.userId, viewModel.globalAppState.currentUserId)
     }
 
@@ -188,7 +200,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
                 assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
                 expectNoEvents()
             }
@@ -207,7 +219,7 @@ class WireActivityViewModelTest {
 
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
-                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.NotLoggedIn, viewModel.initialAppState())
                 assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
                 expectNoEvents()
             }
@@ -226,7 +238,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
                 assertInstanceOf(CustomServerDetailsDialogState::class.java, viewModel.globalAppState.customBackendDialog)
                 assertEquals(
                     newServerConfig(1).links,
@@ -247,7 +259,7 @@ class WireActivityViewModelTest {
 
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
-                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.NotLoggedIn, viewModel.initialAppState())
                 assertInstanceOf(CustomServerDetailsDialogState::class.java, viewModel.globalAppState.customBackendDialog)
                 assertEquals(
                     newServerConfig(1).links,
@@ -284,7 +296,7 @@ class WireActivityViewModelTest {
 
         viewModel.actions.test {
             viewModel.handleDeepLink(mockedIntent())
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+            assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
             assertEquals(OnSSOLogin(ssoLogin), expectMostRecentItem())
         }
     }
@@ -301,7 +313,7 @@ class WireActivityViewModelTest {
         viewModel.actions.test {
 
             viewModel.handleDeepLink(mockedIntent())
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+            assertEquals(InitialAppState.NotLoggedIn, viewModel.initialAppState())
 
             assertEquals(OnSSOLogin(ssoLogin), expectMostRecentItem())
         }
@@ -319,7 +331,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
                 assertEquals(OnMigrationLogin(result), expectMostRecentItem())
             }
         }
@@ -336,7 +348,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.NotLoggedIn, viewModel.initialAppState())
                 assertEquals(OnMigrationLogin(result), expectMostRecentItem())
             }
         }
@@ -353,7 +365,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
                 assertEquals(OpenConversation(result), expectMostRecentItem())
             }
         }
@@ -371,7 +383,7 @@ class WireActivityViewModelTest {
 
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
                 assertEquals(OnOpenUserProfile(result), expectMostRecentItem())
             }
         }
@@ -386,7 +398,7 @@ class WireActivityViewModelTest {
 
         viewModel.actions.test {
             viewModel.handleDeepLink(mockedIntent())
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+            assertEquals(InitialAppState.NotLoggedIn, viewModel.initialAppState())
             assertEquals(OnAuthorizationNeeded, expectMostRecentItem())
         }
     }
@@ -1061,6 +1073,9 @@ class WireActivityViewModelTest {
             coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(true)
             coEvery { loginTypeSelector.canUseNewLogin(any()) } returns true
             coEvery { doesValidNomadAccountExist() } returns false
+            coEvery {
+                coreLogic.getGlobalScope().isCrossBackendLoginBlocked(any<IsCrossBackendLoginBlockedUseCase.Target>())
+            } returns false
         }
 
         @MockK
@@ -1214,6 +1229,12 @@ class WireActivityViewModelTest {
 
         fun withCurrentSession(result: CurrentSessionResult): Arrangement = apply {
             coEvery { coreLogic.getGlobalScope().session.currentSession() } returns result
+        }
+
+        fun withE2EIRequiredDuringLogin(required: Boolean): Arrangement = apply {
+            coEvery {
+                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin()
+            } returns flowOf(required)
         }
 
         fun withObserveSessionsFlow(result: Flow<GetAllSessionsResult>): Arrangement = apply {

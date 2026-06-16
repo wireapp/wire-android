@@ -14,6 +14,10 @@ android {
     testFixtures.enable = true
 }
 
+ksp {
+    arg("wire.viewmodelScopedPreview.aggregateName", "CoreUICommonViewModelScopedPreviews")
+}
+
 dependencies {
     implementation(project(":core:di"))
 

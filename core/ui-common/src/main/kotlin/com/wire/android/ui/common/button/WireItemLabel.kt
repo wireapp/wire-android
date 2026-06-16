@@ -36,11 +36,12 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun WireItemLabel(
@@ -49,6 +50,7 @@ fun WireItemLabel(
     contentPadding: PaddingValues =
     PaddingValues(horizontal = dimensions().spacing6x, vertical = dimensions().spacing2x),
     shape: Shape = RoundedCornerShape(dimensions().spacing6x),
+    textStyle: TextStyle = typography().label02,
     contentDescription: String = text
 ) = Box(
     modifier = modifier
@@ -61,7 +63,7 @@ fun WireItemLabel(
     Text(
         modifier = Modifier.clearAndSetSemantics { },
         text = text,
-        style = MaterialTheme.wireTypography.label02,
+        style = textStyle,
     )
 }
 

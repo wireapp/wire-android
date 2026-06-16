@@ -1266,4 +1266,3 @@ public fun com.wire.android.feature.cells.ui.versioning.restore.RestoreNodeVersi
     - onDismiss: STABLE (function type)
     - restoreVersionState: STABLE (class with no mutable properties)
     - restoreProgress: STABLE (primitive type)
-

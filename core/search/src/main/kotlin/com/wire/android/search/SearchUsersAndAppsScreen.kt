@@ -72,6 +72,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.launch
@@ -83,12 +84,12 @@ fun SearchUsersAndAppsScreen(
     searchTitle: String,
     selectedContacts: ImmutableSet<Contact>,
     onContactChecked: (Boolean, Contact) -> Unit,
-    onOpenUserProfile: (Contact) -> Unit,
-    onAppClicked: (Contact) -> Unit,
     onClose: () -> Unit,
     navigationIconType: NavigationIconType,
     itemActionType: ItemActionType,
     modifier: Modifier = Modifier,
+    conversationId: ConversationId? = null,
+    onlyConnectedContacts: Boolean = false,
     shouldHideBottomActionForSearch: Boolean = false,
     shouldHideBottomActionForServices: Boolean = false,
     isAppsTabVisible: Boolean = false,
@@ -96,6 +97,8 @@ fun SearchUsersAndAppsScreen(
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     conversationProtocol: Conversation.ProtocolInfo? = null,
     peopleBottomActions: (@Composable (FocusRequester) -> Unit)? = null,
+    onOpenUserProfile: (Contact) -> Unit = {},
+    onAppClicked: (Contact) -> Unit = {},
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
@@ -211,6 +214,8 @@ fun SearchUsersAndAppsScreen(
                     when (tabs[pageIndex]) {
                         SearchPeopleTabItem.PEOPLE -> {
                             SearchAllPeopleOrContactsScreen(
+                                conversationId = conversationId,
+                                onlyConnectedContacts = onlyConnectedContacts,
                                 searchQuery = searchBarState.searchQueryTextState.text.toString(),
                                 contactsSelected = selectedContacts,
                                 onOpenUserProfile = onOpenUserProfile,
@@ -268,7 +273,9 @@ private fun SearchAllPeopleOrContactsScreen(
     actionType: ItemActionType,
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
-    searchUserViewModel: SearchUserViewModel = searchUserViewModel(),
+    conversationId: ConversationId? = null,
+    onlyConnectedContacts: Boolean = false,
+    searchUserViewModel: SearchUserViewModel = searchUserViewModel(conversationId, onlyConnectedContacts),
     lazyListState: LazyListState = rememberLazyListState(),
     firstContactFocusRequester: FocusRequester? = null,
     nextFocusRequester: FocusRequester? = null,

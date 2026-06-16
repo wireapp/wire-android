@@ -17,9 +17,11 @@
  */
 package com.wire.android.model
 
+import androidx.compose.runtime.Stable
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.user.ConnectionState
 
+@Stable
 data class Contact(
     val id: String,
     val domain: String,

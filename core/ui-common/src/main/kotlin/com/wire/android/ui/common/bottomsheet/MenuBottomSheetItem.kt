@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.ClickBlockParams
@@ -73,7 +74,7 @@ fun MenuBottomSheetItem(
             modifier = modifier
                 .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationBottomSheetItemHeight)
                 .fillMaxWidth()
-                .clickable(clickable)
+                .clickable(clickable, role = Role.Button)
                 .padding(MaterialTheme.wireDimensions.conversationBottomSheetItemPadding)
         ) {
             if (leading != null) {

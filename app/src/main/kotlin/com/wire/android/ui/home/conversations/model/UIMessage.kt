@@ -135,6 +135,7 @@ sealed interface UIMessage {
         val isReactionAllowed: Boolean
             get() = !isDeleted &&
                     !isPending &&
+                    messageContent !is UIMessageContent.MissingThreadRoot &&
                     messageContent !is UIMessageContent.Composite &&
                     header.messageStatus.expirationStatus !is ExpirationStatus.Expirable
 
@@ -142,6 +143,7 @@ sealed interface UIMessage {
             get() = isReplyable || isReactionAllowed
 
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
+        val isMissingThreadRoot = messageContent is UIMessageContent.MissingThreadRoot
 
         val isLocation: Boolean = messageContent is UIMessageContent.Location
         val isMultipart: Boolean = messageContent is UIMessageContent.Multipart
@@ -366,6 +368,9 @@ sealed interface UIMessageContent {
     ) : Regular, PartialDeliverable, Copyable {
         override fun textToCopy(resources: Resources): String = messageBody.message.asString(resources)
     }
+
+    @Serializable
+    data object MissingThreadRoot : Regular
 
     @Serializable
     data class Multipart(

@@ -432,6 +432,10 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
             separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
         )
 
+        MessagePreviewContent.MissingThreadRoot -> UILastMessageContent.TextMessage(
+            MessageBody(UIText.StringResource(R.string.thread_missing_root_message))
+        )
+
         Unknown -> UILastMessageContent.None
     }
 }

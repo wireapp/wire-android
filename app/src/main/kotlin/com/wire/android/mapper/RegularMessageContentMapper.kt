@@ -98,6 +98,8 @@ class RegularMessageMapper @Inject constructor(
             message.deliveryStatus
         )
 
+        MessageContent.MissingThreadRoot -> UIMessageContent.MissingThreadRoot
+
         is MessageContent.Composite -> {
             val text = content.textContent?.let { textContent ->
                 val quotedMessage = textContent.quotedMessageDetails?.let { mapQuoteData(message.conversationId, it) }
@@ -179,19 +181,20 @@ class RegularMessageMapper @Inject constructor(
 
         val uiText = when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
-                is MessageContent.Unknown -> content.typeName?.let {
-                    UIText.StringResource(
-                        messageResourceProvider.sentAMessageWithContent, it
-                    )
-                } ?: UIText.StringResource(R.string.sent_a_message_with_unknown_content)
+            MessageContent.MissingThreadRoot -> UIText.StringResource(R.string.thread_missing_root_message)
+            is MessageContent.Unknown -> content.typeName?.let {
+                UIText.StringResource(
+                    messageResourceProvider.sentAMessageWithContent, it
+                )
+            } ?: UIText.StringResource(R.string.sent_a_message_with_unknown_content)
 
-                is MessageContent.FailedDecryption -> {
-                    content.errorCode?.let {
-                        UIText.StringResource(R.string.label_message_decryption_failure_message_with_error_code, it)
-                    } ?: UIText.StringResource(R.string.label_message_decryption_failure_message)
-                }
+            is MessageContent.FailedDecryption -> {
+                content.errorCode?.let {
+                    UIText.StringResource(R.string.label_message_decryption_failure_message_with_error_code, it)
+                } ?: UIText.StringResource(R.string.label_message_decryption_failure_message)
+            }
 
-                else -> UIText.StringResource(R.string.sent_a_message_with_unknown_content)
+            else -> UIText.StringResource(R.string.sent_a_message_with_unknown_content)
         }
 
         return MessageBody(

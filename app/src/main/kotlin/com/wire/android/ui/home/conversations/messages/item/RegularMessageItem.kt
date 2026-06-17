@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIMessageContent.PartialDeliverable
 import com.wire.android.ui.home.conversations.messages.ThreadSummaryUi
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -58,6 +59,8 @@ fun RegularMessageItem(
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
     isBubbleUiEnabled: Boolean = false
 ): Unit = with(message) {
+    val isMissingThreadRoot = messageContent is UIMessageContent.MissingThreadRoot
+    val shouldShowAuthor = showAuthor && !isMissingThreadRoot
     val messageStyle = when {
         !isBubbleUiEnabled -> MessageStyle.NORMAL
         message.isMyMessage -> MessageStyle.BUBBLE_SELF
@@ -81,7 +84,7 @@ fun RegularMessageItem(
                                 Alignment.Start
                             },
                             onLongClick = when {
-                                message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
+                                isMissingThreadRoot || message.header.messageStatus.isDeleted -> null
                                 else -> clickActions.onFullMessageLongClicked?.let {
                                     {
                                         it(message)
@@ -95,11 +98,11 @@ fun RegularMessageItem(
                 }
 
             val leadingSlot: (@Composable () -> Unit)? =
-                if (source == MessageSource.OtherUser && conversationDetailsData is ConversationDetailsData.Group) {
+                if (!isMissingThreadRoot && source == MessageSource.OtherUser && conversationDetailsData is ConversationDetailsData.Group) {
                     {
                         RegularMessageItemLeading(
                             header = header,
-                            showAuthor = !useSmallBottomPadding,
+                            showAuthor = shouldShowAuthor && !useSmallBottomPadding,
                             userAvatarData = message.userAvatarData,
                             onOpenProfile = clickActions.onProfileClicked
                         )
@@ -109,7 +112,7 @@ fun RegularMessageItem(
                 }
 
             val headerSlot: (@Composable (inner: PaddingValues) -> Unit)? =
-                if (showAuthor && (source == MessageSource.OtherUser)) {
+                if (shouldShowAuthor && (source == MessageSource.OtherUser)) {
                     { innerPadding ->
                         MessageAuthorRow(
                             messageHeader = message.header,
@@ -162,7 +165,7 @@ fun RegularMessageItem(
                 message = message,
                 source = source,
                 messageStatus = header.messageStatus,
-                showAuthor = showAuthor,
+                showAuthor = shouldShowAuthor,
                 accent = header.accent,
                 useSmallBottomPadding = useSmallBottomPadding,
                 leading = leadingSlot,
@@ -173,7 +176,7 @@ fun RegularMessageItem(
                     }
                 },
                 onLongClick = when {
-                    message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
+                    isMissingThreadRoot || message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
                     else -> clickActions.onFullMessageLongClicked?.let {
                         {
                             it(message)
@@ -205,7 +208,7 @@ fun RegularMessageItem(
             )
         } else {
             val headerSlot: (@Composable () -> Unit)? =
-                if (showAuthor) {
+                if (shouldShowAuthor) {
                     {
                         MessageAuthorRow(
                             messageHeader = message.header,
@@ -229,7 +232,7 @@ fun RegularMessageItem(
                             }
                         },
                         onLongPress = when {
-                            message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
+                            isMissingThreadRoot || message.header.messageStatus.isDeleted -> null
                             else -> clickActions.onFullMessageLongClicked?.let {
                                 {
                                     it(message)
@@ -241,12 +244,14 @@ fun RegularMessageItem(
                 fullAvatarOuterPadding = dimensions().avatarClickablePadding,
                 header = headerSlot,
                 leading = {
-                    RegularMessageItemLeading(
-                        header = header,
-                        showAuthor = showAuthor,
-                        userAvatarData = message.userAvatarData,
-                        onOpenProfile = clickActions.onProfileClicked
-                    )
+                    if (!isMissingThreadRoot) {
+                        RegularMessageItemLeading(
+                            header = header,
+                            showAuthor = shouldShowAuthor,
+                            userAvatarData = message.userAvatarData,
+                            onOpenProfile = clickActions.onProfileClicked
+                        )
+                    }
                 },
                 content = {
                     MessageContentItem(

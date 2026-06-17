@@ -23,16 +23,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.applyIf
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -59,6 +63,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.location.Locati
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsView
 import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMessage
 import com.wire.android.ui.theme.Accent
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import okio.Path.Companion.toPath
@@ -173,6 +178,14 @@ private fun MessageContent(
     conversationAssetPathsViewModel: ConversationAssetPathsViewModel
 ) {
     when (messageContent) {
+        UIMessageContent.MissingThreadRoot -> {
+            Text(
+                text = stringResource(R.string.thread_missing_root_message),
+                color = colorsScheme().secondaryText,
+                style = MaterialTheme.wireTypography.body04.copy(fontStyle = FontStyle.Italic)
+            )
+        }
+
         is UIMessageContent.ImageMessage -> {
             val messageId = message.header.messageId
             val localAssetPath = conversationAssetPathsViewModel.localAssetPath(

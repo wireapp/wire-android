@@ -60,6 +60,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import com.wire.android.assertions.shouldBeEqualTo
+import com.wire.android.ui.home.conversations.messages.item.MessageSwipeAction
 import com.wire.android.ui.home.conversations.messages.item.withOfflineIndicator
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -70,6 +71,20 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 class ConversationMessagesViewModelTest {
+
+    @Test
+    fun `given stored swipe actions, when observing conversation state, then should update state`() = runTest {
+        val (_, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withMessageSwipeRightAction(MessageSwipeAction.DETAILS)
+            .withMessageSwipeLeftAction(MessageSwipeAction.REPLY)
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertEquals(MessageSwipeAction.DETAILS, viewModel.conversationViewState.messageSwipeRightAction)
+        assertEquals(MessageSwipeAction.REPLY, viewModel.conversationViewState.messageSwipeLeftAction)
+    }
 
     @Test
     fun `given an message ID, when downloading or fetching into internal storage, then should get message details by ID`() = runTest {

@@ -45,13 +45,14 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import kotlin.math.absoluteValue
 import kotlin.math.min
+import com.wire.android.ui.common.R as commonR
 
 @Stable
 sealed interface SwipeableMessageConfiguration {
     data object NotSwipeable : SwipeableMessageConfiguration
     class Swipeable(
-        val onSwipedRight: (() -> Unit)? = null,
-        val onSwipedLeft: (() -> Unit)? = null,
+        val onSwipedRight: SwipeAction? = null,
+        val onSwipedLeft: SwipeAction? = null,
     ) : SwipeableMessageConfiguration
 }
 
@@ -78,21 +79,18 @@ internal fun SwipeableMessageBox(
     SwipeableBox(
         messageStyle = messageStyle,
         modifier = modifier,
-        onSwipeRight = swipeConfiguration?.onSwipedRight?.let {
-            SwipeAction(
-                icon = R.drawable.ic_reply,
-                action = it,
-            )
-        },
-        onSwipeLeft = swipeConfiguration?.onSwipedLeft?.let {
-            SwipeAction(
-                icon = R.drawable.ic_react,
-                action = it,
-            )
-        },
+        onSwipeRight = swipeConfiguration?.onSwipedRight,
+        onSwipeLeft = swipeConfiguration?.onSwipedLeft,
         content = content,
     )
 }
+
+fun MessageSwipeAction.iconResId(): Int =
+    when (this) {
+        MessageSwipeAction.REPLY -> R.drawable.ic_reply
+        MessageSwipeAction.REACT -> R.drawable.ic_react
+        MessageSwipeAction.DETAILS -> commonR.drawable.ic_info
+    }
 
 @Suppress("CyclomaticComplexMethod")
 @OptIn(ExperimentalFoundationApi::class)

@@ -23,11 +23,13 @@ import androidx.paging.PagingData
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.android.media.audiomessage.PlayingAudioMessage
+import com.wire.android.ui.home.conversations.messages.item.MessageSwipeAction
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -136,6 +138,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var networkStateObserver: NetworkStateObserver
 
+    @MockK
+    lateinit var globalDataStore: GlobalDataStore
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             savedStateHandle,
@@ -157,6 +162,7 @@ class ConversationMessagesViewModelArrangement {
             deleteMessage,
             isWireCellFeatureEnabled,
             networkStateObserver,
+            globalDataStore,
         )
     }
 
@@ -178,6 +184,8 @@ class ConversationMessagesViewModelArrangement {
 
         coEvery { observeAssetStatuses(any()) } returns flowOf(mapOf())
         every { networkStateObserver.observeNetworkState() } returns networkState
+        every { globalDataStore.messageSwipeRightActionFlow() } returns flowOf(MessageSwipeAction.DEFAULT_RIGHT)
+        every { globalDataStore.messageSwipeLeftActionFlow() } returns flowOf(MessageSwipeAction.DEFAULT_LEFT)
 
         coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)
         coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
@@ -227,6 +235,14 @@ class ConversationMessagesViewModelArrangement {
 
     fun withPlayingAudioMessageFlow(playingAudioMessageFlow: Flow<PlayingAudioMessage>) = apply {
         coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns playingAudioMessageFlow
+    }
+
+    fun withMessageSwipeRightAction(action: MessageSwipeAction) = apply {
+        every { globalDataStore.messageSwipeRightActionFlow() } returns flowOf(action)
+    }
+
+    fun withMessageSwipeLeftAction(action: MessageSwipeAction) = apply {
+        every { globalDataStore.messageSwipeLeftActionFlow() } returns flowOf(action)
     }
 
     suspend fun withPaginatedMessagesReturning(pagingDataFlow: PagingData<UIMessage>) = apply {

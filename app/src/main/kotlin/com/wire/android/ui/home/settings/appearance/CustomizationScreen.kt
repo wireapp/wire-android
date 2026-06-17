@@ -50,6 +50,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
+import com.wire.android.ui.home.conversations.messages.item.MessageSwipeAction
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.ThemeData
@@ -73,6 +74,8 @@ fun CustomizationScreen(
         onThemeOptionChanged = viewModel::selectThemeOption,
         onBackPressed = navigator::navigateBack,
         onEnterToSendClicked = viewModel::selectPressEnterToSendOption,
+        onMessageSwipeRightActionChanged = viewModel::selectMessageSwipeRightAction,
+        onMessageSwipeLeftActionChanged = viewModel::selectMessageSwipeLeftAction,
     )
 }
 
@@ -82,6 +85,8 @@ fun CustomizationScreenContent(
     onThemeOptionChanged: (ThemeOption) -> Unit,
     onBackPressed: () -> Unit,
     onEnterToSendClicked: (Boolean) -> Unit,
+    onMessageSwipeRightActionChanged: (MessageSwipeAction) -> Unit,
+    onMessageSwipeLeftActionChanged: (MessageSwipeAction) -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -114,6 +119,10 @@ fun CustomizationScreenContent(
                 CustomizationOptionsContent(
                     enterToSendState = state.pressEnterToSentState,
                     enterToSendClicked = onEnterToSendClicked,
+                    selectedMessageSwipeRightAction = state.messageSwipeRightAction,
+                    selectedMessageSwipeLeftAction = state.messageSwipeLeftAction,
+                    onMessageSwipeRightActionChanged = onMessageSwipeRightActionChanged,
+                    onMessageSwipeLeftActionChanged = onMessageSwipeLeftActionChanged,
                 )
             }
         }
@@ -124,6 +133,10 @@ fun CustomizationScreenContent(
 fun CustomizationOptionsContent(
     enterToSendState: Boolean,
     enterToSendClicked: (Boolean) -> Unit,
+    selectedMessageSwipeRightAction: MessageSwipeAction,
+    selectedMessageSwipeLeftAction: MessageSwipeAction,
+    onMessageSwipeRightActionChanged: (MessageSwipeAction) -> Unit,
+    onMessageSwipeLeftActionChanged: (MessageSwipeAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -137,6 +150,79 @@ fun CustomizationOptionsContent(
             arrowType = ArrowType.NONE,
             subtitle = stringResource(id = R.string.press_enter_to_send_text)
         )
+        SectionHeader(stringResource(R.string.customization_swipe_actions_header_title))
+        Text(
+            text = stringResource(R.string.customization_swipe_right_title),
+            style = MaterialTheme.wireTypography.label01,
+            color = MaterialTheme.wireColorScheme.secondaryText,
+            modifier = Modifier.padding(
+                start = dimensions().spacing16x,
+                top = dimensions().spacing8x,
+                bottom = dimensions().spacing4x
+            )
+        )
+        MessageSwipeAction.entries.forEach { action ->
+            MessageSwipeActionOptionItem(
+                action = action,
+                selectedAction = selectedMessageSwipeRightAction,
+                onActionSelected = onMessageSwipeRightActionChanged,
+            )
+        }
+        Text(
+            text = stringResource(R.string.customization_swipe_left_title),
+            style = MaterialTheme.wireTypography.label01,
+            color = MaterialTheme.wireColorScheme.secondaryText,
+            modifier = Modifier.padding(
+                start = dimensions().spacing16x,
+                top = dimensions().spacing16x,
+                bottom = dimensions().spacing4x
+            )
+        )
+        MessageSwipeAction.entries.forEach { action ->
+            MessageSwipeActionOptionItem(
+                action = action,
+                selectedAction = selectedMessageSwipeLeftAction,
+                onActionSelected = onMessageSwipeLeftActionChanged,
+            )
+        }
+    }
+}
+
+@Composable
+private fun MessageSwipeActionOptionItem(
+    action: MessageSwipeAction,
+    selectedAction: MessageSwipeAction,
+    onActionSelected: (MessageSwipeAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val isSelected = action == selectedAction
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = dimensions().spacing1x)
+            .selectable(
+                selected = isSelected,
+                role = Role.RadioButton,
+                onClick = { onActionSelected(action) }
+            )
+            .background(color = MaterialTheme.wireColorScheme.surface),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(selected = isSelected, onClick = null)
+        Column(
+            modifier = Modifier.padding(vertical = dimensions().spacing12x)
+        ) {
+            Text(
+                text = stringResource(action.titleResId()),
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground
+            )
+            Text(
+                text = stringResource(action.descriptionResId()),
+                style = MaterialTheme.wireTypography.label01,
+                color = MaterialTheme.wireColorScheme.secondaryText
+            )
+        }
     }
 }
 
@@ -207,5 +293,21 @@ fun PreviewSettingsScreen() {
         {},
         {},
         {},
+        {},
+        {},
     )
 }
+
+private fun MessageSwipeAction.titleResId(): Int =
+    when (this) {
+        MessageSwipeAction.REPLY -> R.string.customization_swipe_action_reply_title
+        MessageSwipeAction.REACT -> R.string.customization_swipe_action_react_title
+        MessageSwipeAction.DETAILS -> R.string.customization_swipe_action_details_title
+    }
+
+private fun MessageSwipeAction.descriptionResId(): Int =
+    when (this) {
+        MessageSwipeAction.REPLY -> R.string.customization_swipe_action_reply_description
+        MessageSwipeAction.REACT -> R.string.customization_swipe_action_react_description
+        MessageSwipeAction.DETAILS -> R.string.customization_swipe_action_details_description
+    }

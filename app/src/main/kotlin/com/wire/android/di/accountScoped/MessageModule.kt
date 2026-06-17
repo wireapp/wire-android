@@ -44,6 +44,7 @@ import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
+import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
 import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
@@ -65,6 +66,7 @@ import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConvers
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 import com.wire.kalium.logic.feature.message.messageSemanticIndexer
 import com.wire.kalium.logic.feature.message.observePaginatedImageAssetMessageByConversationId
+import com.wire.kalium.logic.feature.message.searchMessagesSemanticallyGlobally
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
@@ -92,6 +94,13 @@ class MessageModule {
             messageSemanticIndexer = messageScope.messageSemanticIndexer(textEmbeddingModel),
             modelId = textEmbeddingModel.modelId
         )
+
+    @Provides
+    fun provideSearchMessagesSemanticallyGloballyUseCase(
+        messageScope: MessageScope,
+        textEmbeddingModel: TextEmbeddingModel
+    ): SearchMessagesSemanticallyGloballyUseCase =
+        messageScope.searchMessagesSemanticallyGlobally(textEmbeddingModel)
 
     @Provides
     fun provideEnqueueMessageSelfDeletionUseCase(messageScope: MessageScope): EnqueueMessageSelfDeletionUseCase =

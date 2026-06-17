@@ -16,6 +16,7 @@
  */
 package com.wire.android.feature.aiassistant
 
+import com.google.ai.edge.localagents.rag.models.EmbedData
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.DefaultAiEmbeddingModelDescriptor
 import com.wire.android.feature.aiassistant.storage.AiModelStorage
@@ -82,14 +83,14 @@ class GeckoTextEmbeddingModelTest {
     }
 
     @Test
-    fun givenBothArtifactsExist_whenEmbedding_thenFactoryReceivesBundlePathsAndCpuBackend() = runTest {
+    fun givenBothArtifactsExist_whenEmbeddingDocument_thenFactoryReceivesBundlePathsAndDocumentTaskType() = runTest {
         val storage = GeckoFakeBundleAiModelStorage(tempDir)
             .withFinalFile(DefaultAiEmbeddingModelDescriptor.model)
             .withFinalFile(DefaultAiEmbeddingModelDescriptor.tokenizer)
         val factory = FakeGeckoTextEmbedderFactory(vector = floatArrayOf(1F, 2F, 3F))
         val model = GeckoTextEmbeddingModel(storage, factory)
 
-        val embedding = model.embed("hello")
+        val embedding = model.embedDocument("hello")
 
         assertArrayEquals(floatArrayOf(1F, 2F, 3F), embedding)
         assertEquals(
@@ -97,12 +98,26 @@ class GeckoTextEmbeddingModelTest {
                 FactoryCall(
                     modelPath = storage.getModelFile(DefaultAiEmbeddingModelDescriptor.model).absolutePath,
                     tokenizerPath = storage.getModelFile(DefaultAiEmbeddingModelDescriptor.tokenizer).absolutePath,
-                    useGpu = false
+                    useGpu = true
                 )
             ),
             factory.calls
         )
-        assertEquals(listOf("hello"), factory.embedder.embeddedTexts)
+        assertEquals(listOf(EmbedCall("hello", EmbedData.TaskType.RETRIEVAL_DOCUMENT)), factory.embedder.embedCalls)
+    }
+
+    @Test
+    fun givenBothArtifactsExist_whenEmbeddingQuery_thenQueryTaskTypeIsUsed() = runTest {
+        val storage = GeckoFakeBundleAiModelStorage(tempDir)
+            .withFinalFile(DefaultAiEmbeddingModelDescriptor.model)
+            .withFinalFile(DefaultAiEmbeddingModelDescriptor.tokenizer)
+        val factory = FakeGeckoTextEmbedderFactory(vector = floatArrayOf(1F, 2F, 3F))
+        val model = GeckoTextEmbeddingModel(storage, factory)
+
+        val embedding = model.embedQuery("hello")
+
+        assertArrayEquals(floatArrayOf(1F, 2F, 3F), embedding)
+        assertEquals(listOf(EmbedCall("hello", EmbedData.TaskType.RETRIEVAL_QUERY)), factory.embedder.embedCalls)
     }
 
     @Test
@@ -118,7 +133,7 @@ class GeckoTextEmbeddingModelTest {
             .awaitAll()
 
         assertEquals(1, factory.calls.size)
-        assertEquals(listOf("one", "two"), factory.embedder.embeddedTexts.sorted())
+        assertEquals(listOf("one", "two"), factory.embedder.embedCalls.map { it.text }.sorted())
     }
 }
 
@@ -141,13 +156,18 @@ private class FakeGeckoTextEmbedderFactory(
 private class FakeGeckoTextEmbedder(
     private val vector: FloatArray
 ) : GeckoTextEmbedder {
-    val embeddedTexts = mutableListOf<String>()
+    val embedCalls = mutableListOf<EmbedCall>()
 
-    override suspend fun embed(text: String): FloatArray {
-        embeddedTexts += text
+    override suspend fun embed(text: String, taskType: EmbedData.TaskType): FloatArray {
+        embedCalls += EmbedCall(text, taskType)
         return vector
     }
 }
+
+private data class EmbedCall(
+    val text: String,
+    val taskType: EmbedData.TaskType
+)
 
 private data class FactoryCall(
     val modelPath: String,

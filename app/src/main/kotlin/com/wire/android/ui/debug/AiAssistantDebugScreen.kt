@@ -17,12 +17,15 @@
  */
 package com.wire.android.ui.debug
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
@@ -37,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.feature.aiassistant.AiEmbeddingModelManager
 import com.wire.android.feature.aiassistant.AiInferenceBackend
@@ -62,6 +67,8 @@ import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
+import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
@@ -73,6 +80,9 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
 import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -98,6 +108,7 @@ fun AiAssistantDebugScreen(
         onDownloadAiModel = viewModel::downloadAiModel,
         onDownloadEmbeddingModel = viewModel::downloadEmbeddingModel,
         onCreateEmbeddings = viewModel::createEmbeddings,
+        onSearchMessages = viewModel::searchMessages,
         onModelSelected = viewModel::selectModel,
         onInferenceBackendSelected = viewModel::selectInferenceBackend,
         onCpuThreadsSelected = viewModel::selectCpuThreads,
@@ -125,15 +136,27 @@ fun AiAssistantDebugScreenContent(
     onCpuThreadsSelected: (Int?) -> Unit,
     onDismissAuthorizationDialog: () -> Unit,
     onAuthorizeModelAccess: (String) -> Unit,
+    onSearchMessages: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
+    var showSearchDialog by remember { mutableStateOf(false) }
 
     state.authorizationDialogState?.let { dialogState ->
         AiModelAuthorizationDialog(
             state = dialogState,
             onDismiss = onDismissAuthorizationDialog,
             onAuthorize = onAuthorizeModelAccess
+        )
+    }
+
+    if (showSearchDialog) {
+        AiSemanticSearchDialog(
+            onDismiss = { showSearchDialog = false },
+            onStartSearch = { query ->
+                showSearchDialog = false
+                onSearchMessages(query)
+            }
         )
     }
 
@@ -184,10 +207,47 @@ fun AiAssistantDebugScreenContent(
                 )
                 AiCreateEmbeddingsOption(
                     isCreatingEmbeddings = state.isCreatingEmbeddings,
-                    onCreateEmbeddings = onCreateEmbeddings
+                    isSearchingMessages = state.isSearchingMessages,
+                    onCreateEmbeddings = onCreateEmbeddings,
+                    onSearchMessages = { showSearchDialog = true }
                 )
                 AiModelHealthCheckOption(state = state.healthCheckState)
             }
+        }
+    )
+}
+
+@Composable
+private fun AiSemanticSearchDialog(
+    onDismiss: () -> Unit,
+    onStartSearch: (String) -> Unit,
+) {
+    val queryTextState = rememberTextFieldState()
+    val isQueryBlank = queryTextState.text.isBlank()
+
+    WireDialog(
+        title = stringResource(R.string.debug_settings_ai_semantic_search),
+        onDismiss = onDismiss,
+        buttonsHorizontalAlignment = false,
+        dismissButtonProperties = WireDialogButtonProperties(
+            text = stringResource(R.string.label_cancel),
+            type = WireDialogButtonType.Secondary,
+            onClick = onDismiss
+        ),
+        optionButton1Properties = WireDialogButtonProperties(
+            text = stringResource(R.string.debug_settings_ai_start_search),
+            type = WireDialogButtonType.Primary,
+            state = if (isQueryBlank) WireButtonState.Disabled else WireButtonState.Default,
+            onClick = { onStartSearch(queryTextState.text.toString()) }
+        ),
+        content = {
+            WireTextField(
+                modifier = Modifier.fillMaxWidth(),
+                textState = queryTextState,
+                labelText = stringResource(R.string.debug_settings_ai_search_query),
+                state = WireTextFieldState.Default,
+                testTag = SEMANTIC_SEARCH_QUERY_TEST_TAG
+            )
         }
     )
 }
@@ -359,7 +419,9 @@ private fun AiModelOptionState.statusText(): String =
 @Composable
 private fun AiCreateEmbeddingsOption(
     isCreatingEmbeddings: Boolean,
+    isSearchingMessages: Boolean,
     onCreateEmbeddings: () -> Unit,
+    onSearchMessages: () -> Unit,
 ) {
     RowItemTemplate(
         modifier = Modifier.wrapContentWidth(),
@@ -372,15 +434,26 @@ private fun AiCreateEmbeddingsOption(
             )
         },
         actions = {
-            WirePrimaryButton(
-                minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                onClick = onCreateEmbeddings,
-                text = stringResource(R.string.debug_settings_ai_create_embeddings),
-                fillMaxWidth = false,
-                loading = isCreatingEmbeddings,
-                state = if (isCreatingEmbeddings) WireButtonState.Disabled else WireButtonState.Default
-            )
+            Row(horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)) {
+                WirePrimaryButton(
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    onClick = onCreateEmbeddings,
+                    text = stringResource(R.string.debug_settings_ai_create_embeddings),
+                    fillMaxWidth = false,
+                    loading = isCreatingEmbeddings,
+                    state = if (isCreatingEmbeddings) WireButtonState.Disabled else WireButtonState.Default
+                )
+                WirePrimaryButton(
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    onClick = onSearchMessages,
+                    text = stringResource(R.string.debug_settings_ai_search),
+                    fillMaxWidth = false,
+                    loading = isSearchingMessages,
+                    state = if (isSearchingMessages) WireButtonState.Disabled else WireButtonState.Default
+                )
+            }
         }
     )
 }
@@ -423,6 +496,7 @@ interface AiAssistantDebugViewModel {
     fun downloadAiModel() {}
     fun downloadEmbeddingModel() {}
     fun createEmbeddings() {}
+    fun searchMessages(query: String) {}
     fun selectModel(descriptor: AiModelDescriptor) {}
     fun selectInferenceBackend(backend: AiInferenceBackend) {}
     fun selectCpuThreads(cpuThreads: Int?) {}
@@ -436,6 +510,7 @@ class AiAssistantDebugViewModelImpl(
     private val aiModelTestEngine: AiModelTestEngine,
     private val inferenceConfigStore: AiInferenceConfigStore,
     private val createEmbeddingsForExistingMessages: CreateEmbeddingsForExistingMessagesUseCase,
+    private val searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase,
 ) : ViewModel(), AiAssistantDebugViewModel {
 
     override var state by mutableStateOf(AiAssistantDebugState())
@@ -552,6 +627,60 @@ class AiAssistantDebugViewModelImpl(
             } finally {
                 state = state.copy(isCreatingEmbeddings = false)
             }
+        }
+    }
+
+    override fun searchMessages(query: String) {
+        if (query.isBlank() || state.isSearchingMessages) return
+
+        state = state.copy(isSearchingMessages = true)
+        viewModelScope.launch {
+            try {
+                when (val result = searchMessagesSemanticallyGlobally(query)) {
+                    is SearchMessagesSemanticallyGloballyUseCase.Result.Success ->
+                        logSemanticSearchResults(query, result.messages)
+
+                    is SearchMessagesSemanticallyGloballyUseCase.Result.Failure -> {
+                        appLogger.e("$SEMANTIC_SEARCH_LOG_TAG: Search failed: ${result.cause}")
+                        _infoMessage.emit(
+                            UIText.StringResource(
+                                R.string.debug_settings_ai_semantic_search_failed,
+                                result.cause.toString()
+                            )
+                        )
+                    }
+                }
+            } catch (throwable: Throwable) {
+                appLogger.e("$SEMANTIC_SEARCH_LOG_TAG: Search failed", throwable)
+                _infoMessage.emit(
+                    UIText.StringResource(
+                        R.string.debug_settings_ai_semantic_search_failed,
+                        throwable.toString()
+                    )
+                )
+            } finally {
+                state = state.copy(isSearchingMessages = false)
+            }
+        }
+    }
+
+    private fun logSemanticSearchResults(query: String, messages: List<Message.Standalone>) {
+        appLogger.i("$SEMANTIC_SEARCH_LOG_TAG: query=\"$query\", resultCount=${messages.size}")
+        messages.forEachIndexed { index, message ->
+            val contentType = message.content::class.simpleName.orEmpty()
+            val contentText = when(val content = message.content) {
+                is MessageContent.Text -> content.value
+                is MessageContent.TextEdited -> content.newContent
+                is MessageContent.Multipart -> content.value
+                is MessageContent.MultipartEdited -> content.newTextContent
+                else -> "Unsupported"
+            }
+            appLogger.i(
+                "$SEMANTIC_SEARCH_LOG_TAG: rank=${index + 1}, " +
+                    "text = $contentText " +
+                    "conversationId=${message.conversationId}, " +
+                    "messageId=${message.id}, contentType=$contentType, date=${message.date}"
+            )
         }
     }
 
@@ -740,6 +869,7 @@ data class AiAssistantDebugState(
     val aiModelOptionState: AiModelOptionState = AiModelOptionState(),
     val embeddingModelOptionState: AiModelOptionState = AiModelOptionState(),
     val isCreatingEmbeddings: Boolean = false,
+    val isSearchingMessages: Boolean = false,
     val healthCheckState: AiModelHealthCheckState = AiModelHealthCheckState.Unavailable,
     val authorizationDialogState: AiModelAuthorizationDialogState? = null
 )
@@ -772,6 +902,8 @@ private const val PERCENT_MULTIPLIER = 100
 private const val EMPTY_RESPONSE_FAILURE_REASON = "Model returned an empty response"
 private const val MISSING_MODEL_FAILURE_REASON = "Model file is missing"
 private const val UNSUPPORTED_MODEL_FAILURE_REASON = "Model type is not supported by the LiteRT-LM health check"
+private const val SEMANTIC_SEARCH_LOG_TAG = "AI semantic search"
+private const val SEMANTIC_SEARCH_QUERY_TEST_TAG = "semantic-search-query"
 private val URL_REGEX = Regex("""https?://[^\s"'<>]+""")
 
 private data class HealthCheckKey(
@@ -790,6 +922,7 @@ fun PreviewAiAssistantDebugScreen() = WireTheme {
         onDownloadAiModel = {},
         onDownloadEmbeddingModel = {},
         onCreateEmbeddings = {},
+        onSearchMessages = {},
         onModelSelected = {},
         onInferenceBackendSelected = {},
         onCpuThreadsSelected = {},

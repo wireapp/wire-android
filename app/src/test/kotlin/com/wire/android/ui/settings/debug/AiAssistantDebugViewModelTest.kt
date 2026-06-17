@@ -40,6 +40,7 @@ import com.wire.android.ui.debug.extractFirstUrl
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.resolveForTest
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
 import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -613,6 +614,57 @@ class AiAssistantDebugViewModelTest {
         runCurrent()
         assertEquals(false, viewModel.state.isCreatingEmbeddings)
     }
+
+    @Test
+    fun `given blank query, when searching messages, then semantic search is not called`() = runTest {
+        // given
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .arrange()
+
+        // when
+        viewModel.searchMessages("   ")
+
+        // then
+        coVerify(exactly = 0) { arrangement.searchMessagesSemanticallyGlobally(any(), any()) }
+        assertEquals(false, viewModel.state.isSearchingMessages)
+    }
+
+    @Test
+    fun `given query, when semantic search succeeds, then use case is called and loading clears`() = runTest {
+        // given
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(emptyList()))
+            .arrange()
+
+        // when
+        viewModel.searchMessages("hello")
+        runCurrent()
+
+        // then
+        coVerify(exactly = 1) { arrangement.searchMessagesSemanticallyGlobally("hello", any()) }
+        assertEquals(false, viewModel.state.isSearchingMessages)
+    }
+
+    @Test
+    fun `given semantic search fails, when searching messages, then failure message is emitted`() = runTest {
+        // given
+        val failure = CoreFailure.Unknown(RuntimeException("Search failed"))
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Failure(failure))
+            .arrange()
+
+        viewModel.infoMessage.test {
+            // when
+            viewModel.searchMessages("hello")
+
+            // then
+            assertEquals(
+                UIText.StringResource(R.string.debug_settings_ai_semantic_search_failed, failure.toString()),
+                awaitItem()
+            )
+        }
+        assertEquals(false, viewModel.state.isSearchingMessages)
+    }
 }
 
 private val testDescriptor = AiModelDescriptor(
@@ -645,6 +697,9 @@ private class AiAssistantDebugArrangement {
     @MockK
     lateinit var createEmbeddingsForExistingMessages: CreateEmbeddingsForExistingMessagesUseCase
 
+    @MockK
+    lateinit var searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase
+
     val inferenceConfigStore = FakeAiInferenceConfigStore()
 
     private val viewModel by lazy {
@@ -653,7 +708,8 @@ private class AiAssistantDebugArrangement {
             aiEmbeddingModelManager = aiEmbeddingModelManager,
             aiModelTestEngine = aiModelTestEngine,
             inferenceConfigStore = inferenceConfigStore,
-            createEmbeddingsForExistingMessages = createEmbeddingsForExistingMessages
+            createEmbeddingsForExistingMessages = createEmbeddingsForExistingMessages,
+            searchMessagesSemanticallyGlobally = searchMessagesSemanticallyGlobally
         )
     }
 
@@ -677,6 +733,7 @@ private class AiAssistantDebugArrangement {
                 modelId = "deterministic-local-v1"
             )
         )
+        withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(emptyList()))
     }
 
     fun withAiModelStatus(status: AiModelStatus) = apply {
@@ -747,6 +804,12 @@ private class AiAssistantDebugArrangement {
         } coAnswers {
             result()
         }
+    }
+
+    fun withSemanticSearchResult(result: SearchMessagesSemanticallyGloballyUseCase.Result) = apply {
+        coEvery {
+            searchMessagesSemanticallyGlobally(any(), any())
+        } returns result
     }
 
     fun arrange() = this to viewModel

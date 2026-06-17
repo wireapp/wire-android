@@ -46,8 +46,11 @@ class GeckoTextEmbeddingModel internal constructor(
     private val embedderMutex = Mutex()
     private var embedder: GeckoTextEmbedder? = null
 
-    override suspend fun embed(text: String): FloatArray =
-        getEmbedder().embed(text)
+    override suspend fun embedDocument(text: String): FloatArray =
+        getEmbedder().embed(text, EmbedData.TaskType.RETRIEVAL_DOCUMENT)
+
+    override suspend fun embedQuery(text: String): FloatArray =
+        getEmbedder().embed(text, EmbedData.TaskType.RETRIEVAL_QUERY)
 
     private suspend fun getEmbedder(): GeckoTextEmbedder =
         embedder ?: embedderMutex.withLock {
@@ -83,7 +86,7 @@ class GeckoTextEmbeddingModel internal constructor(
         const val MODEL_ID = "gecko-110m-en-256-quant-v1"
         const val DIMENSION = 768
         const val MAX_TOKENS = 256
-        const val USE_GPU_FOR_EMBEDDINGS = false
+        const val USE_GPU_FOR_EMBEDDINGS = true
     }
 }
 
@@ -96,7 +99,7 @@ internal interface GeckoTextEmbedderFactory {
 }
 
 internal interface GeckoTextEmbedder {
-    suspend fun embed(text: String): FloatArray
+    suspend fun embed(text: String, taskType: EmbedData.TaskType): FloatArray
 }
 
 private object DefaultGeckoTextEmbedderFactory : GeckoTextEmbedderFactory {
@@ -113,12 +116,12 @@ private object DefaultGeckoTextEmbedderFactory : GeckoTextEmbedderFactory {
 private class GoogleAiEdgeGeckoTextEmbedder(
     private val model: GeckoEmbeddingModel
 ) : GeckoTextEmbedder {
-    override suspend fun embed(text: String): FloatArray {
+    override suspend fun embed(text: String, taskType: EmbedData.TaskType): FloatArray {
         val request = EmbeddingRequest.create(
             listOf(
                 EmbedData.create(
                     text,
-                    EmbedData.TaskType.RETRIEVAL_DOCUMENT
+                    taskType
                 )
             )
         )

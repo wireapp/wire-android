@@ -284,7 +284,7 @@ fun UserProfileInfo(
             val teamDescription = stringResource(R.string.content_description_self_profile_team, teamName)
             TeamInformation(
                 modifier = Modifier
-                    .padding(top = dimensions().spacing8x)
+                    .padding(vertical = dimensions().spacing8x)
                     .padding(horizontal = dimensions().spacing16x)
                     .semantics(mergeDescendants = true) { contentDescription = teamDescription },
                 teamName = teamName

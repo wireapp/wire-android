@@ -109,12 +109,16 @@ class CellViewModel(
     private val getUserName: GetUserNameUseCase,
 ) : ActionsViewModel<CellViewAction>() {
 
-    private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
     private val searchNavArgs: SearchNavArgs? = try {
         SearchScreenDestination.argsFrom(savedStateHandle)
     } catch (_: RuntimeException) {
         // Not coming from Search screen, ignore
         null
+    }
+    private val navArgs: CellFilesNavArgs = try {
+        ConversationFilesScreenDestination.argsFrom(savedStateHandle)
+    } catch (_: RuntimeException) {
+        searchNavArgs?.toCellFilesNavArgs() ?: CellFilesNavArgs()
     }
 
     // Show menu with actions for the selected file.
@@ -650,5 +654,8 @@ data class MenuOptions(
     val node: CellNodeUi,
     val actions: List<NodeBottomSheetAction>
 )
+
+private fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =
+    CellFilesNavArgs(conversationId = conversationId)
 
 private const val RESTORE_DELAY_MS = 300L

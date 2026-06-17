@@ -378,7 +378,7 @@ class WireActivity : BaseActivity() {
             currentBaseRoute != null && canRetainSessionGraphForContent -> lastSessionGraphContext.value
             else -> null
         }
-        val navHostStartDestination = resolveNavHostStartDestination(startDestination, currentUserId)
+        val navHostStartDestination = resolveNavHostStartDestination(startDestination, currentUserId, currentBaseRoute)
         val backgroundType by remember {
             derivedStateOf {
                 currentBackStackEntryState.value?.safeDestination()?.style.let {
@@ -409,14 +409,25 @@ class WireActivity : BaseActivity() {
     private fun resolveNavHostStartDestination(
         initialStartDestination: Direction,
         currentUserId: UserId?,
-    ): Direction =
-        if (currentUserId == null && initialStartDestination.baseRoute !in authenticationGraphRoutes) {
-            when (loginTypeSelector.canUseNewLogin()) {
-                true -> NewLoginScreenDestination()
-                false -> WelcomeScreenDestination()
-            }
-        } else {
-            initialStartDestination
+        currentBaseRoute: String?,
+    ): Direction {
+        if (currentUserId != null || initialStartDestination.baseRoute in authenticationGraphRoutes) {
+            return initialStartDestination
+        }
+        return when (currentBaseRoute) {
+            NewLoginScreenDestination.baseRoute -> NewLoginScreenDestination()
+            LoginScreenDestination.baseRoute -> WelcomeScreenDestination()
+            WelcomeScreenDestination.baseRoute -> WelcomeScreenDestination()
+            NewWelcomeEmptyStartScreenDestination.baseRoute,
+            null -> loggedOutStartDestination()
+            else -> initialStartDestination
+        }
+    }
+
+    private fun loggedOutStartDestination(): Direction =
+        when (loginTypeSelector.canUseNewLogin()) {
+            true -> NewWelcomeEmptyStartScreenDestination()
+            false -> WelcomeScreenDestination()
         }
 
     private fun isNavigationAllowed(navigationCommand: NavigationCommand): Boolean {

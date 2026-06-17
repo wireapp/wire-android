@@ -162,6 +162,7 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModel
 import com.wire.android.ui.userprofile.qr.SelfQRCodeViewModel
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel
+import com.wire.android.ui.userprofile.self.status.SelfUserStatusViewModel
 import com.wire.android.ui.userprofile.service.ServiceDetailsViewModelImpl
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.kalium.logic.data.id.ConversationId
@@ -921,6 +922,12 @@ object WireMetroViewModelBindings {
     @ViewModelKey(SelfUserProfileViewModel::class)
     fun selfUserProfileViewModel(factory: SettingsViewModelFactory): ViewModel =
         factory.selfUserProfileViewModel()
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(SelfUserStatusViewModel::class)
+    fun selfUserStatusViewModel(factory: SettingsViewModelFactory): ViewModel =
+        factory.selfUserStatusViewModel()
 
     @Provides
     @IntoMap

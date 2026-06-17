@@ -54,6 +54,7 @@ import com.wire.kalium.logic.feature.user.UpdateAccentColorUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
+import com.wire.kalium.logic.feature.user.UpdateSelfTextStatusUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
@@ -169,6 +170,10 @@ class UserModule {
     @Provides
     fun provideUpdateSelfAvailabilityStatusUseCase(userScope: UserScope): UpdateSelfAvailabilityStatusUseCase =
         userScope.updateSelfAvailabilityStatus
+
+    @Provides
+    fun provideUpdateSelfTextStatusUseCase(userScope: UserScope): UpdateSelfTextStatusUseCase =
+        userScope.updateSelfTextStatus
 
     @Provides
     fun provideGetAllContactsUseCase(

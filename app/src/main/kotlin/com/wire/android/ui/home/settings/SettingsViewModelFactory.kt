@@ -45,6 +45,7 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModel
 import com.wire.android.ui.userprofile.qr.SelfQRCodeViewModel
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel
+import com.wire.android.ui.userprofile.self.status.SelfUserStatusViewModel
 import com.wire.android.ui.userprofile.service.ServiceDetailsViewModelImpl
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -101,6 +102,7 @@ class SettingsViewModelFactory @Inject constructor(
     private val selfDevicesViewModel: Provider<SelfDevicesViewModel>,
     private val avatarPickerViewModel: Provider<AvatarPickerViewModel>,
     private val selfUserProfileViewModel: Provider<SelfUserProfileViewModel>,
+    private val selfUserStatusViewModel: Provider<SelfUserStatusViewModel>,
     private val teamMigrationViewModel: Provider<TeamMigrationViewModel>,
     private val updateEmail: Provider<UpdateEmailUseCase>,
     private val getSelfUser: Provider<GetSelfUserUseCase>,
@@ -155,6 +157,7 @@ class SettingsViewModelFactory @Inject constructor(
     fun selfDevicesViewModel(): SelfDevicesViewModel = selfDevicesViewModel.invoke()
     fun avatarPickerViewModel(): AvatarPickerViewModel = avatarPickerViewModel.invoke()
     fun selfUserProfileViewModel(): SelfUserProfileViewModel = selfUserProfileViewModel.invoke()
+    fun selfUserStatusViewModel(): SelfUserStatusViewModel = selfUserStatusViewModel.invoke()
     fun teamMigrationViewModel(): TeamMigrationViewModel = teamMigrationViewModel.invoke()
 
     fun verifyEmailViewModel(savedStateHandle: SavedStateHandle): VerifyEmailViewModel = VerifyEmailViewModel(

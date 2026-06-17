@@ -62,8 +62,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
 import com.wire.android.ui.common.VisibilityState
-import com.wire.android.ui.common.WireDropDown
-import com.wire.android.ui.common.avatar.UserStatusIndicator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -81,8 +79,8 @@ import com.ramcosta.composedestinations.generated.app.destinations.AvatarPickerS
 import com.ramcosta.composedestinations.generated.app.destinations.MyAccountScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfQRCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfUserStatusScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
-import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.legalhold.banner.LegalHoldPendingBanner
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.legalhold.banner.LegalHoldUIState
@@ -98,7 +96,6 @@ import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.DownloadUserInfoError
-import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.ui.userprofile.self.model.OtherAccount
@@ -145,14 +142,13 @@ fun SelfUserProfileScreen(
             )
         },
         onEditClick = { navigator.navigate(NavigationCommand(AppSettingsScreenDestination)) },
-        onStatusClicked = viewModelSelf::changeStatusClick,
+        onUpdateStatusClick = {
+            navigator.navigate(NavigationCommand(SelfUserStatusScreenDestination))
+        },
         onAddAccountClick = {
             val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
             navigator.navigate(NavigationCommand(destination))
         },
-        dismissStatusDialog = viewModelSelf::dismissStatusDialog,
-        onStatusChange = viewModelSelf::changeStatus,
-        onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
         onMessageShown = viewModelSelf::clearErrorMessage,
         onLegalHoldAcceptClick = legalHoldRequestedViewModel::show,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
@@ -213,11 +209,8 @@ private fun SelfUserProfileContent(
     logout: (Boolean) -> Unit = {},
     onChangeUserProfilePicture: () -> Unit = {},
     onEditClick: () -> Unit = {},
-    onStatusClicked: (UserAvailabilityStatus) -> Unit = {},
+    onUpdateStatusClick: () -> Unit = {},
     onAddAccountClick: () -> Unit = {},
-    dismissStatusDialog: () -> Unit = {},
-    onStatusChange: (UserAvailabilityStatus) -> Unit = {},
-    onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
     onMessageShown: () -> Unit = {},
     onLegalHoldAcceptClick: () -> Unit = {},
     onLegalHoldLearnMoreClick: () -> Unit = {},
@@ -288,6 +281,7 @@ private fun SelfUserProfileContent(
                         fullName = fullName,
                         userName = userName,
                         teamName = teamName,
+                        textStatus = textStatus,
                         onUserProfileClick = onChangeUserProfilePicture,
                         editableState = EditableState.IsEditable(onEditClick),
                         onQrCodeClick = onQrCodeClick,
@@ -311,10 +305,9 @@ private fun SelfUserProfileContent(
                         }
                     }
                     if (!state.teamName.isNullOrBlank()) {
-                        CurrentSelfUserStatus(
-                            userStatus = status,
-                            onStatusClicked = onStatusClicked,
-                        )
+                        Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)) {
+                            UpdateStatusButton(onUpdateStatusClick = onUpdateStatusClick)
+                        }
                     }
                     VerticalSpace.x8()
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)) {
@@ -360,13 +353,6 @@ private fun SelfUserProfileContent(
                     NewTeamButton(onAddAccountClick, isUserInCall, context)
                 }
             }
-            ChangeStatusDialogContent(
-                data = statusDialogData,
-                dismiss = dismissStatusDialog,
-                onStatusChange = onStatusChange,
-                onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
-            )
-
             LogoutOptionsDialog(
                 dialogState = logoutOptionsDialogState,
                 logout = logout
@@ -415,43 +401,6 @@ private fun SelfUserProfileTopBar(
 }
 
 @Composable
-private fun CurrentSelfUserStatus(
-    userStatus: UserAvailabilityStatus,
-    onStatusClicked: (UserAvailabilityStatus) -> Unit,
-) {
-    val items = listOf(
-        UserAvailabilityStatus.AVAILABLE,
-        UserAvailabilityStatus.BUSY,
-        UserAvailabilityStatus.AWAY,
-        UserAvailabilityStatus.NONE
-    )
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        SectionHeader(stringResource(R.string.user_profile_status_availability))
-
-        WireDropDown(
-            items = items.map {
-                when (it) {
-                    UserAvailabilityStatus.AVAILABLE -> stringResource(UICommonR.string.user_profile_status_available)
-                    UserAvailabilityStatus.BUSY -> stringResource(UICommonR.string.user_profile_status_busy)
-                    UserAvailabilityStatus.AWAY -> stringResource(UICommonR.string.user_profile_status_away)
-                    UserAvailabilityStatus.NONE -> stringResource(UICommonR.string.user_profile_status_none)
-                }
-            },
-            defaultItemIndex = items.indexOf(userStatus),
-            label = null,
-            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),
-            autoUpdateSelection = false,
-            showDefaultTextIndicator = false,
-            leadingCompose = { index -> UserStatusIndicator(items[index]) },
-            onChangeClickDescription = stringResource(R.string.content_description_self_profile_change_status)
-        ) { selectedIndex ->
-            onStatusClicked(items[selectedIndex])
-        }
-    }
-}
-
-@Composable
 private fun ManageTeamButton(
     onManageTeamClick: () -> Unit
 ) {
@@ -486,6 +435,29 @@ private fun NewTeamButton(
                 }
             }
         }
+    )
+}
+
+@Composable
+private fun UpdateStatusButton(
+    onUpdateStatusClick: () -> Unit,
+) {
+    WireSecondaryButton(
+        modifier = Modifier
+            .testTag("Update Status"),
+        text = stringResource(R.string.user_profile_update_status),
+        trailingIcon = {
+            Icon(
+                painter = painterResource(id = UICommonR.drawable.ic_arrow_right),
+                contentDescription = "",
+                tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
+                modifier = Modifier
+                    .defaultMinSize(dimensions().wireIconButtonSize)
+                    .padding(end = dimensions().spacing8x)
+            )
+        },
+        onClickDescription = stringResource(R.string.content_description_self_profile_update_status),
+        onClick = onUpdateStatusClick,
     )
 }
 
@@ -562,7 +534,6 @@ fun PersonalSelfUserProfileScreenPreview() {
         SelfUserProfileContent(
             SelfUserProfileState(
                 userId = UserId("value", "domain"),
-                status = UserAvailabilityStatus.BUSY,
                 fullName = "Some User",
                 userName = "some-user",
                 teamName = null,
@@ -591,10 +562,7 @@ fun PersonalSelfUserProfileScreenPreview() {
 @Composable
 fun PreviewCurrentSelfUserStatus() {
     WireTheme {
-        CurrentSelfUserStatus(
-            UserAvailabilityStatus.AVAILABLE,
-            onStatusClicked = {},
-        )
+        UpdateStatusButton(onUpdateStatusClick = {})
     }
 }
 

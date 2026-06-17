@@ -119,6 +119,7 @@ fun UserProfileInfo(
     onQrCodeClick: (() -> Unit)? = null,
     accentId: Int = -1,
     showQrCode: Boolean = true,
+    textStatus: String? = null,
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -287,6 +288,20 @@ fun UserProfileInfo(
                     .padding(horizontal = dimensions().spacing16x)
                     .semantics(mergeDescendants = true) { contentDescription = teamDescription },
                 teamName = teamName
+            )
+        }
+
+        if (teamName != null && !textStatus.isNullOrBlank()) {
+            Text(
+                modifier = Modifier
+                    .padding(vertical = dimensions().spacing8x)
+                    .padding(horizontal = dimensions().spacing16x),
+                text = textStatus,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
 

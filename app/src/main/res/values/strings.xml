@@ -246,6 +246,7 @@
     <string name="content_description_self_profile_username">Username, %s</string>
     <string name="content_description_self_profile_team">Team name, %s</string>
     <string name="content_description_self_profile_change_status">change availability status</string>
+    <string name="content_description_self_profile_update_status">update status</string>
     <string name="content_description_self_profile_new_account_btn">Create a new team or personal account or log in</string>
     <string name="content_description_self_profile_manage_team_btn">Manage team</string>
     <string name="content_description_change_picture_back_btn">Go back to your profile overview</string>
@@ -713,6 +714,11 @@
     <string name="user_profile_logout">Log out</string>
     <string name="user_profile_other_accs">Your Other Accounts</string>
     <string name="user_profile_status_availability">Availability</string>
+    <string name="user_profile_status_title">Status</string>
+    <string name="user_profile_update_status">Update Status</string>
+    <string name="user_profile_custom_status_header">Custom Status</string>
+    <string name="user_profile_custom_status_placeholder">Enter custom status message</string>
+    <string name="user_profile_custom_status_counter">%1$d/%2$d</string>
     <string name="user_profile_new_account_text">New Team or Add Account</string>
     <string name="user_profile_account_management">Manage Team</string>
     <string name="user_profile_details_tab">Details</string>

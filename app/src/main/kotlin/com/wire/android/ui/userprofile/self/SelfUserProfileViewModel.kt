@@ -172,6 +172,7 @@ class SelfUserProfileViewModel @Inject constructor(
                         // Update user data state
                         userProfileState = userProfileState.copy(
                             status = availabilityStatus,
+                            textStatus = textStatus,
                             fullName = name.orEmpty(),
                             userName = handle.orEmpty(),
                             teamName = selfTeam?.name,

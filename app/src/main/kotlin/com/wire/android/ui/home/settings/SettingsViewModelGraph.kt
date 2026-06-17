@@ -46,6 +46,7 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModel
 import com.wire.android.ui.userprofile.qr.SelfQRCodeViewModel
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel
+import com.wire.android.ui.userprofile.self.status.SelfUserStatusViewModel
 import com.wire.android.ui.userprofile.service.ServiceDetailsViewModel
 import com.wire.android.ui.userprofile.service.ServiceDetailsViewModelImpl
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
@@ -151,6 +152,10 @@ fun avatarPickerViewModel(): AvatarPickerViewModel =
 
 @Composable
 fun selfUserProfileViewModel(): SelfUserProfileViewModel =
+    settingsViewModel()
+
+@Composable
+fun selfUserStatusViewModel(): SelfUserStatusViewModel =
     settingsViewModel()
 
 @Composable

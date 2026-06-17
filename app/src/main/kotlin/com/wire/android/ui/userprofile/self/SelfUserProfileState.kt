@@ -31,6 +31,7 @@ data class SelfUserProfileState(
     val avatarAsset: UserAvatarAsset? = null,
     val errorMessageCode: ErrorCodes? = null,
     val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
+    val textStatus: String? = null,
     val fullName: String = "",
     val userName: String = "",
     val teamName: String? = "", // maybe teamId is better here

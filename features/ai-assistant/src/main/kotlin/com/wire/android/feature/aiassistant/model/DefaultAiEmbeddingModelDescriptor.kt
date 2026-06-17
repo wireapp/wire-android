@@ -18,15 +18,15 @@ package com.wire.android.feature.aiassistant.model
 
 object DefaultAiEmbeddingModelDescriptor {
     val model = AiModelDescriptor(
-        displayName = "EmbeddingGemma 300M",
+        displayName = "Gecko 110M EN",
         repositoryId = REPOSITORY_ID,
-        artifactPath = "embeddinggemma-300M_seq512_mixed-precision.tflite",
+        artifactPath = "Gecko_256_quant.tflite",
         localDirectoryName = LOCAL_DIRECTORY_NAME,
         localFileName = "model.tflite"
     )
 
     val tokenizer = AiModelDescriptor(
-        displayName = "EmbeddingGemma 300M tokenizer",
+        displayName = "Gecko 110M EN tokenizer",
         repositoryId = REPOSITORY_ID,
         artifactPath = "sentencepiece.model",
         localDirectoryName = LOCAL_DIRECTORY_NAME,
@@ -35,6 +35,6 @@ object DefaultAiEmbeddingModelDescriptor {
 
     val requiredArtifacts: List<AiModelDescriptor> = listOf(model, tokenizer)
 
-    private const val REPOSITORY_ID = "litert-community/embeddinggemma-300m"
-    private const val LOCAL_DIRECTORY_NAME = "embeddinggemma-300m"
+    private const val REPOSITORY_ID = "litert-community/Gecko-110m-en"
+    private const val LOCAL_DIRECTORY_NAME = "gecko-110m-en"
 }

@@ -45,6 +45,37 @@ class DefaultAiEmbeddingModelManagerTest {
     lateinit var tempDir: Path
 
     @Test
+    fun givenDefaultEmbeddingModelDescriptor_whenInspectingBundle_thenGeckoArtifactsAreConfigured() {
+        assertEquals(
+            AiModelDescriptor(
+                displayName = "Gecko 110M EN",
+                repositoryId = GECKO_REPOSITORY_ID,
+                artifactPath = GECKO_MODEL_ARTIFACT_PATH,
+                localDirectoryName = GECKO_LOCAL_DIRECTORY_NAME,
+                localFileName = "model.tflite"
+            ),
+            DefaultAiEmbeddingModelDescriptor.model
+        )
+        assertEquals(
+            AiModelDescriptor(
+                displayName = "Gecko 110M EN tokenizer",
+                repositoryId = GECKO_REPOSITORY_ID,
+                artifactPath = GECKO_TOKENIZER_ARTIFACT_PATH,
+                localDirectoryName = GECKO_LOCAL_DIRECTORY_NAME,
+                localFileName = "sentencepiece.model"
+            ),
+            DefaultAiEmbeddingModelDescriptor.tokenizer
+        )
+        assertEquals(
+            listOf(
+                DefaultAiEmbeddingModelDescriptor.model,
+                DefaultAiEmbeddingModelDescriptor.tokenizer
+            ),
+            DefaultAiEmbeddingModelDescriptor.requiredArtifacts
+        )
+    }
+
+    @Test
     fun givenBothEmbeddingArtifactsExist_whenObservingStatus_thenReadyIsEmitted() = runTest {
         val arrangement = Arrangement(tempDir)
             .withFinalFile(DefaultAiEmbeddingModelDescriptor.model)
@@ -148,6 +179,10 @@ class DefaultAiEmbeddingModelManagerTest {
 
     private companion object {
         const val AUTH_REQUIRED_MESSAGE = "Accept the model license"
+        const val GECKO_REPOSITORY_ID = "litert-community/Gecko-110m-en"
+        const val GECKO_MODEL_ARTIFACT_PATH = "Gecko_256_quant.tflite"
+        const val GECKO_TOKENIZER_ARTIFACT_PATH = "sentencepiece.model"
+        const val GECKO_LOCAL_DIRECTORY_NAME = "gecko-110m-en"
     }
 }
 

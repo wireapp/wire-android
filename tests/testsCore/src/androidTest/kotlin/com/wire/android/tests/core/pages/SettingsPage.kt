@@ -57,6 +57,7 @@ data class SettingsPage(private val device: UiDevice) {
     private val enableLoggingText = UiSelector().text("Enable Logging")
 
     private val lockWithPasscodeText = UiSelector().text("Lock with passcode")
+    private val setAppLockPageTitle = UiSelectorParams(text = "Set app lock passcode")
     private val appLockPassCode = UiSelectorParams(text = "Set a passcode")
 
     private val accountDetails = UiSelectorParams(text = "Account Details")
@@ -296,9 +297,15 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertSetUpAppLockPageVisible(): SettingsPage {
+        val title = UiWaitUtils.waitElement(setAppLockPageTitle)
+        Assert.assertTrue("Set up app lock page is not visible", !title.visibleBounds.isEmpty)
+        return this
+    }
+
     fun assertAppLockDescriptionText(): SettingsPage {
         val appLockInfo = UiWaitUtils.waitElement(setAppLockInfoText)
-        Assert.assertTrue("Username help text is not visible", !appLockInfo.visibleBounds.isEmpty)
+        Assert.assertTrue("App lock description text is not visible", !appLockInfo.visibleBounds.isEmpty)
         return this
     }
 

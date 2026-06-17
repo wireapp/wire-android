@@ -27,26 +27,30 @@ import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class ApplockTest : BaseUiTest() {
-    private var registeredUser: ClientUser? = null
+    private lateinit var appPackage: String
+    private var teamOwner: ClientUser? = null
 
     @Before
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
+        appPackage = UiAutomatorSetup.appPackage
         backendClient = BackendClient.loadBackend("STAGING")
     }
 
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-8143")
-    @Category("applock", "regression")
+    @Category("regression", "RC", "applock")
     @Test
     fun givenUserEnablesAppLock_whenAppIsBackgroundedForOneMinute_thenAppRequiresUnlockOnReturn() {
-
-        step("Prepare backend team (owner + members)") {
+        step("Given there is TeamOwner with team AppLock and members on Staging backend") {
             teamHelper.usersManager.createTeamOwnerByAlias(
                 "user1Name",
                 "AppLock",
@@ -55,8 +59,7 @@ class ApplockTest : BaseUiTest() {
                 backendClient,
                 context
             )
-            registeredUser =
-                teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+
             teamHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name,user5Name",
@@ -66,31 +69,109 @@ class ApplockTest : BaseUiTest() {
                 context,
                 true
             )
+
+            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
-        step("Verify email welcome page is shown") {
+        step("And I see welcome screen before login") {
             pages.registrationPage.apply {
                 assertEmailWelcomePage()
             }
         }
 
-        step("Login as personal user in Android app") {
+        step("When I open staging deep link and login as TeamOwner") {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
-                enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
+                enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
                 clickLoginButton()
-                enterPersonalUserLoginPassword(registeredUser?.password ?: "")
+                enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")
                 clickLoginButton()
             }
         }
 
-        step("Complete registration flow and reach conversation list") {
+        step("And I complete post-login permission and privacy prompts") {
             pages.registrationPage.apply {
                 waitUntilLoginFlowIsCompleted()
                 clickAllowNotificationButton()
                 clickAgreeShareDataAlert()
-                assertConversationPageVisible()
+            }
+        }
+
+        step("Then I see conversation list") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+            }
+        }
+
+        step("When I open Settings from conversation list") {
+            pages.conversationListPage.apply {
+                UiWaitUtils.waitFor(2.seconds) // wait for websocket notification to disappear
+                clickConversationsMenuEntry()
+                clickSettingsButtonOnMenuEntry()
+            }
+        }
+
+        step("When I confirm lock with passcode toggle is off and turn it on") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOff()
+                turnOnLockWithPasscodeToggle()
+            }
+        }
+
+        step("Then I see set up app lock page with inactivity description") {
+            pages.settingsPage.apply {
+                assertSetUpAppLockPageVisible()
+                assertAppLockDescriptionText()
+            }
+        }
+
+        step("When I enter my passcode for app lock and tap set passcode button") {
+            val appLockPasscode = "A1a!".repeat(2)
+            pages.settingsPage.apply {
+                enterPasscode(appLockPasscode)
+                tapSetPasscodeButton()
+            }
+        }
+
+        step("Then I see lock with passcode toggle is turned on") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOn()
+            }
+        }
+
+        step("When I go back to conversation list") {
+            pages.settingsPage.apply {
+                clickBackButtonOnSettingsPage()
+            }
+        }
+
+        step("And I see conversation list") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+            }
+        }
+
+        step("And I minimise Wire for 60 seconds and restart it") {
+            device.pressHome()
+            UiWaitUtils.waitFor(63.seconds)
+            device.executeShellCommand(
+                "monkey -p $appPackage -c android.intent.category.LAUNCHER 1"
+            )
+        }
+
+        step("And I unlock Wire from app lock page") {
+            val appLockPasscode = "A1a!".repeat(2)
+            pages.appLockPage.apply {
+                assertAppLockPageVisible()
+                enterPasscode(appLockPasscode)
+                tapUnlockButtonOnAppLockPage()
+            }
+        }
+
+        step("Then I see conversation list") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
             }
         }
     }

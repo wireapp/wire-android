@@ -1,0 +1,52 @@
+/*
+ * Wire
+ * Copyright (C) 2026 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+package com.wire.android.tests.core.pages
+
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import org.junit.Assert.assertTrue
+import uiautomatorutils.UiSelectorParams
+import uiautomatorutils.UiWaitUtils
+
+data class AppLockPage(private val device: UiDevice) {
+    private val appLockPageTitle = UiSelectorParams(text = "Enter passcode to unlock Wire")
+    private val passcodeField = UiSelectorParams(resourceId = "password")
+    private val unlockButton = UiSelectorParams(text = "Unlock")
+    private val editTextClass = By.clazz("android.widget.EditText")
+
+    fun assertAppLockPageVisible(): AppLockPage {
+        val title = UiWaitUtils.waitElement(appLockPageTitle)
+        assertTrue("App lock page is not visible", !title.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun enterPasscode(passcode: String): AppLockPage {
+        val parent = UiWaitUtils.waitElement(passcodeField)
+        val codeInputField = parent.findObject(editTextClass)
+        codeInputField.click()
+        codeInputField.text = passcode
+        device.waitForIdle()
+        return this
+    }
+
+    fun tapUnlockButtonOnAppLockPage(): AppLockPage {
+        UiWaitUtils.waitElement(unlockButton).click()
+        device.waitForIdle()
+        return this
+    }
+}

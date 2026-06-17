@@ -44,7 +44,7 @@ class SelfUserStatusViewModelTest {
     fun givenBlankTextStatus_whenParsing_thenUsesEmptyMessage() {
         val result = parseTextStatus(null)
 
-        assertEquals(DEFAULT_STATUS_EMOJI, result.emoji)
+        assertNull(result.emoji)
         assertEquals("", result.message)
     }
 

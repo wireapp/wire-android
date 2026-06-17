@@ -136,11 +136,11 @@ class SelfUserStatusViewModel @Inject constructor(
     }
 }
 
-data class ParsedTextStatus(val emoji: String, val message: String)
+data class ParsedTextStatus(val emoji: String?, val message: String)
 
 fun parseTextStatus(textStatus: String?): ParsedTextStatus {
     val status = textStatus.orEmpty().trim()
-    if (status.isBlank()) return ParsedTextStatus(DEFAULT_STATUS_EMOJI, "")
+    if (status.isBlank()) return ParsedTextStatus(null, "")
 
     val emojiEnd = emojiClusterEnd(status)
     return if (emojiEnd > 0) {

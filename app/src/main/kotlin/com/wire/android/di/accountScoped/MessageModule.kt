@@ -55,11 +55,15 @@ import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUs
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
+import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCaseImpl
+import com.wire.kalium.logic.feature.message.embedding.DeterministicLocalTextEmbeddingModel
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.message.fetchOlderMessagesByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessageByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
+import com.wire.kalium.logic.feature.message.messageSemanticIndexer
 import com.wire.kalium.logic.feature.message.observePaginatedImageAssetMessageByConversationId
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dev.zacsweers.metro.BindingContainer
@@ -78,6 +82,13 @@ class MessageModule {
     @Provides
     fun provideSendButtonActionMessageUseCase(messageScope: MessageScope): SendButtonActionMessageUseCase =
         messageScope.sendButtonActionMessage
+
+    @Provides
+    fun provideCreateEmbeddingsForExistingMessagesUseCase(messageScope: MessageScope): CreateEmbeddingsForExistingMessagesUseCase =
+        CreateEmbeddingsForExistingMessagesUseCaseImpl(
+            messageSemanticIndexer = messageScope.messageSemanticIndexer(DeterministicLocalTextEmbeddingModel),
+            modelId = DeterministicLocalTextEmbeddingModel.modelId
+        )
 
     @Provides
     fun provideEnqueueMessageSelfDeletionUseCase(messageScope: MessageScope): EnqueueMessageSelfDeletionUseCase =

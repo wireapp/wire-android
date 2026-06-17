@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -270,13 +269,6 @@ private fun ThreadSummaryChip(
             text = pluralStringResource(R.plurals.unread_event_reply, replyCount, replyCount),
             style = MaterialTheme.typography.titleSmall,
             color = if (enabled) messageStyle.highlighted() else messageStyle.onSurface(),
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Icon(
-            painter = painterResource(id = R.drawable.ic_dropdown_icon),
-            contentDescription = null,
-            tint = if (enabled) messageStyle.highlighted() else messageStyle.onSurface(),
-            modifier = Modifier.size(dimensions().spacing20x),
         )
     }
 }

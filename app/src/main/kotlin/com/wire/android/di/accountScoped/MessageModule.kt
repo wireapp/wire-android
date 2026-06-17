@@ -56,7 +56,6 @@ import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
-import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
 import com.wire.kalium.logic.feature.message.fetchOlderMessagesByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessageByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
@@ -75,13 +74,6 @@ class MessageModule {
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
     ): MessageScope = coreLogic.getSessionScope(currentAccount).messages
-
-    @Provides
-    fun provideCreateEmbeddingsForExistingMessagesUseCase(
-        @CurrentAccount currentAccount: UserId,
-        @KaliumCoreLogic coreLogic: CoreLogic
-    ): CreateEmbeddingsForExistingMessagesUseCase =
-        coreLogic.getSessionScope(currentAccount).messageEmbeddings.createEmbeddingsForExistingMessages
 
     @Provides
     fun provideSendButtonActionMessageUseCase(messageScope: MessageScope): SendButtonActionMessageUseCase =

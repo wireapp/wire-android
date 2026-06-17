@@ -115,7 +115,7 @@ fun conversationInfoViewModel(): ConversationInfoViewModel =
 
 @Composable
 fun aiMessageComposerViewModel(): AiMessageComposerViewModel =
-    conversationViewModel { this.aiMessageComposerViewModel() }
+    conversationCoreViewModel<AiMessageComposerViewModel>()
 
 @Composable
 fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModel =

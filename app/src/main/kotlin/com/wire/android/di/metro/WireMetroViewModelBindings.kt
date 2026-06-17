@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wire.android.ui.CallFeedbackViewModel
+import com.wire.android.ui.debug.AiAssistantDebugViewModelImpl
 import com.wire.android.ui.debug.DebugDataOptionsViewModelImpl
 import com.wire.android.ui.debug.DebugInfoViewModelFactory
 import com.wire.android.ui.debug.ExportObfuscatedCopyViewModelImpl
@@ -110,6 +111,7 @@ import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
+import com.wire.android.ui.home.messagecomposer.AiMessageComposerViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.settings.SettingsViewModel
@@ -332,6 +334,12 @@ object WireMetroViewModelBindings {
     @ViewModelKey(ExportObfuscatedCopyViewModelImpl::class)
     fun exportObfuscatedCopyViewModel(factory: DebugInfoViewModelFactory): ViewModel =
         factory.exportObfuscatedCopyViewModel()
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(AiAssistantDebugViewModelImpl::class)
+    fun aiAssistantDebugViewModel(factory: DebugInfoViewModelFactory): ViewModel =
+        factory.aiAssistantDebugViewModel()
 
     @Provides
     @IntoMap
@@ -611,6 +619,12 @@ object WireMetroViewModelBindings {
     @ViewModelKey(ConversationAssetPathsViewModelImpl::class)
     fun conversationAssetPathsViewModel(factory: ConversationCoreViewModelFactory): ViewModel =
         factory.conversationAssetPathsViewModel()
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(AiMessageComposerViewModel::class)
+    fun aiMessageComposerViewModel(factory: ConversationCoreViewModelFactory): ViewModel =
+        factory.aiMessageComposerViewModel()
 
     @Provides
     @IntoMap

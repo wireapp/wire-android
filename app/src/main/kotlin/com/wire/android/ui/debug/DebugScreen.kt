@@ -94,11 +94,11 @@ fun DebugScreen(
                 onShowCryptoStats = {
                     navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
                 },
+                onShowAiAssistantDebugOptions = {
+                    navigator.navigate(NavigationCommand(AiAssistantDebugScreenDestination))
+                },
                 viewModel = debugDataOptionsViewModel,
             )
-        },
-        onShowAiAssistantDebugOptions = {
-            navigator.navigate(NavigationCommand(AiAssistantDebugScreenDestination))
         },
         dangerOptionsContent = {
             DangerOptions(exportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel)
@@ -115,7 +115,6 @@ internal fun UserDebugContent(
     onDeleteLogs: () -> Unit,
     onFlushLogs: () -> Deferred<Unit>,
     debugDataOptionsContent: @Composable (DebugContentState) -> Unit,
-    onShowAiAssistantDebugOptions: () -> Unit,
     dangerOptionsContent: @Composable () -> Unit,
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
@@ -269,10 +268,10 @@ internal fun PreviewUserDebugContent() = WireTheme {
                 onCopyText = it::copyToClipboard,
                 onShowFeatureFlags = {},
                 onShowCryptoStats = {},
+                onShowAiAssistantDebugOptions = {},
                 viewModel = object : DebugDataOptionsViewModel {},
             )
         },
-        onShowAiAssistantDebugOptions = {},
         dangerOptionsContent = {
             DangerOptions(exportObfuscatedCopyViewModel = object : ExportObfuscatedCopyViewModel {})
         },

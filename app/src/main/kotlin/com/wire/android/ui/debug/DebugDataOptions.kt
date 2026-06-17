@@ -93,7 +93,6 @@ fun DebugDataOptions(
         onShowFeatureFlags = onShowFeatureFlags,
         onShowCryptoStats = onShowCryptoStats,
         onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys,
-        onDownloadAiModel = viewModel::downloadAiModel,
         onShowAiAssistantDebugOptions = onShowAiAssistantDebugOptions
     )
 }
@@ -204,7 +203,7 @@ fun DebugDataOptionsContent(
                     enabled = true,
                     onClick = onShowAiAssistantDebugOptions
                 ),
-                trailingIcon = R.drawable.ic_arrow_right,
+                trailingIcon = commonR.drawable.ic_arrow_right,
             )
 
             SettingsItem(

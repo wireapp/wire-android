@@ -93,4 +93,4 @@ fun licensesViewModel(): LicensesViewModel =
 
 @Composable
 fun aiAssistantDebugViewModel(): AiAssistantDebugViewModel =
-    debugInfoViewModel<AiAssistantDebugViewModelImpl> { aiAssistantDebugViewModel() }
+    debugInfoViewModel<AiAssistantDebugViewModelImpl>()

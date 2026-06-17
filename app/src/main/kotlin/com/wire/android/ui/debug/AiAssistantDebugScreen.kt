@@ -73,7 +73,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -435,7 +434,6 @@ class AiAssistantDebugViewModelImpl(
     private val aiEmbeddingModelManager: AiEmbeddingModelManager,
     private val aiModelTestEngine: AiModelTestEngine,
     private val inferenceConfigStore: AiInferenceConfigStore,
-    private val createEmbeddingsForExistingMessages: CreateEmbeddingsForExistingMessagesUseCase,
 ) : ViewModel(), AiAssistantDebugViewModel {
 
     override var state by mutableStateOf(AiAssistantDebugState())
@@ -523,25 +521,6 @@ class AiAssistantDebugViewModelImpl(
         state = state.copy(isCreatingEmbeddings = true)
         viewModelScope.launch {
             try {
-                when (val result = createEmbeddingsForExistingMessages()) {
-                    is CreateEmbeddingsForExistingMessagesUseCase.Result.Success ->
-                        _infoMessage.emit(
-                            UIText.StringResource(
-                                R.string.debug_settings_ai_create_embeddings_success,
-                                result.createdEmbeddings,
-                                result.skippedMessages,
-                                result.failedMessages
-                            )
-                        )
-
-                    is CreateEmbeddingsForExistingMessagesUseCase.Result.Failure ->
-                        _infoMessage.emit(
-                            UIText.StringResource(
-                                R.string.debug_settings_ai_create_embeddings_failed,
-                                result.coreFailure.toString()
-                            )
-                        )
-                }
             } catch (throwable: Throwable) {
                 _infoMessage.emit(
                     UIText.StringResource(

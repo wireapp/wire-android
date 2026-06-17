@@ -57,7 +57,6 @@ import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseC
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
-import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -104,7 +103,6 @@ class DebugInfoViewModelFactory @Inject constructor(
     private val aiEmbeddingModelManager: AiEmbeddingModelManager,
     private val aiModelTestEngine: AiModelTestEngine,
     private val aiInferenceConfigStore: AiInferenceConfigStore,
-    private val createEmbeddingsForExistingMessages: CreateEmbeddingsForExistingMessagesUseCase,
 ) {
     fun userDebugViewModel() = UserDebugViewModel(
         currentAccount = currentAccount,
@@ -147,7 +145,6 @@ class DebugInfoViewModelFactory @Inject constructor(
         aiEmbeddingModelManager = aiEmbeddingModelManager,
         aiModelTestEngine = aiModelTestEngine,
         inferenceConfigStore = aiInferenceConfigStore,
-        createEmbeddingsForExistingMessages = createEmbeddingsForExistingMessages,
     )
 
     fun exportObfuscatedCopyViewModel() = ExportObfuscatedCopyViewModelImpl(

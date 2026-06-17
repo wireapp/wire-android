@@ -93,6 +93,16 @@ class SelfUserStatusViewModel @Inject constructor(
         }
     }
 
+    fun clearCustomStatus() {
+        if (!state.isTeamMember) return
+        state = state.copy(emoji = null, message = "")
+        viewModelScope.launch {
+            state = state.copy(isSaving = true)
+            updateTextStatus(null)
+            state = state.copy(isSaving = false)
+        }
+    }
+
     private fun observeSelfUser() {
         viewModelScope.launch {
             observeSelfUserWithTeam()

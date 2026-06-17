@@ -19,19 +19,26 @@
 package com.wire.android.ui.userprofile.self.status
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -91,6 +98,7 @@ fun SelfUserStatusScreen(
         onDismissStatusDialog = viewModel::dismissStatusDialog,
         onNotShowRationaleAgainChange = viewModel::dialogCheckBoxStateChanged,
         onEmojiSelected = viewModel::onEmojiSelected,
+        onClearCustomStatus = viewModel::clearCustomStatus,
         onUpdateCustomStatus = viewModel::updateCustomStatus,
     )
 }
@@ -104,6 +112,7 @@ private fun SelfUserStatusContent(
     onDismissStatusDialog: () -> Unit,
     onNotShowRationaleAgainChange: (Boolean) -> Unit,
     onEmojiSelected: (String) -> Unit,
+    onClearCustomStatus: () -> Unit,
     onUpdateCustomStatus: (String) -> Unit,
 ) {
     val textState = rememberTextFieldState(state.message)
@@ -150,6 +159,10 @@ private fun SelfUserStatusContent(
                     textState = textState,
                     messageLength = textState.text.length,
                     onEmojiClick = { emojiPickerState.show() },
+                    onClearCustomStatus = {
+                        textState.clearText()
+                        onClearCustomStatus()
+                    },
                     onUpdateCustomStatus = { onUpdateCustomStatus(textState.text.toString()) },
                     isSaving = state.isSaving,
                 )
@@ -234,9 +247,12 @@ private fun CustomStatusSection(
     textState: TextFieldState,
     messageLength: Int,
     onEmojiClick: () -> Unit,
+    onClearCustomStatus: () -> Unit,
     onUpdateCustomStatus: () -> Unit,
     isSaving: Boolean,
 ) {
+    val hasStatus = emoji != null || textState.text.isNotBlank()
+
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeader(stringResource(R.string.user_profile_custom_status_header))
         Row(
@@ -265,6 +281,30 @@ private fun CustomStatusSection(
                 placeholderText = stringResource(R.string.user_profile_custom_status_placeholder),
                 leadingIcon = null,
                 state = WireTextFieldState.Default,
+                trailingIcon = {
+                    Box(
+                        modifier = Modifier
+                            .width(dimensions().spacing64x)
+                            .height(dimensions().spacing40x),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = hasStatus,
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            IconButton(
+                                modifier = Modifier.padding(start = dimensions().spacing12x),
+                                onClick = onClearCustomStatus,
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = UICommonR.drawable.ic_clear_search),
+                                    contentDescription = stringResource(UICommonR.string.content_description_clear_content)
+                                )
+                            }
+                        }
+                    }
+                },
                 inputTransformation = InputTransformation.maxLength(MAX_STATUS_TEXT_LENGTH),
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
@@ -306,6 +346,7 @@ private fun SelfUserStatusContentPreview() {
             onDismissStatusDialog = {},
             onNotShowRationaleAgainChange = {},
             onEmojiSelected = {},
+            onClearCustomStatus = {},
             onUpdateCustomStatus = {},
         )
     }

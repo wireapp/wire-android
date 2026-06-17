@@ -89,4 +89,11 @@ class SelfUserStatusViewModelTest {
 
         assertEquals("\uD83C\uDFDD\uFE0F", result)
     }
+
+    @Test
+    fun givenNoEmojiAndBlankMessage_whenBuildingTextStatus_thenReturnsNull() {
+        val result = buildTextStatus(emoji = null, message = "   ")
+
+        assertNull(result)
+    }
 }

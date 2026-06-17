@@ -24,11 +24,13 @@ android {
 }
 
 dependencies {
+    implementation("com.wire.kalium:kalium-logic")
     implementation(projects.core.di)
     implementation(projects.core.uiCommon)
     implementation(libs.androidx.core)
     implementation(libs.mediapipe.tasksGenai)
     implementation(libs.litertlm.android)
+    implementation(libs.localagents.rag)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

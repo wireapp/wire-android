@@ -50,6 +50,7 @@ import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.TextEmbeddingModel
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
@@ -57,7 +58,6 @@ import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
 import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCaseImpl
-import com.wire.kalium.logic.feature.message.embedding.DeterministicLocalTextEmbeddingModel
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.message.fetchOlderMessagesByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessageByConversationId
@@ -84,10 +84,13 @@ class MessageModule {
         messageScope.sendButtonActionMessage
 
     @Provides
-    fun provideCreateEmbeddingsForExistingMessagesUseCase(messageScope: MessageScope): CreateEmbeddingsForExistingMessagesUseCase =
+    fun provideCreateEmbeddingsForExistingMessagesUseCase(
+        messageScope: MessageScope,
+        textEmbeddingModel: TextEmbeddingModel
+    ): CreateEmbeddingsForExistingMessagesUseCase =
         CreateEmbeddingsForExistingMessagesUseCaseImpl(
-            messageSemanticIndexer = messageScope.messageSemanticIndexer(DeterministicLocalTextEmbeddingModel),
-            modelId = DeterministicLocalTextEmbeddingModel.modelId
+            messageSemanticIndexer = messageScope.messageSemanticIndexer(textEmbeddingModel),
+            modelId = textEmbeddingModel.modelId
         )
 
     @Provides

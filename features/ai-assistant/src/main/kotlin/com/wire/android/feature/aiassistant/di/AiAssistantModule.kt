@@ -22,6 +22,7 @@ import com.wire.android.feature.aiassistant.AiMessageComposerAgent
 import com.wire.android.feature.aiassistant.DefaultAiEmbeddingModelManager
 import com.wire.android.feature.aiassistant.DefaultAiModelManager
 import com.wire.android.feature.aiassistant.DefaultAiMessageComposerAgent
+import com.wire.android.feature.aiassistant.GeckoTextEmbeddingModel
 import com.wire.android.feature.aiassistant.download.AiModelDownloader
 import com.wire.android.feature.aiassistant.download.AiModelHttpClient
 import com.wire.android.feature.aiassistant.download.BuildConfigHuggingFaceTokenProvider
@@ -38,6 +39,7 @@ import com.wire.android.feature.aiassistant.test.DefaultMediaPipeLlmInferenceFac
 import com.wire.android.feature.aiassistant.test.LiteRtLmInferenceFactory
 import com.wire.android.feature.aiassistant.test.LiteRtLmTestEngine
 import com.wire.android.feature.aiassistant.test.MediaPipeLlmInferenceFactory
+import com.wire.kalium.logic.feature.message.TextEmbeddingModel
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
@@ -54,6 +56,11 @@ object AiAssistantModule {
     @SingleIn(AppScope::class)
     fun provideAiEmbeddingModelManager(implementation: DefaultAiEmbeddingModelManager): AiEmbeddingModelManager =
         implementation
+
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideTextEmbeddingModel(storage: AiModelStorage): TextEmbeddingModel =
+        GeckoTextEmbeddingModel(storage)
 
     @Provides
     @SingleIn(AppScope::class)

@@ -31,12 +31,14 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -57,6 +59,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
@@ -68,6 +71,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import kotlinx.coroutines.flow.distinctUntilChanged
 import com.wire.android.ui.common.R as UICommonR
 
 @WireRootDestination(
@@ -111,6 +115,14 @@ private fun SelfUserStatusContent(
         }
     }
 
+    LaunchedEffect(textState, state.emoji) {
+        textState.textAsFlow().distinctUntilChanged().collect { text ->
+            if (text.isNotBlank() && state.emoji == null) {
+                onEmojiSelected(DEFAULT_STATUS_EMOJI)
+            }
+        }
+    }
+
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -134,7 +146,7 @@ private fun SelfUserStatusContent(
             VerticalSpace.x16()
             if (state.isTeamMember) {
                 CustomStatusSection(
-                    emoji = state.emoji,
+                    emoji = resolveStatusEmoji(state.emoji, textState.text.toString()),
                     textState = textState,
                     messageLength = textState.text.length,
                     onEmojiClick = { emojiPickerState.show() },
@@ -218,7 +230,7 @@ private fun AvailabilitySection(
 
 @Composable
 private fun CustomStatusSection(
-    emoji: String,
+    emoji: String?,
     textState: TextFieldState,
     messageLength: Int,
     onEmojiClick: () -> Unit,
@@ -235,12 +247,18 @@ private fun CustomStatusSection(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             WireSecondaryButton(
-                text = emoji,
+                leadingIcon = {
+                    if (emoji == null) {
+                        Icon(painter = painterResource(id = R.drawable.ic_emoticon), contentDescription = "")
+                    } else {
+                        Text(emoji)
+                    }
+                },
                 onClick = onEmojiClick,
                 fillMaxWidth = false,
-                minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
                 minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
             )
+
             WireTextField(
                 textState = textState,
                 modifier = Modifier.weight(1f),
@@ -278,7 +296,7 @@ private fun SelfUserStatusContentPreview() {
         SelfUserStatusContent(
             state = SelfUserStatusState(
                 availabilityStatus = UserAvailabilityStatus.AVAILABLE,
-                emoji = "👋",
+                emoji = DEFAULT_STATUS_EMOJI,
                 message = "Working from home",
                 isTeamMember = true,
             ),

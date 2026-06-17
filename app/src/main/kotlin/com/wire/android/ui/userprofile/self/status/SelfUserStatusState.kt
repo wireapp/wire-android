@@ -23,7 +23,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 data class SelfUserStatusState(
     val availabilityStatus: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
-    val emoji: String = DEFAULT_STATUS_EMOJI,
+    val emoji: String? = null,
     val message: String = "",
     val isTeamMember: Boolean = false,
     val statusDialogData: StatusDialogData? = null,
@@ -32,3 +32,21 @@ data class SelfUserStatusState(
 
 const val DEFAULT_STATUS_EMOJI = "\uD83D\uDCAC"
 const val MAX_STATUS_TEXT_LENGTH = 50
+
+fun resolveStatusEmoji(emoji: String?, message: String): String? =
+    if (!emoji.isNullOrBlank()) {
+        emoji
+    } else if (message.trim().isBlank()) {
+        null
+    } else {
+        DEFAULT_STATUS_EMOJI
+    }
+
+fun buildTextStatus(emoji: String?, message: String): String? {
+    val trimmedMessage = message.trim().take(MAX_STATUS_TEXT_LENGTH)
+    val trimmedEmoji = emoji?.takeIf { it.isNotBlank() }
+    if (trimmedMessage.isBlank()) return trimmedEmoji
+
+    val resolvedEmoji = resolveStatusEmoji(trimmedEmoji, trimmedMessage) ?: return trimmedMessage
+    return "$resolvedEmoji $trimmedMessage"
+}

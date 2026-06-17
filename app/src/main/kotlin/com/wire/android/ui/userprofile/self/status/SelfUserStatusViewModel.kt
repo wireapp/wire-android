@@ -85,8 +85,7 @@ class SelfUserStatusViewModel @Inject constructor(
 
     fun updateCustomStatus(message: String) {
         if (!state.isTeamMember) return
-        val trimmedMessage = message.trim().take(MAX_STATUS_TEXT_LENGTH)
-        val bundledStatus = if (trimmedMessage.isBlank()) null else "${state.emoji} $trimmedMessage"
+        val bundledStatus = buildTextStatus(state.emoji, message)
         viewModelScope.launch {
             state = state.copy(isSaving = true)
             updateTextStatus(bundledStatus)

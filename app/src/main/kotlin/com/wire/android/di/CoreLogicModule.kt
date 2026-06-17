@@ -26,6 +26,8 @@ import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.UserAgentProvider
 import com.wire.android.util.isWebsocketEnabledByDefault
+import com.wire.android.workmanager.worker.CreateMessageEmbeddingsWorkScheduler
+import com.wire.android.workmanager.worker.DefaultCreateMessageEmbeddingsWorkScheduler
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
@@ -181,6 +183,11 @@ class CoreLogicModule {
     @SingleIn(AppScope::class)
     @Provides
     fun provideWorkManager(@ApplicationContext applicationContext: Context): WorkManager = WorkManager.getInstance(applicationContext)
+
+    @Provides
+    fun provideCreateMessageEmbeddingsWorkScheduler(
+        implementation: DefaultCreateMessageEmbeddingsWorkScheduler
+    ): CreateMessageEmbeddingsWorkScheduler = implementation
 
     @Provides
     fun provideAudioNormalizedLoudnessBuilder(@KaliumCoreLogic coreLogic: CoreLogic): AudioNormalizedLoudnessBuilder =

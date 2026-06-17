@@ -31,7 +31,9 @@ import com.wire.android.workmanager.worker.DeleteConversationLocallyWorker
 import com.wire.android.workmanager.worker.NotificationFetchWorker
 import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker
 import com.wire.android.workmanager.worker.AssetUploadObserverWorker
+import com.wire.android.workmanager.worker.CreateMessageEmbeddingsWorker
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.feature.message.TextEmbeddingModel
 import com.wire.kalium.logic.sync.WrapperWorker
 import com.wire.kalium.logic.sync.WrapperWorkerFactory
 import dev.zacsweers.metro.Inject
@@ -40,6 +42,7 @@ class WireWorkerFactory @Inject constructor(
     private val wireNotificationManager: WireNotificationManager,
     private val notificationChannelsManager: NotificationChannelsManager,
     private val startPersistentWebsocketIfNecessary: StartPersistentWebsocketIfNecessaryUseCase,
+    private val textEmbeddingModel: TextEmbeddingModel,
     @KaliumCoreLogic
     private val coreLogic: CoreLogic
 ) : WorkerFactory() {
@@ -66,6 +69,9 @@ class WireWorkerFactory @Inject constructor(
 
             AssetUploadObserverWorker::class.java.canonicalName ->
                 AssetUploadObserverWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)
+
+            CreateMessageEmbeddingsWorker::class.java.canonicalName ->
+                CreateMessageEmbeddingsWorker(appContext, workerParameters, coreLogic, textEmbeddingModel, notificationChannelsManager)
 
             InitialSyncWorker::class.java.canonicalName ->
                 InitialSyncWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)

@@ -39,9 +39,11 @@ import com.wire.android.ui.debug.AiModelUiStatus
 import com.wire.android.ui.debug.extractFirstUrl
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.resolveForTest
+import com.wire.android.workmanager.worker.CreateMessageEmbeddingsWorkScheduler
+import com.wire.android.workmanager.worker.CreateMessageEmbeddingsWorkStatus
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
-import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -537,16 +539,19 @@ class AiAssistantDebugViewModelTest {
     }
 
     @Test
-    fun `when creating embeddings, then use case is called and success message is emitted`() = runTest {
+    fun `when creating embeddings, then work is enqueued and success message is emitted`() = runTest {
         // given
         val (arrangement, viewModel) = AiAssistantDebugArrangement()
-            .withCreateEmbeddingsResult(
-                CreateEmbeddingsForExistingMessagesUseCase.Result.Success(
-                    processedMessages = 10,
-                    createdEmbeddings = 7,
-                    skippedMessages = 2,
-                    failedMessages = 1,
-                    modelId = "deterministic-local-v1"
+            .withCreateEmbeddingsStatus(
+                CreateMessageEmbeddingsWorkStatus.Succeeded(
+                    CreateMessageEmbeddingsWorkStatus.Summary(
+                        totalMessages = 10,
+                        processedMessages = 10,
+                        createdEmbeddings = 7,
+                        skippedMessages = 2,
+                        failedMessages = 1,
+                        modelId = "deterministic-local-v1"
+                    )
                 )
             )
             .arrange()
@@ -561,7 +566,7 @@ class AiAssistantDebugViewModelTest {
                 awaitItem()
             )
         }
-        coVerify(exactly = 1) { arrangement.createEmbeddingsForExistingMessages() }
+        assertEquals(1, arrangement.createMessageEmbeddingsWorkScheduler.enqueueCount)
         assertEquals(false, viewModel.state.isCreatingEmbeddings)
     }
 
@@ -570,7 +575,7 @@ class AiAssistantDebugViewModelTest {
         // given
         val failure = CoreFailure.Unknown(RuntimeException("Embedding failed"))
         val (_, viewModel) = AiAssistantDebugArrangement()
-            .withCreateEmbeddingsResult(CreateEmbeddingsForExistingMessagesUseCase.Result.Failure(failure))
+            .withCreateEmbeddingsStatus(CreateMessageEmbeddingsWorkStatus.Failed(failure.toString()))
             .arrange()
 
         viewModel.infoMessage.test {
@@ -587,11 +592,10 @@ class AiAssistantDebugViewModelTest {
     }
 
     @Test
-    fun `given creating embeddings is running, when creating embeddings again, then use case is not called again`() = runTest {
+    fun `given creating embeddings is running, when creating embeddings again, then work is not enqueued again`() = runTest {
         // given
-        val result = CompletableDeferred<CreateEmbeddingsForExistingMessagesUseCase.Result>()
         val (arrangement, viewModel) = AiAssistantDebugArrangement()
-            .withCreateEmbeddingsResult { result.await() }
+            .withObservedCreateEmbeddingsStatus(CreateMessageEmbeddingsWorkStatus.Running(progress = null))
             .arrange()
 
         // when
@@ -600,19 +604,7 @@ class AiAssistantDebugViewModelTest {
 
         // then
         assertEquals(true, viewModel.state.isCreatingEmbeddings)
-        coVerify(exactly = 1) { arrangement.createEmbeddingsForExistingMessages() }
-
-        result.complete(
-            CreateEmbeddingsForExistingMessagesUseCase.Result.Success(
-                processedMessages = 1,
-                createdEmbeddings = 1,
-                skippedMessages = 0,
-                failedMessages = 0,
-                modelId = "deterministic-local-v1"
-            )
-        )
-        runCurrent()
-        assertEquals(false, viewModel.state.isCreatingEmbeddings)
+        assertEquals(0, arrangement.createMessageEmbeddingsWorkScheduler.enqueueCount)
     }
 
     @Test
@@ -674,6 +666,15 @@ private val testDescriptor = AiModelDescriptor(
     localDirectoryName = "test-model",
     localFileName = "model.litertlm"
 )
+private val SELF_USER_ID = UserId("self-user", "wire.com")
+private val emptyCreateEmbeddingsSummary = CreateMessageEmbeddingsWorkStatus.Summary(
+    totalMessages = 0,
+    processedMessages = 0,
+    createdEmbeddings = 0,
+    skippedMessages = 0,
+    failedMessages = 0,
+    modelId = "deterministic-local-v1"
+)
 
 private const val AUTH_REQUIRED_MESSAGE =
     "Access to model litert-community/gemma-3-270m-it is restricted and you are " +
@@ -695,12 +696,10 @@ private class AiAssistantDebugArrangement {
     lateinit var aiModelTestEngine: AiModelTestEngine
 
     @MockK
-    lateinit var createEmbeddingsForExistingMessages: CreateEmbeddingsForExistingMessagesUseCase
-
-    @MockK
     lateinit var searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase
 
     val inferenceConfigStore = FakeAiInferenceConfigStore()
+    val createMessageEmbeddingsWorkScheduler = FakeCreateMessageEmbeddingsWorkScheduler()
 
     private val viewModel by lazy {
         AiAssistantDebugViewModelImpl(
@@ -708,7 +707,8 @@ private class AiAssistantDebugArrangement {
             aiEmbeddingModelManager = aiEmbeddingModelManager,
             aiModelTestEngine = aiModelTestEngine,
             inferenceConfigStore = inferenceConfigStore,
-            createEmbeddingsForExistingMessages = createEmbeddingsForExistingMessages,
+            currentAccount = SELF_USER_ID,
+            createMessageEmbeddingsWorkScheduler = createMessageEmbeddingsWorkScheduler,
             searchMessagesSemanticallyGlobally = searchMessagesSemanticallyGlobally
         )
     }
@@ -724,15 +724,7 @@ private class AiAssistantDebugArrangement {
         withEmbeddingModelDownloadState()
         withAiModelHealthCheckResult(AiModelHealthCheckResult.Healthy)
         withInferenceConfig(AiInferenceConfig.DEFAULT)
-        withCreateEmbeddingsResult(
-            CreateEmbeddingsForExistingMessagesUseCase.Result.Success(
-                processedMessages = 0,
-                createdEmbeddings = 0,
-                skippedMessages = 0,
-                failedMessages = 0,
-                modelId = "deterministic-local-v1"
-            )
-        )
+        withCreateEmbeddingsStatus(CreateMessageEmbeddingsWorkStatus.Succeeded(emptyCreateEmbeddingsSummary))
         withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(emptyList()))
     }
 
@@ -792,18 +784,12 @@ private class AiAssistantDebugArrangement {
         }
     }
 
-    fun withCreateEmbeddingsResult(result: CreateEmbeddingsForExistingMessagesUseCase.Result) = apply {
-        coEvery {
-            createEmbeddingsForExistingMessages()
-        } returns result
+    fun withObservedCreateEmbeddingsStatus(status: CreateMessageEmbeddingsWorkStatus) = apply {
+        createMessageEmbeddingsWorkScheduler.observedStatus.value = status
     }
 
-    fun withCreateEmbeddingsResult(result: suspend () -> CreateEmbeddingsForExistingMessagesUseCase.Result) = apply {
-        coEvery {
-            createEmbeddingsForExistingMessages()
-        } coAnswers {
-            result()
-        }
+    fun withCreateEmbeddingsStatus(status: CreateMessageEmbeddingsWorkStatus) = apply {
+        createMessageEmbeddingsWorkScheduler.enqueuedStatus = status
     }
 
     fun withSemanticSearchResult(result: SearchMessagesSemanticallyGloballyUseCase.Result) = apply {
@@ -825,4 +811,18 @@ private class FakeAiInferenceConfigStore(
     override suspend fun setConfig(config: AiInferenceConfig) {
         this.config.value = config
     }
+}
+
+private class FakeCreateMessageEmbeddingsWorkScheduler : CreateMessageEmbeddingsWorkScheduler {
+    val observedStatus = MutableStateFlow<CreateMessageEmbeddingsWorkStatus>(CreateMessageEmbeddingsWorkStatus.Idle)
+    var enqueuedStatus: CreateMessageEmbeddingsWorkStatus = CreateMessageEmbeddingsWorkStatus.Succeeded(emptyCreateEmbeddingsSummary)
+    var enqueueCount = 0
+
+    override fun enqueue(userId: UserId): Flow<CreateMessageEmbeddingsWorkStatus> {
+        enqueueCount++
+        observedStatus.value = enqueuedStatus
+        return flowOf(CreateMessageEmbeddingsWorkStatus.Running(progress = null), enqueuedStatus)
+    }
+
+    override fun observe(userId: UserId): Flow<CreateMessageEmbeddingsWorkStatus> = observedStatus
 }

@@ -80,14 +80,17 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.android.workmanager.worker.CreateMessageEmbeddingsWorkScheduler
+import com.wire.android.workmanager.worker.CreateMessageEmbeddingsWorkStatus
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
-import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.text.Regex
 
@@ -509,7 +512,8 @@ class AiAssistantDebugViewModelImpl(
     private val aiEmbeddingModelManager: AiEmbeddingModelManager,
     private val aiModelTestEngine: AiModelTestEngine,
     private val inferenceConfigStore: AiInferenceConfigStore,
-    private val createEmbeddingsForExistingMessages: CreateEmbeddingsForExistingMessagesUseCase,
+    private val currentAccount: UserId,
+    private val createMessageEmbeddingsWorkScheduler: CreateMessageEmbeddingsWorkScheduler,
     private val searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase,
 ) : ViewModel(), AiAssistantDebugViewModel {
 
@@ -532,6 +536,7 @@ class AiAssistantDebugViewModelImpl(
         observeInferenceConfig()
         observeAiModelStatus()
         observeEmbeddingModelStatus()
+        observeCreateEmbeddingsWorkStatus()
     }
 
     override fun downloadAiModel() {
@@ -595,37 +600,31 @@ class AiAssistantDebugViewModelImpl(
     override fun createEmbeddings() {
         if (state.isCreatingEmbeddings) return
 
-        state = state.copy(isCreatingEmbeddings = true)
         viewModelScope.launch {
-            try {
-                when (val result = createEmbeddingsForExistingMessages()) {
-                    is CreateEmbeddingsForExistingMessagesUseCase.Result.Success ->
-                        _infoMessage.emit(
-                            UIText.StringResource(
-                                R.string.debug_settings_ai_create_embeddings_success,
-                                result.createdEmbeddings,
-                                result.skippedMessages,
-                                result.failedMessages
-                            )
+            state = state.copy(isCreatingEmbeddings = true)
+            when (val status = createMessageEmbeddingsWorkScheduler.enqueue(currentAccount).first { it.isTerminal }) {
+                is CreateMessageEmbeddingsWorkStatus.Succeeded ->
+                    _infoMessage.emit(
+                        UIText.StringResource(
+                            R.string.debug_settings_ai_create_embeddings_success,
+                            status.summary.createdEmbeddings,
+                            status.summary.skippedMessages,
+                            status.summary.failedMessages
                         )
-
-                    is CreateEmbeddingsForExistingMessagesUseCase.Result.Failure ->
-                        _infoMessage.emit(
-                            UIText.StringResource(
-                                R.string.debug_settings_ai_create_embeddings_failed,
-                                result.cause.toString()
-                            )
-                        )
-                }
-            } catch (throwable: Throwable) {
-                _infoMessage.emit(
-                    UIText.StringResource(
-                        R.string.debug_settings_ai_create_embeddings_failed,
-                        throwable.toString()
                     )
-                )
-            } finally {
-                state = state.copy(isCreatingEmbeddings = false)
+
+                is CreateMessageEmbeddingsWorkStatus.Failed ->
+                    _infoMessage.emit(
+                        UIText.StringResource(
+                            R.string.debug_settings_ai_create_embeddings_failed,
+                            status.cause.orEmpty()
+                        )
+                    )
+
+                CreateMessageEmbeddingsWorkStatus.Idle,
+                is CreateMessageEmbeddingsWorkStatus.Running -> {
+                    // Filtered out by terminal predicate.
+                }
             }
         }
     }
@@ -752,6 +751,14 @@ class AiAssistantDebugViewModelImpl(
         viewModelScope.launch {
             aiEmbeddingModelManager.observeModelStatus().collect { modelStatus ->
                 state = state.copy(embeddingModelOptionState = modelStatus.toUiState())
+            }
+        }
+    }
+
+    private fun observeCreateEmbeddingsWorkStatus() {
+        viewModelScope.launch {
+            createMessageEmbeddingsWorkScheduler.observe(currentAccount).collect { status ->
+                state = state.copy(isCreatingEmbeddings = status is CreateMessageEmbeddingsWorkStatus.Running)
             }
         }
     }
@@ -905,6 +912,9 @@ private const val UNSUPPORTED_MODEL_FAILURE_REASON = "Model type is not supporte
 private const val SEMANTIC_SEARCH_LOG_TAG = "AI semantic search"
 private const val SEMANTIC_SEARCH_QUERY_TEST_TAG = "semantic-search-query"
 private val URL_REGEX = Regex("""https?://[^\s"'<>]+""")
+
+private val CreateMessageEmbeddingsWorkStatus.isTerminal: Boolean
+    get() = this is CreateMessageEmbeddingsWorkStatus.Succeeded || this is CreateMessageEmbeddingsWorkStatus.Failed
 
 private data class HealthCheckKey(
     val modelPath: String,

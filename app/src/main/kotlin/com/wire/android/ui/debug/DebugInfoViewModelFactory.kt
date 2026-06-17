@@ -35,6 +35,7 @@ import com.wire.android.ui.settings.about.AboutThisAppViewModel
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.logging.LogFileWriter
+import com.wire.android.workmanager.worker.CreateMessageEmbeddingsWorkScheduler
 import com.wire.kalium.logic.data.conversation.FetchConversationUseCase
 import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
 import com.wire.kalium.logic.data.user.UserId
@@ -58,7 +59,6 @@ import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
-import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -105,7 +105,7 @@ class DebugInfoViewModelFactory @Inject constructor(
     private val aiEmbeddingModelManager: AiEmbeddingModelManager,
     private val aiModelTestEngine: AiModelTestEngine,
     private val aiInferenceConfigStore: AiInferenceConfigStore,
-    private val createEmbeddingsForExistingMessages: CreateEmbeddingsForExistingMessagesUseCase,
+    private val createMessageEmbeddingsWorkScheduler: CreateMessageEmbeddingsWorkScheduler,
     private val searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase,
 ) {
     fun userDebugViewModel() = UserDebugViewModel(
@@ -149,7 +149,8 @@ class DebugInfoViewModelFactory @Inject constructor(
         aiEmbeddingModelManager = aiEmbeddingModelManager,
         aiModelTestEngine = aiModelTestEngine,
         inferenceConfigStore = aiInferenceConfigStore,
-        createEmbeddingsForExistingMessages = createEmbeddingsForExistingMessages,
+        currentAccount = currentAccount,
+        createMessageEmbeddingsWorkScheduler = createMessageEmbeddingsWorkScheduler,
         searchMessagesSemanticallyGlobally = searchMessagesSemanticallyGlobally,
     )
 

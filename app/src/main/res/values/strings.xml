@@ -1127,6 +1127,8 @@
     <string name="notification_audio_message_body">Audio message</string>
     <string name="notification_deleting_conversation">Deleting conversation…</string>
     <string name="notification_uploading_files">Uploading files…</string>
+    <string name="notification_creating_message_embeddings" translatable="false">Creating message embeddings</string>
+    <string name="notification_creating_message_embeddings_progress" translatable="false">%1$d of %2$d messages processed</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>

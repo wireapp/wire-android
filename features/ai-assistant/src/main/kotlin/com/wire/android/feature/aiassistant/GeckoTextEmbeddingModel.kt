@@ -22,6 +22,7 @@ import com.google.ai.edge.localagents.rag.models.GeckoEmbeddingModel
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import com.wire.android.appLogger
 import com.wire.android.feature.aiassistant.model.DefaultAiEmbeddingModelDescriptor
 import com.wire.android.feature.aiassistant.storage.AiModelStorage
 import com.wire.kalium.logic.feature.message.TextEmbeddingModel
@@ -33,6 +34,7 @@ import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.time.TimeSource
 
 class GeckoTextEmbeddingModel internal constructor(
     private val storage: AiModelStorage,
@@ -117,21 +119,51 @@ private class GoogleAiEdgeGeckoTextEmbedder(
     private val model: GeckoEmbeddingModel
 ) : GeckoTextEmbedder {
     override suspend fun embed(text: String, taskType: EmbedData.TaskType): FloatArray {
-        val request = EmbeddingRequest.create(
-            listOf(
-                EmbedData.create(
-                    text,
-                    taskType
+        val totalMark = TimeSource.Monotonic.markNow()
+        val request = measureElapsedMs {
+            EmbeddingRequest.create(
+                listOf(
+                    EmbedData.create(
+                        text,
+                        taskType
+                    )
                 )
             )
+        }
+        val embeddings = measureSuspendElapsedMs {
+            model.getEmbeddings(request.value).await()
+        }
+        val result = embeddings.value.toFloatArray()
+        val totalEmbeddingMs = totalMark.elapsedNow().inWholeMilliseconds
+        appLogger.withTextTag("GeckoTextEmbeddingModel").d(
+            "Gecko text embedding benchmark: tokenizerMs=unavailable-current-gecko-api, " +
+                "nativeInferenceMs=geckoSdkEmbeddingMs, requestBuildMs=${request.elapsedMs}, " +
+                "geckoSdkEmbeddingMs=${embeddings.elapsedMs}, totalEmbeddingMs=$totalEmbeddingMs, " +
+                "taskType=$taskType, vectorSize=${result.size}"
         )
-        return model.getEmbeddings(request)
-            .await()
-            .toFloatArray()
+        return result
     }
 
     private fun ImmutableList<Float>.toFloatArray(): FloatArray =
         FloatArray(size) { index -> get(index) }
+
+    private inline fun <T> measureElapsedMs(block: () -> T): TimedResult<T> {
+        val mark = TimeSource.Monotonic.markNow()
+        val value = block()
+        return TimedResult(value, mark.elapsedNow().inWholeMilliseconds)
+    }
+
+    private suspend inline fun <T> measureSuspendElapsedMs(block: suspend () -> T): TimedResult<T> {
+        val mark = TimeSource.Monotonic.markNow()
+        val value = block()
+        return TimedResult(value, mark.elapsedNow().inWholeMilliseconds)
+    }
+
+    private data class TimedResult<T>(
+        val value: T,
+        val elapsedMs: Long
+    )
+
 }
 
 private suspend fun <T> ListenableFuture<T>.await(): T =

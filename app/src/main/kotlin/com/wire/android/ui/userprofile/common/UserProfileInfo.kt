@@ -120,6 +120,7 @@ fun UserProfileInfo(
     accentId: Int = -1,
     showQrCode: Boolean = true,
     textStatus: String? = null,
+    availabilityStatus: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -132,6 +133,7 @@ fun UserProfileInfo(
         Box(contentAlignment = Alignment.Center) {
             val userAvatarData = UserAvatarData(
                 asset = avatarAsset,
+                availabilityStatus = availabilityStatus,
                 connectionState = connection,
                 membership = membership,
                 nameBasedAvatar = NameBasedAvatar(fullName, accentId)
@@ -168,7 +170,7 @@ fun UserProfileInfo(
                     showPlaceholderIfNoAsset = showPlaceholderIfNoAsset,
                     withCrossfadeAnimation = true,
                     type = expiresAt?.let { UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt) }
-                        ?: UserProfileAvatarType.WithoutIndicators,
+                        ?: UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = false),
                     contentDescription = contentDescription
                 )
             }

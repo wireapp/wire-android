@@ -287,6 +287,7 @@ private fun SelfUserProfileContent(
                         onQrCodeClick = onQrCodeClick,
                         accentId = accentId,
                         showQrCode = state.showQrCode,
+                        availabilityStatus = status,
                     )
                     if (state.legalHoldStatus != LegalHoldUIState.None) {
                         Box(

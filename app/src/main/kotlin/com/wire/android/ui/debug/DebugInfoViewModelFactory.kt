@@ -24,6 +24,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.aiassistant.AiEmbeddingModelManager
 import com.wire.android.feature.aiassistant.AiInferenceConfigStore
 import com.wire.android.feature.aiassistant.AiModelManager
+import com.wire.android.feature.aiassistant.WireLlmConfigStore
 import com.wire.android.feature.aiassistant.test.AiModelTestEngine
 import com.wire.android.ui.debug.conversation.DebugConversationViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
@@ -105,6 +106,7 @@ class DebugInfoViewModelFactory @Inject constructor(
     private val aiEmbeddingModelManager: AiEmbeddingModelManager,
     private val aiModelTestEngine: AiModelTestEngine,
     private val aiInferenceConfigStore: AiInferenceConfigStore,
+    private val wireLlmConfigStore: WireLlmConfigStore,
     private val createMessageEmbeddingsWorkScheduler: CreateMessageEmbeddingsWorkScheduler,
     private val searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase,
 ) {
@@ -149,6 +151,7 @@ class DebugInfoViewModelFactory @Inject constructor(
         aiEmbeddingModelManager = aiEmbeddingModelManager,
         aiModelTestEngine = aiModelTestEngine,
         inferenceConfigStore = aiInferenceConfigStore,
+        wireLlmConfigStore = wireLlmConfigStore,
         currentAccount = currentAccount,
         createMessageEmbeddingsWorkScheduler = createMessageEmbeddingsWorkScheduler,
         searchMessagesSemanticallyGlobally = searchMessagesSemanticallyGlobally,

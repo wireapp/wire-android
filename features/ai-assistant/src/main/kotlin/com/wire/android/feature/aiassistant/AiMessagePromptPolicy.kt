@@ -16,13 +16,13 @@
  */
 package com.wire.android.feature.aiassistant
 
-import com.wire.android.feature.aiassistant.model.AiModelDescriptor
+import com.wire.android.feature.aiassistant.model.AiModelSource
 import com.wire.android.feature.aiassistant.model.AiPromptCapability
 
 internal object AiMessagePromptPolicy {
 
-    fun proofread(descriptor: AiModelDescriptor, inputText: String): PromptRequest =
-        when (descriptor.promptCapability) {
+    fun proofread(source: AiModelSource, inputText: String): PromptRequest =
+        when (source.promptCapability) {
             AiPromptCapability.Weak -> PromptRequest(
                 userMessage = "Fix grammar, return one result only:\n\"$inputText\"",
                 initialExchanges = PROOFREAD_EXAMPLES
@@ -40,8 +40,8 @@ internal object AiMessagePromptPolicy {
             )
         }
 
-    fun adjustTone(descriptor: AiModelDescriptor, inputText: String, toneType: AiMessageToneType): PromptRequest =
-        when (descriptor.promptCapability) {
+    fun adjustTone(source: AiModelSource, inputText: String, toneType: AiMessageToneType): PromptRequest =
+        when (source.promptCapability) {
             AiPromptCapability.Weak -> PromptRequest(
                 userMessage = "${toneType.toWeakInstruction()}, return one result only:\n\"$inputText\"",
                 initialExchanges = toneType.toWeakExamples()
@@ -60,8 +60,8 @@ internal object AiMessagePromptPolicy {
             )
         }
 
-    fun customPrompt(descriptor: AiModelDescriptor, inputText: String, userPrompt: String): PromptRequest =
-        when (descriptor.promptCapability) {
+    fun customPrompt(source: AiModelSource, inputText: String, userPrompt: String): PromptRequest =
+        when (source.promptCapability) {
             AiPromptCapability.Weak -> PromptRequest(
                 userMessage = "$userPrompt, return one result only:\n\"$inputText\""
             )

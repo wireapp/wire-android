@@ -19,6 +19,7 @@ package com.wire.android.feature.aiassistant
 import com.wire.android.feature.aiassistant.download.AiModelDownloader
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
+import com.wire.android.feature.aiassistant.model.AiInferenceTarget
 import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.feature.aiassistant.model.DefaultAiEmbeddingModelDescriptor
 import com.wire.android.feature.aiassistant.model.FailureReason
@@ -107,7 +108,7 @@ class DefaultAiEmbeddingModelManager @Inject constructor(
 
     private fun currentStatus(): AiModelStatus =
         if (isReady()) {
-            AiModelStatus.Ready(modelPath())
+            AiModelStatus.Ready(AiInferenceTarget.OnDevice(modelPath()))
         } else {
             AiModelStatus.NotDownloaded
         }

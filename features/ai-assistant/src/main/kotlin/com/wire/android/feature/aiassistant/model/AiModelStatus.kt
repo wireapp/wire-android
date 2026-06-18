@@ -17,9 +17,13 @@
 package com.wire.android.feature.aiassistant.model
 
 sealed interface AiModelStatus {
-    data class Ready(val localPath: String) : AiModelStatus
+    data class Ready(val target: AiInferenceTarget) : AiModelStatus {
+        constructor(localPath: String) : this(AiInferenceTarget.OnDevice(localPath))
+    }
 
     data class Downloading(val progress: Float?) : AiModelStatus
 
     data object NotDownloaded : AiModelStatus
+
+    data object RemoteConfigurationRequired : AiModelStatus
 }

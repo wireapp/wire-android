@@ -27,9 +27,12 @@ import com.wire.android.feature.aiassistant.AiInferenceBackend
 import com.wire.android.feature.aiassistant.AiInferenceConfig
 import com.wire.android.feature.aiassistant.AiInferenceConfigStore
 import com.wire.android.feature.aiassistant.AiModelManager
+import com.wire.android.feature.aiassistant.WireLlmConfigStore
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
 import com.wire.android.feature.aiassistant.model.AiModelStatus
+import com.wire.android.feature.aiassistant.model.AiInferenceTarget
+import com.wire.android.feature.aiassistant.model.AiModelSource
 import com.wire.android.feature.aiassistant.model.FailureReason
 import com.wire.android.feature.aiassistant.test.AiModelHealthCheckResult
 import com.wire.android.feature.aiassistant.test.AiModelTestEngine
@@ -139,7 +142,9 @@ class AiAssistantDebugViewModelTest {
         assertEquals(AiModelUiStatus.Downloaded, viewModel.state.embeddingModelOptionState.status)
         assertEquals(false, viewModel.state.embeddingModelOptionState.showDownloadButton)
         assertEquals(false, viewModel.state.embeddingModelOptionState.isDownloading)
-        coVerify(exactly = 0) { arrangement.aiModelTestEngine.runHealthCheck("embeddingPath", any()) }
+        coVerify(exactly = 0) {
+            arrangement.aiModelTestEngine.runHealthCheck(AiInferenceTarget.OnDevice("embeddingPath"), any())
+        }
     }
 
     @Test
@@ -150,7 +155,9 @@ class AiAssistantDebugViewModelTest {
             .arrange()
 
         // then
-        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath", AiInferenceConfig.DEFAULT) }
+        coVerify(exactly = 1) {
+            arrangement.aiModelTestEngine.runHealthCheck(AiInferenceTarget.OnDevice("localPath"), AiInferenceConfig.DEFAULT)
+        }
     }
 
     @Test
@@ -162,7 +169,9 @@ class AiAssistantDebugViewModelTest {
 
         // then
         assertEquals(AiModelHealthCheckState.Unavailable, viewModel.state.healthCheckState)
-        coVerify(exactly = 0) { arrangement.aiModelTestEngine.runHealthCheck(any(), any()) }
+        coVerify(exactly = 0) {
+            arrangement.aiModelTestEngine.runHealthCheck(any<AiInferenceTarget>(), any())
+        }
     }
 
     @Test
@@ -174,7 +183,9 @@ class AiAssistantDebugViewModelTest {
 
         // then
         assertEquals(AiModelHealthCheckState.Unavailable, viewModel.state.healthCheckState)
-        coVerify(exactly = 0) { arrangement.aiModelTestEngine.runHealthCheck(any(), any()) }
+        coVerify(exactly = 0) {
+            arrangement.aiModelTestEngine.runHealthCheck(any<AiInferenceTarget>(), any())
+        }
     }
 
     @Test
@@ -237,7 +248,9 @@ class AiAssistantDebugViewModelTest {
             .arrange()
 
         // then
-        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath", AiInferenceConfig.DEFAULT) }
+        coVerify(exactly = 1) {
+            arrangement.aiModelTestEngine.runHealthCheck(AiInferenceTarget.OnDevice("localPath"), AiInferenceConfig.DEFAULT)
+        }
     }
 
     @Test
@@ -261,7 +274,9 @@ class AiAssistantDebugViewModelTest {
 
         val expectedConfig = AiInferenceConfig(backend = AiInferenceBackend.CPU, cpuThreads = 4)
         assertEquals(expectedConfig, arrangement.inferenceConfigStore.config.value)
-        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath", expectedConfig) }
+        coVerify(exactly = 1) {
+            arrangement.aiModelTestEngine.runHealthCheck(AiInferenceTarget.OnDevice("localPath"), expectedConfig)
+        }
     }
 
     @Test
@@ -274,7 +289,9 @@ class AiAssistantDebugViewModelTest {
 
         val expectedConfig = AiInferenceConfig(backend = AiInferenceBackend.CPU, cpuThreads = 4)
         assertEquals(expectedConfig, arrangement.inferenceConfigStore.config.value)
-        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath", expectedConfig) }
+        coVerify(exactly = 1) {
+            arrangement.aiModelTestEngine.runHealthCheck(AiInferenceTarget.OnDevice("localPath"), expectedConfig)
+        }
     }
 
     @Test
@@ -289,7 +306,9 @@ class AiAssistantDebugViewModelTest {
         val expectedConfig = AiInferenceConfig(backend = AiInferenceBackend.GPU)
         assertEquals(expectedConfig, arrangement.inferenceConfigStore.config.value)
         assertEquals(AiModelHealthCheckState.Healthy, viewModel.state.healthCheckState)
-        coVerify(exactly = 1) { arrangement.aiModelTestEngine.runHealthCheck("localPath", expectedConfig) }
+        coVerify(exactly = 1) {
+            arrangement.aiModelTestEngine.runHealthCheck(AiInferenceTarget.OnDevice("localPath"), expectedConfig)
+        }
     }
 
     @Test
@@ -307,7 +326,7 @@ class AiAssistantDebugViewModelTest {
         assertEquals(AiModelHealthCheckState.Failed("GPU unavailable"), viewModel.state.healthCheckState)
         coVerify(exactly = 1) {
             arrangement.aiModelTestEngine.runHealthCheck(
-                "localPath",
+                AiInferenceTarget.OnDevice("localPath"),
                 AiInferenceConfig(backend = AiInferenceBackend.GPU, cpuThreads = 2)
             )
         }
@@ -378,8 +397,8 @@ class AiAssistantDebugViewModelTest {
         val (_, viewModel) = AiAssistantDebugArrangement()
             .arrange()
 
-        assertEquals(listOf(testDescriptor), viewModel.state.availableModels)
-        assertEquals(testDescriptor, viewModel.state.selectedModel)
+        assertEquals(listOf(AiModelSource.OnDevice(testDescriptor)), viewModel.state.availableModels)
+        assertEquals(AiModelSource.OnDevice(testDescriptor), viewModel.state.selectedModel)
     }
 
     @Test
@@ -393,7 +412,7 @@ class AiAssistantDebugViewModelTest {
             .withSelectedModel(restoredDescriptor)
             .arrange()
 
-        assertEquals(restoredDescriptor, viewModel.state.selectedModel)
+        assertEquals(AiModelSource.OnDevice(restoredDescriptor), viewModel.state.selectedModel)
     }
 
     @Test
@@ -403,10 +422,30 @@ class AiAssistantDebugViewModelTest {
             .arrange()
 
         // when
-        viewModel.selectModel(testDescriptor)
+        viewModel.selectModel(AiModelSource.OnDevice(testDescriptor))
 
         // then
-        verify(exactly = 1) { arrangement.aiModelManager.selectModel(testDescriptor) }
+        verify(exactly = 1) { arrangement.aiModelManager.selectModel(AiModelSource.OnDevice(testDescriptor)) }
+    }
+
+    @Test
+    fun `given invalid wire llm address, when saving, then error is shown and value is not persisted`() = runTest {
+        val (arrangement, viewModel) = AiAssistantDebugArrangement().arrange()
+
+        viewModel.saveWireLlmServerIp("http://192.168.1.20:8080")
+
+        assertEquals(true, viewModel.state.wireLlmServerIpHasError)
+        assertEquals(null, arrangement.wireLlmConfigStore.serverIp.value)
+    }
+
+    @Test
+    fun `given valid wire llm address, when saving, then trimmed value is persisted`() = runTest {
+        val (arrangement, viewModel) = AiAssistantDebugArrangement().arrange()
+
+        viewModel.saveWireLlmServerIp(" 192.168.1.20 ")
+
+        assertEquals(false, viewModel.state.wireLlmServerIpHasError)
+        assertEquals("192.168.1.20", arrangement.wireLlmConfigStore.serverIp.value)
     }
 
     @Test
@@ -769,6 +808,7 @@ private class AiAssistantDebugArrangement {
     lateinit var searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase
 
     val inferenceConfigStore = FakeAiInferenceConfigStore()
+    val wireLlmConfigStore = FakeWireLlmConfigStore()
     val createMessageEmbeddingsWorkScheduler = FakeCreateMessageEmbeddingsWorkScheduler()
 
     private val viewModel by lazy {
@@ -777,6 +817,7 @@ private class AiAssistantDebugArrangement {
             aiEmbeddingModelManager = aiEmbeddingModelManager,
             aiModelTestEngine = aiModelTestEngine,
             inferenceConfigStore = inferenceConfigStore,
+            wireLlmConfigStore = wireLlmConfigStore,
             currentAccount = SELF_USER_ID,
             createMessageEmbeddingsWorkScheduler = createMessageEmbeddingsWorkScheduler,
             searchMessagesSemanticallyGlobally = searchMessagesSemanticallyGlobally
@@ -786,8 +827,8 @@ private class AiAssistantDebugArrangement {
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(UnconfinedTestDispatcher())
-        every { aiModelManager.availableModels } returns listOf(testDescriptor)
-        every { aiModelManager.selectedModel } returns MutableStateFlow(testDescriptor)
+        every { aiModelManager.availableModels } returns listOf(AiModelSource.OnDevice(testDescriptor))
+        every { aiModelManager.selectedModel } returns MutableStateFlow(AiModelSource.OnDevice(testDescriptor))
         withAiModelStatus(AiModelStatus.NotDownloaded)
         withEmbeddingModelStatus(AiModelStatus.NotDownloaded)
         withAiModelDownloadState()
@@ -803,11 +844,11 @@ private class AiAssistantDebugArrangement {
     }
 
     fun withAvailableModels(models: List<AiModelDescriptor>) = apply {
-        every { aiModelManager.availableModels } returns models
+        every { aiModelManager.availableModels } returns models.map(AiModelSource::OnDevice)
     }
 
     fun withSelectedModel(descriptor: AiModelDescriptor) = apply {
-        every { aiModelManager.selectedModel } returns MutableStateFlow(descriptor)
+        every { aiModelManager.selectedModel } returns MutableStateFlow(AiModelSource.OnDevice(descriptor))
     }
 
     fun withInferenceConfig(config: AiInferenceConfig) = apply {
@@ -848,7 +889,7 @@ private class AiAssistantDebugArrangement {
 
     fun withAiModelHealthCheckResult(result: suspend () -> AiModelHealthCheckResult) = apply {
         coEvery {
-            aiModelTestEngine.runHealthCheck(any(), any())
+            aiModelTestEngine.runHealthCheck(any<AiInferenceTarget>(), any())
         } coAnswers {
             result()
         }
@@ -873,6 +914,14 @@ private class AiAssistantDebugArrangement {
     }
 
     fun arrange() = this to viewModel
+}
+
+private class FakeWireLlmConfigStore : WireLlmConfigStore {
+    val serverIp = MutableStateFlow<String?>(null)
+    override fun observeServerIp(): Flow<String?> = serverIp
+    override suspend fun setServerIp(serverIp: String) {
+        this.serverIp.value = serverIp
+    }
 }
 
 private class FakeAiInferenceConfigStore(

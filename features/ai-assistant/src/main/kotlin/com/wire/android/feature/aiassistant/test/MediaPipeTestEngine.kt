@@ -17,6 +17,7 @@
 package com.wire.android.feature.aiassistant.test
 
 import com.wire.android.feature.aiassistant.AiInferenceConfig
+import com.wire.android.feature.aiassistant.model.AiInferenceTarget
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import dev.zacsweers.metro.Inject
 import java.io.File
@@ -29,10 +30,12 @@ class MediaPipeTestEngine @Inject constructor(
     private val inferenceFactory: MediaPipeLlmInferenceFactory
 ) : AiModelTestEngine {
     override suspend fun runHealthCheck(
-        modelPath: String,
+        target: AiInferenceTarget,
         config: AiInferenceConfig
     ): AiModelHealthCheckResult =
         withContext(Dispatchers.IO) {
+            val modelPath = (target as? AiInferenceTarget.OnDevice)?.modelPath
+                ?: return@withContext AiModelHealthCheckResult.UnsupportedModel
             if (!File(modelPath).exists()) {
                 return@withContext AiModelHealthCheckResult.MissingModel
             }

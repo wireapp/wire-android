@@ -17,6 +17,7 @@
 package com.wire.android.feature.aiassistant
 
 import com.wire.android.feature.aiassistant.model.AiModelStatus
+import com.wire.android.feature.aiassistant.model.AiInferenceTarget
 import com.wire.android.feature.aiassistant.test.LiteRtLmInferenceFactory
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
@@ -48,7 +49,8 @@ sealed interface DiscussionTopicResult {
 class DefaultDiscussionTopicGenerator @Inject constructor(
     private val aiModelManager: AiModelManager,
     private val inferenceConfigStore: AiInferenceConfigStore,
-    private val inferenceFactory: LiteRtLmInferenceFactory
+    private val inferenceFactory: LiteRtLmInferenceFactory,
+    private val wireLlmClient: WireLlmClient = UnsupportedWireLlmClient
 ) : DiscussionTopicGenerator {
 
     override suspend fun generateTopic(messages: List<DiscussionTopicMessage>): DiscussionTopicResult =
@@ -76,38 +78,50 @@ class DefaultDiscussionTopicGenerator @Inject constructor(
             if (modelStatus !is AiModelStatus.Ready) {
                 return@withContext results.fillMissing(DiscussionTopicResult.MissingModel)
             }
-            if (!modelStatus.localPath.endsWith(LITERT_LM_EXTENSION, ignoreCase = true)) {
-                return@withContext results.fillMissing(DiscussionTopicResult.UnsupportedModel)
-            }
-
-            val inferenceConfig = inferenceConfigStore.observeConfig().first()
-            runCatching {
-                inferenceFactory.create(modelStatus.localPath, inferenceConfig).use { inference ->
-                    nonEmptyClusters.forEach { (index, messages) ->
-                        results[index] = runCatching {
-                            inference.generateResponse(messages.toPrompt()).toTopicResult()
-                        }.getOrElse { throwable ->
-                            if (throwable is CancellationException) throw throwable
+            when (val target = modelStatus.target) {
+                is AiInferenceTarget.OnDevice -> {
+                    if (!target.modelPath.endsWith(LITERT_LM_EXTENSION, ignoreCase = true)) {
+                        return@withContext results.fillMissing(DiscussionTopicResult.UnsupportedModel)
+                    }
+                    val inferenceConfig = inferenceConfigStore.observeConfig().first()
+                    runCatching {
+                        inferenceFactory.create(target.modelPath, inferenceConfig).use { inference ->
+                            nonEmptyClusters.forEach { (index, messages) ->
+                                results[index] = runCatching {
+                                    inference.generateResponse(messages.toPrompt()).toTopicResult()
+                                }.getOrElse { throwable ->
+                                    if (throwable is CancellationException) throw throwable
+                                    DiscussionTopicResult.InferenceFailed(throwable.message ?: throwable::class.java.simpleName)
+                                }
+                            }
+                        }
+                    }.onFailure { throwable ->
+                        if (throwable is CancellationException) throw throwable
+                        return@withContext results.fillMissing(
                             DiscussionTopicResult.InferenceFailed(throwable.message ?: throwable::class.java.simpleName)
+                        )
+                    }
+                }
+
+                is AiInferenceTarget.WireLlm -> {
+                    nonEmptyClusters.forEach { (index, messages) ->
+                        results[index] = when (val response = wireLlmClient.query(target.serverIp, messages.toPrompt())) {
+                            is WireLlmQueryResult.Success -> response.result.toTopicResult()
+                            is WireLlmQueryResult.Failure -> DiscussionTopicResult.InferenceFailed(response.message)
                         }
                     }
                 }
-            }.fold(
-                onSuccess = { results.map { it ?: DiscussionTopicResult.EmptyResponse } },
-                onFailure = { throwable ->
-                    if (throwable is CancellationException) throw throwable
-                    results.fillMissing(DiscussionTopicResult.InferenceFailed(throwable.message ?: throwable::class.java.simpleName))
-                }
-            )
+            }
+            results.map { it ?: DiscussionTopicResult.EmptyResponse }
         }
 
     private fun List<DiscussionTopicMessage>.toPrompt(): String {
-        val transcript = first().let { message ->
-            "${message.senderName}: ${message.text.replace('\n', ' ')}"
-        }
-//        val transcript = joinToString(separator = "\n") { message ->
+//        val transcript = first().let { message ->
 //            "${message.senderName}: ${message.text.replace('\n', ' ')}"
 //        }
+        val transcript = joinToString(separator = "\n") { message ->
+            "${message.senderName}: ${message.text.replace('\n', ' ')}"
+        }
         return """
             Identify the main discussion topic in this chat transcript.
             Return a concise topic title only, maximum 8 words.

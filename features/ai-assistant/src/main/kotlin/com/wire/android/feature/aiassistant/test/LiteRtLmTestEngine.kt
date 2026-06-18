@@ -17,6 +17,10 @@
 package com.wire.android.feature.aiassistant.test
 
 import com.wire.android.feature.aiassistant.AiInferenceConfig
+import com.wire.android.feature.aiassistant.WireLlmClient
+import com.wire.android.feature.aiassistant.WireLlmQueryResult
+import com.wire.android.feature.aiassistant.UnsupportedWireLlmClient
+import com.wire.android.feature.aiassistant.model.AiInferenceTarget
 import dev.zacsweers.metro.Inject
 import java.io.File
 import kotlinx.coroutines.CancellationException
@@ -24,13 +28,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class LiteRtLmTestEngine @Inject constructor(
-    private val inferenceFactory: LiteRtLmInferenceFactory
+    private val inferenceFactory: LiteRtLmInferenceFactory,
+    private val wireLlmClient: WireLlmClient = UnsupportedWireLlmClient
 ) : AiModelTestEngine {
     override suspend fun runHealthCheck(
-        modelPath: String,
+        target: AiInferenceTarget,
         config: AiInferenceConfig
     ): AiModelHealthCheckResult =
         withContext(Dispatchers.IO) {
+            if (target is AiInferenceTarget.WireLlm) {
+                return@withContext when (val result = wireLlmClient.query(target.serverIp, HEALTH_CHECK_PROMPT)) {
+                    is WireLlmQueryResult.Success ->
+                        if (result.result.isBlank()) AiModelHealthCheckResult.EmptyResponse else AiModelHealthCheckResult.Healthy
+                    is WireLlmQueryResult.Failure -> AiModelHealthCheckResult.InferenceFailed(result.message)
+                }
+            }
+            val modelPath = (target as AiInferenceTarget.OnDevice).modelPath
             if (!File(modelPath).exists()) {
                 return@withContext AiModelHealthCheckResult.MissingModel
             }

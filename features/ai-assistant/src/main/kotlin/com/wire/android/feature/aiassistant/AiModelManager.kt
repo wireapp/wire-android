@@ -18,14 +18,16 @@ package com.wire.android.feature.aiassistant
 
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
+import com.wire.android.feature.aiassistant.model.AiModelSource
 import com.wire.android.feature.aiassistant.model.AiModelStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 interface AiModelManager {
-    val availableModels: List<AiModelDescriptor>
-    val selectedModel: StateFlow<AiModelDescriptor>
-    fun selectModel(descriptor: AiModelDescriptor)
+    val availableModels: List<AiModelSource>
+    val selectedModel: StateFlow<AiModelSource>
+    fun selectModel(source: AiModelSource)
+    fun selectModel(descriptor: AiModelDescriptor) = selectModel(AiModelSource.OnDevice(descriptor))
     fun observeModelStatus(): Flow<AiModelStatus>
     fun downloadModel(): Flow<AiModelDownloadState>
 }

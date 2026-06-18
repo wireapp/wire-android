@@ -63,6 +63,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val SELECTED_AI_MODEL_ID = stringPreferencesKey("selected_ai_model_id")
         private val AI_INFERENCE_BACKEND = stringPreferencesKey("ai_inference_backend")
         private val AI_INFERENCE_CPU_THREADS = intPreferencesKey("ai_inference_cpu_threads")
+        private val WIRE_LLM_SERVER_IP = stringPreferencesKey("wire_llm_server_ip")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
@@ -170,6 +171,13 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
                 it[AI_INFERENCE_CPU_THREADS] = cpuThreads
             } ?: it.remove(AI_INFERENCE_CPU_THREADS)
         }
+    }
+
+    fun observeWireLlmServerIp(): Flow<String?> =
+        context.dataStore.data.map { preferences -> preferences[WIRE_LLM_SERVER_IP] }
+
+    suspend fun setWireLlmServerIp(serverIp: String) {
+        context.dataStore.edit { it[WIRE_LLM_SERVER_IP] = serverIp }
     }
 
     /**

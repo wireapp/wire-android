@@ -24,11 +24,13 @@ import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
 import com.wire.android.feature.aiassistant.model.AiPromptCapability
 import com.wire.android.feature.aiassistant.model.AiModelStatus
+import com.wire.android.feature.aiassistant.model.AiModelSource
 import com.wire.android.feature.aiassistant.storage.FakeAiModelStorage
 import java.nio.file.Path
 import kotlin.io.path.createFile
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -97,7 +99,7 @@ class DefaultAiModelManagerTest {
             .withStoredSelectedModelId(secondDescriptor.repositoryId)
             .arrange()
 
-        assertEquals(secondDescriptor, arrangement.manager.selectedModel.value)
+        assertEquals(AiModelSource.OnDevice(secondDescriptor), arrangement.manager.selectedModel.value)
     }
 
     @Test
@@ -107,7 +109,7 @@ class DefaultAiModelManagerTest {
             .withModels(listOf(descriptor(), secondDescriptor))
             .arrange()
 
-        assertEquals(descriptor(), arrangement.manager.selectedModel.value)
+        assertEquals(AiModelSource.OnDevice(descriptor()), arrangement.manager.selectedModel.value)
     }
 
     @Test
@@ -118,7 +120,7 @@ class DefaultAiModelManagerTest {
             .withStoredSelectedModelId("unknown/model")
             .arrange()
 
-        assertEquals(descriptor(), arrangement.manager.selectedModel.value)
+        assertEquals(AiModelSource.OnDevice(descriptor()), arrangement.manager.selectedModel.value)
     }
 
     @Test
@@ -130,8 +132,43 @@ class DefaultAiModelManagerTest {
 
         arrangement.manager.selectModel(secondDescriptor)
 
-        assertEquals(secondDescriptor, arrangement.manager.selectedModel.value)
+        assertEquals(AiModelSource.OnDevice(secondDescriptor), arrangement.manager.selectedModel.value)
         assertEquals(secondDescriptor.repositoryId, arrangement.selectionStore.selectedModelId)
+    }
+
+    @Test
+    fun givenManagerIsCreated_thenWireLlmIsAvailable() {
+        val arrangement = Arrangement(tempDir).arrange()
+
+        assertEquals(AiModelSource.WireLlm, arrangement.manager.availableModels.last())
+    }
+
+    @Test
+    fun givenWireLlmIsStoredAndServerIpExists_whenObservingStatus_thenRemoteTargetIsReady() = runTest {
+        val arrangement = Arrangement(tempDir)
+            .withStoredSelectedModelId(AiModelSource.WireLlm.id)
+            .withWireLlmServerIp("192.168.1.20")
+            .arrange()
+
+        arrangement.manager.observeModelStatus().test {
+            assertEquals(
+                AiModelStatus.Ready(com.wire.android.feature.aiassistant.model.AiInferenceTarget.WireLlm("192.168.1.20")),
+                awaitItem()
+            )
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenWireLlmIsStoredWithoutServerIp_whenObservingStatus_thenConfigurationIsRequired() = runTest {
+        val arrangement = Arrangement(tempDir)
+            .withStoredSelectedModelId(AiModelSource.WireLlm.id)
+            .arrange()
+
+        arrangement.manager.observeModelStatus().test {
+            assertEquals(AiModelStatus.RemoteConfigurationRequired, awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     @Test
@@ -147,6 +184,7 @@ class DefaultAiModelManagerTest {
         private var models: List<AiModelDescriptor> = listOf(descriptor())
         private var storage = FakeAiModelStorage(tempDir, models.first())
         val selectionStore = FakeAiModelSelectionStore()
+        private val wireLlmConfigStore = FakeWireLlmConfigStore()
         private var downloader: AiModelDownloader = AiModelDownloader {
             flow { emit(AiModelDownloadState.AuthRequired()) }
         }
@@ -172,8 +210,12 @@ class DefaultAiModelManagerTest {
             downloader = AiModelDownloader { downloadStates }
         }
 
+        fun withWireLlmServerIp(serverIp: String) = apply {
+            wireLlmConfigStore.serverIp.value = serverIp
+        }
+
         fun arrange() = Result(
-            manager = DefaultAiModelManager(models, storage, downloader, selectionStore),
+            manager = DefaultAiModelManager(models, storage, downloader, selectionStore, wireLlmConfigStore),
             storage = storage,
             selectionStore = selectionStore
         )
@@ -203,6 +245,14 @@ class DefaultAiModelManagerTest {
             localFileName = "model.litertlm",
             promptCapability = AiPromptCapability.Capable
         )
+    }
+}
+
+private class FakeWireLlmConfigStore : WireLlmConfigStore {
+    val serverIp = MutableStateFlow<String?>(null)
+    override fun observeServerIp(): Flow<String?> = serverIp
+    override suspend fun setServerIp(serverIp: String) {
+        this.serverIp.value = serverIp
     }
 }
 

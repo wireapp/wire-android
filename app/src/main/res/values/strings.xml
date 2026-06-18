@@ -1886,6 +1886,11 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_ai_model_health_check_healthy" translatable="false">Healthy</string>
     <string name="debug_settings_ai_model_health_check_failed" translatable="false">Failed: %1$s</string>
     <string name="debug_settings_ai_model_health_check_empty_response" translatable="false">Model returned an empty response</string>
+    <string name="debug_settings_ai_wire_llm_server" translatable="false">Wire LLM server</string>
+    <string name="debug_settings_ai_wire_llm_server_ip" translatable="false">Server IPv4 address</string>
+    <string name="debug_settings_ai_wire_llm_server_description" translatable="false">Connects to http://&lt;IP&gt;:8080/query</string>
+    <string name="debug_settings_ai_wire_llm_server_invalid" translatable="false">Enter a valid IPv4 address</string>
+    <string name="debug_settings_ai_wire_llm_save_test" translatable="false">Save and test</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

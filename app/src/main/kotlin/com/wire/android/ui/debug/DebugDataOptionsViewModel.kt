@@ -456,7 +456,8 @@ class DebugDataOptionsViewModelImpl(
 
     private fun AiModelStatus.toUiState(): AiModelOptionState =
         when (this) {
-            AiModelStatus.NotDownloaded -> AiModelOptionState(
+            AiModelStatus.NotDownloaded,
+            AiModelStatus.RemoteConfigurationRequired -> AiModelOptionState(
                 status = AiModelUiStatus.NotDownloaded,
                 showDownloadButton = true,
                 isDownloading = false

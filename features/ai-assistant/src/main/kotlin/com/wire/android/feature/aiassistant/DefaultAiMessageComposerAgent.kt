@@ -16,7 +16,8 @@
  */
 package com.wire.android.feature.aiassistant
 
-import com.wire.android.feature.aiassistant.model.AiModelDescriptor
+import com.wire.android.feature.aiassistant.model.AiInferenceTarget
+import com.wire.android.feature.aiassistant.model.AiModelSource
 import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.feature.aiassistant.test.LiteRtLmInferenceFactory
 import dev.zacsweers.metro.Inject
@@ -28,7 +29,8 @@ import kotlinx.coroutines.withContext
 class DefaultAiMessageComposerAgent @Inject constructor(
     private val aiModelManager: AiModelManager,
     private val inferenceConfigStore: AiInferenceConfigStore,
-    private val inferenceFactory: LiteRtLmInferenceFactory
+    private val inferenceFactory: LiteRtLmInferenceFactory,
+    private val wireLlmClient: WireLlmClient = UnsupportedWireLlmClient
 ) : AiMessageComposerAgent {
 
     override suspend fun proofread(inputText: String): AiMessageComposerResult =
@@ -50,7 +52,7 @@ class DefaultAiMessageComposerAgent @Inject constructor(
     private suspend fun generateUpdatedMessage(
         inputText: String,
         promptBuilder: (
-            descriptor: AiModelDescriptor
+            source: AiModelSource
         ) -> AiMessagePromptPolicy.PromptRequest
     ): AiMessageComposerResult =
         withContext(Dispatchers.IO) {
@@ -63,31 +65,50 @@ class DefaultAiMessageComposerAgent @Inject constructor(
             if (modelStatus !is AiModelStatus.Ready) {
                 return@withContext AiMessageComposerResult.MissingModel
             }
-            if (!modelStatus.localPath.endsWith(LITERT_LM_EXTENSION, ignoreCase = true)) {
-                return@withContext AiMessageComposerResult.UnsupportedModel
-            }
 
             val promptRequest = promptBuilder(selectedModel)
-            val inferenceConfig = inferenceConfigStore.observeConfig().first()
-            runCatching {
-                inferenceFactory.create(modelStatus.localPath, inferenceConfig, promptRequest.initialExchanges).use { inference ->
-                    inference.generateResponse(promptRequest.userMessage)
-                }
-            }.fold(
-                onSuccess = { response ->
-                    val trimmed = response.trimMatchingQuotes()
-                    if (trimmed.isBlank()) {
-                        AiMessageComposerResult.EmptyResponse
-                    } else {
-                        AiMessageComposerResult.Success(trimmed)
+            when (val target = modelStatus.target) {
+                is AiInferenceTarget.OnDevice -> {
+                    if (!target.modelPath.endsWith(LITERT_LM_EXTENSION, ignoreCase = true)) {
+                        return@withContext AiMessageComposerResult.UnsupportedModel
                     }
-                },
-                onFailure = { throwable ->
-                    if (throwable is CancellationException) throw throwable
-                    AiMessageComposerResult.InferenceFailed(throwable.message ?: throwable::class.java.simpleName)
+                    generateOnDevice(target.modelPath, promptRequest)
                 }
-            )
+                is AiInferenceTarget.WireLlm -> when (
+                    val result = wireLlmClient.query(target.serverIp, promptRequest.userMessage)
+                ) {
+                    is WireLlmQueryResult.Success -> result.result.toComposerResult()
+                    is WireLlmQueryResult.Failure -> AiMessageComposerResult.InferenceFailed(result.message)
+                }
+            }
         }
+
+    private suspend fun generateOnDevice(
+        modelPath: String,
+        promptRequest: AiMessagePromptPolicy.PromptRequest
+    ): AiMessageComposerResult {
+        val inferenceConfig = inferenceConfigStore.observeConfig().first()
+        return runCatching {
+            inferenceFactory.create(modelPath, inferenceConfig, promptRequest.initialExchanges).use { inference ->
+                inference.generateResponse(promptRequest.userMessage)
+            }
+        }.fold(
+            onSuccess = { response -> response.toComposerResult() },
+            onFailure = { throwable ->
+                if (throwable is CancellationException) throw throwable
+                AiMessageComposerResult.InferenceFailed(throwable.message ?: throwable::class.java.simpleName)
+            }
+        )
+    }
+
+    private fun String.toComposerResult(): AiMessageComposerResult {
+        val trimmed = trimMatchingQuotes()
+        return if (trimmed.isBlank()) {
+            AiMessageComposerResult.EmptyResponse
+        } else {
+            AiMessageComposerResult.Success(trimmed)
+        }
+    }
 
     private companion object {
         const val LITERT_LM_EXTENSION = ".litertlm"

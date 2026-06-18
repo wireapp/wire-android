@@ -17,12 +17,16 @@
 package com.wire.android.feature.aiassistant.test
 
 import com.wire.android.feature.aiassistant.AiInferenceConfig
+import com.wire.android.feature.aiassistant.model.AiInferenceTarget
 
 interface AiModelTestEngine {
     suspend fun runHealthCheck(
-        modelPath: String,
+        target: AiInferenceTarget,
         config: AiInferenceConfig
     ): AiModelHealthCheckResult
+
+    suspend fun runHealthCheck(modelPath: String, config: AiInferenceConfig): AiModelHealthCheckResult =
+        runHealthCheck(AiInferenceTarget.OnDevice(modelPath), config)
 }
 
 sealed interface AiModelHealthCheckResult {

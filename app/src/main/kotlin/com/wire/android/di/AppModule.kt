@@ -31,6 +31,10 @@ import com.wire.android.feature.aiassistant.AiInferenceConfigStore
 import com.wire.android.feature.aiassistant.AiModelSelectionStore
 import com.wire.android.feature.aiassistant.GlobalDataStoreAiInferenceConfigStore
 import com.wire.android.feature.aiassistant.GlobalDataStoreAiModelSelectionStore
+import com.wire.android.feature.aiassistant.GlobalDataStoreWireLlmConfigStore
+import com.wire.android.feature.aiassistant.UrlConnectionWireLlmClient
+import com.wire.android.feature.aiassistant.WireLlmClient
+import com.wire.android.feature.aiassistant.WireLlmConfigStore
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.MessageResourceProvider
@@ -138,4 +142,12 @@ object AppModule {
     @SingleIn(AppScope::class)
     @Provides
     fun provideAiInferenceConfigStore(store: GlobalDataStore): AiInferenceConfigStore = GlobalDataStoreAiInferenceConfigStore(store)
+
+    @SingleIn(AppScope::class)
+    @Provides
+    fun provideWireLlmConfigStore(store: GlobalDataStore): WireLlmConfigStore = GlobalDataStoreWireLlmConfigStore(store)
+
+    @SingleIn(AppScope::class)
+    @Provides
+    fun provideWireLlmClient(implementation: UrlConnectionWireLlmClient): WireLlmClient = implementation
 }

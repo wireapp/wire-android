@@ -20,6 +20,7 @@ import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiPromptCapability
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
 import com.wire.android.feature.aiassistant.model.AiModelStatus
+import com.wire.android.feature.aiassistant.model.AiModelSource
 import com.wire.android.feature.aiassistant.test.LiteRtLmInference
 import com.wire.android.feature.aiassistant.test.LiteRtLmInferenceFactory
 import kotlinx.coroutines.CancellationException
@@ -582,10 +583,28 @@ class DefaultAiMessageComposerAgentTest {
         assertTrue(arrangement.inferenceFactory.inference.isClosed)
     }
 
+    @Test
+    fun givenWireLlmIsSelected_whenCustomPromptIsCalled_thenQueryEndpointClientReceivesPrompt() = runTest {
+        val arrangement = Arrangement()
+            .withWireLlmSelected("192.168.1.20")
+            .withWireLlmResponse(WireLlmQueryResult.Success("Rewritten remotely"))
+            .arrange()
+
+        val result = arrangement.agent.customPrompt("hello", "Make this formal")
+
+        assertEquals(AiMessageComposerResult.Success("Rewritten remotely"), result)
+        assertEquals("192.168.1.20", arrangement.wireLlmClient.serverIp)
+        assertTrue(arrangement.wireLlmClient.prompt.contains("Make this formal"))
+        assertTrue(arrangement.wireLlmClient.prompt.contains("hello"))
+        assertEquals(0, arrangement.inferenceFactory.createCount)
+    }
+
     private class Arrangement {
         private var modelStatus: AiModelStatus = AiModelStatus.NotDownloaded
         private var descriptor: AiModelDescriptor = testDescriptor()
+        private var selectedSource: AiModelSource? = null
         private var response: String = ""
+        private var wireLlmResponse: WireLlmQueryResult = WireLlmQueryResult.Failure("Not configured")
         private var inferenceThrowable: Throwable? = null
         private var factoryThrowable: Throwable? = null
         private var inferenceConfig: AiInferenceConfig = AiInferenceConfig.DEFAULT
@@ -614,22 +633,40 @@ class DefaultAiMessageComposerAgentTest {
             inferenceConfig = config
         }
 
+        fun withWireLlmSelected(serverIp: String) = apply {
+            selectedSource = AiModelSource.WireLlm
+            modelStatus = AiModelStatus.Ready(
+                com.wire.android.feature.aiassistant.model.AiInferenceTarget.WireLlm(serverIp)
+            )
+        }
+
+        fun withWireLlmResponse(response: WireLlmQueryResult) = apply {
+            wireLlmResponse = response
+        }
+
         fun arrange(): Result {
             val inferenceFactory = FakeLiteRtLmInferenceFactory(response, inferenceThrowable, factoryThrowable)
+            val wireLlmClient = FakeWireLlmClient(wireLlmResponse)
             return Result(
                 agent = DefaultAiMessageComposerAgent(
-                    aiModelManager = FakeAiModelManager(modelStatus, descriptor),
+                    aiModelManager = FakeAiModelManager(
+                        modelStatus,
+                        selectedSource ?: AiModelSource.OnDevice(descriptor)
+                    ),
                     inferenceConfigStore = FakeAiInferenceConfigStore(inferenceConfig),
-                    inferenceFactory = inferenceFactory
+                    inferenceFactory = inferenceFactory,
+                    wireLlmClient = wireLlmClient
                 ),
-                inferenceFactory = inferenceFactory
+                inferenceFactory = inferenceFactory,
+                wireLlmClient = wireLlmClient
             )
         }
     }
 
     private data class Result(
         val agent: DefaultAiMessageComposerAgent,
-        val inferenceFactory: FakeLiteRtLmInferenceFactory
+        val inferenceFactory: FakeLiteRtLmInferenceFactory,
+        val wireLlmClient: FakeWireLlmClient
     )
 
     private companion object {
@@ -639,13 +676,26 @@ class DefaultAiMessageComposerAgentTest {
 
 private class FakeAiModelManager(
     private val modelStatus: AiModelStatus,
-    private val descriptor: AiModelDescriptor
+    source: AiModelSource
 ) : AiModelManager {
-    override val availableModels: List<AiModelDescriptor> = listOf(descriptor)
-    override val selectedModel: StateFlow<AiModelDescriptor> = MutableStateFlow(descriptor)
-    override fun selectModel(descriptor: AiModelDescriptor) = Unit
+    override val availableModels: List<AiModelSource> = listOf(source)
+    override val selectedModel: StateFlow<AiModelSource> = MutableStateFlow(source)
+    override fun selectModel(source: AiModelSource) = Unit
     override fun observeModelStatus(): Flow<AiModelStatus> = flowOf(modelStatus)
     override fun downloadModel(): Flow<AiModelDownloadState> = flowOf(AiModelDownloadState.AuthRequired())
+}
+
+private class FakeWireLlmClient(
+    private val response: WireLlmQueryResult
+) : WireLlmClient {
+    var serverIp: String = ""
+    var prompt: String = ""
+
+    override suspend fun query(serverIp: String, prompt: String): WireLlmQueryResult {
+        this.serverIp = serverIp
+        this.prompt = prompt
+        return response
+    }
 }
 
 private class FakeLiteRtLmInferenceFactory(

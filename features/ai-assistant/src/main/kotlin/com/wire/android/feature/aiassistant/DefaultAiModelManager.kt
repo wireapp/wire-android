@@ -19,6 +19,8 @@ package com.wire.android.feature.aiassistant
 import com.wire.android.feature.aiassistant.download.AiModelDownloader
 import com.wire.android.feature.aiassistant.model.AiModelDescriptor
 import com.wire.android.feature.aiassistant.model.AiModelDownloadState
+import com.wire.android.feature.aiassistant.model.AiInferenceTarget
+import com.wire.android.feature.aiassistant.model.AiModelSource
 import com.wire.android.feature.aiassistant.model.AiModelStatus
 import com.wire.android.feature.aiassistant.storage.AiModelStorage
 import dev.zacsweers.metro.Inject
@@ -35,35 +37,44 @@ class DefaultAiModelManager @Inject constructor(
     @JvmSuppressWildcards private val models: List<AiModelDescriptor>,
     private val storage: AiModelStorage,
     private val downloader: AiModelDownloader,
-    private val selectionStore: AiModelSelectionStore
+    private val selectionStore: AiModelSelectionStore,
+    private val wireLlmConfigStore: WireLlmConfigStore = EmptyWireLlmConfigStore
 ) : AiModelManager {
 
-    override val availableModels: List<AiModelDescriptor> = models
+    override val availableModels: List<AiModelSource> =
+        models.map(AiModelSource::OnDevice) + AiModelSource.WireLlm
 
     private val _selectedModel = MutableStateFlow(resolveInitialSelection())
-    override val selectedModel: StateFlow<AiModelDescriptor> = _selectedModel.asStateFlow()
+    override val selectedModel: StateFlow<AiModelSource> = _selectedModel.asStateFlow()
 
     private val activeDownloadStatus = MutableStateFlow<ActiveDownloadState?>(null)
 
-    override fun selectModel(descriptor: AiModelDescriptor) {
-        require(descriptor in models) { "Unknown descriptor: $descriptor" }
-        _selectedModel.value = descriptor
+    override fun selectModel(source: AiModelSource) {
+        require(source in availableModels) { "Unknown model source: $source" }
+        _selectedModel.value = source
         runBlocking {
-            selectionStore.setSelectedModelId(descriptor.repositoryId)
+            selectionStore.setSelectedModelId(source.id)
         }
     }
 
     override fun observeModelStatus(): Flow<AiModelStatus> =
-        combine(_selectedModel, activeDownloadStatus) { selected, active ->
-            if (active?.descriptor == selected) {
-                active.status
-            } else {
-                currentStatus(selected)
+        combine(_selectedModel, activeDownloadStatus, wireLlmConfigStore.observeServerIp()) { selected, active, serverIp ->
+            when (selected) {
+                is AiModelSource.OnDevice ->
+                    if (active?.descriptor == selected.descriptor) active.status else currentStatus(selected.descriptor)
+                AiModelSource.WireLlm ->
+                    serverIp?.let(WireLlmServerAddress::normalize)
+                        ?.let { AiModelStatus.Ready(AiInferenceTarget.WireLlm(it)) }
+                        ?: AiModelStatus.RemoteConfigurationRequired
             }
         }.distinctUntilChanged()
 
     override fun downloadModel(): Flow<AiModelDownloadState> = flow {
-        val descriptor = _selectedModel.value
+        val descriptor = (_selectedModel.value as? AiModelSource.OnDevice)?.descriptor
+        if (descriptor == null) {
+            emit(AiModelDownloadState.Failed(com.wire.android.feature.aiassistant.model.FailureReason.InvalidResponse))
+            return@flow
+        }
         val modelFile = storage.getModelFile(descriptor)
         if (modelFile.exists()) {
             emit(AiModelDownloadState.Ready(modelFile.absolutePath))
@@ -83,7 +94,7 @@ class DefaultAiModelManager @Inject constructor(
     private fun currentStatus(descriptor: AiModelDescriptor): AiModelStatus {
         val modelFile = storage.getModelFile(descriptor)
         return if (modelFile.exists()) {
-            AiModelStatus.Ready(modelFile.absolutePath)
+            AiModelStatus.Ready(AiInferenceTarget.OnDevice(modelFile.absolutePath))
         } else {
             AiModelStatus.NotDownloaded
         }
@@ -98,9 +109,9 @@ class DefaultAiModelManager @Inject constructor(
             is AiModelDownloadState.Ready -> null
         }
 
-    private fun resolveInitialSelection(): AiModelDescriptor = runBlocking {
+    private fun resolveInitialSelection(): AiModelSource = runBlocking {
         val selectedModelId = selectionStore.getSelectedModelId()
-        models.firstOrNull { it.repositoryId == selectedModelId } ?: models.first()
+        availableModels.firstOrNull { it.id == selectedModelId } ?: availableModels.first()
     }
 
     private data class ActiveDownloadState(

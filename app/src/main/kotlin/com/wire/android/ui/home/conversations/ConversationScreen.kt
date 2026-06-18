@@ -44,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -844,11 +845,7 @@ private fun ConversationScreenContent(
             topBar = {
                 Column {
                     ConversationScreenTopAppBar(
-                        conversationInfoViewState = if (isThreadMode) {
-                            conversationInfoViewState.copy(conversationName = UIText.StringResource(R.string.label_thread))
-                        } else {
-                            conversationInfoViewState
-                        },
+                        conversationInfoViewState = conversationInfoViewState,
                         onBackButtonClick = onBackButtonClick,
                         onDropDownClick = onDropDownClick,
                         isDropDownEnabled = !isThreadMode && conversationInfoViewState.hasUserPermissionToEdit,
@@ -859,20 +856,11 @@ private fun ConversationScreenContent(
                         onAudioPermissionPermanentlyDenied = {
                             onPermissionPermanentlyDenied(ConversationActionPermissionType.CallAudio)
                         },
-                        isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
+                        isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED,
+                        isThreadMode = isThreadMode,
                     )
 
                     HorizontalDivider(color = colorsScheme().outline)
-
-                    if (isThreadMode) {
-                        ThreadContextHeader(
-                            conversationId = conversationInfoViewState.conversationId,
-                            conversationName = conversationInfoViewState.conversationName.asString(),
-                            rootMessage = threadRootMessage,
-                            onOpenParentConversation = onOpenThreadParentConversation,
-                        )
-                        HorizontalDivider(color = colorsScheme().outline)
-                    }
 
                     ConversationBanner(
                         bannerMessage = bannerMessage,
@@ -956,6 +944,14 @@ private fun ConversationScreenContent(
                         isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                     )
+
+                    if (isThreadMode) {
+                        ThreadContextHeader(
+                            rootMessage = threadRootMessage,
+                            onOpenParentConversation = onOpenThreadParentConversation,
+                            modifier = Modifier.align(Alignment.TopCenter),
+                        )
+                    }
                 }
             }
         )

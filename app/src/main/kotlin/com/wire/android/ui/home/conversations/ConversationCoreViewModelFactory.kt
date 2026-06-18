@@ -97,6 +97,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
+import com.wire.kalium.logic.feature.message.ObserveThreadFollowStateUseCase
 import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
@@ -105,6 +106,7 @@ import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.SetThreadFollowStateUseCase
 import com.wire.kalium.logic.feature.message.StartThreadFromMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
@@ -141,6 +143,8 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val deleteMessage: DeleteMessageUseCase,
     private val startThreadFromMessage: StartThreadFromMessageUseCase,
     private val observeThreadSummariesForRoots: ObserveThreadSummariesForRootsUseCase,
+    private val observeThreadFollowState: ObserveThreadFollowStateUseCase,
+    private val setThreadFollowState: SetThreadFollowStateUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
@@ -227,6 +231,8 @@ class ConversationCoreViewModelFactory @Inject constructor(
         deleteMessage = deleteMessage,
         startThreadFromMessageUseCase = startThreadFromMessage,
         observeThreadSummariesForRoots = observeThreadSummariesForRoots,
+        observeThreadFollowStateUseCase = observeThreadFollowState,
+        setThreadFollowState = setThreadFollowState,
         isWireCellFeatureEnabled = isWireCellsEnabled,
         networkStateObserver = networkStateObserver,
     )

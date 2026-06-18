@@ -58,8 +58,12 @@ import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.data.message.paging.NomadMessagePagingResult
 import com.wire.kalium.logic.feature.message.MessageOperationResult
+import com.wire.kalium.logic.feature.message.ObserveThreadFollowStateResult
+import com.wire.kalium.logic.feature.message.ObserveThreadFollowStateUseCase
 import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsResult
 import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsUseCase
+import com.wire.kalium.logic.feature.message.SetThreadFollowStateResult
+import com.wire.kalium.logic.feature.message.SetThreadFollowStateUseCase
 import com.wire.kalium.logic.feature.message.StartThreadFromMessageResult
 import com.wire.kalium.logic.feature.message.StartThreadFromMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionResult
@@ -146,6 +150,12 @@ class ConversationMessagesViewModelArrangement {
     lateinit var observeThreadSummariesForRootsUseCase: ObserveThreadSummariesForRootsUseCase
 
     @MockK
+    lateinit var observeThreadFollowStateUseCase: ObserveThreadFollowStateUseCase
+
+    @MockK
+    lateinit var setThreadFollowStateUseCase: SetThreadFollowStateUseCase
+
+    @MockK
     lateinit var isWireCellFeatureEnabled: IsWireCellsEnabledUseCase
 
     @MockK
@@ -173,6 +183,8 @@ class ConversationMessagesViewModelArrangement {
             deleteMessage,
             startThreadFromMessageUseCase,
             observeThreadSummariesForRootsUseCase,
+            observeThreadFollowStateUseCase,
+            setThreadFollowStateUseCase,
             isWireCellFeatureEnabled,
             networkStateObserver,
         )
@@ -203,6 +215,10 @@ class ConversationMessagesViewModelArrangement {
         coEvery { observeThreadSummariesForRootsUseCase(any(), any()) } returns flowOf(
             ObserveThreadSummariesForRootsResult.Success(emptyList())
         )
+        every { observeThreadFollowStateUseCase(any(), any()) } returns flowOf(
+            ObserveThreadFollowStateResult.Success(isFollowing = true)
+        )
+        coEvery { setThreadFollowStateUseCase(any(), any(), any()) } returns SetThreadFollowStateResult.Success
         coEvery { observeMessageForConversationUseCase(any(), any()) } returns flowOf(null)
 
         coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)

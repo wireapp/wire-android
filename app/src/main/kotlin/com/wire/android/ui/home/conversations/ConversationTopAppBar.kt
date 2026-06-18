@@ -94,7 +94,9 @@ fun ConversationScreenTopAppBar(
     isInteractionEnabled: Boolean,
     isDropDownEnabled: Boolean = false,
     isThreadMode: Boolean = false,
+    isThreadFollowing: Boolean = true,
     onOpenThreadParentConversation: () -> Unit = {},
+    onThreadFollowClick: () -> Unit = {},
     containerColor: Color? = null
 ) {
     val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
@@ -103,6 +105,8 @@ fun ConversationScreenTopAppBar(
             conversationName = conversationInfoViewState.conversationName.asString(),
             onBackButtonClick = onBackButtonClick,
             onOpenParentConversation = onOpenThreadParentConversation,
+            isFollowing = isThreadFollowing,
+            onFollowClick = onThreadFollowClick,
             containerColor = containerColor
         )
     } else {
@@ -231,6 +235,8 @@ private fun ThreadConversationScreenTopAppBarContent(
     conversationName: String,
     onBackButtonClick: () -> Unit,
     onOpenParentConversation: () -> Unit,
+    isFollowing: Boolean,
+    onFollowClick: () -> Unit,
     containerColor: Color? = null
 ) {
     TopAppBar(
@@ -289,8 +295,8 @@ private fun ThreadConversationScreenTopAppBarContent(
         },
         actions = {
             WireSecondaryButton(
-                onClick = {},
-                text = stringResource(R.string.label_following),
+                onClick = onFollowClick,
+                text = stringResource(if (isFollowing) R.string.label_following else R.string.label_follow),
                 fillMaxWidth = false,
                 minSize = DpSize(width = 0.dp, height = dimensions().spacing32x),
                 minClickableSize = DpSize(width = 0.dp, height = dimensions().spacing32x),
@@ -298,12 +304,16 @@ private fun ThreadConversationScreenTopAppBarContent(
                 textStyle = MaterialTheme.wireTypography.label02,
                 contentPadding = PaddingValues(horizontal = dimensions().spacing12x),
                 leadingIconAlignment = IconAlignment.Center,
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = commonR.drawable.ic_check_tick),
-                        contentDescription = null,
-                        modifier = Modifier.size(dimensions().spacing12x)
-                    )
+                leadingIcon = if (isFollowing) {
+                    {
+                        Icon(
+                            painter = painterResource(id = commonR.drawable.ic_check_tick),
+                            contentDescription = null,
+                            modifier = Modifier.size(dimensions().spacing12x)
+                        )
+                    }
+                } else {
+                    null
                 },
                 colors = wireSecondaryButtonColors(),
                 modifier = Modifier.padding(end = dimensions().spacing8x)

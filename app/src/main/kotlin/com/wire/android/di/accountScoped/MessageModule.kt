@@ -44,9 +44,11 @@ import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsUseCase
+import com.wire.kalium.logic.feature.message.ObserveThreadFollowStateUseCase
 import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.StartThreadFromMessageUseCase
+import com.wire.kalium.logic.feature.message.SetThreadFollowStateUseCase
 import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
@@ -109,6 +111,14 @@ class MessageModule {
     @Provides
     fun provideObserveGlobalThreadsUseCase(messageScope: MessageScope): ObserveGlobalThreadsUseCase =
         messageScope.observeGlobalThreads
+
+    @Provides
+    fun provideObserveThreadFollowStateUseCase(messageScope: MessageScope): ObserveThreadFollowStateUseCase =
+        messageScope.observeThreadFollowState
+
+    @Provides
+    fun provideSetThreadFollowStateUseCase(messageScope: MessageScope): SetThreadFollowStateUseCase =
+        messageScope.setThreadFollowState
 
     @Provides
     fun provideUpdateAssetMessageTransferStatusUseCase(messageScope: MessageScope): UpdateAssetMessageTransferStatusUseCase =

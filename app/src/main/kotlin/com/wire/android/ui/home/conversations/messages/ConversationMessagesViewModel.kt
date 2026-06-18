@@ -67,9 +67,13 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
+import com.wire.kalium.logic.feature.message.ObserveThreadFollowStateResult
+import com.wire.kalium.logic.feature.message.ObserveThreadFollowStateUseCase
 import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsResult
 import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsUseCase
-import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
+import com.wire.kalium.logic.feature.message.SetThreadFollowStateResult
+import com.wire.kalium.logic.feature.message.SetThreadFollowStateUseCase
 import com.wire.kalium.logic.feature.message.StartThreadFromMessageResult
 import com.wire.kalium.logic.feature.message.StartThreadFromMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
@@ -121,6 +125,8 @@ class ConversationMessagesViewModel(
     private val deleteMessage: DeleteMessageUseCase,
     private val startThreadFromMessageUseCase: StartThreadFromMessageUseCase,
     private val observeThreadSummariesForRoots: ObserveThreadSummariesForRootsUseCase,
+    private val observeThreadFollowStateUseCase: ObserveThreadFollowStateUseCase,
+    private val setThreadFollowState: SetThreadFollowStateUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
     private val networkStateObserver: NetworkStateObserver,
 ) : ViewModel() {
@@ -159,6 +165,7 @@ class ConversationMessagesViewModel(
         observeAssetStatuses()
         observeNetworkAvailability()
         observeThreadRootMessage()
+        observeThreadFollowState()
     }
 
     private fun observeNetworkAvailability() {
@@ -238,6 +245,31 @@ class ConversationMessagesViewModel(
 
             is StartThreadFromMessageResult.Failure -> {
                 appLogger.e("Failed to start thread from message. conversationId=$conversationId messageId=${message.header.messageId}")
+            }
+        }
+    }
+
+    fun toggleThreadFollowState() = viewModelScope.launch {
+        val threadId = threadIdNavArgs ?: return@launch
+        val isFollowing = !conversationViewState.isThreadFollowing
+        when (setThreadFollowState(conversationId, threadId, isFollowing)) {
+            is SetThreadFollowStateResult.Success -> {
+                conversationViewState = conversationViewState.copy(isThreadFollowing = isFollowing)
+            }
+
+            is SetThreadFollowStateResult.Failure -> {
+                appLogger.e("Failed to update thread follow state. conversationId=$conversationId threadId=$threadId")
+            }
+        }
+    }
+
+    private fun observeThreadFollowState() {
+        val threadId = threadIdNavArgs ?: return
+        viewModelScope.launch {
+            observeThreadFollowStateUseCase(conversationId, threadId).collect { result ->
+                if (result is ObserveThreadFollowStateResult.Success) {
+                    conversationViewState = conversationViewState.copy(isThreadFollowing = result.isFollowing)
+                }
             }
         }
     }

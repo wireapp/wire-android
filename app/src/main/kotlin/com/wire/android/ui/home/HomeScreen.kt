@@ -322,7 +322,8 @@ fun HomeContent(
                         onDrawerItemFocusRequested = ::requestDrawerItemFocus,
                         onNewConversationClick = onNewConversationClick,
                         onSelfUserClick = onSelfUserClick,
-                        onHamburgerMenuClick = ::openDrawer
+                        onHamburgerMenuClick = ::openDrawer,
+                        onSelectHomeListItem = ::openWireHomeDestination
                     )
                 )
             }

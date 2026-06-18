@@ -59,6 +59,7 @@ import com.wire.android.ui.common.CommonViewModelFactory
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
 import com.wire.android.ui.home.AppSyncViewModel
+import com.wire.android.ui.home.HomeListPillsViewModel
 import com.wire.android.ui.home.HomeManualViewModelFactory
 import com.wire.android.ui.home.HomeViewModel
 import com.wire.android.ui.home.HomeViewModelFactory
@@ -196,6 +197,12 @@ object WireMetroViewModelBindings {
     @ViewModelKey(GlobalThreadsViewModel::class)
     fun globalThreadsViewModel(factory: HomeViewModelFactory): ViewModel =
         factory.globalThreadsViewModel()
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(HomeListPillsViewModel::class)
+    fun homeListPillsViewModel(factory: HomeViewModelFactory): ViewModel =
+        factory.homeListPillsViewModel()
 
     @Provides
     @IntoMap

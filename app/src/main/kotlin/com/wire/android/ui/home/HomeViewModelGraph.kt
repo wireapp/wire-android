@@ -61,6 +61,10 @@ fun globalThreadsViewModel(): GlobalThreadsViewModel =
     sessionKeyedMetroViewModel()
 
 @Composable
+fun homeListPillsViewModel(): HomeListPillsViewModel =
+    sessionKeyedMetroViewModel()
+
+@Composable
 fun conversationListViewModel(conversationsSource: ConversationsSource): ConversationListViewModel = when {
     LocalInspectionMode.current -> ConversationListViewModelPreview()
     else -> sessionKeyedAssistedMetroViewModel<ConversationListViewModelImpl, HomeManualViewModelFactory>(

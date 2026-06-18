@@ -139,6 +139,11 @@ class HomeViewModelFactory @Inject constructor(
         uiTextResolver = uiTextResolver,
     )
 
+    fun homeListPillsViewModel() = HomeListPillsViewModel(
+        observeConversationListDetailsWithEvents = observeConversationListDetailsWithEvents,
+        dispatcher = dispatcher,
+    )
+
     fun conversationListViewModel(
         conversationsSource: ConversationsSource,
         usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,

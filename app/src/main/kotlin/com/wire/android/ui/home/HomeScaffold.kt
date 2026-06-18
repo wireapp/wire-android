@@ -33,6 +33,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -71,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.app.destinations.GlobalCellsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
@@ -139,6 +141,7 @@ internal data class HomeScaffoldActions(
     val onNewConversationClick: () -> Unit,
     val onSelfUserClick: () -> Unit,
     val onHamburgerMenuClick: () -> Unit,
+    val onSelectHomeListItem: (HomeDestination) -> Unit,
 )
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -170,7 +173,8 @@ internal fun HomeScaffold(
                 HomeSearchTopBar(
                     state = state,
                     searchFocusRequester = focusRequesters.search,
-                    fabFocusRequester = focusRequesters.fab
+                    fabFocusRequester = focusRequesters.fab,
+                    onSelectHomeListItem = actions.onSelectHomeListItem,
                 )
             },
             collapsingEnabled = !searchBarState.isSearchActive,
@@ -230,36 +234,55 @@ private fun HomeSearchTopBar(
     state: HomeScaffoldState,
     searchFocusRequester: FocusRequester,
     fabFocusRequester: FocusRequester,
+    onSelectHomeListItem: (HomeDestination) -> Unit,
 ) {
     with(state.holder) {
-        currentNavigationItem.searchBar?.let { searchBar ->
+        Column {
+            currentNavigationItem.searchBar?.let { searchBar ->
+                AnimatedVisibility(
+                    visible = searchBarState.isSearchVisible,
+                    enter = fadeIn() + slideInVertically(),
+                    exit = fadeOut() + slideOutVertically()
+                ) {
+                    SearchTopBar(
+                        isSearchActive = searchBarState.isSearchActive,
+                        searchBarHint = stringResource(searchBar.hint),
+                        searchQueryTextState = searchBarState.searchQueryTextState,
+                        onCloseSearchClicked = searchBarState::closeSearch,
+                        onActiveChanged = { isFocused ->
+                            if (isFocused) {
+                                searchBarState.openSearch()
+                            }
+                        },
+                        externalFocusRequester = searchFocusRequester,
+                        nextFocusRequester = when {
+                            searchBarState.isSearchActive -> emptySearchResultFocusRequester
+                            currentNavigationItem.fab != null -> fabFocusRequester
+                            else -> firstConversationFocusRequester
+                        },
+                        activateSearchOnFocus = false,
+                    )
+                }
+            }
+
+            val pillsVisible = currentNavigationItem in HOME_LIST_PILL_DESTINATIONS && !searchBarState.isSearchActive
             AnimatedVisibility(
-                visible = searchBarState.isSearchVisible,
-                enter = fadeIn() + slideInVertically(),
-                exit = fadeOut() + slideOutVertically()
+                visible = pillsVisible,
+                enter = fadeIn() + expandVertically(),
+                exit = shrinkVertically() + fadeOut(),
             ) {
-                SearchTopBar(
-                    isSearchActive = searchBarState.isSearchActive,
-                    searchBarHint = stringResource(searchBar.hint),
-                    searchQueryTextState = searchBarState.searchQueryTextState,
-                    onCloseSearchClicked = searchBarState::closeSearch,
-                    onActiveChanged = { isFocused ->
-                        if (isFocused) {
-                            searchBarState.openSearch()
-                        }
-                    },
-                    externalFocusRequester = searchFocusRequester,
-                    nextFocusRequester = when {
-                        searchBarState.isSearchActive -> emptySearchResultFocusRequester
-                        currentNavigationItem.fab != null -> fabFocusRequester
-                        else -> firstConversationFocusRequester
-                    },
-                    activateSearchOnFocus = false,
+                val newActivityCount by homeListPillsViewModel().newActivityCount.collectAsStateWithLifecycle()
+                HomeListFilterPills(
+                    currentDestination = currentNavigationItem,
+                    newActivityCount = newActivityCount,
+                    onSelect = onSelectHomeListItem,
                 )
             }
         }
     }
 }
+
+private val HOME_LIST_PILL_DESTINATIONS = setOf(HomeDestination.Conversations, HomeDestination.Threads)
 
 @Composable
 private fun HomeNavHost(state: HomeScaffoldState) {

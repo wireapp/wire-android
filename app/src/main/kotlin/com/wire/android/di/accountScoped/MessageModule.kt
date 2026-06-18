@@ -47,6 +47,8 @@ import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
+import com.wire.kalium.logic.feature.message.SearchMessagesGloballyUseCase
+import com.wire.kalium.logic.feature.message.SearchMessagesHybridGloballyUseCase
 import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
 import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
@@ -69,6 +71,7 @@ import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConvers
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 import com.wire.kalium.logic.feature.message.messageSemanticIndexer
 import com.wire.kalium.logic.feature.message.observePaginatedImageAssetMessageByConversationId
+import com.wire.kalium.logic.feature.message.searchMessagesHybridGlobally
 import com.wire.kalium.logic.feature.message.searchMessagesSemanticallyGlobally
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dev.zacsweers.metro.BindingContainer
@@ -112,6 +115,17 @@ class MessageModule {
         messageEmbeddingVectorIndex: MessageEmbeddingVectorIndex
     ): SearchMessagesSemanticallyGloballyUseCase =
         messageScope.searchMessagesSemanticallyGlobally(textEmbeddingModel, messageEmbeddingVectorIndex)
+
+    @Provides
+    fun provideSearchMessagesGloballyUseCase(messageScope: MessageScope): SearchMessagesGloballyUseCase =
+        messageScope.searchMessagesGlobally
+
+    @Provides
+    fun provideSearchMessagesHybridGloballyUseCase(
+        messageScope: MessageScope,
+        searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase
+    ): SearchMessagesHybridGloballyUseCase =
+        messageScope.searchMessagesHybridGlobally(searchMessagesSemanticallyGlobally)
 
     @Provides
     fun provideGetMessagesByConversationAndDateRangeUseCase(

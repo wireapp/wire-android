@@ -75,13 +75,12 @@ class IdentifyDiscussionTopicsFromSemanticSearchUseCase @Inject constructor(
     private suspend fun SearchHitCluster.toContext(): DiscussionClusterContext? {
         val hitRangeStart = messages.minOf { it.date }
         val hitRangeEnd = messages.maxOf { it.date }
-        val contextRangeStart = hitRangeStart.minus(CONTEXT_WINDOW)
         val contextRangeEnd = hitRangeEnd.plus(CONTEXT_WINDOW)
 
         val contextMessages = when (
             val result = getMessagesByConversationAndDateRange(
                 conversationId = conversationId,
-                fromInclusive = contextRangeStart,
+                fromInclusive = hitRangeStart,
                 toInclusive = contextRangeEnd
             )
         ) {

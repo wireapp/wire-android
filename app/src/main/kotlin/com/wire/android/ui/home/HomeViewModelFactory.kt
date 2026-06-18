@@ -53,7 +53,7 @@ import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegul
 import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
-import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
+import com.wire.kalium.logic.feature.message.SearchMessagesHybridGloballyUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
@@ -85,7 +85,7 @@ class HomeViewModelFactory @Inject constructor(
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val disableAppLockUseCase: Lazy<DisableAppLockUseCase>,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
-    private val searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase,
+    private val searchMessagesHybridGlobally: SearchMessagesHybridGloballyUseCase,
     private val identifyDiscussionTopicsFromSemanticSearch: IdentifyDiscussionTopicsFromSemanticSearchUseCase,
     private val getUsersForMessage: GetUsersForMessageUseCase,
     private val messageMapper: MessageMapper,
@@ -138,7 +138,7 @@ class HomeViewModelFactory @Inject constructor(
     )
 
     fun searchResultsViewModel() = SearchResultsViewModel(
-        searchMessagesSemanticallyGlobally = searchMessagesSemanticallyGlobally,
+        searchMessagesHybridGlobally = searchMessagesHybridGlobally,
         identifyDiscussionTopicsFromSemanticSearch = identifyDiscussionTopicsFromSemanticSearch,
         getUsersForMessage = getUsersForMessage,
         messageMapper = messageMapper,

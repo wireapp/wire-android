@@ -28,7 +28,8 @@ import com.wire.android.ui.home.conversations.usecase.GetUsersForMessageUseCase
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
+import com.wire.kalium.logic.feature.message.SearchMessagesHybridGloballyUseCase
+import com.wire.kalium.logic.feature.message.SearchQueryType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +41,7 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 
 class SearchResultsViewModel(
-    private val searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase,
+    private val searchMessagesHybridGlobally: SearchMessagesHybridGloballyUseCase,
     private val identifyDiscussionTopicsFromSemanticSearch: IdentifyDiscussionTopicsFromSemanticSearchUseCase,
     private val getUsersForMessage: GetUsersForMessageUseCase,
     private val messageMapper: MessageMapper,
@@ -90,9 +91,11 @@ class SearchResultsViewModel(
     private suspend fun searchMessages(query: String, generation: Int): MessagesSearchState {
         _messagesSearchState.value = MessagesSearchState.Loading
         _discussionsSearchState.value = DiscussionsSearchState.Loading
-        return when (val result = searchMessagesSemanticallyGlobally(query)) {
-            is SearchMessagesSemanticallyGloballyUseCase.Result.Success -> {
+        return when (val result = searchMessagesHybridGlobally(query)) {
+            is SearchMessagesHybridGloballyUseCase.Result.Success -> {
                 if (result.messages.isEmpty()) {
+                    _discussionsSearchState.value = DiscussionsSearchState.NoResults
+                } else if (result.queryType == SearchQueryType.IdentifierLike) {
                     _discussionsSearchState.value = DiscussionsSearchState.NoResults
                 } else {
                     identifyDiscussionTopics(result.messages, generation)
@@ -105,7 +108,7 @@ class SearchResultsViewModel(
                 }
             }
 
-            is SearchMessagesSemanticallyGloballyUseCase.Result.Failure -> {
+            is SearchMessagesHybridGloballyUseCase.Result.Failure -> {
                 _discussionsSearchState.value = DiscussionsSearchState.NoResults
                 MessagesSearchState.Failure
             }

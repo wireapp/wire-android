@@ -31,7 +31,8 @@ import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.User
-import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
+import com.wire.kalium.logic.feature.message.SearchMessagesHybridGloballyUseCase
+import com.wire.kalium.logic.feature.message.SearchQueryType
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -65,30 +66,30 @@ class SearchResultsViewModelTest {
 
         assertEquals(MessagesSearchState.EmptyQuery, viewModel.messagesSearchState.value)
         assertEquals(DiscussionsSearchState.EmptyQuery, viewModel.discussionsSearchState.value)
-        coVerify(exactly = 0) { arrangement.searchMessagesSemanticallyGlobally(any(), any()) }
+        coVerify(exactly = 0) { arrangement.searchMessagesHybridGlobally(any(), any()) }
         coVerify(exactly = 0) { arrangement.identifyDiscussionTopicsFromSemanticSearch(any()) }
     }
 
     @Test
-    fun givenSearchQuery_whenDebouncePasses_thenSemanticSearchIsCalledWithQuery() = runTest {
+    fun givenSearchQuery_whenDebouncePasses_thenHybridSearchIsCalledWithQuery() = runTest {
         val searchQuery = "invoice from alice"
         val (arrangement, viewModel) = Arrangement()
-            .withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(emptyList()))
+            .withHybridSearchResult(SearchMessagesHybridGloballyUseCase.Result.Success(emptyList(), SearchQueryType.NaturalLanguage))
             .arrange()
 
         viewModel.onSearchQueryChanged(searchQuery)
         advanceDebounce()
 
-        coVerify(exactly = 1) { arrangement.searchMessagesSemanticallyGlobally(searchQuery, any()) }
+        coVerify(exactly = 1) { arrangement.searchMessagesHybridGlobally(searchQuery, any()) }
     }
 
     @Test
-    fun givenSemanticSearchSuccess_whenMessagesAreReturned_thenMessagesAreMappedToUiState() = runTest {
+    fun givenHybridSearchSuccess_whenMessagesAreReturned_thenMessagesAreMappedToUiState() = runTest {
         val message = TestMessage.TEXT_MESSAGE
         val uiMessage = mockMessageWithText
         val users = emptyList<User>()
         val (arrangement, viewModel) = Arrangement()
-            .withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(message)))
+            .withHybridSearchResult(SearchMessagesHybridGloballyUseCase.Result.Success(listOf(message), SearchQueryType.NaturalLanguage))
             .withUsersForMessage(message, users)
             .withMappedMessage(users, message, uiMessage)
             .arrange()
@@ -102,12 +103,12 @@ class SearchResultsViewModelTest {
     }
 
     @Test
-    fun givenSemanticSearchSuccess_whenDiscussionTopicsAreReturned_thenDiscussionsStateIsSuccess() = runTest {
+    fun givenHybridSearchSuccess_whenDiscussionTopicsAreReturned_thenDiscussionsStateIsSuccess() = runTest {
         val message = TestMessage.TEXT_MESSAGE
         val discussion = discussionSummary(topic = "Release planning")
         val users = emptyList<User>()
         val (arrangement, viewModel) = Arrangement()
-            .withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(message)))
+            .withHybridSearchResult(SearchMessagesHybridGloballyUseCase.Result.Success(listOf(message), SearchQueryType.NaturalLanguage))
             .withDiscussionTopicsResult(listOf(message), listOf(discussion))
             .withUsersForMessage(message, users)
             .withMappedMessage(users, message, mockMessageWithText)
@@ -121,13 +122,33 @@ class SearchResultsViewModelTest {
     }
 
     @Test
+    fun givenIdentifierLikeSearchSuccess_whenMessagesAreReturned_thenDiscussionTopicsAreNotGenerated() = runTest {
+        val message = TestMessage.TEXT_MESSAGE
+        val uiMessage = mockMessageWithText
+        val users = emptyList<User>()
+        val (arrangement, viewModel) = Arrangement()
+            .withHybridSearchResult(SearchMessagesHybridGloballyUseCase.Result.Success(listOf(message), SearchQueryType.IdentifierLike))
+            .withUsersForMessage(message, users)
+            .withMappedMessage(users, message, uiMessage)
+            .arrange()
+
+        viewModel.onSearchQueryChanged("WPB-25889")
+        advanceDebounce()
+
+        val state = assertIs<MessagesSearchState.Success>(viewModel.messagesSearchState.value)
+        assertEquals(listOf(uiMessage), state.messages)
+        assertEquals(DiscussionsSearchState.NoResults, viewModel.discussionsSearchState.value)
+        coVerify(exactly = 0) { arrangement.identifyDiscussionTopicsFromSemanticSearch(any()) }
+    }
+
+    @Test
     fun givenTopicGenerationIsRunning_whenDiscussionMetadataIsReady_thenAllRowsAreShownWithoutTopics() = runTest {
         val message = TestMessage.TEXT_MESSAGE
         val pendingDiscussion = discussionSummary(topic = null)
         val completedDiscussion = pendingDiscussion.copy(topic = "Release planning")
         val users = emptyList<User>()
         val (arrangement, viewModel) = Arrangement()
-            .withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(message)))
+            .withHybridSearchResult(SearchMessagesHybridGloballyUseCase.Result.Success(listOf(message), SearchQueryType.NaturalLanguage))
             .withIncrementalDiscussionTopicsResult(
                 messages = listOf(message),
                 initial = listOf(pendingDiscussion),
@@ -151,11 +172,11 @@ class SearchResultsViewModelTest {
     }
 
     @Test
-    fun givenSemanticSearchSuccess_whenNoDiscussionTopicsAreReturned_thenDiscussionsStateIsNoResults() = runTest {
+    fun givenHybridSearchSuccess_whenNoDiscussionTopicsAreReturned_thenDiscussionsStateIsNoResults() = runTest {
         val message = TestMessage.TEXT_MESSAGE
         val users = emptyList<User>()
         val (arrangement, viewModel) = Arrangement()
-            .withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(message)))
+            .withHybridSearchResult(SearchMessagesHybridGloballyUseCase.Result.Success(listOf(message), SearchQueryType.NaturalLanguage))
             .withDiscussionTopicsResult(listOf(message), emptyList())
             .withUsersForMessage(message, users)
             .withMappedMessage(users, message, mockMessageWithText)
@@ -168,9 +189,9 @@ class SearchResultsViewModelTest {
     }
 
     @Test
-    fun givenSemanticSearchSuccessWithNoMessages_whenSearchCompletes_thenStateIsNoResults() = runTest {
+    fun givenHybridSearchSuccessWithNoMessages_whenSearchCompletes_thenStateIsNoResults() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(emptyList()))
+            .withHybridSearchResult(SearchMessagesHybridGloballyUseCase.Result.Success(emptyList(), SearchQueryType.NaturalLanguage))
             .arrange()
 
         viewModel.onSearchQueryChanged("hello")
@@ -182,10 +203,10 @@ class SearchResultsViewModelTest {
     }
 
     @Test
-    fun givenSemanticSearchFailure_whenSearchCompletes_thenStateIsFailure() = runTest {
+    fun givenHybridSearchFailure_whenSearchCompletes_thenStateIsFailure() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withSemanticSearchResult(
-                SearchMessagesSemanticallyGloballyUseCase.Result.Failure(CoreFailure.Unknown(null))
+            .withHybridSearchResult(
+                SearchMessagesHybridGloballyUseCase.Result.Failure(CoreFailure.Unknown(null))
             )
             .arrange()
 
@@ -205,8 +226,8 @@ class SearchResultsViewModelTest {
         val secondMessage = TestMessage.TEXT_MESSAGE.copy(id = "second-message")
         val users = emptyList<User>()
         val (arrangement, viewModel) = Arrangement()
-            .withSemanticSearchResult(firstQuery, SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(firstMessage)))
-            .withSemanticSearchResult(secondQuery, SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(secondMessage)))
+            .withHybridSearchResult(firstQuery, SearchMessagesHybridGloballyUseCase.Result.Success(listOf(firstMessage), SearchQueryType.NaturalLanguage))
+            .withHybridSearchResult(secondQuery, SearchMessagesHybridGloballyUseCase.Result.Success(listOf(secondMessage), SearchQueryType.NaturalLanguage))
             .withUsersForMessage(secondMessage, users)
             .withMappedMessage(users, secondMessage, mockMessageWithText)
             .arrange()
@@ -216,8 +237,8 @@ class SearchResultsViewModelTest {
         viewModel.onSearchQueryChanged(secondQuery)
         advanceDebounce()
 
-        coVerify(exactly = 0) { arrangement.searchMessagesSemanticallyGlobally(firstQuery, any()) }
-        coVerify(exactly = 1) { arrangement.searchMessagesSemanticallyGlobally(secondQuery, any()) }
+        coVerify(exactly = 0) { arrangement.searchMessagesHybridGlobally(firstQuery, any()) }
+        coVerify(exactly = 1) { arrangement.searchMessagesHybridGlobally(secondQuery, any()) }
         assertIs<MessagesSearchState.Success>(viewModel.messagesSearchState.value)
     }
 
@@ -230,8 +251,8 @@ class SearchResultsViewModelTest {
         val users = emptyList<User>()
         val secondUiMessage = mockMessageWithText.copy(header = mockMessageWithText.header.copy(messageId = "second-message"))
         val (arrangement, viewModel) = Arrangement()
-            .withDelayedSemanticSearchResult(firstQuery, SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(firstMessage)))
-            .withSemanticSearchResult(secondQuery, SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(secondMessage)))
+            .withDelayedHybridSearchResult(firstQuery, SearchMessagesHybridGloballyUseCase.Result.Success(listOf(firstMessage), SearchQueryType.NaturalLanguage))
+            .withHybridSearchResult(secondQuery, SearchMessagesHybridGloballyUseCase.Result.Success(listOf(secondMessage), SearchQueryType.NaturalLanguage))
             .withUsersForMessage(secondMessage, users)
             .withMappedMessage(users, secondMessage, secondUiMessage)
             .arrange()
@@ -257,8 +278,8 @@ class SearchResultsViewModelTest {
         val secondDiscussion = discussionSummary(topic = "Second topic")
         val secondUiMessage = mockMessageWithText.copy(header = mockMessageWithText.header.copy(messageId = "second-message"))
         val (arrangement, viewModel) = Arrangement()
-            .withSemanticSearchResult(firstQuery, SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(firstMessage)))
-            .withSemanticSearchResult(secondQuery, SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(secondMessage)))
+            .withHybridSearchResult(firstQuery, SearchMessagesHybridGloballyUseCase.Result.Success(listOf(firstMessage), SearchQueryType.NaturalLanguage))
+            .withHybridSearchResult(secondQuery, SearchMessagesHybridGloballyUseCase.Result.Success(listOf(secondMessage), SearchQueryType.NaturalLanguage))
             .withDelayedDiscussionTopicsResult(listOf(firstMessage), listOf(firstDiscussion))
             .withDiscussionTopicsResult(listOf(secondMessage), listOf(secondDiscussion))
             .withUsersForMessage(firstMessage, users)
@@ -295,7 +316,7 @@ class SearchResultsViewModelTest {
 
     private class Arrangement {
         @MockK
-        lateinit var searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase
+        lateinit var searchMessagesHybridGlobally: SearchMessagesHybridGloballyUseCase
 
         @MockK
         lateinit var identifyDiscussionTopicsFromSemanticSearch: IdentifyDiscussionTopicsFromSemanticSearchUseCase
@@ -308,29 +329,29 @@ class SearchResultsViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { searchMessagesSemanticallyGlobally(any(), any()) } returns
-                    SearchMessagesSemanticallyGloballyUseCase.Result.Success(emptyList())
+            coEvery { searchMessagesHybridGlobally(any(), any()) } returns
+                    SearchMessagesHybridGloballyUseCase.Result.Success(emptyList(), SearchQueryType.NaturalLanguage)
             every { identifyDiscussionTopicsFromSemanticSearch(any()) } returns flowOf(emptyList())
             coEvery { getUsersForMessage(any()) } returns emptyList()
             every { messageMapper.toUIMessage(any(), any()) } returns null
         }
 
-        fun withSemanticSearchResult(result: SearchMessagesSemanticallyGloballyUseCase.Result) = apply {
-            coEvery { searchMessagesSemanticallyGlobally(any(), any()) } returns result
+        fun withHybridSearchResult(result: SearchMessagesHybridGloballyUseCase.Result) = apply {
+            coEvery { searchMessagesHybridGlobally(any(), any()) } returns result
         }
 
-        fun withSemanticSearchResult(
+        fun withHybridSearchResult(
             searchQuery: String,
-            result: SearchMessagesSemanticallyGloballyUseCase.Result
+            result: SearchMessagesHybridGloballyUseCase.Result
         ) = apply {
-            coEvery { searchMessagesSemanticallyGlobally(searchQuery, any()) } returns result
+            coEvery { searchMessagesHybridGlobally(searchQuery, any()) } returns result
         }
 
-        fun withDelayedSemanticSearchResult(
+        fun withDelayedHybridSearchResult(
             searchQuery: String,
-            result: SearchMessagesSemanticallyGloballyUseCase.Result
+            result: SearchMessagesHybridGloballyUseCase.Result
         ) = apply {
-            coEvery { searchMessagesSemanticallyGlobally(searchQuery, any()) } coAnswers {
+            coEvery { searchMessagesHybridGlobally(searchQuery, any()) } coAnswers {
                 delay(DEFAULT_SEARCH_QUERY_DEBOUNCE * 2)
                 result
             }
@@ -375,7 +396,7 @@ class SearchResultsViewModelTest {
         }
 
         fun arrange() = this to SearchResultsViewModel(
-            searchMessagesSemanticallyGlobally = searchMessagesSemanticallyGlobally,
+            searchMessagesHybridGlobally = searchMessagesHybridGlobally,
             identifyDiscussionTopicsFromSemanticSearch = identifyDiscussionTopicsFromSemanticSearch,
             getUsersForMessage = getUsersForMessage,
             messageMapper = messageMapper,

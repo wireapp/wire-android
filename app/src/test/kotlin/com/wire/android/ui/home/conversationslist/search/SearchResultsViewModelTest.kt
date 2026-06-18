@@ -43,6 +43,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.TestScope
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -60,6 +61,7 @@ class SearchResultsViewModelTest {
         advanceUntilIdle()
 
         assertEquals(MessagesSearchState.EmptyQuery, viewModel.messagesSearchState.value)
+        assertEquals(DiscussionsSearchState.EmptyQuery, viewModel.discussionsSearchState.value)
         coVerify(exactly = 0) { arrangement.searchMessagesSemanticallyGlobally(any(), any()) }
         coVerify(exactly = 0) { arrangement.identifyDiscussionTopicsFromSemanticSearch(any()) }
     }
@@ -97,6 +99,42 @@ class SearchResultsViewModelTest {
     }
 
     @Test
+    fun givenSemanticSearchSuccess_whenDiscussionTopicsAreReturned_thenDiscussionsStateIsSuccess() = runTest {
+        val message = TestMessage.TEXT_MESSAGE
+        val discussion = discussionSummary(topic = "Release planning")
+        val users = emptyList<User>()
+        val (arrangement, viewModel) = Arrangement()
+            .withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(message)))
+            .withDiscussionTopicsResult(listOf(message), listOf(discussion))
+            .withUsersForMessage(message, users)
+            .withMappedMessage(users, message, mockMessageWithText)
+            .arrange()
+
+        viewModel.onSearchQueryChanged("release")
+        advanceDebounce()
+
+        val state = assertIs<DiscussionsSearchState.Success>(viewModel.discussionsSearchState.value)
+        assertEquals(listOf(discussion), state.discussions)
+    }
+
+    @Test
+    fun givenSemanticSearchSuccess_whenNoDiscussionTopicsAreReturned_thenDiscussionsStateIsNoResults() = runTest {
+        val message = TestMessage.TEXT_MESSAGE
+        val users = emptyList<User>()
+        val (arrangement, viewModel) = Arrangement()
+            .withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(message)))
+            .withDiscussionTopicsResult(listOf(message), emptyList())
+            .withUsersForMessage(message, users)
+            .withMappedMessage(users, message, mockMessageWithText)
+            .arrange()
+
+        viewModel.onSearchQueryChanged("release")
+        advanceDebounce()
+
+        assertEquals(DiscussionsSearchState.NoResults, viewModel.discussionsSearchState.value)
+    }
+
+    @Test
     fun givenSemanticSearchSuccessWithNoMessages_whenSearchCompletes_thenStateIsNoResults() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(emptyList()))
@@ -106,6 +144,7 @@ class SearchResultsViewModelTest {
         advanceDebounce()
 
         assertEquals(MessagesSearchState.NoResults, viewModel.messagesSearchState.value)
+        assertEquals(DiscussionsSearchState.NoResults, viewModel.discussionsSearchState.value)
         coVerify(exactly = 0) { arrangement.identifyDiscussionTopicsFromSemanticSearch(any()) }
     }
 
@@ -121,6 +160,7 @@ class SearchResultsViewModelTest {
         advanceDebounce()
 
         assertEquals(MessagesSearchState.Failure, viewModel.messagesSearchState.value)
+        assertEquals(DiscussionsSearchState.NoResults, viewModel.discussionsSearchState.value)
         coVerify(exactly = 0) { arrangement.identifyDiscussionTopicsFromSemanticSearch(any()) }
     }
 
@@ -173,11 +213,50 @@ class SearchResultsViewModelTest {
         assertEquals(listOf(secondUiMessage), state.messages)
     }
 
+    @Test
+    fun givenPreviousDiscussionTopicSearchIsRunning_whenNewQueryStarts_thenLatestDiscussionResultWins() = runTest {
+        val firstQuery = "first"
+        val secondQuery = "second"
+        val firstMessage = TestMessage.TEXT_MESSAGE.copy(id = "first-message")
+        val secondMessage = TestMessage.TEXT_MESSAGE.copy(id = "second-message")
+        val users = emptyList<User>()
+        val firstDiscussion = discussionSummary(topic = "First topic")
+        val secondDiscussion = discussionSummary(topic = "Second topic")
+        val secondUiMessage = mockMessageWithText.copy(header = mockMessageWithText.header.copy(messageId = "second-message"))
+        val (arrangement, viewModel) = Arrangement()
+            .withSemanticSearchResult(firstQuery, SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(firstMessage)))
+            .withSemanticSearchResult(secondQuery, SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(secondMessage)))
+            .withDelayedDiscussionTopicsResult(listOf(firstMessage), listOf(firstDiscussion))
+            .withDiscussionTopicsResult(listOf(secondMessage), listOf(secondDiscussion))
+            .withUsersForMessage(firstMessage, users)
+            .withUsersForMessage(secondMessage, users)
+            .withMappedMessage(users, firstMessage, mockMessageWithText)
+            .withMappedMessage(users, secondMessage, secondUiMessage)
+            .arrange()
+
+        viewModel.onSearchQueryChanged(firstQuery)
+        advanceTimeBy(DEFAULT_SEARCH_QUERY_DEBOUNCE)
+        runCurrent()
+        viewModel.onSearchQueryChanged(secondQuery)
+        advanceDebounce()
+
+        val state = assertIs<DiscussionsSearchState.Success>(viewModel.discussionsSearchState.value)
+        assertEquals(listOf(secondDiscussion), state.discussions)
+    }
+
     private fun TestScope.advanceDebounce() {
         advanceTimeBy(DEFAULT_SEARCH_QUERY_DEBOUNCE)
         runCurrent()
         advanceUntilIdle()
     }
+
+    private fun discussionSummary(topic: String) = DiscussionClusterSummary(
+        topic = topic,
+        conversationName = "Project Alpha",
+        firstMessageDate = Instant.parse("2026-01-01T10:00:00Z"),
+        lastMessageDate = Instant.parse("2026-01-01T11:00:00Z"),
+        participants = listOf("Alice", "Bob")
+    )
 
     private class Arrangement {
         @MockK
@@ -217,6 +296,23 @@ class SearchResultsViewModelTest {
             result: SearchMessagesSemanticallyGloballyUseCase.Result
         ) = apply {
             coEvery { searchMessagesSemanticallyGlobally(searchQuery, any()) } coAnswers {
+                delay(DEFAULT_SEARCH_QUERY_DEBOUNCE * 2)
+                result
+            }
+        }
+
+        fun withDiscussionTopicsResult(
+            messages: List<Message.Standalone>,
+            result: List<DiscussionClusterSummary>
+        ) = apply {
+            coEvery { identifyDiscussionTopicsFromSemanticSearch(messages) } returns result
+        }
+
+        fun withDelayedDiscussionTopicsResult(
+            messages: List<Message.Standalone>,
+            result: List<DiscussionClusterSummary>
+        ) = apply {
+            coEvery { identifyDiscussionTopicsFromSemanticSearch(messages) } coAnswers {
                 delay(DEFAULT_SEARCH_QUERY_DEBOUNCE * 2)
                 result
             }

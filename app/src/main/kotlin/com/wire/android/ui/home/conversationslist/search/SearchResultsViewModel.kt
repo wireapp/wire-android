@@ -30,6 +30,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
@@ -51,6 +52,12 @@ class SearchResultsViewModel(
     private val _messagesSearchState = MutableStateFlow<MessagesSearchState>(MessagesSearchState.EmptyQuery)
     val messagesSearchState = _messagesSearchState.asStateFlow()
 
+    private val _discussionsSearchState = MutableStateFlow<DiscussionsSearchState>(DiscussionsSearchState.EmptyQuery)
+    val discussionsSearchState = _discussionsSearchState.asStateFlow()
+
+    private var discussionTopicsJob: Job? = null
+    private var searchGeneration = 0
+
     init {
         observeSearchQuery()
     }
@@ -66,10 +73,13 @@ class SearchResultsViewModel(
                 .debounce { if (it.isBlank()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
                 .distinctUntilChanged()
                 .mapLatest { query ->
+                    val generation = ++searchGeneration
+                    discussionTopicsJob?.cancel()
                     if (query.isBlank()) {
+                        _discussionsSearchState.value = DiscussionsSearchState.EmptyQuery
                         MessagesSearchState.EmptyQuery
                     } else {
-                        searchMessages(query)
+                        searchMessages(query, generation)
                     }
                 }
                 .flowOn(dispatcher.io())
@@ -77,11 +87,16 @@ class SearchResultsViewModel(
         }
     }
 
-    private suspend fun searchMessages(query: String): MessagesSearchState {
+    private suspend fun searchMessages(query: String, generation: Int): MessagesSearchState {
         _messagesSearchState.value = MessagesSearchState.Loading
+        _discussionsSearchState.value = DiscussionsSearchState.Loading
         return when (val result = searchMessagesSemanticallyGlobally(query)) {
             is SearchMessagesSemanticallyGloballyUseCase.Result.Success -> {
-                identifyDiscussionTopics(result.messages)
+                if (result.messages.isEmpty()) {
+                    _discussionsSearchState.value = DiscussionsSearchState.NoResults
+                } else {
+                    identifyDiscussionTopics(result.messages, generation)
+                }
                 val messages = result.messages.mapNotNull { it.toUIMessage() }
                 if (messages.isEmpty()) {
                     MessagesSearchState.NoResults
@@ -90,18 +105,30 @@ class SearchResultsViewModel(
                 }
             }
 
-            is SearchMessagesSemanticallyGloballyUseCase.Result.Failure -> MessagesSearchState.Failure
+            is SearchMessagesSemanticallyGloballyUseCase.Result.Failure -> {
+                _discussionsSearchState.value = DiscussionsSearchState.NoResults
+                MessagesSearchState.Failure
+            }
         }
     }
 
-    private fun identifyDiscussionTopics(messages: List<Message.Standalone>) {
-        if (messages.isEmpty()) return
-
-        viewModelScope.launch(dispatcher.io()) {
+    private fun identifyDiscussionTopics(messages: List<Message.Standalone>, generation: Int) {
+        discussionTopicsJob = viewModelScope.launch(dispatcher.io()) {
             runCatching {
                 identifyDiscussionTopicsFromSemanticSearch(messages)
+            }.onSuccess { discussions ->
+                if (generation == searchGeneration) {
+                    _discussionsSearchState.value = if (discussions.isEmpty()) {
+                        DiscussionsSearchState.NoResults
+                    } else {
+                        DiscussionsSearchState.Success(discussions)
+                    }
+                }
             }.onFailure { throwable ->
                 appLogger.w("SemanticSearchDiscussionTopic: failed to identify discussion topics", throwable)
+                if (generation == searchGeneration) {
+                    _discussionsSearchState.value = DiscussionsSearchState.NoResults
+                }
             }
         }
     }

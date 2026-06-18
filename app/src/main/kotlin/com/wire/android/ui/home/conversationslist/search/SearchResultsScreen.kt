@@ -74,6 +74,10 @@ fun SearchResultsScreen(
         ?.messagesSearchState
         ?.collectAsStateWithLifecycle()
         ?: mutableStateOf(MessagesSearchState.EmptyQuery)
+    val discussionsSearchState by viewModel
+        ?.discussionsSearchState
+        ?.collectAsStateWithLifecycle()
+        ?: mutableStateOf(DiscussionsSearchState.EmptyQuery)
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {
         viewModel?.onSearchQueryChanged(searchBarState.searchQueryTextState.text.toString())
@@ -112,6 +116,11 @@ fun SearchResultsScreen(
                 },
                 modifier = Modifier.weight(1f)
             )
+
+            SearchResultsTab.DISCUSSIONS -> DiscussionsSearchResults(
+                state = discussionsSearchState,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }
@@ -128,7 +137,8 @@ internal fun UIMessage.toConversationNavigationCommand() = NavigationCommand(
 
 private enum class SearchResultsTab(@StringRes val titleResId: Int) : TabItem {
     CONVERSATIONS(R.string.conversations_screen_title),
-    MESSAGES(R.string.search_results_messages_tab_title);
+    MESSAGES(R.string.search_results_messages_tab_title),
+    DISCUSSIONS(R.string.search_results_discussions_tab_title);
 
     override val title: UIText = UIText.StringResource(titleResId)
 }

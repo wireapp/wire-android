@@ -1,0 +1,94 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:8704084930301593489",
+      "lastPropertyId": "11:8951032832698212656",
+      "name": "MessageEmbeddingVectorEntity",
+      "properties": [
+        {
+          "id": "1:1707841069417308935",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:5535378867794934323",
+          "name": "key",
+          "indexId": "1:7303677793933726892",
+          "type": 9,
+          "flags": 2080
+        },
+        {
+          "id": "3:3268535418839747249",
+          "name": "messageId",
+          "indexId": "2:6025540776756047477",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "4:4690365563510124764",
+          "name": "conversationIdValue",
+          "indexId": "3:1353439608380104613",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "5:8400483099186504619",
+          "name": "conversationIdDomain",
+          "indexId": "4:4343725996115784725",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "6:6653174280616294546",
+          "name": "embeddingModel",
+          "indexId": "5:2606039600709963066",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "7:5670484666558222283",
+          "name": "chunkIndex",
+          "type": 5
+        },
+        {
+          "id": "8:8568102302067841784",
+          "name": "chunkCount",
+          "type": 5
+        },
+        {
+          "id": "9:5586242385778317036",
+          "name": "sourceTextHash",
+          "type": 9
+        },
+        {
+          "id": "10:3415761533382754341",
+          "name": "createdAt",
+          "type": 6
+        },
+        {
+          "id": "11:8951032832698212656",
+          "name": "embedding",
+          "indexId": "6:4398269886832081566",
+          "type": 28,
+          "flags": 8
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "1:8704084930301593489",
+  "lastIndexId": "6:4398269886832081566",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}

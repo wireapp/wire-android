@@ -37,12 +37,17 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.openAppPendingIntent
+import com.wire.android.vectorsearch.ObjectBoxMessageEmbeddingVectorIndexFactory
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.message.TextEmbeddingModel
+import com.wire.kalium.logic.feature.message.MessageEmbeddingVectorIndex
+import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCase
 import com.wire.kalium.logic.feature.message.embedding.CreateEmbeddingsForExistingMessagesUseCaseImpl
+import com.wire.kalium.logic.feature.message.embedding.ImportMessageEmbeddingsToVectorIndexUseCase
+import com.wire.kalium.logic.feature.message.importMessageEmbeddingsToVectorIndex
 import com.wire.kalium.logic.feature.message.messageSemanticIndexer
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
@@ -61,55 +66,106 @@ class CreateMessageEmbeddingsWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val coreLogic: CoreLogic,
     private val textEmbeddingModel: TextEmbeddingModel,
+    private val messageEmbeddingVectorIndexFactory: ObjectBoxMessageEmbeddingVectorIndexFactory,
     private val notificationChannelsManager: NotificationChannelsManager,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         val userIdString = inputData.getString(USER_ID_KEY) ?: return Result.failure()
         val userId = QualifiedIdMapper(null).fromStringToQualifiedID(userIdString)
+        val operation = inputData.getString(OPERATION_KEY)
+            ?.let(EmbeddingWorkOperation::valueOf)
+            ?: EmbeddingWorkOperation.CREATE
 
-        setForeground(createForegroundInfo(progress = null))
+        setForeground(createForegroundInfo(operation = operation, processedMessages = 0, totalMessages = 0))
 
-        val useCase = CreateEmbeddingsForExistingMessagesUseCaseImpl(
-            messageSemanticIndexer = coreLogic.getSessionScope(userId)
-                .messages
-                .messageSemanticIndexer(textEmbeddingModel),
-            modelId = textEmbeddingModel.modelId
-        )
+        val messageScope = coreLogic.getSessionScope(userId).messages
+        val vectorIndex = messageEmbeddingVectorIndexFactory.create(userId)
 
-        return when (val result = useCase(::updateProgress)) {
-            is CreateEmbeddingsForExistingMessagesUseCase.Result.Success ->
-                Result.success(result.toOutputData(totalMessages = lastProgress?.totalMessages ?: result.processedMessages))
-
-            is CreateEmbeddingsForExistingMessagesUseCase.Result.Failure ->
-                Result.failure(workDataOf(FAILURE_CAUSE_KEY to result.cause.toString()))
+        return when (operation) {
+            EmbeddingWorkOperation.CREATE -> runCreateOperation(messageScope, vectorIndex)
+            EmbeddingWorkOperation.IMPORT_SQL_VECTORS -> runImportOperation(messageScope, vectorIndex)
         }
     }
 
-    override suspend fun getForegroundInfo(): ForegroundInfo = createForegroundInfo(progress = null)
-
-    private var lastProgress: CreateEmbeddingsForExistingMessagesUseCase.Progress? = null
-
-    private suspend fun updateProgress(progress: CreateEmbeddingsForExistingMessagesUseCase.Progress) {
-        lastProgress = progress
-        setProgress(progress.toData())
-        setForeground(createForegroundInfo(progress))
+    private suspend fun runCreateOperation(
+        messageScope: MessageScope,
+        vectorIndex: MessageEmbeddingVectorIndex
+    ): Result {
+        val useCase = CreateEmbeddingsForExistingMessagesUseCaseImpl(
+            messageSemanticIndexer = messageScope.messageSemanticIndexer(textEmbeddingModel, vectorIndex),
+            modelId = textEmbeddingModel.modelId
+        )
+        return when (val result = useCase(::updateCreateProgress)) {
+            is CreateEmbeddingsForExistingMessagesUseCase.Result.Success -> Result.success(
+                result.toOutputData(totalMessages = lastTotalMessages ?: result.processedMessages)
+            )
+            is CreateEmbeddingsForExistingMessagesUseCase.Result.Failure ->
+                Result.failure(failureData(EmbeddingWorkOperation.CREATE, result.cause.toString()))
+        }
     }
 
-    private fun createForegroundInfo(progress: CreateEmbeddingsForExistingMessagesUseCase.Progress?): ForegroundInfo {
+    private suspend fun runImportOperation(
+        messageScope: MessageScope,
+        vectorIndex: MessageEmbeddingVectorIndex
+    ): Result {
+        val useCase = messageScope.importMessageEmbeddingsToVectorIndex(textEmbeddingModel, vectorIndex)
+        return when (val result = useCase(::updateImportProgress)) {
+            is ImportMessageEmbeddingsToVectorIndexUseCase.Result.Success -> Result.success(
+                result.toOutputData(totalMessages = lastTotalMessages ?: result.processedMessages)
+            )
+            is ImportMessageEmbeddingsToVectorIndexUseCase.Result.Failure ->
+                Result.failure(failureData(EmbeddingWorkOperation.IMPORT_SQL_VECTORS, result.cause.toString()))
+        }
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo = createForegroundInfo()
+
+    private var lastTotalMessages: Int? = null
+
+    private suspend fun updateCreateProgress(progress: CreateEmbeddingsForExistingMessagesUseCase.Progress) {
+        lastTotalMessages = progress.totalMessages
+        setProgress(progress.toData())
+        setForeground(createForegroundInfo(EmbeddingWorkOperation.CREATE, progress.processedMessages, progress.totalMessages))
+    }
+
+    private suspend fun updateImportProgress(progress: ImportMessageEmbeddingsToVectorIndexUseCase.Progress) {
+        lastTotalMessages = progress.totalMessages
+        setProgress(progress.toData())
+        setForeground(
+            createForegroundInfo(
+                EmbeddingWorkOperation.IMPORT_SQL_VECTORS,
+                progress.processedMessages,
+                progress.totalMessages
+            )
+        )
+    }
+
+    private fun createForegroundInfo(
+        operation: EmbeddingWorkOperation = inputData.getString(OPERATION_KEY)
+            ?.let(EmbeddingWorkOperation::valueOf)
+            ?: EmbeddingWorkOperation.CREATE,
+        processedMessages: Int = 0,
+        totalMessages: Int = 0
+    ): ForegroundInfo {
         notificationChannelsManager.createRegularChannel(
             NotificationConstants.OTHER_CHANNEL_ID,
             NotificationConstants.OTHER_CHANNEL_NAME
         )
 
-        val totalMessages = progress?.totalMessages ?: 0
-        val processedMessages = progress?.processedMessages ?: 0
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
             .setSmallIcon(com.wire.android.feature.notification.R.drawable.notification_icon_small)
             .setAutoCancel(true)
             .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setContentTitle(applicationContext.getString(R.string.notification_creating_message_embeddings))
+            .setContentTitle(
+                applicationContext.getString(
+                    when (operation) {
+                        EmbeddingWorkOperation.CREATE -> R.string.notification_creating_message_embeddings
+                        EmbeddingWorkOperation.IMPORT_SQL_VECTORS -> R.string.notification_importing_message_embeddings
+                    }
+                )
+            )
             .setContentText(
                 applicationContext.getString(
                     R.string.notification_creating_message_embeddings_progress,
@@ -121,7 +177,7 @@ class CreateMessageEmbeddingsWorker @AssistedInject constructor(
             .setProgress(
                 totalMessages,
                 processedMessages.coerceAtMost(totalMessages),
-                progress == null || totalMessages <= 0
+                totalMessages <= 0
             )
             .setContentIntent(openAppPendingIntent(applicationContext))
             .build()
@@ -142,6 +198,8 @@ class CreateMessageEmbeddingsWorker @AssistedInject constructor(
         const val SKIPPED_MESSAGES_KEY = "create_message_embeddings_skipped_messages"
         const val FAILED_MESSAGES_KEY = "create_message_embeddings_failed_messages"
         const val MODEL_ID_KEY = "create_message_embeddings_model_id"
+        const val IMPORTED_EMBEDDINGS_KEY = "create_message_embeddings_imported_embeddings"
+        const val OPERATION_KEY = "create_message_embeddings_operation"
         const val FAILURE_CAUSE_KEY = "create_message_embeddings_failure_cause"
 
         fun createUniqueWorkName(userId: UserId): String = "$NAME-$userId"
@@ -150,6 +208,7 @@ class CreateMessageEmbeddingsWorker @AssistedInject constructor(
 
 interface CreateMessageEmbeddingsWorkScheduler {
     fun enqueue(userId: UserId): Flow<CreateMessageEmbeddingsWorkStatus>
+    fun enqueueImport(userId: UserId): Flow<CreateMessageEmbeddingsWorkStatus>
     fun observe(userId: UserId): Flow<CreateMessageEmbeddingsWorkStatus>
 }
 
@@ -157,11 +216,26 @@ class DefaultCreateMessageEmbeddingsWorkScheduler @Inject constructor(
     private val workManager: WorkManager
 ) : CreateMessageEmbeddingsWorkScheduler {
 
-    override fun enqueue(userId: UserId): Flow<CreateMessageEmbeddingsWorkStatus> = flow {
+    override fun enqueue(userId: UserId): Flow<CreateMessageEmbeddingsWorkStatus> =
+        enqueue(userId, EmbeddingWorkOperation.CREATE)
+
+    override fun enqueueImport(userId: UserId): Flow<CreateMessageEmbeddingsWorkStatus> =
+        enqueue(userId, EmbeddingWorkOperation.IMPORT_SQL_VECTORS)
+
+    private fun enqueue(
+        userId: UserId,
+        operation: EmbeddingWorkOperation
+    ): Flow<CreateMessageEmbeddingsWorkStatus> = flow {
         val workName = CreateMessageEmbeddingsWorker.createUniqueWorkName(userId)
         val request = OneTimeWorkRequestBuilder<CreateMessageEmbeddingsWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .setInputData(workDataOf(CreateMessageEmbeddingsWorker.USER_ID_KEY to userId.toString()))
+            .addTag(operation.name)
+            .setInputData(
+                workDataOf(
+                    CreateMessageEmbeddingsWorker.USER_ID_KEY to userId.toString(),
+                    CreateMessageEmbeddingsWorker.OPERATION_KEY to operation.name
+                )
+            )
             .build()
         val isAlreadyActive = workManager.getWorkInfosForUniqueWork(workName)
             .await()
@@ -189,9 +263,15 @@ class DefaultCreateMessageEmbeddingsWorkScheduler @Inject constructor(
 
 sealed interface CreateMessageEmbeddingsWorkStatus {
     data object Idle : CreateMessageEmbeddingsWorkStatus
-    data class Running(val progress: Progress?) : CreateMessageEmbeddingsWorkStatus
+    data class Running(
+        val progress: Progress?,
+        val operation: EmbeddingWorkOperation = progress?.operation ?: EmbeddingWorkOperation.CREATE
+    ) : CreateMessageEmbeddingsWorkStatus
     data class Succeeded(val summary: Summary) : CreateMessageEmbeddingsWorkStatus
-    data class Failed(val cause: String?) : CreateMessageEmbeddingsWorkStatus
+    data class Failed(
+        val cause: String?,
+        val operation: EmbeddingWorkOperation = EmbeddingWorkOperation.CREATE
+    ) : CreateMessageEmbeddingsWorkStatus
 
     data class Progress(
         val totalMessages: Int,
@@ -199,7 +279,9 @@ sealed interface CreateMessageEmbeddingsWorkStatus {
         val createdEmbeddings: Int,
         val skippedMessages: Int,
         val failedMessages: Int,
-        val modelId: String?
+        val modelId: String?,
+        val importedEmbeddings: Int = 0,
+        val operation: EmbeddingWorkOperation = EmbeddingWorkOperation.CREATE
     )
 
     data class Summary(
@@ -208,22 +290,44 @@ sealed interface CreateMessageEmbeddingsWorkStatus {
         val createdEmbeddings: Int,
         val skippedMessages: Int,
         val failedMessages: Int,
-        val modelId: String?
+        val modelId: String?,
+        val importedEmbeddings: Int = 0,
+        val operation: EmbeddingWorkOperation = EmbeddingWorkOperation.CREATE
     )
+}
+
+enum class EmbeddingWorkOperation {
+    CREATE,
+    IMPORT_SQL_VECTORS
 }
 
 private fun WorkInfo.toCreateMessageEmbeddingsWorkStatus(): CreateMessageEmbeddingsWorkStatus =
     when (state) {
         WorkInfo.State.ENQUEUED,
-        WorkInfo.State.RUNNING -> CreateMessageEmbeddingsWorkStatus.Running(progress.toProgressOrNull())
+        WorkInfo.State.RUNNING -> CreateMessageEmbeddingsWorkStatus.Running(
+            progress = progress.toProgressOrNull(),
+            operation = operation
+        )
 
         WorkInfo.State.SUCCEEDED -> CreateMessageEmbeddingsWorkStatus.Succeeded(outputData.toSummary())
         WorkInfo.State.FAILED,
         WorkInfo.State.BLOCKED,
         WorkInfo.State.CANCELLED -> CreateMessageEmbeddingsWorkStatus.Failed(
-            outputData.getString(CreateMessageEmbeddingsWorker.FAILURE_CAUSE_KEY)
+            cause = outputData.getString(CreateMessageEmbeddingsWorker.FAILURE_CAUSE_KEY),
+            operation = outputData.operation
         )
     }
+
+private val WorkInfo.operation: EmbeddingWorkOperation
+    get() = tags.firstNotNullOfOrNull { tag ->
+        runCatching { EmbeddingWorkOperation.valueOf(tag) }.getOrNull()
+    } ?: progress.operation.takeIf { progress.keyValueMap.containsKey(CreateMessageEmbeddingsWorker.OPERATION_KEY) }
+        ?: outputData.operation
+
+private val Data.operation: EmbeddingWorkOperation
+    get() = getString(CreateMessageEmbeddingsWorker.OPERATION_KEY)
+        ?.let(EmbeddingWorkOperation::valueOf)
+        ?: EmbeddingWorkOperation.CREATE
 
 private fun CreateEmbeddingsForExistingMessagesUseCase.Progress.toData(): Data =
     workDataOf(
@@ -232,7 +336,20 @@ private fun CreateEmbeddingsForExistingMessagesUseCase.Progress.toData(): Data =
         CreateMessageEmbeddingsWorker.CREATED_EMBEDDINGS_KEY to createdEmbeddings,
         CreateMessageEmbeddingsWorker.SKIPPED_MESSAGES_KEY to skippedMessages,
         CreateMessageEmbeddingsWorker.FAILED_MESSAGES_KEY to failedMessages,
-        CreateMessageEmbeddingsWorker.MODEL_ID_KEY to modelId
+        CreateMessageEmbeddingsWorker.MODEL_ID_KEY to modelId,
+        CreateMessageEmbeddingsWorker.OPERATION_KEY to EmbeddingWorkOperation.CREATE.name
+    )
+
+private fun ImportMessageEmbeddingsToVectorIndexUseCase.Progress.toData(): Data =
+    workDataOf(
+        CreateMessageEmbeddingsWorker.TOTAL_MESSAGES_KEY to totalMessages,
+        CreateMessageEmbeddingsWorker.PROCESSED_MESSAGES_KEY to processedMessages,
+        CreateMessageEmbeddingsWorker.CREATED_EMBEDDINGS_KEY to 0,
+        CreateMessageEmbeddingsWorker.IMPORTED_EMBEDDINGS_KEY to importedMessages,
+        CreateMessageEmbeddingsWorker.SKIPPED_MESSAGES_KEY to skippedMessages,
+        CreateMessageEmbeddingsWorker.FAILED_MESSAGES_KEY to failedMessages,
+        CreateMessageEmbeddingsWorker.MODEL_ID_KEY to modelId,
+        CreateMessageEmbeddingsWorker.OPERATION_KEY to EmbeddingWorkOperation.IMPORT_SQL_VECTORS.name
     )
 
 private fun CreateEmbeddingsForExistingMessagesUseCase.Result.Success.toOutputData(totalMessages: Int): Data =
@@ -242,7 +359,26 @@ private fun CreateEmbeddingsForExistingMessagesUseCase.Result.Success.toOutputDa
         CreateMessageEmbeddingsWorker.CREATED_EMBEDDINGS_KEY to createdEmbeddings,
         CreateMessageEmbeddingsWorker.SKIPPED_MESSAGES_KEY to skippedMessages,
         CreateMessageEmbeddingsWorker.FAILED_MESSAGES_KEY to failedMessages,
-        CreateMessageEmbeddingsWorker.MODEL_ID_KEY to modelId
+        CreateMessageEmbeddingsWorker.MODEL_ID_KEY to modelId,
+        CreateMessageEmbeddingsWorker.OPERATION_KEY to EmbeddingWorkOperation.CREATE.name
+    )
+
+private fun ImportMessageEmbeddingsToVectorIndexUseCase.Result.Success.toOutputData(totalMessages: Int): Data =
+    workDataOf(
+        CreateMessageEmbeddingsWorker.TOTAL_MESSAGES_KEY to totalMessages,
+        CreateMessageEmbeddingsWorker.PROCESSED_MESSAGES_KEY to processedMessages,
+        CreateMessageEmbeddingsWorker.CREATED_EMBEDDINGS_KEY to 0,
+        CreateMessageEmbeddingsWorker.IMPORTED_EMBEDDINGS_KEY to importedMessages,
+        CreateMessageEmbeddingsWorker.SKIPPED_MESSAGES_KEY to skippedMessages,
+        CreateMessageEmbeddingsWorker.FAILED_MESSAGES_KEY to failedMessages,
+        CreateMessageEmbeddingsWorker.MODEL_ID_KEY to modelId,
+        CreateMessageEmbeddingsWorker.OPERATION_KEY to EmbeddingWorkOperation.IMPORT_SQL_VECTORS.name
+    )
+
+private fun failureData(operation: EmbeddingWorkOperation, cause: String): Data =
+    workDataOf(
+        CreateMessageEmbeddingsWorker.FAILURE_CAUSE_KEY to cause,
+        CreateMessageEmbeddingsWorker.OPERATION_KEY to operation.name
     )
 
 private fun Data.toProgressOrNull(): CreateMessageEmbeddingsWorkStatus.Progress? =
@@ -254,7 +390,9 @@ private fun Data.toProgressOrNull(): CreateMessageEmbeddingsWorkStatus.Progress?
                 createdEmbeddings = getInt(CreateMessageEmbeddingsWorker.CREATED_EMBEDDINGS_KEY, 0),
                 skippedMessages = getInt(CreateMessageEmbeddingsWorker.SKIPPED_MESSAGES_KEY, 0),
                 failedMessages = getInt(CreateMessageEmbeddingsWorker.FAILED_MESSAGES_KEY, 0),
-                modelId = getString(CreateMessageEmbeddingsWorker.MODEL_ID_KEY)
+                modelId = getString(CreateMessageEmbeddingsWorker.MODEL_ID_KEY),
+                importedEmbeddings = getInt(CreateMessageEmbeddingsWorker.IMPORTED_EMBEDDINGS_KEY, 0),
+                operation = operation
             )
         }
 
@@ -265,7 +403,9 @@ private fun Data.toSummary(): CreateMessageEmbeddingsWorkStatus.Summary =
         createdEmbeddings = getInt(CreateMessageEmbeddingsWorker.CREATED_EMBEDDINGS_KEY, 0),
         skippedMessages = getInt(CreateMessageEmbeddingsWorker.SKIPPED_MESSAGES_KEY, 0),
         failedMessages = getInt(CreateMessageEmbeddingsWorker.FAILED_MESSAGES_KEY, 0),
-        modelId = getString(CreateMessageEmbeddingsWorker.MODEL_ID_KEY)
+        modelId = getString(CreateMessageEmbeddingsWorker.MODEL_ID_KEY),
+        importedEmbeddings = getInt(CreateMessageEmbeddingsWorker.IMPORTED_EMBEDDINGS_KEY, 0),
+        operation = operation
     )
 
 private suspend fun <T> ListenableFuture<T>.await(): T =

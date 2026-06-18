@@ -43,6 +43,7 @@ plugins {
     id(libs.plugins.wire.versionizer.get().pluginId)
     alias(libs.plugins.screenshot)
     id(libs.plugins.wire.android.navigation.get().pluginId)
+    alias(libs.plugins.objectbox)
 }
 
 repositories {
@@ -243,6 +244,8 @@ dependencies {
     implementation(libs.visibilityModifiers)
     implementation(libs.ktx.serialization)
     implementation(libs.ktx.immutableCollections)
+    implementation(libs.objectbox.android)
+    annotationProcessor(libs.objectbox.processor)
 
     // Image loading
     implementation(libs.coil.core)

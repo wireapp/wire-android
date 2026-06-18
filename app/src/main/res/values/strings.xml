@@ -1129,6 +1129,7 @@
     <string name="notification_deleting_conversation">Deleting conversation…</string>
     <string name="notification_uploading_files">Uploading files…</string>
     <string name="notification_creating_message_embeddings" translatable="false">Creating message embeddings</string>
+    <string name="notification_importing_message_embeddings" translatable="false">Importing message embeddings</string>
     <string name="notification_creating_message_embeddings_progress" translatable="false">%1$d of %2$d messages processed</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
@@ -1862,12 +1863,15 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_ai_model_download" translatable="false">Download</string>
     <string name="debug_settings_ai_message_embeddings" translatable="false">Message embeddings</string>
     <string name="debug_settings_ai_create_embeddings" translatable="false">Create embeddings</string>
+    <string name="debug_settings_ai_import_embeddings" translatable="false">Import SQL embeddings</string>
     <string name="debug_settings_ai_search" translatable="false">Search</string>
     <string name="debug_settings_ai_semantic_search" translatable="false">Semantic search</string>
     <string name="debug_settings_ai_start_search" translatable="false">Start search</string>
     <string name="debug_settings_ai_search_query" translatable="false">Search query</string>
     <string name="debug_settings_ai_create_embeddings_success" translatable="false">Embeddings created: %1$d created, %2$d skipped, %3$d failed</string>
     <string name="debug_settings_ai_create_embeddings_failed" translatable="false">Create embeddings failed: %1$s</string>
+    <string name="debug_settings_ai_import_embeddings_success" translatable="false">Embeddings imported: %1$d imported, %2$d skipped, %3$d failed</string>
+    <string name="debug_settings_ai_import_embeddings_failed" translatable="false">Import embeddings failed: %1$s</string>
     <string name="debug_settings_ai_semantic_search_failed" translatable="false">Semantic search failed: %1$s</string>
     <string name="debug_settings_ai_model_auth_required" translatable="false">AI model download requires Hugging Face authorization</string>
     <string name="debug_settings_ai_model_auth_required_title" translatable="false">AI model authorization required</string>

@@ -19,6 +19,7 @@ package com.wire.android.di.accountScoped
 
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.vectorsearch.ObjectBoxMessageEmbeddingVectorIndexFactory
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetImageAssetMessagesForConversationUseCase
@@ -39,6 +40,7 @@ import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesBySearchQ
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
+import com.wire.kalium.logic.feature.message.MessageEmbeddingVectorIndex
 import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
@@ -82,25 +84,33 @@ class MessageModule {
     ): MessageScope = coreLogic.getSessionScope(currentAccount).messages
 
     @Provides
+    fun provideMessageEmbeddingVectorIndex(
+        @CurrentAccount currentAccount: UserId,
+        factory: ObjectBoxMessageEmbeddingVectorIndexFactory
+    ): MessageEmbeddingVectorIndex = factory.create(currentAccount)
+
+    @Provides
     fun provideSendButtonActionMessageUseCase(messageScope: MessageScope): SendButtonActionMessageUseCase =
         messageScope.sendButtonActionMessage
 
     @Provides
     fun provideCreateEmbeddingsForExistingMessagesUseCase(
         messageScope: MessageScope,
-        textEmbeddingModel: TextEmbeddingModel
+        textEmbeddingModel: TextEmbeddingModel,
+        messageEmbeddingVectorIndex: MessageEmbeddingVectorIndex
     ): CreateEmbeddingsForExistingMessagesUseCase =
         CreateEmbeddingsForExistingMessagesUseCaseImpl(
-            messageSemanticIndexer = messageScope.messageSemanticIndexer(textEmbeddingModel),
+            messageSemanticIndexer = messageScope.messageSemanticIndexer(textEmbeddingModel, messageEmbeddingVectorIndex),
             modelId = textEmbeddingModel.modelId
         )
 
     @Provides
     fun provideSearchMessagesSemanticallyGloballyUseCase(
         messageScope: MessageScope,
-        textEmbeddingModel: TextEmbeddingModel
+        textEmbeddingModel: TextEmbeddingModel,
+        messageEmbeddingVectorIndex: MessageEmbeddingVectorIndex
     ): SearchMessagesSemanticallyGloballyUseCase =
-        messageScope.searchMessagesSemanticallyGlobally(textEmbeddingModel)
+        messageScope.searchMessagesSemanticallyGlobally(textEmbeddingModel, messageEmbeddingVectorIndex)
 
     @Provides
     fun provideEnqueueMessageSelfDeletionUseCase(messageScope: MessageScope): EnqueueMessageSelfDeletionUseCase =

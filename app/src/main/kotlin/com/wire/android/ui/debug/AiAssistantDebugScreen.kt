@@ -82,6 +82,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.workmanager.worker.CreateMessageEmbeddingsWorkScheduler
 import com.wire.android.workmanager.worker.CreateMessageEmbeddingsWorkStatus
+import com.wire.android.workmanager.worker.EmbeddingWorkOperation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -111,6 +112,7 @@ fun AiAssistantDebugScreen(
         onDownloadAiModel = viewModel::downloadAiModel,
         onDownloadEmbeddingModel = viewModel::downloadEmbeddingModel,
         onCreateEmbeddings = viewModel::createEmbeddings,
+        onImportEmbeddings = viewModel::importEmbeddings,
         onSearchMessages = viewModel::searchMessages,
         onModelSelected = viewModel::selectModel,
         onInferenceBackendSelected = viewModel::selectInferenceBackend,
@@ -134,6 +136,7 @@ fun AiAssistantDebugScreenContent(
     onDownloadAiModel: () -> Unit,
     onDownloadEmbeddingModel: () -> Unit,
     onCreateEmbeddings: () -> Unit,
+    onImportEmbeddings: () -> Unit,
     onModelSelected: (AiModelDescriptor) -> Unit,
     onInferenceBackendSelected: (AiInferenceBackend) -> Unit,
     onCpuThreadsSelected: (Int?) -> Unit,
@@ -210,8 +213,10 @@ fun AiAssistantDebugScreenContent(
                 )
                 AiCreateEmbeddingsOption(
                     isCreatingEmbeddings = state.isCreatingEmbeddings,
+                    isImportingEmbeddings = state.isImportingEmbeddings,
                     isSearchingMessages = state.isSearchingMessages,
                     onCreateEmbeddings = onCreateEmbeddings,
+                    onImportEmbeddings = onImportEmbeddings,
                     onSearchMessages = { showSearchDialog = true }
                 )
                 AiModelHealthCheckOption(state = state.healthCheckState)
@@ -422,8 +427,10 @@ private fun AiModelOptionState.statusText(): String =
 @Composable
 private fun AiCreateEmbeddingsOption(
     isCreatingEmbeddings: Boolean,
+    isImportingEmbeddings: Boolean,
     isSearchingMessages: Boolean,
     onCreateEmbeddings: () -> Unit,
+    onImportEmbeddings: () -> Unit,
     onSearchMessages: () -> Unit,
 ) {
     RowItemTemplate(
@@ -437,7 +444,7 @@ private fun AiCreateEmbeddingsOption(
             )
         },
         actions = {
-            Row(horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)) {
+            Column(verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)) {
                 WirePrimaryButton(
                     minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
                     minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
@@ -445,7 +452,24 @@ private fun AiCreateEmbeddingsOption(
                     text = stringResource(R.string.debug_settings_ai_create_embeddings),
                     fillMaxWidth = false,
                     loading = isCreatingEmbeddings,
-                    state = if (isCreatingEmbeddings) WireButtonState.Disabled else WireButtonState.Default
+                    state = if (isCreatingEmbeddings || isImportingEmbeddings) {
+                        WireButtonState.Disabled
+                    } else {
+                        WireButtonState.Default
+                    }
+                )
+                WirePrimaryButton(
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    onClick = onImportEmbeddings,
+                    text = stringResource(R.string.debug_settings_ai_import_embeddings),
+                    fillMaxWidth = false,
+                    loading = isImportingEmbeddings,
+                    state = if (isCreatingEmbeddings || isImportingEmbeddings) {
+                        WireButtonState.Disabled
+                    } else {
+                        WireButtonState.Default
+                    }
                 )
                 WirePrimaryButton(
                     minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
@@ -499,6 +523,7 @@ interface AiAssistantDebugViewModel {
     fun downloadAiModel() {}
     fun downloadEmbeddingModel() {}
     fun createEmbeddings() {}
+    fun importEmbeddings() {}
     fun searchMessages(query: String) {}
     fun selectModel(descriptor: AiModelDescriptor) {}
     fun selectInferenceBackend(backend: AiInferenceBackend) {}
@@ -598,7 +623,7 @@ class AiAssistantDebugViewModelImpl(
     }
 
     override fun createEmbeddings() {
-        if (state.isCreatingEmbeddings) return
+        if (state.isCreatingEmbeddings || state.isImportingEmbeddings) return
 
         viewModelScope.launch {
             state = state.copy(isCreatingEmbeddings = true)
@@ -617,6 +642,38 @@ class AiAssistantDebugViewModelImpl(
                     _infoMessage.emit(
                         UIText.StringResource(
                             R.string.debug_settings_ai_create_embeddings_failed,
+                            status.cause.orEmpty()
+                        )
+                    )
+
+                CreateMessageEmbeddingsWorkStatus.Idle,
+                is CreateMessageEmbeddingsWorkStatus.Running -> {
+                    // Filtered out by terminal predicate.
+                }
+            }
+        }
+    }
+
+    override fun importEmbeddings() {
+        if (state.isCreatingEmbeddings || state.isImportingEmbeddings) return
+
+        viewModelScope.launch {
+            state = state.copy(isImportingEmbeddings = true)
+            when (val status = createMessageEmbeddingsWorkScheduler.enqueueImport(currentAccount).first { it.isTerminal }) {
+                is CreateMessageEmbeddingsWorkStatus.Succeeded ->
+                    _infoMessage.emit(
+                        UIText.StringResource(
+                            R.string.debug_settings_ai_import_embeddings_success,
+                            status.summary.importedEmbeddings,
+                            status.summary.skippedMessages,
+                            status.summary.failedMessages
+                        )
+                    )
+
+                is CreateMessageEmbeddingsWorkStatus.Failed ->
+                    _infoMessage.emit(
+                        UIText.StringResource(
+                            R.string.debug_settings_ai_import_embeddings_failed,
                             status.cause.orEmpty()
                         )
                     )
@@ -758,7 +815,12 @@ class AiAssistantDebugViewModelImpl(
     private fun observeCreateEmbeddingsWorkStatus() {
         viewModelScope.launch {
             createMessageEmbeddingsWorkScheduler.observe(currentAccount).collect { status ->
-                state = state.copy(isCreatingEmbeddings = status is CreateMessageEmbeddingsWorkStatus.Running)
+                state = state.copy(
+                    isCreatingEmbeddings = status is CreateMessageEmbeddingsWorkStatus.Running &&
+                        status.operation == EmbeddingWorkOperation.CREATE,
+                    isImportingEmbeddings = status is CreateMessageEmbeddingsWorkStatus.Running &&
+                        status.operation == EmbeddingWorkOperation.IMPORT_SQL_VECTORS
+                )
             }
         }
     }
@@ -876,6 +938,7 @@ data class AiAssistantDebugState(
     val aiModelOptionState: AiModelOptionState = AiModelOptionState(),
     val embeddingModelOptionState: AiModelOptionState = AiModelOptionState(),
     val isCreatingEmbeddings: Boolean = false,
+    val isImportingEmbeddings: Boolean = false,
     val isSearchingMessages: Boolean = false,
     val healthCheckState: AiModelHealthCheckState = AiModelHealthCheckState.Unavailable,
     val authorizationDialogState: AiModelAuthorizationDialogState? = null
@@ -932,6 +995,7 @@ fun PreviewAiAssistantDebugScreen() = WireTheme {
         onDownloadAiModel = {},
         onDownloadEmbeddingModel = {},
         onCreateEmbeddings = {},
+        onImportEmbeddings = {},
         onSearchMessages = {},
         onModelSelected = {},
         onInferenceBackendSelected = {},

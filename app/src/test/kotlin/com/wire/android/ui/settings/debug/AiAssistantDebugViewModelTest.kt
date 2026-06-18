@@ -41,6 +41,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.resolveForTest
 import com.wire.android.workmanager.worker.CreateMessageEmbeddingsWorkScheduler
 import com.wire.android.workmanager.worker.CreateMessageEmbeddingsWorkStatus
+import com.wire.android.workmanager.worker.EmbeddingWorkOperation
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
@@ -608,6 +609,75 @@ class AiAssistantDebugViewModelTest {
     }
 
     @Test
+    fun `when importing embeddings, then import work is enqueued and success message is emitted`() = runTest {
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withImportEmbeddingsStatus(
+                CreateMessageEmbeddingsWorkStatus.Succeeded(
+                    emptyCreateEmbeddingsSummary.copy(
+                        processedMessages = 10,
+                        importedEmbeddings = 7,
+                        skippedMessages = 2,
+                        failedMessages = 1,
+                        operation = EmbeddingWorkOperation.IMPORT_SQL_VECTORS
+                    )
+                )
+            )
+            .arrange()
+
+        viewModel.infoMessage.test {
+            viewModel.importEmbeddings()
+
+            assertEquals(
+                UIText.StringResource(R.string.debug_settings_ai_import_embeddings_success, 7, 2, 1),
+                awaitItem()
+            )
+        }
+        assertEquals(1, arrangement.createMessageEmbeddingsWorkScheduler.enqueueImportCount)
+        assertEquals(false, viewModel.state.isImportingEmbeddings)
+    }
+
+    @Test
+    fun `given importing embeddings fails, when importing, then failure message is emitted`() = runTest {
+        val failure = "SQL import failed"
+        val (_, viewModel) = AiAssistantDebugArrangement()
+            .withImportEmbeddingsStatus(
+                CreateMessageEmbeddingsWorkStatus.Failed(
+                    cause = failure,
+                    operation = EmbeddingWorkOperation.IMPORT_SQL_VECTORS
+                )
+            )
+            .arrange()
+
+        viewModel.infoMessage.test {
+            viewModel.importEmbeddings()
+
+            assertEquals(
+                UIText.StringResource(R.string.debug_settings_ai_import_embeddings_failed, failure),
+                awaitItem()
+            )
+        }
+        assertEquals(false, viewModel.state.isImportingEmbeddings)
+    }
+
+    @Test
+    fun `given embedding work is running, when importing embeddings, then import is not enqueued`() = runTest {
+        val (arrangement, viewModel) = AiAssistantDebugArrangement()
+            .withObservedCreateEmbeddingsStatus(
+                CreateMessageEmbeddingsWorkStatus.Running(
+                    progress = null,
+                    operation = EmbeddingWorkOperation.CREATE
+                )
+            )
+            .arrange()
+
+        viewModel.importEmbeddings()
+
+        assertEquals(0, arrangement.createMessageEmbeddingsWorkScheduler.enqueueImportCount)
+        assertEquals(true, viewModel.state.isCreatingEmbeddings)
+        assertEquals(false, viewModel.state.isImportingEmbeddings)
+    }
+
+    @Test
     fun `given blank query, when searching messages, then semantic search is not called`() = runTest {
         // given
         val (arrangement, viewModel) = AiAssistantDebugArrangement()
@@ -792,6 +862,10 @@ private class AiAssistantDebugArrangement {
         createMessageEmbeddingsWorkScheduler.enqueuedStatus = status
     }
 
+    fun withImportEmbeddingsStatus(status: CreateMessageEmbeddingsWorkStatus) = apply {
+        createMessageEmbeddingsWorkScheduler.importEnqueuedStatus = status
+    }
+
     fun withSemanticSearchResult(result: SearchMessagesSemanticallyGloballyUseCase.Result) = apply {
         coEvery {
             searchMessagesSemanticallyGlobally(any(), any())
@@ -816,12 +890,28 @@ private class FakeAiInferenceConfigStore(
 private class FakeCreateMessageEmbeddingsWorkScheduler : CreateMessageEmbeddingsWorkScheduler {
     val observedStatus = MutableStateFlow<CreateMessageEmbeddingsWorkStatus>(CreateMessageEmbeddingsWorkStatus.Idle)
     var enqueuedStatus: CreateMessageEmbeddingsWorkStatus = CreateMessageEmbeddingsWorkStatus.Succeeded(emptyCreateEmbeddingsSummary)
+    var importEnqueuedStatus: CreateMessageEmbeddingsWorkStatus = CreateMessageEmbeddingsWorkStatus.Succeeded(
+        emptyCreateEmbeddingsSummary.copy(operation = EmbeddingWorkOperation.IMPORT_SQL_VECTORS)
+    )
     var enqueueCount = 0
+    var enqueueImportCount = 0
 
     override fun enqueue(userId: UserId): Flow<CreateMessageEmbeddingsWorkStatus> {
         enqueueCount++
         observedStatus.value = enqueuedStatus
         return flowOf(CreateMessageEmbeddingsWorkStatus.Running(progress = null), enqueuedStatus)
+    }
+
+    override fun enqueueImport(userId: UserId): Flow<CreateMessageEmbeddingsWorkStatus> {
+        enqueueImportCount++
+        observedStatus.value = importEnqueuedStatus
+        return flowOf(
+            CreateMessageEmbeddingsWorkStatus.Running(
+                progress = null,
+                operation = EmbeddingWorkOperation.IMPORT_SQL_VECTORS
+            ),
+            importEnqueuedStatus
+        )
     }
 
     override fun observe(userId: UserId): Flow<CreateMessageEmbeddingsWorkStatus> = observedStatus

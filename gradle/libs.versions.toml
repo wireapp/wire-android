@@ -73,6 +73,7 @@ commonmark = "0.28.0"
 mediapipe = "0.10.27"
 litertlm = "0.10.2"
 localagentsRag = "0.1.0"
+objectbox = "5.4.1"
 
 # Countly
 countly = "26.1.2"
@@ -140,6 +141,7 @@ compose-stability-analyzer = { id = "com.github.skydoves.compose.stability.analy
 cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
 jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
 androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark-baselineprofile-plugin" }
+objectbox = { id = "io.objectbox", version.ref = "objectbox" }
 
 # Home-made convention plugins defined in build-logic
 wire-android-application = { id = "com.wire.android.application" }
@@ -287,6 +289,8 @@ commonmark-tables = { module = "org.commonmark:commonmark-ext-gfm-tables", versi
 mediapipe-tasksGenai = { module = "com.google.mediapipe:tasks-genai", version.ref = "mediapipe" }
 litertlm-android = { module = "com.google.ai.edge.litertlm:litertlm-android", version.ref = "litertlm" }
 localagents-rag = { module = "com.google.ai.edge.localagents:localagents-rag", version.ref = "localagentsRag" }
+objectbox-android = { module = "io.objectbox:objectbox-android", version.ref = "objectbox" }
+objectbox-processor = { module = "io.objectbox:objectbox-processor", version.ref = "objectbox" }
 
 # Countly
 countly-sdk = { module = "ly.count.android:sdk", version.ref = "countly" }

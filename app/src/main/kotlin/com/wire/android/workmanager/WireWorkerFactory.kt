@@ -27,6 +27,7 @@ import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.sync.InitialSyncWorker
+import com.wire.android.vectorsearch.ObjectBoxMessageEmbeddingVectorIndexFactory
 import com.wire.android.workmanager.worker.DeleteConversationLocallyWorker
 import com.wire.android.workmanager.worker.NotificationFetchWorker
 import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker
@@ -43,6 +44,7 @@ class WireWorkerFactory @Inject constructor(
     private val notificationChannelsManager: NotificationChannelsManager,
     private val startPersistentWebsocketIfNecessary: StartPersistentWebsocketIfNecessaryUseCase,
     private val textEmbeddingModel: TextEmbeddingModel,
+    private val messageEmbeddingVectorIndexFactory: ObjectBoxMessageEmbeddingVectorIndexFactory,
     @KaliumCoreLogic
     private val coreLogic: CoreLogic
 ) : WorkerFactory() {
@@ -71,7 +73,14 @@ class WireWorkerFactory @Inject constructor(
                 AssetUploadObserverWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)
 
             CreateMessageEmbeddingsWorker::class.java.canonicalName ->
-                CreateMessageEmbeddingsWorker(appContext, workerParameters, coreLogic, textEmbeddingModel, notificationChannelsManager)
+                CreateMessageEmbeddingsWorker(
+                    appContext,
+                    workerParameters,
+                    coreLogic,
+                    textEmbeddingModel,
+                    messageEmbeddingVectorIndexFactory,
+                    notificationChannelsManager
+                )
 
             InitialSyncWorker::class.java.canonicalName ->
                 InitialSyncWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)

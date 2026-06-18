@@ -33,30 +33,88 @@ import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.R
+import com.wire.kalium.logic.feature.conversation.CreateConversationFromThreadResult
+import com.wire.kalium.logic.feature.conversation.CreateConversationFromThreadUseCase
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsResult
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsUseCase
 import com.wire.kalium.logic.feature.message.GlobalThreadSummary
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
 class GlobalThreadsViewModel(
     private val observeGlobalThreads: ObserveGlobalThreadsUseCase,
+    private val createConversationFromThread: CreateConversationFromThreadUseCase,
     private val uiTextResolver: UiTextResolver,
 ) : ViewModel() {
 
     var state by mutableStateOf(GlobalThreadsState())
         private set
 
+    private val _effects = MutableSharedFlow<GlobalThreadsEffect>()
+    val effects: SharedFlow<GlobalThreadsEffect> = _effects.asSharedFlow()
+
     init {
         viewModelScope.launch {
             observeGlobalThreads().collect { result ->
                 state = when (result) {
-                    ObserveGlobalThreadsResult.Failure -> GlobalThreadsState(isLoading = false, threads = emptyList())
+                    ObserveGlobalThreadsResult.Failure -> state.copy(isLoading = false, threads = emptyList())
                     is ObserveGlobalThreadsResult.Success -> GlobalThreadsState(
                         isLoading = false,
-                        threads = result.threads.map(::toUiThread)
+                        threads = result.threads.map(::toUiThread),
+                        creatingConversationForThreadKey = state.creatingConversationForThreadKey,
                     )
                 }
+            }
+        }
+    }
+
+    fun onCreateConversationFromThread(thread: UiGlobalThread) {
+        if (state.creatingConversationForThreadKey != null) return
+
+        val threadKey = thread.key
+        state = state.copy(creatingConversationForThreadKey = threadKey)
+
+        viewModelScope.launch {
+            val result = runCatching {
+                createConversationFromThread(
+                    sourceConversationId = thread.conversationId,
+                    threadId = thread.threadId,
+                    conversationName = buildThreadConversationName(thread),
+                )
+            }.onFailure {
+                if (it is CancellationException) throw it
+            }
+
+            state = state.copy(creatingConversationForThreadKey = null)
+
+            result.exceptionOrNull()?.let {
+                _effects.emit(GlobalThreadsEffect.ShowMessage(UIText.StringResource(R.string.thread_create_conversation_failed)))
+            } ?: handleCreateConversationFromThreadResult(result.getOrThrow())
+        }
+    }
+
+    private suspend fun handleCreateConversationFromThreadResult(result: CreateConversationFromThreadResult) {
+        when (result) {
+            is CreateConversationFromThreadResult.Success -> {
+                _effects.emit(GlobalThreadsEffect.OpenConversation(result.conversation.id))
+            }
+
+            CreateConversationFromThreadResult.NoThreadParticipants -> {
+                _effects.emit(GlobalThreadsEffect.ShowMessage(UIText.StringResource(R.string.thread_create_conversation_no_participants)))
+            }
+
+            is CreateConversationFromThreadResult.MessageMoveFailure -> {
+                _effects.emit(GlobalThreadsEffect.ShowMessage(UIText.StringResource(R.string.thread_create_conversation_move_failed)))
+                _effects.emit(GlobalThreadsEffect.OpenConversation(result.conversation.id))
+            }
+
+            is CreateConversationFromThreadResult.ConversationCreationFailure,
+            is CreateConversationFromThreadResult.ThreadReadFailure -> {
+                _effects.emit(GlobalThreadsEffect.ShowMessage(UIText.StringResource(R.string.thread_create_conversation_failed)))
             }
         }
     }
@@ -101,11 +159,23 @@ class GlobalThreadsViewModel(
             }
         )
     }
+
+    private fun buildThreadConversationName(thread: UiGlobalThread): String {
+        val title = thread.previewText.ifBlank {
+            thread.conversationName ?: uiTextResolver.resolve(UIText.StringResource(R.string.thread_root_fallback_label))
+        }
+        return uiTextResolver.resolve(UIText.StringResource(R.string.thread_conversation_name, title.take(MAX_THREAD_TITLE_LENGTH)))
+    }
+
+    private companion object {
+        const val MAX_THREAD_TITLE_LENGTH = 80
+    }
 }
 
 data class GlobalThreadsState(
     val isLoading: Boolean = true,
     val threads: List<UiGlobalThread> = emptyList(),
+    val creatingConversationForThreadKey: String? = null,
 )
 
 data class UiGlobalThread(
@@ -121,11 +191,18 @@ data class UiGlobalThread(
     val lastActivityAt: Instant,
     val searchText: String,
 ) {
+    val key: String = "${conversationId}:${threadId}"
+
     enum class ConversationType {
         ONE_ON_ONE,
         GROUP,
         CHANNEL,
     }
+}
+
+sealed interface GlobalThreadsEffect {
+    data class OpenConversation(val conversationId: ConversationId) : GlobalThreadsEffect
+    data class ShowMessage(val message: UIText) : GlobalThreadsEffect
 }
 
 private fun UILastMessageContent.toPlainText(uiTextResolver: UiTextResolver): String = when (this) {

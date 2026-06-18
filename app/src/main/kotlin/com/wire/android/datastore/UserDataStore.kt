@@ -29,6 +29,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
 @Suppress("TooManyFunctions")
@@ -99,6 +100,43 @@ class UserDataStore(private val context: Context, userId: UserId) {
         context.dataStore.edit { it[IS_CREATE_TEAM_NOTICE_READ] = isRead }
     }
 
+    suspend fun saveAutoCallStatusSnapshot(
+        availabilityStatus: UserAvailabilityStatus,
+        textStatus: String?
+    ) {
+        context.dataStore.edit { preferences ->
+            preferences[AUTO_CALL_STATUS_ACTIVE] = true
+            preferences[AUTO_CALL_STATUS_PREVIOUS_AVAILABILITY] = availabilityStatus.name
+            if (textStatus == null) {
+                preferences.remove(AUTO_CALL_STATUS_PREVIOUS_TEXT_STATUS)
+            } else {
+                preferences[AUTO_CALL_STATUS_PREVIOUS_TEXT_STATUS] = textStatus
+            }
+        }
+    }
+
+    suspend fun getAutoCallStatusSnapshot(): AutoCallStatusSnapshot? =
+        context.dataStore.data.map { preferences ->
+            if (preferences[AUTO_CALL_STATUS_ACTIVE] != true) {
+                null
+            } else {
+                AutoCallStatusSnapshot(
+                    availabilityStatus = preferences[AUTO_CALL_STATUS_PREVIOUS_AVAILABILITY]
+                        ?.let(UserAvailabilityStatus::valueOf)
+                        ?: UserAvailabilityStatus.NONE,
+                    textStatus = preferences[AUTO_CALL_STATUS_PREVIOUS_TEXT_STATUS]
+                )
+            }
+        }.firstOrNull()
+
+    suspend fun clearAutoCallStatusSnapshot() {
+        context.dataStore.edit { preferences ->
+            preferences.remove(AUTO_CALL_STATUS_ACTIVE)
+            preferences.remove(AUTO_CALL_STATUS_PREVIOUS_AVAILABILITY)
+            preferences.remove(AUTO_CALL_STATUS_PREVIOUS_TEXT_STATUS)
+        }
+    }
+
     companion object {
         private const val PREFERENCES_NAME = "user_data"
 
@@ -113,5 +151,13 @@ class UserDataStore(private val context: Context, userId: UserId) {
         private val ANONYMOUS_ANALYTICS = booleanPreferencesKey("anonymous_analytics")
         private val ANALYTICS_DIALOG_SEEN = booleanPreferencesKey("analytics_dialog_seen")
         private val IS_CREATE_TEAM_NOTICE_READ = booleanPreferencesKey("is_create_team_notice_read")
+        private val AUTO_CALL_STATUS_ACTIVE = booleanPreferencesKey("auto_call_status_active")
+        private val AUTO_CALL_STATUS_PREVIOUS_AVAILABILITY = stringPreferencesKey("auto_call_status_previous_availability")
+        private val AUTO_CALL_STATUS_PREVIOUS_TEXT_STATUS = stringPreferencesKey("auto_call_status_previous_text_status")
     }
 }
+
+data class AutoCallStatusSnapshot(
+    val availabilityStatus: UserAvailabilityStatus,
+    val textStatus: String?
+)

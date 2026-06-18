@@ -20,6 +20,7 @@ package com.wire.android
 
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.calling.AutoCallStatusObserver
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.CurrentScreenManager
@@ -61,12 +62,14 @@ class GlobalObserversManager @Inject constructor(
     private val notificationChannelsManager: NotificationChannelsManager,
     private val userDataStoreProvider: UserDataStoreProvider,
     private val currentScreenManager: CurrentScreenManager,
+    private val autoCallStatusObserver: AutoCallStatusObserver,
 ) {
     // TODO(tests): refactor so scope/dispatcher can be injected and properly stopped
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
 
     fun observe() {
         scope.launch { setUpNotifications() }
+        scope.launch { autoCallStatusObserver.observe() }
         scope.launch {
             coreLogic.getGlobalScope().observeValidAccounts().distinctUntilChanged().collectLatest {
                 coroutineScope {

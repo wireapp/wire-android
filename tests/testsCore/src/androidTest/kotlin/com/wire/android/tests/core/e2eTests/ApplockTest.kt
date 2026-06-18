@@ -36,6 +36,7 @@ import kotlin.time.Duration.Companion.seconds
 class ApplockTest : BaseUiTest() {
     private lateinit var appPackage: String
     private var teamOwner: ClientUser? = null
+    private var member1: ClientUser? = null
 
     @Before
     fun setUp() {
@@ -152,7 +153,7 @@ class ApplockTest : BaseUiTest() {
             }
         }
 
-        step("And I minimise Wire for 60 seconds and restart it") {
+        step("And I minimise Wire for 63 seconds and restart it") {
             device.pressHome()
             UiWaitUtils.waitFor(63.seconds)
             device.executeShellCommand(
@@ -164,6 +165,164 @@ class ApplockTest : BaseUiTest() {
             val appLockPasscode = "A1a!".repeat(2)
             pages.appLockPage.apply {
                 assertAppLockPageVisible()
+                enterPasscode(appLockPasscode)
+                tapUnlockButtonOnAppLockPage()
+            }
+        }
+
+        step("Then I see conversation list") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+            }
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-8144")
+    @Category("regression", "RC", "applock")
+    @Test
+    fun givenUserEnablesAppLock_whenWrongPasscodeIsEntered_thenAppStaysLockedUntilCorrectPasscodeIsEntered() {
+        step("Given there is TeamOwner with team AppLockInvalidPassphrase and Member1 on Staging backend") {
+            teamHelper.usersManager.createTeamOwnerByAlias(
+                "user1Name",
+                "AppLockInvalidPassphrase",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+
+            teamHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name",
+                "AppLockInvalidPassphrase",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+
+            testServiceHelper.userHas1on1ConversationInTeam(
+                "user1Name",
+                "user2Name",
+                "AppLockInvalidPassphrase"
+            )
+
+            member1 = teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+        }
+
+        step("And I see welcome screen before login") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+        }
+
+        step("When I open staging deep link and login as Member1") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+                enterTeamMemberLoggingEmail(member1?.email ?: "")
+                clickLoginButton()
+                enterTeamMemberLoggingPassword(member1?.password ?: "")
+                clickLoginButton()
+            }
+        }
+
+        step("And I complete post-login permission and privacy prompts") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+
+        step("Then I see conversation list") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+            }
+        }
+
+        step("When I open Settings from conversation list") {
+            pages.conversationListPage.apply {
+                UiWaitUtils.waitFor(2.seconds) // wait for websocket notification to disappear
+                clickConversationsMenuEntry()
+                clickSettingsButtonOnMenuEntry()
+            }
+        }
+
+        step("When I confirm lock with passcode toggle is off and turn it on") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOff()
+                turnOnLockWithPasscodeToggle()
+            }
+        }
+
+        step("Then I see set up app lock page with inactivity description") {
+            pages.settingsPage.apply {
+                assertSetUpAppLockPageVisible()
+                assertAppLockDescriptionText()
+            }
+        }
+
+        step("When I enter my passcode for app lock and tap set passcode button") {
+            val appLockPasscode = "A1a!".repeat(2)
+            pages.settingsPage.apply {
+                enterPasscode(appLockPasscode)
+                tapSetPasscodeButton()
+            }
+        }
+
+        step("Then I see lock with passcode toggle is turned on") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOn()
+            }
+        }
+
+        step("When I go back to conversation list") {
+            pages.settingsPage.apply {
+                clickBackButtonOnSettingsPage()
+            }
+        }
+
+        step("And I see conversation list") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+            }
+        }
+
+        step("And I minimise Wire for 63 seconds and restart it") {
+            device.pressHome()
+            UiWaitUtils.waitFor(63.seconds)
+            device.executeShellCommand(
+                "monkey -p $appPackage -c android.intent.category.LAUNCHER 1"
+            )
+        }
+
+        step("And I enter wrong passcode and tap unlock button on app lock page") {
+            val wrongAppLockPasscode = "B2b@".repeat(2)
+            pages.appLockPage.apply {
+                assertAppLockPageVisible()
+                enterPasscode(wrongAppLockPasscode)
+                tapUnlockButtonOnAppLockPage()
+            }
+        }
+
+        step("Then I see error message on app lock page") {
+            pages.appLockPage.apply {
+                assertWrongPasscodeErrorMessageVisible()
+            }
+        }
+
+        step("And I do not see conversation list") {
+            pages.conversationListPage.apply {
+                assertConversationListNotVisible()
+            }
+        }
+
+        step("When I clear the password field, enter correct passcode, and tap unlock button") {
+            val appLockPasscode = "A1a!".repeat(2)
+            pages.appLockPage.apply {
+                clearPasscodeField()
                 enterPasscode(appLockPasscode)
                 tapUnlockButtonOnAppLockPage()
             }

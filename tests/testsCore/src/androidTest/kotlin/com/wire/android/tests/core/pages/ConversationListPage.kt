@@ -73,6 +73,15 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertConversationListNotVisible(): ConversationListPage {
+        val heading = findElementOrNull(conversationListHeading)
+        Assert.assertTrue(
+            "Conversation list heading is visible",
+            heading == null || heading.visibleBounds.isEmpty
+        )
+        return this
+    }
+
     fun clickConversationsMenuEntry(): ConversationListPage {
         UiWaitUtils.waitElement(mainMenuButton).click()
         return this

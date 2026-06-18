@@ -27,6 +27,7 @@ data class AppLockPage(private val device: UiDevice) {
     private val appLockPageTitle = UiSelectorParams(text = "Enter passcode to unlock Wire")
     private val passcodeField = UiSelectorParams(resourceId = "password")
     private val unlockButton = UiSelectorParams(text = "Unlock")
+    private val wrongPasscodeErrorMessage = UiSelectorParams(text = "Check your passcode and try again")
     private val editTextClass = By.clazz("android.widget.EditText")
 
     fun assertAppLockPageVisible(): AppLockPage {
@@ -44,9 +45,24 @@ data class AppLockPage(private val device: UiDevice) {
         return this
     }
 
+    fun clearPasscodeField(): AppLockPage {
+        val parent = UiWaitUtils.waitElement(passcodeField)
+        val codeInputField = parent.findObject(editTextClass)
+        codeInputField.click()
+        codeInputField.text = ""
+        device.waitForIdle()
+        return this
+    }
+
     fun tapUnlockButtonOnAppLockPage(): AppLockPage {
         UiWaitUtils.waitElement(unlockButton).click()
         device.waitForIdle()
+        return this
+    }
+
+    fun assertWrongPasscodeErrorMessageVisible(): AppLockPage {
+        val errorMessage = UiWaitUtils.waitElement(wrongPasscodeErrorMessage)
+        assertTrue("Wrong passcode error message is not visible", !errorMessage.visibleBounds.isEmpty)
         return this
     }
 }

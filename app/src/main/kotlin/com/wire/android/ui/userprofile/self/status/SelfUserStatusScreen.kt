@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
@@ -66,11 +65,11 @@ import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.rowitem.SectionHeader
+import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.rowitem.RowItemTemplate
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -151,6 +150,7 @@ private fun SelfUserStatusContent(
     }
 
     WireScaffold(
+        containerColor = MaterialTheme.wireColorScheme.background,
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onBackClick,
@@ -183,8 +183,6 @@ private fun SelfUserStatusContent(
                 userStatus = state.availabilityStatus,
                 onStatusClicked = onAvailabilityStatusClicked,
             )
-            SelectedAvailabilityDescription(state.availabilityStatus)
-            VerticalSpace.x16()
             if (state.isTeamMember) {
                 CustomStatusSection(
                     emoji = resolveStatusEmoji(state.emoji, textState.text.toString()),
@@ -196,7 +194,6 @@ private fun SelfUserStatusContent(
                         onClearCustomStatus()
                     }
                 )
-                VerticalSpace.x16()
                 QuickStatusSection(
                     presets = state.quickStatusPresets,
                     onQuickStatusSelected = onQuickStatusSelected,
@@ -254,24 +251,35 @@ private fun AvailabilitySection(
 
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeader(stringResource(R.string.user_profile_status_availability))
-        WireDropDown(
-            items = items.map {
-                when (it) {
-                    UserAvailabilityStatus.AVAILABLE -> stringResource(UICommonR.string.user_profile_status_available)
-                    UserAvailabilityStatus.BUSY -> stringResource(UICommonR.string.user_profile_status_busy)
-                    UserAvailabilityStatus.AWAY -> stringResource(UICommonR.string.user_profile_status_away)
-                    UserAvailabilityStatus.NONE -> stringResource(UICommonR.string.user_profile_status_none)
+        Surface(
+            color = MaterialTheme.wireColorScheme.surface,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(dimensions().spacing16x)
+            ) {
+                WireDropDown(
+                    items = items.map {
+                        when (it) {
+                            UserAvailabilityStatus.AVAILABLE -> stringResource(UICommonR.string.user_profile_status_available)
+                            UserAvailabilityStatus.BUSY -> stringResource(UICommonR.string.user_profile_status_busy)
+                            UserAvailabilityStatus.AWAY -> stringResource(UICommonR.string.user_profile_status_away)
+                            UserAvailabilityStatus.NONE -> stringResource(UICommonR.string.user_profile_status_none)
+                        }
+                    },
+                    defaultItemIndex = items.indexOf(userStatus),
+                    label = null,
+                    autoUpdateSelection = false,
+                    showDefaultTextIndicator = false,
+                    leadingCompose = { index -> UserStatusIndicator(items[index]) },
+                    onChangeClickDescription = stringResource(R.string.content_description_self_profile_change_status)
+                ) { selectedIndex ->
+                    onStatusClicked(items[selectedIndex])
                 }
-            },
-            defaultItemIndex = items.indexOf(userStatus),
-            label = null,
-            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),
-            autoUpdateSelection = false,
-            showDefaultTextIndicator = false,
-            leadingCompose = { index -> UserStatusIndicator(items[index]) },
-            onChangeClickDescription = stringResource(R.string.content_description_self_profile_change_status)
-        ) { selectedIndex ->
-            onStatusClicked(items[selectedIndex])
+                SelectedAvailabilityDescription(userStatus)
+            }
         }
     }
 }
@@ -288,71 +296,78 @@ private fun CustomStatusSection(
 
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeader(stringResource(R.string.user_profile_custom_status_header))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = dimensions().spacing16x),
-            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
-            verticalAlignment = Alignment.CenterVertically,
+        Surface(
+            color = MaterialTheme.wireColorScheme.surface,
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            WireSecondaryButton(
-                leadingIcon = {
-                    if (emoji == null) {
-                        Icon(painter = painterResource(id = R.drawable.ic_emoticon), contentDescription = "")
-                    } else {
-                        Text(emoji)
-                    }
-                },
-                onClick = onEmojiClick,
-                fillMaxWidth = false,
-                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-            )
-
-            WireTextField(
-                textState = textState,
-                modifier = Modifier.weight(1f),
-                placeholderText = stringResource(R.string.user_profile_custom_status_placeholder),
-                leadingIcon = null,
-                state = WireTextFieldState.Default,
-                trailingIcon = {
-                    Box(
-                        modifier = Modifier
-                            .width(dimensions().spacing64x)
-                            .height(dimensions().spacing40x),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        androidx.compose.animation.AnimatedVisibility(
-                            visible = hasStatus,
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ) {
-                            IconButton(
-                                modifier = Modifier.padding(start = dimensions().spacing12x),
-                                onClick = onClearCustomStatus,
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = UICommonR.drawable.ic_clear_search),
-                                    contentDescription = stringResource(UICommonR.string.content_description_clear_content)
-                                )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing16x),
+                    horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    WireSecondaryButton(
+                        leadingIcon = {
+                            if (emoji == null) {
+                                Icon(painter = painterResource(id = R.drawable.ic_emoticon), contentDescription = "")
+                            } else {
+                                Text(emoji)
                             }
-                        }
-                    }
-                },
-                inputTransformation = InputTransformation.maxLength(MAX_STATUS_TEXT_LENGTH),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences,
-                    imeAction = ImeAction.Done
-                ),
-            )
+                        },
+                        onClick = onEmojiClick,
+                        fillMaxWidth = false,
+                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    )
+
+                    WireTextField(
+                        textState = textState,
+                        modifier = Modifier.weight(1f),
+                        placeholderText = stringResource(R.string.user_profile_custom_status_placeholder),
+                        leadingIcon = null,
+                        state = WireTextFieldState.Default,
+                        trailingIcon = {
+                            Box(
+                                modifier = Modifier
+                                    .width(dimensions().spacing64x)
+                                    .height(dimensions().spacing40x),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                androidx.compose.animation.AnimatedVisibility(
+                                    visible = hasStatus,
+                                    enter = fadeIn(),
+                                    exit = fadeOut()
+                                ) {
+                                    IconButton(
+                                        modifier = Modifier.padding(start = dimensions().spacing12x),
+                                        onClick = onClearCustomStatus,
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = UICommonR.drawable.ic_clear_search),
+                                            contentDescription = stringResource(UICommonR.string.content_description_clear_content)
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        inputTransformation = InputTransformation.maxLength(MAX_STATUS_TEXT_LENGTH),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            imeAction = ImeAction.Done
+                        ),
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.user_profile_custom_status_counter, messageLength, MAX_STATUS_TEXT_LENGTH),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
+                    style = MaterialTheme.wireTypography.body02,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
+                )
+            }
         }
-        Text(
-            text = stringResource(R.string.user_profile_custom_status_counter, messageLength, MAX_STATUS_TEXT_LENGTH),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
-            style = MaterialTheme.wireTypography.body02,
-            color = MaterialTheme.wireColorScheme.secondaryText,
-        )
     }
 }
 
@@ -363,19 +378,13 @@ private fun QuickStatusSection(
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeader(stringResource(R.string.user_profile_quick_status_header))
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = dimensions().spacing16x),
-            verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
+        Surface(
+            color = MaterialTheme.wireColorScheme.surface,
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            presets.forEach { preset ->
-                val presetLabel = stringResource(preset.labelResId)
-                Surface(
-                    color = MaterialTheme.wireColorScheme.surface,
-                    shape = RoundedCornerShape(dimensions().spacing16x),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                presets.forEachIndexed { index, preset ->
+                    val presetLabel = stringResource(preset.labelResId)
                     RowItemTemplate(
                         title = {
                             Row(
@@ -398,8 +407,8 @@ private fun QuickStatusSection(
                         titleStartPadding = dimensions().spacing16x,
                         contentTopPadding = dimensions().spacing16x,
                         contentBottomPadding = dimensions().spacing16x,
-                        actionsEndPadding = dimensions().spacing0x,
-                        divider = {},
+                        actionsEndPadding = dimensions().spacing12x,
+                        divider = { WireDivider() },
                         backgroundColor = MaterialTheme.wireColorScheme.surface,
                         clickable = Clickable(enabled = true) {
                             onQuickStatusSelected(preset.emoji, presetLabel)

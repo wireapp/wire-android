@@ -20,7 +20,7 @@ package com.wire.android.ui.home.conversationslist.search
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,19 +28,44 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.LoadingListContent
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesEmptyScreen
+import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesNoResultsScreen
+import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesResultsScreen
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun MessagesSearchResults(modifier: Modifier = Modifier) {
+fun MessagesSearchResults(
+    state: MessagesSearchState,
+    onMessageClick: (UIMessage) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val lazyListState = rememberLazyListState()
+
+    when (state) {
+        MessagesSearchState.EmptyQuery -> SearchConversationMessagesEmptyScreen(modifier)
+        MessagesSearchState.Loading -> LoadingListContent(modifier)
+        MessagesSearchState.NoResults -> SearchConversationMessagesNoResultsScreen(modifier)
+        MessagesSearchState.Failure -> MessagesSearchFailure(modifier)
+        is MessagesSearchState.Success -> SearchConversationMessagesResultsScreen(
+            messages = state.messages,
+            lazyListState = lazyListState,
+            onMessageClick = onMessageClick,
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+private fun MessagesSearchFailure(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = stringResource(R.string.search_results_messages_tab_title),
+            text = stringResource(R.string.label_search_messages_no_results),
             style = MaterialTheme.wireTypography.body01,
-            modifier = Modifier.padding(dimensions().spacing16x)
         )
     }
 }

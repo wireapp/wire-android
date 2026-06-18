@@ -55,7 +55,7 @@ fun AllConversationsScreen(
                 lazyListState = lazyListStateFor(HomeDestination.Conversations),
                 emptySearchResultFocusRequester = emptySearchResultFocusRequester,
                 firstConversationFocusRequester = firstConversationFocusRequester,
-                onConversationOpened = homeStateHolder::requestClearSearchOnNextResume
+                onConversationSearchResultOpened = homeStateHolder::requestClearSearchOnNextResume
             )
         } else {
             Crossfade(

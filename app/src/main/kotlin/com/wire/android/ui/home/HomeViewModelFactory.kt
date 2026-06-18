@@ -24,9 +24,11 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.DisableAppLockUseCase
+import com.wire.android.mapper.MessageMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
+import com.wire.android.ui.home.conversations.usecase.GetUsersForMessageUseCase
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.search.SearchResultsViewModel
@@ -50,6 +52,7 @@ import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegul
 import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
@@ -81,6 +84,9 @@ class HomeViewModelFactory @Inject constructor(
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val disableAppLockUseCase: Lazy<DisableAppLockUseCase>,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
+    private val searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase,
+    private val getUsersForMessage: GetUsersForMessageUseCase,
+    private val messageMapper: MessageMapper,
     private val observeConversationListDetailsWithEvents: ObserveConversationListDetailsWithEventsUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
@@ -129,7 +135,12 @@ class HomeViewModelFactory @Inject constructor(
         disableAppLockUseCase = disableAppLockUseCase,
     )
 
-    fun searchResultsViewModel() = SearchResultsViewModel()
+    fun searchResultsViewModel() = SearchResultsViewModel(
+        searchMessagesSemanticallyGlobally = searchMessagesSemanticallyGlobally,
+        getUsersForMessage = getUsersForMessage,
+        messageMapper = messageMapper,
+        dispatcher = dispatcher,
+    )
 
     fun conversationListViewModel(
         conversationsSource: ConversationsSource,

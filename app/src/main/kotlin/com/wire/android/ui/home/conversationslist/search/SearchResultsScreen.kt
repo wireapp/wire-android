@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,13 +36,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.search.rememberSearchbarState
+import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.searchResultsViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.UIText
@@ -56,13 +63,21 @@ fun SearchResultsScreen(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     firstConversationFocusRequester: FocusRequester? = null,
-    onConversationOpened: () -> Unit = {},
-    viewModel: SearchResultsViewModel = when {
-        LocalInspectionMode.current -> SearchResultsViewModel()
+    onConversationSearchResultOpened: () -> Unit = {},
+    viewModel: SearchResultsViewModel? = when {
+        LocalInspectionMode.current -> null
         else -> searchResultsViewModel()
     },
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(SearchResultsTab.CONVERSATIONS) }
+    val messagesSearchState by viewModel
+        ?.messagesSearchState
+        ?.collectAsStateWithLifecycle()
+        ?: mutableStateOf(MessagesSearchState.EmptyQuery)
+
+    LaunchedEffect(searchBarState.searchQueryTextState.text) {
+        viewModel?.onSearchQueryChanged(searchBarState.searchQueryTextState.text.toString())
+    }
 
     Column(
         modifier = modifier
@@ -86,13 +101,30 @@ fun SearchResultsScreen(
                 lazyListState = lazyListState,
                 emptySearchResultFocusRequester = emptySearchResultFocusRequester,
                 firstConversationFocusRequester = firstConversationFocusRequester,
-                onConversationOpened = onConversationOpened,
+                onConversationOpened = onConversationSearchResultOpened,
                 modifier = Modifier.weight(1f)
             )
-            SearchResultsTab.MESSAGES -> MessagesSearchResults(modifier = Modifier.weight(1f))
+
+            SearchResultsTab.MESSAGES -> MessagesSearchResults(
+                state = messagesSearchState,
+                onMessageClick = { message ->
+                    navigator.navigate(message.toConversationNavigationCommand())
+                },
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }
+
+internal fun UIMessage.toConversationNavigationCommand() = NavigationCommand(
+    ConversationScreenDestination(
+        navArgs = ConversationNavArgs(
+            conversationId = conversationId,
+            searchedMessageId = header.messageId
+        )
+    ),
+    BackStackMode.UPDATE_EXISTED
+)
 
 private enum class SearchResultsTab(@StringRes val titleResId: Int) : TabItem {
     CONVERSATIONS(R.string.conversations_screen_title),

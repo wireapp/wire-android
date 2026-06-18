@@ -78,6 +78,44 @@ fun SearchConversationMessagesResultsScreen(
     }
 }
 
+@Composable
+fun SearchConversationMessagesResultsScreen(
+    messages: List<UIMessage>,
+    onMessageClick: (UIMessage) -> Unit,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
+    searchQuery: String = ""
+) {
+    LazyColumn(state = lazyListState, modifier = modifier) {
+        items(
+            count = messages.size,
+            key = { index -> messages[index].header.messageId },
+            contentType = { index -> messages[index] }
+        ) { index ->
+            when (val message = messages[index]) {
+                is UIMessage.Regular -> {
+                    MessageContainerItem(
+                        message = message,
+                        conversationDetailsData = ConversationDetailsData.None(null),
+                        searchQuery = searchQuery,
+                        clickActions = MessageClickActions.FullItem(
+                            onFullMessageLongClicked = null,
+                            onFullMessageClicked = { _ -> onMessageClick(message) },
+                        ),
+                        onSelfDeletingMessageRead = { },
+                        shouldDisplayMessageStatus = false,
+                        shouldDisplayFooter = false,
+                        swipeableMessageConfiguration = SwipeableMessageConfiguration.NotSwipeable,
+                        failureInteractionAvailable = false,
+                    )
+                }
+
+                is UIMessage.System -> {}
+            }
+        }
+    }
+}
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewSearchConversationMessagesResultsScreen() {

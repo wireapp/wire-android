@@ -228,6 +228,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             fullName = otherUser.name.orEmpty(),
             userName = fromOtherUser(otherUser),
             teamName = userResult.team?.name.orEmpty(),
+            textStatus = otherUser.textStatus,
             email = otherUser.email.orEmpty(),
             phone = otherUser.phone.orEmpty(),
             connectionState = otherUser.connectionStatus,

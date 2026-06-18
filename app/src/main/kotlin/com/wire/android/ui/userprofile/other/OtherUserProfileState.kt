@@ -41,6 +41,7 @@ data class OtherUserProfileState(
     val fullName: String = "",
     val userName: String = "",
     val teamName: String = "",
+    val textStatus: String? = null,
     val email: String = "",
     val phone: String = "",
     val connectionState: ConnectionState = ConnectionState.NOT_CONNECTED,

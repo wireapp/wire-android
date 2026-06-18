@@ -109,6 +109,7 @@ import com.wire.android.ui.home.conversations.ScopedMessageViewModelFactory
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelImpl
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
+import com.wire.android.ui.home.conversationslist.search.SearchResultsViewModel
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.messagecomposer.AiMessageComposerViewModel
@@ -191,6 +192,12 @@ object WireMetroViewModelBindings {
     @ViewModelKey(FeatureFlagNotificationViewModel::class)
     fun featureFlagNotificationViewModel(factory: HomeViewModelFactory): ViewModel =
         factory.featureFlagNotificationViewModel()
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(SearchResultsViewModel::class)
+    fun searchResultsViewModel(factory: HomeViewModelFactory): ViewModel =
+        factory.searchResultsViewModel()
 
     @Provides
     @IntoMap

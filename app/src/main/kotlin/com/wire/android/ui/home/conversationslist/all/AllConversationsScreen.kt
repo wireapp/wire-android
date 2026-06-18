@@ -35,6 +35,7 @@ import com.wire.android.ui.home.conversationslist.ConversationsScreenContent
 import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
 import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
+import com.wire.android.ui.home.conversationslist.search.SearchResultsScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ConversationFilter
@@ -47,27 +48,38 @@ fun AllConversationsScreen(
         conversationFoldersViewModel(ConversationFoldersStateArgs(null)),
 ) {
     with(homeStateHolder) {
-        Crossfade(
-            targetState = homeStateHolder.currentConversationFilter,
-            label = "Conversation filter change animation",
-        ) { filter ->
-            ConversationsScreenContent(
+        if (searchBarState.isSearchActive) {
+            SearchResultsScreen(
                 navigator = navigator,
                 searchBarState = searchBarState,
-                conversationsSource = when (filter) {
-                    is ConversationFilter.All -> ConversationsSource.MAIN
-                    is ConversationFilter.Favorites -> ConversationsSource.FAVORITES
-                    is ConversationFilter.Groups -> ConversationsSource.GROUPS
-                    is ConversationFilter.OneOnOne -> ConversationsSource.ONE_ON_ONE
-                    is ConversationFilter.Folder -> ConversationsSource.FOLDER(filter.folderId, filter.folderName)
-                    is ConversationFilter.Channels -> ConversationsSource.CHANNELS
-                },
-                lazyListState = lazyListStateFor(HomeDestination.Conversations, filter),
+                lazyListState = lazyListStateFor(HomeDestination.Conversations),
                 emptySearchResultFocusRequester = emptySearchResultFocusRequester,
                 firstConversationFocusRequester = firstConversationFocusRequester,
-                onConversationOpened = homeStateHolder::requestClearSearchOnNextResume,
-                emptyListContent = { ConversationsEmptyContent(filter = filter, navigator = navigator) }
+                onConversationOpened = homeStateHolder::requestClearSearchOnNextResume
             )
+        } else {
+            Crossfade(
+                targetState = homeStateHolder.currentConversationFilter,
+                label = "Conversation filter change animation",
+            ) { filter ->
+                ConversationsScreenContent(
+                    navigator = navigator,
+                    searchBarState = searchBarState,
+                    conversationsSource = when (filter) {
+                        is ConversationFilter.All -> ConversationsSource.MAIN
+                        is ConversationFilter.Favorites -> ConversationsSource.FAVORITES
+                        is ConversationFilter.Groups -> ConversationsSource.GROUPS
+                        is ConversationFilter.OneOnOne -> ConversationsSource.ONE_ON_ONE
+                        is ConversationFilter.Folder -> ConversationsSource.FOLDER(filter.folderId, filter.folderName)
+                        is ConversationFilter.Channels -> ConversationsSource.CHANNELS
+                    },
+                    lazyListState = lazyListStateFor(HomeDestination.Conversations, filter),
+                    emptySearchResultFocusRequester = emptySearchResultFocusRequester,
+                    firstConversationFocusRequester = firstConversationFocusRequester,
+                    onConversationOpened = homeStateHolder::requestClearSearchOnNextResume,
+                    emptyListContent = { ConversationsEmptyContent(filter = filter, navigator = navigator) }
+                )
+            }
         }
         WireModalSheetLayout(
             sheetState = conversationsFilterBottomSheetState,

@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
+import com.wire.android.ui.home.conversationslist.search.SearchResultsViewModel
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
@@ -53,6 +54,10 @@ fun appSyncViewModel(): AppSyncViewModel =
 
 @Composable
 fun homeDrawerViewModel(): HomeDrawerViewModel =
+    sessionKeyedMetroViewModel()
+
+@Composable
+fun searchResultsViewModel(): SearchResultsViewModel =
     sessionKeyedMetroViewModel()
 
 @Composable

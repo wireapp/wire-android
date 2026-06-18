@@ -29,6 +29,7 @@ import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
+import com.wire.android.ui.home.conversationslist.search.SearchResultsViewModel
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
@@ -127,6 +128,8 @@ class HomeViewModelFactory @Inject constructor(
         globalDataStore = globalDataStore,
         disableAppLockUseCase = disableAppLockUseCase,
     )
+
+    fun searchResultsViewModel() = SearchResultsViewModel()
 
     fun conversationListViewModel(
         conversationsSource: ConversationsSource,

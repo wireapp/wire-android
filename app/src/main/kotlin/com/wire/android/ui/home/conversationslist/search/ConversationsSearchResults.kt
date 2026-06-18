@@ -1,0 +1,288 @@
+/*
+ * Wire
+ * Copyright (C) 2026 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+
+package com.wire.android.ui.home.conversationslist.search
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.DebugConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.PromoteAdminScreenDestination
+import com.wire.android.R
+import com.wire.android.appLogger
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
+import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
+import com.wire.android.ui.calling.conversationListCallViewModel
+import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.VisibilityState
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
+import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
+import com.wire.android.ui.common.rowitem.LoadingListContent
+import com.wire.android.ui.common.search.SearchBarState
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.debug.conversation.DebugConversationScreenNavArgs
+import com.wire.android.ui.home.conversationListViewModel
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
+import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
+import com.wire.android.ui.home.conversationslist.ConversationListCallViewActions
+import com.wire.android.ui.home.conversationslist.ConversationListCallViewModel
+import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelPreview
+import com.wire.android.ui.home.conversationslist.ConversationListState
+import com.wire.android.ui.home.conversationslist.ConversationListViewModel
+import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
+import com.wire.android.ui.home.conversationslist.common.ConversationList
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationItemType
+import com.wire.android.ui.home.conversationslist.model.ConversationsSource
+import com.wire.android.util.ui.SnackBarMessageHandler
+import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
+
+@Suppress("ComplexMethod", "LongParameterList", "NestedBlockDepth", "Wrapping")
+@Composable
+fun ConversationsSearchResults(
+    navigator: Navigator,
+    searchBarState: SearchBarState,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
+    emptySearchResultFocusRequester: FocusRequester? = null,
+    firstConversationFocusRequester: FocusRequester? = null,
+    onConversationOpened: () -> Unit = {},
+    conversationListCallViewModel: ConversationListCallViewModel = when {
+        LocalInspectionMode.current -> ConversationListCallViewModelPreview
+        else -> conversationListCallViewModel(ConversationsSource.MAIN)
+    },
+    conversationListViewModel: ConversationListViewModel = when {
+        LocalInspectionMode.current -> ConversationListViewModelPreview()
+        else -> conversationListViewModel(ConversationsSource.MAIN)
+    },
+) {
+    val sheetState = rememberWireModalSheetState<ConversationSheetState>()
+    val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
+    val context = LocalContext.current
+    val emptySearchResultModifier = emptySearchResultFocusRequester?.let {
+        Modifier.focusRequester(it)
+    } ?: Modifier
+
+    LaunchedEffect(searchBarState.isSearchActive) {
+        if (searchBarState.isSearchActive) {
+            conversationListViewModel.refreshMissingMetadata()
+        }
+    }
+
+    LaunchedEffect(searchBarState.searchQueryTextState.text) {
+        conversationListViewModel.searchQueryChanged(searchBarState.searchQueryTextState.text.toString())
+    }
+
+    HandleActions(conversationListCallViewModel.actions) { action ->
+        when (action) {
+            is ConversationListCallViewActions.JoinedCall -> {
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
+                getOngoingCallIntent(context, action.conversationId.toString(), action.userId.toString()).run {
+                    context.startActivity(this)
+                }
+            }
+        }
+    }
+
+    val onEditConversationItem: (ConversationItem) -> Unit = remember {
+        {
+            sheetState.show(ConversationSheetState(it.conversationId))
+        }
+    }
+    val onOpenConversation: (ConversationItem) -> Unit = remember(navigator, onConversationOpened) {
+        {
+            navigator.navigate(NavigationCommand(ConversationScreenDestination(it.conversationId)))
+            onConversationOpened()
+        }
+    }
+    val onOpenUserProfile: (UserId) -> Unit = remember(navigator) {
+        {
+            navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(it)))
+        }
+    }
+    val onJoinCall: (ConversationId) -> Unit = remember {
+        {
+            conversationListCallViewModel.joinOngoingCall(it)
+        }
+    }
+    val onNewConversationClicked: () -> Unit = remember {
+        {
+            navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination))
+        }
+    }
+    val onPlayPauseCurrentAudio: () -> Unit = remember {
+        {
+            conversationListViewModel.playPauseCurrentAudio()
+        }
+    }
+    val onStopCurrentAudio: () -> Unit = remember {
+        {
+            conversationListViewModel.stopCurrentAudio()
+        }
+    }
+
+    val isSelfUserUnderLegalHold by conversationListViewModel.isSelfUserUnderLegalHold.collectAsStateWithLifecycle(false)
+    val playingAudio by conversationListViewModel.playingAudio.collectAsStateWithLifecycle(null)
+    val searchQuery = searchBarState.searchQueryTextState.text.toString()
+
+    Box(modifier = modifier) {
+        when (val state = conversationListViewModel.conversationListState) {
+            is ConversationListState.Paginated -> {
+                val lazyPagingItems = state.conversations.collectAsLazyPagingItemsWithLifecycle()
+                searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
+                when {
+                    lazyPagingItems.isLoading() -> LoadingListContent()
+                    lazyPagingItems.itemCount > 0 -> ConversationList(
+                        lazyPagingConversations = lazyPagingItems,
+                        lazyListState = lazyListState,
+                        searchQuery = searchQuery,
+                        isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
+                        playingAudio = playingAudio,
+                        firstConversationFocusRequester = firstConversationFocusRequester,
+                        onOpenConversation = onOpenConversation,
+                        onEditConversation = onEditConversationItem,
+                        onOpenUserProfile = onOpenUserProfile,
+                        onJoinCall = onJoinCall,
+                        onAudioPermissionPermanentlyDenied = {
+                            permissionPermanentlyDeniedDialogState.show(
+                                PermissionPermanentlyDeniedDialogState.Visible(
+                                    R.string.app_permission_dialog_title,
+                                    R.string.call_permission_dialog_description
+                                )
+                            )
+                        },
+                        onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
+                        onStopCurrentAudio = onStopCurrentAudio,
+                        onBrowsePublicChannels = {
+                            navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination))
+                        }
+                    )
+                    else -> SearchConversationsEmptyContent(
+                        onNewConversationClicked = onNewConversationClicked,
+                        modifier = emptySearchResultModifier
+                    )
+                }
+            }
+
+            is ConversationListState.NotPaginated -> {
+                val hasConversations = state.conversations.isNotEmpty() && state.conversations.any { it.value.isNotEmpty() }
+                searchBarState.searchVisibleChanged(isSearchVisible = hasConversations || searchBarState.isSearchActive)
+                when {
+                    state.isLoading -> LoadingListContent()
+                    hasConversations -> ConversationList(
+                        lazyListState = lazyListState,
+                        conversationListItems = state.conversations,
+                        searchQuery = searchQuery,
+                        isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
+                        playingAudio = playingAudio,
+                        firstConversationFocusRequester = firstConversationFocusRequester,
+                        onOpenConversation = onOpenConversation,
+                        onEditConversation = onEditConversationItem,
+                        onOpenUserProfile = onOpenUserProfile,
+                        onJoinCall = onJoinCall,
+                        onAudioPermissionPermanentlyDenied = {
+                            permissionPermanentlyDeniedDialogState.show(
+                                PermissionPermanentlyDeniedDialogState.Visible(
+                                    R.string.app_permission_dialog_title,
+                                    R.string.call_permission_dialog_description
+                                )
+                            )
+                        },
+                        onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
+                        onStopCurrentAudio = onStopCurrentAudio
+                    )
+                    else -> SearchConversationsEmptyContent(
+                        onNewConversationClicked = onNewConversationClicked,
+                        modifier = emptySearchResultModifier
+                    )
+                }
+            }
+        }
+    }
+
+    VisibilityState(conversationListCallViewModel.joinCallDialogState) { callConversationId ->
+        appLogger.i("$TAG showing showJoinAnywayDialog..")
+        JoinAnywayDialog(
+            onDismiss = conversationListCallViewModel.joinCallDialogState::dismiss,
+            onConfirm = { conversationListCallViewModel.joinAnyway(callConversationId) }
+        )
+    }
+
+    PermissionPermanentlyDeniedDialog(
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
+    )
+
+    ConversationOptionsModalSheetLayout(
+        sheetState = sheetState,
+        openConversationFolders = { navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it))) },
+        onPromoteAdmin = { navigator.navigate(NavigationCommand(PromoteAdminScreenDestination(PromoteAdminNavArgs(it)))) },
+        openConversationDebugMenu = { conversationId ->
+            navigator.navigate(
+                NavigationCommand(
+                    DebugConversationScreenDestination(
+                        navArgs = DebugConversationScreenNavArgs(conversationId)
+                    )
+                )
+            )
+        },
+    )
+
+    SnackBarMessageHandler(infoMessages = conversationListViewModel.infoMessage, onEmitted = {
+        sheetState.hide()
+    })
+}
+
+@Composable
+private fun LazyPagingItems<ConversationItemType>.isLoading(): Boolean {
+    var initialLoadCompleted by remember { mutableStateOf(false) }
+    if (loadState.refresh is LoadState.NotLoading) {
+        initialLoadCompleted = true
+    }
+    return !initialLoadCompleted && loadState.refresh == LoadState.Loading && itemCount == 0
+}
+
+private const val TAG = "ConversationsSearchResults"

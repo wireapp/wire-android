@@ -18,7 +18,9 @@
 
 package com.wire.android.ui.home.conversations
 
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ThreadConversationScreenDestination
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.kalium.logic.data.id.ConversationId
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -51,6 +53,29 @@ class ConversationThreadNavigationTest {
                 )
             ),
             launchSingleTop = false
+        )
+
+        assertEquals(expected, command)
+    }
+
+    @Test
+    fun `given thread root message, when creating parent conversation navigation command, then searched message is root message`() {
+        val conversationId = ConversationId("conversation-id", "wire.com")
+        val rootMessageId = "root-message-id"
+
+        val command = threadParentConversationNavigationCommand(
+            conversationId = conversationId,
+            rootMessageId = rootMessageId
+        )
+
+        val expected = NavigationCommand(
+            ConversationScreenDestination(
+                ConversationNavArgs(
+                    conversationId = conversationId,
+                    searchedMessageId = rootMessageId
+                )
+            ),
+            BackStackMode.UPDATE_EXISTED
         )
 
         assertEquals(expected, command)

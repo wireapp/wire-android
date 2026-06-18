@@ -31,7 +31,6 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.stopScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -748,14 +747,9 @@ internal fun ConversationScreenHost(
         onOpenThreadParentConversation = {
             conversationMessagesViewModel.threadRootMessageId?.let { rootMessageId ->
                 navigator.navigate(
-                    NavigationCommand(
-                        ConversationScreenDestination(
-                            navArgs = ConversationNavArgs(
-                                conversationId = conversationMessagesViewModel.conversationId,
-                                searchedMessageId = rootMessageId
-                            )
-                        ),
-                        BackStackMode.UPDATE_EXISTED
+                    threadParentConversationNavigationCommand(
+                        conversationId = conversationMessagesViewModel.conversationId,
+                        rootMessageId = rootMessageId
                     )
                 )
             }
@@ -1031,6 +1025,19 @@ internal fun threadNavigationCommand(
     launchSingleTop = false
 )
 
+internal fun threadParentConversationNavigationCommand(
+    conversationId: ConversationId,
+    rootMessageId: String,
+) = NavigationCommand(
+    ConversationScreenDestination(
+        navArgs = ConversationNavArgs(
+            conversationId = conversationId,
+            searchedMessageId = rootMessageId,
+        )
+    ),
+    BackStackMode.UPDATE_EXISTED
+)
+
 @Suppress("LongParameterList")
 private fun startCallIfPossible(
     conversationCallViewModel: ConversationCallViewModel,
@@ -1165,7 +1172,8 @@ private fun ConversationScreen(
                             onPermissionPermanentlyDenied(ConversationActionPermissionType.CallAudio)
                         },
                         isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED,
-                        isThreadMode = isThreadMode
+                        isThreadMode = isThreadMode,
+                        onOpenThreadParentConversation = onOpenThreadParentConversation
                     )
 
                     HorizontalDivider(color = colorsScheme().outline)
@@ -1478,14 +1486,16 @@ private fun ThreadContextHeader(
 
 @Composable
 private fun threadRootPreviewText(rootMessage: UIMessage.Regular?): String {
-    if (rootMessage == null) {
-        return stringResource(R.string.thread_root_fallback_label)
+    return when {
+        rootMessage == null -> stringResource(R.string.thread_root_fallback_label)
+        rootMessage.isDeleted -> stringResource(R.string.deleted_message_text)
+        else -> threadRootContentPreviewText(rootMessage.messageContent)
     }
-    if (rootMessage.isDeleted) {
-        return stringResource(R.string.deleted_message_text)
-    }
+}
 
-    return when (val content = rootMessage.messageContent) {
+@Composable
+private fun threadRootContentPreviewText(content: UIMessageContent.Regular?): String {
+    return when (content) {
         is UIMessageContent.TextMessage -> content.messageBody.message.asString()
         is UIMessageContent.Multipart -> content.messageBody?.message?.asString()
             ?: stringResource(R.string.notification_shared_file)

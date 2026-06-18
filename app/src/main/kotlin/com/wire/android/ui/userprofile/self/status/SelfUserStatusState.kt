@@ -27,6 +27,8 @@ data class SelfUserStatusState(
     val availabilityStatus: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
     val emoji: String? = null,
     val message: String = "",
+    val savedEmoji: String? = null,
+    val savedMessage: String = "",
     val isTeamMember: Boolean = false,
     val quickStatusPresets: List<QuickStatusPreset> = defaultQuickStatusPresets(),
     val statusDialogData: StatusDialogData? = null,

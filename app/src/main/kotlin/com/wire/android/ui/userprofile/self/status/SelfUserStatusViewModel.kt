@@ -25,7 +25,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
-import com.wire.android.R
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.common.functional.fold
@@ -50,8 +49,8 @@ class SelfUserStatusViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
     private val dataStore = userDataStoreProvider.getOrCreate(selfUserId)
-    private val _confirmationMessage = MutableSharedFlow<Int>(extraBufferCapacity = 1)
-    val confirmationMessage = _confirmationMessage.asSharedFlow()
+    private val _statusUpdated = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
+    val statusUpdated = _statusUpdated.asSharedFlow()
 
     var state by mutableStateOf(SelfUserStatusState())
         private set
@@ -103,8 +102,8 @@ class SelfUserStatusViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isSaving = true)
             updateTextStatus(bundledStatus).fold(
-                fnL = { },
-                fnR = { _confirmationMessage.tryEmit(R.string.user_profile_status_updated) }
+                fnL = { _statusUpdated.tryEmit(false) },
+                fnR = { _statusUpdated.tryEmit(true) }
             )
             state = state.copy(isSaving = false)
         }
@@ -116,8 +115,8 @@ class SelfUserStatusViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isSaving = true)
             updateTextStatus(" ").fold(
-                fnL = { },
-                fnR = { _confirmationMessage.tryEmit(R.string.user_profile_status_updated) }
+                fnL = { _statusUpdated.tryEmit(false) },
+                fnR = { _statusUpdated.tryEmit(true) }
             )
             state = state.copy(isSaving = false)
         }
@@ -133,6 +132,8 @@ class SelfUserStatusViewModel @Inject constructor(
                         availabilityStatus = selfUser.availabilityStatus,
                         emoji = parsedStatus.emoji,
                         message = parsedStatus.message,
+                        savedEmoji = parsedStatus.emoji,
+                        savedMessage = parsedStatus.message,
                         isTeamMember = team != null,
                     )
                 }

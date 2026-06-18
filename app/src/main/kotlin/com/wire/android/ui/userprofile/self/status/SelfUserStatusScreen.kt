@@ -51,12 +51,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
@@ -65,10 +65,10 @@ import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.avatar.UserStatusIndicator
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -94,14 +94,13 @@ import com.wire.android.ui.common.R as UICommonR
 @SuppressLint("ComposeModifierMissing")
 fun SelfUserStatusScreen(
     navigator: Navigator,
+    resultNavigator: ResultBackNavigator<Boolean>,
     viewModel: SelfUserStatusViewModel = selfUserStatusViewModel(),
 ) {
-    val snackbarHostState = LocalSnackbarHostState.current
-    val context = LocalContext.current
-
     LaunchedEffect(viewModel) {
-        viewModel.confirmationMessage.collect { messageResId ->
-            snackbarHostState.showSnackbar(context.getString(messageResId))
+        viewModel.statusUpdated.collect { success ->
+            resultNavigator.setResult(success)
+            resultNavigator.navigateBack()
         }
     }
 
@@ -134,6 +133,8 @@ private fun SelfUserStatusContent(
 ) {
     val textState = rememberTextFieldState(state.message)
     val emojiPickerState = rememberWireModalSheetState<Unit>(skipPartiallyExpanded = false)
+    val hasUnsavedChanges = state.isTeamMember &&
+            (textState.text.toString() != state.savedMessage || state.emoji != state.savedEmoji)
 
     LaunchedEffect(state.message) {
         if (textState.text.toString() != state.message) {
@@ -162,13 +163,14 @@ private fun SelfUserStatusContent(
         bottomBar = {
             Surface(
                 shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
-                color = MaterialTheme.wireColorScheme.surface,
+                color = MaterialTheme.wireColorScheme.background,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 WirePrimaryButton(
                     modifier = Modifier.padding(dimensions().spacing16x),
                     text = stringResource(R.string.user_profile_update_status),
                     loading = state.isSaving,
+                    state = if (hasUnsavedChanges) WireButtonState.Default else WireButtonState.Disabled,
                     onClick = { onUpdateCustomStatus(textState.text.toString()) },
                 )
             }

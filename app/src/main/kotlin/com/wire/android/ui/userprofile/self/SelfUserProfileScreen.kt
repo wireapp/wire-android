@@ -38,6 +38,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -116,11 +118,15 @@ fun SelfUserProfileScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
     avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>,
+    statusUpdateResultRecipient: ResultRecipient<SelfUserStatusScreenDestination, Boolean>,
     viewModelSelf: SelfUserProfileViewModel = selfUserProfileViewModel(),
     legalHoldRequestedViewModel: LegalHoldRequestedViewModel = legalHoldRequestedViewModel()
 ) {
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
     val logoutAction = LocalSelfUserProfileLogoutAction.current
+    val snackbarHostState = LocalSnackbarHostState.current
+    val coroutineScope = rememberCoroutineScope()
+    val statusUpdatedMessage = stringResource(R.string.user_profile_status_updated)
 
     LaunchedEffect(Unit) {
         // Check if the user is able to migrate to a team account, every time the screen is shown
@@ -186,6 +192,12 @@ fun SelfUserProfileScreen(
                     )
                 }
             }
+        }
+    }
+
+    statusUpdateResultRecipient.onNavResult { result ->
+        if (result is NavResult.Value && result.value) {
+            coroutineScope.launch { snackbarHostState.showSnackbar(statusUpdatedMessage) }
         }
     }
 

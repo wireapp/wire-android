@@ -38,6 +38,7 @@ data class ConversationMessagesViewState(
     val assetStatuses: PersistentMap<String, MessageAssetStatus> = persistentMapOf(),
     val threadSummaryByRootMessageId: PersistentMap<String, ThreadSummaryUi> = persistentMapOf(),
     val threadRootMessage: UIMessage.Regular? = null,
+    val isThreadFollowing: Boolean = true,
     val searchedMessageId: String? = null,
     val isFetchingOlderMessages: Boolean = false,
     val hasMoreRemoteMessages: Boolean = true,

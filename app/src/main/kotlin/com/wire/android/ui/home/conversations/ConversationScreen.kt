@@ -558,6 +558,7 @@ internal fun ConversationScreenHost(
         conversationMessages = conversationMessagesViewModel.infoMessage,
         threadRootMessage = conversationMessagesViewModel.conversationViewState.threadRootMessage,
         threadSummaryByRootMessageId = conversationMessagesViewModel.conversationViewState.threadSummaryByRootMessageId,
+        isThreadFollowing = conversationMessagesViewModel.conversationViewState.isThreadFollowing,
         isThreadMode = isThreadMode,
         onOpenThreadParentConversation = {
             conversationMessagesViewModel.threadRootMessageId?.let { rootMessageId ->
@@ -569,6 +570,7 @@ internal fun ConversationScreenHost(
                 )
             }
         },
+        onThreadFollowClick = conversationMessagesViewModel::toggleThreadFollowState,
         shareAssetExternally = conversationMessagesViewModel::shareAsset,
         shareAssetViaWire = { messageId ->
             conversationMessagesViewModel.prepareAssetForWireShare(messageId) { path, assetName ->
@@ -829,8 +831,10 @@ private fun ConversationScreenContent(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     threadRootMessage: UIMessage.Regular? = null,
     threadSummaryByRootMessageId: PersistentMap<String, ThreadSummaryUi> = persistentMapOf(),
+    isThreadFollowing: Boolean = true,
     isThreadMode: Boolean = false,
     onOpenThreadParentConversation: () -> Unit = {},
+    onThreadFollowClick: () -> Unit = {},
     onReplyInThreadClick: (UIMessage.Regular) -> Unit = {},
     onOpenThreadClick: (threadId: String, rootMessageId: String, rootMessageSelfDeletionDurationMillis: Long?) -> Unit = { _, _, _ -> },
     onVisibleRootMessagesChanged: (List<String>) -> Unit = {},
@@ -866,7 +870,9 @@ private fun ConversationScreenContent(
                         },
                         isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED,
                         isThreadMode = isThreadMode,
+                        isThreadFollowing = isThreadFollowing,
                         onOpenThreadParentConversation = onOpenThreadParentConversation,
+                        onThreadFollowClick = onThreadFollowClick,
                     )
 
                     HorizontalDivider(color = colorsScheme().outline)

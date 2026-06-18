@@ -257,6 +257,21 @@ private fun SelfUserProfileContent(
                     }
                 }
             )
+        },
+        bottomBar = {
+            val context = LocalContext.current
+            Column {
+                Divider(color = MaterialTheme.wireColorScheme.outline)
+                Column(
+                    modifier = Modifier.padding(dimensions().spacing16x),
+                    verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+                ) {
+                    if (state.teamUrl != null) {
+                        ManageTeamButton { uriHandler.openUri(state.teamUrl) }
+                    }
+                    NewTeamButton(onAddAccountClick, isUserInCall, context)
+                }
+            }
         }
     ) { internalPadding ->
         with(state) {
@@ -352,18 +367,6 @@ private fun SelfUserProfileContent(
                             )
                         }
                     }
-                }
-
-                Divider(color = MaterialTheme.wireColorScheme.outline)
-
-                Column(
-                    modifier = Modifier.padding(dimensions().spacing16x),
-                    verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
-                ) {
-                    if (teamUrl != null) {
-                        ManageTeamButton { uriHandler.openUri(teamUrl) }
-                    }
-                    NewTeamButton(onAddAccountClick, isUserInCall, context)
                 }
             }
             LogoutOptionsDialog(

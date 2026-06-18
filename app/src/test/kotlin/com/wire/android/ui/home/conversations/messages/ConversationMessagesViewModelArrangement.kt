@@ -58,6 +58,7 @@ import com.wire.kalium.logic.data.message.paging.NomadMessagePagingResult
 import com.wire.kalium.logic.feature.message.MessageOperationResult
 import com.wire.kalium.logic.feature.message.ToggleReactionResult
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
+import com.wire.kalium.logic.feature.message.poll.SendPollVoteUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.network.NetworkState
@@ -134,6 +135,9 @@ class ConversationMessagesViewModelArrangement {
     lateinit var isWireCellFeatureEnabled: IsWireCellsEnabledUseCase
 
     @MockK
+    lateinit var sendPollVote: SendPollVoteUseCase
+
+    @MockK
     lateinit var networkStateObserver: NetworkStateObserver
 
     private val viewModel: ConversationMessagesViewModel by lazy {
@@ -156,6 +160,7 @@ class ConversationMessagesViewModelArrangement {
             getSearchedConversationMessagePosition,
             deleteMessage,
             isWireCellFeatureEnabled,
+            sendPollVote,
             networkStateObserver,
         )
     }
@@ -166,6 +171,7 @@ class ConversationMessagesViewModelArrangement {
         mockUri()
         every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
         coEvery { toggleReaction(any(), any(), any()) } returns ToggleReactionResult.Success
+        coEvery { sendPollVote(any(), any(), any()) } returns SendPollVoteUseCase.Result.Success
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesFlow
         coEvery { fetchOlderNomadMessagesByConversationUseCase(any(), any()) } returns NomadMessagePagingResult(hasMore = false)

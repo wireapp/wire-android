@@ -334,6 +334,16 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                     )
                 }
 
+                is WithUser.Poll -> {
+                    val text = (content as WithUser.Poll).question?.let { UIText.DynamicString(it) }
+                        ?: UIText.StringResource(R.string.last_message_composite_with_missing_text)
+                    UILastMessageContent.SenderWithMessage(
+                        sender = userUIText,
+                        message = text,
+                        separator = ":${MarkdownConstants.NON_BREAKING_SPACE}",
+                    )
+                }
+
                 is WithUser.MissedCall -> if (isSelfMessage) {
                     UILastMessageContent.SenderWithMessage(
                         userUIText,

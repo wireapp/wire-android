@@ -69,6 +69,7 @@ import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversati
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
+import com.wire.kalium.logic.feature.message.poll.SendPollVoteUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.network.NetworkState
@@ -113,6 +114,7 @@ class ConversationMessagesViewModel(
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
+    private val sendPollVoteUseCase: SendPollVoteUseCase,
     private val networkStateObserver: NetworkStateObserver,
 ) : ViewModel() {
 
@@ -408,6 +410,15 @@ class ConversationMessagesViewModel(
     fun toggleReaction(messageId: String, reactionEmoji: String) {
         viewModelScope.launch {
             toggleReaction(conversationId, messageId, reactionEmoji)
+        }
+    }
+
+    fun sendPollVote(messageId: String, selectedOptionIds: List<String>) {
+        viewModelScope.launch {
+            when (sendPollVoteUseCase(conversationId, messageId, selectedOptionIds)) {
+                is SendPollVoteUseCase.Result.Success -> Unit
+                is SendPollVoteUseCase.Result.Failure -> onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingPollVote)
+            }
         }
     }
 

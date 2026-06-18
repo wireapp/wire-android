@@ -513,6 +513,22 @@ class ConversationMessagesViewModelTest {
     }
 
     @Test
+    fun `given a poll message and selected options, when sendPollVote is called, then should call SendPollVoteUseCase`() = runTest {
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        val messageId = "poll-message-id"
+        val selectedOptionIds = listOf("option-1", "option-3")
+
+        viewModel.sendPollVote(messageId, selectedOptionIds)
+
+        coVerify(exactly = 1) {
+            arrangement.sendPollVote(arrangement.conversationId, messageId, selectedOptionIds)
+        }
+    }
+
+    @Test
     fun `given getting UnreadEventsCount failed, then messages requested anyway`() = runTest {
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withConversationUnreadEventsCount(GetConversationUnreadEventsCountUseCase.Result.Failure(StorageFailure.DataNotFound))

@@ -707,6 +707,22 @@
     <string name="attachment_record_video">Video</string>
     <string name="attachment_voice_message">Audio</string>
     <string name="attachment_share_location">Location</string>
+    <string name="attachment_create_poll">Poll</string>
+    <string name="create_poll_title">Create poll</string>
+    <string name="create_poll_question_label">Question</string>
+    <string name="create_poll_question_placeholder">Ask question</string>
+    <string name="create_poll_options_label">Options</string>
+    <string name="create_poll_option_placeholder">Option %1$d</string>
+    <string name="create_poll_add_option">Add option</string>
+    <string name="create_poll_settings_label">Poll settings</string>
+    <string name="create_poll_allow_multiple_answers">Allow multiple answers</string>
+    <string name="create_poll_hide_voter_names">Hide voter names</string>
+    <string name="create_poll_send">Create poll</string>
+    <string name="create_poll_remove_option_content_description">Remove option</string>
+    <string name="create_poll_error_generic">Could not create poll. Please try again.</string>
+    <string name="poll_select_one">Select one</string>
+    <string name="poll_select_one_or_more">Select one or more</string>
+    <string name="error_conversation_sending_poll_vote">Could not send poll vote. Please try again.</string>
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>

@@ -102,6 +102,7 @@ fun MessageContentItem(
                     shouldDisplayMessageStatus = shouldDisplayMessageStatus,
                     conversationDetailsData = conversationDetailsData,
                     onReplyClicked = clickActions.onReplyClicked,
+                    onPollOptionClicked = clickActions.onPollOptionClicked,
                 )
                 if (shouldDisplayFooter && !messageStyle.isBubble()) {
                     VerticalSpace.x4()

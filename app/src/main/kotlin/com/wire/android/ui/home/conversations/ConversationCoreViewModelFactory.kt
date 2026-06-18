@@ -52,6 +52,7 @@ import com.wire.android.ui.home.conversations.usecase.ObserveQuoteMessageForConv
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerHelperFlavor
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
+import com.wire.android.ui.home.messagecomposer.poll.CreatePollViewModel
 import com.wire.android.util.FileManager
 import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.android.util.ImageUtil
@@ -108,6 +109,8 @@ import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
+import com.wire.kalium.logic.feature.message.poll.SendPollMessageUseCase
+import com.wire.kalium.logic.feature.message.poll.SendPollVoteUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
@@ -151,6 +154,8 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
+    private val sendPollMessage: SendPollMessageUseCase,
+    private val sendPollVote: SendPollVoteUseCase,
     private val sendMultipartMessage: SendMultipartMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
     private val sendEditMultipartMessage: SendEditMultipartMessageUseCase,
@@ -219,6 +224,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
         getSearchedConversationMessagePosition = getSearchedConversationMessagePosition,
         deleteMessage = deleteMessage,
         isWireCellFeatureEnabled = isWireCellsEnabled,
+        sendPollVoteUseCase = sendPollVote,
         networkStateObserver = networkStateObserver,
     )
 
@@ -266,6 +272,11 @@ class ConversationCoreViewModelFactory @Inject constructor(
         analyticsManager = analyticsManager,
         isWireCellsEnabledForConversation = isWireCellsEnabledForConversation,
         sharedState = messageSharedState,
+    )
+
+    fun createPollViewModel(savedStateHandle: SavedStateHandle) = CreatePollViewModel(
+        savedStateHandle = savedStateHandle,
+        sendPollMessage = sendPollMessage,
     )
 
     fun messageDraftViewModel(savedStateHandle: SavedStateHandle) = MessageDraftViewModel(

@@ -85,6 +85,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreatePollScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
@@ -625,6 +626,7 @@ fun ConversationScreen(
         onReactionClick = { messageId, emoji ->
             conversationMessagesViewModel.toggleReaction(messageId, emoji)
         },
+        onPollOptionClick = conversationMessagesViewModel::sendPollVote,
         onResetSessionClick = conversationMessagesViewModel::onResetSession,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = {
@@ -717,6 +719,15 @@ fun ConversationScreen(
                             conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
                             tempWritableUri = messageComposerViewModel.tempWritableImageUri
                         )
+                    )
+                )
+            )
+        },
+        onPollClicked = {
+            navigator.navigate(
+                NavigationCommand(
+                    CreatePollScreenDestination(
+                        conversationId = conversationInfoViewModel.conversationInfoViewState.conversationId
                     )
                 )
             )
@@ -977,6 +988,7 @@ private fun ConversationScreen(
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
+    onPollOptionClick: (messageId: String, selectedOptionIds: List<String>) -> Unit,
     onResetSessionClick: (senderUserId: UserId, clientId: String?) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onDropDownClick: () -> Unit,
@@ -998,6 +1010,7 @@ private fun ConversationScreen(
     messageComposerStateHolder: MessageComposerStateHolder,
     onLinkClick: (String) -> Unit,
     openDrawingCanvas: () -> Unit,
+    onPollClicked: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
@@ -1084,6 +1097,7 @@ private fun ConversationScreen(
                         onAssetItemClicked = onAssetItemClicked,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
+                        onPollOptionClicked = onPollOptionClick,
                         onResetSessionClicked = onResetSessionClick,
                         onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
@@ -1103,6 +1117,7 @@ private fun ConversationScreen(
                         currentTimeInMillisFlow = currentTimeInMillisFlow,
                         onReachedOldestMessage = onReachedOldestMessage,
                         openDrawingCanvas = openDrawingCanvas,
+                        onPollClicked = onPollClicked,
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
@@ -1172,6 +1187,7 @@ private fun ConversationScreenContent(
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onReactionClicked: (String, String) -> Unit,
+    onPollOptionClicked: (String, List<String>) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
@@ -1190,6 +1206,7 @@ private fun ConversationScreenContent(
     onLinkClick: (String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
     openDrawingCanvas: () -> Unit,
+    onPollClicked: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
@@ -1225,6 +1242,7 @@ private fun ConversationScreenContent(
                     onFullMessageLongClicked = onShowEditingOptions,
                     onProfileClicked = onOpenProfile,
                     onReactionClicked = onReactionClicked,
+                    onPollOptionClicked = onPollOptionClicked,
                     onAssetClicked = onAssetItemClicked,
                     onImageClicked = onImageFullScreenMode,
                     onLinkClicked = onLinkClick,
@@ -1260,6 +1278,7 @@ private fun ConversationScreenContent(
         tempWritableImageUri = tempWritableImageUri,
         onImagesPicked = onImagesPicked,
         openDrawingCanvas = openDrawingCanvas,
+        onPollClicked = onPollClicked,
         onAttachmentClick = onAttachmentClick,
         onAttachmentMenuClick = onAttachmentMenuClick,
         onAttachmentPicked = onAttachmentPicked,
@@ -1986,6 +2005,7 @@ fun PreviewConversationScreen() = WireTheme {
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },
+        onPollOptionClick = { _, _ -> },
         onResetSessionClick = { _, _ -> },
         onUpdateConversationReadDate = { },
         onDropDownClick = { },
@@ -2007,6 +2027,7 @@ fun PreviewConversationScreen() = WireTheme {
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { _ -> },
         openDrawingCanvas = {},
+        onPollClicked = {},
         onImagesPicked = { _, _ -> },
         onAttachmentClick = {},
         onAttachmentMenuClick = {},

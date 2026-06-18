@@ -19,6 +19,7 @@
 package com.wire.android.mapper
 
 import com.wire.android.R
+import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.findUser
@@ -45,6 +46,7 @@ import com.wire.kalium.logic.data.message.hasValidData
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.util.fileExtension
 import com.wire.kalium.logic.util.isGreaterThan
 import kotlinx.collections.immutable.toPersistentList
@@ -55,6 +57,7 @@ import dev.zacsweers.metro.Inject
 class RegularMessageMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
     private val isoFormatter: ISOFormatter,
+    @CurrentAccount private val selfUserId: UserId,
 ) {
 
     @Suppress("LongMethod")
@@ -124,6 +127,27 @@ class RegularMessageMapper @Inject constructor(
                 }.toPersistentList()
             )
         }
+
+        is MessageContent.Poll -> UIMessageContent.Poll(
+            question = content.question,
+            options = content.options.map {
+                UIMessageContent.Poll.Option(
+                    id = it.id,
+                    text = it.text
+                )
+            },
+            allowMultipleAnswers = content.allowMultipleAnswers,
+            hideVoterNames = content.hideVoterNames,
+            selectedOptionIds = content.votes.firstOrNull { it.voterId == selfUserId }?.selectedOptionIds.orEmpty(),
+            votes = content.votes.map {
+                UIMessageContent.Poll.Vote(
+                    voterId = it.voterId,
+                    selectedOptionIds = it.selectedOptionIds,
+                    date = it.date
+                )
+            },
+            deliveryStatus = mapRecipientsFailure(userList, message.deliveryStatus)
+        )
 
         is MessageContent.Location -> toLocation(content, userList, message)
 

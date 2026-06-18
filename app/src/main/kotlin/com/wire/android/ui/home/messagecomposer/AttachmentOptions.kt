@@ -67,6 +67,7 @@ fun AttachmentOptionsComponent(
     optionsVisible: Boolean,
     onImagesPicked: (List<Uri>) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
+    onPollClicked: () -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
@@ -86,6 +87,7 @@ fun AttachmentOptionsComponent(
         tempWritableVideoUri = tempWritableVideoUri,
         onImagesPicked = onImagesPicked,
         onFilePicked = onAttachmentPicked,
+        onPollClicked = onPollClicked,
         onRecordAudioMessageClicked = onRecordAudioMessageClicked,
         onLocationPickerClicked = onLocationPickerClicked,
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
@@ -286,6 +288,7 @@ private fun buildAttachmentOptionItems(
     tempWritableVideoUri: Uri?,
     onImagesPicked: (List<Uri>) -> Unit,
     onFilePicked: (UriAsset) -> Unit,
+    onPollClicked: () -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
     onLocationPickerClicked: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
@@ -328,6 +331,14 @@ private fun buildAttachmentOptionItems(
                     text = R.string.attachment_share_image,
                     icon = R.drawable.ic_gallery,
                 ) { galleryFlow.launch() }
+            )
+            add(
+                AttachmentOptionItem(
+                    isEnabled = areAttachmentOptionsEnabled,
+                    text = R.string.attachment_create_poll,
+                    icon = R.drawable.ic_poll,
+                    onClick = onPollClicked,
+                )
             )
             add(
                 AttachmentOptionItem(
@@ -390,6 +401,7 @@ fun PreviewAttachmentComponents() {
             areAttachmentOptionsEnabled = true,
             tempWritableImageUri = null,
             tempWritableVideoUri = null,
+            onPollClicked = {},
             onRecordAudioMessageClicked = {},
             onLocationPickerClicked = {},
             onPermissionPermanentlyDenied = {},
@@ -412,6 +424,7 @@ fun PreviewAttachmentOptionsComponentSmallScreen() {
                 areAttachmentOptionsEnabled = true,
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
+                onPollClicked = {},
                 onRecordAudioMessageClicked = {},
                 onLocationPickerClicked = {},
                 onPermissionPermanentlyDenied = {},
@@ -435,6 +448,7 @@ fun PreviewAttachmentOptionsComponentNormalScreen() {
                 areAttachmentOptionsEnabled = true,
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
+                onPollClicked = {},
                 onRecordAudioMessageClicked = {},
                 onLocationPickerClicked = {},
                 onPermissionPermanentlyDenied = {},
@@ -458,6 +472,7 @@ fun PreviewAttachmentOptionsComponentTabledScreen() {
                 areAttachmentOptionsEnabled = true,
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
+                onPollClicked = {},
                 onRecordAudioMessageClicked = {},
                 onLocationPickerClicked = {},
                 onPermissionPermanentlyDenied = {},

@@ -108,6 +108,7 @@ import com.wire.android.ui.home.conversations.ScopedMessageViewModelFactory
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelImpl
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
+import com.wire.android.ui.home.messagecomposer.poll.CreatePollViewModel
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
@@ -577,6 +578,15 @@ object WireMetroViewModelBindings {
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
                 factory.sendMessageViewModel(extras.createSavedStateHandle())
+        }
+
+    @Provides
+    @IntoMap
+    @ViewModelAssistedFactoryKey(CreatePollViewModel::class)
+    fun createPollViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+        object : ViewModelAssistedFactory {
+            override fun create(extras: CreationExtras): ViewModel =
+                factory.createPollViewModel(extras.createSavedStateHandle())
         }
 
     @Provides

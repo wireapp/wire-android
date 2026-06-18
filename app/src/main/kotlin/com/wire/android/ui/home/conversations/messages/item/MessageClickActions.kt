@@ -27,6 +27,7 @@ sealed class MessageClickActions {
     open val onFullMessageLongClicked: ((UIMessage.Regular) -> Unit)? = null
     open val onProfileClicked: (senderId: MessageSenderId) -> Unit = {}
     open val onReactionClicked: (String, String) -> Unit = { _, _ -> }
+    open val onPollOptionClicked: (String, List<String>) -> Unit = { _, _ -> }
     open val onAssetClicked: (String) -> Unit = {}
     open val onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit = { _, _, _ -> }
     open val onLinkClicked: (String) -> Unit = {}
@@ -44,6 +45,7 @@ sealed class MessageClickActions {
         override val onFullMessageLongClicked: ((UIMessage.Regular) -> Unit)? = null,
         override val onProfileClicked: (senderId: MessageSenderId) -> Unit = {},
         override val onReactionClicked: (String, String) -> Unit = { _, _ -> },
+        override val onPollOptionClicked: (String, List<String>) -> Unit = { _, _ -> },
         override val onAssetClicked: (String) -> Unit = {},
         override val onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit = { _, _, _ -> },
         override val onLinkClicked: (String) -> Unit = {},

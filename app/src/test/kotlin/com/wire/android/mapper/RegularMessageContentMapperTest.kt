@@ -36,6 +36,7 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SupportedProtocol
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
@@ -49,9 +50,11 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -94,6 +97,45 @@ class RegularMessageContentMapperTest {
 
         // Then
         assertNull(result.messageBody.markdownDocument)
+    }
+
+    @Test
+    fun givenPollContent_whenMappingMessage_thenPollMessageContentShouldBeReturned() = runTest {
+        // Given
+        val (_, mapper) = Arrangement().arrange()
+        val voteDate = Instant.parse("2026-06-18T10:00:00.000Z")
+        val pollContent = MessageContent.Poll(
+            question = "Where should we meet?",
+            options = listOf(
+                MessageContent.Poll.Option(id = "option-1", text = "Office"),
+                MessageContent.Poll.Option(id = "option-2", text = "Cafe")
+            ),
+            allowMultipleAnswers = true,
+            hideVoterNames = false,
+            votes = listOf(
+                MessageContent.Poll.Vote(
+                    voterId = UserId(value = "voter-id", domain = "wire.com"),
+                    selectedOptionIds = listOf("option-2"),
+                    date = voteDate
+                )
+            )
+        )
+        val message = TestMessage.TEXT_MESSAGE.copy(content = pollContent)
+
+        // When
+        val result = mapper.mapMessage(message, sender, userMembers)
+
+        // Then
+        assertTrue(result is UIMessageContent.Poll)
+        result as UIMessageContent.Poll
+        assertEquals("Where should we meet?", result.question)
+        assertEquals(true, result.allowMultipleAnswers)
+        assertEquals(false, result.hideVoterNames)
+        assertEquals(listOf("option-2"), result.selectedOptionIds)
+        assertEquals(listOf("option-1", "option-2"), result.options.map { it.id })
+        assertEquals(listOf("Office", "Cafe"), result.options.map { it.text })
+        assertEquals(listOf("option-2"), result.votes.single().selectedOptionIds)
+        assertEquals(voteDate, result.votes.single().date)
     }
 
     @Test
@@ -234,7 +276,11 @@ class RegularMessageContentMapperTest {
         lateinit var messageResourceProvider: MessageResourceProvider
 
         private val messageContentMapper by lazy {
-            RegularMessageMapper(messageResourceProvider, ISOFormatter())
+            RegularMessageMapper(
+                messageResourceProvider = messageResourceProvider,
+                isoFormatter = ISOFormatter(),
+                selfUserId = UserId(value = "voter-id", domain = "wire.com")
+            )
         }
 
         init {

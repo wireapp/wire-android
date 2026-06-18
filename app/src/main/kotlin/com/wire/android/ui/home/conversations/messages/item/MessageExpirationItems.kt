@@ -241,6 +241,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
         is UIMessageContent.AssetMessage,
         is UIMessageContent.AudioAssetMessage,
         is UIMessageContent.ImageMessage,
+        is UIMessageContent.Poll,
         is UIMessageContent.TextMessage -> {
             StatusBox(
                 statusText = stringResource(

@@ -100,6 +100,7 @@ fun AdditionalOptionSubMenu(
     optionsVisible: Boolean,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     onLocationPickerClicked: () -> Unit,
+    onPollClicked: () -> Unit,
     onCloseAdditionalAttachment: () -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
     additionalOptionsState: AdditionalOptionSubMenuState,
@@ -121,6 +122,7 @@ fun AdditionalOptionSubMenu(
         areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
         onRecordAudioMessageClicked = onRecordAudioMessageClicked,
         onLocationPickerClicked = onLocationPickerClicked,
+        onPollClicked = onPollClicked,
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
     )
     when (additionalOptionsState) {

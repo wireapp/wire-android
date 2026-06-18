@@ -44,6 +44,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.multipart.Multi
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
+import com.wire.android.ui.home.messagecomposer.poll.CreatePollViewModel
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
 interface ConversationCoreManualViewModelFactory : ManualViewModelAssistedFactory {
@@ -60,6 +61,10 @@ fun messageComposerViewModel(): MessageComposerViewModel =
 
 @Composable
 fun sendMessageViewModel(): SendMessageViewModel =
+    conversationCoreViewModel()
+
+@Composable
+fun createPollViewModel(): CreatePollViewModel =
     conversationCoreViewModel()
 
 @Composable

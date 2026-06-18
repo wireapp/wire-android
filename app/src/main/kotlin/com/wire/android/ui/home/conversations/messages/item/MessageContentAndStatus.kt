@@ -57,6 +57,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.asset.Restricte
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsView
+import com.wire.android.ui.home.conversations.model.messagetypes.poll.PollMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMessage
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.launchGeoIntent
@@ -74,6 +75,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     onProfileClicked: (senderId: MessageSenderId) -> Unit,
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
+    onPollOptionClicked: (String, List<String>) -> Unit,
     shouldDisplayMessageStatus: Boolean,
     conversationDetailsData: ConversationDetailsData,
     accent: Accent = Accent.Unknown,
@@ -121,6 +123,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onOpenProfile = onProfileClicked,
                 onLinkClick = onLinkClicked,
                 onReplyClick = onReplyClickable,
+                onPollOptionClick = onPollOptionClicked,
                 messageStyle = messageStyle,
                 accent = accent,
                 conversationAssetPathsViewModel = conversationAssetPathsViewModel
@@ -169,6 +172,7 @@ private fun MessageContent(
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
+    onPollOptionClick: (String, List<String>) -> Unit,
     accent: Accent,
     conversationAssetPathsViewModel: ConversationAssetPathsViewModel
 ) {
@@ -425,6 +429,14 @@ private fun MessageContent(
                     onImageAttachmentClick = onMultipartImageClick
                 )
             }
+
+        is UIMessageContent.Poll -> PollMessageContent(
+            poll = messageContent,
+            messageStyle = messageStyle,
+            onOptionSelected = { selectedOptionIds ->
+                onPollOptionClick(message.header.messageId, selectedOptionIds)
+            }
+        )
 
         UIMessageContent.Deleted -> {}
 

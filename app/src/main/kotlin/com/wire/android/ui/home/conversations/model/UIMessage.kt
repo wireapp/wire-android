@@ -373,6 +373,32 @@ sealed interface UIMessageContent {
     }
 
     @Serializable
+    data class Poll(
+        val question: String,
+        val options: List<Option>,
+        val allowMultipleAnswers: Boolean,
+        val hideVoterNames: Boolean,
+        val selectedOptionIds: List<String>,
+        val votes: List<Vote>,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular, PartialDeliverable, Copyable {
+        override fun textToCopy(resources: Resources): String = question
+
+        @Serializable
+        data class Option(
+            val id: String,
+            val text: String
+        )
+
+        @Serializable
+        data class Vote(
+            val voterId: UserId,
+            val selectedOptionIds: List<String>,
+            val date: Instant
+        )
+    }
+
+    @Serializable
     data object Deleted : Regular
 
     @Serializable

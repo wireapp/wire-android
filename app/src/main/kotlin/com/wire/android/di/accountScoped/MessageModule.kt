@@ -61,6 +61,8 @@ import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessageByCon
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 import com.wire.kalium.logic.feature.message.observePaginatedImageAssetMessageByConversationId
+import com.wire.kalium.logic.feature.message.poll.SendPollMessageUseCase
+import com.wire.kalium.logic.feature.message.poll.SendPollVoteUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
@@ -101,6 +103,12 @@ class MessageModule {
 
     @Provides
     fun provideSendTextMessageUseCase(messageScope: MessageScope): SendTextMessageUseCase = messageScope.sendTextMessage
+
+    @Provides
+    fun provideSendPollMessageUseCase(messageScope: MessageScope): SendPollMessageUseCase = messageScope.sendPollMessage
+
+    @Provides
+    fun provideSendPollVoteUseCase(messageScope: MessageScope): SendPollVoteUseCase = messageScope.sendPollVote
 
     @Provides
     fun provideSendEditTextMessageUseCase(messageScope: MessageScope): SendEditTextMessageUseCase =

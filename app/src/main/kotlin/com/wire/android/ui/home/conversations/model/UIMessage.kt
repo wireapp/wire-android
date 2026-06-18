@@ -165,7 +165,8 @@ data class MessageHeader(
     val clientId: ClientId? = null,
     val accent: Accent = Accent.Unknown,
     val guestExpiresAt: Instant? = null,
-    val senderId: MessageSenderId? = null
+    val senderId: MessageSenderId? = null,
+    val textStatus: String? = null
 )
 
 sealed interface MessageSenderId {

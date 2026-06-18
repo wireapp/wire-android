@@ -168,6 +168,7 @@ class MessageMapper @Inject constructor(
         clientId = (message as? Message.Sendable)?.senderClientId,
         accent = Accent.fromAccentId(sender?.accentId),
         guestExpiresAt = sender?.expiresAt,
+        textStatus = sender?.textStatus,
         senderId = when {
             (sender as? OtherUser)?.botService != null -> MessageSenderId.Bot(sender.botService!!)
             sender?.userType == UserTypeInfo.App -> MessageSenderId.App(sender.id)

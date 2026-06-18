@@ -59,6 +59,16 @@ fun MessageAuthorRow(
                     messageStyle,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
+                if (!textStatus.isNullOrBlank()) {
+                    Text(
+                        text = textStatus,
+                        style = MaterialTheme.wireTypography.body02,
+                        color = MaterialTheme.wireColorScheme.onBackground.copy(alpha = 0.6f),
+                        modifier = Modifier.padding(start = dimensions().spacing4x),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 UserBadge(
                     membership = membership,
                     connectionState = connectionState,

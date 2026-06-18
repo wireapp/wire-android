@@ -315,6 +315,7 @@ private fun SelfUserProfileContent(
                         accentId = accentId,
                         showQrCode = state.showQrCode,
                         availabilityStatus = status,
+                        avatarStatusSize = MaterialTheme.wireDimensions.avatarStatusSize + 2.dp,
                     )
                     if (state.legalHoldStatus != LegalHoldUIState.None) {
                         Box(

@@ -55,6 +55,7 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -121,6 +122,7 @@ fun UserProfileInfo(
     showQrCode: Boolean = true,
     textStatus: String? = null,
     availabilityStatus: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
+    avatarStatusSize: Dp = dimensions().avatarStatusSize,
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -159,6 +161,7 @@ fun UserProfileInfo(
                 UserProfileAvatar(
                     size = dimensions().avatarDefaultBigSize,
                     temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,
+                    statusSize = avatarStatusSize,
                     avatarData = userAvatarData,
                     clickable = remember(editableState) {
                         Clickable(

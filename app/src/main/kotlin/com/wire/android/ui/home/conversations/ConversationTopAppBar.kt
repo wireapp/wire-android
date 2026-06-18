@@ -100,6 +100,7 @@ fun ConversationScreenTopAppBar(
     isInteractionEnabled: Boolean,
     isDropDownEnabled: Boolean = false,
     isThreadMode: Boolean = false,
+    onOpenThreadParentConversation: () -> Unit = {},
     containerColor: Color? = null
 ) {
     val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
@@ -107,6 +108,7 @@ fun ConversationScreenTopAppBar(
         ThreadConversationScreenTopAppBarContent(
             conversationName = conversationInfoViewState.conversationName.asString(),
             onBackButtonClick = onBackButtonClick,
+            onOpenParentConversation = onOpenThreadParentConversation,
             containerColor = containerColor
         )
     } else {
@@ -238,6 +240,7 @@ private fun ConversationScreenTopAppBarContent(
 private fun ThreadConversationScreenTopAppBarContent(
     conversationName: String,
     onBackButtonClick: () -> Unit,
+    onOpenParentConversation: () -> Unit,
     containerColor: Color? = null
 ) {
     TopAppBar(
@@ -247,6 +250,11 @@ private fun ThreadConversationScreenTopAppBarContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .offset(x = -dimensions().spacing4x)
+                    .clip(RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize))
+                    .clickable(
+                        onClickLabel = stringResource(R.string.thread_open_in_conversation),
+                        onClick = onOpenParentConversation
+                    )
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_conversation),

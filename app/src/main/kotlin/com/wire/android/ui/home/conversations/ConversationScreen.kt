@@ -562,14 +562,9 @@ internal fun ConversationScreenHost(
         onOpenThreadParentConversation = {
             conversationMessagesViewModel.threadRootMessageId?.let { rootMessageId ->
                 navigator.navigate(
-                    NavigationCommand(
-                        ConversationScreenDestination(
-                            navArgs = ConversationNavArgs(
-                                conversationId = conversationMessagesViewModel.conversationId,
-                                searchedMessageId = rootMessageId,
-                            )
-                        ),
-                        BackStackMode.UPDATE_EXISTED,
+                    threadParentConversationNavigationCommand(
+                        conversationId = conversationMessagesViewModel.conversationId,
+                        rootMessageId = rootMessageId,
                     )
                 )
             }
@@ -752,6 +747,19 @@ internal fun threadNavigationCommand(
     launchSingleTop = false,
 )
 
+internal fun threadParentConversationNavigationCommand(
+    conversationId: ConversationId,
+    rootMessageId: String,
+) = NavigationCommand(
+    ConversationScreenDestination(
+        navArgs = ConversationNavArgs(
+            conversationId = conversationId,
+            searchedMessageId = rootMessageId,
+        )
+    ),
+    BackStackMode.UPDATE_EXISTED,
+)
+
 private fun MessageBundle.withPrefetchedLinkPreview(
     linkPreview: com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview?
 ): MessageBundle {
@@ -858,6 +866,7 @@ private fun ConversationScreenContent(
                         },
                         isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED,
                         isThreadMode = isThreadMode,
+                        onOpenThreadParentConversation = onOpenThreadParentConversation,
                     )
 
                     HorizontalDivider(color = colorsScheme().outline)

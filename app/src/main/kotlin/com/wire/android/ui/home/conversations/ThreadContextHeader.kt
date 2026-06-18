@@ -80,14 +80,16 @@ internal fun ThreadContextHeader(
 
 @Composable
 private fun threadRootPreviewText(rootMessage: UIMessage.Regular?): String {
-    if (rootMessage == null) {
-        return stringResource(R.string.thread_root_fallback_label)
+    return when {
+        rootMessage == null -> stringResource(R.string.thread_root_fallback_label)
+        rootMessage.isDeleted -> stringResource(R.string.deleted_message_text)
+        else -> threadRootContentPreviewText(rootMessage.messageContent)
     }
-    if (rootMessage.isDeleted) {
-        return stringResource(R.string.deleted_message_text)
-    }
+}
 
-    return when (val content = rootMessage.messageContent) {
+@Composable
+private fun threadRootContentPreviewText(content: UIMessageContent.Regular?): String {
+    return when (content) {
         is UIMessageContent.TextMessage -> content.messageBody.message.asString()
         is UIMessageContent.Multipart -> content.messageBody?.message?.asString()
             ?: stringResource(R.string.notification_shared_file)

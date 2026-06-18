@@ -231,7 +231,7 @@ fun SelectedAvailabilityDescription(status: UserAvailabilityStatus) {
         text = stringResource(description),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
+            .padding(horizontal = dimensions().spacing8x, vertical = dimensions().spacing8x),
         style = MaterialTheme.wireTypography.body01,
         color = MaterialTheme.wireColorScheme.secondaryText,
     )

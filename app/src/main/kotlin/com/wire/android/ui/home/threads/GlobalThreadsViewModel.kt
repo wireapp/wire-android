@@ -192,7 +192,7 @@ data class UiGlobalThread(
     val lastActivityAt: Instant,
     val searchText: String,
 ) {
-    val key: String = "${conversationId}:${threadId}"
+    val key: String = "$conversationId:$threadId"
 
     enum class ConversationType {
         ONE_ON_ONE,

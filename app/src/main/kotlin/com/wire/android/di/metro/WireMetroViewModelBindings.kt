@@ -54,6 +54,7 @@ import com.wire.android.ui.common.CommonManualViewModelFactory
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
 import com.wire.android.ui.home.AppSyncViewModel
+import com.wire.android.ui.home.HomeListPillsViewModel
 import com.wire.android.ui.home.HomeManualViewModelFactory
 import com.wire.android.ui.home.HomeViewModel
 import com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModel
@@ -184,6 +185,11 @@ object WireMetroViewModelBindings {
     @IntoMap
     @ViewModelKey(GlobalThreadsViewModel::class)
     fun globalThreadsViewModel(viewModel: GlobalThreadsViewModel): ViewModel = viewModel
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(HomeListPillsViewModel::class)
+    fun homeListPillsViewModel(viewModel: HomeListPillsViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap

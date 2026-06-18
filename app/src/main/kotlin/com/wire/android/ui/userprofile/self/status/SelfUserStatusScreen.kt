@@ -40,11 +40,13 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -63,6 +65,7 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
@@ -90,6 +93,15 @@ fun SelfUserStatusScreen(
     navigator: Navigator,
     viewModel: SelfUserStatusViewModel = selfUserStatusViewModel(),
 ) {
+    val snackbarHostState = LocalSnackbarHostState.current
+    val context = LocalContext.current
+
+    LaunchedEffect(viewModel) {
+        viewModel.confirmationMessage.collect { messageResId ->
+            snackbarHostState.showSnackbar(context.getString(messageResId))
+        }
+    }
+
     SelfUserStatusContent(
         state = viewModel.state,
         onBackClick = navigator::navigateBack,
@@ -140,6 +152,20 @@ private fun SelfUserStatusContent(
                 navigationIconType = NavigationIconType.Back(),
                 elevation = 0.dp,
             )
+        },
+        bottomBar = {
+            Surface(
+                shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
+                color = MaterialTheme.wireColorScheme.background,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                WirePrimaryButton(
+                    modifier = Modifier.padding(dimensions().spacing16x),
+                    text = stringResource(R.string.user_profile_update_status),
+                    loading = state.isSaving,
+                    onClick = { onUpdateCustomStatus(textState.text.toString()) },
+                )
+            }
         }
     ) { internalPadding ->
         Column(
@@ -162,9 +188,7 @@ private fun SelfUserStatusContent(
                     onClearCustomStatus = {
                         textState.clearText()
                         onClearCustomStatus()
-                    },
-                    onUpdateCustomStatus = { onUpdateCustomStatus(textState.text.toString()) },
-                    isSaving = state.isSaving,
+                    }
                 )
             }
         }
@@ -247,9 +271,7 @@ private fun CustomStatusSection(
     textState: TextFieldState,
     messageLength: Int,
     onEmojiClick: () -> Unit,
-    onClearCustomStatus: () -> Unit,
-    onUpdateCustomStatus: () -> Unit,
-    isSaving: Boolean,
+    onClearCustomStatus: () -> Unit
 ) {
     val hasStatus = emoji != null || textState.text.isNotBlank()
 
@@ -319,12 +341,6 @@ private fun CustomStatusSection(
                 .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
             style = MaterialTheme.wireTypography.body02,
             color = MaterialTheme.wireColorScheme.secondaryText,
-        )
-        WirePrimaryButton(
-            modifier = Modifier.padding(horizontal = dimensions().spacing16x),
-            text = stringResource(R.string.user_profile_update_status),
-            loading = isSaving,
-            onClick = onUpdateCustomStatus,
         )
     }
 }

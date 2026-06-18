@@ -25,14 +25,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
+import com.wire.android.R
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfTextStatusUseCase
 import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -46,6 +50,8 @@ class SelfUserStatusViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
     private val dataStore = userDataStoreProvider.getOrCreate(selfUserId)
+    private val _confirmationMessage = MutableSharedFlow<Int>(extraBufferCapacity = 1)
+    val confirmationMessage = _confirmationMessage.asSharedFlow()
 
     var state by mutableStateOf(SelfUserStatusState())
         private set
@@ -88,7 +94,10 @@ class SelfUserStatusViewModel @Inject constructor(
         val bundledStatus = buildTextStatus(state.emoji, message)
         viewModelScope.launch {
             state = state.copy(isSaving = true)
-            updateTextStatus(bundledStatus)
+            updateTextStatus(bundledStatus).fold(
+                fnL = { },
+                fnR = { _confirmationMessage.tryEmit(R.string.user_profile_status_updated) }
+            )
             state = state.copy(isSaving = false)
         }
     }
@@ -98,7 +107,10 @@ class SelfUserStatusViewModel @Inject constructor(
         state = state.copy(emoji = null, message = "")
         viewModelScope.launch {
             state = state.copy(isSaving = true)
-            updateTextStatus(" ")
+            updateTextStatus(" ").fold(
+                fnL = { },
+                fnR = { _confirmationMessage.tryEmit(R.string.user_profile_status_updated) }
+            )
             state = state.copy(isSaving = false)
         }
     }

@@ -716,6 +716,7 @@
     <string name="user_profile_status_availability">Availability</string>
     <string name="user_profile_status_title">Status</string>
     <string name="user_profile_update_status">Update Status</string>
+    <string name="user_profile_status_updated">Status updated</string>
     <string name="user_profile_custom_status_header">Custom Status</string>
     <string name="user_profile_custom_status_placeholder">Enter custom status message</string>
     <string name="user_profile_custom_status_counter">%1$d/%2$d</string>

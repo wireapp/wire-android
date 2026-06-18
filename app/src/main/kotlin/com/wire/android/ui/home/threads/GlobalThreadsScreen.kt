@@ -32,31 +32,38 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ThreadConversationScreenDestination
 import com.wire.android.R
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.annotation.app.WireHomeDestination
-import com.wire.android.ui.home.globalThreadsViewModel
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.LoadingListContent
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.globalThreadsViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -69,6 +76,28 @@ fun GlobalThreadsScreen(
     homeStateHolder: HomeStateHolder,
     viewModel: GlobalThreadsViewModel = globalThreadsViewModel(),
 ) {
+    val context = LocalContext.current
+    val snackbarHostState = LocalSnackbarHostState.current
+
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is GlobalThreadsEffect.OpenConversation -> {
+                    homeStateHolder.navigator.navigate(
+                        NavigationCommand(ConversationScreenDestination(effect.conversationId))
+                    )
+                }
+
+                is GlobalThreadsEffect.ShowMessage -> {
+                    snackbarHostState.showSnackbar(
+                        message = effect.message.asString(context.resources),
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+            }
+        }
+    }
+
     val query = homeStateHolder.searchBarState.searchQueryTextState.text.toString().trim()
     val allThreads = viewModel.state.threads
     val filteredThreads = remember(allThreads, query) {
@@ -93,6 +122,7 @@ fun GlobalThreadsScreen(
         else -> GlobalThreadsList(
             threads = filteredThreads,
             lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Threads),
+            creatingConversationForThreadKey = viewModel.state.creatingConversationForThreadKey,
             onOpenThread = { thread ->
                 homeStateHolder.navigator.navigate(
                     NavigationCommand(
@@ -106,7 +136,8 @@ fun GlobalThreadsScreen(
                         )
                     )
                 )
-            }
+            },
+            onCreateConversationFromThread = viewModel::onCreateConversationFromThread,
         )
     }
 }
@@ -115,7 +146,9 @@ fun GlobalThreadsScreen(
 private fun GlobalThreadsList(
     threads: List<UiGlobalThread>,
     lazyListState: LazyListState,
+    creatingConversationForThreadKey: String?,
     onOpenThread: (UiGlobalThread) -> Unit,
+    onCreateConversationFromThread: (UiGlobalThread) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -125,9 +158,14 @@ private fun GlobalThreadsList(
     ) {
         items(
             items = threads,
-            key = { "${it.conversationId}:${it.threadId}" }
+            key = { it.key }
         ) { thread ->
-            ThreadCard(thread = thread, onOpenThread = { onOpenThread(thread) })
+            ThreadCard(
+                thread = thread,
+                isCreatingConversation = creatingConversationForThreadKey == thread.key,
+                onOpenThread = { onOpenThread(thread) },
+                onCreateConversationFromThread = { onCreateConversationFromThread(thread) },
+            )
         }
     }
 }
@@ -135,7 +173,9 @@ private fun GlobalThreadsList(
 @Composable
 private fun ThreadCard(
     thread: UiGlobalThread,
+    isCreatingConversation: Boolean,
     onOpenThread: () -> Unit,
+    onCreateConversationFromThread: () -> Unit,
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
@@ -178,6 +218,36 @@ private fun ThreadCard(
 
                 ThreadReplyPill(replyCount = thread.replyCount)
             }
+
+            CreateConversationFromThreadButton(
+                isLoading = isCreatingConversation,
+                onClick = onCreateConversationFromThread,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CreateConversationFromThreadButton(
+    isLoading: Boolean,
+    onClick: () -> Unit,
+) {
+    IconButton(
+        enabled = !isLoading,
+        onClick = onClick,
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                strokeWidth = 2.dp,
+                modifier = Modifier.size(dimensions().spacing20x)
+            )
+        } else {
+            Icon(
+                painter = painterResource(commonR.drawable.ic_plus),
+                contentDescription = stringResource(R.string.thread_create_conversation),
+                tint = colorsScheme().onBackground,
+                modifier = Modifier.size(dimensions().spacing20x)
+            )
         }
     }
 }

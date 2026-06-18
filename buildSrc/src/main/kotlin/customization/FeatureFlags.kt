@@ -25,7 +25,8 @@ import flavor.ProductFlavors
  */
 enum class Features {
     FEATURE_SEARCH,
-    FEATURE_CONVERSATIONS
+    FEATURE_CONVERSATIONS,
+    FEATURE_GLOBAL_SEARCH
 }
 
 /**
@@ -42,7 +43,8 @@ object FeatureFlags {
 
         //Enabled Features for INTERNAL Product Flavor
         ProductFlavors.Alpha to setOf(
-            Features.FEATURE_CONVERSATIONS
+            Features.FEATURE_CONVERSATIONS,
+            Features.FEATURE_GLOBAL_SEARCH
         )
     )
 }

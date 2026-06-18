@@ -50,6 +50,7 @@ import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.SearchMessagesGloballyUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
@@ -179,6 +180,10 @@ class MessageModule {
         messageScope: MessageScope
     ): GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase =
         messageScope.getPaginatedFlowOfMessagesBySearchQueryAndConversation
+
+    @Provides
+    fun provideSearchMessagesGloballyUseCase(messageScope: MessageScope): SearchMessagesGloballyUseCase =
+        messageScope.searchMessagesGlobally
 
     @Provides
     fun provideGetSearchedConversationMessagePositionUseCase(messageScope: MessageScope): GetSearchedConversationMessagePositionUseCase =

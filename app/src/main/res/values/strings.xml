@@ -208,6 +208,7 @@
     <string name="content_description_user_profile_open_device_btn">open device details</string>
     <string name="content_description_connection_request_close_btn">Close connection request view</string>
     <string name="content_description_search_text_in_conversation_btn">Search text messages</string>
+    <string name="content_description_global_search">Search Wire</string>
     <string name="content_description_see_media_in_conversation_btn">Open overview of pictures and files</string>
     <string name="content_description_add_participants_close">Close add participants view</string>
     <string name="content_description_home_profile_btn">Your profile</string>
@@ -992,6 +993,15 @@
     <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
     <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
     <string name="label_search_button">Search</string>
+    <string name="global_search_hint">Search Wire</string>
+    <string name="global_search_empty_title">Search messages across Wire.</string>
+    <string name="global_search_error">Search is unavailable right now.\nPlease try again.</string>
+    <string name="global_search_filter_all">All</string>
+    <string name="global_search_filter_messages">Messages</string>
+    <string name="global_search_filter_people">People</string>
+    <string name="global_search_filter_files">Files</string>
+    <string name="global_search_filter_links">Links</string>
+    <string name="global_search_filter_media">Media</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Media</string>
     <string name="label_conversation_pictures">Pictures</string>

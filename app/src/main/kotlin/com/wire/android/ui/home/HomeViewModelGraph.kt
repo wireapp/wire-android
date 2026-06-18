@@ -32,6 +32,7 @@ import com.wire.android.ui.home.conversationslist.ConversationListViewModelPrevi
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.search.GlobalSearchViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
@@ -77,4 +78,8 @@ fun newConversationViewModel(
 
 @Composable
 fun featureFlagNotificationViewModel(): FeatureFlagNotificationViewModel =
+    sessionKeyedMetroViewModel()
+
+@Composable
+fun globalSearchViewModel(): GlobalSearchViewModel =
     sessionKeyedMetroViewModel()

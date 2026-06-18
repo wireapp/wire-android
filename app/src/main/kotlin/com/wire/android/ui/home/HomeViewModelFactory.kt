@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.search.GlobalSearchViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UiTextResolver
@@ -42,6 +43,7 @@ import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.ObserveIsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
@@ -49,6 +51,7 @@ import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegul
 import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.message.SearchMessagesGloballyUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
@@ -95,6 +98,8 @@ class HomeViewModelFactory @Inject constructor(
     private val getSelfUser: GetSelfUserUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
+    private val searchMessagesGlobally: SearchMessagesGloballyUseCase,
+    private val observeConversationDetails: ObserveConversationDetailsUseCase,
 ) {
     fun homeViewModel(savedStateHandle: SavedStateHandle) = HomeViewModel(
         savedStateHandle = savedStateHandle,
@@ -155,5 +160,12 @@ class HomeViewModelFactory @Inject constructor(
         getDefaultProtocol = getDefaultProtocol,
         isWireCellsFeatureEnabled = isWireCellsEnabled,
         observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
+    )
+
+    fun globalSearchViewModel() = GlobalSearchViewModel(
+        searchMessagesGlobally = searchMessagesGlobally,
+        observeConversationDetails = observeConversationDetails,
+        dispatchers = dispatcher,
+        uiTextResolver = uiTextResolver,
     )
 }

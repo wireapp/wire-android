@@ -112,6 +112,7 @@ import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.search.GlobalSearchViewModel
 import com.wire.android.ui.home.settings.SettingsViewModel
 import com.wire.android.ui.home.settings.SettingsViewModelFactory
 import com.wire.android.ui.home.settings.account.MyAccountViewModel
@@ -213,6 +214,12 @@ object WireMetroViewModelBindings {
     @ViewModelKey(NewConversationViewModel::class)
     fun newConversationViewModel(factory: HomeViewModelFactory): ViewModel =
         factory.newConversationViewModel()
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(GlobalSearchViewModel::class)
+    fun globalSearchViewModel(factory: HomeViewModelFactory): ViewModel =
+        factory.globalSearchViewModel()
 
     @Provides
     @IntoMap

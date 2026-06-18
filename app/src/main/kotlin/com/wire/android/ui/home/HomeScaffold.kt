@@ -73,6 +73,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.app.destinations.GlobalCellsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.GlobalSearchScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.app.navgraphs.HomeGraph
 import com.ramcosta.composedestinations.navigation.dependency
@@ -80,6 +81,7 @@ import com.ramcosta.composedestinations.navigation.destination
 import com.wire.android.feature.cells.ui.cellViewModel
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeDestination.FabOptions
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.rememberWireNavHostEngine
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -217,6 +219,9 @@ private fun HomeTopBarHeader(
                 onNavigateToSelfUserProfile = onSelfUserClick,
                 onOpenConversationFilter = {
                     conversationsFilterBottomSheetState.show(Unit)
+                },
+                onOpenGlobalSearch = {
+                    navigator.navigate(NavigationCommand(GlobalSearchScreenDestination))
                 },
                 nextFocusRequester = searchFocusRequester,
             )

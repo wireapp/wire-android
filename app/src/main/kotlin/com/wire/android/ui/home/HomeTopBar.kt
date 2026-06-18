@@ -26,6 +26,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
@@ -55,6 +56,7 @@ fun HomeTopBar(
     onHamburgerMenuClick: () -> Unit,
     onNavigateToSelfUserProfile: () -> Unit,
     onOpenConversationFilter: () -> Unit,
+    onOpenGlobalSearch: () -> Unit,
     modifier: Modifier = Modifier,
     nextFocusRequester: FocusRequester? = null,
 ) {
@@ -64,6 +66,13 @@ fun HomeTopBar(
         onNavigationPressed = onHamburgerMenuClick,
         navigationIconType = NavigationIconType.Menu,
         actions = {
+            if (navigationItem == HomeDestination.Conversations && BuildConfig.FEATURE_GLOBAL_SEARCH) {
+                WireTertiaryIconButton(
+                    iconResource = R.drawable.ic_conversation,
+                    contentDescription = R.string.content_description_global_search,
+                    onButtonClicked = onOpenGlobalSearch
+                )
+            }
             navigationItem.filterAction?.let { filter ->
                 WireTertiaryIconButton(
                     iconResource = filter.icon,
@@ -125,6 +134,7 @@ fun PreviewTopBar() {
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
             onOpenConversationFilter = {},
+            onOpenGlobalSearch = {},
         )
     }
 }
@@ -148,6 +158,7 @@ fun PreviewTopBarWithSelectedFilter() {
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
             onOpenConversationFilter = {},
+            onOpenGlobalSearch = {},
         )
     }
 }
@@ -167,6 +178,7 @@ fun PreviewSettingsTopBarWithoutAvatar() {
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
             onOpenConversationFilter = {},
+            onOpenGlobalSearch = {},
         )
     }
 }
@@ -190,6 +202,7 @@ fun PreviewTopBarWithNameBasedAvatar() {
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
             onOpenConversationFilter = {},
+            onOpenGlobalSearch = {},
         )
     }
 }
@@ -209,6 +222,7 @@ fun PreviewTopBarWithLegalHold() {
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
             onOpenConversationFilter = {},
+            onOpenGlobalSearch = {},
         )
     }
 }

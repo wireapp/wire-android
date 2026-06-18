@@ -19,17 +19,18 @@
 package com.wire.android.ui.userprofile.self.status
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
@@ -37,6 +38,11 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,17 +50,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.model.Clickable
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -63,16 +66,13 @@ import com.wire.android.ui.common.avatar.UserStatusIndicator
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.divider.WireDivider
-import com.wire.android.ui.common.rowitem.RowItemTemplate
-import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
@@ -162,7 +162,7 @@ private fun SelfUserStatusContent(
         bottomBar = {
             Surface(
                 shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
-                color = MaterialTheme.wireColorScheme.background,
+                color = MaterialTheme.wireColorScheme.surface,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 WirePrimaryButton(
@@ -177,14 +177,17 @@ private fun SelfUserStatusContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(internalPadding)
+                .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing12x),
+            verticalArrangement = Arrangement.spacedBy(dimensions().spacing16x),
         ) {
-            AvailabilitySection(
+            AvailabilityCard(
                 userStatus = state.availabilityStatus,
                 onStatusClicked = onAvailabilityStatusClicked,
             )
             if (state.isTeamMember) {
-                CustomStatusSection(
+                CustomStatusCard(
                     emoji = resolveStatusEmoji(state.emoji, textState.text.toString()),
                     textState = textState,
                     messageLength = textState.text.length,
@@ -238,7 +241,17 @@ fun SelectedAvailabilityDescription(status: UserAvailabilityStatus) {
 }
 
 @Composable
-private fun AvailabilitySection(
+private fun SectionLabel(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        modifier = modifier.padding(bottom = dimensions().spacing4x),
+        style = MaterialTheme.wireTypography.label02,
+        color = MaterialTheme.wireColorScheme.secondaryText,
+    )
+}
+
+@Composable
+private fun AvailabilityCard(
     userStatus: UserAvailabilityStatus,
     onStatusClicked: (UserAvailabilityStatus) -> Unit,
 ) {
@@ -250,10 +263,14 @@ private fun AvailabilitySection(
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        SectionHeader(stringResource(R.string.user_profile_status_availability))
-        Surface(
-            color = MaterialTheme.wireColorScheme.surface,
+        SectionLabel(stringResource(R.string.user_profile_status_availability))
+        ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(dimensions().spacing12x),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.wireColorScheme.surface,
+            ),
         ) {
             Column(
                 modifier = Modifier
@@ -285,136 +302,115 @@ private fun AvailabilitySection(
 }
 
 @Composable
-private fun CustomStatusSection(
+private fun CustomStatusCard(
     emoji: String?,
     textState: TextFieldState,
     messageLength: Int,
     onEmojiClick: () -> Unit,
-    onClearCustomStatus: () -> Unit
+    onClearCustomStatus: () -> Unit,
 ) {
     val hasStatus = emoji != null || textState.text.isNotBlank()
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        SectionHeader(stringResource(R.string.user_profile_custom_status_header))
-        Surface(
-            color = MaterialTheme.wireColorScheme.surface,
+        SectionLabel(stringResource(R.string.user_profile_custom_status_header))
+        ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(dimensions().spacing12x),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.wireColorScheme.surface,
+            ),
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
+                WireTextField(
+                    textState = textState,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing16x),
-                    horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    WireSecondaryButton(
-                        leadingIcon = {
+                        .padding(horizontal = dimensions().spacing12x, vertical = dimensions().spacing12x),
+                    placeholderText = stringResource(R.string.user_profile_custom_status_placeholder),
+                    leadingIcon = {
+                        IconButton(onClick = onEmojiClick) {
                             if (emoji == null) {
-                                Icon(painter = painterResource(id = R.drawable.ic_emoticon), contentDescription = "")
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_emoticon),
+                                    contentDescription = null,
+                                )
                             } else {
-                                Text(emoji)
+                                Text(
+                                    text = emoji,
+                                    style = MaterialTheme.wireTypography.title02,
+                                )
                             }
-                        },
-                        onClick = onEmojiClick,
-                        fillMaxWidth = false,
-                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                    )
-
-                    WireTextField(
-                        textState = textState,
-                        modifier = Modifier.weight(1f),
-                        placeholderText = stringResource(R.string.user_profile_custom_status_placeholder),
-                        leadingIcon = null,
-                        state = WireTextFieldState.Default,
-                        trailingIcon = {
-                            Box(
-                                modifier = Modifier
-                                    .width(dimensions().spacing64x)
-                                    .height(dimensions().spacing40x),
-                                contentAlignment = Alignment.CenterEnd
-                            ) {
-                                androidx.compose.animation.AnimatedVisibility(
-                                    visible = hasStatus,
-                                    enter = fadeIn(),
-                                    exit = fadeOut()
-                                ) {
-                                    IconButton(
-                                        modifier = Modifier.padding(start = dimensions().spacing12x),
-                                        onClick = onClearCustomStatus,
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(id = UICommonR.drawable.ic_clear_search),
-                                            contentDescription = stringResource(UICommonR.string.content_description_clear_content)
-                                        )
-                                    }
-                                }
+                        }
+                    },
+                    state = WireTextFieldState.Default,
+                    colors = wireTextFieldColors(
+                        backgroundColor = MaterialTheme.wireColorScheme.surfaceContainerLow,
+                    ),
+                    trailingIcon = {
+                        AnimatedVisibility(
+                            visible = hasStatus,
+                            enter = fadeIn(),
+                            exit = fadeOut(),
+                        ) {
+                            IconButton(onClick = onClearCustomStatus) {
+                                Icon(
+                                    painter = painterResource(id = UICommonR.drawable.ic_clear_search),
+                                    contentDescription = stringResource(UICommonR.string.content_description_clear_content),
+                                )
                             }
-                        },
-                        inputTransformation = InputTransformation.maxLength(MAX_STATUS_TEXT_LENGTH),
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Sentences,
-                            imeAction = ImeAction.Done
-                        ),
+                        }
+                    },
+                    inputTransformation = InputTransformation.maxLength(MAX_STATUS_TEXT_LENGTH),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        imeAction = ImeAction.Done,
+                    ),
+                )
+                AnimatedVisibility(visible = messageLength > 0) {
+                    Text(
+                        text = stringResource(R.string.user_profile_custom_status_counter, messageLength, MAX_STATUS_TEXT_LENGTH),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
+                        style = MaterialTheme.wireTypography.label04,
+                        color = MaterialTheme.wireColorScheme.secondaryText,
                     )
                 }
-                Text(
-                    text = stringResource(R.string.user_profile_custom_status_counter, messageLength, MAX_STATUS_TEXT_LENGTH),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
-                    style = MaterialTheme.wireTypography.body02,
-                    color = MaterialTheme.wireColorScheme.secondaryText,
-                )
             }
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun QuickStatusSection(
     presets: List<QuickStatusPreset>,
     onQuickStatusSelected: (String, String) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        SectionHeader(stringResource(R.string.user_profile_quick_status_header))
-        Surface(
-            color = MaterialTheme.wireColorScheme.surface,
+        SectionLabel(stringResource(R.string.user_profile_quick_status_header))
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
+            verticalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
         ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                presets.forEachIndexed { index, preset ->
-                    val presetLabel = stringResource(preset.labelResId)
-                    RowItemTemplate(
-                        title = {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing12x),
-                            ) {
-                                Text(
-                                    text = preset.emoji,
-                                    style = MaterialTheme.wireTypography.title02,
-                                )
-                                Text(
-                                    text = presetLabel,
-                                    style = MaterialTheme.wireTypography.body01,
-                                    color = MaterialTheme.wireColorScheme.onBackground,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
-                        },
-                        titleStartPadding = dimensions().spacing16x,
-                        contentTopPadding = dimensions().spacing16x,
-                        contentBottomPadding = dimensions().spacing16x,
-                        actionsEndPadding = dimensions().spacing12x,
-                        divider = { WireDivider() },
-                        backgroundColor = MaterialTheme.wireColorScheme.surface,
-                        clickable = Clickable(enabled = true) {
-                            onQuickStatusSelected(preset.emoji, presetLabel)
-                        }
-                    )
-                }
+            presets.forEach { preset ->
+                val presetLabel = stringResource(preset.labelResId)
+                AssistChip(
+                    onClick = { onQuickStatusSelected(preset.emoji, presetLabel) },
+                    label = {
+                        Text(
+                            text = "${preset.emoji} $presetLabel",
+                            style = MaterialTheme.wireTypography.body02,
+                        )
+                    },
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = MaterialTheme.wireColorScheme.surfaceContainerLow,
+                        labelColor = MaterialTheme.wireColorScheme.onBackground,
+                    ),
+                    border = null,
+                )
             }
         }
     }

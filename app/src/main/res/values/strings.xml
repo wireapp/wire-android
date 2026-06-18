@@ -714,7 +714,7 @@
     <string name="user_profile_logout">Log out</string>
     <string name="user_profile_other_accs">Your Other Accounts</string>
     <string name="user_profile_status_availability">Availability</string>
-    <string name="user_profile_status_title">Status</string>
+    <string name="user_profile_status_title">Set a status</string>
     <string name="user_profile_update_status">Update Status</string>
     <string name="user_profile_status_updated">Status updated</string>
     <string name="user_profile_custom_status_header">Custom Status</string>

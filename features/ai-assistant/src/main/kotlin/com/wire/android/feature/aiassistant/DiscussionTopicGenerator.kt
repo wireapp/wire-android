@@ -22,14 +22,22 @@ import com.wire.android.feature.aiassistant.test.LiteRtLmInferenceFactory
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 interface DiscussionTopicGenerator {
     suspend fun generateTopic(messages: List<DiscussionTopicMessage>): DiscussionTopicResult
 
-    suspend fun generateTopics(messageClusters: List<List<DiscussionTopicMessage>>): List<DiscussionTopicResult> =
-        messageClusters.map { generateTopic(it) }
+    fun generateTopics(
+        messageClusters: List<List<DiscussionTopicMessage>>
+    ): Flow<IndexedValue<DiscussionTopicResult>> =
+        flow {
+            messageClusters.forEachIndexed { index, messages ->
+                emit(IndexedValue(index, generateTopic(messages)))
+            }
+        }
 }
 
 data class DiscussionTopicMessage(
@@ -54,71 +62,113 @@ class DefaultDiscussionTopicGenerator @Inject constructor(
 ) : DiscussionTopicGenerator {
 
     override suspend fun generateTopic(messages: List<DiscussionTopicMessage>): DiscussionTopicResult =
-        generateTopics(listOf(messages)).firstOrNull() ?: DiscussionTopicResult.EmptyInput
+        generateTopics(listOf(messages)).first().value
 
-    override suspend fun generateTopics(messageClusters: List<List<DiscussionTopicMessage>>): List<DiscussionTopicResult> =
-        withContext(Dispatchers.IO) {
-            val promptMessageClusters = messageClusters.map { messages ->
-                messages
-                    .filter { it.text.isNotBlank() }
-                    .take(MAX_MESSAGES)
-            }
-            val results = MutableList<DiscussionTopicResult?>(promptMessageClusters.size) { null }
+    override fun generateTopics(
+        messageClusters: List<List<DiscussionTopicMessage>>
+    ): Flow<IndexedValue<DiscussionTopicResult>> = flow {
+        val promptMessageClusters = messageClusters.map { messages ->
+            messages
+                .filter { it.text.isNotBlank() }
+                .take(MAX_PROMPT_MESSAGES)
+        }
+        if (promptMessageClusters.isEmpty()) return@flow
+
+        val modelStatus = aiModelManager.observeModelStatus().first()
+        if (modelStatus !is AiModelStatus.Ready) {
             promptMessageClusters.forEachIndexed { index, messages ->
-                if (messages.isEmpty()) {
-                    results[index] = DiscussionTopicResult.EmptyInput
-                }
+                emit(
+                    IndexedValue(
+                        index,
+                        if (messages.isEmpty()) DiscussionTopicResult.EmptyInput else DiscussionTopicResult.MissingModel
+                    )
+                )
             }
-            val nonEmptyClusters = promptMessageClusters.withIndex().filter { it.value.isNotEmpty() }
-            if (nonEmptyClusters.isEmpty()) {
-                return@withContext results.map { it ?: DiscussionTopicResult.EmptyInput }
-            }
-
-            val modelStatus = aiModelManager.observeModelStatus().first()
-            if (modelStatus !is AiModelStatus.Ready) {
-                return@withContext results.fillMissing(DiscussionTopicResult.MissingModel)
-            }
-            when (val target = modelStatus.target) {
-                is AiInferenceTarget.OnDevice -> {
-                    if (!target.modelPath.endsWith(LITERT_LM_EXTENSION, ignoreCase = true)) {
-                        return@withContext results.fillMissing(DiscussionTopicResult.UnsupportedModel)
-                    }
-                    val inferenceConfig = inferenceConfigStore.observeConfig().first()
-                    runCatching {
-                        inferenceFactory.create(target.modelPath, inferenceConfig).use { inference ->
-                            nonEmptyClusters.forEach { (index, messages) ->
-                                results[index] = runCatching {
-                                    inference.generateResponse(messages.toPrompt()).toTopicResult()
-                                }.getOrElse { throwable ->
-                                    if (throwable is CancellationException) throw throwable
-                                    DiscussionTopicResult.InferenceFailed(throwable.message ?: throwable::class.java.simpleName)
+            return@flow
+        }
+        when (val target = modelStatus.target) {
+            is AiInferenceTarget.OnDevice -> {
+                if (!target.modelPath.endsWith(LITERT_LM_EXTENSION, ignoreCase = true)) {
+                    promptMessageClusters.forEachIndexed { index, messages ->
+                        emit(
+                            IndexedValue(
+                                index,
+                                if (messages.isEmpty()) {
+                                    DiscussionTopicResult.EmptyInput
+                                } else {
+                                    DiscussionTopicResult.UnsupportedModel
                                 }
-                            }
-                        }
-                    }.onFailure { throwable ->
-                        if (throwable is CancellationException) throw throwable
-                        return@withContext results.fillMissing(
-                            DiscussionTopicResult.InferenceFailed(throwable.message ?: throwable::class.java.simpleName)
+                            )
                         )
                     }
+                    return@flow
                 }
-
-                is AiInferenceTarget.WireLlm -> {
-                    nonEmptyClusters.forEach { (index, messages) ->
-                        results[index] = when (val response = wireLlmClient.query(target.serverIp, messages.toPrompt())) {
-                            is WireLlmQueryResult.Success -> response.result.toTopicResult()
-                            is WireLlmQueryResult.Failure -> DiscussionTopicResult.InferenceFailed(response.message)
+                val inferenceConfig = inferenceConfigStore.observeConfig().first()
+                val inference = try {
+                    inferenceFactory.create(target.modelPath, inferenceConfig)
+                } catch (throwable: Throwable) {
+                    if (throwable is CancellationException) throw throwable
+                    val failure = DiscussionTopicResult.InferenceFailed(
+                        throwable.message ?: throwable::class.java.simpleName
+                    )
+                    promptMessageClusters.forEachIndexed { index, messages ->
+                        emit(
+                            IndexedValue(
+                                index,
+                                if (messages.isEmpty()) DiscussionTopicResult.EmptyInput else failure
+                            )
+                        )
+                    }
+                    return@flow
+                }
+                inference.use {
+                    promptMessageClusters.forEachIndexed { index, messages ->
+                        val result = if (messages.isEmpty()) {
+                            DiscussionTopicResult.EmptyInput
+                        } else {
+                            runCatching {
+                                inference.generateResponse(messages.toPrompt()).toTopicResult()
+                            }.getOrElse { throwable ->
+                                if (throwable is CancellationException) throw throwable
+                                DiscussionTopicResult.InferenceFailed(
+                                    throwable.message ?: throwable::class.java.simpleName
+                                )
+                            }
                         }
+                        emit(IndexedValue(index, result))
                     }
                 }
             }
-            results.map { it ?: DiscussionTopicResult.EmptyResponse }
+
+            is AiInferenceTarget.WireLlm -> {
+                promptMessageClusters.forEachIndexed { index, messages ->
+                    val result = if (messages.isEmpty()) {
+                        DiscussionTopicResult.EmptyInput
+                    } else {
+                        runCatching {
+                            wireLlmClient.query(target.serverIp, messages.toPrompt())
+                        }.fold(
+                            onSuccess = { response ->
+                                when (response) {
+                                    is WireLlmQueryResult.Success -> response.result.toTopicResult()
+                                    is WireLlmQueryResult.Failure -> DiscussionTopicResult.InferenceFailed(response.message)
+                                }
+                            },
+                            onFailure = { throwable ->
+                                if (throwable is CancellationException) throw throwable
+                                DiscussionTopicResult.InferenceFailed(
+                                    throwable.message ?: throwable::class.java.simpleName
+                                )
+                            }
+                        )
+                    }
+                    emit(IndexedValue(index, result))
+                }
+            }
         }
+    }.flowOn(Dispatchers.IO)
 
     private fun List<DiscussionTopicMessage>.toPrompt(): String {
-//        val transcript = first().let { message ->
-//            "${message.senderName}: ${message.text.replace('\n', ' ')}"
-//        }
         val transcript = joinToString(separator = "\n") { message ->
             "${message.senderName}: ${message.text.replace('\n', ' ')}"
         }
@@ -141,13 +191,9 @@ class DefaultDiscussionTopicGenerator @Inject constructor(
         }
     }
 
-    private fun MutableList<DiscussionTopicResult?>.fillMissing(
-        result: DiscussionTopicResult
-    ): List<DiscussionTopicResult> = map { it ?: result }
-
     private companion object {
         const val LITERT_LM_EXTENSION = ".litertlm"
-        const val MAX_MESSAGES = 80
+        const val MAX_PROMPT_MESSAGES = 3
         const val MAX_TOPIC_LENGTH = 120
 
         fun String.trimMatchingQuotes(): String {

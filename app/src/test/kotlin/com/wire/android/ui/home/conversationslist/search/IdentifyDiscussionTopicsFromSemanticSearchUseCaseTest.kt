@@ -30,7 +30,9 @@ import com.wire.kalium.logic.feature.message.GetMessagesByConversationAndDateRan
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -53,10 +55,14 @@ class IdentifyDiscussionTopicsFromSemanticSearchUseCaseTest {
             .withTopic("Budget and invoice timing")
             .arrange()
 
-        val summaries = useCase(listOf(firstHit, secondHit))
+        val summaries = useCase(listOf(firstHit, secondHit)).toList().last()
 
         assertEquals(1, summaries.size)
         assertEquals("Budget and invoice timing", summaries.single().topic)
+        assertEquals(conversationId, summaries.single().conversationId)
+        assertEquals(firstHit.id, summaries.single().firstMessageId)
+        assertEquals(firstHit.date, summaries.single().firstMessageDate)
+        assertEquals(secondHit.date, summaries.single().lastMessageDate)
         assertEquals(listOf("Alice", "Bob"), summaries.single().participants)
         assertEquals(firstHit.date.minus(1.hours), arrangement.getMessages.requests.single().fromInclusive)
         assertEquals(secondHit.date.plus(1.hours), arrangement.getMessages.requests.single().toInclusive)
@@ -74,9 +80,13 @@ class IdentifyDiscussionTopicsFromSemanticSearchUseCaseTest {
             .withTopic("Topic")
             .arrange()
 
-        val summaries = useCase(listOf(firstHit, secondHit))
+        val emissions = useCase(listOf(firstHit, secondHit)).toList()
+        val summaries = emissions.last()
 
         assertEquals(2, summaries.size)
+        assertEquals(listOf(null, null), emissions.first().map { it.topic })
+        assertEquals(listOf("Topic", null), emissions[1].map { it.topic })
+        assertEquals(listOf("Topic", "Topic"), emissions[2].map { it.topic })
         assertEquals(1, arrangement.topicGenerator.batchRequests.size)
         assertEquals(2, arrangement.topicGenerator.batchRequests.single().size)
     }
@@ -91,7 +101,7 @@ class IdentifyDiscussionTopicsFromSemanticSearchUseCaseTest {
             .withTopic("Topic")
             .arrange()
 
-        val summaries = useCase(listOf(firstHit, secondHit))
+        val summaries = useCase(listOf(firstHit, secondHit)).toList().last()
 
         assertEquals(2, summaries.size)
     }
@@ -105,7 +115,7 @@ class IdentifyDiscussionTopicsFromSemanticSearchUseCaseTest {
             .withTopicResult(DiscussionTopicResult.InferenceFailed("boom"))
             .arrange()
 
-        val summary = useCase(listOf(hit)).single()
+        val summary = useCase(listOf(hit)).toList().last().single()
 
         assertEquals("Discussion topic unavailable", summary.topic)
     }
@@ -124,7 +134,7 @@ class IdentifyDiscussionTopicsFromSemanticSearchUseCaseTest {
             .withTopic("Budget")
             .arrange()
 
-        useCase(listOf(textMessage))
+        useCase(listOf(textMessage)).toList()
 
         assertEquals(listOf(DiscussionTopicMessage("Alice", "Budget update")), arrangement.topicGenerator.requests.single())
     }
@@ -190,10 +200,12 @@ class IdentifyDiscussionTopicsFromSemanticSearchUseCaseTest {
             return result
         }
 
-        override suspend fun generateTopics(messageClusters: List<List<DiscussionTopicMessage>>): List<DiscussionTopicResult> {
+        override fun generateTopics(
+            messageClusters: List<List<DiscussionTopicMessage>>
+        ): Flow<IndexedValue<DiscussionTopicResult>> {
             batchRequests += messageClusters
             requests += messageClusters
-            return messageClusters.map { result }
+            return flowOf(*messageClusters.indices.map { index -> IndexedValue(index, result) }.toTypedArray())
         }
     }
 

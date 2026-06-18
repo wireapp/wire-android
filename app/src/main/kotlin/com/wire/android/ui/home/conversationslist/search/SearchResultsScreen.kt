@@ -119,6 +119,9 @@ fun SearchResultsScreen(
 
             SearchResultsTab.DISCUSSIONS -> DiscussionsSearchResults(
                 state = discussionsSearchState,
+                onDiscussionClick = { discussion ->
+                    navigator.navigate(discussion.toConversationNavigationCommand())
+                },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -130,6 +133,16 @@ internal fun UIMessage.toConversationNavigationCommand() = NavigationCommand(
         navArgs = ConversationNavArgs(
             conversationId = conversationId,
             searchedMessageId = header.messageId
+        )
+    ),
+    BackStackMode.UPDATE_EXISTED
+)
+
+internal fun DiscussionClusterSummary.toConversationNavigationCommand() = NavigationCommand(
+    ConversationScreenDestination(
+        navArgs = ConversationNavArgs(
+            conversationId = conversationId,
+            searchedMessageId = firstMessageId
         )
     ),
     BackStackMode.UPDATE_EXISTED

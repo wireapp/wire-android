@@ -115,18 +115,21 @@ class SearchResultsViewModel(
     private fun identifyDiscussionTopics(messages: List<Message.Standalone>, generation: Int) {
         discussionTopicsJob = viewModelScope.launch(dispatcher.io()) {
             runCatching {
-                identifyDiscussionTopicsFromSemanticSearch(messages)
-            }.onSuccess { discussions ->
-                if (generation == searchGeneration) {
-                    _discussionsSearchState.value = if (discussions.isEmpty()) {
-                        DiscussionsSearchState.NoResults
-                    } else {
-                        DiscussionsSearchState.Success(discussions)
+                identifyDiscussionTopicsFromSemanticSearch(messages).collect { discussions ->
+                    if (generation == searchGeneration) {
+                        _discussionsSearchState.value = if (discussions.isEmpty()) {
+                            DiscussionsSearchState.NoResults
+                        } else {
+                            DiscussionsSearchState.Success(discussions)
+                        }
                     }
                 }
             }.onFailure { throwable ->
                 appLogger.w("SemanticSearchDiscussionTopic: failed to identify discussion topics", throwable)
-                if (generation == searchGeneration) {
+                if (
+                    generation == searchGeneration &&
+                    _discussionsSearchState.value is DiscussionsSearchState.Loading
+                ) {
                     _discussionsSearchState.value = DiscussionsSearchState.NoResults
                 }
             }

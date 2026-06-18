@@ -28,6 +28,7 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetUsersForMessageUseCase
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.feature.message.SearchMessagesSemanticallyGloballyUseCase
@@ -38,6 +39,8 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
@@ -115,6 +118,36 @@ class SearchResultsViewModelTest {
 
         val state = assertIs<DiscussionsSearchState.Success>(viewModel.discussionsSearchState.value)
         assertEquals(listOf(discussion), state.discussions)
+    }
+
+    @Test
+    fun givenTopicGenerationIsRunning_whenDiscussionMetadataIsReady_thenAllRowsAreShownWithoutTopics() = runTest {
+        val message = TestMessage.TEXT_MESSAGE
+        val pendingDiscussion = discussionSummary(topic = null)
+        val completedDiscussion = pendingDiscussion.copy(topic = "Release planning")
+        val users = emptyList<User>()
+        val (arrangement, viewModel) = Arrangement()
+            .withSemanticSearchResult(SearchMessagesSemanticallyGloballyUseCase.Result.Success(listOf(message)))
+            .withIncrementalDiscussionTopicsResult(
+                messages = listOf(message),
+                initial = listOf(pendingDiscussion),
+                completed = listOf(completedDiscussion)
+            )
+            .withUsersForMessage(message, users)
+            .withMappedMessage(users, message, mockMessageWithText)
+            .arrange()
+
+        viewModel.onSearchQueryChanged("release")
+        advanceTimeBy(DEFAULT_SEARCH_QUERY_DEBOUNCE)
+        runCurrent()
+
+        val pendingState = assertIs<DiscussionsSearchState.Success>(viewModel.discussionsSearchState.value)
+        assertEquals(listOf(pendingDiscussion), pendingState.discussions)
+
+        advanceUntilIdle()
+
+        val completedState = assertIs<DiscussionsSearchState.Success>(viewModel.discussionsSearchState.value)
+        assertEquals(listOf(completedDiscussion), completedState.discussions)
     }
 
     @Test
@@ -250,8 +283,10 @@ class SearchResultsViewModelTest {
         advanceUntilIdle()
     }
 
-    private fun discussionSummary(topic: String) = DiscussionClusterSummary(
+    private fun discussionSummary(topic: String?) = DiscussionClusterSummary(
         topic = topic,
+        conversationId = ConversationId("conversation", "example.com"),
+        firstMessageId = "first-message",
         conversationName = "Project Alpha",
         firstMessageDate = Instant.parse("2026-01-01T10:00:00Z"),
         lastMessageDate = Instant.parse("2026-01-01T11:00:00Z"),
@@ -275,7 +310,7 @@ class SearchResultsViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { searchMessagesSemanticallyGlobally(any(), any()) } returns
                     SearchMessagesSemanticallyGloballyUseCase.Result.Success(emptyList())
-            coEvery { identifyDiscussionTopicsFromSemanticSearch(any()) } returns emptyList()
+            every { identifyDiscussionTopicsFromSemanticSearch(any()) } returns flowOf(emptyList())
             coEvery { getUsersForMessage(any()) } returns emptyList()
             every { messageMapper.toUIMessage(any(), any()) } returns null
         }
@@ -305,16 +340,29 @@ class SearchResultsViewModelTest {
             messages: List<Message.Standalone>,
             result: List<DiscussionClusterSummary>
         ) = apply {
-            coEvery { identifyDiscussionTopicsFromSemanticSearch(messages) } returns result
+            every { identifyDiscussionTopicsFromSemanticSearch(messages) } returns flowOf(result)
         }
 
         fun withDelayedDiscussionTopicsResult(
             messages: List<Message.Standalone>,
             result: List<DiscussionClusterSummary>
         ) = apply {
-            coEvery { identifyDiscussionTopicsFromSemanticSearch(messages) } coAnswers {
+            every { identifyDiscussionTopicsFromSemanticSearch(messages) } returns flow {
+                emit(result.map { it.copy(topic = null) })
                 delay(DEFAULT_SEARCH_QUERY_DEBOUNCE * 2)
-                result
+                emit(result)
+            }
+        }
+
+        fun withIncrementalDiscussionTopicsResult(
+            messages: List<Message.Standalone>,
+            initial: List<DiscussionClusterSummary>,
+            completed: List<DiscussionClusterSummary>
+        ) = apply {
+            every { identifyDiscussionTopicsFromSemanticSearch(messages) } returns flow {
+                emit(initial)
+                delay(DEFAULT_SEARCH_QUERY_DEBOUNCE * 2)
+                emit(completed)
             }
         }
 

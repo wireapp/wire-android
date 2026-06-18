@@ -23,12 +23,15 @@ import com.wire.android.feature.aiassistant.DiscussionTopicResult
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MessageId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessagesByConversationAndDateRangeUseCase
 import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -39,21 +42,33 @@ class IdentifyDiscussionTopicsFromSemanticSearchUseCase @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val discussionTopicGenerator: DiscussionTopicGenerator
 ) {
-    suspend operator fun invoke(searchResults: List<Message.Standalone>): List<DiscussionClusterSummary> {
-        if (searchResults.isEmpty()) return emptyList()
+    operator fun invoke(searchResults: List<Message.Standalone>): Flow<List<DiscussionClusterSummary>> = flow {
+        if (searchResults.isEmpty()) {
+            emit(emptyList())
+            return@flow
+        }
 
         val contexts = searchResults
             .groupBy { it.conversationId }
             .flatMap { (conversationId, messages) -> messages.groupByLocalDay(conversationId) }
             .mapNotNull { cluster -> cluster.toContext() }
 
-        if (contexts.isEmpty()) return emptyList()
+        if (contexts.isEmpty()) {
+            emit(emptyList())
+            return@flow
+        }
 
-        val topicResults = discussionTopicGenerator.generateTopics(contexts.map { it.topicMessages })
-        return contexts.mapIndexed { index, context ->
-            val summary = context.toSummary(topic = topicResults.getOrNull(index).toTopic())
+        val summaries = contexts.map { context -> context.toSummary(topic = null) }.toMutableList()
+        emit(summaries.toList())
+
+        discussionTopicGenerator.generateTopics(contexts.map { it.topicMessages }).collect { indexedResult ->
+            val index = indexedResult.index
+            if (index !in summaries.indices) return@collect
+
+            val summary = summaries[index].copy(topic = indexedResult.value.toTopic())
+            summaries[index] = summary
             summary.log()
-            summary
+            emit(summaries.toList())
         }
     }
 
@@ -87,30 +102,33 @@ class IdentifyDiscussionTopicsFromSemanticSearchUseCase @Inject constructor(
 
         return DiscussionClusterContext(
             conversationId = conversationId,
+            firstHitMessage = messages.first(),
+            lastHitMessage = messages.last(),
             contextMessages = contextMessages,
             topicMessages = topicMessages
         )
     }
 
-    private suspend fun DiscussionClusterContext.toSummary(topic: String): DiscussionClusterSummary =
+    private suspend fun DiscussionClusterContext.toSummary(topic: String?): DiscussionClusterSummary =
         DiscussionClusterSummary(
             topic = topic,
+            conversationId = conversationId,
+            firstMessageId = firstHitMessage.id,
             conversationName = resolveConversationName(conversationId),
-            firstMessageDate = contextMessages.first().date,
-            lastMessageDate = contextMessages.last().date,
+            firstMessageDate = firstHitMessage.date,
+            lastMessageDate = lastHitMessage.date,
             participants = contextMessages
                 .map { it.participantName() }
                 .distinct()
         )
 
-    private fun DiscussionTopicResult?.toTopic(): String = when (this) {
+    private fun DiscussionTopicResult.toTopic(): String = when (this) {
         is DiscussionTopicResult.Success -> topic
         DiscussionTopicResult.EmptyInput,
         DiscussionTopicResult.EmptyResponse,
         DiscussionTopicResult.MissingModel,
         DiscussionTopicResult.UnsupportedModel -> FALLBACK_TOPIC
-        is DiscussionTopicResult.InferenceFailed,
-        null -> FALLBACK_TOPIC
+        is DiscussionTopicResult.InferenceFailed -> FALLBACK_TOPIC
     }
 
     private fun List<Message.Standalone>.groupByLocalDay(
@@ -175,6 +193,8 @@ class IdentifyDiscussionTopicsFromSemanticSearchUseCase @Inject constructor(
 
     private data class DiscussionClusterContext(
         val conversationId: ConversationId,
+        val firstHitMessage: Message.Standalone,
+        val lastHitMessage: Message.Standalone,
         val contextMessages: List<Message.Standalone>,
         val topicMessages: List<DiscussionTopicMessage>
     )
@@ -187,7 +207,9 @@ class IdentifyDiscussionTopicsFromSemanticSearchUseCase @Inject constructor(
 }
 
 data class DiscussionClusterSummary(
-    val topic: String,
+    val topic: String?,
+    val conversationId: ConversationId,
+    val firstMessageId: MessageId,
     val conversationName: String,
     val firstMessageDate: Instant,
     val lastMessageDate: Instant,

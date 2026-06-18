@@ -1090,6 +1090,7 @@
     <string name="notification_action_reply">Reply</string>
     <string name="label_reply_in_thread">Reply in thread</string>
     <string name="label_thread">Thread</string>
+    <string name="label_following">Following</string>
     <string name="thread_open_in_conversation">Open in conversation</string>
     <string name="thread_root_fallback_label">Thread started</string>
     <string name="thread_missing_root_message">You cannot see this message.</string>

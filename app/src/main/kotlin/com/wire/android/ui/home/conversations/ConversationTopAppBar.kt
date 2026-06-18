@@ -21,6 +21,8 @@ package com.wire.android.ui.home.conversations
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -45,6 +47,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -53,7 +56,10 @@ import com.wire.android.ui.calling.controlbuttons.StartCallButton
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.avatar.UserProfileAvatar
+import com.wire.android.ui.common.button.IconAlignment
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireSecondaryIconButton
+import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.spacers.HorizontalSpace
@@ -87,23 +93,32 @@ fun ConversationScreenTopAppBar(
     onAudioPermissionPermanentlyDenied: () -> Unit,
     isInteractionEnabled: Boolean,
     isDropDownEnabled: Boolean = false,
+    isThreadMode: Boolean = false,
     containerColor: Color? = null
 ) {
     val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
-    ConversationScreenTopAppBarContent(
-        conversationInfoViewState = conversationInfoViewState,
-        onBackButtonClick = onBackButtonClick,
-        onDropDownClick = onDropDownClick,
-        isDropDownEnabled = isDropDownEnabled,
-        onSearchButtonClick = onSearchButtonClick,
-        onPhoneButtonClick = onPhoneButtonClick,
-        hasOngoingCall = hasOngoingCall,
-        onJoinCallButtonClick = onJoinCallButtonClick,
-        onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
-        isInteractionEnabled = isInteractionEnabled,
-        isSearchEnabled = featureVisibilityFlags.ConversationSearchIcon,
-        containerColor = containerColor
-    )
+    if (isThreadMode) {
+        ThreadConversationScreenTopAppBarContent(
+            conversationName = conversationInfoViewState.conversationName.asString(),
+            onBackButtonClick = onBackButtonClick,
+            containerColor = containerColor
+        )
+    } else {
+        ConversationScreenTopAppBarContent(
+            conversationInfoViewState = conversationInfoViewState,
+            onBackButtonClick = onBackButtonClick,
+            onDropDownClick = onDropDownClick,
+            isDropDownEnabled = isDropDownEnabled,
+            onSearchButtonClick = onSearchButtonClick,
+            onPhoneButtonClick = onPhoneButtonClick,
+            hasOngoingCall = hasOngoingCall,
+            onJoinCallButtonClick = onJoinCallButtonClick,
+            onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
+            isInteractionEnabled = isInteractionEnabled,
+            isSearchEnabled = featureVisibilityFlags.ConversationSearchIcon,
+            containerColor = containerColor
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -198,6 +213,93 @@ private fun ConversationScreenTopAppBarContent(
                     onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
                 )
             }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = containerColor ?: MaterialTheme.colorScheme.background,
+            titleContentColor = MaterialTheme.colorScheme.onBackground,
+            actionIconContentColor = MaterialTheme.colorScheme.onBackground,
+            navigationIconContentColor = MaterialTheme.colorScheme.onBackground
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThreadConversationScreenTopAppBarContent(
+    conversationName: String,
+    onBackButtonClick: () -> Unit,
+    containerColor: Color? = null
+) {
+    TopAppBar(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(x = -dimensions().spacing4x)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_conversation),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.size(dimensions().spacing16x)
+                )
+                HorizontalSpace.x4()
+                Column(
+                    modifier = Modifier
+                        .weight(weight = 1f, fill = false)
+                        .semantics { heading() }
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(R.string.label_thread),
+                            style = MaterialTheme.wireTypography.title02,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_dropdown_icon),
+                            contentDescription = null,
+                            modifier = Modifier.size(dimensions().spacing16x)
+                        )
+                    }
+                    Text(
+                        text = conversationName,
+                        style = MaterialTheme.wireTypography.subline01,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.72f)
+                    )
+                }
+            }
+        },
+        navigationIcon = {
+            NavigationIconButton(
+                NavigationIconType.Back(R.string.content_description_conversation_back_btn),
+                onBackButtonClick
+            )
+        },
+        actions = {
+            WireSecondaryButton(
+                onClick = {},
+                text = stringResource(R.string.label_following),
+                fillMaxWidth = false,
+                minSize = DpSize(width = 0.dp, height = dimensions().spacing32x),
+                minClickableSize = DpSize(width = 0.dp, height = dimensions().spacing32x),
+                shape = RoundedCornerShape(dimensions().spacing16x),
+                textStyle = MaterialTheme.wireTypography.label02,
+                contentPadding = PaddingValues(horizontal = dimensions().spacing12x),
+                leadingIconAlignment = IconAlignment.Center,
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = commonR.drawable.ic_check_tick),
+                        contentDescription = null,
+                        modifier = Modifier.size(dimensions().spacing12x)
+                    )
+                },
+                colors = wireSecondaryButtonColors(),
+                modifier = Modifier.padding(end = dimensions().spacing8x)
+            )
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = containerColor ?: MaterialTheme.colorScheme.background,

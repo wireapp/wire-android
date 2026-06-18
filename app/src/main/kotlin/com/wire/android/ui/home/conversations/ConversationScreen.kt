@@ -44,6 +44,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -75,6 +76,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
@@ -114,7 +116,6 @@ import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.mapper.MessageDateTimeGroup
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.PlayingAudioMessage
-import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -170,25 +171,19 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBackArgs
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
-import com.wire.android.ui.home.conversations.messages.QuotedMessage
-import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
-import com.wire.android.ui.home.conversations.messages.QuotedStyle
 import com.wire.android.ui.home.conversations.messages.ThreadSummaryUi
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
-import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.SwipeableMessageConfiguration
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
-import com.wire.android.ui.home.conversations.model.MessageEditStatus
 import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.conversations.model.mapToQuotedContent
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
@@ -202,7 +197,6 @@ import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
-import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -1170,20 +1164,11 @@ private fun ConversationScreen(
                         onAudioPermissionPermanentlyDenied = {
                             onPermissionPermanentlyDenied(ConversationActionPermissionType.CallAudio)
                         },
-                        isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
+                        isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED,
+                        isThreadMode = isThreadMode
                     )
 
                     HorizontalDivider(color = colorsScheme().outline)
-
-                    if (isThreadMode) {
-                        ThreadContextHeader(
-                            conversationId = conversationInfoViewState.conversationId,
-                            conversationName = conversationInfoViewState.conversationName.asString(),
-                            rootMessage = threadRootMessage,
-                            onOpenParentConversation = onOpenThreadParentConversation,
-                        )
-                        HorizontalDivider(color = colorsScheme().outline)
-                    }
 
                     ConversationBanner(
                         bannerMessage = bannerMessage,
@@ -1265,6 +1250,14 @@ private fun ConversationScreen(
                         isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                     )
+
+                    if (isThreadMode) {
+                        ThreadContextHeader(
+                            rootMessage = threadRootMessage,
+                            onOpenParentConversation = onOpenThreadParentConversation,
+                            modifier = Modifier.align(Alignment.TopCenter)
+                        )
+                    }
                 }
             }
         )
@@ -1445,104 +1438,65 @@ private fun ConversationScreenContent(
 
 @Composable
 private fun ThreadContextHeader(
-    conversationId: ConversationId,
-    conversationName: String,
     rootMessage: UIMessage.Regular?,
     onOpenParentConversation: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val rootPreview = remember(rootMessage) { rootMessage?.toThreadRootQuotedMessage() }
-    val openParentDescription = stringResource(R.string.thread_open_in_conversation)
+    val rootPreviewText = threadRootPreviewText(rootMessage)
+    val cardShape = RoundedCornerShape(dimensions().corner16x)
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing12x),
-        verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+            .padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
+        contentAlignment = Alignment.Center
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = stringResource(R.string.label_thread),
-                    color = colorsScheme().secondaryText,
-                    style = MaterialTheme.wireTypography.label02,
+        Text(
+            text = rootPreviewText,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.wireTypography.body04,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .widthIn(max = dimensions().spacing300x)
+                .shadow(
+                    elevation = dimensions().spacing8x,
+                    shape = cardShape
                 )
-                Text(
-                    text = conversationName,
-                    style = MaterialTheme.wireTypography.body04,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = cardShape
                 )
-            }
-
-            Text(
-                text = openParentDescription,
-                color = MaterialTheme.wireColorScheme.primary,
-                style = MaterialTheme.wireTypography.label03,
-                modifier = Modifier.clickable(onClick = onOpenParentConversation)
-            )
-        }
-
-        if (rootPreview != null) {
-            QuotedMessage(
-                conversationId = conversationId,
-                messageData = rootPreview,
-                clickable = Clickable(
-                    onClickDescription = openParentDescription,
+                .clickable(
+                    onClickLabel = stringResource(R.string.thread_open_in_conversation),
                     onClick = onOpenParentConversation
-                ),
-                style = QuotedMessageStyle(
-                    quotedStyle = QuotedStyle.PREVIEW,
-                    messageStyle = MessageStyle.NORMAL,
-                    selfAccent = Accent.Unknown,
-                    senderAccent = rootPreview.senderAccent
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-        } else {
-            Text(
-                text = stringResource(R.string.thread_root_fallback_label),
-                color = colorsScheme().secondaryText,
-                style = MaterialTheme.wireTypography.body04,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = MaterialTheme.wireColorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-                    )
-                    .clickable(onClick = onOpenParentConversation)
-                    .padding(horizontal = dimensions().spacing12x, vertical = dimensions().spacing10x)
-            )
-        }
+                )
+                .padding(horizontal = dimensions().spacing12x, vertical = dimensions().spacing10x)
+        )
     }
 }
 
-private fun UIMessage.Regular.toThreadRootQuotedMessage(): UIQuotedMessage.UIQuotedData? {
-    val quotedContent = when {
-        isDeleted -> UIQuotedMessage.UIQuotedData.Deleted
-        else -> mapToQuotedContent()
-    } ?: return null
+@Composable
+private fun threadRootPreviewText(rootMessage: UIMessage.Regular?): String {
+    if (rootMessage == null) {
+        return stringResource(R.string.thread_root_fallback_label)
+    }
+    if (rootMessage.isDeleted) {
+        return stringResource(R.string.deleted_message_text)
+    }
 
-    return header.userId?.let { senderId ->
-        UIQuotedMessage.UIQuotedData(
-            messageId = header.messageId,
-            senderId = senderId,
-            senderName = header.username,
-            senderAccent = header.accent,
-            originalMessageDateDescription = UIText.DynamicString(header.messageTime.formattedDate),
-            editedTimeDescription = when (val editStatus = header.messageStatus.editStatus) {
-                is MessageEditStatus.Edited -> UIText.DynamicString(editStatus.formattedEditTimeStamp)
-                MessageEditStatus.NonEdited -> null
-            },
-            quotedContent = quotedContent
-        )
+    return when (val content = rootMessage.messageContent) {
+        is UIMessageContent.TextMessage -> content.messageBody.message.asString()
+        is UIMessageContent.Multipart -> content.messageBody?.message?.asString()
+            ?: stringResource(R.string.notification_shared_file)
+        is UIMessageContent.AssetMessage -> content.assetName
+        is UIMessageContent.VideoMessage -> content.assetName
+        is UIMessageContent.RestrictedAsset -> content.assetName
+        is UIMessageContent.ImageMessage -> stringResource(R.string.notification_shared_picture)
+        is UIMessageContent.AudioAssetMessage -> stringResource(R.string.notification_audio_message_body)
+        is UIMessageContent.Location -> content.name.ifBlank { stringResource(R.string.notification_shared_location) }
+        is UIMessageContent.MissingThreadRoot -> stringResource(R.string.thread_missing_root_message)
+        else -> stringResource(R.string.thread_root_fallback_label)
     }
 }
 

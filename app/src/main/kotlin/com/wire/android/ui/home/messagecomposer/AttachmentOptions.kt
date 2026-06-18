@@ -334,7 +334,7 @@ private fun buildAttachmentOptionItems(
             )
             add(
                 AttachmentOptionItem(
-                    shouldShow = isFileSharingEnabled,
+                    shouldShow = isFileSharingEnabled && !isThreadMode,
                     isEnabled = areAttachmentOptionsEnabled,
                     text = R.string.attachment_take_photo,
                     icon = R.drawable.ic_camera,

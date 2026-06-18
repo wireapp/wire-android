@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
@@ -51,8 +52,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -64,6 +67,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.SectionHeader
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -110,6 +114,7 @@ fun SelfUserStatusScreen(
         onDismissStatusDialog = viewModel::dismissStatusDialog,
         onNotShowRationaleAgainChange = viewModel::dialogCheckBoxStateChanged,
         onEmojiSelected = viewModel::onEmojiSelected,
+        onQuickStatusSelected = viewModel::onQuickStatusSelected,
         onClearCustomStatus = viewModel::clearCustomStatus,
         onUpdateCustomStatus = viewModel::updateCustomStatus,
     )
@@ -124,6 +129,7 @@ private fun SelfUserStatusContent(
     onDismissStatusDialog: () -> Unit,
     onNotShowRationaleAgainChange: (Boolean) -> Unit,
     onEmojiSelected: (String) -> Unit,
+    onQuickStatusSelected: (String, String) -> Unit,
     onClearCustomStatus: () -> Unit,
     onUpdateCustomStatus: (String) -> Unit,
 ) {
@@ -189,6 +195,11 @@ private fun SelfUserStatusContent(
                         textState.clearText()
                         onClearCustomStatus()
                     }
+                )
+                VerticalSpace.x16()
+                QuickStatusSection(
+                    presets = state.quickStatusPresets,
+                    onQuickStatusSelected = onQuickStatusSelected,
                 )
             }
         }
@@ -345,6 +356,61 @@ private fun CustomStatusSection(
     }
 }
 
+@Composable
+private fun QuickStatusSection(
+    presets: List<QuickStatusPreset>,
+    onQuickStatusSelected: (String, String) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        SectionHeader(stringResource(R.string.user_profile_quick_status_header))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensions().spacing16x),
+            verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
+        ) {
+            presets.forEach { preset ->
+                val presetLabel = stringResource(preset.labelResId)
+                Surface(
+                    color = MaterialTheme.wireColorScheme.surface,
+                    shape = RoundedCornerShape(dimensions().spacing16x),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    RowItemTemplate(
+                        title = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing12x),
+                            ) {
+                                Text(
+                                    text = preset.emoji,
+                                    style = MaterialTheme.wireTypography.title02,
+                                )
+                                Text(
+                                    text = presetLabel,
+                                    style = MaterialTheme.wireTypography.body01,
+                                    color = MaterialTheme.wireColorScheme.onBackground,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        },
+                        titleStartPadding = dimensions().spacing16x,
+                        contentTopPadding = dimensions().spacing16x,
+                        contentBottomPadding = dimensions().spacing16x,
+                        actionsEndPadding = dimensions().spacing0x,
+                        divider = {},
+                        backgroundColor = MaterialTheme.wireColorScheme.surface,
+                        clickable = Clickable(enabled = true) {
+                            onQuickStatusSelected(preset.emoji, presetLabel)
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
 @PreviewMultipleThemes
 @Composable
 private fun SelfUserStatusContentPreview() {
@@ -362,6 +428,7 @@ private fun SelfUserStatusContentPreview() {
             onDismissStatusDialog = {},
             onNotShowRationaleAgainChange = {},
             onEmojiSelected = {},
+            onQuickStatusSelected = { _, _ -> },
             onClearCustomStatus = {},
             onUpdateCustomStatus = {},
         )

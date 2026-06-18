@@ -720,6 +720,10 @@
     <string name="user_profile_custom_status_header">Custom Status</string>
     <string name="user_profile_custom_status_placeholder">Enter custom status message</string>
     <string name="user_profile_custom_status_counter">%1$d/%2$d</string>
+    <string name="user_profile_quick_status_header">Quick Status</string>
+    <string name="user_profile_quick_status_in_meeting">In a meeting</string>
+    <string name="user_profile_quick_status_out_sick">Out sick</string>
+    <string name="user_profile_quick_status_out_of_office">Out of office</string>
     <string name="user_profile_new_account_text">New Team or Add Account</string>
     <string name="user_profile_account_management">Manage Team</string>
     <string name="user_profile_details_tab">Details</string>

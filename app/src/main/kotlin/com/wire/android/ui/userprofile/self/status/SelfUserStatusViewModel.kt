@@ -64,6 +64,14 @@ class SelfUserStatusViewModel @Inject constructor(
         state = state.copy(emoji = emoji)
     }
 
+    fun onQuickStatusSelected(emoji: String, message: String) {
+        if (!state.isTeamMember) return
+        state = state.copy(
+            emoji = emoji,
+            message = message.take(MAX_STATUS_TEXT_LENGTH)
+        )
+    }
+
     fun dismissStatusDialog() {
         state = state.copy(statusDialogData = null)
     }

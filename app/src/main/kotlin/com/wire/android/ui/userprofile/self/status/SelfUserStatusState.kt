@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.userprofile.self.status
 
+import androidx.annotation.StringRes
+import com.wire.android.R
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
@@ -26,8 +28,29 @@ data class SelfUserStatusState(
     val emoji: String? = null,
     val message: String = "",
     val isTeamMember: Boolean = false,
+    val quickStatusPresets: List<QuickStatusPreset> = defaultQuickStatusPresets(),
     val statusDialogData: StatusDialogData? = null,
     val isSaving: Boolean = false,
+)
+
+data class QuickStatusPreset(
+    val emoji: String,
+    @StringRes val labelResId: Int,
+)
+
+fun defaultQuickStatusPresets(): List<QuickStatusPreset> = listOf(
+    QuickStatusPreset(
+        emoji = "\uD83C\uDFA7",
+        labelResId = R.string.user_profile_quick_status_in_meeting,
+    ),
+    QuickStatusPreset(
+        emoji = "\uD83E\uDD15",
+        labelResId = R.string.user_profile_quick_status_out_sick,
+    ),
+    QuickStatusPreset(
+        emoji = "\uD83D\uDCF5",
+        labelResId = R.string.user_profile_quick_status_out_of_office,
+    ),
 )
 
 const val DEFAULT_STATUS_EMOJI = "\uD83D\uDCAC"

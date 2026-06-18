@@ -104,6 +104,7 @@ interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsM
     fun clearConversationContent(conversationId: ConversationId, conversationTypeDetail: ConversationTypeDetail) {}
     fun moveToArchive(conversationId: ConversationId, shouldArchive: Boolean, isSelfAMember: Boolean) {}
     fun onLeaveGroup(leaveGroupState: LeaveGroupDialogState) {}
+    fun setPanicProtected(conversationId: ConversationId, protected: Boolean) {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -126,6 +127,7 @@ class ConversationOptionsMenuViewModelImpl(
     private val clearConversationContent: ClearConversationContentUseCase,
     private val workManager: WorkManager,
     private val dispatchers: DispatcherProvider,
+    private val conversationPrivacyRepository: com.wire.android.feature.privacy.data.ConversationPrivacyRepository,
 ) : ConversationOptionsMenuViewModel, ActionsViewModel<ConversationOptionsMenuViewAction>() {
     private val nonCancellableIOContext = NonCancellable + dispatchers.io()
     private val conversationStateFlow: ConcurrentHashMap<ConversationId, StateFlow<ConversationOptionsMenuState>> = ConcurrentHashMap()
@@ -145,11 +147,13 @@ class ConversationOptionsMenuViewModelImpl(
                     combine(
                         observeSelfUser(),
                         observeConversationDetails(conversationId),
-                    ) { selfUser, conversationDetailResult ->
+                        conversationPrivacyRepository.observe(conversationId),
+                    ) { selfUser, conversationDetailResult, privacySettings ->
                         when (conversationDetailResult) {
                             is ObserveConversationDetailsUseCase.Result.Success ->
                                 conversationDetailResult.conversationDetails
                                     .toConversationOptionsData(selfUser)
+                                    ?.copy(isPanicProtected = privacySettings.panicProtected)
                                     ?.let { ConversationOptionsMenuState.Conversation(it) } ?: ConversationOptionsMenuState.NotAvailable
 
                             is ObserveConversationDetailsUseCase.Result.Failure -> ConversationOptionsMenuState.NotAvailable
@@ -420,6 +424,14 @@ class ConversationOptionsMenuViewModelImpl(
                 }
             }
             clearContentDialogState.dismiss()
+        }
+    }
+
+    override fun setPanicProtected(conversationId: ConversationId, protected: Boolean) {
+        viewModelScope.launch {
+            withContext(nonCancellableIOContext) {
+                conversationPrivacyRepository.setPanicProtected(conversationId, protected)
+            }
         }
     }
 

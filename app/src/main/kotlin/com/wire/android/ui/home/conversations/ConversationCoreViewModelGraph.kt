@@ -43,6 +43,7 @@ import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPat
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelImpl
+import com.wire.android.ui.home.conversations.privacy.ConversationPrivacyGateViewModel
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
@@ -114,6 +115,10 @@ fun conversationBannerViewModel(): ConversationBannerViewModel =
 @Composable
 fun conversationInfoViewModel(): ConversationInfoViewModel =
     conversationSavedStateViewModel { this.conversationInfoViewModel(it) }
+
+@Composable
+fun conversationPrivacyGateViewModel(): ConversationPrivacyGateViewModel =
+    conversationSavedStateViewModel { this.conversationPrivacyGateViewModel(it) }
 
 @Composable
 fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModel =

@@ -22,7 +22,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.feature.privacy.model.PanicDuration
+import com.wire.android.feature.privacy.panic.PanicModeManager
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -52,7 +55,9 @@ class PrivacySettingsViewModel @Inject constructor(
     private val observeTypingIndicatorEnabled: ObserveTypingIndicatorEnabledUseCase,
     private val analyticsEnabled: AnalyticsConfiguration,
     private val selfServerConfig: SelfServerConfigUseCase,
-    private val dataStore: UserDataStore
+    private val dataStore: UserDataStore,
+    private val panicModeManager: PanicModeManager,
+    private val globalDataStore: GlobalDataStore,
 ) : ViewModel() {
     var state by mutableStateOf(PrivacySettingsState())
         private set
@@ -65,7 +70,7 @@ class PrivacySettingsViewModel @Inject constructor(
                 observeScreenshotCensoringConfig(),
                 dataStore.isAnonymousUsageDataEnabled()
             ) { readReceiptsEnabled, typingIndicatorEnabled, screenshotCensoringConfig, anonymousUsageDataEnabled ->
-                PrivacySettingsState(
+                state.copy(
                     isAnalyticsUsageEnabled = anonymousUsageDataEnabled,
                     shouldShowAnalyticsUsage = shouldShowAnalyticsUsage,
                     areReadReceiptsEnabled = readReceiptsEnabled,
@@ -81,7 +86,31 @@ class PrivacySettingsViewModel @Inject constructor(
                 )
             }.collect { state = it }
         }
+        viewModelScope.launch {
+            combine(
+                panicModeManager.state,
+                globalDataStore.panicDefaultDuration(),
+            ) { panic, defaultDurationName ->
+                panic.isActive to PanicDuration.fromNameOrDefault(defaultDurationName)
+            }.collect { (isActive, defaultDuration) ->
+                state = state.copy(
+                    isPanicModeActive = isActive,
+                    panicDefaultDuration = defaultDuration,
+                )
+            }
+        }
     }
+
+    fun setPanicMode(enabled: Boolean) {
+        viewModelScope.launch {
+            if (enabled) panicModeManager.activate(state.panicDefaultDuration) else panicModeManager.deactivate()
+        }
+    }
+
+    fun setPanicDefaultDuration(duration: PanicDuration) {
+        viewModelScope.launch { globalDataStore.setPanicDefaultDuration(duration.name) }
+    }
+
     private suspend fun shouldShowAnalyticsUsage(): Boolean {
         // TODO(Analytics): To be changed with UseCase
         val isAnalyticsConfigurationEnabled = analyticsEnabled is AnalyticsConfiguration.Enabled

@@ -49,6 +49,7 @@ data class ConversationOptionsData(
     val isUnderLegalHold: Boolean,
     val isFavorite: Boolean?,
     val folder: ConversationFolder?,
+    val isPanicProtected: Boolean = false,
 ) {
 
     private val isSelfUserMember: Boolean get() = selfRole != null

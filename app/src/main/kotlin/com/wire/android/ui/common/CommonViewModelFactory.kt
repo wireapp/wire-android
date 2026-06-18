@@ -23,6 +23,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.wireMetroViewModelScoped
+import com.wire.android.feature.privacy.data.ConversationPrivacyRepository
 import com.wire.android.ui.common.banner.SecurityClassificationArgs
 import com.wire.android.ui.common.banner.SecurityClassificationViewModel
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelImpl
@@ -122,6 +123,7 @@ class CommonViewModelFactory @Inject constructor(
     private val acceptConnectionRequest: AcceptConnectionRequestUseCase,
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
+    private val conversationPrivacyRepository: ConversationPrivacyRepository,
 ) {
     fun commonTopAppBarViewModel(params: CommonTopAppBarParams) = CommonTopAppBarViewModel(
         currentScreenManager = currentScreenManager,
@@ -153,6 +155,7 @@ class CommonViewModelFactory @Inject constructor(
         clearConversationContent = clearConversationContent,
         workManager = workManager,
         dispatchers = dispatchers,
+        conversationPrivacyRepository = conversationPrivacyRepository,
     )
 
     internal fun connectionActionButtonViewModel(args: ConnectionActionButtonArgs) = ConnectionActionButtonViewModelImpl(

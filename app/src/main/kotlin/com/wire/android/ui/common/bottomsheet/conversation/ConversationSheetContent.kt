@@ -54,6 +54,8 @@ fun ConversationSheetContent(
     deleteGroupLocally: (DeleteGroupDialogState) -> Unit,
     updateMutedConversationStatus: (ConversationId, MutedConversationStatus) -> Unit,
     openDebugMenu: (ConversationId) -> Unit,
+    openConversationPrivacy: ((ConversationId) -> Unit)? = null,
+    togglePanicProtected: ((ConversationId, Boolean) -> Unit)? = null,
 ) {
     var currentPage by rememberSaveable { mutableStateOf(conversationSheetState.initialPage) }
     when (currentPage) {
@@ -72,6 +74,8 @@ fun ConversationSheetContent(
                 deleteGroupLocally = deleteGroupLocally,
                 openMutingOptions = { currentPage = ConversationSheetPage.MutingNotification },
                 openDebugMenu = { openDebugMenu(conversationOptionsData.conversationId) },
+                openConversationPrivacy = openConversationPrivacy,
+                togglePanicProtected = togglePanicProtected,
             )
         }
 

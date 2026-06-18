@@ -121,6 +121,10 @@ fun networkSettingsViewModel(): NetworkSettingsViewModel = settingsViewModel { n
 fun privacySettingsViewModel(): PrivacySettingsViewModel = settingsViewModel { privacySettingsViewModel() }
 
 @Composable
+fun conversationPrivacyViewModel(): com.wire.android.ui.home.conversations.privacy.ConversationPrivacyViewModel =
+    settingsSavedStateViewModel { conversationPrivacyViewModel(it) }
+
+@Composable
 fun backupAndRestoreViewModel(): BackupAndRestoreViewModel = settingsViewModel { backupAndRestoreViewModel() }
 
 @Composable

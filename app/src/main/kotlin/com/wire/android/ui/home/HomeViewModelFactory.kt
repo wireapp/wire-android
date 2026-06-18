@@ -85,6 +85,7 @@ class HomeViewModelFactory @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
+    private val conversationPrivacyRepository: com.wire.android.feature.privacy.data.ConversationPrivacyRepository,
     private val createRegularGroup: CreateRegularGroupUseCase,
     private val createChannel: CreateChannelUseCase,
     private val isUserAllowedToCreateChannels: ObserveChannelsCreationPermissionUseCase,
@@ -140,6 +141,7 @@ class HomeViewModelFactory @Inject constructor(
         userTypeMapper = userTypeMapper,
         getSelfTeamId = getSelfTeamId,
         uiTextResolver = uiTextResolver,
+        conversationPrivacyRepository = conversationPrivacyRepository,
     )
 
     fun newConversationViewModel() = NewConversationViewModel(

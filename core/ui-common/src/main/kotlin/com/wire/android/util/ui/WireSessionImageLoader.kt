@@ -118,6 +118,15 @@ class WireSessionImageLoader(
         return painter
     }
 
+    /**
+     * Clears the in-memory and disk image caches. Used by secure-session cleanup when locking a
+     * highly-sensitive conversation, so decrypted media no longer lingers in Coil's caches.
+     */
+    fun clearCaches() {
+        coilImageLoader.memoryCache?.clear()
+        coilImageLoader.diskCache?.clear()
+    }
+
     class Factory(
         val context: Context,
         private val getAvatarAsset: GetAvatarAssetUseCase,

@@ -120,6 +120,8 @@ class PrivacySettingsViewModelTest {
         val observeTypingIndicatorEnabled = mockk<ObserveTypingIndicatorEnabledUseCase>()
         val selfServerConfig = mockk<SelfServerConfigUseCase>()
         val dataStore = mockk<UserDataStore>()
+        val panicModeManager = mockk<com.wire.android.feature.privacy.panic.PanicModeManager>()
+        val globalDataStore = mockk<com.wire.android.datastore.GlobalDataStore>()
 
         val viewModel by lazy {
             PrivacySettingsViewModel(
@@ -132,7 +134,9 @@ class PrivacySettingsViewModelTest {
                 observeTypingIndicatorEnabled = observeTypingIndicatorEnabled,
                 analyticsEnabled = AnalyticsConfiguration.Enabled,
                 selfServerConfig = selfServerConfig,
-                dataStore = dataStore
+                dataStore = dataStore,
+                panicModeManager = panicModeManager,
+                globalDataStore = globalDataStore,
             )
         }
 
@@ -150,6 +154,9 @@ class PrivacySettingsViewModelTest {
             coEvery { selfServerConfig.invoke() } returns SelfServerConfigUseCase.Result.Success(
                 serverLinks = newServerConfig(1).copy(links = ServerConfig.STAGING)
             )
+            every { panicModeManager.state } returns
+                kotlinx.coroutines.flow.MutableStateFlow(com.wire.android.feature.privacy.model.PanicModeState.Inactive)
+            every { globalDataStore.panicDefaultDuration() } returns flowOf(null)
         }
 
         fun withEnabledAnonymousUsageData() = apply {

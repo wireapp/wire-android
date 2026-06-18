@@ -22,6 +22,8 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
+import com.wire.android.feature.privacy.auth.ConversationAuthenticator
+import com.wire.android.feature.privacy.session.SecureSessionManager
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -42,6 +44,7 @@ import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveRece
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellAssetRefreshHelper
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelImpl
+import com.wire.android.ui.home.conversations.privacy.ConversationPrivacyGateViewModel
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
@@ -197,7 +200,16 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
     private val networkStateObserver: NetworkStateObserver,
     @CurrentAccount private val selfUserId: UserId,
+    private val secureSessionManager: SecureSessionManager,
+    private val conversationAuthenticator: ConversationAuthenticator,
 ) {
+    fun conversationPrivacyGateViewModel(savedStateHandle: SavedStateHandle) =
+        ConversationPrivacyGateViewModel(
+            savedStateHandle = savedStateHandle,
+            secureSessionManager = secureSessionManager,
+            authenticator = conversationAuthenticator,
+        )
+
     fun conversationMessagesViewModel(savedStateHandle: SavedStateHandle) = ConversationMessagesViewModel(
         savedStateHandle = savedStateHandle,
         observeConversationDetails = observeConversationDetails,

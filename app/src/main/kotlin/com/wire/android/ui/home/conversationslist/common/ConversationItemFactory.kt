@@ -27,7 +27,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -62,6 +65,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -88,6 +92,8 @@ fun ConversationItemFactory(
     isSelfUserUnderLegalHold: Boolean = false,
     playingAudio: PlayingAudioInConversation? = null
 ) {
+    val effectivePrivacy = LocalConversationEffectivePrivacy.current[conversation.conversationId]
+        ?: com.wire.android.feature.privacy.model.EffectivePrivacyLevel.NORMAL
     val openConversationOptionDescription = stringResource(R.string.content_description_conversation_details_more_btn)
     val openUserProfileDescription = stringResource(R.string.content_description_open_user_profile_label)
     val acceptOrIgnoreDescription = stringResource(R.string.content_description_accept_or_ignore_connection_label)
@@ -127,10 +133,14 @@ fun ConversationItemFactory(
         conversation = conversation,
         isSelectable = isSelectableItem,
         isChecked = isChecked,
+        effectivePrivacy = effectivePrivacy,
         selectOnRadioGroup = onConversationSelectedOnRadioGroup,
         subTitle = {
             if (!isSelectableItem) {
-                when (val messageContent = conversation.lastMessageContent) {
+                if (effectivePrivacy.hidesPreviewInList) {
+                    // Sensitive/Highly-Sensitive: never show the message preview in the list.
+                    RedactedSubtitle()
+                } else when (val messageContent = conversation.lastMessageContent) {
                     is UILastMessageContent.TextMessage -> LastMessageSubtitle(
                         messageContent.messageBody.message,
                         messageContent.markdownPreview,
@@ -176,6 +186,8 @@ private fun GeneralConversationItem(
     onJoinCallClick: () -> Unit,
     onAudioPermissionPermanentlyDenied: () -> Unit,
     showLegalHoldIndicator: Boolean,
+    effectivePrivacy: com.wire.android.feature.privacy.model.EffectivePrivacyLevel =
+        com.wire.android.feature.privacy.model.EffectivePrivacyLevel.NORMAL,
     modifier: Modifier = Modifier,
     selectOnRadioGroup: () -> Unit = {},
     subTitle: @Composable () -> Unit = {},
@@ -202,17 +214,24 @@ private fun GeneralConversationItem(
                             } else {
                                 ConversationAvatar.Group.Regular(conversationId)
                             }
-                            ConversationLeadingAvatar {
+                            ConversationLeadingAvatar(locked = effectivePrivacy.requiresAuth) {
                                 GroupConversationAvatar(avatar)
                             }
                         }
                     },
                     title = {
-                        ConversationTitle(
-                            name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
-                            showLegalHoldIndicator = showLegalHoldIndicator,
-                            searchQuery = searchQuery
-                        )
+                        if (effectivePrivacy.hidesIdentityInList) {
+                            ConversationTitle(
+                                name = stringResource(id = R.string.privacy_sensitive_conversation),
+                                searchQuery = searchQuery,
+                            )
+                        } else {
+                            ConversationTitle(
+                                name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
+                                showLegalHoldIndicator = showLegalHoldIndicator,
+                                searchQuery = searchQuery
+                            )
+                        }
                     },
                     subtitle = subTitle,
                     clickable = onConversationItemClick,
@@ -257,16 +276,23 @@ private fun GeneralConversationItem(
                                     selectOnRadioGroup()
                                 })
                             }
-                            ConversationLeadingAvatar {
+                            ConversationLeadingAvatar(locked = effectivePrivacy.requiresAuth) {
                                 ConversationUserAvatar(userAvatarData)
                             }
                         }
                     },
                     title = {
-                        UserLabel(
-                            userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
-                            searchQuery = searchQuery
-                        )
+                        if (effectivePrivacy.hidesIdentityInList) {
+                            ConversationTitle(
+                                name = stringResource(id = R.string.privacy_sensitive_conversation),
+                                searchQuery = searchQuery,
+                            )
+                        } else {
+                            UserLabel(
+                                userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
+                                searchQuery = searchQuery
+                            )
+                        }
                     },
                     subtitle = subTitle,
                     clickable = onConversationItemClick,
@@ -300,15 +326,22 @@ private fun GeneralConversationItem(
                     modifier = modifier.padding(start = dimensions().spacing8x),
                     titleStartPadding = dimensions().spacing0x,
                     leadingIcon = {
-                        ConversationLeadingAvatar {
+                        ConversationLeadingAvatar(locked = effectivePrivacy.requiresAuth) {
                             ConversationUserAvatar(userAvatarData)
                         }
                     },
                     title = {
-                        UserLabel(
-                            userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
-                            searchQuery = searchQuery
-                        )
+                        if (effectivePrivacy.hidesIdentityInList) {
+                            ConversationTitle(
+                                name = stringResource(id = R.string.privacy_sensitive_conversation),
+                                searchQuery = searchQuery,
+                            )
+                        } else {
+                            UserLabel(
+                                userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
+                                searchQuery = searchQuery
+                            )
+                        }
                     },
                     subtitle = subTitle,
                     clickable = onConversationItemClick,
@@ -322,8 +355,15 @@ private fun GeneralConversationItem(
 }
 
 @Composable
+private fun RedactedSubtitle() {
+    // Dotted placeholder shown instead of the message preview for Sensitive/Highly-Sensitive chats.
+    LastMessageSubtitle(UIText.DynamicString(stringResource(R.string.conversation_locked_description)))
+}
+
+@Composable
 private fun ConversationLeadingAvatar(
     modifier: Modifier = Modifier,
+    locked: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val leadingSize = MaterialTheme.wireDimensions.avatarDefaultSize +
@@ -332,7 +372,28 @@ private fun ConversationLeadingAvatar(
         modifier = modifier.size(leadingSize),
         contentAlignment = Alignment.Center
     ) {
-        content()
+        // Highly-sensitive conversations show a lock instead of the real avatar so the identity isn't
+        // revealed in the list.
+        if (locked) LockAvatar() else content()
+    }
+}
+
+@Composable
+private fun LockAvatar() {
+    val size = MaterialTheme.wireDimensions.avatarDefaultSize
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(colorsScheme().primary),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painter = painterResource(commonR.drawable.ic_lock),
+            contentDescription = null,
+            tint = colorsScheme().onPrimary,
+            modifier = Modifier.size(size / 2),
+        )
     }
 }
 

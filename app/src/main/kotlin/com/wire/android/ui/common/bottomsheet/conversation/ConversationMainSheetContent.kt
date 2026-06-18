@@ -57,6 +57,7 @@ import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.android.ui.common.R as commonR
 
 // items cannot be simplified
 @Suppress("CyclomaticComplexMethod")
@@ -75,6 +76,8 @@ internal fun ConversationMainSheetContent(
     deleteGroupLocally: (DeleteGroupDialogState) -> Unit,
     openMutingOptions: () -> Unit,
     openDebugMenu: () -> Unit,
+    openConversationPrivacy: ((ConversationId) -> Unit)? = null,
+    togglePanicProtected: ((ConversationId, Boolean) -> Unit)? = null,
 ) {
     val conversationTitle = data.title.asString()
     WireMenuModalSheetContent(
@@ -140,6 +143,36 @@ internal fun ConversationMainSheetContent(
                             }
                         )
                     }
+                }
+            }
+            if (togglePanicProtected != null) {
+                add {
+                    MenuBottomSheetItem(
+                        leading = {
+                            MenuItemIcon(
+                                id = commonR.drawable.ic_shield_holo,
+                                contentDescription = null,
+                            )
+                        },
+                        title = stringResource(
+                            if (data.isPanicProtected) R.string.panic_remove_conversation else R.string.panic_add_conversation
+                        ),
+                        onItemClick = { togglePanicProtected(data.conversationId, !data.isPanicProtected) }
+                    )
+                }
+            }
+            if (openConversationPrivacy != null) {
+                add {
+                    MenuBottomSheetItem(
+                        leading = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_block,
+                                contentDescription = null,
+                            )
+                        },
+                        title = stringResource(R.string.privacy_level_title),
+                        onItemClick = { openConversationPrivacy(data.conversationId) }
+                    )
                 }
             }
             if (moveConversationToFolder != null && !data.isArchived) {

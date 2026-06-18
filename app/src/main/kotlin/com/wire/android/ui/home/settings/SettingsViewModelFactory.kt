@@ -131,6 +131,8 @@ class SettingsViewModelFactory @Inject constructor(
     private val getAppById: Provider<GetAppByIdUseCase>,
     private val observeConversationDetails: Provider<ObserveConversationDetailsUseCase>,
     private val observeIsServiceMember: Provider<ObserveIsServiceMemberUseCase>,
+    private val conversationPrivacyRepository: Provider<com.wire.android.feature.privacy.data.ConversationPrivacyRepository>,
+    private val conversationAuthenticator: Provider<com.wire.android.feature.privacy.auth.ConversationAuthenticator>,
     private val observeIsAppMember: Provider<ObserveIsAppMemberUseCase>,
     private val observeIsAppsAllowedForUsage: Provider<ObserveIsAppsAllowedForUsageUseCase>,
     private val addServiceToConversation: Provider<AddServiceToConversationUseCase>,
@@ -156,6 +158,15 @@ class SettingsViewModelFactory @Inject constructor(
     fun avatarPickerViewModel(): AvatarPickerViewModel = avatarPickerViewModel.invoke()
     fun selfUserProfileViewModel(): SelfUserProfileViewModel = selfUserProfileViewModel.invoke()
     fun teamMigrationViewModel(): TeamMigrationViewModel = teamMigrationViewModel.invoke()
+
+    fun conversationPrivacyViewModel(
+        savedStateHandle: SavedStateHandle
+    ): com.wire.android.ui.home.conversations.privacy.ConversationPrivacyViewModel =
+        com.wire.android.ui.home.conversations.privacy.ConversationPrivacyViewModel(
+            savedStateHandle = savedStateHandle,
+            repository = conversationPrivacyRepository(),
+            authenticator = conversationAuthenticator(),
+        )
 
     fun verifyEmailViewModel(savedStateHandle: SavedStateHandle): VerifyEmailViewModel = VerifyEmailViewModel(
         updateEmail = updateEmail(),

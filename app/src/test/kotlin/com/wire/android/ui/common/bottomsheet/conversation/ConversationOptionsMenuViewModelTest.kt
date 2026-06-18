@@ -56,6 +56,7 @@ import com.wire.kalium.logic.feature.user.IsPreventAdminlessGroupsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockkStatic
@@ -691,10 +692,15 @@ class ConversationOptionsMenuViewModelTest {
         @MockK
         lateinit var workManager: WorkManager
 
+        @MockK
+        lateinit var conversationPrivacyRepository: com.wire.android.feature.privacy.data.ConversationPrivacyRepository
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkStatic("com.wire.android.workmanager.worker.DeleteConversationLocallyWorkerKt")
             coEvery { isPreventAdminlessGroupsEnabled() } returns true
+            every { conversationPrivacyRepository.observe(any()) } returns
+                flowOf(com.wire.android.feature.privacy.model.ConversationPrivacySettings.DEFAULT)
         }
 
         fun arrange() = this to ConversationOptionsMenuViewModelImpl(

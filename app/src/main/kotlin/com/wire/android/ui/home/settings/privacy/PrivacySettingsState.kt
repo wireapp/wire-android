@@ -18,12 +18,16 @@
 
 package com.wire.android.ui.home.settings.privacy
 
+import com.wire.android.feature.privacy.model.PanicDuration
+
 data class PrivacySettingsState(
     val isAnalyticsUsageEnabled: Boolean = true,
     val shouldShowAnalyticsUsage: Boolean = false,
     val areReadReceiptsEnabled: Boolean = true,
     val isTypingIndicatorEnabled: Boolean = true,
     val screenshotCensoringConfig: ScreenshotCensoringConfig = ScreenshotCensoringConfig.ENABLED_BY_USER,
+    val isPanicModeActive: Boolean = false,
+    val panicDefaultDuration: PanicDuration = PanicDuration.DEFAULT,
 )
 
 enum class ScreenshotCensoringConfig {

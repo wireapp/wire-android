@@ -307,8 +307,13 @@ class ConversationListViewModelTest {
         @MockK
         lateinit var uiTextResolver: UiTextResolver
 
+        @MockK
+        lateinit var conversationPrivacyRepository: com.wire.android.feature.privacy.data.ConversationPrivacyRepository
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            every { conversationPrivacyRepository.observeEffectiveAll() } returns flowOf(emptyMap())
+            every { conversationPrivacyRepository.observePanicMode() } returns flowOf(false)
             withConversationsPaginated(listOf(TestConversationItem.CONNECTION, TestConversationItem.PRIVATE, TestConversationItem.GROUP))
             withSelfUserLegalHoldState(LegalHoldStateForSelfUser.Disabled)
             coEvery { observeConversationListDetailsWithEventsUseCase.invoke(false, ConversationFilter.All) } returns flowOf(
@@ -377,6 +382,7 @@ class ConversationListViewModelTest {
             uiTextResolver = uiTextResolver,
             usePagination = true,
             audioMessagePlayer = audioMessagePlayer,
+            conversationPrivacyRepository = conversationPrivacyRepository,
         )
     }
 }

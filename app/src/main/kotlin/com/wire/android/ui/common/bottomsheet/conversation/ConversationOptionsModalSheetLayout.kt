@@ -57,6 +57,7 @@ fun ConversationOptionsModalSheetLayout(
     onDeletedConversationLocally: () -> Unit = {},
     onPromoteAdmin: (ConversationId) -> Unit = {},
     openConversationDebugMenu: (ConversationId) -> Unit = {},
+    openConversationPrivacy: (ConversationId) -> Unit = {},
     viewModel: ConversationOptionsMenuViewModel =
         conversationOptionsMenuViewModel()
 ) {
@@ -159,6 +160,12 @@ fun ConversationOptionsModalSheetLayout(
                     updateMutedConversationStatus = viewModel::changeMutedState,
                     openDebugMenu = { conversationId ->
                         sheetState.hide { openConversationDebugMenu(conversationId) }
+                    },
+                    openConversationPrivacy = { conversationId ->
+                        sheetState.hide { openConversationPrivacy(conversationId) }
+                    },
+                    togglePanicProtected = { conversationId, protected ->
+                        sheetState.hide { viewModel.setPanicProtected(conversationId, protected) }
                     }
                 ).also {
                     sheetState.updateContent()

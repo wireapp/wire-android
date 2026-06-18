@@ -38,6 +38,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -86,6 +87,7 @@ import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.NavigationSwitchAccountActions
+import com.wire.android.feature.privacy.panic.PanicModeManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
@@ -150,6 +152,9 @@ class WireActivity : BaseActivity() {
 
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager
+
+    @Inject
+    lateinit var panicModeManager: PanicModeManager
 
     @Inject
     lateinit var lockCodeTimeManager: Lazy<LockCodeTimeManager>
@@ -519,8 +524,13 @@ class WireActivity : BaseActivity() {
 
     @Composable
     private fun HandleScreenshotCensoring() {
-        LaunchedEffect(viewModel.globalAppState.screenshotCensoringEnabled) {
-            if (viewModel.globalAppState.screenshotCensoringEnabled) {
+        // The window must be marked secure (blanking app-switcher previews + blocking screenshots) when
+        // the user enabled screenshot censoring OR when Panic Mode is active. Per-conversation secure
+        // windows for SENSITIVE/HIGHLY_SENSITIVE chats are handled by the conversation screen itself.
+        val panicState by panicModeManager.state.collectAsStateWithLifecycle()
+        val secureRequired = viewModel.globalAppState.screenshotCensoringEnabled || panicState.isActive
+        LaunchedEffect(secureRequired) {
+            if (secureRequired) {
                 window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
             } else {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)

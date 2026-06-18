@@ -1693,6 +1693,50 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
     <string name="notification_obfuscated_message_title">Someone</string>
     <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
+    <!-- Conversation privacy: redacted notification content -->
+    <string name="notification_sensitive_new_message">New sensitive message</string>
+    <string name="notification_high_sensitive_new_message">New highly sensitive Message</string>
+    <!-- Conversation privacy levels -->
+    <string name="privacy_sensitive_conversation">Sensitive Conversation</string>
+    <string name="privacy_level_title">Privacy Level</string>
+    <string name="privacy_level_normal">Normal</string>
+    <string name="privacy_level_sensitive">Sensitive</string>
+    <string name="privacy_level_highly_sensitive">Highly Sensitive</string>
+    <string name="privacy_level_normal_description">Show name and message preview everywhere.</string>
+    <string name="privacy_level_sensitive_description">Hide message previews when you are not looking. No authentication.</string>
+    <string name="privacy_level_highly_sensitive_description">Hide name and previews. Require authentication to open. Auto-locks and clears the screen.</string>
+    <string name="privacy_auto_lock_title">Auto-Lock</string>
+    <string name="privacy_auto_lock_immediately">Immediately</string>
+    <string name="privacy_auto_lock_30_seconds">30 seconds</string>
+    <string name="privacy_auto_lock_1_minute">1 minute</string>
+    <string name="privacy_auto_lock_5_minutes">5 minutes</string>
+    <!-- Panic Mode -->
+    <string name="panic_mode_title">Panic Mode</string>
+    <string name="panic_mode_active_indicator">🛡 Panic Mode Active</string>
+    <string name="panic_mode_description">Temporarily protect all sensitive conversations. Hides previews, blurs content and locks secure chats.</string>
+    <string name="panic_mode_default_duration_title">Default duration</string>
+    <string name="panic_mode_duration_15_minutes">15 minutes</string>
+    <string name="panic_mode_duration_1_hour">1 hour</string>
+    <string name="panic_mode_duration_until_disabled">Until disabled</string>
+    <string name="panic_mode_turn_on">Turn on Panic Mode</string>
+    <string name="panic_mode_turn_off">Turn off Panic Mode</string>
+    <string name="panic_add_conversation">Add to Panic Mode</string>
+    <string name="panic_remove_conversation">Remove from Panic Mode</string>
+    <!-- Chat PIN -->
+    <string name="chat_pin_create_title">Create a Chat PIN</string>
+    <string name="chat_pin_create_subtitle">This PIN protects your highly sensitive conversations when biometrics are unavailable.</string>
+    <string name="chat_pin_enter_title">Enter your Chat PIN</string>
+    <string name="chat_pin_confirm_title">Confirm your Chat PIN</string>
+    <string name="chat_pin_confirm_subtitle">Enter your Chat PIN to make this conversation highly sensitive.</string>
+    <string name="chat_pin_incorrect">Incorrect PIN. Try again.</string>
+    <string name="conversation_locked_title">This conversation is locked</string>
+    <string name="conversation_locked_subtitle">Unlock to view this conversation</string>
+    <string name="conversation_locked_unlock">Unlock</string>
+    <string name="conversation_locked_unlock_with_biometrics">Unlock with biometrics</string>
+    <string name="conversation_concealed_reveal">Tap to reveal</string>
+    <string name="conversation_auto_lock_warning">Conversation will lock in %1$ds</string>
+    <string name="conversation_auto_lock_keep_active">Tap to keep it active</string>
+    <string name="conversation_locked_description">Open to see content</string>
     <string name="settings_licenses_settings_label">License Information</string>
     <string name="settings_dependencies_label">Dependencies</string>
     <string name="settings_myaccount_logout">Delete Account</string>

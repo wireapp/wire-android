@@ -28,6 +28,7 @@ import com.wire.android.di.ImageLoadingModule
 import com.wire.android.di.KaliumConfigsModule
 import com.wire.android.di.LogWriterModule
 import com.wire.android.di.ManagedConfigurationsModule
+import com.wire.android.di.PrivacyModule
 import com.wire.android.di.SessionModule
 import com.wire.android.di.UseCaseModule
 import com.wire.android.di.accountScoped.AppsModule
@@ -77,6 +78,7 @@ import dev.zacsweers.metro.createGraphFactory
         SessionModule::class,
         UseCaseModule::class,
         ManagedConfigurationsModule::class,
+        PrivacyModule::class,
         KaliumConfigsModule::class,
         LogWriterModule::class,
         CoroutinesScopesModule::class,

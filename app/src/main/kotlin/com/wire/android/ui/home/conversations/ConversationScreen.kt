@@ -115,8 +115,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.conversationCallViewModel
+import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.PageLoadingIndicator
@@ -177,6 +177,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.conversations.privacy.ConversationLockGate
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
@@ -892,6 +893,8 @@ fun ConversationScreen(
             }
         }
     }
+
+    ConversationLockGate(onBack = navigator::navigateBack)
 }
 
 private fun conversationScreenOnBackButtonClick(

@@ -91,9 +91,9 @@ class SelfUserStatusViewModelTest {
     }
 
     @Test
-    fun givenNoEmojiAndBlankMessage_whenBuildingTextStatus_thenReturnsNull() {
+    fun givenNoEmojiAndBlankMessage_whenBuildingTextStatus_thenReturnsSingleSpace() {
         val result = buildTextStatus(emoji = null, message = "   ")
 
-        assertNull(result)
+        assertEquals(" ", result)
     }
 }

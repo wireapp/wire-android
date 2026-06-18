@@ -45,7 +45,7 @@ fun resolveStatusEmoji(emoji: String?, message: String): String? =
 fun buildTextStatus(emoji: String?, message: String): String? {
     val trimmedMessage = message.trim().take(MAX_STATUS_TEXT_LENGTH)
     val trimmedEmoji = emoji?.takeIf { it.isNotBlank() }
-    if (trimmedMessage.isBlank()) return trimmedEmoji
+    if (trimmedMessage.isBlank()) return trimmedEmoji ?: " "
 
     val resolvedEmoji = resolveStatusEmoji(trimmedEmoji, trimmedMessage) ?: return trimmedMessage
     return "$resolvedEmoji $trimmedMessage"

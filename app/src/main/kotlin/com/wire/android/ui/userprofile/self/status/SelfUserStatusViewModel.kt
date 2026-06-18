@@ -98,7 +98,7 @@ class SelfUserStatusViewModel @Inject constructor(
         state = state.copy(emoji = null, message = "")
         viewModelScope.launch {
             state = state.copy(isSaving = true)
-            updateTextStatus(null)
+            updateTextStatus(" ")
             state = state.copy(isSaving = false)
         }
     }

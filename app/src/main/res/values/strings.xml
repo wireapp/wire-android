@@ -1093,11 +1093,6 @@
     <string name="thread_open_in_conversation">Open in conversation</string>
     <string name="thread_root_fallback_label">Thread started</string>
     <string name="thread_missing_root_message">You cannot see this message.</string>
-    <string name="thread_create_conversation">Create conversation from thread</string>
-    <string name="thread_conversation_name">Thread: %1$s</string>
-    <string name="thread_create_conversation_failed">Could not create conversation from thread</string>
-    <string name="thread_create_conversation_no_participants">This thread has no other participants</string>
-    <string name="thread_create_conversation_move_failed">Conversation created, but messages could not be moved</string>
     <string name="threads_search_empty_title">No matching threads</string>
     <string name="notification_receiver_name">You</string>
     <string name="label_type_a_message">Type a message</string>

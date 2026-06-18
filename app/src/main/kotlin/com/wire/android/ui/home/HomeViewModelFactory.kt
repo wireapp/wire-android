@@ -45,7 +45,6 @@ import com.wire.kalium.logic.feature.client.ObserveIsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
-import com.wire.kalium.logic.feature.conversation.CreateConversationFromThreadUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
@@ -93,7 +92,6 @@ class HomeViewModelFactory @Inject constructor(
     private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
     private val observeGlobalThreads: ObserveGlobalThreadsUseCase,
-    private val createConversationFromThread: CreateConversationFromThreadUseCase,
     private val createRegularGroup: CreateRegularGroupUseCase,
     private val createChannel: CreateChannelUseCase,
     private val isUserAllowedToCreateChannels: ObserveChannelsCreationPermissionUseCase,
@@ -135,7 +133,6 @@ class HomeViewModelFactory @Inject constructor(
 
     fun globalThreadsViewModel() = GlobalThreadsViewModel(
         observeGlobalThreads = observeGlobalThreads,
-        createConversationFromThread = createConversationFromThread,
         uiTextResolver = uiTextResolver,
     )
 

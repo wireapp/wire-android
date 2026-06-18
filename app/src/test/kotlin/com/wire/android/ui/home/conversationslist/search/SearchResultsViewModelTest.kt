@@ -61,6 +61,7 @@ class SearchResultsViewModelTest {
 
         assertEquals(MessagesSearchState.EmptyQuery, viewModel.messagesSearchState.value)
         coVerify(exactly = 0) { arrangement.searchMessagesSemanticallyGlobally(any(), any()) }
+        coVerify(exactly = 0) { arrangement.identifyDiscussionTopicsFromSemanticSearch(any()) }
     }
 
     @Test
@@ -92,6 +93,7 @@ class SearchResultsViewModelTest {
 
         val state = assertIs<MessagesSearchState.Success>(viewModel.messagesSearchState.value)
         assertEquals(listOf(uiMessage), state.messages)
+        coVerify(exactly = 1) { arrangement.identifyDiscussionTopicsFromSemanticSearch(listOf(message)) }
     }
 
     @Test
@@ -104,6 +106,7 @@ class SearchResultsViewModelTest {
         advanceDebounce()
 
         assertEquals(MessagesSearchState.NoResults, viewModel.messagesSearchState.value)
+        coVerify(exactly = 0) { arrangement.identifyDiscussionTopicsFromSemanticSearch(any()) }
     }
 
     @Test
@@ -118,6 +121,7 @@ class SearchResultsViewModelTest {
         advanceDebounce()
 
         assertEquals(MessagesSearchState.Failure, viewModel.messagesSearchState.value)
+        coVerify(exactly = 0) { arrangement.identifyDiscussionTopicsFromSemanticSearch(any()) }
     }
 
     @Test
@@ -180,6 +184,9 @@ class SearchResultsViewModelTest {
         lateinit var searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase
 
         @MockK
+        lateinit var identifyDiscussionTopicsFromSemanticSearch: IdentifyDiscussionTopicsFromSemanticSearchUseCase
+
+        @MockK
         lateinit var getUsersForMessage: GetUsersForMessageUseCase
 
         @MockK
@@ -189,6 +196,7 @@ class SearchResultsViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { searchMessagesSemanticallyGlobally(any(), any()) } returns
                     SearchMessagesSemanticallyGloballyUseCase.Result.Success(emptyList())
+            coEvery { identifyDiscussionTopicsFromSemanticSearch(any()) } returns emptyList()
             coEvery { getUsersForMessage(any()) } returns emptyList()
             every { messageMapper.toUIMessage(any(), any()) } returns null
         }
@@ -224,6 +232,7 @@ class SearchResultsViewModelTest {
 
         fun arrange() = this to SearchResultsViewModel(
             searchMessagesSemanticallyGlobally = searchMessagesSemanticallyGlobally,
+            identifyDiscussionTopicsFromSemanticSearch = identifyDiscussionTopicsFromSemanticSearch,
             getUsersForMessage = getUsersForMessage,
             messageMapper = messageMapper,
             dispatcher = TestDispatcherProvider(),

@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversationslist.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.mapper.MessageMapper
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -39,6 +40,7 @@ import kotlinx.coroutines.launch
 
 class SearchResultsViewModel(
     private val searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase,
+    private val identifyDiscussionTopicsFromSemanticSearch: IdentifyDiscussionTopicsFromSemanticSearchUseCase,
     private val getUsersForMessage: GetUsersForMessageUseCase,
     private val messageMapper: MessageMapper,
     private val dispatcher: DispatcherProvider,
@@ -79,6 +81,7 @@ class SearchResultsViewModel(
         _messagesSearchState.value = MessagesSearchState.Loading
         return when (val result = searchMessagesSemanticallyGlobally(query)) {
             is SearchMessagesSemanticallyGloballyUseCase.Result.Success -> {
+                identifyDiscussionTopics(result.messages)
                 val messages = result.messages.mapNotNull { it.toUIMessage() }
                 if (messages.isEmpty()) {
                     MessagesSearchState.NoResults
@@ -88,6 +91,18 @@ class SearchResultsViewModel(
             }
 
             is SearchMessagesSemanticallyGloballyUseCase.Result.Failure -> MessagesSearchState.Failure
+        }
+    }
+
+    private fun identifyDiscussionTopics(messages: List<Message.Standalone>) {
+        if (messages.isEmpty()) return
+
+        viewModelScope.launch(dispatcher.io()) {
+            runCatching {
+                identifyDiscussionTopicsFromSemanticSearch(messages)
+            }.onFailure { throwable ->
+                appLogger.w("SemanticSearchDiscussionTopic: failed to identify discussion topics", throwable)
+            }
         }
     }
 

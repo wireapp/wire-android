@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearch
 import com.wire.android.ui.home.conversations.usecase.GetUsersForMessageUseCase
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
+import com.wire.android.ui.home.conversationslist.search.IdentifyDiscussionTopicsFromSemanticSearchUseCase
 import com.wire.android.ui.home.conversationslist.search.SearchResultsViewModel
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
@@ -85,6 +86,7 @@ class HomeViewModelFactory @Inject constructor(
     private val disableAppLockUseCase: Lazy<DisableAppLockUseCase>,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val searchMessagesSemanticallyGlobally: SearchMessagesSemanticallyGloballyUseCase,
+    private val identifyDiscussionTopicsFromSemanticSearch: IdentifyDiscussionTopicsFromSemanticSearchUseCase,
     private val getUsersForMessage: GetUsersForMessageUseCase,
     private val messageMapper: MessageMapper,
     private val observeConversationListDetailsWithEvents: ObserveConversationListDetailsWithEventsUseCase,
@@ -137,6 +139,7 @@ class HomeViewModelFactory @Inject constructor(
 
     fun searchResultsViewModel() = SearchResultsViewModel(
         searchMessagesSemanticallyGlobally = searchMessagesSemanticallyGlobally,
+        identifyDiscussionTopicsFromSemanticSearch = identifyDiscussionTopicsFromSemanticSearch,
         getUsersForMessage = getUsersForMessage,
         messageMapper = messageMapper,
         dispatcher = dispatcher,

@@ -21,7 +21,9 @@ import com.wire.android.feature.aiassistant.AiModelManager
 import com.wire.android.feature.aiassistant.AiMessageComposerAgent
 import com.wire.android.feature.aiassistant.DefaultAiEmbeddingModelManager
 import com.wire.android.feature.aiassistant.DefaultAiModelManager
+import com.wire.android.feature.aiassistant.DefaultDiscussionTopicGenerator
 import com.wire.android.feature.aiassistant.DefaultAiMessageComposerAgent
+import com.wire.android.feature.aiassistant.DiscussionTopicGenerator
 import com.wire.android.feature.aiassistant.GeckoTextEmbeddingModel
 import com.wire.android.feature.aiassistant.download.AiModelDownloader
 import com.wire.android.feature.aiassistant.download.AiModelHttpClient
@@ -65,6 +67,11 @@ object AiAssistantModule {
     @Provides
     @SingleIn(AppScope::class)
     fun provideAiMessageComposerAgent(implementation: DefaultAiMessageComposerAgent): AiMessageComposerAgent =
+        implementation
+
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideDiscussionTopicGenerator(implementation: DefaultDiscussionTopicGenerator): DiscussionTopicGenerator =
         implementation
 
     @Provides

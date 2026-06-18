@@ -16,16 +16,25 @@
  */
 package com.wire.android.vectorsearch
 
+import android.app.Application
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Test
+import io.objectbox.exception.DbSchemaException
+import org.junit.After
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
+import org.robolectric.RobolectricTestRunner
 import java.io.File
 
+@RunWith(RobolectricTestRunner::class)
+@Config(application = Application::class)
 class ObjectBoxMessageEmbeddingVectorStoreTest {
 
-    @AfterEach
+    @After
     fun tearDown() {
         ObjectBoxMessageEmbeddingVectorStore.closeAllForTests()
     }
@@ -39,5 +48,19 @@ class ObjectBoxMessageEmbeddingVectorStoreTest {
         val second = ObjectBoxMessageEmbeddingVectorStore.create(context, directory)
 
         assertSame(first, second)
+    }
+
+    @Test
+    fun givenSchemaDowngradeException_whenCheckingRecovery_thenItIsRecoverable() {
+        val exception = DbSchemaException("DB's last index ID 10 is higher than 6 from model")
+
+        assertTrue(ObjectBoxMessageEmbeddingVectorStore.isRecoverableSchemaDowngrade(exception))
+    }
+
+    @Test
+    fun givenUnrelatedSchemaException_whenCheckingRecovery_thenItIsNotRecoverable() {
+        val exception = DbSchemaException("Property type does not match model")
+
+        assertFalse(ObjectBoxMessageEmbeddingVectorStore.isRecoverableSchemaDowngrade(exception))
     }
 }

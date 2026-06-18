@@ -34,6 +34,7 @@ import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.GetMessagesByConversationAndDateRangeUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase
@@ -111,6 +112,12 @@ class MessageModule {
         messageEmbeddingVectorIndex: MessageEmbeddingVectorIndex
     ): SearchMessagesSemanticallyGloballyUseCase =
         messageScope.searchMessagesSemanticallyGlobally(textEmbeddingModel, messageEmbeddingVectorIndex)
+
+    @Provides
+    fun provideGetMessagesByConversationAndDateRangeUseCase(
+        messageScope: MessageScope
+    ): GetMessagesByConversationAndDateRangeUseCase =
+        messageScope.getMessagesByConversationAndDateRange
 
     @Provides
     fun provideEnqueueMessageSelfDeletionUseCase(messageScope: MessageScope): EnqueueMessageSelfDeletionUseCase =

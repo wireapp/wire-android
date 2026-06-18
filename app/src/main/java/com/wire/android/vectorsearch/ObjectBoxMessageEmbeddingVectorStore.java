@@ -22,6 +22,8 @@ import com.wire.kalium.logic.feature.message.MessageEmbeddingSearchResult;
 import com.wire.kalium.logic.feature.message.MessageEmbeddingVectorChunk;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
+import io.objectbox.BoxStoreBuilder;
+import io.objectbox.exception.DbSchemaException;
 import io.objectbox.query.ObjectWithScore;
 import io.objectbox.query.QueryCondition;
 import java.io.File;
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,13 +55,40 @@ public final class ObjectBoxMessageEmbeddingVectorStore {
             return existingStore;
         }
 
-        BoxStore store = MyObjectBox.builder()
-                .androidContext(context.getApplicationContext())
-                .directory(directory)
-                .build();
+        BoxStore store = buildStore(context, directory);
         ObjectBoxMessageEmbeddingVectorStore vectorStore = new ObjectBoxMessageEmbeddingVectorStore(store);
         OPEN_STORES.put(directoryPath, vectorStore);
         return vectorStore;
+    }
+
+    private static BoxStore buildStore(Context context, File directory) {
+        try {
+            return newStoreBuilder(context, directory).build();
+        } catch (DbSchemaException exception) {
+            if (!isRecoverableSchemaDowngrade(exception)) {
+                throw exception;
+            }
+            if (!BoxStore.deleteAllFiles(directory)) {
+                throw exception;
+            }
+            return newStoreBuilder(context, directory).build();
+        }
+    }
+
+    private static BoxStoreBuilder newStoreBuilder(Context context, File directory) {
+        return MyObjectBox.builder()
+                .androidContext(context.getApplicationContext())
+                .directory(directory);
+    }
+
+    static boolean isRecoverableSchemaDowngrade(DbSchemaException exception) {
+        String message = exception.getMessage();
+        if (message == null) {
+            return false;
+        }
+        String normalizedMessage = message.toLowerCase(Locale.ROOT);
+        return normalizedMessage.contains("higher than")
+                && normalizedMessage.contains("from model");
     }
 
     static synchronized void closeAllForTests() {

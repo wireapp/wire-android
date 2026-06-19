@@ -643,6 +643,14 @@ public fun com.wire.android.ui.CallFeedbackDialog(sheetState: com.wire.android.u
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
+public fun com.wire.android.ui.CrossBackendLoginBlockedDialog(shouldShow: kotlin.Boolean, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - shouldShow: STABLE (primitive type)
+    - onDismiss: STABLE (function type)
+
+@Composable
 public fun com.wire.android.ui.CustomBackendDialog(state: com.wire.android.ui.common.dialogs.CustomServerDialogState?, onDismiss: kotlin.Function0<kotlin.Unit>, onConfirm: kotlin.Function1<com.wire.android.util.deeplink.LoginType, kotlin.Unit>, onTryAgain: kotlin.Function2<kotlin.String, com.wire.android.util.deeplink.LoginType, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -1303,7 +1311,7 @@ public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceVerific
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.LoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.LoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1333,7 +1341,7 @@ public fun com.wire.android.ui.authentication.login.LoginScreen(navigator: com.w
     - loginEmailViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.MainLoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.MainLoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1375,7 +1383,7 @@ public fun com.wire.android.ui.authentication.login.email.LoginButton(loading: k
     - onClick: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.email.LoginEmailContent(scrollState: androidx.compose.foundation.ScrollState, userIdentifierTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState, isProxyAuthRequired: kotlin.Boolean, apiProxyUrl: kotlin.String?, onDialogDismiss: kotlin.Function0<kotlin.Unit>, onRemoveDeviceOpen: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, forgotPasswordUrl: kotlin.String, scope: kotlinx.coroutines.CoroutineScope, fillMaxHeight: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.email.LoginEmailContent(scrollState: androidx.compose.foundation.ScrollState, userIdentifierTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState, isProxyAuthRequired: kotlin.Boolean, apiProxyUrl: kotlin.String?, onDialogDismiss: kotlin.Function0<kotlin.Unit>, onRemoveDeviceOpen: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, forgotPasswordUrl: kotlin.String, scope: kotlinx.coroutines.CoroutineScope, fillMaxHeight: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1395,7 +1403,7 @@ private fun com.wire.android.ui.authentication.login.email.LoginEmailContent(scr
     - fillMaxHeight: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.email.LoginEmailScreen(onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, scrollState: androidx.compose.foundation.ScrollState, fillMaxHeight: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.authentication.login.email.LoginEmailScreen(onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, scrollState: androidx.compose.foundation.ScrollState, fillMaxHeight: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1476,7 +1484,7 @@ private fun com.wire.android.ui.authentication.login.sso.LoginButton(loading: ko
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.sso.LoginSSOContent(scrollState: androidx.compose.foundation.ScrollState, loginSSOState: com.wire.android.ui.authentication.login.sso.LoginSSOState, ssoCodeTextState: androidx.compose.foundation.text.input.TextFieldState, onErrorDialogDismiss: kotlin.Function0<kotlin.Unit>, onRemoveDeviceOpen: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, onCustomServerDialogDismiss: kotlin.Function0<kotlin.Unit>, onCustomServerDialogConfirm: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.sso.LoginSSOContent(scrollState: androidx.compose.foundation.ScrollState, loginSSOState: com.wire.android.ui.authentication.login.sso.LoginSSOState, ssoCodeTextState: androidx.compose.foundation.text.input.TextFieldState, onErrorDialogDismiss: kotlin.Function0<kotlin.Unit>, onRemoveDeviceOpen: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, onCustomServerDialogDismiss: kotlin.Function0<kotlin.Unit>, onCustomServerDialogConfirm: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1490,7 +1498,7 @@ private fun com.wire.android.ui.authentication.login.sso.LoginSSOContent(scrollS
     - onCustomServerDialogConfirm: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.sso.LoginSSOScreen(onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?, loginSSOViewModel: com.wire.android.ui.authentication.login.sso.LoginSSOViewModel, scrollState: androidx.compose.foundation.ScrollState): kotlin.Unit
+public fun com.wire.android.ui.authentication.login.sso.LoginSSOScreen(onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?, loginSSOViewModel: com.wire.android.ui.authentication.login.sso.LoginSSOViewModel, scrollState: androidx.compose.foundation.ScrollState): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -2662,23 +2670,6 @@ public fun com.wire.android.ui.common.CopyButton(onCopyClicked: kotlin.Function0
     - state: STABLE (class with no mutable properties)
 
 @Composable
-private fun com.wire.android.ui.common.DropdownItem(text: kotlin.String, leadingCompose: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, isSelected: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - text: STABLE (String is immutable)
-    - leadingCompose: STABLE (composable function type)
-    - isSelected: STABLE (primitive type)
-    - onClick: STABLE (function type)
-
-@Composable
-private fun com.wire.android.ui.common.LeadingIcon(convent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - convent: STABLE (composable function type)
-
-@Composable
 public fun com.wire.android.ui.common.LegalHoldIndicator(modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -2724,25 +2715,6 @@ public fun com.wire.android.ui.common.MLSVerifiedIcon(modifier: androidx.compose
     - contentDescriptionId: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.ui.common.MenuPopUp(shape: androidx.compose.foundation.shape.RoundedCornerShape, textFieldWidth: androidx.compose.ui.geometry.Size, expanded: kotlin.Boolean, borderColor: androidx.compose.ui.graphics.Color, leadingCompose: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, selectedIndex: kotlin.Int, items: kotlin.collections.List<kotlin.String>, showDefaultTextIndicator: kotlin.Boolean, defaultItemIndex: kotlin.Int, selectionText: kotlin.String, arrowRotation: kotlin.Float, hidePopUp: kotlin.Function0<kotlin.Unit>, onChange: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - shape: STABLE (known stable type)
-    - textFieldWidth: STABLE (marked @Stable or @Immutable)
-    - expanded: STABLE (primitive type)
-    - borderColor: STABLE (marked @Stable or @Immutable)
-    - leadingCompose: STABLE (composable function type)
-    - selectedIndex: STABLE (primitive type)
-    - items: RUNTIME (requires runtime check)
-    - showDefaultTextIndicator: STABLE (primitive type)
-    - defaultItemIndex: STABLE (primitive type)
-    - selectionText: STABLE (String is immutable)
-    - arrowRotation: STABLE (primitive type)
-    - hidePopUp: STABLE (function type)
-    - onChange: STABLE (function type)
-
-@Composable
 public fun com.wire.android.ui.common.PageLoadingIndicator(text: kotlin.String, modifier: androidx.compose.ui.Modifier, prefixIconResId: kotlin.Int?): kotlin.Unit
   skippable: true
   restartable: true
@@ -2776,17 +2748,6 @@ public fun com.wire.android.ui.common.ProteusVerifiedIcon(modifier: androidx.com
     - contentDescriptionId: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.ui.common.SelectionField(leadingCompose: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, selectedIndex: kotlin.Int, text: kotlin.String, arrowRotation: kotlin.Float, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - leadingCompose: STABLE (composable function type)
-    - selectedIndex: STABLE (primitive type)
-    - text: STABLE (String is immutable)
-    - arrowRotation: STABLE (primitive type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
 public fun com.wire.android.ui.common.SettingUpWireScreenContent(modifier: androidx.compose.ui.Modifier, topBarTitleResId: kotlin.Int, iconResId: kotlin.Int, title: kotlin.String?, message: androidx.compose.ui.text.AnnotatedString, type: com.wire.android.ui.common.SettingUpWireScreenType): kotlin.Unit
   skippable: true
   restartable: true
@@ -2815,23 +2776,6 @@ public fun com.wire.android.ui.common.UnderConstructionScreen(screenName: kotlin
   params:
     - screenName: STABLE (String is immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-internal fun com.wire.android.ui.common.WireDropDown(items: kotlin.collections.List<kotlin.String>, label: kotlin.String?, modifier: androidx.compose.ui.Modifier, defaultItemIndex: kotlin.Int, selectedItemIndex: kotlin.Int, autoUpdateSelection: kotlin.Boolean, showDefaultTextIndicator: kotlin.Boolean, leadingCompose: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, onChangeClickDescription: kotlin.String, placeholder: kotlin.String, onSelected: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - items: RUNTIME (requires runtime check)
-    - label: STABLE (class with no mutable properties)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - defaultItemIndex: STABLE (primitive type)
-    - selectedItemIndex: STABLE (primitive type)
-    - autoUpdateSelection: STABLE (primitive type)
-    - showDefaultTextIndicator: STABLE (primitive type)
-    - leadingCompose: STABLE (composable function type)
-    - onChangeClickDescription: STABLE (String is immutable)
-    - placeholder: STABLE (String is immutable)
-    - onSelected: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.common.WireRadioButton(checked: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, onButtonChecked: kotlin.Function0<kotlin.Unit>?, enabled: kotlin.Boolean): kotlin.Unit
@@ -6758,12 +6702,13 @@ private fun com.wire.android.ui.home.conversations.messages.item.buildContent(is
     - isWireCellsEnabled: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.messages.item.buildContent(expandable: kotlin.Boolean, learnMoreLinkResId: kotlin.Int?, iconResId: kotlin.Int, iconTintColor: androidx.compose.ui.graphics.Color?, iconSize: androidx.compose.ui.unit.Dp, additionalVerticalPaddings: androidx.compose.ui.unit.Dp, backgroundColor: androidx.compose.ui.graphics.Color?, annotatedStringBuilder: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \): com.wire.android.ui.home.conversations.messages.item.SystemMessageContent
+private fun com.wire.android.ui.home.conversations.messages.item.buildContent(expandable: kotlin.Boolean, learnMoreLinkResId: kotlin.Int?, learnMoreTextResId: kotlin.Int, iconResId: kotlin.Int, iconTintColor: androidx.compose.ui.graphics.Color?, iconSize: androidx.compose.ui.unit.Dp, additionalVerticalPaddings: androidx.compose.ui.unit.Dp, backgroundColor: androidx.compose.ui.graphics.Color?, annotatedStringBuilder: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \): com.wire.android.ui.home.conversations.messages.item.SystemMessageContent
   skippable: true
   restartable: true
   params:
     - expandable: STABLE (primitive type)
     - learnMoreLinkResId: STABLE (class with no mutable properties)
+    - learnMoreTextResId: STABLE (primitive type)
     - iconResId: STABLE (primitive type)
     - iconTintColor: STABLE (marked @Stable or @Immutable)
     - iconSize: STABLE (marked @Stable or @Immutable)
@@ -11930,9 +11875,3 @@ public fun com.wire.android.util.ui.WireScrollableThemePreview(content: @[Compos
   params:
     - content: STABLE (composable function type)
 
-@Composable
-private fun com.wire.android.util.ui.createAnnotatedString(data: kotlin.collections.List<com.wire.android.util.ui.LinkTextData>): androidx.compose.ui.text.AnnotatedString
-  skippable: false
-  restartable: true
-  params:
-    - data: RUNTIME (requires runtime check)

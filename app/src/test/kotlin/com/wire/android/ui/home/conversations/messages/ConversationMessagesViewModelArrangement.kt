@@ -62,6 +62,7 @@ import com.wire.kalium.logic.feature.message.ObserveThreadFollowStateResult
 import com.wire.kalium.logic.feature.message.ObserveThreadFollowStateUseCase
 import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsResult
 import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsUseCase
+import com.wire.kalium.logic.feature.message.ThreadRootSummary
 import com.wire.kalium.logic.feature.message.SetThreadFollowStateResult
 import com.wire.kalium.logic.feature.message.SetThreadFollowStateUseCase
 import com.wire.kalium.logic.feature.message.StartThreadFromMessageResult
@@ -228,6 +229,12 @@ class ConversationMessagesViewModelArrangement {
 
     fun withSuccessfulViewModelInit() = apply {
         coEvery { conversationAudioMessagePlayer.observableAudioMessagesState } returns flowOf()
+    }
+
+    fun withThreadSummariesForRoots(summaries: List<ThreadRootSummary>) = apply {
+        coEvery { observeThreadSummariesForRootsUseCase(any(), any()) } returns flowOf(
+            ObserveThreadSummariesForRootsResult.Success(summaries)
+        )
     }
 
     fun withSuccessfulOpenAssetMessage(

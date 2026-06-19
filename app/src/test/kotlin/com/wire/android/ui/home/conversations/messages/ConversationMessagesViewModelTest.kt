@@ -51,6 +51,7 @@ import com.wire.kalium.logic.data.message.paging.NomadMessagePagingResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.message.StartThreadFromMessageResult
+import com.wire.kalium.logic.feature.message.ThreadRootSummary
 import com.wire.kalium.network.NetworkState
 import io.mockk.coVerify
 import io.mockk.verify
@@ -59,6 +60,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.ui.home.conversations.messages.item.withOfflineIndicator
@@ -608,6 +610,28 @@ class ConversationMessagesViewModelTest {
 
         assertTrue(viewModel.conversationViewState.threadSummaryByRootMessageId.isEmpty())
         coVerify(exactly = 0) { arrangement.observeThreadSummariesForRootsUseCase(any(), any()) }
+    }
+
+    @Test
+    fun `given thread summaries with last reply date, when observing visible roots, then they are mapped to view state`() = runTest {
+        val lastReplyDate = Instant.parse("2026-06-18T10:24:00Z")
+        val summary = ThreadRootSummary(
+            rootMessageId = "root1",
+            threadId = "thread1",
+            visibleReplyCount = 3,
+            lastReplyDate = lastReplyDate,
+        )
+        val (_, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withThreadSummariesForRoots(listOf(summary))
+            .arrange()
+
+        viewModel.observeThreadSummariesForVisibleRoots(listOf("root1"))
+
+        assertEquals(
+            ThreadSummaryUi(threadId = "thread1", visibleReplyCount = 3, lastReplyDate = lastReplyDate),
+            viewModel.conversationViewState.threadSummaryByRootMessageId["root1"]
+        )
     }
 
     @Test

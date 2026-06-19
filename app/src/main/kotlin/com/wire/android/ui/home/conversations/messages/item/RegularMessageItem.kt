@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -70,28 +71,47 @@ fun RegularMessageItem(
     @Composable
     fun messageContent() {
         if (isBubbleUiEnabled) {
+            val reactionsVisible = shouldDisplayFooter && !message.header.messageStatus.isDeleted
+            // Reactions and, below them, the thread section are rendered outside (below) the bubble box.
             val footerSlot: (@Composable (inner: PaddingValues) -> Unit)? =
-                if (shouldDisplayFooter && !message.header.messageStatus.isDeleted) {
+                if (reactionsVisible || threadSummary != null) {
                     { innerPadding ->
-                        MessageReactionsItem(
-                            messageFooter = message.messageFooter,
-                            messageStyle = messageStyle,
-                            onReactionClicked = clickActions.onReactionClicked,
+                        Column(
                             modifier = Modifier.padding(innerPadding),
-                            itemsAlignment = if (message.isMyMessage) {
-                                Alignment.End
-                            } else {
-                                Alignment.Start
-                            },
-                            onLongClick = when {
-                                isMissingThreadRoot || message.header.messageStatus.isDeleted -> null
-                                else -> clickActions.onFullMessageLongClicked?.let {
-                                    {
-                                        it(message)
-                                    }
-                                }
-                            },
-                        )
+                            horizontalAlignment = if (message.isMyMessage) Alignment.End else Alignment.Start
+                        ) {
+                            if (reactionsVisible) {
+                                MessageReactionsItem(
+                                    messageFooter = message.messageFooter,
+                                    messageStyle = messageStyle,
+                                    onReactionClicked = clickActions.onReactionClicked,
+                                    itemsAlignment = if (message.isMyMessage) {
+                                        Alignment.End
+                                    } else {
+                                        Alignment.Start
+                                    },
+                                    onLongClick = when {
+                                        isMissingThreadRoot || message.header.messageStatus.isDeleted -> null
+                                        else -> clickActions.onFullMessageLongClicked?.let {
+                                            {
+                                                it(message)
+                                            }
+                                        }
+                                    },
+                                )
+                            }
+                            threadSummary?.let { summary ->
+                                ThreadSummaryFooter(
+                                    visibleReplyCount = summary.visibleReplyCount,
+                                    lastReplyDate = summary.lastReplyDate,
+                                    messageStyle = messageStyle,
+                                    enabled = isThreadNavigationEnabled,
+                                    onClick = remember(summary.threadId, message.header.messageId) {
+                                        clickActions.threadClick(message, summary)
+                                    },
+                                )
+                            }
+                        }
                     }
                 } else {
                     null

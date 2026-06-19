@@ -221,7 +221,8 @@ class ConversationMessagesViewModel @AssistedInject constructor(
                                         threadSummaryByRootMessageId = result.summaries.associate { summary ->
                                             summary.rootMessageId to ThreadSummaryUi(
                                                 threadId = summary.threadId,
-                                                visibleReplyCount = summary.visibleReplyCount
+                                                visibleReplyCount = summary.visibleReplyCount,
+                                                lastReplyDate = summary.lastReplyDate
                                             )
                                         }.toPersistentMap()
                                     )

@@ -87,6 +87,7 @@ fun ConversationScreenTopAppBar(
     onBackButtonClick: () -> Unit,
     onDropDownClick: () -> Unit,
     onSearchButtonClick: () -> Unit,
+    onThreadsButtonClick: () -> Unit = {},
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     onJoinCallButtonClick: () -> Unit,
@@ -116,6 +117,7 @@ fun ConversationScreenTopAppBar(
             onDropDownClick = onDropDownClick,
             isDropDownEnabled = isDropDownEnabled,
             onSearchButtonClick = onSearchButtonClick,
+            onThreadsButtonClick = onThreadsButtonClick,
             onPhoneButtonClick = onPhoneButtonClick,
             hasOngoingCall = hasOngoingCall,
             onJoinCallButtonClick = onJoinCallButtonClick,
@@ -134,6 +136,7 @@ private fun ConversationScreenTopAppBarContent(
     onBackButtonClick: () -> Unit,
     onDropDownClick: () -> Unit,
     onSearchButtonClick: () -> Unit,
+    onThreadsButtonClick: () -> Unit = {},
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     onJoinCallButtonClick: () -> Unit,
@@ -210,6 +213,17 @@ private fun ConversationScreenTopAppBarContent(
                         ),
                     )
                 }
+
+                WireSecondaryIconButton(
+                    onButtonClicked = onThreadsButtonClick,
+                    iconResource = R.drawable.thread_icn,
+                    contentDescription = R.string.content_description_conversation_threads_icon,
+                    minSize = dimensions().buttonSmallMinSize,
+                    minClickableSize = DpSize(
+                        dimensions().buttonSmallMinSize.width,
+                        dimensions().buttonMinClickableSize.height
+                    ),
+                )
 
                 CallControlButton(
                     hasOngoingCall = hasOngoingCall,

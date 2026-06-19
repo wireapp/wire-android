@@ -88,6 +88,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationThreadsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
@@ -187,6 +188,7 @@ import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsMo
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
+import com.wire.android.ui.home.threads.ConversationThreadsNavArgs
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerComponent
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
@@ -736,6 +738,18 @@ internal fun ConversationScreenHost(
                 }
             }
         },
+        onThreadsOverviewClick = {
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationThreadsScreenDestination(
+                        navArgs = ConversationThreadsNavArgs(
+                            conversationId = conversationInfoViewModel.conversationInfoViewState.conversationId,
+                            conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
+                        )
+                    )
+                )
+            )
+        },
         onBackButtonClick = {
             conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator)
         },
@@ -1116,6 +1130,7 @@ private fun ConversationScreen(
     onResetSessionClick: (senderUserId: UserId, clientId: String?) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onDropDownClick: () -> Unit,
+    onThreadsOverviewClick: () -> Unit,
     onBackButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
@@ -1169,6 +1184,7 @@ private fun ConversationScreen(
                         onDropDownClick = onDropDownClick,
                         isDropDownEnabled = !isThreadMode && conversationInfoViewState.hasUserPermissionToEdit,
                         onSearchButtonClick = { },
+                        onThreadsButtonClick = onThreadsOverviewClick,
                         onPhoneButtonClick = onStartCall,
                         hasOngoingCall = conversationCallViewState.hasOngoingCall,
                         onJoinCallButtonClick = onJoinCall,
@@ -2253,6 +2269,7 @@ fun PreviewConversationScreen() = WireTheme {
         onResetSessionClick = { _, _ -> },
         onUpdateConversationReadDate = { },
         onDropDownClick = { },
+        onThreadsOverviewClick = { },
         onBackButtonClick = {},
         composerMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),

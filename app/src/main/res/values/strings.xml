@@ -104,6 +104,7 @@
     <string name="content_description_leave_the_conversation">Leave the conversation</string>
     <string name="content_description_delete_the_conversation">Delete the conversation</string>
     <string name="content_description_conversation_phone_icon">Start audio call</string>
+    <string name="content_description_conversation_threads_icon">Open conversation threads</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_enable_rich_text_mode">Open formatting options</string>
     <string name="content_description_conversation_enable_drawing_mode">Open sketch to draw or write</string>

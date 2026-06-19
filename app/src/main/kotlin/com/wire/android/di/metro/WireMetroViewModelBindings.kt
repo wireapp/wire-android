@@ -129,6 +129,7 @@ import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewMode
 import com.wire.android.ui.home.settings.about.licenses.LicensesViewModel
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.home.threads.ConversationThreadsViewModel
 import com.wire.android.ui.home.threads.GlobalThreadsViewModel
 import com.wire.android.ui.home.whatsnew.WhatsNewViewModel
 import com.wire.android.ui.initialsync.InitialSyncViewModel
@@ -817,6 +818,15 @@ object WireMetroViewModelBindings {
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
                 factory.searchConversationMessagesViewModel(extras.createSavedStateHandle())
+        }
+
+    @Provides
+    @IntoMap
+    @ViewModelAssistedFactoryKey(ConversationThreadsViewModel::class)
+    fun conversationThreadsViewModel(factory: ConversationSearchFolderViewModelFactory): ViewModelAssistedFactory =
+        object : ViewModelAssistedFactory {
+            override fun create(extras: CreationExtras): ViewModel =
+                factory.conversationThreadsViewModel(extras.createSavedStateHandle())
         }
 
     @Provides

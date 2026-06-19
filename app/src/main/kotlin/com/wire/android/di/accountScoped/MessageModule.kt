@@ -43,6 +43,7 @@ import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
+import com.wire.kalium.logic.feature.message.ObserveConversationThreadsUseCase
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsUseCase
 import com.wire.kalium.logic.feature.message.ObserveThreadFollowStateUseCase
 import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsUseCase
@@ -111,6 +112,10 @@ class MessageModule {
     @Provides
     fun provideObserveGlobalThreadsUseCase(messageScope: MessageScope): ObserveGlobalThreadsUseCase =
         messageScope.observeGlobalThreads
+
+    @Provides
+    fun provideObserveConversationThreadsUseCase(messageScope: MessageScope): ObserveConversationThreadsUseCase =
+        messageScope.observeConversationThreads
 
     @Provides
     fun provideObserveThreadFollowStateUseCase(messageScope: MessageScope): ObserveThreadFollowStateUseCase =

@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.folder.NewFolderViewModel
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel
 import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModel
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
+import com.wire.android.ui.home.threads.ConversationThreadsViewModel
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
 interface ConversationSearchFolderManualViewModelFactory : ManualViewModelAssistedFactory {
@@ -80,6 +81,10 @@ fun addMembersToConversationViewModel(): AddMembersToConversationViewModel =
 
 @Composable
 fun searchConversationMessagesViewModel(): SearchConversationMessagesViewModel =
+    sessionKeyedMetroViewModel()
+
+@Composable
+fun conversationThreadsViewModel(): ConversationThreadsViewModel =
     sessionKeyedMetroViewModel()
 
 @Composable

@@ -27,6 +27,8 @@ import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel
 import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModel
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
+import com.wire.android.ui.home.threads.ConversationThreadsViewModel
+import com.wire.android.util.ui.UiTextResolver
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
@@ -34,6 +36,7 @@ import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversati
 import com.wire.kalium.logic.feature.conversation.folder.CreateConversationFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.MoveConversationToFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
+import com.wire.kalium.logic.feature.message.ObserveConversationThreadsUseCase
 import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
@@ -46,6 +49,8 @@ class ConversationSearchFolderViewModelFactory @Inject constructor(
     private val getConversationMessagesFromSearch: GetConversationMessagesFromSearchUseCase,
     private val promoteAdminAndLeave: PromoteAdminAndLeaveConversationUseCase,
     private val observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase,
+    private val observeConversationThreads: ObserveConversationThreadsUseCase,
+    private val uiTextResolver: UiTextResolver,
 ) {
     fun conversationFoldersViewModel(args: ConversationFoldersStateArgs) = ConversationFoldersVMImpl(
         args = args,
@@ -72,6 +77,12 @@ class ConversationSearchFolderViewModelFactory @Inject constructor(
     fun searchConversationMessagesViewModel(savedStateHandle: SavedStateHandle) = SearchConversationMessagesViewModel(
         getSearchMessagesForConversation = getConversationMessagesFromSearch,
         dispatchers = dispatchers,
+        savedStateHandle = savedStateHandle,
+    )
+
+    fun conversationThreadsViewModel(savedStateHandle: SavedStateHandle) = ConversationThreadsViewModel(
+        observeConversationThreads = observeConversationThreads,
+        uiTextResolver = uiTextResolver,
         savedStateHandle = savedStateHandle,
     )
 

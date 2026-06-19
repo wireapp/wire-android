@@ -21,8 +21,10 @@ package com.wire.android.ui.home.threads
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.toUIPreview
@@ -36,6 +38,8 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsResult
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsUseCase
+import com.wire.kalium.logic.feature.message.ObserveConversationThreadsResult
+import com.wire.kalium.logic.feature.message.ObserveConversationThreadsUseCase
 import com.wire.kalium.logic.feature.message.GlobalThreadSummary
 import com.wire.kalium.logic.feature.message.SetThreadFollowStateResult
 import com.wire.kalium.logic.feature.message.SetThreadFollowStateUseCase
@@ -58,7 +62,7 @@ class GlobalThreadsViewModel(
                     ObserveGlobalThreadsResult.Failure -> state.copy(isLoading = false, threads = emptyList())
                     is ObserveGlobalThreadsResult.Success -> GlobalThreadsState(
                         isLoading = false,
-                        threads = result.threads.map(::toUiThread),
+                        threads = result.threads.map { it.toUiThread(uiTextResolver) },
                     )
                 }
             }
@@ -73,46 +77,33 @@ class GlobalThreadsViewModel(
             }
         }
     }
+}
 
-    private fun toUiThread(thread: GlobalThreadSummary): UiGlobalThread {
-        val previewContent = thread.rootMessage.toUIPreview(emptyMap(), uiTextResolver)
-        val previewText = previewContent.toPlainText(uiTextResolver).ifBlank {
-            uiTextResolver.resolve(UIText.StringResource(R.string.thread_root_fallback_label))
-        }
+class ConversationThreadsViewModel(
+    observeConversationThreads: ObserveConversationThreadsUseCase,
+    private val uiTextResolver: UiTextResolver,
+    savedStateHandle: SavedStateHandle,
+) : ViewModel() {
 
-        return UiGlobalThread(
-            conversationId = thread.conversationId,
-            conversationName = thread.conversationName,
-            conversationType = when (thread.conversationType) {
-                Conversation.Type.Group.Channel -> UiGlobalThread.ConversationType.CHANNEL
-                Conversation.Type.Group.Regular -> UiGlobalThread.ConversationType.GROUP
-                else -> UiGlobalThread.ConversationType.ONE_ON_ONE
-            },
-            avatarData = if (thread.conversationType in oneOnOneConversationTypes) {
-                UserAvatarData(
-                    asset = thread.otherUserPreviewAssetId?.let(::UserAvatarAsset),
-                    availabilityStatus = thread.otherUserAvailabilityStatus,
-                    connectionState = thread.otherUserConnectionStatus,
-                    nameBasedAvatar = NameBasedAvatar(
-                        fullName = thread.conversationName,
-                        accentColor = thread.otherUserAccentId ?: -1
+    private val navArgs: ConversationThreadsNavArgs = savedStateHandle.navArgs()
+    val conversationId: ConversationId = navArgs.conversationId
+    val conversationName: String = navArgs.conversationName
+
+    var state by mutableStateOf(GlobalThreadsState())
+        private set
+
+    init {
+        viewModelScope.launch {
+            observeConversationThreads(conversationId).collect { result ->
+                state = when (result) {
+                    ObserveConversationThreadsResult.Failure -> state.copy(isLoading = false, threads = emptyList())
+                    is ObserveConversationThreadsResult.Success -> GlobalThreadsState(
+                        isLoading = false,
+                        threads = result.threads.map { it.toUiThread(uiTextResolver) },
                     )
-                )
-            } else {
-                null
-            },
-            rootMessageId = thread.rootMessageId,
-            threadId = thread.threadId,
-            rootMessageSelfDeletionDurationMillis = thread.rootMessageSelfDeletionDurationMillis,
-            previewText = previewText,
-            replyCount = thread.visibleReplyCount,
-            lastActivityAt = thread.lastReplyDate ?: thread.createdAt,
-            searchText = buildString {
-                append(thread.conversationName.orEmpty())
-                append('\n')
-                append(previewText)
+                }
             }
-        )
+        }
     }
 }
 
@@ -161,3 +152,44 @@ private val oneOnOneConversationTypes = setOf(
     Conversation.Type.OneOnOne,
     Conversation.Type.ConnectionPending
 )
+
+private fun GlobalThreadSummary.toUiThread(uiTextResolver: UiTextResolver): UiGlobalThread {
+    val previewContent = rootMessage.toUIPreview(emptyMap(), uiTextResolver)
+    val previewText = previewContent.toPlainText(uiTextResolver).ifBlank {
+        uiTextResolver.resolve(UIText.StringResource(R.string.thread_root_fallback_label))
+    }
+
+    return UiGlobalThread(
+        conversationId = conversationId,
+        conversationName = conversationName,
+        conversationType = when (conversationType) {
+            Conversation.Type.Group.Channel -> UiGlobalThread.ConversationType.CHANNEL
+            Conversation.Type.Group.Regular -> UiGlobalThread.ConversationType.GROUP
+            else -> UiGlobalThread.ConversationType.ONE_ON_ONE
+        },
+        avatarData = if (conversationType in oneOnOneConversationTypes) {
+            UserAvatarData(
+                asset = otherUserPreviewAssetId?.let(::UserAvatarAsset),
+                availabilityStatus = otherUserAvailabilityStatus,
+                connectionState = otherUserConnectionStatus,
+                nameBasedAvatar = NameBasedAvatar(
+                    fullName = conversationName,
+                    accentColor = otherUserAccentId ?: -1
+                )
+            )
+        } else {
+            null
+        },
+        rootMessageId = rootMessageId,
+        threadId = threadId,
+        rootMessageSelfDeletionDurationMillis = rootMessageSelfDeletionDurationMillis,
+        previewText = previewText,
+        replyCount = visibleReplyCount,
+        lastActivityAt = lastReplyDate ?: createdAt,
+        searchText = buildString {
+            append(conversationName.orEmpty())
+            append('\n')
+            append(previewText)
+        }
+    )
+}

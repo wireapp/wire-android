@@ -39,6 +39,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.GlobalSearchScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
@@ -261,6 +262,10 @@ fun HomeContent(
         }
 
         fun openWireHomeDestination(item: HomeDestination) {
+            if (item == HomeDestination.GlobalSearch) {
+                navigator.navigate(NavigationCommand(GlobalSearchScreenDestination))
+                return
+            }
             item.direction.handleNavigation(
                 context = context,
                 handleOtherDirection = { direction ->

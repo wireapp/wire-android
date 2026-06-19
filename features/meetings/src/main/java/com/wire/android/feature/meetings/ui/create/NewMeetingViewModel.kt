@@ -22,7 +22,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.meetings.navArgs
@@ -94,13 +93,6 @@ class NewMeetingViewModelImpl(
                     validateTitle()
                 }
         }
-        viewModelScope.launch {
-            snapshotFlow { state }.collectLatest {
-                state = state.copy(
-                    continueButtonEnabled = state.titleError == null && state.startTimeError == null && state.endTimeError == null
-                )
-            }
-        }
     }
 
     override fun updateSelectedContact(selected: Boolean, contact: Contact) {
@@ -141,7 +133,7 @@ class NewMeetingViewModelImpl(
                 titleTextState.text.length > MEETING_NAME_MAX_COUNT -> NewMeetingState.TitleError.TitleExceedsLimitError
                 else -> null
             }
-        )
+        ).withContinueButtonState()
         return state.titleError == null
     }
 
@@ -156,9 +148,16 @@ class NewMeetingViewModelImpl(
                 state.endTime < state.startTime -> NewMeetingState.TimeError.EndTimeBeforeStartTimeError
                 else -> null
             }
-        )
+        ).withContinueButtonState()
         return state.startTimeError == null && state.endTimeError == null
     }
+
+    private fun NewMeetingState.withContinueButtonState(): NewMeetingState = copy(
+        continueButtonEnabled = titleTextState.text.isNotEmpty() &&
+                titleError == null &&
+                startTimeError == null &&
+                endTimeError == null
+    )
 
     override fun createMeeting() {
         val titleValid = validateTitle()

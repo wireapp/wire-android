@@ -79,6 +79,9 @@ class HomeDrawerViewModel(
 
                 buildList {
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))
+                    if (BuildConfig.FEATURE_GLOBAL_SEARCH) {
+                        add(DrawerUiItem.RegularItem(destination = HomeDestination.GlobalSearch))
+                    }
                     if (shouldShowCells) {
                         add(DrawerUiItem.RegularItem(destination = HomeDestination.Cells))
                     }

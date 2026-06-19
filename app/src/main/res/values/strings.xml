@@ -994,6 +994,7 @@
     <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
     <string name="label_search_button">Search</string>
     <string name="global_search_hint">Search Wire</string>
+    <string name="global_search_screen_title">Search Wire</string>
     <string name="global_search_empty_title">Search messages across Wire.</string>
     <string name="global_search_error">Search is unavailable right now.\nPlease try again.</string>
     <string name="global_search_filter_all">All</string>

@@ -18,8 +18,16 @@
 
 package com.wire.android.ui.home.threads
 
+import androidx.compose.animation.splineBasedDecay
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +35,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,14 +46,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.generated.app.destinations.ThreadConversationScreenDestination
 import com.wire.android.R
@@ -61,6 +74,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.uiMessageDateTime
+import kotlin.math.roundToInt
 import com.wire.android.ui.common.R as commonR
 
 @WireHomeDestination
@@ -107,6 +121,7 @@ fun GlobalThreadsScreen(
                     )
                 )
             },
+            onUnfollowThread = viewModel::unfollowThread,
         )
     }
 }
@@ -116,6 +131,7 @@ private fun GlobalThreadsList(
     threads: List<UiGlobalThread>,
     lazyListState: LazyListState,
     onOpenThread: (UiGlobalThread) -> Unit,
+    onUnfollowThread: (UiGlobalThread) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -127,9 +143,81 @@ private fun GlobalThreadsList(
             items = threads,
             key = { it.key }
         ) { thread ->
-            ThreadCard(
+            SwipeableThreadCard(
                 thread = thread,
                 onOpenThread = { onOpenThread(thread) },
+                onUnfollowThread = { onUnfollowThread(thread) },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun SwipeableThreadCard(
+    thread: UiGlobalThread,
+    onOpenThread: () -> Unit,
+    onUnfollowThread: () -> Unit,
+) {
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+    val screenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }
+    val dragWidth = screenWidth * 0.25f
+    val dragState = remember(thread.key, dragWidth) {
+        AnchoredDraggableState(
+            initialValue = ThreadSwipeAnchor.CENTERED,
+            positionalThreshold = { dragWidth },
+            velocityThreshold = { screenWidth },
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = splineBasedDecay(density),
+            anchors = DraggableAnchors {
+                ThreadSwipeAnchor.CENTERED at 0f
+                ThreadSwipeAnchor.START_TO_END at dragWidth
+            }
+        )
+    }
+
+    LaunchedEffect(dragState.settledValue) {
+        if (dragState.settledValue == ThreadSwipeAnchor.START_TO_END) {
+            onUnfollowThread()
+            dragState.animateTo(ThreadSwipeAnchor.CENTERED)
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.large)
+    ) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(colorsScheme().primary),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Icon(
+                painter = painterResource(commonR.drawable.ic_notifications_filled),
+                contentDescription = stringResource(R.string.label_unfollow),
+                tint = colorsScheme().onPrimary,
+                modifier = Modifier
+                    .padding(start = dimensions().spacing24x)
+                    .size(dimensions().fabIconSize)
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .anchoredDraggable(
+                    state = dragState,
+                    orientation = Orientation.Horizontal,
+                    startDragImmediately = false
+                )
+                .offset { IntOffset(dragState.requireOffset().roundToInt(), 0) }
+        ) {
+            ThreadCard(
+                thread = thread,
+                onOpenThread = onOpenThread,
             )
         }
     }
@@ -183,6 +271,11 @@ private fun ThreadCard(
             }
         }
     }
+}
+
+private enum class ThreadSwipeAnchor {
+    CENTERED,
+    START_TO_END,
 }
 
 @Composable

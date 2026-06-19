@@ -22,6 +22,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.meetings.navArgs
@@ -37,6 +38,7 @@ import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
@@ -86,9 +88,17 @@ class NewMeetingViewModelImpl(
 
     init {
         viewModelScope.launch {
-            titleTextState.textAsFlow().collectLatest {
-                if (state.titleError != null) validateTitle()
-                validateContinueButton()
+            titleTextState.textAsFlow()
+                .drop(1) // drop initial value to avoid showing error on start
+                .collectLatest {
+                    validateTitle()
+                }
+        }
+        viewModelScope.launch {
+            snapshotFlow { state }.collectLatest {
+                state = state.copy(
+                    continueButtonEnabled = state.titleError == null && state.startTimeError == null && state.endTimeError == null
+                )
             }
         }
     }
@@ -112,18 +122,16 @@ class NewMeetingViewModelImpl(
 
     override fun updateStartTime(startTime: Instant) {
         state = state.copy(startTime = startTime)
+        validateStartAndEndTime()
     }
 
     override fun updateEndTime(endTime: Instant) {
         state = state.copy(endTime = endTime)
+        validateStartAndEndTime()
     }
 
     override fun updateRepeatingInterval(interval: MeetingItem.RepeatingInterval) {
         state = state.copy(repeatingInterval = interval)
-    }
-
-    private fun validateContinueButton() {
-        state = state.copy(continueButtonEnabled = titleTextState.text.isNotEmpty())
     }
 
     private fun validateTitle(): Boolean {
@@ -137,32 +145,25 @@ class NewMeetingViewModelImpl(
         return state.titleError == null
     }
 
-    private fun validateStartTime(): Boolean {
+    private fun validateStartAndEndTime(): Boolean {
         state = state.copy(
             startTimeError = when {
                 state.startTime < currentTimeProvider() -> NewMeetingState.TimeError.StartTimeInPastError
                 else -> null
-            }
-        )
-        return state.startTimeError == null
-    }
-
-    private fun validateEndTime(): Boolean {
-        state = state.copy(
+            },
             endTimeError = when {
                 state.endTime < currentTimeProvider() -> NewMeetingState.TimeError.EndTimeInPastError
                 state.endTime < state.startTime -> NewMeetingState.TimeError.EndTimeBeforeStartTimeError
                 else -> null
             }
         )
-        return state.endTimeError == null
+        return state.startTimeError == null && state.endTimeError == null
     }
 
     override fun createMeeting() {
         val titleValid = validateTitle()
-        val startTimeValid = validateStartTime()
-        val endTimeValid = validateEndTime()
-        if (titleValid && startTimeValid && endTimeValid) {
+        val startAndEndTimeValid = validateStartAndEndTime()
+        if (titleValid && startAndEndTimeValid) {
             // TODO implement meeting creation
             sendAction(NewMeetingViewActions.Success)
         }

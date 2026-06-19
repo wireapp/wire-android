@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.threads
 
 import androidx.compose.animation.splineBasedDecay
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -27,7 +28,6 @@ import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -104,7 +104,7 @@ fun GlobalThreadsScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        else -> GlobalThreadsList(
+        else -> ThreadsOverviewList(
             threads = filteredThreads,
             lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Threads),
             onOpenThread = { thread ->
@@ -122,32 +122,47 @@ fun GlobalThreadsScreen(
                 )
             },
             onUnfollowThread = viewModel::unfollowThread,
+            showConversationLabel = true,
         )
     }
 }
 
 @Composable
-private fun GlobalThreadsList(
+internal fun ThreadsOverviewList(
     threads: List<UiGlobalThread>,
     lazyListState: LazyListState,
     onOpenThread: (UiGlobalThread) -> Unit,
-    onUnfollowThread: (UiGlobalThread) -> Unit,
+    onUnfollowThread: ((UiGlobalThread) -> Unit)?,
+    showConversationLabel: Boolean,
+    contentPadding: PaddingValues = PaddingValues(
+        horizontal = dimensions().spacing12x,
+        vertical = dimensions().spacing8x
+    ),
 ) {
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
+        contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
         items(
             items = threads,
             key = { it.key }
         ) { thread ->
-            SwipeableThreadCard(
-                thread = thread,
-                onOpenThread = { onOpenThread(thread) },
-                onUnfollowThread = { onUnfollowThread(thread) },
-            )
+            if (onUnfollowThread == null) {
+                ThreadCard(
+                    thread = thread,
+                    onOpenThread = { onOpenThread(thread) },
+                    showConversationLabel = showConversationLabel,
+                )
+            } else {
+                SwipeableThreadCard(
+                    thread = thread,
+                    onOpenThread = { onOpenThread(thread) },
+                    onUnfollowThread = { onUnfollowThread(thread) },
+                    showConversationLabel = showConversationLabel,
+                )
+            }
         }
     }
 }
@@ -158,29 +173,32 @@ private fun SwipeableThreadCard(
     thread: UiGlobalThread,
     onOpenThread: () -> Unit,
     onUnfollowThread: () -> Unit,
+    showConversationLabel: Boolean,
 ) {
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
     val screenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }
-    val dragWidth = screenWidth * 0.25f
-    val dragState = remember(thread.key, dragWidth) {
+    val dragState = remember(thread.key, screenWidth) {
         AnchoredDraggableState(
             initialValue = ThreadSwipeAnchor.CENTERED,
-            positionalThreshold = { dragWidth },
+            // require a deliberate drag past half the screen before committing to the unfollow
+            positionalThreshold = { totalDistance -> totalDistance * SWIPE_COMMIT_FRACTION },
             velocityThreshold = { screenWidth },
-            snapAnimationSpec = tween(),
+            // glide the card all the way off-screen instead of an instant snap
+            snapAnimationSpec = tween(durationMillis = SWIPE_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
             decayAnimationSpec = splineBasedDecay(density),
             anchors = DraggableAnchors {
                 ThreadSwipeAnchor.CENTERED at 0f
-                ThreadSwipeAnchor.START_TO_END at dragWidth
+                ThreadSwipeAnchor.DISMISSED at screenWidth
             }
         )
     }
 
     LaunchedEffect(dragState.settledValue) {
-        if (dragState.settledValue == ThreadSwipeAnchor.START_TO_END) {
+        // once the card has finished animating off-screen, trigger the unfollow; the list flow
+        // then removes the item reactively (keyed LazyColumn), so no manual snap-back is needed
+        if (dragState.settledValue == ThreadSwipeAnchor.DISMISSED) {
             onUnfollowThread()
-            dragState.animateTo(ThreadSwipeAnchor.CENTERED)
         }
     }
 
@@ -218,6 +236,7 @@ private fun SwipeableThreadCard(
             ThreadCard(
                 thread = thread,
                 onOpenThread = onOpenThread,
+                showConversationLabel = showConversationLabel,
             )
         }
     }
@@ -227,6 +246,7 @@ private fun SwipeableThreadCard(
 private fun ThreadCard(
     thread: UiGlobalThread,
     onOpenThread: () -> Unit,
+    showConversationLabel: Boolean,
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
@@ -248,11 +268,19 @@ private fun ThreadCard(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(dimensions().spacing6x)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ThreadConversationLabel(thread = thread, modifier = Modifier.weight(1f))
+                if (showConversationLabel) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ThreadConversationLabel(thread = thread, modifier = Modifier.weight(1f))
+                        Text(
+                            text = thread.lastActivityAt.uiMessageDateTime(),
+                            style = MaterialTheme.wireTypography.label02,
+                            color = colorsScheme().secondaryText,
+                        )
+                    }
+                } else {
                     Text(
                         text = thread.lastActivityAt.uiMessageDateTime(),
                         style = MaterialTheme.wireTypography.label02,
@@ -275,8 +303,14 @@ private fun ThreadCard(
 
 private enum class ThreadSwipeAnchor {
     CENTERED,
-    START_TO_END,
+    DISMISSED,
 }
+
+// fraction of the row width the user must drag past before the unfollow is committed
+private const val SWIPE_COMMIT_FRACTION = 0.5f
+
+// duration of the off-screen glide once the swipe is committed (or snaps back)
+private const val SWIPE_ANIMATION_DURATION_MS = 400
 
 @Composable
 private fun ThreadLeadingAvatar(thread: UiGlobalThread) {
@@ -372,7 +406,7 @@ private fun ThreadReplyPill(replyCount: Long) {
 }
 
 @Composable
-private fun ThreadsEmptyContent(
+internal fun ThreadsEmptyContent(
     isSearching: Boolean,
     modifier: Modifier = Modifier,
 ) {

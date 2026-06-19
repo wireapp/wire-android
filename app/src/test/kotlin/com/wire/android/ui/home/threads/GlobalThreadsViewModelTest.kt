@@ -18,14 +18,19 @@
 package com.wire.android.ui.home.threads
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.UiTextResolver
+import androidx.lifecycle.SavedStateHandle
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessagePreviewContent
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.message.GlobalThreadSummary
+import com.wire.kalium.logic.feature.message.ObserveConversationThreadsResult
+import com.wire.kalium.logic.feature.message.ObserveConversationThreadsUseCase
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsResult
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsUseCase
 import com.wire.kalium.logic.feature.message.SetThreadFollowStateResult
@@ -40,11 +45,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
 class GlobalThreadsViewModelTest {
 
     @Test
@@ -61,6 +67,22 @@ class GlobalThreadsViewModelTest {
         coVerify(exactly = 1) {
             arrangement.setThreadFollowState(threadSummary.conversationId, threadSummary.threadId, false)
         }
+    }
+
+    @Test
+    fun givenConversationThreads_whenViewModelStarts_thenThreadsAreMappedToState() = runTest {
+        val conversationId = ConversationId("conversation-id", "domain")
+        val threadSummary = globalThreadSummary(conversationId = conversationId)
+        val (_, viewModel) = ConversationArrangement()
+            .withThreads(listOf(threadSummary))
+            .withNavArgs(ConversationThreadsNavArgs(conversationId, "Conversation"))
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertEquals(threadSummary.threadId, viewModel.state.threads.single().threadId)
+        assertEquals(conversationId, viewModel.conversationId)
+        assertEquals("Conversation", viewModel.conversationName)
     }
 
     private class Arrangement {
@@ -87,6 +109,37 @@ class GlobalThreadsViewModelTest {
             observeGlobalThreads = observeGlobalThreads,
             setThreadFollowState = setThreadFollowState,
             uiTextResolver = testUiTextResolver,
+        )
+    }
+
+    private class ConversationArrangement {
+
+        @MockK
+        lateinit var observeConversationThreads: ObserveConversationThreadsUseCase
+
+        @MockK
+        lateinit var savedStateHandle: SavedStateHandle
+
+        private val threadsFlow =
+            MutableStateFlow<ObserveConversationThreadsResult>(ObserveConversationThreadsResult.Success(emptyList()))
+
+        init {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+            every { observeConversationThreads(any()) } returns threadsFlow
+        }
+
+        fun withThreads(threads: List<GlobalThreadSummary>) = apply {
+            threadsFlow.value = ObserveConversationThreadsResult.Success(threads)
+        }
+
+        fun withNavArgs(navArgs: ConversationThreadsNavArgs) = apply {
+            every { savedStateHandle.navArgs<ConversationThreadsNavArgs>() } returns navArgs
+        }
+
+        fun arrange() = this to ConversationThreadsViewModel(
+            observeConversationThreads = observeConversationThreads,
+            uiTextResolver = testUiTextResolver,
+            savedStateHandle = savedStateHandle,
         )
     }
 }

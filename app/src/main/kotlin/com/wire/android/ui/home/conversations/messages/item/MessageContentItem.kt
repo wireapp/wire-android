@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.messages.item
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,7 +25,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -52,7 +50,9 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.Accent
+import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import kotlinx.datetime.Instant
 
 @Suppress("CyclomaticComplexMethod")
 @Composable
@@ -152,24 +152,16 @@ fun MessageContentItem(
                     }
                 )
             }
-            if (threadSummary != null) {
+            // In bubble UI the thread section is rendered outside the bubble (below the reactions) by RegularMessageItem.
+            if (threadSummary != null && !messageStyle.isBubble()) {
                 VerticalSpace.x4()
-                ThreadSummaryChip(
+                ThreadSummaryFooter(
                     visibleReplyCount = threadSummary.visibleReplyCount,
+                    lastReplyDate = threadSummary.lastReplyDate,
                     messageStyle = messageStyle,
                     enabled = isThreadNavigationEnabled,
                     onClick = remember(threadSummary.threadId, message.header.messageId) {
-                        {
-                            val rootMessageSelfDeletionDurationMillis =
-                                (message.header.messageStatus.expirationStatus as? ExpirationStatus.Expirable)
-                                    ?.expireAfter
-                                    ?.inWholeMilliseconds
-                            clickActions.onThreadClicked(
-                                message.header.messageId,
-                                threadSummary.threadId,
-                                rootMessageSelfDeletionDurationMillis
-                            )
-                        }
+                        clickActions.threadClick(message, threadSummary)
                     },
                     modifier = Modifier.padding(innerPadding)
                 )
@@ -235,41 +227,68 @@ fun MessageContentItem(
     }
 }
 
+/**
+ * Builds the click handler for opening the thread of [message]'s root, carrying over the root message
+ * self-deletion duration when the root message is expirable.
+ */
+internal fun MessageClickActions.threadClick(
+    message: UIMessage.Regular,
+    threadSummary: ThreadSummaryUi,
+): () -> Unit = {
+    val rootMessageSelfDeletionDurationMillis =
+        (message.header.messageStatus.expirationStatus as? ExpirationStatus.Expirable)
+            ?.expireAfter
+            ?.inWholeMilliseconds
+    onThreadClicked(
+        message.header.messageId,
+        threadSummary.threadId,
+        rootMessageSelfDeletionDurationMillis
+    )
+}
+
 @Composable
-private fun ThreadSummaryChip(
+internal fun ThreadSummaryFooter(
     visibleReplyCount: Long,
+    lastReplyDate: Instant?,
     messageStyle: MessageStyle,
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val replyCount = visibleReplyCount.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+    val contentColor = if (enabled) messageStyle.highlighted() else messageStyle.onSurface()
     Row(
         modifier = modifier
-            .fillMaxWidth()
-            .background(
-                color = messageStyle.surface().copy(alpha = if (enabled) 0.55f else 0.3f),
-                shape = RoundedCornerShape(dimensions().corner12x)
-            )
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(
-                horizontal = dimensions().spacing12x,
-                vertical = dimensions().spacing8x
-            ),
+            .padding(vertical = dimensions().spacing4x),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             painter = painterResource(id = R.drawable.thread_icn),
             contentDescription = null,
-            tint = messageStyle.highlighted(),
-            modifier = Modifier.size(dimensions().spacing20x),
+            tint = contentColor,
+            modifier = Modifier.size(dimensions().spacing16x),
         )
         HorizontalSpace.x8()
         Text(
             text = pluralStringResource(R.plurals.unread_event_reply, replyCount, replyCount),
             style = MaterialTheme.typography.titleSmall,
-            color = if (enabled) messageStyle.highlighted() else messageStyle.onSurface(),
+            color = contentColor,
         )
+        if (lastReplyDate != null) {
+            HorizontalSpace.x8()
+            Text(
+                text = "•",
+                style = MaterialTheme.typography.titleSmall,
+                color = contentColor,
+            )
+            HorizontalSpace.x8()
+            Text(
+                text = lastReplyDate.uiMessageDateTime(),
+                style = MaterialTheme.typography.titleSmall,
+                color = contentColor,
+            )
+        }
     }
 }
 

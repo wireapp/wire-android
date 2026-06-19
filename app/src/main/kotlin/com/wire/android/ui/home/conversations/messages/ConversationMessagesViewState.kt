@@ -48,6 +48,7 @@ data class ConversationMessagesViewState(
 data class ThreadSummaryUi(
     val threadId: String,
     val visibleReplyCount: Long,
+    val lastReplyDate: Instant?,
 )
 
 sealed class DownloadedAssetDialogVisibilityState {

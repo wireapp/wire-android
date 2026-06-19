@@ -70,7 +70,7 @@ class DefaultDiscussionTopicGenerator @Inject constructor(
         val promptMessageClusters = messageClusters.map { messages ->
             messages
                 .filter { it.text.isNotBlank() }
-                .take(MAX_PROMPT_MESSAGES)
+//                .take(MAX_PROMPT_MESSAGES)
         }
         if (promptMessageClusters.isEmpty()) return@flow
 

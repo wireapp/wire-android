@@ -33,6 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -118,7 +120,8 @@ private fun TeamMigrationTeamPlanStepScreenContent(
                         top = dimensions().spacing8x,
                         bottom = dimensions().spacing56x
                     )
-                    .align(alignment = Alignment.CenterHorizontally),
+                    .align(alignment = Alignment.CenterHorizontally)
+                    .semantics { heading() },
                 text = stringResource(R.string.personal_to_team_migration_team_plan_step),
                 style = MaterialTheme.wireTypography.title01,
                 color = colorsScheme().onBackground

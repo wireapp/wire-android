@@ -38,6 +38,7 @@ class RegistrationPage(private val device: UiDevice) {
     private val emailInputField = UiSelectorParams(resourceId = "userIdentifierInput")
     private val loginButton = UiSelectorParams(resourceId = "loginButton")
     private val createAccountButton = UiSelectorParams(text = "Create account or team")
+    private val createTeamButton = UiSelectorParams(text = "Create Team")
     private val createPersonalAccountButton = UiSelectorParams(text = "Create Personal Account")
     private val createPersonalAccountTitle = UiSelectorParams(text = "Create Personal Account")
     private val continueButton = UiSelectorParams(text = "Continue")
@@ -74,10 +75,20 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun enterPersonalUserRegistrationEmail(email: String): RegistrationPage {
-        val inputField = UiWaitUtils.waitElement(emailInputField)
-        inputField.click()
-        inputField.text = email
+    fun enterPersonalUserRegistrationEmail(email: String?): RegistrationPage {
+        val success = UiWaitUtils.retryUntilTimeout(
+            timeout = 6.seconds,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            runCatching {
+                UiWaitUtils.waitElement(emailInputField, timeout = 2.seconds).click()
+                UiWaitUtils.waitElement(emailInputField, timeout = 2.seconds).text = email
+            }.isSuccess
+        }
+
+        if (!success) {
+            throw AssertionError("Could not enter registration email: email input field was unstable.")
+        }
         return this
     }
 
@@ -128,6 +139,13 @@ class RegistrationPage(private val device: UiDevice) {
 
     fun clickCreatePersonalAccountButton(): RegistrationPage {
         val button = UiWaitUtils.waitElement(createPersonalAccountButton)
+        assertTrue("Button is not enabled", button.isEnabled)
+        button.click()
+        return this
+    }
+
+    fun clickCreateTeamButton(): RegistrationPage {
+        val button = UiWaitUtils.waitElement(createTeamButton)
         assertTrue("Button is not enabled", button.isEnabled)
         button.click()
         return this
@@ -213,7 +231,7 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun setUserName(username: String): RegistrationPage {
+    fun setUserName(username: String?): RegistrationPage {
         val userName = UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText"))
         userName.click()
         userName.text = username

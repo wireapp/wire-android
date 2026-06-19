@@ -24,10 +24,12 @@ import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
@@ -128,6 +130,17 @@ class CellViewModelTest {
         assertEquals(items.size, 2)
 
         coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given search screen args when conversation files args are missing then conversation id is used`() = runTest {
+        val conversationId = "conversationId"
+        val (_, viewModel) = Arrangement()
+            .withConversationId(conversationId)
+            .withSearchScreenArgsOnly()
+            .arrange()
+
+        assertEquals(conversationId, viewModel.currentNodeUuid())
     }
 
     @Test
@@ -303,7 +316,7 @@ class CellViewModelTest {
         }
     }
 
-    private class Arrangement(conversationId: String? = null) {
+    private class Arrangement(private var conversationId: String? = null) {
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -366,6 +379,8 @@ class CellViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
             mockkObject(ConversationFilesScreenDestination)
+            mockkObject(SearchScreenDestination)
+            every { SearchScreenDestination.argsFrom(savedStateHandle) } throws RuntimeException("Not a search screen")
             every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } returns CellFilesNavArgs(
                 conversationId = conversationId
             )
@@ -425,6 +440,19 @@ class CellViewModelTest {
 
         fun withNoCellsAvailable() = apply {
             coEvery { isCellAvailableUseCase.invoke() } returns false.right()
+        }
+
+        fun withConversationId(conversationId: String) = apply {
+            this.conversationId = conversationId
+            every { savedStateHandle.get<String>(any()) } returns conversationId
+            every { savedStateHandle.get<String>("conversationId") } returns conversationId
+        }
+
+        fun withSearchScreenArgsOnly() = apply {
+            every { SearchScreenDestination.argsFrom(savedStateHandle) } returns SearchNavArgs(
+                conversationId = conversationId
+            )
+            every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } throws RuntimeException("Not a files screen")
         }
 
         fun arrange(): Pair<Arrangement, CellViewModel> {

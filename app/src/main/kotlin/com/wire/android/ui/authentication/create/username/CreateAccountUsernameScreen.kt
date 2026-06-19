@@ -32,6 +32,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.wire.android.ui.authentication.createAccountUsernameViewModel
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
@@ -93,6 +95,7 @@ private fun UsernameContent(
                     Text(
                         text = stringResource(id = R.string.create_account_set_username_title),
                         style = MaterialTheme.wireTypography.title01,
+                        modifier = Modifier.semantics { heading() }
                     )
                 },
                 canNavigateBack = false

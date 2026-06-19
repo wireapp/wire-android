@@ -17,10 +17,10 @@
  */
 package com.wire.android.tests.core.criticalFlows
 
+import InbucketClient
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.runner.RunWith
 import backendUtils.BackendClient
-import com.wire.android.testSupport.BuildConfig
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
@@ -110,10 +110,10 @@ class PersonalAccountLifeCycle : BaseUiTest() {
         step("Fetch OTP to complete 2FA verification and complete registration") {
             val otp = runBlocking {
                 InbucketClient.getVerificationCode(
-                    personalUser?.email.orEmpty(),
-                    BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETURL,
-                    BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETPASSWORD,
-                    BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETUSERNAME
+                    personalUser?.email!!,
+                    backendClient.inbucketUrl,
+                    backendClient.inbucketPassword,
+                    backendClient.inbucketUsername
                 )
             }
 

@@ -31,6 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -79,7 +81,8 @@ fun ServiceDetailsNotFoundScreen(
                     overflow = TextOverflow.Visible,
                     maxLines = 1,
                     style = MaterialTheme.wireTypography.title02,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.semantics { heading() }
                 )
             }
 

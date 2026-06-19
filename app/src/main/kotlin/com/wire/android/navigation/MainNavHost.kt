@@ -38,6 +38,8 @@ import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.ramcosta.composedestinations.generated.app.navtype.groupConversationDetailsNavBackArgsNavType
 import com.ramcosta.composedestinations.generated.app.navtype.imagesPreviewNavBackArgsNavType
 import com.ramcosta.composedestinations.generated.app.navtype.mediaGalleryNavBackArgsNavType
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.ramcosta.composedestinations.generated.meetings.navgraphs.NewMeetingGraph
 import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
@@ -119,10 +121,15 @@ fun MainNavHost(
 
                     // 👇 To reuse CellViewModel from the parent screen on SearchScreen
                     destination(SearchScreenDestination) {
-                        val parentEntry = remember(navBackStackEntry) {
-                            navController.previousBackStackEntry
+                        val cellViewModelOwner = remember(navBackStackEntry) {
+                            val previousEntry = navController.previousBackStackEntry
+                            when (previousEntry?.safeRoute()?.baseRoute) {
+                                ConversationFilesScreenDestination.baseRoute,
+                                ConversationFilesWithSlideInTransitionScreenDestination.baseRoute -> previousEntry
+                                else -> navBackStackEntry
+                            }
                         }
-                        dependency(cellViewModel(parentEntry ?: navBackStackEntry))
+                        dependency(cellViewModel(cellViewModelOwner))
                     }
 
                     // 👇 To tie NewConversationViewModel to NewConversationGraph,

@@ -51,6 +51,7 @@ import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinu
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsUseCase
+import com.wire.kalium.logic.feature.message.SetThreadFollowStateUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
@@ -92,6 +93,7 @@ class HomeViewModelFactory @Inject constructor(
     private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
     private val observeGlobalThreads: ObserveGlobalThreadsUseCase,
+    private val setThreadFollowState: SetThreadFollowStateUseCase,
     private val createRegularGroup: CreateRegularGroupUseCase,
     private val createChannel: CreateChannelUseCase,
     private val isUserAllowedToCreateChannels: ObserveChannelsCreationPermissionUseCase,
@@ -133,6 +135,7 @@ class HomeViewModelFactory @Inject constructor(
 
     fun globalThreadsViewModel() = GlobalThreadsViewModel(
         observeGlobalThreads = observeGlobalThreads,
+        setThreadFollowState = setThreadFollowState,
         uiTextResolver = uiTextResolver,
     )
 

@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
@@ -36,11 +37,14 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsResult
 import com.wire.kalium.logic.feature.message.ObserveGlobalThreadsUseCase
 import com.wire.kalium.logic.feature.message.GlobalThreadSummary
+import com.wire.kalium.logic.feature.message.SetThreadFollowStateResult
+import com.wire.kalium.logic.feature.message.SetThreadFollowStateUseCase
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
 class GlobalThreadsViewModel(
     private val observeGlobalThreads: ObserveGlobalThreadsUseCase,
+    private val setThreadFollowState: SetThreadFollowStateUseCase,
     private val uiTextResolver: UiTextResolver,
 ) : ViewModel() {
 
@@ -57,6 +61,15 @@ class GlobalThreadsViewModel(
                         threads = result.threads.map(::toUiThread),
                     )
                 }
+            }
+        }
+    }
+
+    fun unfollowThread(thread: UiGlobalThread) = viewModelScope.launch {
+        when (setThreadFollowState(thread.conversationId, thread.threadId, false)) {
+            is SetThreadFollowStateResult.Success -> Unit
+            is SetThreadFollowStateResult.Failure -> {
+                appLogger.e("Failed to unfollow thread. conversationId=${thread.conversationId} threadId=${thread.threadId}")
             }
         }
     }

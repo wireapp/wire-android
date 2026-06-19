@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -57,7 +59,8 @@ fun PollMessageContent(
     poll: UIMessageContent.Poll,
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
-    onOptionSelected: (List<String>) -> Unit = {}
+    onOptionSelected: (List<String>) -> Unit = {},
+    onViewVotesClick: () -> Unit = {}
 ) {
     val totalVoters = poll.votes.map { it.voterId }.distinct().size
 
@@ -110,6 +113,19 @@ fun PollMessageContent(
                 )
             }
         }
+
+        Text(
+            text = stringResource(R.string.poll_view_votes),
+            color = messageStyle.highlighted(),
+            style = MaterialTheme.wireTypography.button01,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(dimensions().spacing4x))
+                .clickable(onClick = onViewVotesClick)
+                .padding(vertical = dimensions().spacing8x)
+        )
     }
 }
 

@@ -33,6 +33,7 @@ import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -42,6 +43,8 @@ fun rememberConversationScreenState(
     editSheetState: WireModalSheetState<String> = rememberWireModalSheetState<String>(),
     selfDeletingSheetState: WireModalSheetState<SelfDeletionTimer> = rememberWireModalSheetState<SelfDeletionTimer>(),
     locationSheetState: WireModalSheetState<Unit> = rememberWireModalSheetState(),
+    pollVotesSheetState: WireModalSheetState<UIMessageContent.Poll> =
+        rememberWireModalSheetState<UIMessageContent.Poll>(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): ConversationScreenState {
     val context = LocalContext.current
@@ -55,6 +58,7 @@ fun rememberConversationScreenState(
             editSheetState = editSheetState,
             selfDeletingSheetState = selfDeletingSheetState,
             locationSheetState = locationSheetState,
+            pollVotesSheetState = pollVotesSheetState,
             coroutineScope = coroutineScope
         )
     }
@@ -68,6 +72,7 @@ class ConversationScreenState(
     val editSheetState: WireModalSheetState<String>,
     val selfDeletingSheetState: WireModalSheetState<SelfDeletionTimer>,
     val locationSheetState: WireModalSheetState<Unit>,
+    val pollVotesSheetState: WireModalSheetState<UIMessageContent.Poll>,
     val coroutineScope: CoroutineScope
 ) {
     fun showEditContextMenu(message: UIMessage.Regular) {
@@ -89,6 +94,13 @@ class ConversationScreenState(
         locationSheetState.show(hideKeyboard = true)
     }
 
+    fun showPollVotesSheet(poll: UIMessageContent.Poll) {
+        pollVotesSheetState.show(poll, hideKeyboard = true)
+    }
+
     val isAnySheetVisible: Boolean
-        get() = editSheetState.isVisible || selfDeletingSheetState.isVisible || locationSheetState.isVisible
+        get() = editSheetState.isVisible ||
+                selfDeletingSheetState.isVisible ||
+                locationSheetState.isVisible ||
+                pollVotesSheetState.isVisible
 }

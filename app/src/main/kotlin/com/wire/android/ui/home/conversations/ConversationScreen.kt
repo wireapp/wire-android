@@ -178,6 +178,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.conversations.model.messagetypes.poll.PollVotesModalSheetLayout
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
@@ -1098,6 +1099,7 @@ private fun ConversationScreen(
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
                         onPollOptionClicked = onPollOptionClick,
+                        onPollVotesClicked = conversationScreenState::showPollVotesSheet,
                         onResetSessionClicked = onResetSessionClick,
                         onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
@@ -1149,6 +1151,7 @@ private fun ConversationScreen(
             sheetState = conversationScreenState.selfDeletingSheetState,
             onNewSelfDeletingMessagesStatus = onNewSelfDeletingMessagesStatus
         )
+        PollVotesModalSheetLayout(sheetState = conversationScreenState.pollVotesSheetState)
         LocationPickerComponent(
             sheetState = conversationScreenState.locationSheetState,
             onLocationPicked = {
@@ -1188,6 +1191,7 @@ private fun ConversationScreenContent(
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onPollOptionClicked: (String, List<String>) -> Unit,
+    onPollVotesClicked: (UIMessageContent.Poll) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
@@ -1243,6 +1247,7 @@ private fun ConversationScreenContent(
                     onProfileClicked = onOpenProfile,
                     onReactionClicked = onReactionClicked,
                     onPollOptionClicked = onPollOptionClicked,
+                    onPollVotesClicked = onPollVotesClicked,
                     onAssetClicked = onAssetItemClicked,
                     onImageClicked = onImageFullScreenMode,
                     onLinkClicked = onLinkClick,

@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.messages.item
 
 import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
@@ -28,6 +29,7 @@ sealed class MessageClickActions {
     open val onProfileClicked: (senderId: MessageSenderId) -> Unit = {}
     open val onReactionClicked: (String, String) -> Unit = { _, _ -> }
     open val onPollOptionClicked: (String, List<String>) -> Unit = { _, _ -> }
+    open val onPollVotesClicked: (UIMessageContent.Poll) -> Unit = {}
     open val onAssetClicked: (String) -> Unit = {}
     open val onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit = { _, _, _ -> }
     open val onLinkClicked: (String) -> Unit = {}
@@ -46,6 +48,7 @@ sealed class MessageClickActions {
         override val onProfileClicked: (senderId: MessageSenderId) -> Unit = {},
         override val onReactionClicked: (String, String) -> Unit = { _, _ -> },
         override val onPollOptionClicked: (String, List<String>) -> Unit = { _, _ -> },
+        override val onPollVotesClicked: (UIMessageContent.Poll) -> Unit = {},
         override val onAssetClicked: (String) -> Unit = {},
         override val onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit = { _, _, _ -> },
         override val onLinkClicked: (String) -> Unit = {},

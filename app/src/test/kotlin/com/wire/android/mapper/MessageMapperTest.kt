@@ -63,13 +63,29 @@ class MessageMapperTest {
         // Given
         val (_, mapper) = Arrangement().arrange()
         val removedUserId = UserId("server-id", "server-domain")
+        val pollVoterId = UserId("poll-voter-id", "server-domain")
         val messages = listOf(
             TestMessage.TEXT_MESSAGE,
             TestMessage.MEMBER_REMOVED_MESSAGE.copy(
                 content = MessageContent.MemberChange.Removed(listOf(removedUserId))
+            ),
+            TestMessage.TEXT_MESSAGE.copy(
+                content = MessageContent.Poll(
+                    question = "Lunch?",
+                    options = listOf(MessageContent.Poll.Option(id = "option-1", text = "Pizza")),
+                    allowMultipleAnswers = false,
+                    hideVoterNames = false,
+                    votes = listOf(
+                        MessageContent.Poll.Vote(
+                            voterId = pollVoterId,
+                            selectedOptionIds = listOf("option-1"),
+                            date = Instant.parse("2026-06-18T10:00:00.000Z")
+                        )
+                    )
+                )
             )
         )
-        val expected = listOf(removedUserId)
+        val expected = listOf(removedUserId, pollVoterId)
         // When
         val list = mapper.memberIdList(messages)
         // Then

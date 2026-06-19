@@ -722,6 +722,15 @@
     <string name="create_poll_error_generic">Could not create poll. Please try again.</string>
     <string name="poll_select_one">Select one</string>
     <string name="poll_select_one_or_more">Select one or more</string>
+    <string name="poll_view_votes">View votes</string>
+    <string name="poll_votes_title">Votes</string>
+    <string name="poll_votes_hidden">Voter names are hidden</string>
+    <string name="poll_no_votes">No votes yet</string>
+    <string name="poll_unknown_voter">Unknown voter</string>
+    <plurals name="poll_votes_count">
+        <item quantity="one">%1$d vote</item>
+        <item quantity="other">%1$d votes</item>
+    </plurals>
     <string name="error_conversation_sending_poll_vote">Could not send poll vote. Please try again.</string>
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>

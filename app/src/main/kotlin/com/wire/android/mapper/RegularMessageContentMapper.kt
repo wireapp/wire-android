@@ -22,6 +22,7 @@ import com.wire.android.R
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.R as commonR
+import com.wire.android.ui.home.conversations.avatar
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.DEFAULT_LOCATION_ZOOM
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
@@ -44,6 +45,7 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.hasValidData
 import com.wire.kalium.logic.data.user.AssetId
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
@@ -140,8 +142,11 @@ class RegularMessageMapper @Inject constructor(
             hideVoterNames = content.hideVoterNames,
             selectedOptionIds = content.votes.firstOrNull { it.voterId == selfUserId }?.selectedOptionIds.orEmpty(),
             votes = content.votes.map {
+                val voter = userList.findUser(it.voterId)
                 UIMessageContent.Poll.Vote(
                     voterId = it.voterId,
+                    voterName = voter?.name,
+                    voterAvatarData = voter?.avatar((voter as? OtherUser)?.connectionStatus),
                     selectedOptionIds = it.selectedOptionIds,
                     date = it.date
                 )

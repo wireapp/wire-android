@@ -104,6 +104,10 @@ class RegularMessageContentMapperTest {
         // Given
         val (_, mapper) = Arrangement().arrange()
         val voteDate = Instant.parse("2026-06-18T10:00:00.000Z")
+        val voter = TestUser.OTHER_USER.copy(
+            id = UserId(value = "voter-id", domain = "wire.com"),
+            name = "Voting User"
+        )
         val pollContent = MessageContent.Poll(
             question = "Where should we meet?",
             options = listOf(
@@ -123,7 +127,7 @@ class RegularMessageContentMapperTest {
         val message = TestMessage.TEXT_MESSAGE.copy(content = pollContent)
 
         // When
-        val result = mapper.mapMessage(message, sender, userMembers)
+        val result = mapper.mapMessage(message, sender, userMembers + voter)
 
         // Then
         assertTrue(result is UIMessageContent.Poll)
@@ -135,6 +139,8 @@ class RegularMessageContentMapperTest {
         assertEquals(listOf("option-1", "option-2"), result.options.map { it.id })
         assertEquals(listOf("Office", "Cafe"), result.options.map { it.text })
         assertEquals(listOf("option-2"), result.votes.single().selectedOptionIds)
+        assertEquals("Voting User", result.votes.single().voterName)
+        assertEquals("Voting User", result.votes.single().voterAvatarData?.nameBasedAvatar?.fullName)
         assertEquals(voteDate, result.votes.single().date)
     }
 

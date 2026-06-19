@@ -393,6 +393,8 @@ sealed interface UIMessageContent {
         @Serializable
         data class Vote(
             val voterId: UserId,
+            val voterName: String? = null,
+            val voterAvatarData: UserAvatarData? = null,
             val selectedOptionIds: List<String>,
             val date: Instant
         )

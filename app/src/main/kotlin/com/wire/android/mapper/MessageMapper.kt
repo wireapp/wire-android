@@ -59,11 +59,13 @@ class MessageMapper @Inject constructor(
     fun memberIdList(messages: List<Message>): List<UserId> = messages.flatMap { message ->
         when (message) {
             is Message.Regular -> {
-                when (val failureType = message.deliveryStatus) {
+                val failedRecipientIds = when (val failureType = message.deliveryStatus) {
                     is DeliveryStatus.CompleteDelivery -> listOf()
                     is DeliveryStatus.PartialDelivery ->
                         failureType.recipientsFailedDelivery + failureType.recipientsFailedWithNoClients
                 }
+                val pollVoterIds = (message.content as? MessageContent.Poll)?.votes.orEmpty().map { it.voterId }
+                failedRecipientIds + pollVoterIds
             }
 
             is Message.System -> {

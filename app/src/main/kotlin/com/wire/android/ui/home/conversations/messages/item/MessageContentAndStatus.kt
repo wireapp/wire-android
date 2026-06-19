@@ -76,6 +76,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
     onPollOptionClicked: (String, List<String>) -> Unit,
+    onPollVotesClicked: (UIMessageContent.Poll) -> Unit,
     shouldDisplayMessageStatus: Boolean,
     conversationDetailsData: ConversationDetailsData,
     accent: Accent = Accent.Unknown,
@@ -124,6 +125,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onLinkClick = onLinkClicked,
                 onReplyClick = onReplyClickable,
                 onPollOptionClick = onPollOptionClicked,
+                onPollVotesClick = onPollVotesClicked,
                 messageStyle = messageStyle,
                 accent = accent,
                 conversationAssetPathsViewModel = conversationAssetPathsViewModel
@@ -173,6 +175,7 @@ private fun MessageContent(
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
     onPollOptionClick: (String, List<String>) -> Unit,
+    onPollVotesClick: (UIMessageContent.Poll) -> Unit,
     accent: Accent,
     conversationAssetPathsViewModel: ConversationAssetPathsViewModel
 ) {
@@ -435,7 +438,8 @@ private fun MessageContent(
             messageStyle = messageStyle,
             onOptionSelected = { selectedOptionIds ->
                 onPollOptionClick(message.header.messageId, selectedOptionIds)
-            }
+            },
+            onViewVotesClick = { onPollVotesClick(messageContent) }
         )
 
         UIMessageContent.Deleted -> {}

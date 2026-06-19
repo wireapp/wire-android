@@ -1219,6 +1219,8 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Profil öffnen</string>
     <string name="cant_switch_account_in_call">Sie können während eines Anrufs nicht das Konto wechseln</string>
+    <string name="cross_backend_login_blocked_title">Wechseln der Backends ist gesperrt</string>
+    <string name="cross_backend_login_blocked_message">Derzeit können Sie sich nicht bei einem anderen Backend anmelden. Melden Sie sich zunächst ab und melden Sie sich dann bei einem anderen Backend an.</string>
     <string name="custom_backend_dialog_title">Umleitung auf ein lokales Backend?</string>
     <string name="custom_backend_dialog_body">Wenn Sie fortfahren, wird Ihr Client an das folgende lokale Backend weitergeleitet:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend-Name:</string>

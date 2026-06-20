@@ -79,8 +79,8 @@ fun MessageBubbleItem(
             .fillMaxWidth()
             .padding(
                 end = dimensions().messageItemHorizontalPadding,
-                top = if (showAuthor) dimensions().spacing6x else dimensions().spacing1x,
-                bottom = if (useSmallBottomPadding) dimensions().spacing1x else dimensions().messageItemBottomPadding
+                top = if (showAuthor) dimensions().spacing6x else dimensions().spacing2x,
+                bottom = if (useSmallBottomPadding) dimensions().spacing2x else dimensions().messageItemBottomPadding
             ),
         verticalArrangement = Arrangement.spacedBy(-dimensions().spacing8x, alignment = Alignment.Bottom),
         horizontalAlignment = if (isSelfMessage) Alignment.End else Alignment.Start

@@ -43,8 +43,10 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.home.settings.customizationViewModel
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -87,6 +89,7 @@ fun CustomizationScreenContent(
     onEnterToSendClicked: (Boolean) -> Unit,
     onMessageSwipeRightActionChanged: (MessageSwipeAction) -> Unit,
     onMessageSwipeLeftActionChanged: (MessageSwipeAction) -> Unit,
+    showMessageSwipeSettings: Boolean = BuildConfig.PRIVATE_BUILD,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -123,6 +126,7 @@ fun CustomizationScreenContent(
                     selectedMessageSwipeLeftAction = state.messageSwipeLeftAction,
                     onMessageSwipeRightActionChanged = onMessageSwipeRightActionChanged,
                     onMessageSwipeLeftActionChanged = onMessageSwipeLeftActionChanged,
+                    showMessageSwipeSettings = showMessageSwipeSettings,
                 )
             }
         }
@@ -137,6 +141,7 @@ fun CustomizationOptionsContent(
     selectedMessageSwipeLeftAction: MessageSwipeAction,
     onMessageSwipeRightActionChanged: (MessageSwipeAction) -> Unit,
     onMessageSwipeLeftActionChanged: (MessageSwipeAction) -> Unit,
+    showMessageSwipeSettings: Boolean = BuildConfig.PRIVATE_BUILD,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -150,79 +155,60 @@ fun CustomizationOptionsContent(
             arrowType = ArrowType.NONE,
             subtitle = stringResource(id = R.string.press_enter_to_send_text)
         )
-        SectionHeader(stringResource(R.string.customization_swipe_actions_header_title))
-        Text(
-            text = stringResource(R.string.customization_swipe_right_title),
-            style = MaterialTheme.wireTypography.label01,
-            color = MaterialTheme.wireColorScheme.secondaryText,
-            modifier = Modifier.padding(
-                start = dimensions().spacing16x,
-                top = dimensions().spacing8x,
-                bottom = dimensions().spacing4x
-            )
-        )
-        MessageSwipeAction.entries.forEach { action ->
-            MessageSwipeActionOptionItem(
-                action = action,
+        if (showMessageSwipeSettings) {
+            SectionHeader(stringResource(R.string.customization_swipe_actions_header_title))
+            MessageSwipeActionDropdown(
+                title = stringResource(R.string.customization_swipe_right_title),
                 selectedAction = selectedMessageSwipeRightAction,
                 onActionSelected = onMessageSwipeRightActionChanged,
+                modifier = Modifier.padding(
+                    start = dimensions().spacing16x,
+                    top = dimensions().spacing8x,
+                    end = dimensions().spacing16x,
+                    bottom = dimensions().spacing12x
+                )
             )
-        }
-        Text(
-            text = stringResource(R.string.customization_swipe_left_title),
-            style = MaterialTheme.wireTypography.label01,
-            color = MaterialTheme.wireColorScheme.secondaryText,
-            modifier = Modifier.padding(
-                start = dimensions().spacing16x,
-                top = dimensions().spacing16x,
-                bottom = dimensions().spacing4x
-            )
-        )
-        MessageSwipeAction.entries.forEach { action ->
-            MessageSwipeActionOptionItem(
-                action = action,
+            MessageSwipeActionDropdown(
+                title = stringResource(R.string.customization_swipe_left_title),
                 selectedAction = selectedMessageSwipeLeftAction,
                 onActionSelected = onMessageSwipeLeftActionChanged,
+                modifier = Modifier.padding(
+                    start = dimensions().spacing16x,
+                    end = dimensions().spacing16x,
+                    bottom = dimensions().spacing16x
+                )
             )
         }
     }
 }
 
 @Composable
-private fun MessageSwipeActionOptionItem(
-    action: MessageSwipeAction,
+private fun MessageSwipeActionDropdown(
+    title: String,
     selectedAction: MessageSwipeAction,
     onActionSelected: (MessageSwipeAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isSelected = action == selectedAction
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(bottom = dimensions().spacing1x)
-            .selectable(
-                selected = isSelected,
-                role = Role.RadioButton,
-                onClick = { onActionSelected(action) }
-            )
-            .background(color = MaterialTheme.wireColorScheme.surface),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButton(selected = isSelected, onClick = null)
-        Column(
-            modifier = Modifier.padding(vertical = dimensions().spacing12x)
-        ) {
-            Text(
-                text = stringResource(action.titleResId()),
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground
-            )
-            Text(
-                text = stringResource(action.descriptionResId()),
-                style = MaterialTheme.wireTypography.label01,
-                color = MaterialTheme.wireColorScheme.secondaryText
-            )
-        }
+    val actions = MessageSwipeAction.entries
+    val selectedActionIndex = actions.indexOf(selectedAction)
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        WireDropDown(
+            items = actions.map { action -> stringResource(action.titleResId()) },
+            label = title,
+            selectedItemIndex = selectedActionIndex,
+            showDefaultTextIndicator = false,
+            modifier = Modifier.fillMaxWidth(),
+            onSelected = { selectedIndex ->
+                onActionSelected(actions[selectedIndex])
+            }
+        )
+        Text(
+            text = stringResource(selectedAction.descriptionResId()),
+            style = MaterialTheme.wireTypography.label01,
+            color = MaterialTheme.wireColorScheme.secondaryText,
+            modifier = Modifier.padding(top = dimensions().spacing4x)
+        )
     }
 }
 

@@ -174,7 +174,8 @@ fun ThemeOptionItem(
                 role = Role.RadioButton,
                 onClick = { onItemClicked(themeOption) }
             )
-            .background(color = MaterialTheme.wireColorScheme.surface),
+            .background(color = MaterialTheme.wireColorScheme.surface)
+            .padding(horizontal = dimensions().spacing16x),
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(selected = isSelected, onClick = null)

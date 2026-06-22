@@ -29,12 +29,6 @@ public fun com.wire.android.model.ImageAsset.UserAvatarAsset.paint(fallbackData:
     - withCrossfadeAnimation: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.model.remoteAssetImageViewModel(): com.wire.android.model.RemoteAssetImageViewModel
-  skippable: true
-  restartable: true
-  params:
-
-@Composable
 public fun com.wire.android.ui.common.CollapsingTopBarScaffold(topBarHeader: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, topBarCollapsing: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, maxBarElevation: androidx.compose.ui.unit.Dp, topBarBackgroundColor: androidx.compose.ui.graphics.Color, topBarFooter: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, bottomBar: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, floatingActionButton: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, floatingActionButtonPosition: androidx.compose.material3.FabPosition, collapsingEnabled: kotlin.Boolean, snapOnFling: kotlin.Boolean, contentLazyListState: androidx.compose.foundation.lazy.LazyListState?, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
@@ -2198,6 +2192,12 @@ public fun com.wire.android.ui.theme.wireLightColorScheme(): com.wire.android.ui
 
 @Composable
 public fun com.wire.android.ui.theme.wireTypography(): com.wire.android.ui.theme.WireTypography
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.util.rememberCurrentTimeProvider(): com.wire.android.util.CurrentTimeProvider
   skippable: true
   restartable: true
   params:

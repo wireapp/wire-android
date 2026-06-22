@@ -58,6 +58,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.R as commonR
+import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
@@ -65,6 +66,7 @@ import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
 import com.wire.android.ui.common.textfield.DefaultEmailNext
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WireAutoFillType
@@ -72,6 +74,7 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -103,22 +106,19 @@ fun LoginEmailScreen(
         passwordTextState = loginEmailViewModel.passwordTextState,
         isProxyAuthRequired = loginEmailViewModel.serverConfig.isProxyAuthRequired,
         apiProxyUrl = loginEmailViewModel.serverConfig.apiProxy?.host,
-        onDialogDismiss = loginEmailViewModel::clearLoginErrors,
-        onRemoveDeviceOpen = { userId ->
-            loginEmailViewModel.clearLoginErrors()
-            onRemoveDeviceNeeded(userId)
-        },
         onLoginButtonClick = loginEmailViewModel::login,
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
         scope = scope,
         fillMaxHeight = fillMaxHeight,
     )
 
-    LaunchedEffect(loginEmailViewModel.loginState.flowState) {
-        (loginEmailViewModel.loginState.flowState as? LoginState.Success)?.let {
-            onSuccess(it.initialSyncCompleted, it.isE2EIRequired, it.userId)
-        }
-    }
+    LoginEmailStateNavigationAndDialogs(
+        state = loginEmailViewModel.loginState.flowState,
+        domainClaimedByOrg = loginEmailViewModel.loginNavArgs.loginPasswordPath?.isDomainClaimedByOrg,
+        onClearLoginErrors = loginEmailViewModel::clearLoginErrors,
+        onSuccess = onSuccess,
+        onRemoveDeviceNeeded = onRemoveDeviceNeeded,
+    )
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -132,8 +132,6 @@ private fun LoginEmailContent(
     loginEmailState: LoginEmailState,
     isProxyAuthRequired: Boolean,
     apiProxyUrl: String?,
-    onDialogDismiss: () -> Unit,
-    onRemoveDeviceOpen: (UserId) -> Unit,
     onLoginButtonClick: () -> Unit,
     forgotPasswordUrl: String,
     scope: CoroutineScope,
@@ -241,12 +239,49 @@ private fun LoginEmailContent(
             }
         }
     }
+}
 
-    if (loginEmailState.flowState is LoginState.Error.DialogError) {
-        LoginErrorDialog(loginEmailState.flowState.toLoginDialogErrorData(), onDialogDismiss)
-    } else if (loginEmailState.flowState is LoginState.Error.TooManyDevicesError) {
-        onRemoveDeviceOpen(loginEmailState.flowState.userId)
+@Composable
+private fun LoginEmailStateNavigationAndDialogs(
+    state: LoginState,
+    domainClaimedByOrg: DomainClaimedByOrg?,
+    onClearLoginErrors: () -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
+    onRemoveDeviceNeeded: (UserId) -> Unit,
+) {
+    val emailAlreadyInUseClaimedDomainDialogState = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
+    val handleLoginStateNavigation: (LoginState) -> Unit = {
+        when (it) {
+            is LoginState.Success -> onSuccess(it.initialSyncCompleted, it.isE2EIRequired, it.userId)
+            is LoginState.Error.TooManyDevicesError -> {
+                onClearLoginErrors()
+                onRemoveDeviceNeeded(it.userId)
+            }
+            else -> {
+                /* do nothing */
+            }
+        }
     }
+
+    LaunchedEffect(state) {
+        val isStateCompleted = state is LoginState.Success || state is LoginState.Error.TooManyDevicesError
+        if (isStateCompleted && domainClaimedByOrg is DomainClaimedByOrg.Claimed) {
+            emailAlreadyInUseClaimedDomainDialogState.show(domainClaimedByOrg)
+        } else {
+            handleLoginStateNavigation(state)
+        }
+    }
+
+    if (state is LoginState.Error.DialogError) {
+        LoginErrorDialog(state.toLoginDialogErrorData(), onClearLoginErrors)
+    }
+    EmailAlreadyInUseClaimedDomainDialog(
+        dialogState = emailAlreadyInUseClaimedDomainDialogState,
+        onDismiss = {
+            emailAlreadyInUseClaimedDomainDialogState.dismiss()
+            handleLoginStateNavigation(state)
+        }
+    )
 }
 
 @Composable
@@ -362,8 +397,6 @@ fun PreviewLoginEmailScreen() = WireTheme {
         proxyPasswordState = TextFieldState(),
         isProxyAuthRequired = true,
         apiProxyUrl = "",
-        onDialogDismiss = { },
-        onRemoveDeviceOpen = { },
         onLoginButtonClick = { },
         forgotPasswordUrl = "",
         scope = rememberCoroutineScope()

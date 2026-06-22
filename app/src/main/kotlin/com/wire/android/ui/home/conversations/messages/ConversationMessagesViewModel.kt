@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -216,14 +217,20 @@ class ConversationMessagesViewModel @Inject constructor(
             is GetConversationUnreadEventsCountUseCase.Result.Failure -> 0
         }
 
-        val paginatedMessagesFlow = networkStateObserver.observeNetworkState().flatMapLatest { networkState ->
-            getMessageForConversation(conversationId, lastReadIndex).map { pagingData ->
-                pagingData.withOfflineIndicator(
-                    conversationId = conversationId,
-                    isOffline = networkState !is NetworkState.ConnectedWithInternet,
-                )
-            }.flowOn(dispatchers.io())
-        }.cachedIn(viewModelScope)
+        val paginatedMessagesFlow = if (BuildConfig.PENDING_MESSAGES) {
+            networkStateObserver.observeNetworkState().flatMapLatest { networkState ->
+                getMessageForConversation(conversationId, lastReadIndex).map { pagingData ->
+                    pagingData.withOfflineIndicator(
+                        conversationId = conversationId,
+                        isOffline = networkState !is NetworkState.ConnectedWithInternet,
+                    )
+                }.flowOn(dispatchers.io())
+            }.cachedIn(viewModelScope)
+        } else {
+            getMessageForConversation(conversationId, lastReadIndex)
+                .flowOn(dispatchers.io())
+                .cachedIn(viewModelScope)
+        }
 
         conversationViewState = conversationViewState.copy(
             messages = paginatedMessagesFlow,

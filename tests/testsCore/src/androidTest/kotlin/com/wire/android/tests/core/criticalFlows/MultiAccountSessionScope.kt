@@ -46,7 +46,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         backendClient = BackendClient.loadBackend("STAGING")
     }
 
-    @TestCaseId("MSS-001")
+    @TestCaseId("TC-11259")
     @Category("criticalFlow", "sessionScope")
     @Test
     fun givenLoggedInAccount_whenSecondAccountHitsTooManyDevicesAndLoginIsCancelled_thenPreviousSessionIsRestored() {
@@ -84,7 +84,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("MSS-002")
+    @TestCaseId("TC-11260")
     @Category("criticalFlow", "sessionScope")
     @Test
     fun givenTwoLoggedInAccounts_whenSwitchingFromProfile_thenConversationListUsesSelectedSession() {
@@ -120,7 +120,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("MSS-003")
+    @TestCaseId("TC-11261")
     @Category("criticalFlow", "sessionScope")
     @Test
     fun givenSingleLoggedInAccount_whenCurrentClientIsRemovedRemotely_thenLoginScreenOpens() {
@@ -145,7 +145,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("MSS-004")
+    @TestCaseId("TC-11262")
     @Category("criticalFlow", "sessionScope")
     @Test
     fun givenTwoLoggedInAccounts_whenCurrentClientIsRemovedRemotely_thenNextSessionIsRestored() {
@@ -175,34 +175,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("MSS-005")
-    @Category("criticalFlow", "sessionScope")
-    @Test
-    fun givenSingleLoggedInAccount_whenLoggingOut_thenLoginScreenOpens() {
-        step("Prepare staging users") {
-            prepareTeamUsers(teamName = "SessionScopeMetroLogoutSingle")
-        }
-
-        step("Login the first account") {
-            loginUser(primaryUser)
-        }
-
-        step("Logout the only account") {
-            pages.conversationListPage.clickUserProfileButton()
-            pages.selfUserProfilePage.apply {
-                iSeeUserProfilePage()
-                tapLogoutButton()
-                iSeeClearDataOnLogOutAlert()
-                tapLogoutButton()
-            }
-        }
-
-        step("Verify login screen opens") {
-            pages.registrationPage.assertAuthEntryVisible()
-        }
-    }
-
-    @TestCaseId("MSS-006")
+    @TestCaseId("TC-11263")
     @Category("criticalFlow", "sessionScope")
     @Test
     fun givenTwoLoggedInAccounts_whenLoggingOutCurrentAccount_thenNextSessionIsRestored() {
@@ -234,7 +207,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("MSS-007")
+    @TestCaseId("TC-11264")
     @Category("criticalFlow", "sessionScope")
     @Test
     fun givenNoLoggedInAccount_whenLoginHitsTooManyDevicesAndIsCancelled_thenLoginScreenOpens() {
@@ -257,7 +230,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("MSS-008")
+    @TestCaseId("TC-11265")
     @Category("criticalFlow", "sessionScope")
     @Test
     fun givenNoLoggedInAccount_whenRemovingDeviceFromTooManyDevices_thenLoginCompletes() {

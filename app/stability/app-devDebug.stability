@@ -1375,7 +1375,7 @@ public fun com.wire.android.ui.authentication.login.email.LoginButton(loading: k
     - onClick: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.email.LoginEmailContent(scrollState: androidx.compose.foundation.ScrollState, userIdentifierTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState, isProxyAuthRequired: kotlin.Boolean, apiProxyUrl: kotlin.String?, onDialogDismiss: kotlin.Function0<kotlin.Unit>, onRemoveDeviceOpen: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID?, kotlin.Unit>, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, forgotPasswordUrl: kotlin.String, scope: kotlinx.coroutines.CoroutineScope, fillMaxHeight: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.email.LoginEmailContent(scrollState: androidx.compose.foundation.ScrollState, userIdentifierTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState, isProxyAuthRequired: kotlin.Boolean, apiProxyUrl: kotlin.String?, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, forgotPasswordUrl: kotlin.String, scope: kotlinx.coroutines.CoroutineScope, fillMaxHeight: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1387,8 +1387,6 @@ private fun com.wire.android.ui.authentication.login.email.LoginEmailContent(scr
     - loginEmailState: STABLE (class with no mutable properties)
     - isProxyAuthRequired: STABLE (primitive type)
     - apiProxyUrl: STABLE (class with no mutable properties)
-    - onDialogDismiss: STABLE (function type)
-    - onRemoveDeviceOpen: STABLE (function type)
     - onLoginButtonClick: STABLE (function type)
     - forgotPasswordUrl: STABLE (String is immutable)
     - scope: RUNTIME (requires runtime check)

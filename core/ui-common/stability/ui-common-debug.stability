@@ -1667,12 +1667,13 @@ public fun com.wire.android.ui.common.search.rememberSearchbarState(initialIsSea
     - searchQueryTextState: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.common.selectableBackground(isSelected: kotlin.Boolean, onClickDescription: kotlin.String, onClick: kotlin.Function0<kotlin.Unit>): androidx.compose.ui.Modifier
+public fun com.wire.android.ui.common.selectableBackground(isSelected: kotlin.Boolean, onClickDescription: kotlin.String, role: androidx.compose.ui.semantics.Role?, onClick: kotlin.Function0<kotlin.Unit>): androidx.compose.ui.Modifier
   skippable: true
   restartable: true
   params:
     - isSelected: STABLE (primitive type)
     - onClickDescription: STABLE (String is immutable)
+    - role: STABLE (marked @Stable or @Immutable)
     - onClick: STABLE (function type)
 
 @Composable

@@ -1412,6 +1412,17 @@ public fun com.wire.android.ui.authentication.login.email.LoginEmailScreen(onSuc
     - fillMaxHeight: STABLE (primitive type)
 
 @Composable
+private fun com.wire.android.ui.authentication.login.email.LoginEmailStateNavigationAndDialogs(state: com.wire.android.ui.authentication.login.LoginState, domainClaimedByOrg: com.wire.android.ui.authentication.login.DomainClaimedByOrg?, onClearLoginErrors: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (class with no mutable properties)
+    - domainClaimedByOrg: STABLE (class with no mutable properties)
+    - onClearLoginErrors: STABLE (function type)
+    - onSuccess: STABLE (function type)
+    - onRemoveDeviceNeeded: STABLE (function type)
+
+@Composable
 public fun com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen(viewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel): kotlin.Unit
   skippable: false
   restartable: true

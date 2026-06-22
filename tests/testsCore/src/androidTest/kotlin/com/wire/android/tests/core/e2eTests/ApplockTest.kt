@@ -27,6 +27,7 @@ import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
@@ -331,6 +332,137 @@ class ApplockTest : BaseUiTest() {
         step("Then I see conversation list") {
             pages.conversationListPage.apply {
                 assertConversationListVisible()
+            }
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-8145", "TC-8146")
+    @Category("regression", "RC", "applock")
+    @Test
+    fun givenTeamAppLockIsEnforced_whenTeamOwnerSetsPasscode_thenAppLockCannotBeChanged() {
+        step("Given there is TeamOwner with team AppLockEnforced and Member1 on Staging backend") {
+            teamHelper.usersManager.createTeamOwnerByAlias(
+                "user1Name",
+                "AppLockEnforced",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+
+            teamHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name",
+                "AppLockEnforced",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+
+            testServiceHelper.userHas1on1ConversationInTeam(
+                "user1Name",
+                "user2Name",
+                "AppLockEnforced"
+            )
+
+            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+        }
+
+        step("And I see welcome screen before login") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+        }
+
+        step("When I open staging deep link and login as TeamOwner") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+                enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
+                clickLoginButton()
+                enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")
+                clickLoginButton()
+            }
+        }
+
+        step("And I complete post-login permission and privacy prompts") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+
+        step("When TeamOwner enables force app lock feature for team AppLockEnforced with timeout of 30 seconds") {
+            teamHelper.enableForceAppLockFeature(
+                "user1Name",
+                "AppLockEnforced",
+                30,
+                backendClient
+            )
+        }
+
+        step("Then I see alert informing me that my Team settings have changed") {
+            pages.commonAppPage.apply {
+                assertTeamSettingsChangedAlertVisible()
+            }
+        }
+
+        step("And I see app lock mandatory subtext in the Team settings change alert") {
+            pages.commonAppPage.apply {
+                assertTeamSettingsChangedAlertSubtextVisible(
+                    "App lock is now mandatory. Wire will lock itself after a certain time of inactivity"
+                )
+            }
+        }
+
+        step("And I tap OK button on the alert") {
+            pages.commonAppPage.apply {
+                tapOkButtonOnAlert()
+            }
+        }
+
+        step("Then I see set up app lock page") {
+            pages.settingsPage.apply {
+                assertSetUpAppLockPageVisible()
+            }
+        }
+
+        step("When I enter my passcode for app lock and tap set passcode button") {
+            val appLockPasscode = "A1a!".repeat(2)
+            pages.settingsPage.apply {
+                enterPasscode(appLockPasscode)
+                tapSetPasscodeButton()
+            }
+        }
+
+        step("And I see conversation list") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+            }
+        }
+
+        // TC-8146 - I should not be able to switch off app lock if it is enforced for the team
+
+        step("When I open Settings from conversation list") {
+            pages.conversationListPage.apply {
+                clickConversationsMenuEntry()
+                closeKeyboardIfOpened()
+                clickSettingsButtonOnMenuEntry()
+            }
+        }
+
+        step("Then I see lock with passcode toggle is turned on") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOn()
+            }
+        }
+
+        step("And I see lock with passcode toggle can not be changed") {
+            pages.settingsPage.apply {
+                assertLockWithPasscodeToggleCannotBeChanged()
             }
         }
     }

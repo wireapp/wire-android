@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.WireTheme
@@ -48,7 +49,11 @@ fun PermissionItem(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = dimensions().spacing1x)
-            .selectableBackground(isSelected, onClick = { onItemClicked(channelAddPermissionType) })
+            .selectableBackground(
+                isSelected = isSelected,
+                role = Role.RadioButton,
+                onClick = { onItemClicked(channelAddPermissionType) }
+            )
             .background(color = MaterialTheme.wireColorScheme.surface),
         verticalAlignment = Alignment.CenterVertically
     ) {

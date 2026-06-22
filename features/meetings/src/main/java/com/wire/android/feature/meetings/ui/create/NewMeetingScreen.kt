@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
@@ -36,6 +37,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -81,6 +83,7 @@ import com.wire.android.ui.common.datetime.WireDatePickerDialog
 import com.wire.android.ui.common.datetime.WireTimePickerDialog
 import com.wire.android.ui.common.datetime.asTimePickerResult
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.DefaultEmailDone
@@ -156,11 +159,12 @@ fun NewMeetingContent(
     onEndTimeChanged: (endTime: Instant) -> Unit = {},
     onRepeatingIntervalChanged: (interval: MeetingItem.RepeatingInterval) -> Unit = {},
 ) {
+    val scrollState = rememberScrollState()
     WireScaffold(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = dimensions().spacing0x,
+                elevation = scrollState.rememberTopBarElevationState().value,
                 title = stringResource(type.title),
                 onNavigationPressed = onBackPressed,
                 navigationIconType = NavigationIconType.Back(
@@ -173,10 +177,10 @@ fun NewMeetingContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(internalPadding)
+                    .verticalScroll(scrollState)
                     .padding(
-                        top = dimensions().spacing24x,
-                        start = dimensions().spacing16x,
-                        end = dimensions().spacing16x,
+                        vertical = dimensions().spacing24x,
+                        horizontal = dimensions().spacing16x,
                     )
             ) {
                 TitleInput(

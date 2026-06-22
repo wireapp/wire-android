@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.Lifecycle
@@ -43,6 +44,7 @@ import java.util.Locale
 fun Modifier.selectableBackground(
     isSelected: Boolean,
     onClickDescription: String = stringResource(id = R.string.content_description_select_label),
+    role: Role? = null,
     onClick: () -> Unit
 ): Modifier {
     val onItemClick = Clickable(
@@ -52,7 +54,7 @@ fun Modifier.selectableBackground(
     )
 
     return this
-        .clickable(onItemClick)
+        .clickable(onItemClick, role = role)
         .semantics {
             if (isSelected) selected = true // So TalkBack ignores selection when it's not selected
         }

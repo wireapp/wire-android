@@ -181,7 +181,7 @@
     <string name="content_description_calling_call_unmuted">Call Unmuted</string>
     <string name="content_description_calling_call_paused_camera">Paused Camera</string>
     <string name="content_description_more_emojis">More emojis</string>
-    <string name="content_description_self_deletion_selector_button">Toggle self deletion mode</string>
+    <string name="content_description_self_deletion_selector_button">Switch button, toggle self deletion mode</string>
     <string name="content_description_message_sending_status">Message sending status</string>
     <string name="content_description_message_sent_status">Message sent status</string>
     <string name="content_description_message_error_status">Message error status</string>
@@ -218,6 +218,8 @@
     <string name="content_description_edit_label">edit</string>
     <string name="content_description_selected_label">selected</string>
     <string name="content_description_toggle_setting_label">toggle setting</string>
+    <string name="content_description_switch_on">on</string>
+    <string name="content_description_switch_off">off</string>
     <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>
     <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>
     <string name="content_description_accept_or_ignore_connection_label">accept or ignore the request</string>

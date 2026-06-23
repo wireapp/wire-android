@@ -32,6 +32,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
@@ -100,17 +109,33 @@ fun SelfDeletionTimerIcon(
     onSelfDeletionTimerClicked: () -> Unit
 ) {
     val isSelected = selfDeletionTimer is SelfDeletionTimer.Enabled && selfDeletionTimer.duration != null
+    val contentDescription = stringResource(id = R.string.content_description_self_deletion_selector_button)
+    val toggleActionDescription = stringResource(id = R.string.content_description_toggle_setting_label)
+    val stateDescription = stringResource(
+        id = if (isSelected) R.string.content_description_switch_on else R.string.content_description_switch_off
+    )
+
     Box(
         modifier = modifier
             .padding(start = dimensions().spacing16x)
             .size(dimensions().spacing48x)
             .clip(RoundedCornerShape(size = dimensions().onMoreOptionsButtonCornerRadius))
+            .semantics {
+                this.contentDescription = contentDescription
+                this.role = Role.Switch
+                this.stateDescription = stateDescription
+                this.toggleableState = ToggleableState(isSelected)
+                onClick(toggleActionDescription) {
+                    onSelfDeletionTimerClicked()
+                    true
+                }
+            }
     ) {
         WireSecondaryButton(
             leadingIcon = {
                 Image(
                     painter = painterResource(id = R.drawable.ic_timer),
-                    contentDescription = stringResource(id = R.string.content_description_self_deletion_selector_button),
+                    contentDescription = null,
                     colorFilter = ColorFilter.tint(
                         when {
                             isDisabled -> colorsScheme().onPrimaryButtonDisabled
@@ -130,6 +155,7 @@ fun SelfDeletionTimerIcon(
                 selected = colorsScheme().secondaryButtonSelected,
                 selectedOutline = colorsScheme().primaryButtonEnabled,
             ),
+            modifier = Modifier.clearAndSetSemantics { },
             onClick = onSelfDeletionTimerClicked,
             shape = RoundedCornerShape(size = dimensions().onMoreOptionsButtonCornerRadius),
         )

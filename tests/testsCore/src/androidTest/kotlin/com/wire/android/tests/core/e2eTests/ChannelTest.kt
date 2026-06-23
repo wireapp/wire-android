@@ -139,7 +139,7 @@ class ChannelTest : BaseUiTest() {
 
         step("And I see conversation TestChannel in conversation list") {
             pages.conversationListPage.apply {
-                assertChannelConversationVisible("TestChannel")
+                assertChannelConversationVisible("TestChannelPP")
             }
         }
 

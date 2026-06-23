@@ -31,8 +31,11 @@ import com.wire.android.tests.support.suite.AllureFailureScreenshotRule
 import com.wire.android.tests.support.suite.AllureLabelsRule
 import com.wire.android.tests.support.testiny.TestinySyncRule
 import io.qameta.allure.kotlin.Allure
-import org.junit.After
 import org.junit.Rule
+import org.junit.rules.RuleChain
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
@@ -58,9 +61,25 @@ abstract class BaseUiTest : KoinTest {
     @get:Rule
     val allureLabelsRule = AllureLabelsRule()
 
-    // Screenshot ONLY for real failures
+    // Keep cleanup outside @After so failure screenshots are captured before backend cleanup changes the app screen.
+    private val failureScreenshotRule = AllureFailureScreenshotRule()
+    private val commonCleanupRule = TestRule { base, _: Description ->
+        object : Statement() {
+            override fun evaluate() {
+                try {
+                    base.evaluate()
+                } finally {
+                    tearDownCommonTestHelpers()
+                }
+            }
+        }
+    }
+
+    // Screenshots must run before backend cleanup changes the app state.
     @get:Rule
-    val failureScreenshotRule = AllureFailureScreenshotRule()
+    val failureScreenshotAndCleanupRule: RuleChain = RuleChain
+        .outerRule(commonCleanupRule)
+        .around(failureScreenshotRule)
 
     // Report each finished test to Testiny.
     @get:Rule
@@ -145,8 +164,7 @@ abstract class BaseUiTest : KoinTest {
         testServiceHelper = TestServiceHelper(teamHelper.usersManager)
     }
 
-    @After
-    fun tearDownCommonTestHelpers() {
+    private fun tearDownCommonTestHelpers() {
         if (::backendClient.isInitialized && ::teamHelper.isInitialized) {
             // Shared cleanup for users tracked by TeamHelper.
             cleanupCreatedUsers(

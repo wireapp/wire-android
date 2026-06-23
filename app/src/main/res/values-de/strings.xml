@@ -785,6 +785,10 @@
         <item quantity="one">%1$s konnte nicht zu der Unterhaltung hinzugefügt werden, da das Backend nicht erreicht werden konnte.</item>
         <item quantity="other">%1$s konnten nicht zu der Unterhaltung hinzugefügt werden, da ihr Backend nicht erreicht werden konnte.</item>
     </plurals>
+    <plurals name="label_system_message_conversation_failed_add_members_details_missing_key_packages">
+        <item quantity="one">%1$s konnte nicht zur Unterhaltung hinzugefügt werden. Möglicherweise verfügt %1$s nicht über ein MLS-fähiges Gerät.</item>
+        <item quantity="other">%1$s konnten nicht zur Unterhaltung hinzugefügt werden. Möglicherweise verfügen sie nicht über MLS-fähige Geräte.</item>
+    </plurals>
     <plurals name="label_system_message_conversation_failed_add_members_details_unknown">
         <item quantity="one">%1$s konnte der Unterhaltung nicht hinzugefügt werden.</item>
         <item quantity="other">%1$s konnten der Unterhaltung nicht hinzugefügt werden.</item>

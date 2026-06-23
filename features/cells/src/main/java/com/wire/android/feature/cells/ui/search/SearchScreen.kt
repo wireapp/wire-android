@@ -83,7 +83,9 @@ fun SearchScreen(
     searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
 ) {
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
-    val isOnline by cellViewModel.isOnline.collectAsState()
+    val isOnlineState by cellViewModel.isOnline.collectAsState()
+    // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
+    val isOnline = isOnlineState || !cellViewModel.offlineFilesEnabled
 
     val filterTypeSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
     val filterTagsSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)

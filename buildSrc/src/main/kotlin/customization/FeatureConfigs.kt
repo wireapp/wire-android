@@ -145,6 +145,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     COLLABORA_INTEGRATION_ENABLED("collabora_integration", ConfigType.BOOLEAN),
 
+    OFFLINE_FILES_ENABLED("offline_files_enabled", ConfigType.BOOLEAN),
+
     DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN),
 
     CONFIGURATION_SIGNATURE_KEYS("configuration_signature_keys", ConfigType.MapOfStrings),

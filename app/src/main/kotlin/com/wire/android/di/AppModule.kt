@@ -123,6 +123,10 @@ object AppModule {
     fun provideUseNewLoginForDefaultBackend(): Boolean = BuildConfig.USE_NEW_LOGIN_FOR_DEFAULT_BACKEND
 
     @Provides
+    @Named("offlineFilesEnabled")
+    fun provideOfflineFilesEnabled(): Boolean = BuildConfig.OFFLINE_FILES_ENABLED
+
+    @Provides
     @Singleton
     fun provideMessageSharedState(): MessageSharedState = MessageSharedState()
 

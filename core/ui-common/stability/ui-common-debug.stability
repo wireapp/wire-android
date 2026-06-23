@@ -1342,11 +1342,11 @@ public fun com.wire.android.ui.common.image.WireImage(model: kotlin.Any?, conten
     - placeholder: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.ui.common.image.ZoomableImageContainer(painter: androidx.compose.ui.graphics.painter.Painter, contentDescription: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: false
+public fun com.wire.android.ui.common.image.ZoomableImageContainer(painter: kotlin.Function0<androidx.compose.ui.graphics.painter.Painter>, contentDescription: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
   restartable: true
   params:
-    - painter: RUNTIME (requires runtime check)
+    - painter: STABLE (function type)
     - contentDescription: STABLE (String is immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
 
@@ -1601,12 +1601,13 @@ public fun com.wire.android.ui.common.search.rememberSearchbarState(initialIsSea
     - searchQueryTextState: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.common.selectableBackground(isSelected: kotlin.Boolean, onClickDescription: kotlin.String, onClick: kotlin.Function0<kotlin.Unit>): androidx.compose.ui.Modifier
+public fun com.wire.android.ui.common.selectableBackground(isSelected: kotlin.Boolean, onClickDescription: kotlin.String, role: androidx.compose.ui.semantics.Role?, onClick: kotlin.Function0<kotlin.Unit>): androidx.compose.ui.Modifier
   skippable: true
   restartable: true
   params:
     - isSelected: STABLE (primitive type)
     - onClickDescription: STABLE (String is immutable)
+    - role: STABLE (marked @Stable or @Immutable)
     - onClick: STABLE (function type)
 
 @Composable
@@ -2561,3 +2562,4 @@ public fun com.wire.android.util.ui.rememberLazyListStateProvider(): com.wire.an
   skippable: true
   restartable: true
   params:
+

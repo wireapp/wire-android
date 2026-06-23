@@ -1927,4 +1927,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
     <string name="label_system_message_admin_role_assigned">You were promoted to group admin</string>
     <string name="more_information_about_this_server">More information about this backend</string>
+
+    <!-- Pending messages service notification -->
+    <string name="pending_messages_notification_waiting">Waiting for connection</string>
+    <string name="pending_messages_notification_sending">Sending messages</string>
+
 </resources>

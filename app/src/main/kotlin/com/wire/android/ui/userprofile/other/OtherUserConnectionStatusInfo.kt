@@ -29,6 +29,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
@@ -53,7 +55,8 @@ fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionState, membership:
                     text = stringResource(R.string.connection_label_user_wants_to_conect),
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.wireColorScheme.onSurface,
-                    style = MaterialTheme.wireTypography.title02
+                    style = MaterialTheme.wireTypography.title02,
+                    modifier = Modifier.semantics { heading() }
                 )
             }
 

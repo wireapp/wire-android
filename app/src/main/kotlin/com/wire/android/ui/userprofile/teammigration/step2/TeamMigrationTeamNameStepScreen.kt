@@ -32,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -112,7 +114,8 @@ private fun TeamMigrationTeamNameStepScreenContent(
                         top = dimensions().spacing8x,
                         bottom = dimensions().spacing56x
                     )
-                    .align(alignment = Alignment.CenterHorizontally),
+                    .align(alignment = Alignment.CenterHorizontally)
+                    .semantics { heading() },
                 text = stringResource(R.string.personal_to_team_migration_team_name_step),
                 style = MaterialTheme.wireTypography.title01,
                 color = colorsScheme().onBackground

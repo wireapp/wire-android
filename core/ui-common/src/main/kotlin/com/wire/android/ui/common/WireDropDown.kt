@@ -70,10 +70,12 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun WireDropDown(
-    items: List<String>,
+    items: ImmutableList<String>,
     label: String?,
     modifier: Modifier = Modifier,
     defaultItemIndex: Int = -1,
@@ -165,7 +167,7 @@ private fun MenuPopUp(
     borderColor: Color,
     leadingCompose: @Composable ((index: Int) -> Unit)?,
     selectedIndex: Int,
-    items: List<String>,
+    items: ImmutableList<String>,
     showDefaultTextIndicator: Boolean,
     showSelectionField: Boolean,
     defaultItemIndex: Int,
@@ -338,7 +340,7 @@ private fun RowScope.LeadingIcon(convent: @Composable () -> Unit) {
 @Preview
 fun PreviewWireDropdownPreviewWithLabel() {
     WireDropDown(
-        items = CreateConversationParam.Protocol.entries.map { it.name },
+        items = CreateConversationParam.Protocol.entries.map { it.name }.toImmutableList(),
         defaultItemIndex = 0,
         selectedItemIndex = 0,
         label = "Protocol",

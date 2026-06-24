@@ -105,6 +105,7 @@ import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.toImmutableList
 
 val LocalSelfUserProfileLogoutAction = staticCompositionLocalOf<((wipeData: Boolean) -> Unit)?> {
     null
@@ -437,7 +438,7 @@ private fun CurrentSelfUserStatus(
                     UserAvailabilityStatus.AWAY -> stringResource(UICommonR.string.user_profile_status_away)
                     UserAvailabilityStatus.NONE -> stringResource(UICommonR.string.user_profile_status_none)
                 }
-            },
+            }.toImmutableList(),
             defaultItemIndex = items.indexOf(userStatus),
             label = null,
             modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),

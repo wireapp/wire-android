@@ -105,6 +105,7 @@ import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
@@ -516,7 +517,7 @@ private fun RepeatingIntervalDropDown(
     val resources = LocalResources.current
     WireDropDown(
         items = remember(resources) {
-            items.map { resources.getString(it.nameResId) }
+            items.map { resources.getString(it.nameResId) }.toImmutableList()
         },
         defaultItemIndex = items.indexOf(repeatingInterval),
         label = stringResource(R.string.new_meeting_repeats_input_label).uppercase(),

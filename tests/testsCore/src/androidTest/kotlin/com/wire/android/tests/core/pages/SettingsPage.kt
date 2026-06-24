@@ -57,10 +57,15 @@ data class SettingsPage(private val device: UiDevice) {
     private val enableLoggingText = UiSelector().text("Enable Logging")
 
     private val lockWithPasscodeText = UiSelector().text("Lock with passcode")
+    private val lockWithPasscodeLabel = UiSelectorParams(text = "Lock with passcode")
+    private val setAppLockPageTitle = UiSelectorParams(text = "Set app lock passcode")
     private val appLockPassCode = UiSelectorParams(text = "Set a passcode")
 
     private val accountDetails = UiSelectorParams(text = "Account Details")
     private val toggle = UiSelector().className("android.view.View")
+    private val clickableToggle = UiSelector().className("android.view.View").clickable(true)
+    private val toggleOnText = UiSelector().text("ON")
+    private val toggleOffText = UiSelector().text("OFF")
     private val analyticsTrackingLabel = UiSelector().text("Analytics Tracking Identifier")
     private val anonymousUsageDataText = UiSelector().text("Send anonymous usage data")
     private val setAppLockInfoText = UiSelectorParams(
@@ -284,21 +289,31 @@ data class SettingsPage(private val device: UiDevice) {
     }
 
     fun assertLockWithPasswordToggleIsOff(): SettingsPage {
-        val toggle = device.findObject(toggleOff)
-        assertFalse("Lock with passcode toggle should be OFF", toggle.isChecked)
+        UiWaitUtils.waitElement(lockWithPasscodeLabel)
+        val label = device.findObject(lockWithPasscodeText)
+        val offText = label.getFromParent(toggleOffText)
+        assertTrue("Lock with passcode toggle should be OFF", offText.exists() && !offText.visibleBounds.isEmpty)
         return this
     }
 
     fun turnOnLockWithPasscodeToggle(): SettingsPage {
+        UiWaitUtils.waitElement(lockWithPasscodeLabel)
         val label = device.findObject(lockWithPasscodeText)
-        val toggle = label.getFromParent(toggle)
+        val toggle = label.getFromParent(clickableToggle)
+        assertTrue("Lock with passcode toggle is not visible", toggle.exists() && !toggle.visibleBounds.isEmpty)
         toggle.click()
+        return this
+    }
+
+    fun assertSetUpAppLockPageVisible(): SettingsPage {
+        val title = UiWaitUtils.waitElement(setAppLockPageTitle)
+        Assert.assertTrue("Set up app lock page is not visible", !title.visibleBounds.isEmpty)
         return this
     }
 
     fun assertAppLockDescriptionText(): SettingsPage {
         val appLockInfo = UiWaitUtils.waitElement(setAppLockInfoText)
-        Assert.assertTrue("Username help text is not visible", !appLockInfo.visibleBounds.isEmpty)
+        Assert.assertTrue("App lock description text is not visible", !appLockInfo.visibleBounds.isEmpty)
         return this
     }
 
@@ -317,8 +332,18 @@ data class SettingsPage(private val device: UiDevice) {
     }
 
     fun assertLockWithPasswordToggleIsOn(): SettingsPage {
-        val toggle = device.findObject(toggleOn)
-        assertTrue("Lock with passcode toggle should be ON", toggle.isChecked)
+        UiWaitUtils.waitElement(lockWithPasscodeLabel)
+        val label = device.findObject(lockWithPasscodeText)
+        val onText = label.getFromParent(toggleOnText)
+        assertTrue("Lock with passcode toggle should be ON", onText.exists() && !onText.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertLockWithPasscodeToggleCannotBeChanged(): SettingsPage {
+        UiWaitUtils.waitElement(lockWithPasscodeLabel)
+        val label = device.findObject(lockWithPasscodeText)
+        val toggle = label.getFromParent(clickableToggle)
+        assertFalse("Lock with passcode toggle is clickable.", toggle.exists() && toggle.isClickable)
         return this
     }
 

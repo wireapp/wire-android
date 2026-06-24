@@ -378,7 +378,7 @@ class WireActivity : BaseActivity() {
             currentBaseRoute != null && canRetainSessionGraphForContent -> lastSessionGraphContext.value
             else -> null
         }
-        val navHostStartDestination = resolveNavHostStartDestination(startDestination, currentUserId)
+        val navHostStartDestination = resolveNavHostStartDestination(startDestination, currentUserId, currentBaseRoute)
         val backgroundType by remember {
             derivedStateOf {
                 currentBackStackEntryState.value?.safeDestination()?.style.let {
@@ -409,14 +409,25 @@ class WireActivity : BaseActivity() {
     private fun resolveNavHostStartDestination(
         initialStartDestination: Direction,
         currentUserId: UserId?,
-    ): Direction =
-        if (currentUserId == null && initialStartDestination.baseRoute !in authenticationGraphRoutes) {
-            when (loginTypeSelector.canUseNewLogin()) {
-                true -> NewLoginScreenDestination()
-                false -> WelcomeScreenDestination()
-            }
-        } else {
-            initialStartDestination
+        currentBaseRoute: String?,
+    ): Direction {
+        if (currentUserId != null || initialStartDestination.baseRoute in authenticationGraphRoutes) {
+            return initialStartDestination
+        }
+        return when (currentBaseRoute) {
+            NewLoginScreenDestination.baseRoute -> NewLoginScreenDestination()
+            LoginScreenDestination.baseRoute -> WelcomeScreenDestination()
+            WelcomeScreenDestination.baseRoute -> WelcomeScreenDestination()
+            NewWelcomeEmptyStartScreenDestination.baseRoute,
+            null -> loggedOutStartDestination()
+            else -> initialStartDestination
+        }
+    }
+
+    private fun loggedOutStartDestination(): Direction =
+        when (loginTypeSelector.canUseNewLogin()) {
+            true -> NewWelcomeEmptyStartScreenDestination()
+            false -> WelcomeScreenDestination()
         }
 
     private fun isNavigationAllowed(navigationCommand: NavigationCommand): Boolean {
@@ -561,7 +572,7 @@ class WireActivity : BaseActivity() {
             )
         }
         val graph = resolveActiveGraph(
-            ActiveGraphRequest(
+            WireActivityActiveGraphRequest(
                 authenticationViewModelGraph = authenticationViewModelGraph,
                 sessionGraph = sessionGraph,
                 effectiveBaseRoute = effectiveBaseRoute,
@@ -600,15 +611,8 @@ class WireActivity : BaseActivity() {
         else -> null
     }
 
-    private fun resolveActiveGraph(request: ActiveGraphRequest): MetroViewModelGraph? = when {
-        request.usesInvalidSessionBackedAuthenticationGraph -> null
-        request.isSessionTransitionInProgress && !request.usesAuthenticationGraph -> null
-        request.usesNoSessionAuthenticationGraph -> request.authenticationViewModelGraph
-        request.sessionGraph != null -> request.sessionGraph
-        request.effectiveBaseRoute in authenticationGraphRoutes -> request.authenticationViewModelGraph
-        request.currentBaseRoute == null -> request.authenticationViewModelGraph
-        else -> null
-    }
+    private fun resolveActiveGraph(request: WireActivityActiveGraphRequest): MetroViewModelGraph? =
+        resolveWireActivityActiveGraph(request)
 
     private fun handleSessionNavigationState(
         state: SessionNavigationState,
@@ -1221,7 +1225,7 @@ private class SessionGraphStoreViewModel(
         }
 }
 
-private data class ActiveGraphRequest(
+internal data class WireActivityActiveGraphRequest(
     val authenticationViewModelGraph: AppAuthenticationViewModelGraph,
     val sessionGraph: AppSessionViewModelGraph?,
     val effectiveBaseRoute: String,
@@ -1273,6 +1277,17 @@ private val authenticationGraphRoutes = setOf(
     LoginScreenDestination.baseRoute,
     NewLoginScreenDestination.baseRoute,
 ) + noSessionAuthenticationGraphRoutes + sessionBackedAuthenticationGraphRoutes
+
+internal fun resolveWireActivityActiveGraph(request: WireActivityActiveGraphRequest): MetroViewModelGraph? = when {
+    request.usesInvalidSessionBackedAuthenticationGraph -> null
+    request.isSessionTransitionInProgress && !request.usesAuthenticationGraph -> null
+    request.usesNoSessionAuthenticationGraph -> request.authenticationViewModelGraph
+    request.effectiveBaseRoute in authenticationGraphRoutes &&
+            request.effectiveBaseRoute !in sessionBackedAuthenticationGraphRoutes -> request.authenticationViewModelGraph
+    request.sessionGraph != null -> request.sessionGraph
+    request.currentBaseRoute == null -> request.authenticationViewModelGraph
+    else -> null
+}
 
 private fun Bundle.sessionBackedAuthenticationUserId(): UserId? {
     val value = getString(SessionBackedAuthenticationNavArgs.USER_ID_VALUE_KEY)

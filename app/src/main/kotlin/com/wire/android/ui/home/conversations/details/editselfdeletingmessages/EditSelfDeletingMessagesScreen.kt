@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.navigation.style.SlideNavigationAnimation
@@ -152,7 +153,11 @@ fun SelectableSelfDeletingItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .selectableBackground(isSelected, onClick = { onSelfDeletionDurationSelected(duration) })
+            .selectableBackground(
+                isSelected = isSelected,
+                role = Role.RadioButton,
+                onClick = { onSelfDeletionDurationSelected(duration) }
+            )
             .background(color = MaterialTheme.wireColorScheme.surface)
             .padding(all = MaterialTheme.wireDimensions.spacing16x)
     ) {

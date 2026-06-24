@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -135,7 +136,8 @@ private fun ConversationScreenTopAppBarContent(
                     .clickable(
                         onClick = onDropDownClick,
                         enabled = isDropDownEnabled && isInteractionEnabled,
-                        onClickLabel = stringResource(R.string.content_description_conversation_open_details_label)
+                        onClickLabel = stringResource(R.string.content_description_conversation_open_details_label),
+                        role = Role.Button
                     )
             ) {
                 val conversationAvatar: ConversationAvatar = conversationInfoViewState.conversationAvatar

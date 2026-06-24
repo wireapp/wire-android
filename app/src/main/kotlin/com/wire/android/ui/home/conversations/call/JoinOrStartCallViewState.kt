@@ -20,12 +20,12 @@ package com.wire.android.ui.home.conversations.call
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
-data class JoinOrInitiateCallViewState(
+data class JoinOrStartCallViewState(
     val hasEstablishedCall: Boolean = false,
-    val dialogType: JoinOrInitiateCallScreenDialogType = JoinOrInitiateCallScreenDialogType.None
+    val dialogType: JoinOrStartCallScreenDialogType = JoinOrStartCallScreenDialogType.None
 )
 
-sealed interface JoinOrInitiateCallViewActions {
-    data class JoinedCall(val conversationId: ConversationId, val userId: UserId) : JoinOrInitiateCallViewActions
-    data class InitiatedCall(val conversationId: ConversationId, val userId: UserId) : JoinOrInitiateCallViewActions
+sealed interface JoinOrStartCallViewActions {
+    data class JoinedCall(val conversationId: ConversationId, val userId: UserId) : JoinOrStartCallViewActions
+    data class InitiatedCall(val conversationId: ConversationId, val userId: UserId) : JoinOrStartCallViewActions
 }

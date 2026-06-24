@@ -61,17 +61,17 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @Suppress("UnusedFlow")
 @ExtendWith(CoroutineTestExtension::class)
-class JoinOrInitiateCallViewModelTest {
+class JoinOrStartCallViewModelTest {
 
     @Test
     fun `given JoinAnyway dialog is displayed, when user dismiss it, then hide it`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withInitialDialogType(JoinOrInitiateCallScreenDialogType.JoinAnyway(conversationId))
+            .withInitialDialogType(JoinOrStartCallScreenDialogType.JoinAnyway(conversationId))
             .arrange()
 
         viewModel.dismissDialog()
 
-        assertIs<JoinOrInitiateCallScreenDialogType.None>(viewModel.joinOrInitiateCallViewState.dialogType)
+        assertIs<JoinOrStartCallScreenDialogType.None>(viewModel.joinOrStartCallViewState.dialogType)
     }
 
     @Test
@@ -92,8 +92,8 @@ class JoinOrInitiateCallViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.answerCall(conversationId = conversationId) }
-            assertIs<JoinOrInitiateCallScreenDialogType.None>(viewModel.joinOrInitiateCallViewState.dialogType)
-            assertEquals(JoinOrInitiateCallViewActions.JoinedCall(conversationId, currentAccount), awaitItem())
+            assertIs<JoinOrStartCallScreenDialogType.None>(viewModel.joinOrStartCallViewState.dialogType)
+            assertEquals(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount), awaitItem())
         }
     }
 
@@ -106,7 +106,7 @@ class JoinOrInitiateCallViewModelTest {
         viewModel.joinOngoingCall(conversationId)
         advanceUntilIdle()
 
-        assertIs<JoinOrInitiateCallScreenDialogType.JoinAnyway>(viewModel.joinOrInitiateCallViewState.dialogType).also {
+        assertIs<JoinOrStartCallScreenDialogType.JoinAnyway>(viewModel.joinOrStartCallViewState.dialogType).also {
             assertEquals(conversationId, it.conversationId)
         }
         coVerify(exactly = 0) { arrangement.answerCall(conversationId = any()) }
@@ -124,8 +124,8 @@ class JoinOrInitiateCallViewModelTest {
 
             coVerify(exactly = 1) { arrangement.endCall(establishedConversationId) }
             coVerify(exactly = 1) { arrangement.answerCall(conversationId = conversationId) }
-            assertIs<JoinOrInitiateCallScreenDialogType.None>(viewModel.joinOrInitiateCallViewState.dialogType)
-            assertEquals(JoinOrInitiateCallViewActions.JoinedCall(conversationId, currentAccount), awaitItem())
+            assertIs<JoinOrStartCallScreenDialogType.None>(viewModel.joinOrStartCallViewState.dialogType)
+            assertEquals(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount), awaitItem())
         }
     }
 
@@ -139,7 +139,7 @@ class JoinOrInitiateCallViewModelTest {
             viewModel.initiateCall(conversationId)
             advanceUntilIdle()
 
-            assertEquals(JoinOrInitiateCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())
+            assertEquals(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())
             coVerify(exactly = 1) { arrangement.endCall(establishedConversationId) }
         }
     }
@@ -154,19 +154,19 @@ class JoinOrInitiateCallViewModelTest {
         establishedCalls.emit(listOf(establishedCall))
         advanceUntilIdle()
 
-        assertTrue(viewModel.joinOrInitiateCallViewState.hasEstablishedCall)
+        assertTrue(viewModel.joinOrStartCallViewState.hasEstablishedCall)
 
         establishedCalls.emit(emptyList())
         advanceUntilIdle()
 
-        assertFalse(viewModel.joinOrInitiateCallViewState.hasEstablishedCall)
+        assertFalse(viewModel.joinOrStartCallViewState.hasEstablishedCall)
         viewModel.actions.test {
             viewModel.joinAnyway(conversationId)
             advanceUntilIdle()
 
             coVerify(exactly = 0) { arrangement.endCall(establishedConversationId) }
             coVerify(exactly = 1) { arrangement.answerCall(conversationId = conversationId) }
-            assertEquals(JoinOrInitiateCallViewActions.JoinedCall(conversationId, currentAccount), awaitItem())
+            assertEquals(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount), awaitItem())
         }
     }
 
@@ -179,7 +179,7 @@ class JoinOrInitiateCallViewModelTest {
         viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
         advanceUntilIdle()
 
-        assertIs<JoinOrInitiateCallScreenDialogType.NoConnectivity>(viewModel.joinOrInitiateCallViewState.dialogType)
+        assertIs<JoinOrStartCallScreenDialogType.NoConnectivity>(viewModel.joinOrStartCallViewState.dialogType)
     }
 
     @Test
@@ -191,7 +191,7 @@ class JoinOrInitiateCallViewModelTest {
         viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
         advanceUntilIdle()
 
-        assertIs<JoinOrInitiateCallScreenDialogType.VerificationDegraded>(viewModel.joinOrInitiateCallViewState.dialogType)
+        assertIs<JoinOrStartCallScreenDialogType.VerificationDegraded>(viewModel.joinOrStartCallViewState.dialogType)
     }
 
     @Test
@@ -204,8 +204,8 @@ class JoinOrInitiateCallViewModelTest {
             viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
             advanceUntilIdle()
 
-            assertEquals(JoinOrInitiateCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())
-            assertIs<JoinOrInitiateCallScreenDialogType.None>(viewModel.joinOrInitiateCallViewState.dialogType)
+            assertEquals(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())
+            assertIs<JoinOrStartCallScreenDialogType.None>(viewModel.joinOrStartCallViewState.dialogType)
         }
     }
 
@@ -219,10 +219,10 @@ class JoinOrInitiateCallViewModelTest {
             viewModel.startCallAfterDegradedVerification(conversationId, Conversation.Type.Group.Regular)
             advanceUntilIdle()
 
-            assertEquals(JoinOrInitiateCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())
+            assertEquals(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())
             coVerify(exactly = 1) { arrangement.setUserInformedAboutVerification(conversationId) }
             coVerify(exactly = 0) { arrangement.observeDegradedConversationNotified(any()) }
-            assertIs<JoinOrInitiateCallScreenDialogType.None>(viewModel.joinOrInitiateCallViewState.dialogType)
+            assertIs<JoinOrStartCallScreenDialogType.None>(viewModel.joinOrStartCallViewState.dialogType)
         }
     }
 
@@ -236,8 +236,8 @@ class JoinOrInitiateCallViewModelTest {
             viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
             advanceUntilIdle()
 
-            assertEquals(JoinOrInitiateCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())
-            assertIs<JoinOrInitiateCallScreenDialogType.None>(viewModel.joinOrInitiateCallViewState.dialogType)
+            assertEquals(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())
+            assertIs<JoinOrStartCallScreenDialogType.None>(viewModel.joinOrStartCallViewState.dialogType)
         }
     }
 
@@ -250,7 +250,7 @@ class JoinOrInitiateCallViewModelTest {
         viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
         advanceUntilIdle()
 
-        assertIs<JoinOrInitiateCallScreenDialogType.CallConfirmation>(viewModel.joinOrInitiateCallViewState.dialogType).also {
+        assertIs<JoinOrStartCallScreenDialogType.CallConfirmation>(viewModel.joinOrStartCallViewState.dialogType).also {
             assertEquals(conversationId, it.conversationId)
             assertEquals(LARGE_GROUP_PARTICIPANTS_COUNT, it.participantsCount)
             assertEquals(Conversation.Type.Group.Regular, it.conversationType)
@@ -265,9 +265,9 @@ class JoinOrInitiateCallViewModelTest {
             viewModel.startCallAfterConfirming(conversationId, Conversation.Type.Group.Regular)
             advanceUntilIdle()
 
-            assertEquals(JoinOrInitiateCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())
+            assertEquals(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())
             coVerify(exactly = 0) { arrangement.observeParticipantsForConversation(any()) }
-            assertIs<JoinOrInitiateCallScreenDialogType.None>(viewModel.joinOrInitiateCallViewState.dialogType)
+            assertIs<JoinOrStartCallScreenDialogType.None>(viewModel.joinOrStartCallViewState.dialogType)
         }
     }
 
@@ -281,8 +281,8 @@ class JoinOrInitiateCallViewModelTest {
             viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
             advanceUntilIdle()
 
-            assertEquals(JoinOrInitiateCallViewActions.JoinedCall(conversationId, currentAccount), awaitItem())
-            assertIs<JoinOrInitiateCallScreenDialogType.None>(viewModel.joinOrInitiateCallViewState.dialogType)
+            assertEquals(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount), awaitItem())
+            assertIs<JoinOrStartCallScreenDialogType.None>(viewModel.joinOrStartCallViewState.dialogType)
         }
     }
 
@@ -295,7 +295,7 @@ class JoinOrInitiateCallViewModelTest {
         viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
         advanceUntilIdle()
 
-        assertIs<JoinOrInitiateCallScreenDialogType.OngoingActiveCall>(viewModel.joinOrInitiateCallViewState.dialogType).also {
+        assertIs<JoinOrStartCallScreenDialogType.OngoingActiveCall>(viewModel.joinOrStartCallViewState.dialogType).also {
             assertEquals(conversationId, it.conversationId)
         }
     }
@@ -310,7 +310,7 @@ class JoinOrInitiateCallViewModelTest {
         viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
         advanceUntilIdle()
 
-        assertIs<JoinOrInitiateCallScreenDialogType.CallingFeatureUnavailable.TeamMember>(viewModel.joinOrInitiateCallViewState.dialogType)
+        assertIs<JoinOrStartCallScreenDialogType.CallingFeatureUnavailable.TeamMember>(viewModel.joinOrStartCallViewState.dialogType)
     }
 
     @Test
@@ -323,7 +323,7 @@ class JoinOrInitiateCallViewModelTest {
         viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
         advanceUntilIdle()
 
-        assertIs<JoinOrInitiateCallScreenDialogType.CallingFeatureUnavailable.TeamAdmin>(viewModel.joinOrInitiateCallViewState.dialogType)
+        assertIs<JoinOrStartCallScreenDialogType.CallingFeatureUnavailable.TeamAdmin>(viewModel.joinOrStartCallViewState.dialogType)
     }
 
     @Test
@@ -336,7 +336,7 @@ class JoinOrInitiateCallViewModelTest {
         viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
         advanceUntilIdle()
 
-        assertIs<JoinOrInitiateCallScreenDialogType.CallingFeatureUnavailable.Other>(viewModel.joinOrInitiateCallViewState.dialogType)
+        assertIs<JoinOrStartCallScreenDialogType.CallingFeatureUnavailable.Other>(viewModel.joinOrStartCallViewState.dialogType)
     }
 
     private class Arrangement {
@@ -418,13 +418,13 @@ class JoinOrInitiateCallViewModelTest {
             coEvery { observeEstablishedCalls() } returns calls
         }
 
-        fun withInitialDialogType(dialogType: JoinOrInitiateCallScreenDialogType) = apply {
+        fun withInitialDialogType(dialogType: JoinOrStartCallScreenDialogType) = apply {
             this.initialDialogType = dialogType
         }
 
-        private var initialDialogType: JoinOrInitiateCallScreenDialogType = JoinOrInitiateCallScreenDialogType.None
+        private var initialDialogType: JoinOrStartCallScreenDialogType = JoinOrStartCallScreenDialogType.None
 
-        fun arrange() = this to JoinOrInitiateCallViewModel(
+        fun arrange() = this to JoinOrStartCallViewModel(
             currentAccount = currentAccount,
             observeEstablishedCalls = observeEstablishedCalls,
             observeParticipantsForConversation = observeParticipantsForConversation,
@@ -435,7 +435,7 @@ class JoinOrInitiateCallViewModelTest {
             setUserInformedAboutVerification = setUserInformedAboutVerification,
             observeDegradedConversationNotified = observeDegradedConversationNotified,
             observeSelf = observeSelfUserUseCase,
-            initialState = JoinOrInitiateCallViewState(dialogType = initialDialogType)
+            initialState = JoinOrStartCallViewState(dialogType = initialDialogType)
         )
     }
 

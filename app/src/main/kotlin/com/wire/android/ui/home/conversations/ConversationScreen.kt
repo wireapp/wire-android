@@ -144,8 +144,8 @@ import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
-import com.wire.android.ui.home.conversations.call.HandleJoinOrInitiateCallScreenDialogs
-import com.wire.android.ui.home.conversations.call.JoinOrInitiateCallViewActions
+import com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs
+import com.wire.android.ui.home.conversations.call.JoinOrStartCallViewActions
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
@@ -342,12 +342,12 @@ fun ConversationScreen(
 
     HandleActions(conversationCallViewModel.actions) { action ->
         when (action) {
-            is JoinOrInitiateCallViewActions.InitiatedCall -> {
+            is JoinOrStartCallViewActions.InitiatedCall -> {
                 context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
             }
 
-            is JoinOrInitiateCallViewActions.JoinedCall -> {
+            is JoinOrStartCallViewActions.JoinedCall -> {
                 context.startActivity(getOngoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
             }
@@ -386,7 +386,7 @@ fun ConversationScreen(
         ConversationScreenDialogType.NONE -> {}
     }
 
-    conversationCallViewModel.HandleJoinOrInitiateCallScreenDialogs()
+    conversationCallViewModel.HandleJoinOrStartCallScreenDialogs()
 
     ConversationScreen(
         bannerMessage = conversationBannerViewModel.bannerState,

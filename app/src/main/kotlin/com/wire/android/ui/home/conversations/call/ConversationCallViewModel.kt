@@ -63,7 +63,7 @@ class ConversationCallViewModel(
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val observeConferenceCallingEnabled: ObserveConferenceCallingEnabledUseCase,
     private val observeSelf: ObserveSelfUserUseCase
-) : JoinOrInitiateCallViewModel(
+) : JoinOrStartCallViewModel(
     currentAccount = currentAccount,
     observeEstablishedCalls = observeEstablishedCalls,
     observeParticipantsForConversation = observeParticipantsForConversation,

@@ -52,7 +52,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
-open class JoinOrInitiateCallViewModel(
+open class JoinOrStartCallViewModel(
     val currentAccount: UserId,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
@@ -63,10 +63,10 @@ open class JoinOrInitiateCallViewModel(
     private val setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase,
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val observeSelf: ObserveSelfUserUseCase,
-    private val initialState: JoinOrInitiateCallViewState = JoinOrInitiateCallViewState() // for testing
-) : ActionsViewModel<JoinOrInitiateCallViewActions>() {
+    private val initialState: JoinOrStartCallViewState = JoinOrStartCallViewState() // for testing
+) : ActionsViewModel<JoinOrStartCallViewActions>() {
 
-    var joinOrInitiateCallViewState by mutableStateOf(initialState)
+    var joinOrStartCallViewState by mutableStateOf(initialState)
         @VisibleForTesting internal set
 
     @VisibleForTesting
@@ -96,7 +96,7 @@ open class JoinOrInitiateCallViewModel(
                 } else {
                     null
                 }
-                joinOrInitiateCallViewState = joinOrInitiateCallViewState.copy(hasEstablishedCall = hasEstablishedCall)
+                joinOrStartCallViewState = joinOrStartCallViewState.copy(hasEstablishedCall = hasEstablishedCall)
             }
     }
 
@@ -112,8 +112,8 @@ open class JoinOrInitiateCallViewModel(
 
     fun joinOngoingCall(conversationId: ConversationId) {
         viewModelScope.launch {
-            if (joinOrInitiateCallViewState.hasEstablishedCall) {
-                updateDialogType(JoinOrInitiateCallScreenDialogType.JoinAnyway(conversationId))
+            if (joinOrStartCallViewState.hasEstablishedCall) {
+                updateDialogType(JoinOrStartCallScreenDialogType.JoinAnyway(conversationId))
             } else {
                 answerAndOpenOngoingCall(conversationId)
             }
@@ -121,9 +121,9 @@ open class JoinOrInitiateCallViewModel(
     }
 
     private suspend fun answerAndOpenOngoingCall(conversationId: ConversationId) {
-        updateDialogType(JoinOrInitiateCallScreenDialogType.None)
+        updateDialogType(JoinOrStartCallScreenDialogType.None)
         answerCall(conversationId = conversationId)
-        sendAction(JoinOrInitiateCallViewActions.JoinedCall(conversationId, currentAccount))
+        sendAction(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount))
     }
 
     fun initiateCall(conversationId: ConversationId) {
@@ -136,7 +136,7 @@ open class JoinOrInitiateCallViewModel(
         establishedCallConversationId?.let {
             endCall(it)
         }
-        sendAction(JoinOrInitiateCallViewActions.InitiatedCall(conversationId, currentAccount))
+        sendAction(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount))
     }
 
     fun startCallIfPossible(conversationId: ConversationId, conversationType: Conversation.Type) {
@@ -165,9 +165,9 @@ open class JoinOrInitiateCallViewModel(
         shouldCheckVerification: Boolean = true,
     ) = updateDialogType(
         when {
-            !hasStableConnectivity() -> JoinOrInitiateCallScreenDialogType.NoConnectivity
+            !hasStableConnectivity() -> JoinOrStartCallScreenDialogType.NoConnectivity
             shouldCheckVerification && shouldInformAboutVerification(conversationId) ->
-                JoinOrInitiateCallScreenDialogType.VerificationDegraded(conversationId, conversationType)
+                JoinOrStartCallScreenDialogType.VerificationDegraded(conversationId, conversationType)
 
             else -> dialogTypeForCallAvailability(conversationId, conversationType, shouldCheckParticipantCount)
         }
@@ -181,23 +181,23 @@ open class JoinOrInitiateCallViewModel(
         ConferenceCallingResult.Enabled -> {
             val participantsCount = if (shouldCheckParticipantCount) participantsCountForConversation(conversationId) else null
             if (participantsCount != null && participantsCount > MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT) {
-                JoinOrInitiateCallScreenDialogType.CallConfirmation(conversationId, participantsCount, conversationType)
+                JoinOrStartCallScreenDialogType.CallConfirmation(conversationId, participantsCount, conversationType)
             } else {
                 initiateCallInternal(conversationId)
-                JoinOrInitiateCallScreenDialogType.None
+                JoinOrStartCallScreenDialogType.None
             }
         }
 
         ConferenceCallingResult.Disabled.Established -> {
-            sendAction(JoinOrInitiateCallViewActions.JoinedCall(conversationId, currentAccount))
-            JoinOrInitiateCallScreenDialogType.None
+            sendAction(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount))
+            JoinOrStartCallScreenDialogType.None
         }
 
-        ConferenceCallingResult.Disabled.OngoingCall -> JoinOrInitiateCallScreenDialogType.OngoingActiveCall(conversationId)
+        ConferenceCallingResult.Disabled.OngoingCall -> JoinOrStartCallScreenDialogType.OngoingActiveCall(conversationId)
         ConferenceCallingResult.Disabled.Unavailable -> when {
-            selfTeamRole.value.isInternal() -> JoinOrInitiateCallScreenDialogType.CallingFeatureUnavailable.TeamMember
-            selfTeamRole.value.isTeamAdmin() -> JoinOrInitiateCallScreenDialogType.CallingFeatureUnavailable.TeamAdmin
-            else -> JoinOrInitiateCallScreenDialogType.CallingFeatureUnavailable.Other
+            selfTeamRole.value.isInternal() -> JoinOrStartCallScreenDialogType.CallingFeatureUnavailable.TeamMember
+            selfTeamRole.value.isTeamAdmin() -> JoinOrStartCallScreenDialogType.CallingFeatureUnavailable.TeamAdmin
+            else -> JoinOrStartCallScreenDialogType.CallingFeatureUnavailable.Other
         }
     }
 
@@ -221,11 +221,11 @@ open class JoinOrInitiateCallViewModel(
     private suspend fun shouldInformAboutVerification(conversationId: ConversationId) =
         observeDegradedConversationNotified(conversationId).first().not()
 
-    private fun updateDialogType(dialogType: JoinOrInitiateCallScreenDialogType) {
-        joinOrInitiateCallViewState = joinOrInitiateCallViewState.copy(dialogType = dialogType)
+    private fun updateDialogType(dialogType: JoinOrStartCallScreenDialogType) {
+        joinOrStartCallViewState = joinOrStartCallViewState.copy(dialogType = dialogType)
     }
 
-    fun dismissDialog() = updateDialogType(JoinOrInitiateCallScreenDialogType.None)
+    fun dismissDialog() = updateDialogType(JoinOrStartCallScreenDialogType.None)
 
     companion object {
         const val DELAY_END_CALL = 200L

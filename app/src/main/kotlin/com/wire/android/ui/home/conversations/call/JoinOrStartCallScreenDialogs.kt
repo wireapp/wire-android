@@ -33,38 +33,38 @@ import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 
-sealed interface JoinOrInitiateCallScreenDialogType {
-    data class JoinAnyway(val conversationId: ConversationId) : JoinOrInitiateCallScreenDialogType
+sealed interface JoinOrStartCallScreenDialogType {
+    data class JoinAnyway(val conversationId: ConversationId) : JoinOrStartCallScreenDialogType
     data class VerificationDegraded(
         val conversationId: ConversationId,
         val conversationType: Conversation.Type
-    ) : JoinOrInitiateCallScreenDialogType
+    ) : JoinOrStartCallScreenDialogType
 
-    data class OngoingActiveCall(val conversationId: ConversationId) : JoinOrInitiateCallScreenDialogType
-    data object NoConnectivity : JoinOrInitiateCallScreenDialogType
+    data class OngoingActiveCall(val conversationId: ConversationId) : JoinOrStartCallScreenDialogType
+    data object NoConnectivity : JoinOrStartCallScreenDialogType
     data class CallConfirmation(
         val conversationId: ConversationId,
         val participantsCount: Int,
         val conversationType: Conversation.Type
-    ) : JoinOrInitiateCallScreenDialogType
+    ) : JoinOrStartCallScreenDialogType
 
-    sealed interface CallingFeatureUnavailable : JoinOrInitiateCallScreenDialogType {
+    sealed interface CallingFeatureUnavailable : JoinOrStartCallScreenDialogType {
         data object TeamMember : CallingFeatureUnavailable
         data object TeamAdmin : CallingFeatureUnavailable
         data object Other : CallingFeatureUnavailable
     }
 
-    data object None : JoinOrInitiateCallScreenDialogType
+    data object None : JoinOrStartCallScreenDialogType
 }
 
 @Composable
-fun JoinOrInitiateCallViewModel.HandleJoinOrInitiateCallScreenDialogs() = when (val dialogType = joinOrInitiateCallViewState.dialogType) {
-    is JoinOrInitiateCallScreenDialogType.JoinAnyway -> JoinAnywayDialog(
+fun JoinOrStartCallViewModel.HandleJoinOrStartCallScreenDialogs() = when (val dialogType = joinOrStartCallViewState.dialogType) {
+    is JoinOrStartCallScreenDialogType.JoinAnyway -> JoinAnywayDialog(
         onDismiss = ::dismissDialog,
         onConfirm = { joinAnyway(dialogType.conversationId) },
     )
 
-    is JoinOrInitiateCallScreenDialogType.OngoingActiveCall -> OngoingActiveCallDialog(
+    is JoinOrStartCallScreenDialogType.OngoingActiveCall -> OngoingActiveCallDialog(
         onInitiateCallAnyway = {
             initiateCall(dialogType.conversationId)
             dismissDialog()
@@ -72,32 +72,32 @@ fun JoinOrInitiateCallViewModel.HandleJoinOrInitiateCallScreenDialogs() = when (
         onDialogDismiss = ::dismissDialog
     )
 
-    JoinOrInitiateCallScreenDialogType.NoConnectivity -> CoreFailureErrorDialog(
+    JoinOrStartCallScreenDialogType.NoConnectivity -> CoreFailureErrorDialog(
         coreFailure = NetworkFailure.NoNetworkConnection(null),
         onDialogDismiss = ::dismissDialog
     )
 
-    is JoinOrInitiateCallScreenDialogType.CallConfirmation -> ConfirmStartCallDialog(
+    is JoinOrStartCallScreenDialogType.CallConfirmation -> ConfirmStartCallDialog(
         participantsCount = dialogType.participantsCount,
         onConfirm = { startCallAfterConfirming(dialogType.conversationId, dialogType.conversationType) },
         onDialogDismiss = ::dismissDialog
     )
 
-    JoinOrInitiateCallScreenDialogType.CallingFeatureUnavailable.Other ->
+    JoinOrStartCallScreenDialogType.CallingFeatureUnavailable.Other ->
         CallingFeatureUnavailableDialog(onDialogDismiss = ::dismissDialog)
 
-    JoinOrInitiateCallScreenDialogType.CallingFeatureUnavailable.TeamMember ->
+    JoinOrStartCallScreenDialogType.CallingFeatureUnavailable.TeamMember ->
         CallingFeatureUnavailableTeamMemberDialog(onDialogDismiss = ::dismissDialog)
 
-    JoinOrInitiateCallScreenDialogType.CallingFeatureUnavailable.TeamAdmin -> CallingFeatureUnavailableTeamAdminDialog(
+    JoinOrStartCallScreenDialogType.CallingFeatureUnavailable.TeamAdmin -> CallingFeatureUnavailableTeamAdminDialog(
         onUpgradeAction = LocalUriHandler.current::openUri,
         onDialogDismiss = ::dismissDialog
     )
 
-    is JoinOrInitiateCallScreenDialogType.VerificationDegraded -> SureAboutCallingInDegradedConversationDialog(
+    is JoinOrStartCallScreenDialogType.VerificationDegraded -> SureAboutCallingInDegradedConversationDialog(
         callAnyway = { startCallAfterDegradedVerification(dialogType.conversationId, dialogType.conversationType) },
         onDialogDismiss = ::dismissDialog
     )
 
-    JoinOrInitiateCallScreenDialogType.None -> {}
+    JoinOrStartCallScreenDialogType.None -> {}
 }

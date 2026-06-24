@@ -112,7 +112,7 @@ class ConversationCallViewModelTest {
         viewModel.startCallIfPossible(Conversation.Type.Group.Regular)
         advanceUntilIdle()
 
-        assertIs<JoinOrInitiateCallScreenDialogType.CallConfirmation>(viewModel.joinOrInitiateCallViewState.dialogType).also {
+        assertIs<JoinOrStartCallScreenDialogType.CallConfirmation>(viewModel.joinOrStartCallViewState.dialogType).also {
             assertEquals(LARGE_GROUP_PARTICIPANTS_COUNT, it.participantsCount)
         }
         coVerify(exactly = 1) { arrangement.observeParticipantsForConversation(arrangement.conversationId) }

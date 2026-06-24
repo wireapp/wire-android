@@ -26,6 +26,9 @@ import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,9 +36,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.SingleIn
 
 /**
  * This is helper class that should be used for starting/stopping any services.
@@ -139,16 +139,14 @@ class ServicesManager @Inject constructor(
         PersistentWebSocketService.isServiceStarted
 
     // Pending messages foreground sync
-    fun startPendingMessagesForegroundService(userId: UserId) {
-        if (PendingMessagesForegroundService.isServiceStarted) {
-            appLogger.i("$TAG: PendingMessagesForegroundService already started, not starting again")
-        } else {
-            startService(PendingMessagesForegroundService.newIntent(context, userId))
-        }
+    fun startPendingMessagesForegroundService() {
+        startService(PendingMessagesForegroundService.newIntent(context))
     }
 
     fun stopPendingMessagesForegroundService() {
-        stopService(PendingMessagesForegroundService.stopIntent(context))
+        if (PendingMessagesForegroundService.isServiceStarted) {
+            startService(PendingMessagesForegroundService.stopIntent(context))
+        }
     }
 
     // Playing AudioMessage service

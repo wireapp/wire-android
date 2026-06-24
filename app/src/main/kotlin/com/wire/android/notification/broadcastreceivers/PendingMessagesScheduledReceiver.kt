@@ -23,7 +23,6 @@ import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
 import com.wire.android.services.ServicesManager
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.PendingMessagesForegroundSync
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
@@ -36,14 +35,8 @@ class PendingMessagesScheduledReceiver @Inject constructor(
 
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
-            PendingMessagesForegroundSync.ACTION_SENDING_OF_PENDING_MESSAGES_SCHEDULED -> {
-                val userId = intent.userId()
-                if (userId == null) {
-                    appLogger.w("$TAG: missing user id, skipping pending messages foreground service")
-                    return
-                }
-                servicesManager.startPendingMessagesForegroundService(userId)
-            }
+            PendingMessagesForegroundSync.ACTION_SENDING_OF_PENDING_MESSAGES_SCHEDULED ->
+                servicesManager.startPendingMessagesForegroundService()
 
             PendingMessagesForegroundSync.ACTION_SENDING_OF_PENDING_MESSAGES_CANCELLED ->
                 servicesManager.stopPendingMessagesForegroundService()
@@ -58,10 +51,4 @@ class PendingMessagesScheduledReceiver @Inject constructor(
     companion object {
         private const val TAG = "PendingMessagesScheduledReceiver"
     }
-}
-
-private fun Intent.userId(): UserId? {
-    val value = getStringExtra(PendingMessagesForegroundSync.EXTRA_USER_ID_VALUE)
-    val domain = getStringExtra(PendingMessagesForegroundSync.EXTRA_USER_ID_DOMAIN)
-    return if (value != null && domain != null) UserId(value, domain) else null
 }

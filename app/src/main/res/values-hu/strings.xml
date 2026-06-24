@@ -180,10 +180,7 @@
     <string name="content_description_edit_guests_option_back_btn">Vissza a beszélgetés részleteihez</string>
     <string name="content_description_edit_self_delete_back_btn">Vissza a beszélgetés részleteihez</string>
     <string name="content_description_accept_or_ignore_connection_label">a kérelem elfogadása vagy elutasítása</string>
-    <string name="content_description_change_it_label">megváltoztatás</string>
     <string name="content_description_alert">Riasztás</string>
-    <string name="content_description_drop_down">Lenyitás</string>
-    <string name="content_description_close_dropdown">lenyíló elem összecsukása</string>
     <string name="content_description_open_notification_settings_label">értesítési beállítások megnyitása</string>
     <string name="content_description_new_conversation_close_btn">Az új beszélgetés lap bezárása</string>
     <string name="content_description_new_conversation_back_btn">Vissza az új beszélgetés lapra</string>
@@ -968,9 +965,6 @@
     <string name="team_settings_changed">A csapatbeállítások módosultak</string>
     <string name="sharing_files_enabled">Bármilyen típusú fájl megosztása és fogadása mostantól engedélyezve</string>
     <string name="sharing_files_disabled">Bármilyen típusú fájl megosztása és fogadása mostantól tiltva</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (alapértelmezett)"</string>
-    <string name="wire_dropdown_placeholder">Jelöljön ki egy elemet</string>
     <string name="change">Módosítás</string>
     <string name="allow_guests">Vendégek engedélyezése</string>
     <string name="allow_guest_switch_description">Megnyitja a beszélgetést a csapatán kívüli személyek számára is. Ezt később bármikor megváltoztathatja.</string>

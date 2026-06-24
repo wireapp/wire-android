@@ -48,6 +48,7 @@ import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.forceLowercase
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 internal fun BackendSelectorDropDown() {
@@ -63,7 +64,7 @@ internal fun BackendSelectorDropDown() {
     ) {
         WireDropDown(
             modifier = Modifier.alpha(0.5f),
-            items = backendConfigs.map { it.first },
+            items = backendConfigs.map { it.first }.toImmutableList(),
             label = null,
             autoUpdateSelection = false,
             placeholder = "Change application backend",

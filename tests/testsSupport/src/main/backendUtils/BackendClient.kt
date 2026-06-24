@@ -1121,6 +1121,36 @@ class BackendClient(
         }
     }
 
+    suspend fun enableForceAppLockFeature(team: Team, seconds: Int) {
+        val teamId = Uri.encode(team.id)
+        val url = URI("i/teams/$teamId/features/appLock".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        val requestBody = JSONObject().apply {
+            put("status", "enabled")
+            put(
+                "config",
+                JSONObject().apply {
+                    put("enforceAppLock", true)
+                    put("inactivityTimeoutSecs", seconds)
+                }
+            )
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PUT",
+            headers = headers,
+            body = requestBody.toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
     suspend fun disableConsentPopup(user: ClientUser) {
         val privacyProperty = JSONObject().apply {
             put("improve_wire", false)

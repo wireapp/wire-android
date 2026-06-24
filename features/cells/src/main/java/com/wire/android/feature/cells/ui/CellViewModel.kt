@@ -107,6 +107,8 @@ class CellViewModel(
     private val networkStateObserver: NetworkStateObserver,
     private val getConversationName: GetConversationNameUseCase,
     private val getUserName: GetUserNameUseCase,
+    /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
+    val offlineFilesEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
 
     private val searchNavArgs: SearchNavArgs? = try {
@@ -273,7 +275,7 @@ class CellViewModel(
     }.flatMapLatest { (cellAvailable, online) ->
         when {
             !cellAvailable || searchNavArgs != null -> flowOf(emptyData)
-            !online -> offlineNodesFlow
+            offlineFilesEnabled && !online -> offlineNodesFlow
             else -> sharedNodesFlow
         }
     }

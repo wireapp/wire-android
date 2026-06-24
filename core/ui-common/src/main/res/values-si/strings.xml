@@ -21,4 +21,10 @@
     <!-- Connections -->
     <!-- Missing keyPackages dialog -->
     <!-- Search Contact-->
+    <string name="content_description_change_it_label">එය වෙනස් කරන්න</string>
+    <string name="wire_dropdown_placeholder">අථකයක් තෝරන්න</string>
+    <string name="content_description_drop_down">පතන</string>
+    <string name="content_description_close_dropdown">පතන ලැයිස්තුව වසන්න</string>
+    <!--wire dropdown-->
+        <string name="wire_dropdown_default_indicator">" (පෙරනිමි)"</string>
 </resources>

@@ -95,6 +95,7 @@ fun WireTextField(
     onTap: (() -> Unit)? = null,
     testTag: String = String.EMPTY,
     validateKeyboardOptions: Boolean = true,
+    readOnly: Boolean = false,
     enabled: Boolean = state !is WireTextFieldState.Disabled,
 ) {
     if (validateKeyboardOptions) {
@@ -150,7 +151,7 @@ fun WireTextField(
                 inputTransformation = inputTransformation,
                 outputTransformation = outputTransformation,
                 scrollState = scrollState,
-                readOnly = state is WireTextFieldState.ReadOnly,
+                readOnly = readOnly,
                 enabled = enabled,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 interactionSource = interactionSource,

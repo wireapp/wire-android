@@ -206,8 +206,6 @@
     <string name="content_description_edit_self_delete_back_btn">Zurück zu Unterhaltungsdetails</string>
     <string name="content_description_accept_or_ignore_connection_label">Anfrage akzeptieren oder ignorieren</string>
     <string name="content_description_alert">Hinweis</string>
-    <string name="content_description_drop_down">Auswahlliste</string>
-    <string name="content_description_close_dropdown">Dropdown schließen</string>
     <string name="content_description_open_notification_settings_label">Benachrichtigungseinstellungen öffnen</string>
     <string name="content_description_new_conversation_close_btn">Ansicht neue Unterhaltung schließen</string>
     <string name="content_description_new_conversation_back_btn">Zurück zur Ansicht neue Unterhaltung</string>
@@ -1129,9 +1127,6 @@
     <string name="team_settings_changed">Team-Einstellungen geändert</string>
     <string name="sharing_files_enabled">Das Teilen und Empfangen von Dateien jeder Art ist jetzt aktiviert</string>
     <string name="sharing_files_disabled">Das Teilen und Empfangen von Dateien jeder Art ist jetzt deaktiviert</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (Standard)"</string>
-    <string name="wire_dropdown_placeholder">Bitte auswählen</string>
     <string name="change">Ändern</string>
     <string name="allow_guests">Gäste zulassen</string>
     <string name="allow_guest_switch_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams. Diese Einstellung kann später jederzeit geändert werden.</string>

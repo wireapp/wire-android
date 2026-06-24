@@ -152,7 +152,7 @@ class MeetingListViewModelTest {
         title = "Meeting",
         startTime = startTime,
         endTime = startTime + 30.minutes,
-        repeatingInterval = null,
+        repeatingInterval = MeetingItem.RepeatingInterval.Never,
         ongoingCallStatus = null,
         selfRole = MeetingItem.SelfRole.Admin,
     )

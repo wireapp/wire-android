@@ -17,13 +17,15 @@
  */
 package call.models
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CallRequest(
-    @SerializedName("conversationId")
+    @SerialName("conversationId")
     val conversationId: String = "",
 
-    @SerializedName("timeout")
+    @SerialName("timeout")
     val timeout: Long = DEFAULT_CALL_TIMEOUT
 ) {
     companion object {

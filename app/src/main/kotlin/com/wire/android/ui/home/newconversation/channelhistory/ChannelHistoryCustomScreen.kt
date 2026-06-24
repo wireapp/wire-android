@@ -50,6 +50,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
+import kotlinx.collections.immutable.toImmutableList
 
 @WireNewConversationDestination(
     navArgs = ChannelHistoryCustomArgs::class,
@@ -125,7 +126,7 @@ fun ChannelHistoryCustomScreenContent(
             val items = ChannelHistoryType.On.Specific.AmountType.entries
             val itemsNames = items.map { pluralStringResource(it.nameResId, amountState.text.toString().toIntOrNull() ?: 0) }
             WireDropDown(
-                items = itemsNames,
+                items = itemsNames.toImmutableList(),
                 defaultItemIndex = 0,
                 selectedItemIndex = items.indexOf(typeState),
                 label = stringResource(R.string.channel_history_custom_time_label),

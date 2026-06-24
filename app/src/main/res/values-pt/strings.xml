@@ -178,10 +178,7 @@
     <string name="content_description_edit_guests_option_back_btn">Voltar para os detalhes da conversa</string>
     <string name="content_description_edit_self_delete_back_btn">Voltar para os detalhes da conversa</string>
     <string name="content_description_accept_or_ignore_connection_label">aceitar ou ignorar a solicitação</string>
-    <string name="content_description_change_it_label">alterar isto</string>
     <string name="content_description_alert">Alerta</string>
-    <string name="content_description_drop_down">Menu suspenso</string>
-    <string name="content_description_close_dropdown">fechar menu suspenso</string>
     <string name="content_description_open_notification_settings_label">abrir configurações de notificação</string>
     <string name="content_description_new_conversation_close_btn">Fechar visualização de novas conversas</string>
     <string name="content_description_new_conversation_name_back_btn">Voltar à visualização de nova conversa</string>
@@ -916,9 +913,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="team_settings_changed">Configurações do time mudaram</string>
     <string name="sharing_files_enabled">Compartilhar e receber arquivos de todos os tipos está habilitado</string>
     <string name="sharing_files_disabled">Compartilhar e receber arquivos de todos os tipos está desabilitado</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (padrão)"</string>
-    <string name="wire_dropdown_placeholder">Selecione um item</string>
     <string name="change">Trocar</string>
     <string name="allow_guests">Permitir convidados</string>
     <string name="allow_guest_switch_description">Abrir esta conversa para pessoas fora do seu time. Você pode sempre alterar isso depois.</string>

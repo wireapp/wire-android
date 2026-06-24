@@ -24,10 +24,6 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -50,18 +46,18 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutCallback
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -76,6 +72,9 @@ class PendingMessagesForegroundService : Service() {
 
     @Inject
     lateinit var notificationChannelsManager: NotificationChannelsManager
+
+    @Inject
+    lateinit var networkStateObserver: NetworkStateObserver
 
     @Inject
     private lateinit var sendPendingMessagesAfterForegroundSync: SendPendingMessagesAfterForegroundSyncUseCase
@@ -132,9 +131,7 @@ class PendingMessagesForegroundService : Service() {
     }
 
     private suspend fun run() {
-        val connected = withTimeoutOrNull(MAX_WAIT_FOR_NETWORK_MINUTES.minutes) {
-            networkAvailability().first { it }
-        } ?: false
+        val connected = networkStateObserver.waitUntilConnectedWithInternet(MAX_WAIT_FOR_NETWORK_MINUTES.minutes)
 
         if (!connected) {
             appLogger.i("$TAG: network did not become available before timeout")
@@ -166,36 +163,6 @@ class PendingMessagesForegroundService : Service() {
             }
         }
     }
-
-    private fun networkAvailability(): Flow<Boolean> = callbackFlow {
-        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-        fun emitCurrentAvailability() {
-            trySend(connectivityManager.hasValidatedInternet())
-        }
-
-        val callback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) = emitCurrentAvailability()
-            override fun onLost(network: Network) = emitCurrentAvailability()
-            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) = emitCurrentAvailability()
-        }
-
-        emitCurrentAvailability()
-        connectivityManager.registerNetworkCallback(
-            NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .build(),
-            callback
-        )
-        awaitClose { connectivityManager.unregisterNetworkCallback(callback) }
-    }
-
-    private fun ConnectivityManager.hasValidatedInternet(): Boolean =
-        activeNetwork
-            ?.let(::getNetworkCapabilities)
-            ?.let {
-                it.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                        it.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-            } == true
 
     private fun startAsForeground(notification: Notification) {
         notificationChannelsManager.createRegularChannel(PENDING_MESSAGES_SYNC_CHANNEL_ID, PENDING_MESSAGES_SYNC_CHANNEL_NAME)
@@ -268,6 +235,11 @@ class PendingMessagesForegroundService : Service() {
         var isServiceStarted = false
     }
 }
+
+internal suspend fun NetworkStateObserver.waitUntilConnectedWithInternet(timeout: Duration): Boolean =
+    withTimeoutOrNull(timeout) {
+        observeNetworkState().first { it is NetworkState.ConnectedWithInternet }
+    } != null
 
 internal class PendingMessagesForegroundSyncHandler(
     private val allSessions: suspend () -> GetAllSessionsResult,

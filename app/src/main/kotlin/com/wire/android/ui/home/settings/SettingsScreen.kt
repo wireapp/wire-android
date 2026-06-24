@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -69,7 +70,7 @@ fun SettingsScreen(
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val shareLogsFailureMessage = context.getString(R.string.label_share_logs_failed)
+    val shareLogsFailureMessage = stringResource(R.string.label_share_logs_failed)
     val logShareLauncher = remember(context, coroutineScope, shareLogsFailureMessage) {
         LogShareLauncher(
             context = context,

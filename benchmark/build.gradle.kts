@@ -21,6 +21,7 @@ import flavor.ProductFlavors
 plugins {
     id("com.android.test")
     alias(libs.plugins.androidx.baselineprofile)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -81,7 +82,7 @@ dependencies {
     implementation(libs.androidx.test.uiAutomator)
     implementation(libs.androidx.benchmark.macro.junit4)
     implementation(libs.datafaker)
-    implementation(libs.gson)
+    implementation(libs.ktx.serialization)
     implementation(libs.junit4)
     implementation(libs.zxing.android.embedded)
     implementation(libs.zxing.core)

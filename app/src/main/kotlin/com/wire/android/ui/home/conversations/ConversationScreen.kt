@@ -169,7 +169,9 @@ import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewMod
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
+import com.wire.android.ui.home.conversations.messages.item.MessageSwipeAction
 import com.wire.android.ui.home.conversations.messages.item.SwipeableMessageConfiguration
+import com.wire.android.ui.home.conversations.messages.item.toSwipeAction
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageSenderId
@@ -1076,6 +1078,8 @@ private fun ConversationScreen(
                         messageComposerStateHolder = messageComposerStateHolder,
                         attachments = attachments,
                         messages = conversationMessagesViewState.messages,
+                        messageSwipeRightAction = conversationMessagesViewState.messageSwipeRightAction,
+                        messageSwipeLeftAction = conversationMessagesViewState.messageSwipeLeftAction,
                         onSendMessage = onSendMessage,
                         onPingOptionClicked = onPingOptionClicked,
                         onImagesPicked = onImagesPicked,
@@ -1089,6 +1093,9 @@ private fun ConversationScreen(
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onShowEditingOptions = conversationScreenState::showEditContextMenu,
                         onSwipedToReply = messageComposerStateHolder::toReply,
+                        onSwipedToDetails = { message ->
+                            onMessageDetailsClick(message.header.messageId, message.isMyMessage)
+                        },
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
                         onFailedMessageRetryClicked = onFailedMessageRetryClicked,
@@ -1164,6 +1171,8 @@ private fun ConversationScreenContent(
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
     messages: Flow<PagingData<UIMessage>>,
+    messageSwipeRightAction: MessageSwipeAction,
+    messageSwipeLeftAction: MessageSwipeAction,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>, Boolean) -> Unit,
@@ -1177,6 +1186,7 @@ private fun ConversationScreenContent(
     onUpdateConversationReadDate: (String) -> Unit,
     onShowEditingOptions: (UIMessage.Regular) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
+    onSwipedToDetails: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
@@ -1238,6 +1248,9 @@ private fun ConversationScreenContent(
                 onSwipedToReact = { message ->
                     emojiPickerState.show(message.header.messageId)
                 },
+                onSwipedToDetails = onSwipedToDetails,
+                messageSwipeRightAction = messageSwipeRightAction,
+                messageSwipeLeftAction = messageSwipeLeftAction,
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
@@ -1320,6 +1333,9 @@ fun MessageList(
     onUpdateConversationReadDate: (String) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSwipedToReact: (UIMessage.Regular) -> Unit,
+    onSwipedToDetails: (UIMessage.Regular) -> Unit,
+    messageSwipeRightAction: MessageSwipeAction,
+    messageSwipeLeftAction: MessageSwipeAction,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
     selectedMessageId: String?,
@@ -1491,12 +1507,33 @@ fun MessageList(
                         }
                     }
 
-                    val swipeableConfiguration = remember(message, lazyListState.isScrollInProgress) {
-                        if (!lazyListState.isScrollInProgress && message is UIMessage.Regular && message.isSwipeable) {
-                            SwipeableMessageConfiguration.Swipeable(
-                                onSwipedRight = { onSwipedToReply(message) }.takeIf { message.isReplyable },
-                                onSwipedLeft = { onSwipedToReact(message) }.takeIf { message.isReactionAllowed },
+                    val swipeableConfiguration = remember(
+                        message,
+                        lazyListState.isScrollInProgress,
+                        messageSwipeRightAction,
+                        messageSwipeLeftAction,
+                    ) {
+                        if (!lazyListState.isScrollInProgress && message is UIMessage.Regular) {
+                            val rightSwipeAction = messageSwipeRightAction.toSwipeAction(
+                                message = message,
+                                onSwipedToReply = onSwipedToReply,
+                                onSwipedToReact = onSwipedToReact,
+                                onSwipedToDetails = onSwipedToDetails,
                             )
+                            val leftSwipeAction = messageSwipeLeftAction.toSwipeAction(
+                                message = message,
+                                onSwipedToReply = onSwipedToReply,
+                                onSwipedToReact = onSwipedToReact,
+                                onSwipedToDetails = onSwipedToDetails,
+                            )
+                            if (rightSwipeAction != null || leftSwipeAction != null) {
+                                SwipeableMessageConfiguration.Swipeable(
+                                    onSwipedRight = rightSwipeAction,
+                                    onSwipedLeft = leftSwipeAction,
+                                )
+                            } else {
+                                SwipeableMessageConfiguration.NotSwipeable
+                            }
                         } else {
                             SwipeableMessageConfiguration.NotSwipeable
                         }

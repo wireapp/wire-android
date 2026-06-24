@@ -19,6 +19,7 @@ package com.wire.android.ui.home.settings.appearance
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.ui.home.conversations.messages.item.MessageSwipeAction
 import com.wire.android.ui.theme.ThemeOption
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -27,7 +28,9 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -56,6 +59,66 @@ class AppearanceViewModelTest {
         coVerify(exactly = 1) { arrangement.globalDataStore.setEnterToSend(false) }
     }
 
+    @Test
+    fun `given stored swipe actions, when observing settings state, then should update state`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withEnterToSend(flowOf(true))
+            .withMessageSwipeRightAction(MessageSwipeAction.DETAILS)
+            .withMessageSwipeLeftAction(MessageSwipeAction.REPLY)
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertEquals(MessageSwipeAction.DETAILS, viewModel.state.messageSwipeRightAction)
+        assertEquals(MessageSwipeAction.REPLY, viewModel.state.messageSwipeLeftAction)
+    }
+
+    @Test
+    fun `given swipe right action, when changing it, then should update global data store`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withEnterToSend(flowOf(true))
+            .arrange()
+
+        viewModel.selectMessageSwipeRightAction(MessageSwipeAction.DETAILS)
+
+        coVerify(exactly = 1) { arrangement.globalDataStore.setMessageSwipeRightAction(MessageSwipeAction.DETAILS) }
+    }
+
+    @Test
+    fun `given swipe left action, when changing it, then should update global data store`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withEnterToSend(flowOf(true))
+            .arrange()
+
+        viewModel.selectMessageSwipeLeftAction(MessageSwipeAction.REPLY)
+
+        coVerify(exactly = 1) { arrangement.globalDataStore.setMessageSwipeLeftAction(MessageSwipeAction.REPLY) }
+    }
+
+    @Test
+    fun `given swipe right action already used on left, when changing right, then should swap actions`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withEnterToSend(flowOf(true))
+            .arrange()
+
+        viewModel.selectMessageSwipeRightAction(MessageSwipeAction.DEFAULT_LEFT)
+
+        coVerify(exactly = 1) { arrangement.globalDataStore.setMessageSwipeRightAction(MessageSwipeAction.DEFAULT_LEFT) }
+        coVerify(exactly = 1) { arrangement.globalDataStore.setMessageSwipeLeftAction(MessageSwipeAction.DEFAULT_RIGHT) }
+    }
+
+    @Test
+    fun `given swipe left action already used on right, when changing left, then should swap actions`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withEnterToSend(flowOf(true))
+            .arrange()
+
+        viewModel.selectMessageSwipeLeftAction(MessageSwipeAction.DEFAULT_RIGHT)
+
+        coVerify(exactly = 1) { arrangement.globalDataStore.setMessageSwipeLeftAction(MessageSwipeAction.DEFAULT_RIGHT) }
+        coVerify(exactly = 1) { arrangement.globalDataStore.setMessageSwipeRightAction(MessageSwipeAction.DEFAULT_LEFT) }
+    }
+
     private class Arrangement {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
@@ -63,11 +126,23 @@ class AppearanceViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { globalDataStore.setThemeOption(any()) } returns Unit
+            coEvery { globalDataStore.setMessageSwipeRightAction(any()) } returns Unit
+            coEvery { globalDataStore.setMessageSwipeLeftAction(any()) } returns Unit
             every { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.DARK)
+            every { globalDataStore.messageSwipeRightActionFlow() } returns flowOf(MessageSwipeAction.DEFAULT_RIGHT)
+            every { globalDataStore.messageSwipeLeftActionFlow() } returns flowOf(MessageSwipeAction.DEFAULT_LEFT)
         }
 
         fun withEnterToSend(result: Flow<Boolean>) = apply {
             every { globalDataStore.enterToSendFlow() } returns result
+        }
+
+        fun withMessageSwipeRightAction(action: MessageSwipeAction) = apply {
+            every { globalDataStore.messageSwipeRightActionFlow() } returns flowOf(action)
+        }
+
+        fun withMessageSwipeLeftAction(action: MessageSwipeAction) = apply {
+            every { globalDataStore.messageSwipeLeftActionFlow() } returns flowOf(action)
         }
 
         fun arrange() = this to CustomizationViewModel(globalDataStore)

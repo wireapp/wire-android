@@ -220,6 +220,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
         deleteMessage = deleteMessage,
         isWireCellFeatureEnabled = isWireCellsEnabled,
         networkStateObserver = networkStateObserver,
+        globalDataStore = globalDataStore,
     )
 
     fun messageComposerViewModel(savedStateHandle: SavedStateHandle) = MessageComposerViewModel(

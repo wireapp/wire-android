@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.ui.home.conversations.messages.item.MessageSwipeAction
 import com.wire.android.ui.theme.ThemeOption
 import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Inject
@@ -33,6 +34,7 @@ class CustomizationViewModel @Inject constructor(
     init {
         observeThemeState()
         observePressEnterToSendState()
+        observeMessageSwipeActionState()
     }
     private fun observePressEnterToSendState() {
         viewModelScope.launch {
@@ -44,9 +46,33 @@ class CustomizationViewModel @Inject constructor(
             globalDataStore.selectedThemeOptionFlow().collect { option -> state = state.copy(selectedThemeOption = option) }
         }
     }
+    private fun observeMessageSwipeActionState() {
+        viewModelScope.launch {
+            globalDataStore.messageSwipeRightActionFlow().collect { action -> state = state.copy(messageSwipeRightAction = action) }
+        }
+        viewModelScope.launch {
+            globalDataStore.messageSwipeLeftActionFlow().collect { action -> state = state.copy(messageSwipeLeftAction = action) }
+        }
+    }
     fun selectPressEnterToSendOption(option: Boolean) {
         viewModelScope.launch {
             globalDataStore.setEnterToSend(option)
+        }
+    }
+    fun selectMessageSwipeRightAction(action: MessageSwipeAction) {
+        viewModelScope.launch {
+            globalDataStore.setMessageSwipeRightAction(action)
+            if (action == state.messageSwipeLeftAction) {
+                globalDataStore.setMessageSwipeLeftAction(state.messageSwipeRightAction)
+            }
+        }
+    }
+    fun selectMessageSwipeLeftAction(action: MessageSwipeAction) {
+        viewModelScope.launch {
+            globalDataStore.setMessageSwipeLeftAction(action)
+            if (action == state.messageSwipeRightAction) {
+                globalDataStore.setMessageSwipeRightAction(state.messageSwipeLeftAction)
+            }
         }
     }
     fun selectThemeOption(option: ThemeOption) {

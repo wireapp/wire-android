@@ -1885,6 +1885,15 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="press_enter_to_send_title">Press Enter to send</string>
     <string name="press_enter_to_send_text">When this is on, you can send messages with the Enter key on your keyboard.</string>
     <string name="customization_options_header_title">Options</string>
+    <string name="customization_swipe_actions_header_title">Swipe actions</string>
+    <string name="customization_swipe_right_title">Swipe right</string>
+    <string name="customization_swipe_left_title">Swipe left</string>
+    <string name="customization_swipe_action_reply_title">Reply</string>
+    <string name="customization_swipe_action_reply_description">Start a reply to the message.</string>
+    <string name="customization_swipe_action_react_title">React</string>
+    <string name="customization_swipe_action_react_description">Open the reaction picker.</string>
+    <string name="customization_swipe_action_details_title">Message details</string>
+    <string name="customization_swipe_action_details_description">Open reactions and read receipts.</string>
 
     <!-- enterprise configurations -->
     <string name="restriction_server_urls_title">Server endpoints configuration</string>

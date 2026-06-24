@@ -28,6 +28,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
 import com.wire.android.feature.AppLockSource
+import com.wire.android.ui.home.conversations.messages.item.MessageSwipeAction
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.sha256
 import com.wire.android.di.ApplicationContext
@@ -55,6 +56,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
         private val APP_LOCK_SOURCE = intPreferencesKey("app_lock_source")
         private val ENTER_TO_SENT = booleanPreferencesKey("enter_to_sent")
+        private val MESSAGE_SWIPE_RIGHT_ACTION = stringPreferencesKey("message_swipe_right_action")
+        private val MESSAGE_SWIPE_LEFT_ACTION = stringPreferencesKey("message_swipe_left_action")
         private val ANONYMOUS_REGISTRATION_TRACK_ID = stringPreferencesKey("anonymous_registration_track_id")
         private val IS_ANONYMOUS_REGISTRATION_ENABLED = booleanPreferencesKey("is_anonymous_registration_enabled")
         private val PERSISTENT_WEBSOCKET_ENFORCED_BY_MDM = booleanPreferencesKey("persistent_websocket_enforced_by_mdm")
@@ -206,6 +209,22 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     fun enterToSendFlow(): Flow<Boolean> = getBooleanPreference(ENTER_TO_SENT, false)
     suspend fun setEnterToSend(enabled: Boolean) {
         context.dataStore.edit { it[ENTER_TO_SENT] = enabled }
+    }
+
+    fun messageSwipeRightActionFlow(): Flow<MessageSwipeAction> =
+        getStringPreference(MESSAGE_SWIPE_RIGHT_ACTION, MessageSwipeAction.DEFAULT_RIGHT.name)
+            .map { MessageSwipeAction.fromStoredValue(it, MessageSwipeAction.DEFAULT_RIGHT) }
+
+    suspend fun setMessageSwipeRightAction(action: MessageSwipeAction) {
+        context.dataStore.edit { it[MESSAGE_SWIPE_RIGHT_ACTION] = action.name }
+    }
+
+    fun messageSwipeLeftActionFlow(): Flow<MessageSwipeAction> =
+        getStringPreference(MESSAGE_SWIPE_LEFT_ACTION, MessageSwipeAction.DEFAULT_LEFT.name)
+            .map { MessageSwipeAction.fromStoredValue(it, MessageSwipeAction.DEFAULT_LEFT) }
+
+    suspend fun setMessageSwipeLeftAction(action: MessageSwipeAction) {
+        context.dataStore.edit { it[MESSAGE_SWIPE_LEFT_ACTION] = action.name }
     }
 
     fun isPersistentWebSocketEnforcedByMDM(): Flow<Boolean> =

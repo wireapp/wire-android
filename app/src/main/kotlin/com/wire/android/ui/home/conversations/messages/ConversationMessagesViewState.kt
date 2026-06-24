@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations.messages
 
 import androidx.paging.PagingData
 import com.wire.android.media.audiomessage.PlayingAudioMessage
+import com.wire.android.ui.home.conversations.messages.item.MessageSwipeAction
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.message.MessageAssetStatus
@@ -40,6 +41,8 @@ data class ConversationMessagesViewState(
     val isFetchingOlderMessages: Boolean = false,
     val hasMoreRemoteMessages: Boolean = true,
     val isNetworkAvailable: Boolean = false,
+    val messageSwipeRightAction: MessageSwipeAction = MessageSwipeAction.DEFAULT_RIGHT,
+    val messageSwipeLeftAction: MessageSwipeAction = MessageSwipeAction.DEFAULT_LEFT,
 )
 
 sealed class DownloadedAssetDialogVisibilityState {

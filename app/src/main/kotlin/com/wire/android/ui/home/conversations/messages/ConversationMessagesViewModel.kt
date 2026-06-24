@@ -30,6 +30,7 @@ import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.visbility.VisibilityState
@@ -114,6 +115,7 @@ class ConversationMessagesViewModel(
     private val deleteMessage: DeleteMessageUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
     private val networkStateObserver: NetworkStateObserver,
+    private val globalDataStore: GlobalDataStore,
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -142,6 +144,7 @@ class ConversationMessagesViewModel(
         observeAudioPlayerState()
         observeAssetStatuses()
         observeNetworkAvailability()
+        observeMessageSwipeAction()
     }
 
     private fun observeNetworkAvailability() {
@@ -150,6 +153,19 @@ class ConversationMessagesViewModel(
                 conversationViewState = conversationViewState.copy(
                     isNetworkAvailable = networkState is NetworkState.ConnectedWithInternet
                 )
+            }
+        }
+    }
+
+    private fun observeMessageSwipeAction() {
+        viewModelScope.launch {
+            globalDataStore.messageSwipeRightActionFlow().collect { action ->
+                conversationViewState = conversationViewState.copy(messageSwipeRightAction = action)
+            }
+        }
+        viewModelScope.launch {
+            globalDataStore.messageSwipeLeftActionFlow().collect { action ->
+                conversationViewState = conversationViewState.copy(messageSwipeLeftAction = action)
             }
         }
     }

@@ -17,9 +17,12 @@
  */
 package com.wire.android.ui.home.settings.appearance
 
+import com.wire.android.ui.home.conversations.messages.item.MessageSwipeAction
 import com.wire.android.ui.theme.ThemeOption
 
 data class CustomizationState(
     val selectedThemeOption: ThemeOption = ThemeOption.SYSTEM,
     val pressEnterToSentState: Boolean = false,
+    val messageSwipeRightAction: MessageSwipeAction = MessageSwipeAction.DEFAULT_RIGHT,
+    val messageSwipeLeftAction: MessageSwipeAction = MessageSwipeAction.DEFAULT_LEFT,
 )

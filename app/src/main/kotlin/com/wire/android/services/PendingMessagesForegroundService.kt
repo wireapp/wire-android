@@ -44,11 +44,15 @@ import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.sync.PendingMessagesForegroundSync
+import com.wire.kalium.logic.feature.auth.LogoutCallback
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
@@ -57,6 +61,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -79,12 +84,21 @@ class PendingMessagesForegroundService : Service() {
         CoroutineScope(SupervisorJob() + dispatcherProvider.io())
     }
 
+    private var runJob: Job? = null
+
+    private val logoutCallback = object : LogoutCallback {
+        override suspend fun invoke(userId: UserId, reason: LogoutReason) {
+            stopIfNoValidSessions()
+        }
+    }
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         wireApplicationGraph.inject(this)
         super.onCreate()
         isServiceStarted = true
+        coreLogic.getGlobalScope().logoutCallbackManager.register(logoutCallback)
         startAsForeground(createNotification(waitingForConnection = true))
     }
 
@@ -94,22 +108,30 @@ class PendingMessagesForegroundService : Service() {
             startAsForeground(createNotification(waitingForConnection = true))
         }
 
-        val userId = intent?.userId()
-        if (userId == null) {
-            appLogger.w("$TAG: missing user id, skipping pending messages send")
-            stopSelf(startId)
+        if (intent?.action == ACTION_STOP) {
+            scope.launch {
+                stopIfNoValidSessions(startId)
+            }
             return START_NOT_STICKY
         }
 
-        scope.launch {
-            run(userId)
-            stopSelf(startId)
-        }
+        return if (runJob?.isActive == true) {
+            appLogger.i("$TAG: pending messages send already running, skipping duplicate start")
+            START_NOT_STICKY
+        } else {
+            runJob = scope.launch {
+                try {
+                    run()
+                } finally {
+                    stopSelf()
+                }
+            }
 
-        return START_NOT_STICKY
+            START_NOT_STICKY
+        }
     }
 
-    private suspend fun run(userId: UserId) {
+    private suspend fun run() {
         val connected = withTimeoutOrNull(MAX_WAIT_FOR_NETWORK_MINUTES.minutes) {
             networkAvailability().first { it }
         } ?: false
@@ -121,7 +143,28 @@ class PendingMessagesForegroundService : Service() {
 
         startAsForeground(createNotification(waitingForConnection = false))
 
-        PendingMessagesForegroundSyncHandler(coreLogic, sendPendingMessagesAfterForegroundSync).sendPendingMessagesForCurrentSession(userId)
+        PendingMessagesForegroundSyncHandler(coreLogic, sendPendingMessagesAfterForegroundSync).sendPendingMessagesForAllValidSessions()
+    }
+
+    private suspend fun stopIfNoValidSessions(startId: Int? = null) {
+        when (val result = coreLogic.getGlobalScope().session.allSessions()) {
+            is GetAllSessionsResult.Success -> {
+                if (result.sessions.any { it.isValid() }) {
+                    appLogger.i("$TAG: keeping service alive for valid sessions")
+                } else {
+                    appLogger.i("$TAG: no valid sessions, stopping pending messages foreground service")
+                    startId?.let(::stopSelf) ?: stopSelf()
+                }
+            }
+
+            is GetAllSessionsResult.Failure -> {
+                appLogger.w(
+                    "$TAG: unable to get valid sessions after logout, " +
+                            "stopping pending messages foreground service: $result"
+                )
+                startId?.let(::stopSelf) ?: stopSelf()
+            }
+        }
     }
 
     private fun networkAvailability(): Flow<Boolean> = callbackFlow {
@@ -181,6 +224,7 @@ class PendingMessagesForegroundService : Service() {
 
     private fun createNotification(waitingForConnection: Boolean): Notification =
         NotificationCompat.Builder(this, PENDING_MESSAGES_SYNC_CHANNEL_ID)
+            .setContentTitle(getString(R.string.app_name))
             .setContentText(
                 if (waitingForConnection) {
                     resources.getString(R.string.pending_messages_notification_waiting)
@@ -203,6 +247,8 @@ class PendingMessagesForegroundService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        coreLogic.getGlobalScope().logoutCallbackManager.unregister(logoutCallback)
+        runJob = null
         scope.cancel("PendingMessagesForegroundService was destroyed")
         isServiceStarted = false
     }
@@ -210,62 +256,82 @@ class PendingMessagesForegroundService : Service() {
     companion object {
         private const val TAG = "PendingMessagesForegroundService"
         private const val MAX_WAIT_FOR_NETWORK_MINUTES = 30
+        private const val ACTION_STOP = "com.wire.android.services.action.STOP_PENDING_MESSAGES_FOREGROUND_SERVICE"
 
-        fun newIntent(context: Context, userId: UserId): Intent =
+        fun newIntent(context: Context): Intent =
             Intent(context, PendingMessagesForegroundService::class.java)
-                .putExtra(PendingMessagesForegroundSync.EXTRA_USER_ID_VALUE, userId.value)
-                .putExtra(PendingMessagesForegroundSync.EXTRA_USER_ID_DOMAIN, userId.domain)
 
         fun stopIntent(context: Context): Intent =
             Intent(context, PendingMessagesForegroundService::class.java)
+                .setAction(ACTION_STOP)
 
         var isServiceStarted = false
     }
 }
 
 internal class PendingMessagesForegroundSyncHandler(
-    private val currentSession: suspend () -> CurrentSessionResult,
+    private val allSessions: suspend () -> GetAllSessionsResult,
+    private val doesValidSessionExist: suspend (UserId) -> DoesValidSessionExistResult,
     private val sendPendingMessagesAfterForegroundSync: suspend (UserId) -> Unit,
 ) {
     constructor(
         coreLogic: CoreLogic,
         sendPendingMessagesAfterForegroundSync: SendPendingMessagesAfterForegroundSyncUseCase,
     ) : this(
-        currentSession = { coreLogic.getGlobalScope().session.currentSession() },
+        allSessions = { coreLogic.getGlobalScope().session.allSessions() },
+        doesValidSessionExist = { coreLogic.getGlobalScope().doesValidSessionExist(it) },
         sendPendingMessagesAfterForegroundSync = sendPendingMessagesAfterForegroundSync::invoke
     )
 
-    suspend fun sendPendingMessagesForCurrentSession(scheduledUserId: UserId) {
-        when (val result = currentSession()) {
-            is CurrentSessionResult.Success -> {
-                val accountInfo = result.accountInfo
-                if (accountInfo.isValid() && accountInfo.userId == scheduledUserId) {
-                    sendPendingMessagesAfterForegroundSync(accountInfo.userId)
-                } else if (accountInfo.isValid()) {
-                    appLogger.w(
-                        "$TAG: scheduled user ${scheduledUserId.toLogString()} does not match current session " +
-                                "${accountInfo.userId.toLogString()}, skipping pending messages send"
-                    )
+    suspend fun sendPendingMessagesForAllValidSessions() {
+        when (val result = allSessions()) {
+            is GetAllSessionsResult.Success ->
+                result.sessions
+                    .filterIsInstance<AccountInfo.Valid>()
+                    .map { it.userId }
+                    .distinct()
+                    .forEach { userId ->
+                        sendPendingMessagesIfSessionIsStillValid(userId)
+                    }
+
+            is GetAllSessionsResult.Failure ->
+                appLogger.w("$TAG: unable to get valid sessions, skipping pending messages send: $result")
+        }
+        appLogger.w("$TAG: foreground service finished messages sending")
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun sendPendingMessagesIfSessionIsStillValid(userId: UserId) {
+        when (val result = doesValidSessionExist(userId)) {
+            is DoesValidSessionExistResult.Success -> {
+                if (result.doesValidSessionExist) {
+                    try {
+                        sendPendingMessagesAfterForegroundSync(userId)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        appLogger.e(
+                            "$TAG: failed to send pending messages for ${userId.toLogString()}: $e"
+                        )
+                    }
                 } else {
-                    appLogger.w("$TAG: current session is invalid, skipping pending messages send")
+                    appLogger.w(
+                        "$TAG: session for ${userId.toLogString()} is no longer valid, skipping pending messages send"
+                    )
                 }
             }
 
-            is CurrentSessionResult.Failure ->
-                appLogger.w("$TAG: unable to get current valid session: $result")
+            is DoesValidSessionExistResult.Failure ->
+                appLogger.w(
+                    "$TAG: unable to check valid session for ${userId.toLogString()}, " +
+                            "skipping pending messages send: $result"
+                )
         }
-        appLogger.w("$TAG: foreground service finished messages sending")
     }
 
     private companion object {
         private const val TAG = "PendingMessagesForegroundService"
     }
-}
-
-private fun Intent.userId(): UserId? {
-    val value = getStringExtra(PendingMessagesForegroundSync.EXTRA_USER_ID_VALUE)
-    val domain = getStringExtra(PendingMessagesForegroundSync.EXTRA_USER_ID_DOMAIN)
-    return if (value != null && domain != null) UserId(value, domain) else null
 }
 
 class SendPendingMessagesAfterForegroundSyncUseCase @Inject constructor(

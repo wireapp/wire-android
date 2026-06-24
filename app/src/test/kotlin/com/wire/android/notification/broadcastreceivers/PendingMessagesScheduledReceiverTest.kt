@@ -20,7 +20,6 @@ package com.wire.android.notification.broadcastreceivers
 import android.content.Context
 import android.content.Intent
 import com.wire.android.services.ServicesManager
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.PendingMessagesForegroundSync
 import io.mockk.every
 import io.mockk.MockKAnnotations
@@ -33,21 +32,12 @@ import org.junit.jupiter.api.Test
 class PendingMessagesScheduledReceiverTest {
 
     @Test
-    fun `given scheduled pending messages broadcast with user id when received then starts foreground service for user`() = runTest {
-        val (arrangement, receiver) = Arrangement().arrange()
-
-        receiver.onReceive(arrangement.context, scheduledIntent(USER_ID))
-
-        verify(exactly = 1) { arrangement.servicesManager.startPendingMessagesForegroundService(USER_ID) }
-    }
-
-    @Test
-    fun `given scheduled pending messages broadcast without user id when received then does not start foreground service`() = runTest {
+    fun `given scheduled pending messages broadcast without user id when received then starts foreground service`() = runTest {
         val (arrangement, receiver) = Arrangement().arrange()
 
         receiver.onReceive(arrangement.context, scheduledIntent())
 
-        verify(exactly = 0) { arrangement.servicesManager.startPendingMessagesForegroundService(any()) }
+        verify(exactly = 1) { arrangement.servicesManager.startPendingMessagesForegroundService() }
     }
 
     @Test
@@ -56,7 +46,7 @@ class PendingMessagesScheduledReceiverTest {
 
         receiver.onReceive(arrangement.context, mockk { every { action } returns "unexpected-action" })
 
-        verify(exactly = 0) { arrangement.servicesManager.startPendingMessagesForegroundService(any()) }
+        verify(exactly = 0) { arrangement.servicesManager.startPendingMessagesForegroundService() }
     }
 
     @Test
@@ -65,11 +55,11 @@ class PendingMessagesScheduledReceiverTest {
 
         receiver.onReceive(
             context = arrangement.context,
-            intent = mockk { every { action } returns PendingMessagesForegroundSync.ACTION_SENDING_OF_PENDING_MESSAGES_CANCELLED }
+            intent = cancelledIntent()
         )
 
         verify(exactly = 1) { arrangement.servicesManager.stopPendingMessagesForegroundService() }
-        verify(exactly = 0) { arrangement.servicesManager.startPendingMessagesForegroundService(any()) }
+        verify(exactly = 0) { arrangement.servicesManager.startPendingMessagesForegroundService() }
     }
 
     private class Arrangement {
@@ -89,13 +79,14 @@ class PendingMessagesScheduledReceiverTest {
     }
 
     private companion object {
-        private val USER_ID = UserId("user", "wire.com")
-
-        fun scheduledIntent(userId: UserId? = null): Intent =
+        fun scheduledIntent(): Intent =
             mockk {
                 every { action } returns PendingMessagesForegroundSync.ACTION_SENDING_OF_PENDING_MESSAGES_SCHEDULED
-                every { getStringExtra(PendingMessagesForegroundSync.EXTRA_USER_ID_VALUE) } returns userId?.value
-                every { getStringExtra(PendingMessagesForegroundSync.EXTRA_USER_ID_DOMAIN) } returns userId?.domain
+            }
+
+        fun cancelledIntent(): Intent =
+            mockk {
+                every { action } returns PendingMessagesForegroundSync.ACTION_SENDING_OF_PENDING_MESSAGES_CANCELLED
             }
     }
 }

@@ -111,6 +111,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC("limit_team_members_fetch_during_slow_sync", ConfigType.INT),
 
     PICTURE_IN_PICTURE_ENABLED("picture_in_picture_enabled", ConfigType.BOOLEAN),
+    PHONE_LANDSCAPE_ENABLED("phone_landscape_enabled", ConfigType.BOOLEAN),
     PAGINATED_CONVERSATION_LIST_ENABLED("paginated_conversation_list_enabled", ConfigType.BOOLEAN),
 
     PUBLIC_CHANNELS_ENABLED("public_channels_enabled", ConfigType.BOOLEAN),

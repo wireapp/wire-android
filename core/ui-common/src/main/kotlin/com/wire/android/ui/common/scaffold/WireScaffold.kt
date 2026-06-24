@@ -20,8 +20,11 @@ package com.wire.android.ui.common.scaffold
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -66,7 +69,7 @@ fun WireScaffold(
     Scaffold(
         modifier = modifier
             .imePadding()
-            .systemBarsPadding(),
+            .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Vertical)),
         topBar = topBar,
         bottomBar = bottomBar,
         snackbarHost = snackbarHost,

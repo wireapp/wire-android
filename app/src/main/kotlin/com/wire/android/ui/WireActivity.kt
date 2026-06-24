@@ -43,6 +43,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -354,6 +355,21 @@ class WireActivity : BaseActivity() {
         val isUserUiBlocked = viewModel.globalAppState.blockUserUI != null
         val isAuthenticationRoute = currentBaseRoute in authenticationGraphRoutes
         val isSessionTransitionInProgress = viewModel.globalAppState.isSessionTransitionInProgress
+        var noSessionAuthenticationStartedWithoutSession by remember { mutableStateOf(false) }
+        LaunchedEffect(currentBaseRoute, currentUserId) {
+            when {
+                currentUserId == null && currentBaseRoute in noSessionLoginAuthenticationRoutes ->
+                    noSessionAuthenticationStartedWithoutSession = true
+                currentBaseRoute != null && currentBaseRoute !in authenticationGraphRoutes ->
+                    noSessionAuthenticationStartedWithoutSession = false
+            }
+        }
+        val navHostStartDestination = resolveNavHostStartDestination(
+            initialStartDestination = startDestination,
+            currentUserId = currentUserId,
+            currentBaseRoute = currentBaseRoute,
+            noSessionAuthenticationStartedWithoutSession = noSessionAuthenticationStartedWithoutSession,
+        )
         LaunchedEffect(currentUserId) {
             currentUserId?.let(lastKnownCurrentAccount::update)
         }
@@ -364,7 +380,7 @@ class WireActivity : BaseActivity() {
             currentUserId = currentUserId,
             sessionBackedAuthenticationUserId = sessionBackedAuthenticationUserId,
             currentBaseRoute = currentBaseRoute,
-            startDestinationBaseRoute = startDestination.baseRoute,
+            startDestinationBaseRoute = navHostStartDestination.baseRoute,
             isUserUiBlocked = isUserUiBlocked,
             isSessionTransitionInProgress = isSessionTransitionInProgress,
         )
@@ -372,13 +388,18 @@ class WireActivity : BaseActivity() {
         if (graphContext?.sessionGraph != null) {
             lastSessionGraphContext.value = graphContext
         }
+        val graphContextWithRetainedImageLoader = graphContext?.copy(
+            imageLoaderSessionGraph = resolveWireActivityImageLoaderSessionGraph(
+                activeSessionGraph = graphContext.sessionGraph,
+                retainedSessionGraph = lastSessionGraphContext.value?.sessionGraph,
+            )
+        )
         val canRenderSessionBackedRoute = currentUserId != null || sessionBackedAuthenticationUserId != null
         val canRetainSessionGraphForContent = !isAuthenticationRoute && canRenderSessionBackedRoute
-        val contentGraphContext = graphContext ?: when {
+        val contentGraphContext = graphContextWithRetainedImageLoader ?: when {
             currentBaseRoute != null && canRetainSessionGraphForContent -> lastSessionGraphContext.value
             else -> null
         }
-        val navHostStartDestination = resolveNavHostStartDestination(startDestination, currentUserId, currentBaseRoute)
         val backgroundType by remember {
             derivedStateOf {
                 currentBackStackEntryState.value?.safeDestination()?.style.let {
@@ -410,25 +431,14 @@ class WireActivity : BaseActivity() {
         initialStartDestination: Direction,
         currentUserId: UserId?,
         currentBaseRoute: String?,
-    ): Direction {
-        if (currentUserId != null || initialStartDestination.baseRoute in authenticationGraphRoutes) {
-            return initialStartDestination
-        }
-        return when (currentBaseRoute) {
-            NewLoginScreenDestination.baseRoute -> NewLoginScreenDestination()
-            LoginScreenDestination.baseRoute -> WelcomeScreenDestination()
-            WelcomeScreenDestination.baseRoute -> WelcomeScreenDestination()
-            NewWelcomeEmptyStartScreenDestination.baseRoute,
-            null -> loggedOutStartDestination()
-            else -> initialStartDestination
-        }
-    }
-
-    private fun loggedOutStartDestination(): Direction =
-        when (loginTypeSelector.canUseNewLogin()) {
-            true -> NewWelcomeEmptyStartScreenDestination()
-            false -> WelcomeScreenDestination()
-        }
+        noSessionAuthenticationStartedWithoutSession: Boolean,
+    ): Direction = resolveWireActivityNavHostStartDestination(
+        initialStartDestination = initialStartDestination,
+        currentUserId = currentUserId,
+        currentBaseRoute = currentBaseRoute,
+        canUseNewLogin = loginTypeSelector.canUseNewLogin(),
+        noSessionAuthenticationStartedWithoutSession = noSessionAuthenticationStartedWithoutSession,
+    )
 
     private fun isNavigationAllowed(navigationCommand: NavigationCommand): Boolean {
         if (navigationCommand.destination.baseRoute != NewLoginScreenDestination.baseRoute) return true
@@ -591,6 +601,7 @@ class WireActivity : BaseActivity() {
                 graph = it,
                 viewModelFactory = (it as? ViewModelGraph)?.metroViewModelFactory ?: appGraph.metroViewModelFactory,
                 sessionGraph = sessionGraph,
+                imageLoaderSessionGraph = sessionGraph,
                 activityViewModels = activityViewModels,
             )
         }
@@ -673,7 +684,7 @@ class WireActivity : BaseActivity() {
         logoutAction: (wipeData: Boolean) -> Unit,
         content: @Composable () -> Unit,
     ) {
-        val imageLoader = sessionGraph?.wireSessionImageLoader
+        val imageLoader = imageLoaderSessionGraph?.wireSessionImageLoader
         CompositionLocalProvider(
             LocalMetroViewModelFactory provides viewModelFactory,
             LocalWireViewModelScopeKey provides graph.viewModelScopeKey,
@@ -1210,6 +1221,7 @@ private data class WireActivityGraphContext(
     val graph: MetroViewModelGraph,
     val viewModelFactory: MetroViewModelFactory,
     val sessionGraph: AppSessionViewModelGraph?,
+    val imageLoaderSessionGraph: AppSessionViewModelGraph?,
     val activityViewModels: WireActivityScopedViewModels?,
 )
 
@@ -1265,6 +1277,11 @@ private val accountCreationAuthenticationRoutes = setOf(
 
 private val noSessionAuthenticationGraphRoutes = loginContinuationAuthenticationRoutes + accountCreationAuthenticationRoutes
 
+private val noSessionLoginAuthenticationRoutes = setOf(
+    LoginScreenDestination.baseRoute,
+    NewLoginScreenDestination.baseRoute,
+) + loginContinuationAuthenticationRoutes
+
 private val sessionBackedAuthenticationGraphRoutes = setOf(
     RegisterDeviceScreenDestination.baseRoute,
     RemoveDeviceScreenDestination.baseRoute,
@@ -1285,9 +1302,50 @@ internal fun resolveWireActivityActiveGraph(request: WireActivityActiveGraphRequ
     request.effectiveBaseRoute in authenticationGraphRoutes &&
             request.effectiveBaseRoute !in sessionBackedAuthenticationGraphRoutes -> request.authenticationViewModelGraph
     request.sessionGraph != null -> request.sessionGraph
-    request.currentBaseRoute == null -> request.authenticationViewModelGraph
+    request.currentBaseRoute == null && request.effectiveBaseRoute in authenticationGraphRoutes -> request.authenticationViewModelGraph
     else -> null
 }
+
+internal fun resolveWireActivityNavHostStartDestination(
+    initialStartDestination: Direction,
+    currentUserId: UserId?,
+    currentBaseRoute: String?,
+    canUseNewLogin: Boolean,
+    noSessionAuthenticationStartedWithoutSession: Boolean = false,
+): Direction = when {
+    currentUserId != null &&
+            noSessionAuthenticationStartedWithoutSession &&
+            currentBaseRoute in noSessionLoginAuthenticationRoutes ->
+        resolveWireActivityLoggedOutStartDestination(canUseNewLogin)
+
+    currentUserId != null || initialStartDestination.baseRoute in authenticationGraphRoutes ->
+        initialStartDestination
+
+    currentBaseRoute == NewLoginScreenDestination.baseRoute ||
+            currentBaseRoute == NewWelcomeEmptyStartScreenDestination.baseRoute ||
+            currentBaseRoute in noSessionAuthenticationGraphRoutes ->
+        resolveWireActivityLoggedOutStartDestination(canUseNewLogin)
+
+    currentBaseRoute == null ->
+        resolveWireActivityLoggedOutStartDestination(canUseNewLogin)
+
+    currentBaseRoute == LoginScreenDestination.baseRoute ||
+            currentBaseRoute == WelcomeScreenDestination.baseRoute ->
+        WelcomeScreenDestination()
+
+    else -> initialStartDestination
+}
+
+internal fun resolveWireActivityLoggedOutStartDestination(canUseNewLogin: Boolean): Direction =
+    when (canUseNewLogin) {
+        true -> NewWelcomeEmptyStartScreenDestination()
+        false -> WelcomeScreenDestination()
+    }
+
+internal fun resolveWireActivityImageLoaderSessionGraph(
+    activeSessionGraph: AppSessionViewModelGraph?,
+    retainedSessionGraph: AppSessionViewModelGraph?,
+): AppSessionViewModelGraph? = activeSessionGraph ?: retainedSessionGraph
 
 private fun Bundle.sessionBackedAuthenticationUserId(): UserId? {
     val value = getString(SessionBackedAuthenticationNavArgs.USER_ID_VALUE_KEY)

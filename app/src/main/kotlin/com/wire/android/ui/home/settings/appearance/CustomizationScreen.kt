@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.settings.appearance
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,23 +41,25 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.home.settings.customizationViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
-import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SwitchState
+import com.wire.android.ui.home.settings.customizationViewModel
 import com.wire.android.ui.theme.ThemeData
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.sectionWithElements
 
 @WireRootDestination
 @Composable
@@ -152,7 +153,7 @@ private fun LazyListScope.sectionWithElements(
         ThemeOptionItem(
             themeOption = themeItem.option,
             selectedOption = themeItem.selectedOption,
-            onItemClicked = onItemClicked
+            onItemClicked = onItemClicked,
         )
     }
 }
@@ -177,7 +178,9 @@ fun ThemeOptionItem(
             .background(color = MaterialTheme.wireColorScheme.surface),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        HorizontalSpace.x12()
         RadioButton(selected = isSelected, onClick = null)
+        HorizontalSpace.x8()
         Text(
             text = when (themeOption) {
                 ThemeOption.LIGHT -> buildAnnotatedString { append(stringResource(R.string.settings_appearance_theme_option_light)) }

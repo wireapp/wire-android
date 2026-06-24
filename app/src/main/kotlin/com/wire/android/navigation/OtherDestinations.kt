@@ -28,10 +28,6 @@ import com.wire.android.R
 import com.wire.android.util.EmailComposer
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
-import com.wire.android.util.getMimeType
-import com.wire.android.util.getUrisOfFilesInDirectory
-import com.wire.android.util.logging.LogFileWriter
-import com.wire.android.util.multipleFileSharingIntent
 import com.wire.android.util.sha256
 
 /**
@@ -109,32 +105,6 @@ object GiveFeedbackDestination : IntentDirection {
 
     override val route: String
         get() = "wire-intent:give-feedback"
-}
-
-object ReportBugDestination : IntentDirection {
-    override fun intent(context: Context): Intent {
-        val dir = LogFileWriter.logsDirectory(context)
-        val logsUris = context.getUrisOfFilesInDirectory(dir)
-        val intent = context.multipleFileSharingIntent(logsUris)
-        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(context.getString(R.string.send_bug_report_email)))
-        intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.send_bug_report_subject))
-        intent.putExtra(
-            Intent.EXTRA_TEXT,
-            EmailComposer.reportBugEmailTemplate(
-                context.getDeviceIdString()?.sha256(),
-                context.getGitBuildId()
-            )
-        )
-        val mimeTypes = logsUris.mapNotNull { it.getMimeType(context) }.toSet()
-        if (mimeTypes.isNotEmpty()) {
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toTypedArray())
-        }
-        intent.type = "*/*"
-        return Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email))
-    }
-
-    override val route: String
-        get() = "wire-intent:report-bug"
 }
 
 object WelcomeToNewAndroidAppDestination : ExternalUriStringResDirection {

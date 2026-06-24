@@ -18,6 +18,7 @@
 package com.wire.android.di.metro
 
 import com.wire.android.di.CurrentAccount
+import com.wire.android.di.ImageLoadingModule
 import com.wire.android.ui.MiscViewModelFactory
 import com.wire.android.ui.MiscViewModelGraph
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
@@ -27,9 +28,10 @@ import com.wire.android.ui.common.CommonViewModelFactory
 import com.wire.android.ui.common.CommonViewModelGraph
 import com.wire.android.ui.debug.DebugInfoViewModelFactory
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
+import com.wire.android.ui.home.HomeViewModelFactory
+import com.wire.android.ui.home.HomeViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.GraphExtension
@@ -37,18 +39,18 @@ import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.Scope
 import dev.zacsweers.metro.asContribution
 import dev.zacsweers.metrox.viewmodel.ViewModelGraph
-import kotlinx.coroutines.runBlocking
 
 @Scope
 annotation class MetroSessionScope
 
-@GraphExtension(MetroSessionScope::class, bindingContainers = [WireMetroViewModelBindings::class])
+@GraphExtension(MetroSessionScope::class, bindingContainers = [WireMetroViewModelBindings::class, ImageLoadingModule::class])
 interface AppSessionViewModelGraph :
     ViewModelGraph,
     MiscViewModelGraph,
     AuthenticationViewModelGraph,
     CallingViewModelGraph,
     DebugInfoViewModelGraph,
+    HomeViewModelGraph,
     CommonViewModelGraph {
     @get:CurrentAccount
     val currentAccount: UserId
@@ -61,6 +63,7 @@ interface AppSessionViewModelGraph :
     override val miscViewModelFactory: MiscViewModelFactory
     override val callingViewModelFactory: CallingViewModelFactory
     override val debugInfoViewModelFactory: DebugInfoViewModelFactory
+    override val homeViewModelFactory: HomeViewModelFactory
     override val commonViewModelFactory: CommonViewModelFactory
 
     @ContributesTo(AppScope::class)
@@ -72,14 +75,4 @@ interface AppSessionViewModelGraph :
 
 fun WireApplicationGraph.createSessionViewModelGraph(currentAccount: UserId): AppSessionViewModelGraph {
     return asContribution<AppSessionViewModelGraph.Factory>().createAppSessionViewModelGraph(currentAccount)
-}
-
-fun WireApplicationGraph.createCurrentSessionViewModelGraph(): AppSessionViewModelGraph {
-    val currentAccount = runBlocking {
-        when (val result = coreLogic.getGlobalScope().session.currentSession()) {
-            is CurrentSessionResult.Success -> result.accountInfo.userId
-            else -> throw IllegalStateException("no current session was found")
-        }
-    }
-    return createSessionViewModelGraph(currentAccount)
 }

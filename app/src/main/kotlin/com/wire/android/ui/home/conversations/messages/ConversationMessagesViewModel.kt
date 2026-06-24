@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -187,7 +188,7 @@ class ConversationMessagesViewModel(
         }
 
     private fun clearOrphanedTypingEvents() {
-        viewModelScope.launch { clearUsersTypingEvents() }
+        viewModelScope.launch(dispatchers.io()) { clearUsersTypingEvents() }
     }
 
     private fun observeAudioPlayerState() {
@@ -210,29 +211,38 @@ class ConversationMessagesViewModel(
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
-        val lastReadIndex = conversationViewState.searchedMessageId?.let { messageId ->
-            when (
-                val result = getSearchedConversationMessagePosition(
-                    conversationId = conversationId,
-                    messageId = messageId
-                )
-            ) {
-                is GetSearchedConversationMessagePositionUseCase.Result.Success -> result.position
-                is GetSearchedConversationMessagePositionUseCase.Result.Failure -> 0
+        val searchedMessageId = conversationViewState.searchedMessageId
+        val lastReadIndex = withContext(dispatchers.io()) {
+            searchedMessageId?.let { messageId ->
+                when (
+                    val result = getSearchedConversationMessagePosition(
+                        conversationId = conversationId,
+                        messageId = messageId
+                    )
+                ) {
+                    is GetSearchedConversationMessagePositionUseCase.Result.Success -> result.position
+                    is GetSearchedConversationMessagePositionUseCase.Result.Failure -> 0
+                }
+            } ?: when (val result = getConversationUnreadEventsCount(conversationId)) {
+                is GetConversationUnreadEventsCountUseCase.Result.Success -> result.amount.toInt()
+                is GetConversationUnreadEventsCountUseCase.Result.Failure -> 0
             }
-        } ?: when (val result = getConversationUnreadEventsCount(conversationId)) {
-            is GetConversationUnreadEventsCountUseCase.Result.Success -> result.amount.toInt()
-            is GetConversationUnreadEventsCountUseCase.Result.Failure -> 0
         }
 
-        val paginatedMessagesFlow = networkStateObserver.observeNetworkState().flatMapLatest { networkState ->
-            getMessageForConversation(conversationId, lastReadIndex).map { pagingData ->
-                pagingData.withOfflineIndicator(
-                    conversationId = conversationId,
-                    isOffline = networkState !is NetworkState.ConnectedWithInternet,
-                )
-            }.flowOn(dispatchers.io())
-        }.cachedIn(viewModelScope)
+        val paginatedMessagesFlow = if (BuildConfig.PENDING_MESSAGES) {
+            networkStateObserver.observeNetworkState().flatMapLatest { networkState ->
+                getMessageForConversation(conversationId, lastReadIndex).map { pagingData ->
+                    pagingData.withOfflineIndicator(
+                        conversationId = conversationId,
+                        isOffline = networkState !is NetworkState.ConnectedWithInternet,
+                    )
+                }.flowOn(dispatchers.io())
+            }.cachedIn(viewModelScope)
+        } else {
+            getMessageForConversation(conversationId, lastReadIndex)
+                .flowOn(dispatchers.io())
+                .cachedIn(viewModelScope)
+        }
 
         conversationViewState = conversationViewState.copy(
             messages = paginatedMessagesFlow,

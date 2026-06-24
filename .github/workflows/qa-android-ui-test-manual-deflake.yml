@@ -121,7 +121,8 @@ jobs:
           APP_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.resolvedBuildNumber || steps.validate_deflake_input.outputs.appBuildNumberInput }}
           IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
           OLD_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.oldBuildNumber }}
-        run: S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
+          S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
 
       # Keep device selection and app installation identical to the selected run
       # contract so deflake executes against the same kind of target setup.
@@ -144,7 +145,9 @@ jobs:
         uses: 1password/install-cli-action@v3
 
       - name: Fetch secrets.json (runtime only)
-        run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
 
       - name: Build test APK (assemble once)
         run: bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
@@ -166,6 +169,10 @@ jobs:
           RERUN_FAILED_ENABLED: ${{ steps.validate_deflake_input.outputs.rerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
+          # Reuse the same Testiny run so deflake updates the original run.
+          TESTINY_PROJECT_NAME: Wire Android
+          TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
+          TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           if [[ "${IS_UPGRADE}" == "true" ]]; then
             upgrade_failed_file="${RUNNER_TEMP}/deflake-upgrade-failed-tests.txt"

@@ -63,7 +63,7 @@ fun ZoomableImage(
     }
 
     ZoomableImageContainer(
-        painter = painter,
+        painter = { painter },
         contentDescription = contentDescription,
         modifier = modifier
     )

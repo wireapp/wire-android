@@ -142,7 +142,7 @@ fun CellZoomableImage(
     }
 
     ZoomableImageContainer(
-        painter = painter,
+        painter = { painter },
         contentDescription = contentDescription,
         modifier = modifier
     )

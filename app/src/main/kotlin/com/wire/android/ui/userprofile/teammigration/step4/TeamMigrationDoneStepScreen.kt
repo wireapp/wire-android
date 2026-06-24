@@ -29,6 +29,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -120,7 +122,8 @@ private fun TeamMigrationDoneStepContent(
                         top = dimensions().spacing8x,
                         bottom = dimensions().spacing56x
                     )
-                    .align(alignment = Alignment.CenterHorizontally),
+                    .align(alignment = Alignment.CenterHorizontally)
+                    .semantics { heading() },
                 text = stringResource(R.string.personal_to_team_migration_done_step, username),
                 style = MaterialTheme.wireTypography.title01,
                 color = colorsScheme().onBackground

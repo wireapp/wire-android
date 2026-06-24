@@ -30,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -73,7 +75,8 @@ fun EndToEndIdentityCertificateItem(
         Text(
             text = stringResource(id = R.string.item_title_e2ei_certificate),
             style = MaterialTheme.wireTypography.title02,
-            color = MaterialTheme.wireColorScheme.onBackground
+            color = MaterialTheme.wireColorScheme.onBackground,
+            modifier = Modifier.semantics { heading() }
         )
         Text(
             modifier = Modifier.padding(

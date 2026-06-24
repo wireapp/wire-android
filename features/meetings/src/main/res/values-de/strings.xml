@@ -51,5 +51,5 @@
     <string name="new_meeting_action_schedule">Planen</string>
     <string name="new_meeting_title_input_label">Titel</string>
     <string name="new_meeting_title_input_placeholder">Meeting-Titel eingeben</string>
-    <string name="contnt_description_new_meeting_back_icon">Neue Meetingansicht schließen</string>
+    <string name="content_description_new_meeting_back_icon">Neue Meetingansicht schließen</string>
 </resources>

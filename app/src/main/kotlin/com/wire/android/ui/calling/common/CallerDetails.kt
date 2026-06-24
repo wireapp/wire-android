@@ -35,6 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
@@ -114,6 +116,7 @@ fun CallerDetails(
                 },
                 color = colorsScheme().onBackground,
                 style = MaterialTheme.wireTypography.title01,
+                modifier = Modifier.semantics { heading() }
             )
 
             ConversationVerificationIcons(

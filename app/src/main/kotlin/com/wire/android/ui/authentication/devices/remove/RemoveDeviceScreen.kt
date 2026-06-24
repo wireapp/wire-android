@@ -50,6 +50,7 @@ import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
+import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
@@ -74,18 +75,20 @@ import com.wire.kalium.logic.data.conversation.ClientId
 
 @WireRootDestination(
     style = PopUpNavigationAnimation::class,
+    navArgs = SessionBackedAuthenticationNavArgs::class,
 )
 @Composable
 fun RemoveDeviceScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
+    sessionBackedAuthenticationNavArgs: SessionBackedAuthenticationNavArgs,
     viewModel: RemoveDeviceViewModel = removeDeviceViewModel(),
     clearSessionViewModel: ClearSessionViewModel = clearSessionViewModel(),
 ) {
     fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean) = navigator.navigate(
         NavigationCommand(
             destination = if (isE2EIRequired) {
-                E2EIEnrollmentScreenDestination
+                E2EIEnrollmentScreenDestination(sessionBackedAuthenticationNavArgs)
             } else if (initialSyncCompleted) {
                 HomeScreenDestination
             } else {

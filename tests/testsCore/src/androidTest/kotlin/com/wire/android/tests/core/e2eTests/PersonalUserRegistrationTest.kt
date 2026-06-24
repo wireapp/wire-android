@@ -19,7 +19,7 @@ package com.wire.android.tests.core.e2eTests
 
 import InbucketClient
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.wire.android.testSupport.BuildConfig
+import backendUtils.BackendClient
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
@@ -42,6 +42,7 @@ class PersonalUserRegistrationTest : BaseUiTest() {
     @Before
     fun setUp() {
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
+        backendClient = BackendClient.loadBackend("STAGING")
     }
 
     @Suppress("LongMethod")
@@ -106,9 +107,9 @@ class PersonalUserRegistrationTest : BaseUiTest() {
             otp = runBlocking {
                 InbucketClient.getVerificationCode(
                     userInfo.email,
-                    BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETURL,
-                    BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETPASSWORD,
-                    BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETUSERNAME
+                    backendClient.inbucketUrl,
+                    backendClient.inbucketPassword,
+                    backendClient.inbucketUsername
                 )
             }
         }

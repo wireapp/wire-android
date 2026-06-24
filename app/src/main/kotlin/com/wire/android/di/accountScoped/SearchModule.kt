@@ -23,9 +23,9 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
 import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
-import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
+import com.wire.kalium.logic.feature.search.SearchUsersByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchScope
-import com.wire.kalium.logic.feature.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.search.SearchUsersByNameUseCase
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
 
@@ -39,10 +39,10 @@ class SearchModule {
     ): SearchScope = coreLogic.getSessionScope(currentAccount).search
 
     @Provides
-    fun provideSearchUsersUseCase(searchScope: SearchScope): SearchUsersUseCase = searchScope.searchUsers
+    fun provideSearchUsersByNameUseCase(searchScope: SearchScope): SearchUsersByNameUseCase = searchScope.searchUsersByName
 
     @Provides
-    fun provideSearchByHandleUseCase(searchScope: SearchScope): SearchByHandleUseCase = searchScope.searchByHandle
+    fun provideSearchUsersByHandleUseCase(searchScope: SearchScope): SearchUsersByHandleUseCase = searchScope.searchUsersByHandle
 
     @Provides
     fun provideFederatedSearchParser(searchScope: SearchScope): FederatedSearchParser = searchScope.federatedSearchParser

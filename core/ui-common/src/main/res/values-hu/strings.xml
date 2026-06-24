@@ -21,4 +21,10 @@
     <!-- Connections -->
     <!-- Missing keyPackages dialog -->
     <!-- Search Contact-->
+    <string name="content_description_change_it_label">megváltoztatás</string>
+    <string name="wire_dropdown_placeholder">Jelöljön ki egy elemet</string>
+    <string name="content_description_drop_down">Lenyitás</string>
+    <string name="content_description_close_dropdown">lenyíló elem összecsukása</string>
+    <!--wire dropdown-->
+        <string name="wire_dropdown_default_indicator">" (alapértelmezett)"</string>
 </resources>

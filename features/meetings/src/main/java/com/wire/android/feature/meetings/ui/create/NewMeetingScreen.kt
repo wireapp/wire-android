@@ -20,23 +20,29 @@ package com.wire.android.feature.meetings.ui.create
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,9 +55,15 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import com.ramcosta.composedestinations.generated.meetings.destinations.NewMeetingParticipantsScreenDestination
 import com.wire.android.feature.meetings.R
+import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.MEETING_NAME_MAX_COUNT
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.model.Contact
@@ -60,11 +72,18 @@ import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.meetings.WireNewMeetingDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.VisibilityState
+import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.animation.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.datetime.FutureSelectableDates
+import com.wire.android.ui.common.datetime.WireDatePickerDialog
+import com.wire.android.ui.common.datetime.WireTimePickerDialog
+import com.wire.android.ui.common.datetime.asTimePickerResult
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.DefaultEmailDone
@@ -75,13 +94,25 @@ import com.wire.android.ui.common.textfield.maxLengthWithCallback
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CurrentTimeProvider
+import com.wire.android.util.DateAndTimeParsers
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Duration.Companion.hours
 import com.wire.android.ui.common.R as commonR
 
 @WireNewMeetingDestination(
@@ -103,9 +134,10 @@ fun NewMeetingScreen(
         onParticipantsClicked = {
             navigator.navigate(NavigationCommand(NewMeetingParticipantsScreenDestination))
         },
-        onCreateClicked = {
-            newMeetingViewModel.createMeeting()
-        }
+        onCreateClicked = newMeetingViewModel::createMeeting,
+        onStartTimeChanged = newMeetingViewModel::updateStartTime,
+        onEndTimeChanged = newMeetingViewModel::updateEndTime,
+        onRepeatingIntervalChanged = newMeetingViewModel::updateRepeatingInterval,
     )
 
     HandleActions(newMeetingViewModel.actions) { action ->
@@ -124,12 +156,16 @@ fun NewMeetingContent(
     onBackPressed: () -> Unit = {},
     onParticipantsClicked: () -> Unit = {},
     onCreateClicked: () -> Unit = {},
+    onStartTimeChanged: (startTime: Instant) -> Unit = {},
+    onEndTimeChanged: (endTime: Instant) -> Unit = {},
+    onRepeatingIntervalChanged: (interval: MeetingItem.RepeatingInterval) -> Unit = {},
 ) {
+    val scrollState = rememberScrollState()
     WireScaffold(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = dimensions().spacing0x,
+                elevation = scrollState.rememberTopBarElevationState().value,
                 title = stringResource(type.title),
                 onNavigationPressed = onBackPressed,
                 navigationIconType = NavigationIconType.Back(
@@ -142,16 +178,41 @@ fun NewMeetingContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(internalPadding)
+                    .verticalScroll(scrollState)
                     .padding(
-                        top = dimensions().spacing24x,
-                        start = dimensions().spacing16x,
-                        end = dimensions().spacing16x,
+                        vertical = dimensions().spacing24x,
+                        horizontal = dimensions().spacing16x,
                     )
             ) {
                 TitleInput(
                     titleState = titleState,
                     titleError = state.titleError,
                 )
+                if (type == NewMeetingType.Schedule) {
+                    VerticalSpace.x24()
+                    TimeInput(
+                        time = state.startTime,
+                        timeError = state.startTimeError,
+                        onTimeChanged = onStartTimeChanged,
+                        label = stringResource(R.string.new_meeting_starts_input_label),
+                        datePlaceholder = stringResource(R.string.new_meeting_start_date_input_placeholder),
+                        timePlaceholder = stringResource(R.string.new_meeting_start_time_input_placeholder),
+                    )
+                    VerticalSpace.x8()
+                    TimeInput(
+                        time = state.endTime,
+                        timeError = state.endTimeError,
+                        onTimeChanged = onEndTimeChanged,
+                        label = stringResource(R.string.new_meeting_ends_input_label),
+                        datePlaceholder = stringResource(R.string.new_meeting_end_date_input_placeholder),
+                        timePlaceholder = stringResource(R.string.new_meeting_end_time_input_placeholder),
+                    )
+                    VerticalSpace.x8()
+                    RepeatingIntervalDropDown(
+                        repeatingInterval = state.repeatingInterval,
+                        onRepeatingIntervalChanged = onRepeatingIntervalChanged,
+                    )
+                }
                 VerticalSpace.x24()
                 ParticipantsInput(
                     participants = state.confirmedContacts,
@@ -266,13 +327,14 @@ private fun ParticipantsInput(
         textFieldState.setTextAndPlaceCursorAtEnd(participants.joinToString(", ") { it.name })
     }
 
+    val semanticDescription = stringResource(R.string.new_meeting_participants_input_placeholder)
     WireTextField(
         textState = textFieldState,
         placeholderText = stringResource(R.string.new_meeting_participants_input_placeholder),
         labelText = stringResource(R.string.new_meeting_participants_input_label).uppercase(),
-        semanticDescription = stringResource(R.string.new_meeting_participants_input_placeholder),
         keyboardOptions = KeyboardOptions.DefaultEmailDone,
-        state = WireTextFieldState.ReadOnly,
+        state = WireTextFieldState.Default,
+        readOnly = true,
         onInputSizeChanged = { innerTextWidthPx = it.width },
         outputTransformation = truncationTransformation,
         onTap = onClick,
@@ -282,11 +344,190 @@ private fun ParticipantsInput(
                 contentDescription = null,
                 tint = colorsScheme().onSurfaceVariant,
                 modifier = Modifier
-                    .padding(dimensions().spacing16x)
+                    .padding(start = dimensions().spacing4x, end = dimensions().spacing16x)
                     .size(dimensions().spacing16x)
             )
+        },
+        inputModifier = Modifier.clearAndSetSemantics {
+            contentDescription = semanticDescription
+            role = Role.Button
         }
     )
+}
+
+@Composable
+private fun TimeInput(
+    time: Instant,
+    timeError: NewMeetingState.TimeError?,
+    onTimeChanged: (Instant) -> Unit,
+    label: String,
+    datePlaceholder: String,
+    timePlaceholder: String,
+) {
+    val dateTextFieldState = rememberTextFieldState(DateAndTimeParsers.meetingDate(time))
+    val timeTextFieldState = rememberTextFieldState(DateAndTimeParsers.meetingTime(time))
+    val datePickerDialogState = rememberVisibilityState<Unit>()
+    val timePickerDialogState = rememberVisibilityState<Unit>()
+
+    LaunchedEffect(time) {
+        dateTextFieldState.setTextAndPlaceCursorAtEnd(DateAndTimeParsers.meetingDate(time))
+        timeTextFieldState.setTextAndPlaceCursorAtEnd(DateAndTimeParsers.meetingTime(time))
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(-dimensions().spacing1x) // Pulls elements together by 1dp
+        ) {
+            WireTextField(
+                textState = dateTextFieldState,
+                placeholderText = datePlaceholder,
+                labelText = label.uppercase(),
+                keyboardOptions = KeyboardOptions.DefaultEmailDone,
+                state = if (timeError != null) WireTextFieldState.Error() else WireTextFieldState.Default,
+                readOnly = true,
+                shape = RoundedCornerShape(
+                    topStart = dimensions().textFieldCornerSize,
+                    bottomStart = dimensions().textFieldCornerSize,
+                    topEnd = dimensions().spacing0x,
+                    bottomEnd = dimensions().spacing0x,
+                ),
+                onTap = {
+                    datePickerDialogState.show(Unit)
+                },
+                trailingIcon = {
+                    Icon(
+                        painter = painterResource(commonR.drawable.ic_calendar),
+                        contentDescription = null,
+                        tint = colorsScheme().onSurfaceVariant,
+                        modifier = Modifier
+                            .padding(start = dimensions().spacing4x, end = dimensions().spacing16x)
+                            .size(dimensions().spacing16x)
+                    )
+                },
+                modifier = Modifier.weight(2f),
+                inputModifier = Modifier.clearAndSetSemantics {
+                    contentDescription = datePlaceholder
+                    role = Role.Button
+                }
+            )
+            WireTextField(
+                textState = timeTextFieldState,
+                labelText = String.EMPTY, // Time input doesn't have a label as the date input's label already describes the field
+                keyboardOptions = KeyboardOptions.DefaultEmailDone,
+                state = if (timeError != null) WireTextFieldState.Error() else WireTextFieldState.Default,
+                readOnly = true,
+                shape = RoundedCornerShape(
+                    topStart = dimensions().spacing0x,
+                    bottomStart = dimensions().spacing0x,
+                    topEnd = dimensions().textFieldCornerSize,
+                    bottomEnd = dimensions().textFieldCornerSize,
+                ),
+                onTap = {
+                    timePickerDialogState.show(Unit)
+                },
+                trailingIcon = {
+                    Icon(
+                        painter = painterResource(commonR.drawable.ic_arrow_drop_down),
+                        contentDescription = null,
+                        tint = colorsScheme().onSurfaceVariant,
+                        modifier = Modifier
+                            .padding(start = dimensions().spacing4x, end = dimensions().spacing16x)
+                            .size(dimensions().spacing16x)
+                    )
+                },
+                modifier = Modifier.weight(1f),
+                inputModifier = Modifier.clearAndSetSemantics {
+                    contentDescription = timePlaceholder
+                    role = Role.Button
+                }
+            )
+        }
+        AnimatedVisibility(visible = timeError != null) {
+            Text(
+                text = when (timeError) {
+                    is NewMeetingState.TimeError.StartTimeInPastError -> stringResource(R.string.new_meeting_start_in_past_error)
+                    is NewMeetingState.TimeError.EndTimeInPastError -> stringResource(R.string.new_meeting_end_in_past_error)
+                    is NewMeetingState.TimeError.EndTimeBeforeStartTimeError -> stringResource(R.string.new_meeting_end_before_start_error)
+                    else -> String.EMPTY
+                },
+                style = MaterialTheme.wireTypography.label04,
+                textAlign = TextAlign.Start,
+                color = colorsScheme().error,
+                modifier = Modifier.padding(top = dimensions().spacing4x)
+            )
+        }
+    }
+    VisibilityState(status = datePickerDialogState) {
+        WireDatePickerDialog(
+            title = datePlaceholder,
+            selectedDateMillis = time.toEpochMilliseconds(),
+            selectableDates = FutureSelectableDates(),
+            onDateSelected = { millis ->
+                if (millis != null) {
+                    val timeZone = TimeZone.currentSystemDefault()
+                    val timeDateTime = time.toLocalDateTime(timeZone)
+                    val dateDateTime = Instant.fromEpochMilliseconds(millis).toLocalDateTime(timeZone)
+                    val combinedDateTime = LocalDateTime(
+                        year = dateDateTime.year,
+                        monthNumber = dateDateTime.monthNumber,
+                        dayOfMonth = dateDateTime.dayOfMonth,
+                        hour = timeDateTime.hour,
+                        minute = timeDateTime.minute,
+                        second = 0,
+                        nanosecond = 0
+                    )
+                    onTimeChanged(combinedDateTime.toInstant(timeZone))
+                    datePickerDialogState.dismiss()
+                }
+            },
+            onDismiss = datePickerDialogState::dismiss,
+        )
+    }
+    VisibilityState(status = timePickerDialogState) {
+        WireTimePickerDialog(
+            title = timePlaceholder,
+            selectedTime = time.toEpochMilliseconds().asTimePickerResult(),
+            onTimeSelected = { timePickerResult ->
+                val timeZone = TimeZone.currentSystemDefault()
+                val dateDateTime = time.toLocalDateTime(timeZone)
+                val combinedDateTime = LocalDateTime(
+                    year = dateDateTime.year,
+                    monthNumber = dateDateTime.monthNumber,
+                    dayOfMonth = dateDateTime.dayOfMonth,
+                    hour = timePickerResult.hour,
+                    minute = timePickerResult.minute,
+                    second = 0,
+                    nanosecond = 0
+                )
+                onTimeChanged(combinedDateTime.toInstant(timeZone))
+                timePickerDialogState.dismiss()
+            },
+            onDismiss = timePickerDialogState::dismiss,
+        )
+    }
+}
+
+@Composable
+private fun RepeatingIntervalDropDown(
+    repeatingInterval: MeetingItem.RepeatingInterval,
+    onRepeatingIntervalChanged: (MeetingItem.RepeatingInterval) -> Unit,
+    items: List<MeetingItem.RepeatingInterval> = MeetingItem.RepeatingInterval.entries,
+) {
+    val resources = LocalResources.current
+    WireDropDown(
+        items = remember(resources) {
+            items.map { resources.getString(it.nameResId) }.toImmutableList()
+        },
+        defaultItemIndex = items.indexOf(repeatingInterval),
+        label = stringResource(R.string.new_meeting_repeats_input_label).uppercase(),
+        autoUpdateSelection = false,
+        showDefaultTextIndicator = false,
+        showSelectionFieldWhenExpanded = false,
+        onChangeClickDescription = stringResource(R.string.content_description_new_meeting_repeating_options)
+    ) { selectedIndex ->
+        onRepeatingIntervalChanged(items[selectedIndex])
+    }
 }
 
 @PreviewMultipleThemes
@@ -295,7 +536,10 @@ fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState("Meeting with 9 users"),
         type = NewMeetingType.MeetNow,
-        state = NewMeetingState(confirmedContacts = buildContacts(names.size), continueButtonEnabled = true),
+        state = NewMeetingState.initialState(CurrentTimeProvider.Preview).copy(
+            confirmedContacts = buildContacts(names.size),
+            continueButtonEnabled = true,
+        ),
     )
 }
 
@@ -305,7 +549,11 @@ fun PreviewNewMeetingScreen_Schedule() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState(),
         type = NewMeetingType.Schedule,
-        state = NewMeetingState(),
+        state = NewMeetingState.initialState(CurrentTimeProvider.Preview).copy(
+            startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()),
+            endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()).plus(1.hours),
+            repeatingInterval = MeetingItem.RepeatingInterval.Weekly,
+        ),
     )
 }
 

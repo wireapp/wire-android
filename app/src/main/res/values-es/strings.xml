@@ -685,9 +685,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="team_settings_changed">Configuraci&#243;n del equipo cambiada</string>
     <string name="sharing_files_enabled">Ahora est&#225; habilitada la compartici&#243;n y recepci&#243;n de todo tipo de archivos</string>
     <string name="sharing_files_disabled">Ahora est&#225; deshabilitada la compartici&#243;n y recepci&#243;n de todo tipo de archivos</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (predeterminado)"</string>
-    <string name="wire_dropdown_placeholder">Seleccionar una opci&#243;n</string>
     <string name="change">Cambiar</string>
     <string name="allow_guests">Permitir invitados</string>
     <string name="allow_guest_switch_description">Abra esta conversaci&#243;n a personas fuera de su equipo. Siempre puede cambiarlo m&#225;s tarde.</string>

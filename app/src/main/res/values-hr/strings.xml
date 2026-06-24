@@ -459,8 +459,6 @@
     <!--sso dialog-->
     <string name="asset_download_dialog_default_title">Preuzmite datoteku</string>
     <!--prohibited asset messages -->
-    <!--wire dropdown-->
-    <string name="wire_dropdown_placeholder">Izaberi stavku</string>
     <string name="change">Promijeni</string>
     <string name="allow_guests">Dopustite goste</string>
     <!--block user dialog -->

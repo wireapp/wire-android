@@ -32,7 +32,7 @@ import com.wire.android.ui.theme.wireDimensions
 @Composable
 fun WireCheckIcon(modifier: Modifier = Modifier, @StringRes contentDescription: Int = R.string.content_description_check) {
     Icon(
-        painter = painterResource(id = R.drawable.ic_check_circle),
+        painter = painterResource(id = R.drawable.ic_check_circle_filled),
         contentDescription = stringResource(contentDescription),
         modifier = modifier.size(MaterialTheme.wireDimensions.wireIconButtonSize),
         tint = MaterialTheme.wireColorScheme.positive

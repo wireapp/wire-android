@@ -106,4 +106,9 @@
     <string name="content_description_unselect_label">Abwählen</string>
     <string name="label_show_more">Mehr anzeigen</string>
     <string name="label_show_less">Weniger anzeigen</string>
+    <string name="wire_dropdown_placeholder">Bitte auswählen</string>
+    <string name="content_description_drop_down">Auswahlliste</string>
+    <string name="content_description_close_dropdown">Dropdown schließen</string>
+    <!--wire dropdown-->
+        <string name="wire_dropdown_default_indicator">" (Standard)"</string>
 </resources>

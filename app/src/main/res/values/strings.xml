@@ -1466,6 +1466,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="start_manual_migration">Start</string>
     <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
     <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
+    <string name="public_share_ignored_wire_internal_files">This share was ignored because it contains internal Wire files.</string>
     <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Join conversation?</string>

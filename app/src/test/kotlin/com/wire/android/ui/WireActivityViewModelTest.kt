@@ -21,6 +21,8 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
 import androidx.work.Operation
 import androidx.work.WorkManager
 import app.cash.turbine.test
@@ -959,6 +961,71 @@ class WireActivityViewModelTest {
     }
 
     @Test
+    fun `given untrusted sharing intent with mixed Wire and external provider uris, when handling deep link, then show ignored toast`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withDeepLinkResult(DeepLinkResult.SharingIntent)
+                .arrange()
+            val intent = sharingIntent(
+                wireProviderUri(),
+                externalProviderUri("com.android.providers.media.documents")
+            )
+
+            viewModel.actions.test {
+                viewModel.handleDeepLink(
+                    intent = intent,
+                    providerAuthority = WIRE_PROVIDER_AUTHORITY,
+                    hasTrustedWireShareCaller = false
+                )
+                advanceUntilIdle()
+                assertEquals(ShowToast(R.string.public_share_ignored_wire_internal_files), expectMostRecentItem())
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun `given trusted sharing intent with mixed Wire and external provider uris, when handling deep link, then import media screen is shown`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withDeepLinkResult(DeepLinkResult.SharingIntent)
+                .arrange()
+            val intent = sharingIntent(
+                wireProviderUri(),
+                externalProviderUri("com.android.providers.media.documents")
+            )
+
+            viewModel.actions.test {
+                viewModel.handleDeepLink(
+                    intent = intent,
+                    providerAuthority = WIRE_PROVIDER_AUTHORITY,
+                    hasTrustedWireShareCaller = true
+                )
+                assertEquals(OnShowImportMediaScreen, expectMostRecentItem())
+            }
+        }
+
+    @Test
+    fun `given untrusted sharing intent with external provider uris, when handling deep link, then import media screen is shown`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withDeepLinkResult(DeepLinkResult.SharingIntent)
+                .arrange()
+            val intent = sharingIntent(
+                externalProviderUri("com.android.providers.media.documents"),
+                externalProviderUri("com.google.android.apps.photos.contentprovider")
+            )
+
+            viewModel.actions.test {
+                viewModel.handleDeepLink(
+                    intent = intent,
+                    providerAuthority = WIRE_PROVIDER_AUTHORITY,
+                    hasTrustedWireShareCaller = false
+                )
+                assertEquals(OnShowImportMediaScreen, expectMostRecentItem())
+            }
+        }
+
+    @Test
     fun `given no valid session, when checking number of sessions, then return true`() = runTest {
         // given
         val (_, viewModel) = Arrangement()
@@ -1375,6 +1442,7 @@ class WireActivityViewModelTest {
     companion object {
         val USER_ID = UserId("user_id", "domain.de")
         val TEST_ACCOUNT_INFO = AccountInfo.Valid(USER_ID)
+        private const val WIRE_PROVIDER_AUTHORITY = "com.wire.android.provider"
 
         private fun mockedTestAccounts(count: Int) = List(count) { i ->
             TEST_ACCOUNT_INFO.copy(userId = USER_ID.copy("user_$i"))
@@ -1387,6 +1455,29 @@ class WireActivityViewModelTest {
                 every { it.action } returns null
             }
         }
+
+        private fun sharingIntent(vararg uris: Uri): Intent {
+            val extrasBundle = mockk<Bundle> {
+                every { this@mockk.get(Intent.EXTRA_STREAM) } returns uris.toList()
+            }
+            return mockk<Intent> {
+                every { data } returns null
+                every { action } returns Intent.ACTION_SEND_MULTIPLE
+                every { extras } returns extrasBundle
+            }
+        }
+
+        private fun wireProviderUri(): Uri =
+            sharingUri(WIRE_PROVIDER_AUTHORITY)
+
+        private fun externalProviderUri(authority: String): Uri =
+            sharingUri(authority)
+
+        private fun sharingUri(authority: String): Uri =
+            mockk {
+                every { scheme } returns "content"
+                every { this@mockk.authority } returns authority
+            }
 
         val ongoingCall = Call(
             CommonTopAppBarViewModelTest.conversationId,

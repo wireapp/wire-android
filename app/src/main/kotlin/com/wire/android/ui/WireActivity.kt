@@ -154,12 +154,14 @@ import com.wire.android.ui.userprofile.self.LocalSelfUserProfileLogoutAction
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.ui.sharing.hasTrustedWireShareCaller
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.ShakeDetector
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
+import com.wire.android.util.getProviderAuthority
 import com.wire.android.util.launchUpdateTheApp
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.Dispatchers
@@ -1193,7 +1195,11 @@ class WireActivity : BaseActivity() {
         } else {
             val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent)
             if (!handled) {
-                viewModel.handleDeepLink(intent)
+                viewModel.handleDeepLink(
+                    intent = intent,
+                    providerAuthority = getProviderAuthority(),
+                    hasTrustedWireShareCaller = hasTrustedWireShareCaller()
+                )
                 intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
             }
         }

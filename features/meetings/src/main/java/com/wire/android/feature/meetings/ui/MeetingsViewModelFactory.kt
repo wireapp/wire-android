@@ -42,5 +42,8 @@ class MeetingsViewModelFactory @Inject constructor(
 
     internal fun meetingOptionsMenuViewModel() = MeetingOptionsMenuViewModelImpl(getMeeting = getMeeting)
 
-    internal fun newMeetingViewModel(savedStateHandle: SavedStateHandle) = NewMeetingViewModelImpl(savedStateHandle)
+    internal fun newMeetingViewModel(savedStateHandle: SavedStateHandle) = NewMeetingViewModelImpl(
+        savedStateHandle = savedStateHandle,
+        currentTimeProvider = currentTimeProvider
+    )
 }

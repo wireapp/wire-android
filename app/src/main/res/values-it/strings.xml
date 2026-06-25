@@ -717,9 +717,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="team_settings_changed">Impostazioni del team modificate</string>
     <string name="sharing_files_enabled">La condivisione e la ricezione di file di qualsiasi tipo sono ora abilitate</string>
     <string name="sharing_files_disabled">La condivisione e la ricezione di file di qualsiasi tipo sono ora disabilitate</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (predefinito)"</string>
-    <string name="wire_dropdown_placeholder">Seleziona un elemento</string>
     <string name="change">Cambia</string>
     <string name="allow_guests">Consenti ospiti</string>
     <string name="allow_guest_switch_description">Apri questa conversazione a persone esterne al tuo team. Puoi sempre cambiarla successivamente.</string>

@@ -35,24 +35,27 @@ abstract class WireDestinationStyleAnimated : DestinationStyle.Animated() {
     private fun TypedDestinationSpec<*>.getAnimationTypeStyle() =
         (this.style as? WireDestinationStyleAnimated)?.animationType() ?: animationType()
 
+    private fun NavBackStackEntry.getAnimationTypeStyleOrDefault() =
+        runCatching { destination().getAnimationTypeStyle() }.getOrDefault(animationType())
+
     override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
         get() = {
-            targetState.destination().getAnimationTypeStyle().enterTransition
+            targetState.getAnimationTypeStyleOrDefault().enterTransition
         }
 
     override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
         get() = {
-            targetState.destination().getAnimationTypeStyle().exitTransition
+            targetState.getAnimationTypeStyleOrDefault().exitTransition
         }
 
     override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
         get() = {
-            initialState.destination().getAnimationTypeStyle().popEnterTransition
+            initialState.getAnimationTypeStyleOrDefault().popEnterTransition
         }
 
     override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
         get() = {
-            initialState.destination().getAnimationTypeStyle().popExitTransition
+            initialState.getAnimationTypeStyleOrDefault().popExitTransition
         }
 }
 

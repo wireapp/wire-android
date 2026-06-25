@@ -612,9 +612,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="team_settings_changed">Ustawienia zespo&#322;u zmienione</string>
     <string name="sharing_files_enabled">Udost&#281;pnianie i odbieranie plik&#243;w dowolnego typu s&#261; teraz w&#322;&#261;czone</string>
     <string name="sharing_files_disabled">Udost&#281;pnianie i odbieranie plik&#243;w dowolnego typu s&#261; teraz wy&#322;&#261;czone</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (domy&#347;lnie)"</string>
-    <string name="wire_dropdown_placeholder">Wybierz</string>
     <string name="change">Zmie&#324;</string>
     <string name="allow_guests">Zezw&#243;l na go&#347;ci</string>
     <string name="allow_guest_switch_description">Otw&#243;rz t&#281; rozmow&#281; dla os&#243;b spoza twojego zespo&#322;u. Zawsze mo&#380;esz to zmieni&#263; p&#243;&#378;niej.</string>

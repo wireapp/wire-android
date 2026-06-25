@@ -180,10 +180,7 @@
     <string name="content_description_edit_guests_option_back_btn">සංවාද විස්තර වෙත ආපසු යන්න</string>
     <string name="content_description_edit_self_delete_back_btn">සංවාද විස්තර වෙත ආපසු යන්න</string>
     <string name="content_description_accept_or_ignore_connection_label">ඉල්ලීම පිළිගන්න හෝ නොසලකා හරින්න</string>
-    <string name="content_description_change_it_label">එය වෙනස් කරන්න</string>
     <string name="content_description_alert">අනතුරු ඇඟවීම</string>
-    <string name="content_description_drop_down">පතන</string>
-    <string name="content_description_close_dropdown">පතන ලැයිස්තුව වසන්න</string>
     <string name="content_description_open_notification_settings_label">දැනුම්දීම් සැකසුම් විවෘත කරන්න</string>
     <string name="content_description_new_conversation_close_btn">නව සංවාද දසුන වසන්න</string>
     <string name="content_description_new_conversation_back_btn">නව සංවාද දසුනට ආපසු යන්න</string>
@@ -982,9 +979,6 @@
     <string name="team_settings_changed">කණ්ඩායමේ සැකසුම් සංශෝධිතයි</string>
     <string name="sharing_files_enabled">ඕනෑම වර්ගයක ගොනු බෙදාගැනීම සහ ලැබීම සබල කර ඇත</string>
     <string name="sharing_files_disabled">ඕනෑම වර්ගයක ගොනු බෙදාගැනීම සහ ලැබීම අබල කර ඇත</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (පෙරනිමි)"</string>
-    <string name="wire_dropdown_placeholder">අථකයක් තෝරන්න</string>
     <string name="change">සංශෝධනය</string>
     <string name="allow_guests">අමුත්තන්ට ඉඩදෙන්න</string>
     <string name="allow_guest_switch_description">ඔබගේ කණ්ඩායමෙන් පිටත පුද්ගලයින්ට මෙම සංවාදය විවෘත කරන්න. මෙය පසුව වෙනස් කිරීමට හැකිය.</string>

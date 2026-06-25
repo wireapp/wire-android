@@ -21,4 +21,7 @@
     <!-- Connections -->
     <!-- Missing keyPackages dialog -->
     <!-- Search Contact-->
+    <string name="wire_dropdown_placeholder">Wybierz</string>
+    <!--wire dropdown-->
+        <string name="wire_dropdown_default_indicator">" (domy&#347;lnie)"</string>
 </resources>

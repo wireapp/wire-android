@@ -21,4 +21,6 @@
     <!-- Connections -->
     <!-- Missing keyPackages dialog -->
     <!-- Search Contact-->
+    <!--wire dropdown-->
+        <string name="wire_dropdown_placeholder">Izaberi stavku</string>
 </resources>

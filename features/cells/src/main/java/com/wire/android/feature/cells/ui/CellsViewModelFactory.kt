@@ -69,6 +69,7 @@ import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.logic.util.RandomPassword
 import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Named
 
 @Suppress("LongParameterList")
 class CellsViewModelFactory @Inject constructor(
@@ -90,6 +91,7 @@ class CellsViewModelFactory @Inject constructor(
     private val networkStateObserver: NetworkStateObserver,
     private val getConversationNameUseCase: GetConversationNameUseCase,
     private val getUserNameUseCase: GetUserNameUseCase,
+    @Named("offlineFilesEnabled") private val offlineFilesEnabled: Boolean,
     private val createPresentationFileUseCase: CreatePresentationFileUseCase,
     private val createDocumentFileUseCase: CreateDocumentFileUseCase,
     private val createSpreadsheetFileUseCase: CreateSpreadsheetFileUseCase,
@@ -136,6 +138,7 @@ class CellsViewModelFactory @Inject constructor(
         networkStateObserver = networkStateObserver,
         getConversationName = getConversationNameUseCase,
         getUserName = getUserNameUseCase,
+        offlineFilesEnabled = offlineFilesEnabled,
     )
 
     internal fun createFileViewModel(savedStateHandle: SavedStateHandle) = CreateFileViewModel(

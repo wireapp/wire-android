@@ -497,6 +497,7 @@ class CellViewModelTest {
                 networkStateObserver = networkStateObserver,
                 getConversationName = getConversationNames,
                 getUserName = getUserNames,
+                offlineFilesEnabled = true,
             )
         }
     }

@@ -18,6 +18,7 @@
             "logging_enabled": true,
             "application_is_private_build": true,
             "development_api_enabled": true,
+            "offline_files_enabled": true,
             "ignore_ssl_certificates": true,
             "firebase_push_sender_id": "723990470614",
             "firebase_app_id": "1:723990470614:android:10cf802bfcc7bb71d28e77",
@@ -36,9 +37,11 @@
             "enable_new_registration": true,
             "channels_history_options_enabled": true,
             "meetings_enabled": true,
+            "phone_landscape_enabled": true,
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": true,
-            "enforce_configuration_signature": false
+            "enforce_configuration_signature": false,
+            "pending_messages": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -61,7 +64,8 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "enforce_configuration_signature": true
+            "enforce_configuration_signature": true,
+            "pending_messages": true
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -81,14 +85,17 @@
             "logging_enabled": true,
             "application_is_private_build": true,
             "development_api_enabled": false,
+            "offline_files_enabled": true,
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
             "enforce_configuration_signature": true,
             "use_strict_mls_filter": false,
+            "phone_landscape_enabled": true,
             "conversation_feeder_enabled": true,
-            "db_invalidation_control_enabled": false
+            "db_invalidation_control_enabled": false,
+            "pending_messages": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -149,6 +156,7 @@
     "max_remote_search_result_count": 30,
     "limit_team_members_fetch_during_slow_sync": 2000,
     "picture_in_picture_enabled": false,
+    "phone_landscape_enabled": false,
     "paginated_conversation_list_enabled": true,
     "should_display_release_notes": true,
     "public_channels_enabled": false,
@@ -166,6 +174,7 @@
     "background_notification_stay_alive_seconds": 3,
     "is_bubble_ui_enabled": true,
     "collabora_integration": true,
+    "offline_files_enabled": false,
     "db_invalidation_control_enabled": false,
     "configuration_signature_keys": {
         "0": "MCowBQYDK2VwAyEAxPrvUdt+531eDcnAFfLAv9K9gkxPDBMVEz75BkNgd1E=",
@@ -175,5 +184,6 @@
     "call_quality_menu_enabled": true,
     "call_reactions_enabled": true,
     "nomad_profiles_enabled": true,
-    "block_cross_backend_login": false
+    "block_cross_backend_login": false,
+    "pending_messages": false
 }

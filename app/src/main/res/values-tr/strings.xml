@@ -180,10 +180,7 @@
     <string name="content_description_edit_guests_option_back_btn">Konuşma detaylarına geri dön</string>
     <string name="content_description_edit_self_delete_back_btn">Konuşma detaylarına geri dön</string>
     <string name="content_description_accept_or_ignore_connection_label">isteği kabul et veya yok say</string>
-    <string name="content_description_change_it_label">değiştir</string>
     <string name="content_description_alert">Uyarı</string>
-    <string name="content_description_drop_down">Açılır liste</string>
-    <string name="content_description_close_dropdown">açılır listeyi kapat</string>
     <string name="content_description_open_notification_settings_label">bildirim ayarlarını aç</string>
     <string name="content_description_new_conversation_close_btn">Yeni konuşma görünümünü kapat</string>
     <string name="content_description_new_conversation_back_btn">Yeni konuşma görünümüne geri dön</string>

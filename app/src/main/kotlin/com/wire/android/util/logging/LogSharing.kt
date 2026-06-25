@@ -29,6 +29,7 @@ import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.sha256
 import com.wire.android.util.shareableFileProviderUri
+import com.wire.android.util.startShareIntentWithTrustedWireTarget
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -66,7 +67,7 @@ class LogShareLauncher(
             logsDirectory = logsDirectory,
             flushLogs = flushLogs,
             shareArchive = { archive ->
-                context.startActivity(context.externalShareChooserIntent(context.logsSharingIntent(archive)))
+                context.startShareIntentWithTrustedWireTarget(context.logsSharingIntent(archive))
             }
         )
     }

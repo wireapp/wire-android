@@ -51,6 +51,7 @@ import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.supportsTrustedWireShareCaller
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -112,20 +113,43 @@ fun LogOptions(
                 header = MenuModalSheetHeader.Visible(
                     title = stringResource(R.string.label_share_logs)
                 ),
-                menuItems = listOf(
-                    {
-                        ShareLogsInWireOption {
-                            shareLogsSheetState.hide { onShareLogsViaWire() }
-                        }
+                menuItems = shareLogsMenuItems(
+                    onShareLogsExternally = {
+                        shareLogsSheetState.hide { onShareLogsExternally() }
                     },
-                    {
-                        ShareLogsExternallyOption {
-                            shareLogsSheetState.hide { onShareLogsExternally() }
-                        }
+                    onShareLogsViaWire = {
+                        shareLogsSheetState.hide { onShareLogsViaWire() }
                     }
                 )
             )
         }
+    )
+}
+
+private fun shareLogsMenuItems(
+    onShareLogsExternally: () -> Unit,
+    onShareLogsViaWire: () -> Unit
+): List<@Composable () -> Unit> =
+    if (supportsTrustedWireShareCaller()) {
+        listOf({ ShareLogsOption(onShareLogsExternally) })
+    } else {
+        listOf(
+            { ShareLogsInWireOption(onShareLogsViaWire) },
+            { ShareLogsExternallyOption(onShareLogsExternally) }
+        )
+    }
+
+@Composable
+private fun ShareLogsOption(onClick: () -> Unit) {
+    MenuBottomSheetItem(
+        leading = {
+            MenuItemIcon(
+                id = R.drawable.ic_entypo_share,
+                contentDescription = stringResource(R.string.content_description_share_the_file),
+            )
+        },
+        title = stringResource(R.string.label_share),
+        onItemClick = onClick
     )
 }
 

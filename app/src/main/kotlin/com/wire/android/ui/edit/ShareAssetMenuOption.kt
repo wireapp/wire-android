@@ -22,11 +22,34 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.util.supportsTrustedWireShareCaller
 
 @Composable
 fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
-    ShareAssetExternallyMenuOption(onShareAsset)
+    MenuBottomSheetItem(
+        leading = {
+            MenuItemIcon(
+                id = R.drawable.ic_share_file,
+                contentDescription = stringResource(R.string.content_description_share_the_file),
+            )
+        },
+        title = stringResource(R.string.label_share),
+        onItemClick = onShareAsset
+    )
 }
+
+fun shareAssetMenuOptions(
+    onShareAssetExternally: () -> Unit,
+    onShareAssetViaWire: () -> Unit
+): List<@Composable () -> Unit> =
+    if (supportsTrustedWireShareCaller()) {
+        listOf({ ShareAssetMenuOption(onShareAssetExternally) })
+    } else {
+        listOf(
+            { ShareAssetViaWireMenuOption(onShareAssetViaWire) },
+            { ShareAssetExternallyMenuOption(onShareAssetExternally) }
+        )
+    }
 
 @Composable
 fun ShareAssetViaWireMenuOption(onShareAsset: () -> Unit) {

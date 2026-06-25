@@ -56,6 +56,7 @@ import com.wire.android.ui.edit.DownloadAssetExternallyOption
 import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
+import com.wire.android.ui.edit.ShareAssetMenuOption
 import com.wire.android.ui.edit.ShareAssetExternallyMenuOption
 import com.wire.android.ui.edit.ShareAssetViaWireMenuOption
 import com.wire.android.ui.edit.SharePublicLinkMenuOption
@@ -69,6 +70,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.fileShareUri
 import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
 import com.wire.android.util.startFileShareIntent
+import com.wire.android.util.supportsTrustedWireShareCaller
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.openDownloadFolder
@@ -252,6 +254,9 @@ private fun MediaGalleryOptionsBottomSheetLayout(
 
     val sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState(WireSheetValue.Expanded(Unit))
     val onOptionsClick: (MenuIntent) -> Unit = remember { { sheetState.hide { onMenuIntent(it) } } }
+    val collapseShareOptions = supportsTrustedWireShareCaller() &&
+        menuItems.contains(MediaGalleryMenuItem.SHARE_VIA_WIRE) &&
+        menuItems.contains(MediaGalleryMenuItem.SHARE_EXTERNALLY)
 
     val menuItems: List<@Composable () -> Unit> = buildList {
         menuItems.forEach { item ->
@@ -268,11 +273,17 @@ private fun MediaGalleryOptionsBottomSheetLayout(
                 MediaGalleryMenuItem.DOWNLOAD -> add {
                     DownloadAssetExternallyOption { onOptionsClick(MenuIntent.Download) }
                 }
-                MediaGalleryMenuItem.SHARE_EXTERNALLY -> add {
-                    ShareAssetExternallyMenuOption { onOptionsClick(MenuIntent.ShareExternally) }
+                MediaGalleryMenuItem.SHARE_EXTERNALLY -> if (!collapseShareOptions) {
+                    add {
+                        ShareAssetExternallyMenuOption { onOptionsClick(MenuIntent.ShareExternally) }
+                    }
                 }
                 MediaGalleryMenuItem.SHARE_VIA_WIRE -> add {
-                    ShareAssetViaWireMenuOption { onOptionsClick(MenuIntent.ShareViaWire) }
+                    if (collapseShareOptions) {
+                        ShareAssetMenuOption { onOptionsClick(MenuIntent.ShareExternally) }
+                    } else {
+                        ShareAssetViaWireMenuOption { onOptionsClick(MenuIntent.ShareViaWire) }
+                    }
                 }
                 MediaGalleryMenuItem.SHARE_PUBLIC_LINK -> add {
                     SharePublicLinkMenuOption { onOptionsClick(MenuIntent.ShareExternally) }

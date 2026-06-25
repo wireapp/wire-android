@@ -24,8 +24,7 @@ import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.OpenAssetExternallyOption
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
-import com.wire.android.ui.edit.ShareAssetExternallyMenuOption
-import com.wire.android.ui.edit.ShareAssetViaWireMenuOption
+import com.wire.android.ui.edit.shareAssetMenuOptions
 
 // menu items with both asset options enabled (like share, download, etc.) and message options enabled (like reply, reaction, etc.)
 @Composable
@@ -61,8 +60,7 @@ fun assetMessageOptionsMenuItems(
                 add { MessageDetailsMenuOption(onDetailsClick) }
                 add { ReplyMessageOption(onReplyClick) }
                 add { DownloadAssetExternallyOption(onDownloadAsset) }
-                add { ShareAssetViaWireMenuOption(onShareAssetViaWire) }
-                add { ShareAssetExternallyMenuOption(onShareAssetExternally) }
+                addAll(shareAssetMenuOptions(onShareAssetExternally, onShareAssetViaWire))
                 if (isOpenable) add { OpenAssetExternallyOption(onOpenAsset) }
                 add { DeleteItemMenuOption(onDeleteClick) }
             }
@@ -85,8 +83,7 @@ fun assetOptionsMenuItems(
     if (!isUploading) {
         add { DownloadAssetExternallyOption(onDownloadAsset) }
         if (!isEphemeral) {
-            add { ShareAssetViaWireMenuOption(onShareAssetViaWire) }
-            add { ShareAssetExternallyMenuOption(onShareAssetExternally) }
+            addAll(shareAssetMenuOptions(onShareAssetExternally, onShareAssetViaWire))
         }
         if (isOpenable) add { OpenAssetExternallyOption(onOpenAsset) }
     }

@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.Parcelable
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.text.input.TextFieldState
@@ -30,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.app.ShareCompat
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -51,7 +49,6 @@ import com.wire.android.util.EMPTY
 import com.wire.android.util.FILE_PROVIDER_SHARED_FILES_ROOT
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getProviderAuthority
-import com.wire.android.util.parcelableArrayList
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -214,10 +211,7 @@ class ImportMediaAuthenticatedViewModel(
         hasTrustedWireCaller: Boolean
     ) {
         appLogger.d("$TAG: handleMultipleActionIntent")
-        val fileUris = activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.map {
-            it.toString().toUri()
-        } ?: listOf()
-        handleReceivedUrisFromSharingIntent(providerAuthority, hasTrustedWireCaller, fileUris)
+        handleReceivedUrisFromSharingIntent(providerAuthority, hasTrustedWireCaller, activity.intent.sharingUris())
     }
 
     internal suspend fun handleReceivedUrisFromSharingIntent(
@@ -297,6 +291,19 @@ internal fun Uri.shouldRejectWireFileProviderShare(providerAuthority: String, ha
 internal fun List<Uri>.shouldRejectSharingIntent(providerAuthority: String, hasTrustedWireCaller: Boolean): Boolean =
     any { uri -> uri.shouldRejectWireFileProviderShare(providerAuthority, hasTrustedWireCaller) }
 
+internal fun Intent.sharingUris(): List<Uri> =
+    when (action) {
+        Intent.ACTION_SEND -> (extras?.get(Intent.EXTRA_STREAM) as? Uri)?.let(::listOf) ?: emptyList()
+        Intent.ACTION_SEND_MULTIPLE -> {
+            @Suppress("UNCHECKED_CAST")
+            (extras?.get(Intent.EXTRA_STREAM) as? List<*>)?.filterIsInstance<Uri>() ?: emptyList()
+        }
+        else -> emptyList()
+    }
+
+internal fun Intent.shouldRejectSharingIntent(providerAuthority: String, hasTrustedWireCaller: Boolean): Boolean =
+    sharingUris().shouldRejectSharingIntent(providerAuthority, hasTrustedWireCaller)
+
 internal fun Uri.isWireInternalShareUri(providerAuthority: String): Boolean =
     isWireFileProviderUri(providerAuthority) &&
         pathSegments.let { segments ->
@@ -305,7 +312,7 @@ internal fun Uri.isWireInternalShareUri(providerAuthority: String): Boolean =
                 segments.none { it == ".." }
         }
 
-private fun AppCompatActivity.hasTrustedWireShareCaller(): Boolean =
+internal fun AppCompatActivity.hasTrustedWireShareCaller(): Boolean =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
         getTrustedShareCallerPackageName() == packageName
 

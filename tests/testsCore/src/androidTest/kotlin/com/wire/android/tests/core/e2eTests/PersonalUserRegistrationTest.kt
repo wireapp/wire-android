@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("ArgumentListWrapping")
+
 package com.wire.android.tests.core.e2eTests
 
 import InbucketClient
@@ -26,6 +28,7 @@ import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import user.UserClient
@@ -136,4 +139,20 @@ class PersonalUserRegistrationTest : BaseUiTest() {
             }
         }
     }
+
+    @Ignore("Stale zautomation case: TC-4493 targets the old login flow, which is no longer exposed by the current app.")
+    @TestCaseId("TC-4493")
+    @Category("regression", "RC", "registration")
+    @Test
+    fun givenUserWantsToRegisterWithOldLoginFlow_whenTheyProvideValidDetails_thenAccountIsCreatedSuccessfully() {
+        // Intentionally skipped: the active app starts from the email verification flow covered by TC-8694.
+    }
+
+    @TestCaseId("TC-4852", "TC-4851")
+    @Category("registration")
+    @Ignore(
+        "Blocked: column backend registration restrictions need column backend deep link/login fixture and welcome-page negative assertions."
+    )
+    @Test
+    fun givenColumnBackendWelcomePage_whenRegistrationIsDisabled_thenTeamAndPersonalRegistrationAreHidden() = Unit
 }

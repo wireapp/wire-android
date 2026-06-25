@@ -127,6 +127,130 @@ fun BackendClient.getConversationObjects(token: AccessToken, conversationIDs: JS
     return JSONObject(response.body)
 }
 
+fun BackendClient.createInviteLink(user: ClientUser, conversation: Conversation): String {
+    val token = runBlocking { getAuthToken(user) }
+        ?: throw IllegalStateException("Could not get auth token for user '${user.name}'.")
+    val url = "conversations/${conversation.id}/code".composeCompleteUrl()
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token.type} ${token.value}")
+    }
+
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(url),
+        method = "POST",
+        headers = headers,
+        body = "",
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_CREATED, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
+
+    return inviteLinkFromPayload(JSONObject(response.body))
+}
+
+fun BackendClient.createInviteLinkWithPassword(user: ClientUser, conversation: Conversation, password: String): String {
+    val token = runBlocking { getAuthToken(user) }
+        ?: throw IllegalStateException("Could not get auth token for user '${user.name}'.")
+    val url = "conversations/${conversation.id}/code".composeCompleteUrl()
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token.type} ${token.value}")
+    }
+    val body = JSONObject().apply {
+        put("password", password)
+    }
+
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(url),
+        method = "POST",
+        headers = headers,
+        body = body.toString(),
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_CREATED, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
+
+    return inviteLinkFromPayload(JSONObject(response.body))
+}
+
+fun BackendClient.getInviteLink(user: ClientUser, conversation: Conversation): String {
+    val token = runBlocking { getAuthToken(user) }
+        ?: throw IllegalStateException("Could not get auth token for user '${user.name}'.")
+    val url = "conversations/${conversation.id}/code".composeCompleteUrl()
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token.type} ${token.value}")
+    }
+
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(url),
+        method = "GET",
+        headers = headers,
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_CREATED, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
+
+    return inviteLinkFromPayload(JSONObject(response.body))
+}
+
+fun BackendClient.revokeInviteLink(user: ClientUser, conversation: Conversation) {
+    val token = runBlocking { getAuthToken(user) }
+        ?: throw IllegalStateException("Could not get auth token for user '${user.name}'.")
+    val url = "conversations/${conversation.id}/code".composeCompleteUrl()
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token.type} ${token.value}")
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(url),
+        method = "DELETE",
+        headers = headers,
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
+}
+
+fun BackendClient.deleteTeamConversation(user: ClientUser, conversation: Conversation) {
+    val token = runBlocking { getAuthToken(user) }
+        ?: throw IllegalStateException("Could not get auth token for user '${user.name}'.")
+    val teamId = user.teamId
+    val url = "teams/$teamId/conversations/${conversation.id}".composeCompleteUrl()
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token.type} ${token.value}")
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(url),
+        method = "DELETE",
+        headers = headers,
+        body = JSONObject().toString(),
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
+}
+
+private fun inviteLinkFromPayload(payload: JSONObject): String {
+    val data = payload.optJSONObject("data")
+    return data?.optString("uri")?.takeIf { it.isNotBlank() }
+        ?: payload.getString("uri")
+}
+
 fun BackendClient.getConversationIDs(user: ClientUser): List<QualifiedID> {
     val result = mutableListOf<QualifiedID>()
     var pagingState: String? = null

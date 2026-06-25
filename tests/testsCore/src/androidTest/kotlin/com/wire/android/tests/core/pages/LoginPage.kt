@@ -46,16 +46,19 @@ data class LoginPage(private val device: UiDevice) {
     private val androidResolverWireDevSelector = UiSelectorParams(text = "Wire Dev")
     private val androidResolverJustOnceSelector = UiSelectorParams(text = "Just once")
     private val emailWelcomeSelector = UiSelectorParams(textMatches = "Enter your (email to start!|credentials to log in)")
+    private val invalidEmailErrorSelector = UiSelectorParams(textContains = "Please enter a valid email or SSO code")
+    private val incorrectCredentialsErrorSelector = UiSelectorParams(textContains = "These account credentials are incorrect")
+    private val forgotPasswordSelector = UiSelectorParams(text = "Forgot password?")
+    private val showPasswordButtonSelector = UiSelectorParams(description = "Show password")
+    private val hidePasswordButtonSelector = UiSelectorParams(description = "Hide password")
+    private val removedDeviceAlertTitleSelector = UiSelectorParams(text = "Removed Device")
+    private val removedDeviceAlertMessageSelector = UiSelectorParams(textContains = "You were logged out because your device was removed")
+    private val deletedAccountAlertTitleSelector = UiSelectorParams(text = "Deleted account")
+    private val deletedAccountAlertMessageSelector = UiSelectorParams(textContains = "You were logged out because your account was deleted")
+    private val okButtonSelector = UiSelectorParams(text = "OK")
 
     fun enterPersonalUserLoggingEmail(email: String): LoginPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Click the input field (waits until visible)
-        device.findObject(emailInputField).click()
-        // Wait again to avoid stale object
-        device.findObject(emailInputField)
-        // Set text via UiObject (more reliable than UiObject2.text=)
-        device.findObject(emailInputField).setText(email)
-
+        enterEmail(email)
         return this
     }
 
@@ -70,38 +73,17 @@ data class LoginPage(private val device: UiDevice) {
     }
 
     fun enterTeamOwnerLoggingEmail(email: String): LoginPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Click the input field (waits until visible)
-        device.findObject(emailInputField).click()
-        // Wait again to avoid stale object
-        device.findObject(emailInputField)
-        // Set text via UiObject (more reliable than UiObject2.text=)
-        device.findObject(emailInputField).setText(email)
-
+        enterEmail(email)
         return this
     }
 
     fun enterTeamMemberLoggingEmail(email: String): LoginPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Click the input field (waits until visible)
-        device.findObject(emailInputField).click()
-        // Wait again to avoid stale object
-        device.findObject(emailInputField)
-        // Set text via UiObject (more reliable than UiObject2.text=)
-        device.findObject(emailInputField).setText(email)
-
+        enterEmail(email)
         return this
     }
 
     fun enterSSOCodeOnSSOLoginTab(email: String): LoginPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Click the input field (waits until visible)
-        device.findObject(emailInputField).click()
-        // Wait again to avoid stale object
-        device.findObject(emailInputField)
-        // Set text via UiObject (more reliable than UiObject2.text=)
-        device.findObject(emailInputField).setText(email)
-
+        enterEmail(email)
         return this
     }
 
@@ -113,6 +95,18 @@ data class LoginPage(private val device: UiDevice) {
     fun clickStagingDeepLink(): LoginPage {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val deepLinkUrl = "wire://access/?config=${backendClient.deeplink}"
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse(deepLinkUrl)
+            setPackage(UiAutomatorSetup.appPackage)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        context.startActivity(intent)
+        return this
+    }
+
+    fun openDeepLink(deepLinkUrl: String): LoginPage {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
         val intent = Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse(deepLinkUrl)
             setPackage(UiAutomatorSetup.appPackage)
@@ -139,6 +133,13 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
+    fun enterLoginVerificationCode(code: String): LoginPage {
+        val codeInputField = UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText"))
+        codeInputField.click()
+        codeInputField.text = code
+        return this
+    }
+
     fun clickProceedButtonOnDeeplinkOverlay(): LoginPage {
         val proceeded = UiWaitUtils.retryUntilTimeout(timeout = UiWaitUtils.LONG_TIMEOUT) {
             UiWaitUtils.findElementOrNull(androidResolverWireDevSelector)?.let { wireDevOption ->
@@ -152,7 +153,8 @@ data class LoginPage(private val device: UiDevice) {
             try {
                 UiWaitUtils.findElementOrNull(proceedButtonSelector)?.let { proceedButton ->
                     if (!proceedButton.visibleBounds.isEmpty && proceedButton.isEnabled) {
-                        proceedButton.click()
+                        val clickableTarget = proceedButton.parent ?: proceedButton
+                        clickableTarget.click()
                         return@retryUntilTimeout true
                     }
                 }
@@ -177,12 +179,113 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
-    private fun enterPassword(password: String) {
+    fun clearEmailInputField(): LoginPage {
+        enterEmail("")
+        return this
+    }
+
+    fun assertInvalidEmailErrorVisible(): LoginPage {
+        val error = UiWaitUtils.waitElement(invalidEmailErrorSelector)
+        assertTrue("Invalid email error is not visible", !error.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertUserLoginScreenVisible(): LoginPage {
         val passwordInputField = UiWaitUtils.waitElement(passwordInputFieldSelector)
-        val input = passwordInputField.findObject(By.clazz("android.widget.EditText"))
+        assertTrue("Password input is not visible", !passwordInputField.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertIncorrectCredentialsErrorVisible(): LoginPage {
+        val error = UiWaitUtils.waitElement(incorrectCredentialsErrorSelector, timeout = UiWaitUtils.LONG_TIMEOUT)
+        assertTrue("Incorrect credentials error is not visible", !error.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun clickOkButtonOnIncorrectCredentialsAlertIfVisible(): LoginPage {
+        UiWaitUtils.clickWhenClickable(okButtonSelector, timeout = UiWaitUtils.SHORT_TIMEOUT)
+        return this
+    }
+
+    fun clickForgotPasswordButton(): LoginPage {
+        UiWaitUtils.waitElement(forgotPasswordSelector).click()
+        return this
+    }
+
+    fun clickShowPasswordButton(): LoginPage {
+        UiWaitUtils.waitElement(showPasswordButtonSelector).click()
+        return this
+    }
+
+    fun clickHidePasswordButton(): LoginPage {
+        UiWaitUtils.waitElement(hidePasswordButtonSelector).click()
+        return this
+    }
+
+    fun assertLoginPasswordVisible(expectedPassword: String): LoginPage {
+        val input = passwordInput()
+        assertTrue("Login password is not visible in cleartext", input.text == expectedPassword)
+        return this
+    }
+
+    fun assertLoginPasswordHidden(): LoginPage {
+        val showPasswordButton = UiWaitUtils.waitElement(showPasswordButtonSelector)
+        assertTrue("Login password visibility toggle did not return to hidden state", !showPasswordButton.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertRemovedDeviceAlertVisible(): LoginPage {
+        val title = UiWaitUtils.waitElement(removedDeviceAlertTitleSelector, timeout = UiWaitUtils.LONG_TIMEOUT)
+        assertTrue("Removed device alert title is not visible", !title.visibleBounds.isEmpty)
+        val message = UiWaitUtils.waitElement(removedDeviceAlertMessageSelector)
+        assertTrue("Removed device alert message is not visible", !message.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun clickOkButtonOnRemovedDeviceAlert(): LoginPage {
+        UiWaitUtils.waitElement(okButtonSelector).click()
+        return this
+    }
+
+    fun assertDeletedAccountAlertVisible(): LoginPage {
+        val title = UiWaitUtils.waitElement(deletedAccountAlertTitleSelector, timeout = UiWaitUtils.LONG_TIMEOUT)
+        assertTrue("Deleted account alert title is not visible", !title.visibleBounds.isEmpty)
+        val message = UiWaitUtils.waitElement(deletedAccountAlertMessageSelector)
+        assertTrue("Deleted account alert message is not visible", !message.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun clickOkButtonOnDeletedAccountAlert(): LoginPage {
+        UiWaitUtils.waitElement(okButtonSelector).click()
+        return this
+    }
+
+    fun clickOkButtonOnRemovedDeviceAlertIfVisible(): LoginPage {
+        val titleVisible = UiWaitUtils.findElementOrNull(removedDeviceAlertTitleSelector)
+            ?.let { !it.visibleBounds.isEmpty } == true
+        if (titleVisible) {
+            UiWaitUtils.clickWhenClickable(okButtonSelector, timeout = UiWaitUtils.SHORT_TIMEOUT)
+        }
+        return this
+    }
+
+    private fun enterEmail(email: String) {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        // UiObject.setText is more reliable here than UiObject2.text for Compose text fields.
+        device.findObject(emailInputField).click()
+        device.findObject(emailInputField)
+        device.findObject(emailInputField).setText(email)
+    }
+
+    private fun enterPassword(password: String) {
+        val input = passwordInput()
         input.click()
         input.text = password
     }
+
+    private fun passwordInput() =
+        UiWaitUtils.waitElement(passwordInputFieldSelector)
+            .findObject(By.clazz("android.widget.EditText"))
 
     private fun waitForWelcomeScreenAfterBackendDeeplink() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())

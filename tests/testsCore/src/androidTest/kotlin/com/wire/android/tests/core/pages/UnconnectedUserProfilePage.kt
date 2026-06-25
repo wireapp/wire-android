@@ -29,9 +29,13 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
     private val ignoreButton = UiSelectorParams(text = "Ignore")
 
     private val connectionRequestButton = UiSelectorParams(text = "Connect")
+    private val cancelConnectionRequestButton = UiSelectorParams(text = "Cancel Request")
 
     private val connectionNotificationText = UiSelectorParams(
         textContains = "This user wants to connect with you."
+    )
+    private val outgoingConnectionInfoText = UiSelectorParams(
+        textContains = "When your connection request is accepted"
     )
 
     private val closeButtonOnUnconnectedUserProfilePage = UiSelectorParams(description = "Close")
@@ -61,6 +65,15 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
         return this
     }
 
+    fun assertOutgoingConnectionInfoTextIsDisplayed(): UnconnectedUserProfilePage {
+        val infoText = UiWaitUtils.waitElement(outgoingConnectionInfoText)
+        Assert.assertTrue(
+            "'When your connection request is accepted' text is not visible.",
+            !infoText.visibleBounds.isEmpty
+        )
+        return this
+    }
+
     fun assertUserNameInUnconnectedUserProfilePage(userName: String): UnconnectedUserProfilePage {
         try {
             UiWaitUtils.waitElement(UiSelectorParams(text = userName))
@@ -77,6 +90,17 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
 
     fun clickConnectionRequestButton(): UnconnectedUserProfilePage {
         UiWaitUtils.waitElement(connectionRequestButton).click()
+        return this
+    }
+
+    fun assertCancelConnectionRequestButtonVisible(): UnconnectedUserProfilePage {
+        val button = UiWaitUtils.waitElement(cancelConnectionRequestButton)
+        Assert.assertTrue("Cancel Request button is not visible", !button.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun clickCancelConnectionRequestButton(): UnconnectedUserProfilePage {
+        UiWaitUtils.waitElement(cancelConnectionRequestButton).click()
         return this
     }
 }

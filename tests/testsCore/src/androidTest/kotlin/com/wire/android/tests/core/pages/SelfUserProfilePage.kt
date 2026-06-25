@@ -27,6 +27,8 @@ data class SelfUserProfilePage(private val device: UiDevice) {
     private val logoutButton = UiSelectorParams(text = "Log out")
     private val clearDataAlert = UiSelectorParams(text = "Clear Data?")
     private val newTeamOrAddAccountButton = UiSelectorParams(text = "New Team or Add Account")
+    private val okButton = UiSelectorParams(text = "OK")
+    private val closeProfileButton = UiSelectorParams(description = "Close your profile")
 
     private val infoTextCheckbox = UiSelectorParams(className = "android.widget.CheckBox")
 
@@ -39,7 +41,22 @@ data class SelfUserProfilePage(private val device: UiDevice) {
         return this
     }
 
+    fun assertCurrentAccountIs(accountName: String): SelfUserProfilePage {
+        try {
+            UiWaitUtils.waitElement(UiSelectorParams(text = accountName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Current account '$accountName' is not visible on User Profile Page", e)
+        }
+        return this
+    }
+
     fun tapLogoutButton(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(logoutButton).click()
+        return this
+    }
+
+    fun tapLogoutButtonOnClearDataAlert(): SelfUserProfilePage {
+        iSeeClearDataOnLogOutAlert()
         UiWaitUtils.waitElement(logoutButton).click()
         return this
     }
@@ -71,5 +88,55 @@ data class SelfUserProfilePage(private val device: UiDevice) {
     fun tapNewTeamOrAddAccountButton(): SelfUserProfilePage {
         UiWaitUtils.waitElement(newTeamOrAddAccountButton).click()
         return this
+    }
+
+    fun assertChangeStatusOptionsVisible(): SelfUserProfilePage {
+        scrollUntilTextVisible("None")
+        return this
+    }
+
+    fun changeStatusFromTo(currentStatus: String, status: String): SelfUserProfilePage {
+        scrollUntilTextVisible(currentStatus).click()
+        UiWaitUtils.waitElement(UiSelectorParams(text = status)).click()
+        return this
+    }
+
+    fun assertStatusRationaleTextIsDisplayed(text: String): SelfUserProfilePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = text))
+        return this
+    }
+
+    fun tapOkButtonOnStatusDialog(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(okButton).click()
+        return this
+    }
+
+    fun assertStatusIs(status: String): SelfUserProfilePage {
+        scrollUntilTextVisible(status)
+        return this
+    }
+
+    fun tapCloseButton(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(closeProfileButton).click()
+        return this
+    }
+
+    private fun scrollUntilTextVisible(text: String) =
+        UiWaitUtils.findElementOrNull(UiSelectorParams(text = text)) ?: run {
+            repeat(MAX_SCROLL_ATTEMPTS) {
+                device.swipe(
+                    device.displayWidth / 2,
+                    (device.displayHeight * 0.75f).toInt(),
+                    device.displayWidth / 2,
+                    (device.displayHeight * 0.35f).toInt(),
+                    30
+                )
+                UiWaitUtils.findElementOrNull(UiSelectorParams(text = text))?.let { return@run it }
+            }
+            UiWaitUtils.waitElement(UiSelectorParams(text = text))
+        }
+
+    private companion object {
+        const val MAX_SCROLL_ATTEMPTS = 4
     }
 }

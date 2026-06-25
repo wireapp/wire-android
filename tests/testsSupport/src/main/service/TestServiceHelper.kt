@@ -26,6 +26,8 @@ import com.wire.android.testSupport.R
 import com.wire.android.testSupport.service.TestService
 import kotlinx.coroutines.runBlocking
 import network.HttpRequestException
+import org.json.JSONArray
+import org.json.JSONObject
 import service.enums.LegalHoldStatus
 import service.enums.TeamService
 import service.models.Conversation
@@ -42,6 +44,7 @@ import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
+@Suppress("LargeClass")
 class TestServiceHelper(
     private val usersManager: ClientUserManager
 ) {
@@ -190,6 +193,81 @@ class TestServiceHelper(
             getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
             audio.absolutePath.orEmpty(),
             "audio/mp4"
+        )
+    }
+
+    fun contactSendsLocalTextConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val textFile = getRawResourceAsFile(context, R.raw.testing_text, fileName)
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
+
+        if (textFile?.exists() != true) {
+            throw Exception("Text file not found")
+        }
+
+        testServiceClient.sendFile(
+            toClientUser(senderAlias),
+            deviceName,
+            conversation.qualifiedID.id,
+            conversation.qualifiedID.domain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            textFile.absolutePath.orEmpty(),
+            "text/plain"
+        )
+    }
+
+    fun contactSendsLocalVideoConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val videoFile = getRawResourceAsFile(context, R.raw.testing, fileName)
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
+
+        if (videoFile?.exists() != true) {
+            throw Exception("Video file not found")
+        }
+
+        testServiceClient.sendFile(
+            toClientUser(senderAlias),
+            deviceName,
+            conversation.qualifiedID.id,
+            conversation.qualifiedID.domain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            videoFile.absolutePath.orEmpty(),
+            "video/mp4"
+        )
+    }
+
+    fun contactSendsLocalImageConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val imageFile = getRawResourceAsFile(context, R.raw.testing, fileName)
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
+
+        if (imageFile?.exists() != true) {
+            throw Exception("Image file not found")
+        }
+
+        testServiceClient.sendFile(
+            toClientUser(senderAlias),
+            deviceName,
+            conversation.qualifiedID.id,
+            conversation.qualifiedID.domain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            imageFile.absolutePath.orEmpty(),
+            "image/jpeg"
         )
     }
 
@@ -449,6 +527,50 @@ class TestServiceHelper(
         }
     }
 
+    fun userCreatesInviteDeeplink(userNameAlias: String, conversationName: String): String {
+        val user = toClientUser(userNameAlias)
+        val backend = backendFor(user)
+        val conversation = toConvoObj(user, conversationName)
+        val inviteLink = backend.createInviteLink(user, conversation)
+        return inviteLink.toConversationJoinDeepLink(backend.domain)
+    }
+
+    fun userCreatesInviteDeeplinkWithPassword(userNameAlias: String, conversationName: String, password: String): String {
+        val user = toClientUser(userNameAlias)
+        val backend = backendFor(user)
+        val conversation = toConvoObj(user, conversationName)
+        val inviteLink = backend.createInviteLinkWithPassword(user, conversation, password)
+        return inviteLink.toConversationJoinDeepLink(backend.domain)
+    }
+
+    private fun String.toConversationJoinDeepLink(domain: String): String {
+        val query = substringAfter("?", missingDelimiterValue = "")
+        if (query.isBlank()) {
+            throw IllegalStateException("Invite link has unexpected format: $this")
+        }
+        return "wire://conversation-join?$query&domain=$domain"
+    }
+
+    fun userGetsInviteDeeplink(userNameAlias: String, conversationName: String): String {
+        val user = toClientUser(userNameAlias)
+        val backend = backendFor(user)
+        val conversation = toConvoObj(user, conversationName)
+        val inviteLink = backend.getInviteLink(user, conversation)
+        return inviteLink.toConversationJoinDeepLink(backend.domain)
+    }
+
+    fun userRevokesInviteLink(userNameAlias: String, conversationName: String) {
+        val user = toClientUser(userNameAlias)
+        val backend = backendFor(user)
+        backend.revokeInviteLink(user, toConvoObj(user, conversationName))
+    }
+
+    fun userDeletesTeamConversation(userNameAlias: String, conversationName: String) {
+        val user = toClientUser(userNameAlias)
+        val backend = backendFor(user)
+        backend.deleteTeamConversation(user, toConvoObj(user, conversationName))
+    }
+
     fun userHasChannelConversationInTeam(
         chatOwnerNameAlias: String,
         chatName: String? = null,
@@ -575,6 +697,65 @@ class TestServiceHelper(
         )
     }
 
+    @Suppress("LongParameterList")
+    fun userSendsPollMessageToConversation(
+        senderAlias: String,
+        msg: String,
+        title: String?,
+        buttonsCsv: String,
+        deviceName: String?,
+        dstConvoName: String
+    ): String {
+        val clientUser = toClientUser(senderAlias)
+        val conversation = toConvoObj(clientUser, dstConvoName)
+        val message = title?.let { "**$it**${System.lineSeparator()}$msg" } ?: msg
+        val expReadConfirm = when (conversation.type) {
+            0 -> conversation.isReceiptModeEnabled
+            2 -> isSendReadReceiptEnabled(clientUser.name.orEmpty())
+            else -> false
+        }
+
+        return testServiceClient.sendCompositeText(
+            SendTextParams(
+                owner = clientUser,
+                deviceName = deviceName,
+                convoDomain = conversation.qualifiedID.domain,
+                convoId = conversation.qualifiedID.id,
+                timeout = Duration.ZERO,
+                expectsReadConfirmation = expReadConfirm,
+                text = message,
+                buttons = buttonsCsv.toButtonsJsonArray(),
+                legalHoldStatus = LegalHoldStatus.DISABLED.code,
+            )
+        )
+    }
+
+    fun userSendsButtonActionConfirmationToLatestPollMessage(
+        senderAlias: String,
+        receiverAlias: String,
+        deviceName: String?,
+        dstConvoName: String,
+        buttonText: String
+    ) {
+        val sender = toClientUser(senderAlias)
+        val receiver = toClientUser(receiverAlias)
+        val conversation = toConvoObj(sender, dstConvoName)
+        val convoId = conversation.qualifiedID.id
+        val convoDomain = conversation.qualifiedID.domain
+        val pollMessage = getRecentPollMessage(sender, deviceName, convoId, convoDomain)
+        val buttonId = pollMessage.pollButtonIdByText(buttonText)
+        val receiverId = receiver.id ?: throw IllegalStateException("User '$receiverAlias' does not have an id")
+
+        testServiceClient.sendButtonActionConfirmation(
+            sender,
+            receiverId,
+            deviceName,
+            convoId,
+            pollMessage.getString("id"),
+            buttonId
+        )
+    }
+
     fun userSendMessageToPersonalMlsConversation(
         senderAlias: String,
         msg: String,
@@ -635,6 +816,67 @@ class TestServiceHelper(
         }
         throw IllegalStateException("The conversation contains no messages")
     }
+
+    private fun getRecentPollMessage(
+        user: ClientUser,
+        deviceName: String?,
+        convoId: String,
+        convoDomain: String
+    ): JSONObject {
+        var messages = JSONArray()
+        val hasPollMessage = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = 1.seconds
+        ) {
+            messages = testServiceClient.getMessages(user, deviceName, convoId, convoDomain)
+            (messages.length() - 1 downTo 0).any { index ->
+                messages.getJSONObject(index).hasPollButtons()
+            }
+        }
+
+        if (hasPollMessage) {
+            for (index in messages.length() - 1 downTo 0) {
+                val message = messages.getJSONObject(index)
+                if (message.hasPollButtons()) return message
+            }
+        }
+        throw IllegalStateException("Could not find poll message in conversation '$convoId'")
+    }
+
+    private fun JSONObject.hasPollButtons(): Boolean {
+        val content = optJSONObject("content") ?: return false
+        if (content.has("buttonList")) return true
+        val items = content.optJSONArray("items") ?: return false
+        return (0 until items.length()).any { index ->
+            items.getJSONObject(index).has("button")
+        }
+    }
+
+    private fun JSONObject.pollButtonIdByText(buttonText: String): String {
+        val content = getJSONObject("content")
+        content.optJSONArray("buttonList")?.let { buttonItems ->
+            for (index in 0 until buttonItems.length()) {
+                val buttonItem = buttonItems.getJSONObject(index)
+                if (buttonItem.getString("text") == buttonText) return buttonItem.getString("id")
+            }
+        }
+        content.optJSONArray("items")?.let { items ->
+            for (index in 0 until items.length()) {
+                val button = items.getJSONObject(index).optJSONObject("button") ?: continue
+                if (button.getString("text") == buttonText) return button.getString("id")
+            }
+        }
+        throw IllegalStateException("Expected poll button '$buttonText' not found")
+    }
+
+    private fun String.toButtonsJsonArray(): JSONArray =
+        split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .fold(JSONArray()) { buttons, buttonText ->
+                buttons.put(buttonText)
+                buttons
+            }
 
     private fun resolveMessageTimeout(
         senderAlias: String,

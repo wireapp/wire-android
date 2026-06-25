@@ -104,3 +104,44 @@ object QrCodeTestUtils {
         return file
     }
 }
+
+@Suppress("TooGenericExceptionCaught")
+object TextFileTestUtils {
+    @Suppress("ThrowsCount")
+    fun createTextFileInDeviceDownloadsFolder(fileName: String, contents: String): File {
+        val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        if (!downloads.exists()) downloads.mkdirs()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val resolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
+
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                ?: throw IOException("Failed to create MediaStore entry for $fileName")
+
+            try {
+                resolver.openOutputStream(uri)?.bufferedWriter()?.use { writer ->
+                    writer.write(contents)
+                } ?: throw IOException("Failed to open output stream for $uri")
+
+                values.clear()
+                values.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                resolver.update(uri, values, null, null)
+            } catch (e: Exception) {
+                resolver.delete(uri, null, null)
+                throw e
+            }
+
+            return File(downloads, fileName)
+        }
+
+        val file = File(downloads, fileName)
+        file.writeText(contents)
+        return file
+    }
+}

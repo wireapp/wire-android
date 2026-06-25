@@ -18,13 +18,18 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.StaleObjectException
 import backendUtils.team.TeamHelper
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.findElementOrNull
 import user.usermanager.ClientUserManager
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 data class SearchPage(private val device: UiDevice) {
     private val searchFieldSearchPeople = UiSelectorParams(description = "Search people by name or username")
+    private val searchInputField = UiSelectorParams(className = "android.widget.EditText")
     private val closeSearchInputFieldButton = UiSelectorParams(
         className = "android.view.View",
         description = "Go back to add participants view"
@@ -42,6 +47,34 @@ data class SearchPage(private val device: UiDevice) {
                 "Expected user name in search results to be '$expectedHandle' but its not '$expectedHandle'",
                 e
             )
+        }
+        return this
+    }
+
+    fun assertUsernameNotInSearchResult(
+        expectedHandle: String,
+        timeout: Duration = 5.seconds
+    ): SearchPage {
+        val handleSelector = UiSelectorParams(
+            className = "android.widget.TextView",
+            text = expectedHandle
+        )
+        val gone = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            val element = findElementOrNull(handleSelector)
+            element == null || runCatching { element.visibleBounds.isEmpty }
+                .getOrElse { error ->
+                    if (error is StaleObjectException) {
+                        true
+                    } else {
+                        throw error
+                    }
+                }
+        }
+        if (!gone) {
+            throw AssertionError("User name '$expectedHandle' is visible in search results.")
         }
         return this
     }
@@ -69,11 +102,15 @@ data class SearchPage(private val device: UiDevice) {
             alias,
             ClientUserManager.FindBy.NAME_ALIAS
         )
-        val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
-        field.click()
-        UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text =
-            uniqueUserName.uniqueUsername.orEmpty()
-        return this
+        return typeRawTextInSearchField(uniqueUserName.uniqueUsername.orEmpty())
+    }
+
+    fun typeUserNameInSearchField(teamHelper: TeamHelper, alias: String): SearchPage {
+        val userName = teamHelper.usersManager.replaceAliasesOccurrences(
+            alias,
+            ClientUserManager.FindBy.NAME_ALIAS
+        )
+        return typeRawTextInSearchField(userName)
     }
 
     fun typeUserNameInSearchField(alias: String): SearchPage {
@@ -85,9 +122,13 @@ data class SearchPage(private val device: UiDevice) {
             alias,
             ClientUserManager.FindBy.NAME_ALIAS
         )
+        return typeRawTextInSearchField(userName)
+    }
+
+    fun typeRawTextInSearchField(text: String): SearchPage {
         val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
         field.click()
-        UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text = userName
+        UiWaitUtils.waitElement(searchInputField).text = text
         return this
     }
 }

@@ -17,14 +17,20 @@
  */
 package com.wire.android.tests.core.pages
 
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.StaleObjectException
+import java.util.regex.Pattern
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 data class DocumentsUIPage(private val device: UiDevice) {
     private val sendButton = UiSelectorParams(text = "Send")
+    private val addButton = UiSelectorParams(text = "Add")
+    private val doneButton = UiSelectorParams(text = "Done")
+    private val dismissButton = UiSelectorParams(text = "Dismiss")
     private val downloadsOption = UiSelectorParams(textContains = "Download")
     private val showRootsButton = UiSelectorParams(description = "Show roots")
 
@@ -67,8 +73,48 @@ data class DocumentsUIPage(private val device: UiDevice) {
         return this
     }
 
+    fun selectFileFromDownloads(fileName: String): DocumentsUIPage {
+        val fileSelector = UiSelectorParams(text = fileName)
+
+        if (UiWaitUtils.findElementOrNull(fileSelector) == null) {
+            if (!clickWithRetry(downloadsOption)) {
+                clickWithRetry(showRootsButton)
+                clickWithRetry(downloadsOption)
+            }
+        }
+
+        val file = UiWaitUtils.waitElement(fileSelector, timeout = 10.seconds)
+        (file.parent ?: file).click()
+        return this
+    }
+
     fun iTapSendButtonOnPreviewImage(): DocumentsUIPage {
-        UiWaitUtils.waitElement(sendButton).click()
+        val button = UiWaitUtils.waitElement(sendButton)
+        (button.parent ?: button).click()
+        return this
+    }
+
+    fun selectFirstVisiblePhotoInPhotoPicker(): DocumentsUIPage {
+        UiWaitUtils.findElementOrNull(dismissButton)
+            ?.takeIf { !it.visibleBounds.isEmpty }
+            ?.click()
+
+        val photo = device.wait(
+            androidx.test.uiautomator.Until.findObject(By.desc(Pattern.compile("Photo taken.*"))),
+            10.seconds.inWholeMilliseconds
+        ) ?: throw AssertionError("No selectable photo was visible in Android Photo Picker.")
+
+        (photo.parent ?: photo).click()
+        return this
+    }
+
+    fun confirmPhotoPickerSelection(): DocumentsUIPage {
+        val button = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(addButton, sendButton, doneButton),
+            timeout = 10.seconds
+        ) ?: throw AssertionError("Photo Picker confirmation button was not visible.")
+
+        (button.parent ?: button).click()
         return this
     }
 }

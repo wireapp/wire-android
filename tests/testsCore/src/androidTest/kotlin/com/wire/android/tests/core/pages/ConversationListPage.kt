@@ -41,14 +41,28 @@ data class ConversationListPage(private val device: UiDevice) {
     )
     private val mainMenuButton = UiSelectorParams(description = "Main navigation")
     private val settingsButton = UiSelectorParams(text = "Settings")
+    private val filterConversationsButton = UiSelectorParams(description = "Filter Conversations")
+    private val groupFilterOption = UiSelectorParams(text = "Groups")
+    private val oneOnOneFilterOption = UiSelectorParams(text = "1:1 Conversations")
 
     private val conversationsButton = UiSelectorParams(text = "Conversations")
+    private val archiveButton = UiSelectorParams(text = "Archive")
 
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
+    private fun filterOption(optionName: String) = UiSelectorParams(text = optionName)
+    private fun filterPageHeading(heading: String) = UiSelectorParams(text = heading)
     private val conversationNameSelector: (String) -> UiSelectorParams = { conversationName ->
         UiSelectorParams(text = conversationName)
     }
     private val deleteConversationButton = UiSelectorParams(text = "Delete Conversation")
+    private val moveToArchiveButton = UiSelectorParams(text = "Move to Archive")
+    private val unarchiveButton = UiSelectorParams(text = "Unarchive")
+    private val archiveConfirmationButton = UiSelectorParams(text = "Archive")
+    private val clearContentButton = UiSelectorParams(textContains = "Clear Content")
+    private val clearContentConfirmationButton = UiSelectorParams(text = "Clear content")
+    private val blockConversationButton = UiSelectorParams(text = "Block")
+    private val unblockConversationButton = UiSelectorParams(text = "Unblock")
+    private val blockedLabel = UiSelectorParams(text = "Blocked")
 
     private val leaveConversationButton = UiSelectorParams(text = "Leave Conversation")
 
@@ -64,12 +78,39 @@ data class ConversationListPage(private val device: UiDevice) {
     private val userConversationNamePendingLabelSelector =
         UiSelector().description("pending approval of connection request")
     private val pendingApprovalLabel = UiSelectorParams(description = "pending approval of connection request")
+    private val wantsToConnectSubtitle = UiSelectorParams(text = "Wants to connect")
     fun assertConversationListVisible(): ConversationListPage {
         val heading = UiWaitUtils.waitElement(conversationListHeading)
         Assert.assertTrue(
             "Conversation list heading is not visible",
             !heading.visibleBounds.isEmpty
         )
+        return this
+    }
+
+    fun tapFilterConversationsButton(): ConversationListPage {
+        val filterButton = UiWaitUtils.waitElement(filterConversationsButton)
+        val clickableTarget = filterButton.parent ?: filterButton
+        clickableTarget.click()
+        return this
+    }
+
+    fun assertFilterConversationsSheetVisible(): ConversationListPage {
+        val groupFilter = UiWaitUtils.waitElement(groupFilterOption)
+        val oneOnOneFilter = UiWaitUtils.waitElement(oneOnOneFilterOption)
+        Assert.assertTrue("Groups filter option is not visible", !groupFilter.visibleBounds.isEmpty)
+        Assert.assertTrue("1:1 Conversations filter option is not visible", !oneOnOneFilter.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun tapConversationFilterOption(optionName: String): ConversationListPage {
+        UiWaitUtils.waitElement(filterOption(optionName)).click()
+        return this
+    }
+
+    fun assertFilterPageHeadingVisible(heading: String): ConversationListPage {
+        val title = UiWaitUtils.waitElement(filterPageHeading(heading))
+        Assert.assertTrue("Filter page heading '$heading' is not visible", !title.visibleBounds.isEmpty)
         return this
     }
 
@@ -154,6 +195,11 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun clickArchiveButtonOnMenuEntry(): ConversationListPage {
+        UiWaitUtils.waitElement(archiveButton).click()
+        return this
+    }
+
     fun assertConversationVisible(conversationName: String): ConversationListPage {
         val conversation = UiWaitUtils.waitElement(conversationNameSelector(conversationName))
         assertTrue("Conversation '$conversationName' is not visible", !conversation.visibleBounds.isEmpty)
@@ -180,6 +226,12 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertWantsToConnectSubtitleVisible(): ConversationListPage {
+        val subtitle = UiWaitUtils.waitElement(wantsToConnectSubtitle)
+        assertTrue("'Wants to connect' subtitle is not visible", !subtitle.visibleBounds.isEmpty)
+        return this
+    }
+
     fun tapSearchConversationField(): ConversationListPage {
         val element = UiWaitUtils.waitElement(searchField)
         element.click()
@@ -188,10 +240,14 @@ data class ConversationListPage(private val device: UiDevice) {
 
     fun typeFirstNCharsInSearchField(fullText: String, charCount: Int): ConversationListPage {
         val trimmedText = fullText.take(charCount)
+        return typeTextInSearchField(trimmedText)
+    }
+
+    fun typeTextInSearchField(text: String): ConversationListPage {
         val searchFieldElement = UiWaitUtils.waitElement(searchField)
         searchFieldElement.click()
 
-        val encodedText = trimmedText.replace(" ", "%s")
+        val encodedText = text.replace(" ", "%s")
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             .executeShellCommand("input text $encodedText") // removed single quotes
 
@@ -256,6 +312,85 @@ data class ConversationListPage(private val device: UiDevice) {
 
     fun tapLeaveConversationButtonInConversationActions(): ConversationListPage {
         UiWaitUtils.waitElement(leaveConversationButton).click()
+        return this
+    }
+
+    fun tapMoveToArchiveButtonInConversationActions(): ConversationListPage {
+        UiWaitUtils.waitElement(moveToArchiveButton).click()
+        return this
+    }
+
+    fun tapUnarchiveButtonInConversationActions(): ConversationListPage {
+        UiWaitUtils.waitElement(unarchiveButton).click()
+        return this
+    }
+
+    fun tapArchiveConversationConfirmationButton(): ConversationListPage {
+        UiWaitUtils.waitElement(archiveConfirmationButton).click()
+        return this
+    }
+
+    fun tapClearContentButtonInConversationActions(): ConversationListPage {
+        UiWaitUtils.waitElement(clearContentButton).click()
+        return this
+    }
+
+    fun tapClearContentConfirmationButton(): ConversationListPage {
+        UiWaitUtils.waitElement(clearContentConfirmationButton).click()
+        return this
+    }
+
+    fun assertBlockOptionNotVisibleInConversationActions(): ConversationListPage {
+        val blockOption = findElementOrNull(blockConversationButton)
+        Assert.assertTrue(
+            "Block option is visible in conversation actions.",
+            blockOption == null || blockOption.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun tapBlockOptionInConversationActions(): ConversationListPage {
+        UiWaitUtils.waitElement(blockConversationButton).click()
+        return this
+    }
+
+    fun tapUnblockOptionInConversationActions(): ConversationListPage {
+        UiWaitUtils.waitElement(unblockConversationButton).click()
+        return this
+    }
+
+    fun tapBlockConfirmButton(): ConversationListPage {
+        UiWaitUtils.waitElement(blockConversationButton).click()
+        return this
+    }
+
+    fun tapUnblockConfirmButton(): ConversationListPage {
+        UiWaitUtils.waitElement(unblockConversationButton).click()
+        return this
+    }
+
+    fun assertToastMessageIsDisplayed(expectedMessage: String): ConversationListPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(text = expectedMessage),
+            timeout = 5.seconds,
+            errorMessage = "Toast message '$expectedMessage' was not displayed."
+        )
+        return this
+    }
+
+    fun assertConversationBlockedLabelVisible(conversationName: String): ConversationListPage {
+        assertConversationVisible(conversationName)
+        UiWaitUtils.waitElement(blockedLabel)
+        return this
+    }
+
+    fun assertConversationBlockedLabelNotVisible(conversationName: String): ConversationListPage {
+        assertConversationVisible(conversationName)
+        val label = findElementOrNull(blockedLabel)
+        Assert.assertTrue(
+            "Blocked label is visible for conversation '$conversationName'.",
+            label == null || label.visibleBounds.isEmpty
+        )
         return this
     }
 
@@ -417,7 +552,32 @@ data class ConversationListPage(private val device: UiDevice) {
     }
 
     fun clickUserProfileButton(): ConversationListPage {
-        UiWaitUtils.waitElement(userProfileButton).click()
+        dismissTopOverlayIfPresent()
+        val profileButton = UiWaitUtils.waitElement(userProfileButton)
+        val center = profileButton.visibleCenter
+        device.click(center.x, center.y)
+        return this
+    }
+
+    private fun dismissTopOverlayIfPresent() {
+        repeat(2) {
+            device.swipe(
+                device.displayWidth / 2,
+                (device.displayHeight * 0.10f).toInt(),
+                device.displayWidth / 2,
+                (device.displayHeight * 0.01f).toInt(),
+                12
+            )
+        }
+        device.waitForIdle(300)
+    }
+
+    fun assertSelfStatusIconDisplayed(status: String): ConversationListPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(resourceId = STATUS_INDICATOR_TEST_TAG),
+            timeout = 10.seconds,
+            errorMessage = "Status icon '$status' was not visible on the conversation list"
+        )
         return this
     }
 
@@ -428,5 +588,9 @@ data class ConversationListPage(private val device: UiDevice) {
             throw AssertionError("Team owner name '$userName' is not visible in conversation view", e)
         }
         return this
+    }
+
+    private companion object {
+        const val STATUS_INDICATOR_TEST_TAG = "status_indicator"
     }
 }

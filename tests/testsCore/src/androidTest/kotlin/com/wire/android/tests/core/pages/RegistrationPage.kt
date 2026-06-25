@@ -243,6 +243,16 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
+    fun setUserNameIfVisible(username: String?): RegistrationPage {
+        val usernameSetupVisible = UiWaitUtils.findElementOrNull(userNameInfoText)
+            ?.let { !it.visibleBounds.isEmpty } == true
+        if (usernameSetupVisible) {
+            setUserName(username)
+            clickConfirmButton()
+        }
+        return this
+    }
+
     // Fallback for runs where the PermissionUtils pre-grant does not suppress the Android notification permission dialog.
     fun clickAllowNotificationButton(): RegistrationPage {
         allowNotificationButtons

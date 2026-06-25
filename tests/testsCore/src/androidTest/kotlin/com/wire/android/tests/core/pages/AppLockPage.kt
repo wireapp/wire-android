@@ -54,15 +54,21 @@ data class AppLockPage(private val device: UiDevice) {
         return this
     }
 
+    fun clearPasscode(): AppLockPage = clearPasscodeField()
+
     fun tapUnlockButtonOnAppLockPage(): AppLockPage {
         UiWaitUtils.waitElement(unlockButton).click()
         device.waitForIdle()
         return this
     }
 
+    fun tapUnlockButton(): AppLockPage = tapUnlockButtonOnAppLockPage()
+
     fun assertWrongPasscodeErrorMessageVisible(): AppLockPage {
         val errorMessage = UiWaitUtils.waitElement(wrongPasscodeErrorMessage)
         assertTrue("Wrong passcode error message is not visible", !errorMessage.visibleBounds.isEmpty)
         return this
     }
+
+    fun assertWrongPasscodeErrorVisible(): AppLockPage = assertWrongPasscodeErrorMessageVisible()
 }

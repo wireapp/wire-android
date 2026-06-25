@@ -32,8 +32,19 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
     private val deleteConversationButton = UiSelectorParams(text = "Delete Conversation")
 
     private val removeGroupButton = UiSelectorParams(text = "Remove")
+    private val moveToArchiveOption = UiSelectorParams(text = "Move to Archive")
+    private val unarchiveOption = UiSelectorParams(text = "Unarchive")
+    private val archiveButtonAlert = UiSelectorParams(text = "Archive")
+    private val clearContentOption = UiSelectorParams(textContains = "Clear Content")
+    private val clearContentConfirmationButton = UiSelectorParams(text = "Clear content")
+    private val leaveConversationOption = UiSelectorParams(text = "Leave Conversation")
+    private val leaveConversationConfirmationButton = UiSelectorParams(text = "Leave")
 
     private val participantsTab = UiSelectorParams(text = "PARTICIPANTS")
+    private val guestsOption = UiSelectorParams(text = "Guests")
+    private val toggleSwitch = UiSelectorParams(className = "android.widget.Switch")
+    private val disableGuestAccessDialog = UiSelectorParams(text = "Disable guest access?")
+    private val disableButton = UiSelectorParams(text = "Disable")
 
     private val addParticipantsButton = UiSelectorParams(text = "Add participants")
 
@@ -42,10 +53,13 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
     private val closeButtonOnGroupConversationDetailsPage = UiSelectorParams(description = "Close conversation details")
 
     private val conversationDetailsHeading = UiSelectorParams(text = "Conversation Details")
+    private val groupNameLabel = UiSelectorParams(text = "GROUP NAME")
 
     private val removeFromConversationButton = UiSelectorParams(text = "Remove From Conversation")
 
     private val addToConversationButton = UiSelectorParams(text = "Add To Conversation")
+    private val notificationsButton = UiSelectorParams(text = "Notifications")
+    private val defaultNotificationsStatus = UiSelectorParams(text = "Everything")
 
     private fun textViewSelector(text: String) = UiSelectorParams(
         className = "android.widget.TextView",
@@ -53,10 +67,14 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
     )
 
     fun assertGroupDetailsPageVisible(): GroupConversationDetailsPage {
-        try {
-            UiWaitUtils.waitElement(conversationDetailsHeading)
-        } catch (e: AssertionError) {
-            throw AssertionError("Group details page is not visible.", e)
+        val isVisible = UiWaitUtils.retryUntilTimeout(timeout = UiWaitUtils.LONG_TIMEOUT) {
+            UiWaitUtils.findElementOrNull(conversationDetailsHeading) != null ||
+                    UiWaitUtils.findElementOrNull(groupNameLabel) != null ||
+                    UiWaitUtils.findElementOrNull(participantsTab) != null ||
+                    UiWaitUtils.findElementOrNull(guestsOption) != null
+        }
+        if (!isVisible) {
+            throw AssertionError("Group details page is not visible.")
         }
         return this
     }
@@ -65,8 +83,63 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         UiWaitUtils.waitElement(showMoreOptionsButton).click()
     }
 
+    fun tapNotificationsButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(notificationsButton).click()
+        return this
+    }
+
+    fun assertDefaultNotificationStatusIsEverything(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(defaultNotificationsStatus)
+        return this
+    }
+
+    fun tapNotificationStatus(status: String): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = status)).click()
+        return this
+    }
+
+    fun assertNotificationStatusIs(status: String): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = status))
+        return this
+    }
+
     fun tapDeleteConversationButton() {
         UiWaitUtils.waitElement(deleteConversationButton).click()
+    }
+
+    fun tapMoveToArchiveOption(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(moveToArchiveOption).click()
+        return this
+    }
+
+    fun tapUnarchiveOption(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(unarchiveOption).click()
+        return this
+    }
+
+    fun tapArchiveButtonAlert(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(archiveButtonAlert).click()
+        return this
+    }
+
+    fun tapClearContentOption(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(clearContentOption).click()
+        return this
+    }
+
+    fun tapClearContentConfirmationButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(clearContentConfirmationButton).click()
+        return this
+    }
+
+    fun tapLeaveConversationOption(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(leaveConversationOption).click()
+        return this
+    }
+
+    fun tapLeaveConversationConfirmationButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(leaveConversationConfirmationButton).click()
+        return this
     }
 
     fun tapRemoveGroupButton() {
@@ -137,6 +210,53 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertGroupNameVisible(expectedName: String): GroupConversationDetailsPage {
+        return assertChannelNameVisible(expectedName)
+    }
+
+    fun tapOnGroupName(expectedName: String): GroupConversationDetailsPage {
+        return tapOnChannelName(expectedName)
+    }
+
+    fun changeGroupName(newName: String): GroupConversationDetailsPage {
+        return changeChannelName(newName)
+    }
+
+    fun assertGuestsOptionStateIs(expectedState: String): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(guestsOption)
+        UiWaitUtils.waitElement(UiSelectorParams(text = expectedState))
+        return this
+    }
+
+    fun tapGuestsOption(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(guestsOption).click()
+        return this
+    }
+
+    fun assertGuestsSwitchStateIs(expectedState: String): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(guestsOption)
+        UiWaitUtils.waitElement(UiSelectorParams(text = expectedState))
+        return this
+    }
+
+    fun tapGuestsSwitch(): GroupConversationDetailsPage {
+        val switch = UiWaitUtils.findElementOrNull(toggleSwitch)
+        if (switch != null) {
+            switch.click()
+            return this
+        }
+
+        val guests = UiWaitUtils.waitElement(guestsOption)
+        device.click(device.displayWidth - SWITCH_TRAILING_OFFSET_PX, guests.visibleCenter.y)
+        return this
+    }
+
+    fun tapDisableButtonOnGuestAccessDialog(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(disableGuestAccessDialog)
+        UiWaitUtils.waitElement(disableButton).click()
+        return this
+    }
+
     fun assertUsernameIsAddedToParticipantsList(expectedHandle: String): GroupConversationDetailsPage {
         val handleSelector = textViewSelector(expectedHandle)
         try {
@@ -200,5 +320,9 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     fun tapCloseButtonOnChannelConversationDetailsPage(): GroupConversationDetailsPage {
         return tapCloseButtonOnGroupConversationDetailsPage()
+    }
+
+    private companion object {
+        const val SWITCH_TRAILING_OFFSET_PX = 120
     }
 }

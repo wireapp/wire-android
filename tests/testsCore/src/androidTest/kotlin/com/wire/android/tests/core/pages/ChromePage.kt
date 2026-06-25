@@ -18,6 +18,7 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
@@ -27,6 +28,9 @@ data class ChromePage(private val device: UiDevice) {
 
     private val useWithoutAccountLocator = UiSelectorParams(text = "Use without an account")
     private val noThanksLocator = UiSelectorParams(text = "No thanks")
+    private val resetLoginLocator = UiSelectorParams(text = "Reset login")
+    private val signInLocator = UiSelectorParams(text = "Sign In")
+    private val editTextLocator = UiSelectorParams(className = "android.widget.EditText")
 
     fun clickUseWithoutAccount(): ChromePage {
         UiWaitUtils.waitElement(useWithoutAccountLocator).click()
@@ -44,6 +48,44 @@ data class ChromePage(private val device: UiDevice) {
         runCatching {
             UiWaitUtils.waitElement(noThanksLocator, timeout = 2.seconds).click()
         }
+        return this
+    }
+
+    fun clickUseWithoutAccountIfVisible(): ChromePage {
+        UiWaitUtils.clickWhenClickable(useWithoutAccountLocator, timeout = 2.seconds)
+        return this
+    }
+
+    fun clickResetLoginIfVisible(): ChromePage {
+        UiWaitUtils.clickWhenClickable(resetLoginLocator, timeout = 2.seconds)
+        return this
+    }
+
+    fun enterKeycloakEmail(email: String): ChromePage {
+        val inputs = waitForKeycloakInputs()
+        inputs.first().click()
+        inputs.first().text = email
+        return this
+    }
+
+    fun enterKeycloakPassword(password: String): ChromePage {
+        val inputs = waitForKeycloakInputs()
+        inputs.last().click()
+        inputs.last().text = password
+        return this
+    }
+
+    fun clickKeycloakSignIn(): ChromePage {
+        UiWaitUtils.waitElement(signInLocator, timeout = UiWaitUtils.VERY_LONG_TIMEOUT).click()
+        return this
+    }
+
+    fun assertUrlContains(expectedUrlPart: String): ChromePage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(textContains = expectedUrlPart),
+            timeout = UiWaitUtils.LONG_TIMEOUT,
+            errorMessage = "Expected URL '$expectedUrlPart' was not found in Chrome"
+        )
         return this
     }
 
@@ -69,4 +111,17 @@ data class ChromePage(private val device: UiDevice) {
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             .executeShellCommand(command)
             .trim()
+
+    private fun waitForKeycloakInputs() = UiWaitUtils.retryUntilTimeout(
+        timeout = UiWaitUtils.VERY_LONG_TIMEOUT,
+        pollingInterval = UiWaitUtils.POLLING_DEFAULT
+    ) {
+        device.findObjects(By.clazz("android.widget.EditText")).size >= 2 ||
+            UiWaitUtils.findElementOrNull(editTextLocator) != null
+    }.let {
+        if (!it) {
+            throw AssertionError("Keycloak login inputs were not visible.")
+        }
+        device.findObjects(By.clazz("android.widget.EditText"))
+    }
 }

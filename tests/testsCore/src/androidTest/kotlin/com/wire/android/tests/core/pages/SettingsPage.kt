@@ -62,12 +62,14 @@ data class SettingsPage(private val device: UiDevice) {
     private val appLockPassCode = UiSelectorParams(text = "Set a passcode")
 
     private val accountDetails = UiSelectorParams(text = "Account Details")
+    private val profileNameEditPageTitle = UiSelectorParams(text = "Your profile name")
     private val toggle = UiSelector().className("android.view.View")
     private val clickableToggle = UiSelector().className("android.view.View").clickable(true)
     private val toggleOnText = UiSelector().text("ON")
     private val toggleOffText = UiSelector().text("OFF")
     private val analyticsTrackingLabel = UiSelector().text("Analytics Tracking Identifier")
     private val anonymousUsageDataText = UiSelector().text("Send anonymous usage data")
+    private val sendReadReceiptsText = UiSelector().text("Send read receipts")
     private val setAppLockInfoText = UiSelectorParams(
         textContains = "The app will lock itself after 1 minute of inactivity"
     )
@@ -83,6 +85,9 @@ data class SettingsPage(private val device: UiDevice) {
     private val displayedEmail = UiSelectorParams(textContains = "@wire.engineering")
 
     private val displayedDomain = UiSelectorParams(textContains = "staging.zinfra")
+    private fun displayedTeamName(teamName: String) =
+        UiSelectorParams(text = teamName, fromParentText = "TEAM")
+
     private fun displayedProfileName(profileName: String) =
         UiSelectorParams(text = profileName, fromParentText = "PROFILE NAME")
 
@@ -118,6 +123,16 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertSendAnonymousUsageDataToggleIsOff(): SettingsPage {
+        scrollTextIntoView("Send anonymous usage data")
+        val container = device.findObject(
+            UiSelector().className("android.view.View").childSelector(anonymousUsageDataText)
+        )
+        val toggle = container.getFromParent(UiSelector().text("OFF"))
+        assertTrue("'Send anonymous usage data' toggle is not OFF", !toggle.visibleBounds.isEmpty)
+        return this
+    }
+
     fun clickBackButtonOnSettingsPage() {
         device.pressBack()
     }
@@ -127,6 +142,14 @@ data class SettingsPage(private val device: UiDevice) {
         val parent = label.parent
         val value = parent?.children?.find { it.text == "true" }
         assertTrue("'Analytics Initialized' is not set to true", value != null && value.visibleBounds.width() > 0)
+        return this
+    }
+
+    fun assertAnalyticsInitializedIsSetToFalse(): SettingsPage {
+        val label = UiWaitUtils.waitElement(analyticsInitializedLabel)
+        val parent = label.parent
+        val value = parent?.children?.find { it.text == "false" }
+        assertTrue("'Analytics Initialized' is not set to false", value != null && value.visibleBounds.width() > 0)
         return this
     }
 
@@ -288,6 +311,31 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertSendReadReceiptsToggleIsOn(): SettingsPage {
+        scrollTextIntoView("Send read receipts")
+        val label = device.findObject(sendReadReceiptsText)
+        val onText = label.getFromParent(toggleOnText)
+        assertTrue("Send read receipts toggle should be ON", onText.exists() && !onText.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertSendReadReceiptsToggleIsOff(): SettingsPage {
+        scrollTextIntoView("Send read receipts")
+        val label = device.findObject(sendReadReceiptsText)
+        val offText = label.getFromParent(toggleOffText)
+        assertTrue("Send read receipts toggle should be OFF", offText.exists() && !offText.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun tapSendReadReceiptsToggle(): SettingsPage {
+        scrollTextIntoView("Send read receipts")
+        val label = device.findObject(sendReadReceiptsText)
+        val toggle = label.getFromParent(clickableToggle)
+        assertTrue("Send read receipts toggle is not visible", toggle.exists() && !toggle.visibleBounds.isEmpty)
+        toggle.click()
+        return this
+    }
+
     fun assertLockWithPasswordToggleIsOff(): SettingsPage {
         UiWaitUtils.waitElement(lockWithPasscodeLabel)
         val label = device.findObject(lockWithPasscodeText)
@@ -382,6 +430,33 @@ data class SettingsPage(private val device: UiDevice) {
         } catch (e: AssertionError) {
             throw AssertionError("Displayed user name does not match expected @$expectedUserName", e)
         }
+        return this
+    }
+
+    fun verifyDisplayedTeamName(expectedTeamName: String): SettingsPage {
+        try {
+            UiWaitUtils.waitElement(displayedTeamName(expectedTeamName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Displayed team name does not match expected $expectedTeamName", e)
+        }
+        return this
+    }
+
+    fun tapDisplayedProfileName(profileName: String): SettingsPage {
+        UiWaitUtils.waitElement(displayedProfileName(profileName)).click()
+        return this
+    }
+
+    fun assertEditProfileNamePageVisible(): SettingsPage {
+        val title = UiWaitUtils.waitElement(profileNameEditPageTitle)
+        Assert.assertTrue("Edit profile name page is not visible", !title.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun editProfileName(profileName: String): SettingsPage {
+        val profileNameField = device.findObject(UiSelector().className("android.widget.EditText"))
+        profileNameField.setText("")
+        profileNameField.setText(profileName)
         return this
     }
 

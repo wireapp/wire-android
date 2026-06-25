@@ -36,6 +36,7 @@ class TeamCreationPage(private val device: UiDevice) {
     private val firstOrganizationSizeOption = UiSelectorParams(text = "1 - 25")
     private val continueButton = UiSelectorParams(text = "Continue")
     private val youHaveGotMailHeading = UiSelectorParams(textContains = "got mail")
+    private val resendCodeLink = UiSelectorParams(text = "Resend code")
     private val teamCreatedHeading = UiSelectorParams(textContains = "you created a new")
     private val closeButton = UiSelector().resourceId("com.android.chrome:id/close_button")
 
@@ -110,11 +111,22 @@ class TeamCreationPage(private val device: UiDevice) {
     }
 
     fun enterVerificationCode(code: String): TeamCreationPage {
-        val codeFields = device.findObjects(By.clazz("android.widget.EditText"))
-        val codeField = codeFields[0]
-        codeField.click()
+        verificationCodeFields().first().tap()
         code.forEach { digit ->
             device.pressKeyCode(KeyEvent.KEYCODE_0 + digit.digitToInt())
+        }
+        return this
+    }
+
+    fun clickResendCodeLink(): TeamCreationPage {
+        UiWaitUtils.waitElement(resendCodeLink, timeout = 15.seconds).click()
+        return this
+    }
+
+    fun clearVerificationCode(): TeamCreationPage {
+        verificationCodeFields().asReversed().forEach { field ->
+            field.tap()
+            device.pressKeyCode(KeyEvent.KEYCODE_DEL)
         }
         return this
     }
@@ -151,7 +163,30 @@ class TeamCreationPage(private val device: UiDevice) {
             .filter { !it.visibleBounds.isEmpty }
             .sortedWith(compareBy({ it.visibleBounds.top }, { it.visibleBounds.left }))
 
+    private fun verificationCodeFields(): List<UiObject2> {
+        val codeFieldsByResourceId = (0 until VERIFICATION_CODE_FIELD_COUNT)
+            .mapNotNull { index -> device.findObject(By.res("code-input-digit-$index")) }
+        if (codeFieldsByResourceId.size == VERIFICATION_CODE_FIELD_COUNT) {
+            return codeFieldsByResourceId
+        }
+
+        return sortedTextFields().also { codeFields ->
+            if (codeFields.size < VERIFICATION_CODE_FIELD_COUNT) {
+                throw AssertionError(
+                    "Expected $VERIFICATION_CODE_FIELD_COUNT verification code fields, but found ${codeFields.size}"
+                )
+            }
+        }.take(VERIFICATION_CODE_FIELD_COUNT)
+    }
+
+    private fun UiObject2.tap() {
+        visibleBounds.also { bounds ->
+            device.click(bounds.centerX(), bounds.centerY())
+        }
+    }
+
     private companion object {
         const val PASSWORD_FIELD_COUNT = 2
+        const val VERIFICATION_CODE_FIELD_COUNT = 6
     }
 }

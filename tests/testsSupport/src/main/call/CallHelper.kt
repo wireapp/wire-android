@@ -103,6 +103,10 @@ class CallHelper {
         callingManager.verifySendAndReceiveAudio(callees)
     }
 
+    suspend fun usersVerifyCbrConnection(callees: String) {
+        callingManager.verifyCbrConnections(usersManager.splitAliases(callees))
+    }
+
     fun iSeeParticipantsInGroupVideoCall(participants: String) {
         // 1. Resolve aliases into real usernames
         val resolvedParticipants = usersManager.replaceAliasesOccurrences(

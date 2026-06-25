@@ -18,8 +18,10 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.findElementOrNull
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -35,6 +37,11 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     private val unblockUserButton = UiSelectorParams(text = "Unblock User")
     private val blockButtonAlert = UiSelectorParams(text = "Block")
+    private val unblockOption = UiSelectorParams(text = "Unblock")
+    private val unblockButtonAlert = UiSelectorParams(text = "Unblock")
+    private val moveToArchiveOption = UiSelectorParams(text = "Move to Archive")
+    private val unarchiveOption = UiSelectorParams(text = "Unarchive")
+    private val archiveButtonAlert = UiSelectorParams(text = "Archive")
     private val participantRemoveFromConversationButton = UiSelectorParams(textContains = "Remove from conversation")
 
     private val removeConversationButtonOnModal = UiSelectorParams(text = "Remove")
@@ -81,6 +88,11 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         return this
     }
 
+    fun clickShowMoreOptionsIfVisible(): ConnectedUserProfilePage {
+        findElementOrNull(showMoreOptions)?.takeIf { !it.visibleBounds.isEmpty }?.click()
+        return this
+    }
+
     fun clickBlockOption(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(blockOption).click()
         return this
@@ -91,12 +103,69 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         return this
     }
 
+    fun clickUnblockOption(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(unblockOption).click()
+        return this
+    }
+
+    fun clickUnblockButtonAlert(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(unblockButtonAlert).click()
+        return this
+    }
+
+    fun clickMoveToArchiveOption(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(moveToArchiveOption).click()
+        return this
+    }
+
+    fun clickUnarchiveOption(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(unarchiveOption).click()
+        return this
+    }
+
+    fun clickArchiveButtonAlert(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(archiveButtonAlert).click()
+        return this
+    }
+
+    fun clickUnblockUserButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(unblockUserButton).click()
+        return this
+    }
+
+    fun assertBlockOptionNotVisible(): ConnectedUserProfilePage {
+        val block = findElementOrNull(blockOption)
+        Assert.assertTrue(
+            "Block option is visible.",
+            block == null || block.visibleBounds.isEmpty
+        )
+        return this
+    }
+
     fun assertBlockedLabelVisible(): ConnectedUserProfilePage {
         try {
             UiWaitUtils.waitElement(blockedLabel)
         } catch (e: AssertionError) {
             throw AssertionError("Blocked label is not visible", e)
         }
+        return this
+    }
+
+    fun assertBlockedLabelNotVisible(): ConnectedUserProfilePage {
+        val label = findElementOrNull(blockedLabel)
+        Assert.assertTrue(
+            "Blocked label is visible.",
+            label == null || label.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun assertUnblockUserButtonNotVisible(): ConnectedUserProfilePage {
+        val button = findElementOrNull(unblockUserButton)
+        Assert.assertTrue(
+            "Unblock User button is visible.",
+            button == null || button.visibleBounds.isEmpty
+        )
         return this
     }
 

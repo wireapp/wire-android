@@ -26,6 +26,7 @@ import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import user.utils.ClientUser
@@ -403,4 +404,10 @@ class TeamCreationTest : BaseUiTest() {
             iSeeSystemMessage("Please retry, or request another code.")
         }
     }
+
+    @TestCaseId("TC-4564")
+    @Category("regression", "RC", "teamCreation")
+    @Ignore("Blocked: resend-code parity needs stable OTP field clearing/input after tapping Resend code on the current verification page.")
+    @Test
+    fun givenIAmRegisteringATeam_whenIResendVerificationCode_thenNewCodeCanBeUsed() = Unit
 }

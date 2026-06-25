@@ -15,10 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.home.conversations.call
 
-data class ConversationCallViewState(
-    val participantsCount: Int = 0,
-    val hasOngoingCall: Boolean = false,
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
+
+data class JoinOrStartCallViewState(
+    val hasEstablishedCall: Boolean = false,
+    val dialogType: JoinOrStartCallScreenDialogType = JoinOrStartCallScreenDialogType.None
 )
+
+sealed interface JoinOrStartCallViewActions {
+    data class JoinedCall(val conversationId: ConversationId, val userId: UserId) : JoinOrStartCallViewActions
+    data class InitiatedCall(val conversationId: ConversationId, val userId: UserId) : JoinOrStartCallViewActions
+}

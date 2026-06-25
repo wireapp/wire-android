@@ -22,4 +22,7 @@
     <!-- Connections -->
     <!-- Missing keyPackages dialog -->
     <!-- Search Contact-->
+    <!-- Go to app settings permissions dialog -->
+        <string name="app_permission_dialog_settings_positive_button">Inställningar</string>
+    <string name="app_permission_dialog_settings_negative_button">Inte nu</string>
 </resources>

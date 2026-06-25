@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
   ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
@@ -26,5 +25,13 @@
     <string name="content_description_drop_down">Menu suspenso</string>
     <string name="content_description_close_dropdown">fechar menu suspenso</string>
     <!--wire dropdown-->
-        <string name="wire_dropdown_default_indicator">" (padrão)"</string>
+    <string name="wire_dropdown_default_indicator">" (padrão)"</string>
+    <!-- No Activity Errors -->
+    <string name="no_camera_app">Nenhum aplicativo de câmera encontrado para concluir esta ação.</string>
+    <string name="no_file_manager_app">Nenhum aplicativo de gerenciador de arquivo foi encontrado para concluir esta ação.</string>
+    <string name="no_gallery_app">Nenhum app de galeria encontrado para concluir esta ação.</string>
+    <!-- Go to app settings permissions dialog -->
+    <string name="app_permission_dialog_title">Permissões do app</string>
+    <string name="app_permission_dialog_settings_positive_button">Configurações</string>
+    <string name="app_permission_dialog_settings_negative_button">Agora Não</string>
 </resources>

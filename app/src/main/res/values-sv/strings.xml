@@ -600,9 +600,6 @@
     <string name="sure_about_messaging_dialog_positiv_button">Skicka ändå</string>
     <!-- Sure want to call Dialog -->
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Ring ändå</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_settings_positive_button">Inställningar</string>
-    <string name="app_permission_dialog_settings_negative_button">Inte nu</string>
     <!-- Share Location -->
     <string name="location_attachment_share_title">Dela plats</string>
     <!-- Asset Preview -->

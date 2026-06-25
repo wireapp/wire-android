@@ -24,4 +24,8 @@
     <string name="wire_dropdown_placeholder">Seleziona un elemento</string>
     <!--wire dropdown-->
         <string name="wire_dropdown_default_indicator">" (predefinito)"</string>
+    <!-- Go to app settings permissions dialog -->
+        <string name="app_permission_dialog_title">Autorizzazioni dell\'app</string>
+    <string name="app_permission_dialog_settings_positive_button">Impostazioni</string>
+    <string name="app_permission_dialog_settings_negative_button">Non adesso</string>
 </resources>

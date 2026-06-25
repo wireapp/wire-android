@@ -63,13 +63,15 @@ fun MessageSendActions(
         modifier = modifier,
     ) {
         if (selfDeletionTimer.duration != null) {
+            val selfDeletionDuration = selfDeletionTimer.duration.toSelfDeletionDuration()
             WireTertiaryButton(
                 minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
                 minClickableSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
                 shape = CircleShape,
                 contentPadding = PaddingValues(horizontal = dimensions().spacing4x, vertical = dimensions().spacing8x),
                 onClick = { onChangeSelfDeletionClicked(selfDeletionTimer) },
-                text = selfDeletionTimer.duration.toSelfDeletionDuration().shortLabel.asString(),
+                text = selfDeletionDuration.shortLabel.asString(),
+                description = selfDeletionDuration.longLabel.asString(),
                 textStyle = typography().label02,
                 fillMaxWidth = false,
                 state = if (!selfDeletionTimer.isEnforced) WireButtonState.Default else WireButtonState.Disabled,

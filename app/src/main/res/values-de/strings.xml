@@ -1664,10 +1664,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="sure_about_calling_in_degraded_dialog_title">Unterhaltung nicht mehr überprüft</string>
     <string name="sure_about_calling_in_degraded_dialog_body">Mindestens ein Teilnehmer hat begonnen, ein neues Gerät zu verwenden oder hat ein ungültiges Zertifikat.\n\nMöchten Sie trotzdem anrufen?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Trotzdem anrufen</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">App-Berechtigungen</string>
-    <string name="app_permission_dialog_settings_positive_button">Einstellungen</string>
-    <string name="app_permission_dialog_settings_negative_button">Nicht jetzt</string>
     <string name="notifications_permission_dialog_description">Um die App in vollem Umfang nutzen, Nachrichten empfangen und Anrufe entgegennehmen zu können, erlauben Sie Wire, Benachrichtigungen anzuzeigen.</string>
     <string name="call_permission_dialog_description">Um einen Anruf zu tätigen, erlauben Sie Wire den Zugriff auf Ihr Mikrofon in Ihren Geräteeinstellungen.</string>
     <string name="record_video_permission_dialog_description">Um ein Video aufzunehmen, erlauben Sie Wire den Zugriff auf Ihre Kamera in Ihren Geräteeinstellungen.</string>
@@ -1684,9 +1680,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_loading_label">Bitte warten…</string>
     <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
-    <string name="no_gallery_app">Keine Galerie-App gefunden, um diese Aktion abzuschließen.</string>
-    <string name="no_file_manager_app">Keine App für Dateimanager gefunden, um diese Aktion abzuschließen.</string>
     <string name="restricted_asset_error_toast_message">Das Versenden von Dateien ist aufgrund von Firmenbeschränkungen verboten</string>
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">Ping senden</string>

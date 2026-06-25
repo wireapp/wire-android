@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
   ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
@@ -26,5 +25,13 @@
     <string name="content_description_drop_down">පතන</string>
     <string name="content_description_close_dropdown">පතන ලැයිස්තුව වසන්න</string>
     <!--wire dropdown-->
-        <string name="wire_dropdown_default_indicator">" (පෙරනිමි)"</string>
+    <string name="wire_dropdown_default_indicator">" (පෙරනිමි)"</string>
+    <!-- No Activity Errors -->
+    <string name="no_camera_app">මෙම ක්‍රියාව සම්පූර්ණ කිරීමට කැමරා යෙදුමක් හමු නොවීය.</string>
+    <string name="no_file_manager_app">මෙම ක්‍රියාව සම්පූර්ණ කිරීමට ගොනු කළමනාකරු යෙදුමක් හමු නොවීය.</string>
+    <string name="no_gallery_app">මෙම ක්‍රියාව සම්පූර්ණ කිරීමට ගැලරි යෙදුමක් හමු නොවීය.</string>
+    <!-- Go to app settings permissions dialog -->
+    <string name="app_permission_dialog_title">යෙදුමේ අවසර</string>
+    <string name="app_permission_dialog_settings_positive_button">සැකසුම්</string>
+    <string name="app_permission_dialog_settings_negative_button">දැන් නොවේ</string>
 </resources>

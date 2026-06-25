@@ -45,6 +45,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfi
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.appLogger
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
@@ -94,7 +95,7 @@ fun HomeScreen(
     val showNotificationsPermissionDeniedDialog = {
         notificationsPermissionDeniedDialogState.show(
             PermissionPermanentlyDeniedDialogState.Visible(
-                title = R.string.app_permission_dialog_title,
+                title = commonR.string.app_permission_dialog_title,
                 description = R.string.notifications_permission_dialog_description,
             )
         )

@@ -24,6 +24,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -35,24 +36,28 @@ import kotlinx.coroutines.launch
 
 interface ActionsManager<T> {
     val actions: Flow<T> get() = emptyFlow()
-    fun <VM : ViewModel> VM.sendAction(action: T) {}
+    fun sendAction(action: T) {}
 }
 
-class ActionsManagerImpl<T> : ActionsManager<T> {
+class ActionsManagerImpl<T>(private val scope: CoroutineScope) : ActionsManager<T> {
     private val _actions: Channel<T> = Channel(
         capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+        onBufferOverflow = BufferOverflow.SUSPEND
     )
     override val actions: Flow<T> = _actions
         .receiveAsFlow()
         .flowOn(Dispatchers.Main.immediate)
 
-    override fun <VM : ViewModel> VM.sendAction(action: T) {
-        viewModelScope.launch { _actions.send(action) }
+    override fun sendAction(action: T) {
+        scope.launch { _actions.send(action) }
     }
 }
 
-open class ActionsViewModel<T> : ViewModel(), ActionsManager<T> by ActionsManagerImpl()
+open class ActionsViewModel<T> : ViewModel(), ActionsManager<T> {
+    private val actionsManager: ActionsManager<T> = ActionsManagerImpl(viewModelScope)
+    override val actions: Flow<T> get() = actionsManager.actions
+    override fun sendAction(action: T) = actionsManager.sendAction(action)
+}
 
 @Composable
 fun <T> HandleActions(actionsFlow: Flow<T>, onAction: (T) -> Unit) {

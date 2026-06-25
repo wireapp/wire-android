@@ -67,6 +67,14 @@ fun LogOptions(
     modifier: Modifier = Modifier
 ) {
     val shareLogsSheetState = rememberWireModalSheetState<Unit>()
+    val shareLogsDirectly = supportsTrustedWireShareCaller()
+    val onShareLogsClick: () -> Unit = {
+        if (shareLogsDirectly) {
+            onShareLogsExternally()
+        } else {
+            shareLogsSheetState.show()
+        }
+    }
 
     Column(modifier = modifier) {
         SectionHeader(stringResource(R.string.label_logs_option_title))
@@ -87,11 +95,11 @@ fun LogOptions(
                 trailingIcon = R.drawable.ic_entypo_share,
                 onRowPressed = Clickable(
                     enabled = true,
-                    onClick = { shareLogsSheetState.show() }
+                    onClick = onShareLogsClick
                 ),
                 onIconPressed = Clickable(
                     enabled = true,
-                    onClick = { shareLogsSheetState.show() }
+                    onClick = onShareLogsClick
                 )
             )
 
@@ -106,52 +114,36 @@ fun LogOptions(
         }
     }
 
-    WireModalSheetLayout(
-        sheetState = shareLogsSheetState,
-        sheetContent = {
-            WireMenuModalSheetContent(
-                header = MenuModalSheetHeader.Visible(
-                    title = stringResource(R.string.label_share_logs)
-                ),
-                menuItems = shareLogsMenuItems(
-                    onShareLogsExternally = {
-                        shareLogsSheetState.hide { onShareLogsExternally() }
-                    },
-                    onShareLogsViaWire = {
-                        shareLogsSheetState.hide { onShareLogsViaWire() }
-                    }
+    if (!shareLogsDirectly) {
+        WireModalSheetLayout(
+            sheetState = shareLogsSheetState,
+            sheetContent = {
+                WireMenuModalSheetContent(
+                    header = MenuModalSheetHeader.Visible(
+                        title = stringResource(R.string.label_share_logs)
+                    ),
+                    menuItems = shareLogsMenuItems(
+                        onShareLogsExternally = {
+                            shareLogsSheetState.hide { onShareLogsExternally() }
+                        },
+                        onShareLogsViaWire = {
+                            shareLogsSheetState.hide { onShareLogsViaWire() }
+                        }
+                    )
                 )
-            )
-        }
-    )
+            }
+        )
+    }
 }
 
 private fun shareLogsMenuItems(
     onShareLogsExternally: () -> Unit,
     onShareLogsViaWire: () -> Unit
 ): List<@Composable () -> Unit> =
-    if (supportsTrustedWireShareCaller()) {
-        listOf({ ShareLogsOption(onShareLogsExternally) })
-    } else {
-        listOf(
-            { ShareLogsInWireOption(onShareLogsViaWire) },
-            { ShareLogsExternallyOption(onShareLogsExternally) }
-        )
-    }
-
-@Composable
-private fun ShareLogsOption(onClick: () -> Unit) {
-    MenuBottomSheetItem(
-        leading = {
-            MenuItemIcon(
-                id = R.drawable.ic_entypo_share,
-                contentDescription = stringResource(R.string.content_description_share_the_file),
-            )
-        },
-        title = stringResource(R.string.label_share),
-        onItemClick = onClick
+    listOf(
+        { ShareLogsInWireOption(onShareLogsViaWire) },
+        { ShareLogsExternallyOption(onShareLogsExternally) }
     )
-}
 
 @Composable
 private fun ShareLogsInWireOption(onClick: () -> Unit) {

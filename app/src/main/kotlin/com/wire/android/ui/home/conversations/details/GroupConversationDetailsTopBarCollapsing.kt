@@ -43,6 +43,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.maxTitleLines
 import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
@@ -68,6 +69,8 @@ fun GroupConversationDetailsTopBarCollapsing(
     onLegalHoldLearnMoreClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val maxTitleLines = maxTitleLines()
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -105,7 +108,7 @@ fun GroupConversationDetailsTopBarCollapsing(
                 Text(
                     text = title.ifBlank { UIText.StringResource(R.string.conversation_unavailable_label).asString() },
                     overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
+                    maxLines = maxTitleLines,
                     style = MaterialTheme.wireTypography.body02,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier

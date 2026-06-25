@@ -60,6 +60,7 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.maxTitleLines
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconButton
@@ -127,6 +128,8 @@ private fun ConversationScreenTopAppBarContent(
     isDropDownEnabled: Boolean = false,
     containerColor: Color? = null
 ) {
+    val maxTitleLines = maxTitleLines()
+
     TopAppBar(
         title = {
             Row(
@@ -149,7 +152,7 @@ private fun ConversationScreenTopAppBarContent(
                 Text(
                     text = conversationInfoViewState.conversationName.asString(),
                     style = MaterialTheme.wireTypography.title02,
-                    maxLines = 1,
+                    maxLines = maxTitleLines,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .weight(weight = 1f, fill = false)

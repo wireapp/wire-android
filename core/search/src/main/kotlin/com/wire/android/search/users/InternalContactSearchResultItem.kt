@@ -46,6 +46,7 @@ import com.wire.android.ui.home.conversationslist.common.ConnectRequestBadge
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.search.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.common.maxTitleLines
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
@@ -82,7 +83,8 @@ fun InternalContactSearchResultItem(
                 HighlightName(
                     name = name,
                     searchQuery = searchQuery,
-                    modifier = Modifier.weight(weight = 1f, fill = false)
+                    modifier = Modifier.weight(weight = 1f, fill = false),
+                    maxLines = maxTitleLines(),
                 )
                 UserBadge(
                     membership = membership,

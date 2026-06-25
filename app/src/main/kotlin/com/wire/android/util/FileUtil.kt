@@ -20,6 +20,7 @@
 
 package com.wire.android.util
 
+import android.app.ActivityOptions
 import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
@@ -33,6 +34,7 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Parcelable
@@ -277,7 +279,7 @@ fun Context.startFileShareIntent(path: Path, assetName: String?) {
     shareIntent.putExtra(Intent.EXTRA_STREAM, fileURI)
     assetName?.let { shareIntent.putExtra(Intent.EXTRA_SUBJECT, it) }
     shareIntent.type = fileURI.getMimeType(context = this)
-    startActivity(externalShareChooserIntent(shareIntent))
+    startShareIntentWithTrustedWireTarget(shareIntent)
 }
 
 fun Context.fileShareUri(path: Path, assetName: String?): Uri =
@@ -383,10 +385,15 @@ fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetNa
     }
 }
 
-fun Context.externalShareChooserIntent(sendIntent: Intent, title: CharSequence? = null): Intent =
+fun Context.externalShareChooserIntent(
+    sendIntent: Intent,
+    title: CharSequence? = null,
+    excludeOwnComponents: Boolean = true
+): Intent =
     Intent.createChooser(sendIntent, title).apply {
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (!excludeOwnComponents) return@apply
         val ownShareComponents = packageManager.queryIntentActivitiesCompat(sendIntent)
             .map { ComponentName(it.activityInfo.packageName, it.activityInfo.name) }
             .filter { it.packageName == packageName }
@@ -394,6 +401,26 @@ fun Context.externalShareChooserIntent(sendIntent: Intent, title: CharSequence? 
         if (ownShareComponents.isNotEmpty()) {
             putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, ownShareComponents)
         }
+    }
+
+fun Context.startShareIntentWithTrustedWireTarget(sendIntent: Intent, title: CharSequence? = null) {
+    val chooserIntent = externalShareChooserIntent(
+        sendIntent = sendIntent,
+        title = title,
+        excludeOwnComponents = !supportsTrustedWireShareCaller()
+    )
+    startActivity(chooserIntent, shareIdentityOptionsBundle())
+}
+
+fun supportsTrustedWireShareCaller(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+
+private fun shareIdentityOptionsBundle(): Bundle? =
+    if (supportsTrustedWireShareCaller()) {
+        ActivityOptions.makeBasic()
+            .setShareIdentityEnabled(true)
+            .toBundle()
+    } else {
+        null
     }
 
 fun Context.fileProviderSharedCacheFile(fileName: String): File {

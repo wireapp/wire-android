@@ -21,7 +21,9 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Parcelable
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
@@ -55,7 +57,6 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELET
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -157,12 +158,14 @@ class ImportMediaAuthenticatedViewModel(
         if (incomingIntent.streamCount == 0) {
             handleSharedText(incomingIntent.text.toString())
         } else {
+            val providerAuthority = activity.getProviderAuthority()
+            val hasTrustedWireCaller = activity.hasTrustedWireShareCaller()
             if (incomingIntent.isSingleShare) {
                 // ACTION_SEND
-                handleSingleIntent(activity, incomingIntent)
+                handleSingleIntent(providerAuthority, hasTrustedWireCaller, incomingIntent)
             } else {
                 // ACTION_SEND_MULTIPLE
-                handleMultipleActionIntent(activity)
+                handleMultipleActionIntent(activity, providerAuthority, hasTrustedWireCaller)
             }
         }
         importMediaState = importMediaState.copy(isImporting = false)
@@ -194,26 +197,41 @@ class ImportMediaAuthenticatedViewModel(
         importMediaState = importMediaState.copy(importedText = text)
     }
 
-    private suspend fun handleSingleIntent(activity: AppCompatActivity, incomingIntent: ShareCompat.IntentReader) {
+    private suspend fun handleSingleIntent(
+        providerAuthority: String,
+        hasTrustedWireCaller: Boolean,
+        incomingIntent: ShareCompat.IntentReader
+    ) {
         incomingIntent.stream?.let { uri ->
             appLogger.d("$TAG: handleSingleIntent")
-            handleImportedAsset(activity, uri)?.let { importedAsset ->
-                if (importedAsset.assetSizeExceeded != null) {
-                    onSnackbarMessage(
-                        SendMessagesSnackbarMessages.MaxAssetSizeExceeded(importedAsset.assetSizeExceeded)
-                    )
-                }
-                importMediaState = importMediaState.copy(importedAssets = persistentListOf(importedAsset))
-            }
+            handleReceivedUrisFromSharingIntent(providerAuthority, hasTrustedWireCaller, listOf(uri))
         }
     }
 
-    private suspend fun handleMultipleActionIntent(activity: AppCompatActivity) {
+    private suspend fun handleMultipleActionIntent(
+        activity: AppCompatActivity,
+        providerAuthority: String,
+        hasTrustedWireCaller: Boolean
+    ) {
         appLogger.d("$TAG: handleMultipleActionIntent")
-        val importedMediaAssets = activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.mapNotNull {
-            val fileUri = it.toString().toUri()
-            handleImportedAsset(activity, fileUri)
+        val fileUris = activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.map {
+            it.toString().toUri()
         } ?: listOf()
+        handleReceivedUrisFromSharingIntent(providerAuthority, hasTrustedWireCaller, fileUris)
+    }
+
+    internal suspend fun handleReceivedUrisFromSharingIntent(
+        providerAuthority: String,
+        hasTrustedWireCaller: Boolean,
+        uris: List<Uri>
+    ) {
+        if (uris.shouldRejectSharingIntent(providerAuthority, hasTrustedWireCaller)) {
+            appLogger.w("$TAG: Rejecting share intent containing URI from Wire's own file provider")
+            return
+        }
+        val importedMediaAssets = uris.mapNotNull {
+            handleImportedAsset(it, rejectOwnFileProviderUri = false)
+        }
 
         importMediaState = importMediaState.copy(importedAssets = importedMediaAssets.toPersistentList())
 
@@ -238,9 +256,6 @@ class ImportMediaAuthenticatedViewModel(
                 )
             }
         }
-
-    private suspend fun handleImportedAsset(activity: AppCompatActivity, uri: Uri): ImportedMediaAsset? =
-        handleImportedAsset(uri, rejectOwnFileProviderUri = uri.isWireFileProviderUri(activity.getProviderAuthority()))
 
     private suspend fun handleImportedAsset(uri: Uri, rejectOwnFileProviderUri: Boolean): ImportedMediaAsset? {
         if (rejectOwnFileProviderUri) {
@@ -276,6 +291,12 @@ class ImportMediaAuthenticatedViewModel(
 internal fun Uri.isWireFileProviderUri(providerAuthority: String): Boolean =
     scheme.equals(ContentResolver.SCHEME_CONTENT, ignoreCase = true) && authority == providerAuthority
 
+internal fun Uri.shouldRejectWireFileProviderShare(providerAuthority: String, hasTrustedWireCaller: Boolean): Boolean =
+    isWireFileProviderUri(providerAuthority) && !hasTrustedWireCaller
+
+internal fun List<Uri>.shouldRejectSharingIntent(providerAuthority: String, hasTrustedWireCaller: Boolean): Boolean =
+    any { uri -> uri.shouldRejectWireFileProviderShare(providerAuthority, hasTrustedWireCaller) }
+
 internal fun Uri.isWireInternalShareUri(providerAuthority: String): Boolean =
     isWireFileProviderUri(providerAuthority) &&
         pathSegments.let { segments ->
@@ -283,3 +304,13 @@ internal fun Uri.isWireInternalShareUri(providerAuthority: String): Boolean =
                 segments.firstOrNull() == FILE_PROVIDER_SHARED_FILES_ROOT &&
                 segments.none { it == ".." }
         }
+
+private fun AppCompatActivity.hasTrustedWireShareCaller(): Boolean =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+        getTrustedShareCallerPackageName() == packageName
+
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+private fun AppCompatActivity.getTrustedShareCallerPackageName(): String? =
+    runCatching {
+        caller?.getPackage() ?: initialCaller.getPackage()
+    }.getOrNull()

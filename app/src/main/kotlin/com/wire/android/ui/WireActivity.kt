@@ -26,6 +26,7 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
@@ -277,8 +278,17 @@ class WireActivity : BaseActivity() {
             handleSynchronizeExternalData(intent)
             return
         }
-        setIntent(intent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            setIntentWithCurrentCaller(intent)
+        } else {
+            setIntent(intent)
+        }
         handleNewIntent(intent)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private fun setIntentWithCurrentCaller(intent: Intent) {
+        setIntent(intent, getCurrentCaller())
     }
 
     private fun handleNewIntent(intent: Intent, savedInstanceState: Bundle? = null) = lifecycleScope.launch {

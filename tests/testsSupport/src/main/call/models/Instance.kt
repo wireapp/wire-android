@@ -17,6 +17,9 @@
  */
 package call.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Instance(
     val id: String?,
     val instanceStatus: InstanceStatus?,

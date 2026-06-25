@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.home.settings.backupAndRestoreViewModel
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -165,7 +166,7 @@ fun BackupAndRestoreContent(
                 onPermissionPermanentlyDenied = {
                     permissionPermanentlyDeniedDialogState.show(
                         PermissionPermanentlyDeniedDialogState.Visible(
-                            R.string.app_permission_dialog_title,
+                            commonR.string.app_permission_dialog_title,
                             R.string.save_backup_file_permission_dialog_description
                         )
                     )
@@ -187,7 +188,7 @@ fun BackupAndRestoreContent(
                 onChooseFilePermissionPermanentlyDenied = {
                     permissionPermanentlyDeniedDialogState.show(
                         PermissionPermanentlyDeniedDialogState.Visible(
-                            R.string.app_permission_dialog_title,
+                            commonR.string.app_permission_dialog_title,
                             R.string.restore_backup_permission_dialog_description
                         )
                     )

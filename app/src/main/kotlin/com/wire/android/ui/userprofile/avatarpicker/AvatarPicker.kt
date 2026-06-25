@@ -38,6 +38,7 @@ import androidx.core.net.toUri
 import com.wire.android.ui.home.settings.avatarPickerViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.ArrowRightIcon
@@ -91,7 +92,7 @@ fun AvatarPickerScreen(
         onGalleryPermissionPermanentlyDenied = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = R.string.open_gallery_permission_dialog_description
                 )
             )
@@ -99,7 +100,7 @@ fun AvatarPickerScreen(
         onCameraPermissionPermanentlyDenied = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = R.string.take_picture_permission_dialog_description
                 )
             )

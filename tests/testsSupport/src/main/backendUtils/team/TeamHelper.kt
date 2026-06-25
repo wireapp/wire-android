@@ -58,6 +58,19 @@ class TeamHelper {
         }
     }
 
+    fun enableForceAppLockFeature(
+        ownerUserAlias: String,
+        teamName: String,
+        seconds: Int,
+        backendClient: BackendClient
+    ) {
+        val owner = toClientUser(ownerUserAlias)
+        runBlocking {
+            val team = backendClient.getTeamByName(owner, teamName)
+            backendClient.enableForceAppLockFeature(team, seconds)
+        }
+    }
+
     @Suppress("LongParameterList", "TooGenericExceptionThrown")
     fun userXAddsUsersToTeam(
         ownerNameAlias: String,

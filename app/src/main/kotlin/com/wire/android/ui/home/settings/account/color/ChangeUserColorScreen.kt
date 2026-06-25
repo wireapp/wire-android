@@ -75,6 +75,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
+import kotlinx.collections.immutable.toImmutableList
 
 @WireRootDestination(
     style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
@@ -173,7 +174,7 @@ fun ChangeUserColorContent(
                             val items = Accent.entries.filter { accent -> accent != Accent.Unknown }
 
                             WireDropDown(
-                                items = items.map { stringResource(it.resourceId()) },
+                                items = items.map { stringResource(it.resourceId()) }.toImmutableList(),
                                 defaultItemIndex = if (accentColor == Accent.Unknown) -1 else items.indexOf(accentColor),
                                 label = null,
                                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),

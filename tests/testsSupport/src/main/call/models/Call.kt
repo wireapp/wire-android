@@ -17,6 +17,9 @@
  */
 package call.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Call(
     var id: String? = null,
     var status: CallStatus? = null,

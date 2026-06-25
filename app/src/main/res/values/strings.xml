@@ -120,7 +120,7 @@
     <string name="content_description_new_meeting">Start or schedule a new Wire Meeting</string>
     <string name="content_description_back_button">Back</string>
     <string name="content_description_send_button">Send</string>
-    <string name="content_description_timed_message_button">Self-deleting messages, button</string>
+    <string name="content_description_timed_message_button">Self-deleting messages</string>
     <string name="content_description_close_button">Close</string>
     <string name="content_description_menu_button">Main navigation</string>
     <string name="content_description_drop_down_icon">Drop down arrow</string>
@@ -218,13 +218,12 @@
     <string name="content_description_edit_label">edit</string>
     <string name="content_description_selected_label">selected</string>
     <string name="content_description_toggle_setting_label">toggle setting</string>
+    <string name="content_description_switch_on">on</string>
+    <string name="content_description_switch_off">off</string>
     <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>
     <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>
     <string name="content_description_accept_or_ignore_connection_label">accept or ignore the request</string>
-    <string name="content_description_change_it_label">change it</string>
     <string name="content_description_alert">Alert</string>
-    <string name="content_description_drop_down">Dropdown</string>
-    <string name="content_description_close_dropdown">close dropdown</string>
     <string name="content_description_open_notification_settings_label">open notification settings</string>
     <string name="content_description_new_conversation_close_btn">Close new conversation view</string>
     <string name="content_description_new_conversation_back_btn">Go back to new conversation view</string>
@@ -1194,9 +1193,6 @@
     <string name="team_settings_changed">Team Settings Changed</string>
     <string name="sharing_files_enabled">Sharing and receiving files of any type is now enabled</string>
     <string name="sharing_files_disabled">Sharing and receiving files of any type is now disabled</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (default)"</string>
-    <string name="wire_dropdown_placeholder">Select an Item</string>
     <string name="change">Change</string>
     <string name="allow_guests">Allow guests</string>
     <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
@@ -1345,6 +1341,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_text_copied">Text copied to clipboard</string>
     <string name="label_logs_option_title">Logs</string>
     <string name="label_share_logs">Share Logs</string>
+    <string name="label_share_logs_failed">Could not prepare logs for sharing</string>
     <string name="label_delete_logs">Delete All Logs</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
     <string name="restart_slowsync_for_recovery_button">Restart</string>
@@ -1754,10 +1751,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="sure_about_calling_in_degraded_dialog_title">Conversation no longer verified</string>
     <string name="sure_about_calling_in_degraded_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to start the call?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Call Anyway</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">App permissions</string>
-    <string name="app_permission_dialog_settings_positive_button">Settings</string>
-    <string name="app_permission_dialog_settings_negative_button">Not Now</string>
     <string name="notifications_permission_dialog_description">To make full use of the app, receive messages and answer phone calls, please allow Wire to show notifications.</string>
     <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone in your device settings.</string>
     <string name="record_video_permission_dialog_description">To record a video, allow Wire to access your camera in your device settings.</string>
@@ -1776,10 +1769,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Remove asset</string>
     <string name="asset_attention_description">Asset attention</string>
-    <!-- No Activity Errors -->
-    <string name="no_camera_app">No camera app found to complete this action.</string>
-    <string name="no_gallery_app">No gallery app found to complete this action.</string>
-    <string name="no_file_manager_app">No file manager app found to complete this action.</string>
 
     <string name="restricted_asset_error_toast_message">Sending of files is forbidden due to company restrictions</string>
     <!--    Ping dialog-->

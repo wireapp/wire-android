@@ -142,6 +142,7 @@ fun ChangeEmailContent(
                         inputTransformation = InputTransformation.forceLowercase(),
                         state = computeEmailErrorState(state.flowState),
                         keyboardOptions = KeyboardOptions.DefaultEmailDone,
+                        readOnly = state.flowState is ChangeEmailState.FlowState.Loading,
                         onKeyboardAction = { keyboardController?.hide() },
                         modifier = Modifier.padding(
                             horizontal = MaterialTheme.wireDimensions.spacing16x
@@ -190,8 +191,6 @@ private fun computeEmailErrorState(state: ChangeEmailState.FlowState): WireTextF
         ChangeEmailState.FlowState.Error.TextFieldError.Generic -> WireTextFieldState.Error(
             stringResource(id = R.string.settings_myaccount_email_generic_error)
         )
-
-        ChangeEmailState.FlowState.Loading -> WireTextFieldState.ReadOnly
 
         else -> WireTextFieldState.Default
     }

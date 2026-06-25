@@ -17,22 +17,24 @@
  */
 package call.models
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CallFlow(
-    @SerializedName("audioPacketsReceived")
+    @SerialName("audioPacketsReceived")
     val audioPacketsReceived: Long,
 
-    @SerializedName("audioPacketsSent")
+    @SerialName("audioPacketsSent")
     val audioPacketsSent: Long,
 
-    @SerializedName("videoPacketsReceived")
+    @SerialName("videoPacketsReceived")
     val videoPacketsReceived: Long,
 
-    @SerializedName("videoPacketsSent")
+    @SerialName("videoPacketsSent")
     val videoPacketsSent: Long,
 
-    @SerializedName("remoteUserId")
+    @SerialName("remoteUserId")
     val remoteUserId: String
 ) {
 

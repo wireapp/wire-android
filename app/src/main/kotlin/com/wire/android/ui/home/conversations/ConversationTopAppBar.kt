@@ -22,10 +22,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -135,7 +140,8 @@ private fun ConversationScreenTopAppBarContent(
                     .clickable(
                         onClick = onDropDownClick,
                         enabled = isDropDownEnabled && isInteractionEnabled,
-                        onClickLabel = stringResource(R.string.content_description_conversation_open_details_label)
+                        onClickLabel = stringResource(R.string.content_description_conversation_open_details_label),
+                        role = Role.Button
                     )
             ) {
                 val conversationAvatar: ConversationAvatar = conversationInfoViewState.conversationAvatar
@@ -204,7 +210,8 @@ private fun ConversationScreenTopAppBarContent(
             titleContentColor = MaterialTheme.colorScheme.onBackground,
             actionIconContentColor = MaterialTheme.colorScheme.onBackground,
             navigationIconContentColor = MaterialTheme.colorScheme.onBackground
-        )
+        ),
+        windowInsets = WindowInsets.statusBars.only(WindowInsetsSides.Top)
     )
 }
 

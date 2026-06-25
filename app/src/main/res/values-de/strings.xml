@@ -206,8 +206,6 @@
     <string name="content_description_edit_self_delete_back_btn">Zurück zu Unterhaltungsdetails</string>
     <string name="content_description_accept_or_ignore_connection_label">Anfrage akzeptieren oder ignorieren</string>
     <string name="content_description_alert">Hinweis</string>
-    <string name="content_description_drop_down">Auswahlliste</string>
-    <string name="content_description_close_dropdown">Dropdown schließen</string>
     <string name="content_description_open_notification_settings_label">Benachrichtigungseinstellungen öffnen</string>
     <string name="content_description_new_conversation_close_btn">Ansicht neue Unterhaltung schließen</string>
     <string name="content_description_new_conversation_back_btn">Zurück zur Ansicht neue Unterhaltung</string>
@@ -1129,9 +1127,6 @@
     <string name="team_settings_changed">Team-Einstellungen geändert</string>
     <string name="sharing_files_enabled">Das Teilen und Empfangen von Dateien jeder Art ist jetzt aktiviert</string>
     <string name="sharing_files_disabled">Das Teilen und Empfangen von Dateien jeder Art ist jetzt deaktiviert</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (Standard)"</string>
-    <string name="wire_dropdown_placeholder">Bitte auswählen</string>
     <string name="change">Ändern</string>
     <string name="allow_guests">Gäste zulassen</string>
     <string name="allow_guest_switch_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams. Diese Einstellung kann später jederzeit geändert werden.</string>
@@ -1669,10 +1664,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="sure_about_calling_in_degraded_dialog_title">Unterhaltung nicht mehr überprüft</string>
     <string name="sure_about_calling_in_degraded_dialog_body">Mindestens ein Teilnehmer hat begonnen, ein neues Gerät zu verwenden oder hat ein ungültiges Zertifikat.\n\nMöchten Sie trotzdem anrufen?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Trotzdem anrufen</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">App-Berechtigungen</string>
-    <string name="app_permission_dialog_settings_positive_button">Einstellungen</string>
-    <string name="app_permission_dialog_settings_negative_button">Nicht jetzt</string>
     <string name="notifications_permission_dialog_description">Um die App in vollem Umfang nutzen, Nachrichten empfangen und Anrufe entgegennehmen zu können, erlauben Sie Wire, Benachrichtigungen anzuzeigen.</string>
     <string name="call_permission_dialog_description">Um einen Anruf zu tätigen, erlauben Sie Wire den Zugriff auf Ihr Mikrofon in Ihren Geräteeinstellungen.</string>
     <string name="record_video_permission_dialog_description">Um ein Video aufzunehmen, erlauben Sie Wire den Zugriff auf Ihre Kamera in Ihren Geräteeinstellungen.</string>
@@ -1689,9 +1680,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_loading_label">Bitte warten…</string>
     <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
-    <string name="no_gallery_app">Keine Galerie-App gefunden, um diese Aktion abzuschließen.</string>
-    <string name="no_file_manager_app">Keine App für Dateimanager gefunden, um diese Aktion abzuschließen.</string>
     <string name="restricted_asset_error_toast_message">Das Versenden von Dateien ist aufgrund von Firmenbeschränkungen verboten</string>
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">Ping senden</string>

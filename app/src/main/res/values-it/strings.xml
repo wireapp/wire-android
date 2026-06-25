@@ -1141,10 +1141,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="sure_about_calling_in_degraded_dialog_title">Conversazione non più verificata</string>
     <string name="sure_about_calling_in_degraded_dialog_body">Almeno un partecipante ha iniziato a utilizzare un nuovo dispositivo o ha un certificato non valido.\n\nDesideri comunque avviare la chiamata?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Chiama comunque</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">Autorizzazioni dell\'app</string>
-    <string name="app_permission_dialog_settings_positive_button">Impostazioni</string>
-    <string name="app_permission_dialog_settings_negative_button">Non adesso</string>
     <string name="call_permission_dialog_description">Per effettuare una chiamata, consenti a Wire l\'accesso al tuo microfono nelle impostazioni del tuo dispositivo.</string>
     <string name="record_video_permission_dialog_description">Per registrare un video, consenti a Wire di accedere alla tua fotocamera nelle impostazioni del tuo dispositivo.</string>
     <string name="take_picture_permission_dialog_description">Per scattare una foto, consenti a Wire di accedere alla tua fotocamera nelle impostazioni del tuo dispositivo.</string>

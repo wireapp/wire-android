@@ -111,4 +111,11 @@
     <string name="content_description_close_dropdown">Dropdown schließen</string>
     <!--wire dropdown-->
         <string name="wire_dropdown_default_indicator">" (Standard)"</string>
+    <string name="no_file_manager_app">Keine App für Dateimanager gefunden, um diese Aktion abzuschließen.</string>
+    <!-- No Activity Errors -->
+        <string name="no_gallery_app">Keine Galerie-App gefunden, um diese Aktion abzuschließen.</string>
+    <!-- Go to app settings permissions dialog -->
+        <string name="app_permission_dialog_title">App-Berechtigungen</string>
+    <string name="app_permission_dialog_settings_positive_button">Einstellungen</string>
+    <string name="app_permission_dialog_settings_negative_button">Nicht jetzt</string>
 </resources>

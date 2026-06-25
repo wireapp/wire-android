@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import com.wire.android.util.extension.checkPermission
 import com.wire.android.util.extension.getActivity
+import kotlinx.collections.immutable.ImmutableSet
 
 /**
  * Flow that will handle given permissions request in case there is no permission granted.
@@ -35,12 +36,12 @@ import com.wire.android.util.extension.getActivity
  * @param onAnyPermissionPermanentlyDenied action to be executed when the permission is permanently denied
  */
 @Composable
-fun rememberCheckPermissionsRequestFlow(
-    permissions: Array<String>,
+fun <K> rememberCheckPermissionsRequestFlow(
+    permissions: ImmutableSet<String>,
     onAllPermissionsGranted: () -> Unit,
     onAnyPermissionDenied: () -> Unit,
     onAnyPermissionPermanentlyDenied: () -> Unit,
-    key: Any? = null
+    key: K? = null
 ): RequestLauncher {
     val context = LocalContext.current
 
@@ -70,7 +71,7 @@ fun rememberCheckPermissionsRequestFlow(
             when {
                 permissions.isEmpty() -> onAllPermissionsGranted()
                 permissions.all { context.checkPermission(it) } -> onAllPermissionsGranted()
-                else -> permissionLauncher.launch(permissions)
+                else -> permissionLauncher.launch(permissions.toTypedArray())
             }
         }
     }

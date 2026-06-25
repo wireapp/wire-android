@@ -3334,29 +3334,29 @@ private fun com.wire.android.ui.common.groupname.computeGroupMetadataState(isCha
 
 @Composable
 public fun com.wire.android.ui.common.imagepreview.BulletHoleImagePreview(imageUri: android.net.Uri, contentDescription: kotlin.String, modifier: androidx.compose.ui.Modifier, scrimColor: androidx.compose.ui.graphics.Color): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - imageUri: RUNTIME (requires runtime check)
+    - imageUri: STABLE (matched by stability configuration)
     - contentDescription: STABLE (String is immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
     - scrimColor: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.ui.common.imagepreview.loadBitMap(imageUri: android.net.Uri): androidx.compose.runtime.State<android.graphics.Bitmap?>
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - imageUri: RUNTIME (requires runtime check)
+    - imageUri: STABLE (matched by stability configuration)
 
 @Composable
 public fun com.wire.android.ui.common.imagepreview.rememberPickPictureState(onImageSelected: kotlin.Function1<android.net.Uri, kotlin.Unit>, onPictureTaken: kotlin.Function0<kotlin.Unit>, targetPictureFileUri: android.net.Uri, onCameraPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onGalleryPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.ui.common.imagepreview.AvatarPickerFlow
-  skippable: false
+  skippable: true
   restartable: true
   params:
     - onImageSelected: STABLE (function type)
     - onPictureTaken: STABLE (function type)
-    - targetPictureFileUri: RUNTIME (requires runtime check)
+    - targetPictureFileUri: STABLE (matched by stability configuration)
     - onCameraPermissionPermanentlyDenied: STABLE (function type)
     - onGalleryPermissionPermanentlyDenied: STABLE (function type)
 
@@ -7356,7 +7356,7 @@ public fun com.wire.android.ui.home.conversations.moveConversationToFolderViewMo
   skippable: true
   restartable: true
   params:
-    - args: STABLE (matched by stability configuration)
+    - args: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.home.conversations.multipartAttachmentsViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID): com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModel
@@ -10994,7 +10994,7 @@ public fun com.wire.android.ui.userprofile.avatarpicker.rememberAvatarPickerStat
     - onCameraPermissionPermanentlyDenied: STABLE (function type)
     - onGalleryPermissionPermanentlyDenied: STABLE (function type)
     - onPictureTaken: STABLE (function type)
-    - targetPictureFileUri: RUNTIME (requires runtime check)
+    - targetPictureFileUri: STABLE (matched by stability configuration)
     - coroutineScope: RUNTIME (requires runtime check)
     - modalBottomSheetState: UNSTABLE (has mutable properties or unstable members)
 
@@ -11742,137 +11742,6 @@ public fun com.wire.android.util.lifecycle.rememberLifecycleEvent(lifecycleOwner
   restartable: true
   params:
     - lifecycleOwner: RUNTIME (requires runtime check)
-
-@Composable
-public fun com.wire.android.util.permission.PermissionsDeniedRequestDialog(body: kotlin.Int, title: kotlin.Int, positiveButton: kotlin.Int, negativeButton: kotlin.Int, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - body: STABLE (primitive type)
-    - title: STABLE (primitive type)
-    - positiveButton: STABLE (primitive type)
-    - negativeButton: STABLE (primitive type)
-    - onDismiss: STABLE (function type)
-
-@Composable
-public fun com.wire.android.util.permission.rememberCameraPermissionFlow(onPermissionGranted: kotlin.Function0<kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
-  skippable: true
-  restartable: true
-  params:
-    - onPermissionGranted: STABLE (function type)
-    - onPermissionDenied: STABLE (function type)
-    - onPermissionPermanentlyDenied: STABLE (function type)
-
-@Composable
-public fun com.wire.android.util.permission.rememberCaptureVideoFlow(targetVideoFileUri: android.net.Uri, onVideoCaptured: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
-  skippable: false
-  restartable: true
-  params:
-    - targetVideoFileUri: RUNTIME (requires runtime check)
-    - onVideoCaptured: STABLE (function type)
-    - onPermissionDenied: STABLE (function type)
-    - onPermissionPermanentlyDenied: STABLE (function type)
-
-@Composable
-public fun com.wire.android.util.permission.rememberCheckPermissionsAndLaunchIntentRequestFlow(resultContract: androidx.activity.result.contract.ActivityResultContract<P of com.wire.android.util.permission.rememberCheckPermissionsAndLaunchIntentRequestFlow, T of com.wire.android.util.permission.rememberCheckPermissionsAndLaunchIntentRequestFlow>, input: P of com.wire.android.util.permission.rememberCheckPermissionsAndLaunchIntentRequestFlow, requiredPermissions: kotlin.Array<kotlin.String>, onResult: kotlin.Function1<T of com.wire.android.util.permission.rememberCheckPermissionsAndLaunchIntentRequestFlow, kotlin.Unit>, onAnyPermissionDenied: kotlin.Function0<kotlin.Unit>, onAnyPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onActivityNotFound: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
-  skippable: false
-  restartable: true
-  params:
-    - resultContract: RUNTIME (requires runtime check)
-    - input: RUNTIME (requires runtime check)
-    - requiredPermissions: UNSTABLE (has mutable properties or unstable members)
-    - onResult: STABLE (function type)
-    - onAnyPermissionDenied: STABLE (function type)
-    - onAnyPermissionPermanentlyDenied: STABLE (function type)
-    - onActivityNotFound: STABLE (function type)
-
-@Composable
-public fun com.wire.android.util.permission.rememberCheckPermissionsRequestFlow(permissions: kotlin.Array<kotlin.String>, onAllPermissionsGranted: kotlin.Function0<kotlin.Unit>, onAnyPermissionDenied: kotlin.Function0<kotlin.Unit>, onAnyPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, key: kotlin.Any?): com.wire.android.util.permission.RequestLauncher
-  skippable: false
-  restartable: true
-  params:
-    - permissions: UNSTABLE (has mutable properties or unstable members)
-    - onAllPermissionsGranted: STABLE (function type)
-    - onAnyPermissionDenied: STABLE (function type)
-    - onAnyPermissionPermanentlyDenied: STABLE (function type)
-    - key: UNSTABLE (has mutable properties or unstable members)
-
-@Composable
-public fun com.wire.android.util.permission.rememberChooseMultipleFilesFlow(onFileBrowserItemPicked: kotlin.Function1<kotlin.collections.List<android.net.Uri>, kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, fileType: com.wire.android.util.permission.FileType): com.wire.android.util.permission.RequestLauncher
-  skippable: true
-  restartable: true
-  params:
-    - onFileBrowserItemPicked: STABLE (function type)
-    - onPermissionDenied: STABLE (function type)
-    - onPermissionPermanentlyDenied: STABLE (function type)
-    - fileType: STABLE (class with no mutable properties)
-
-@Composable
-public fun com.wire.android.util.permission.rememberChooseSingleFileFlow(onFileBrowserItemPicked: kotlin.Function1<android.net.Uri?, kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, fileType: com.wire.android.util.permission.FileType): com.wire.android.util.permission.RequestLauncher
-  skippable: true
-  restartable: true
-  params:
-    - onFileBrowserItemPicked: STABLE (function type)
-    - onPermissionDenied: STABLE (function type)
-    - onPermissionPermanentlyDenied: STABLE (function type)
-    - fileType: STABLE (class with no mutable properties)
-
-@Composable
-public fun com.wire.android.util.permission.rememberCreateFileFlow(fileName: kotlin.String, onFileCreated: kotlin.Function1<android.net.Uri, kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, fileMimeType: kotlin.String): com.wire.android.util.permission.RequestLauncher
-  skippable: true
-  restartable: true
-  params:
-    - fileName: STABLE (String is immutable)
-    - onFileCreated: STABLE (function type)
-    - onPermissionDenied: STABLE (function type)
-    - onPermissionPermanentlyDenied: STABLE (function type)
-    - fileMimeType: STABLE (String is immutable)
-
-@Composable
-public fun com.wire.android.util.permission.rememberCurrentLocationPermissionFlow(onAllPermissionsGranted: kotlin.Function0<kotlin.Unit>, onAnyPermissionDenied: kotlin.Function0<kotlin.Unit>, onAnyPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
-  skippable: true
-  restartable: true
-  params:
-    - onAllPermissionsGranted: STABLE (function type)
-    - onAnyPermissionDenied: STABLE (function type)
-    - onAnyPermissionPermanentlyDenied: STABLE (function type)
-
-@Composable
-public fun com.wire.android.util.permission.rememberRecordAudioPermissionFlow(onPermissionGranted: kotlin.Function0<kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
-  skippable: true
-  restartable: true
-  params:
-    - onPermissionGranted: STABLE (function type)
-    - onPermissionDenied: STABLE (function type)
-    - onPermissionPermanentlyDenied: STABLE (function type)
-
-@Composable
-public fun com.wire.android.util.permission.rememberShowNotificationsPermissionFlow(onPermissionGranted: kotlin.Function0<kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
-  skippable: true
-  restartable: true
-  params:
-    - onPermissionGranted: STABLE (function type)
-    - onPermissionDenied: STABLE (function type)
-    - onPermissionPermanentlyDenied: STABLE (function type)
-
-@Composable
-public fun com.wire.android.util.permission.rememberTakePictureFlow(targetPictureFileUri: android.net.Uri, onPictureTaken: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
-  skippable: false
-  restartable: true
-  params:
-    - targetPictureFileUri: RUNTIME (requires runtime check)
-    - onPictureTaken: STABLE (function type)
-    - onPermissionDenied: STABLE (function type)
-    - onPermissionPermanentlyDenied: STABLE (function type)
-
-@Composable
-public fun com.wire.android.util.permission.rememberWriteStoragePermissionFlow(onPermissionGranted: kotlin.Function0<kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
-  skippable: true
-  restartable: true
-  params:
-    - onPermissionGranted: STABLE (function type)
-    - onPermissionDenied: STABLE (function type)
-    - onPermissionPermanentlyDenied: STABLE (function type)
 
 @Composable
 public fun com.wire.android.util.ui.SnackBarMessageHandler(infoMessages: kotlinx.coroutines.flow.SharedFlow<com.wire.android.model.SnackBarMessage>, onEmitted: kotlin.Function0<kotlin.Unit>, onActionClicked: kotlin.Function1<com.wire.android.model.SnackBarMessage, kotlin.Unit>): kotlin.Unit

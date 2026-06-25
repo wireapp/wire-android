@@ -1396,10 +1396,6 @@ registrado. Tente novamente.</string>
     <string name="sure_about_calling_in_degraded_dialog_title">Conversa não mais verificada</string>
     <string name="sure_about_calling_in_degraded_dialog_body">Ao menos um participante começou a usar outro dispositivo ou tem um certificado inválido.\n\nAinda deseja iniciar a chamada?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Chamar Assim Mesmo</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">Permissões do app</string>
-    <string name="app_permission_dialog_settings_positive_button">Configurações</string>
-    <string name="app_permission_dialog_settings_negative_button">Agora Não</string>
     <string name="notifications_permission_dialog_description">Para fazer pleno uso do aplicativo, receber mensagens e responder chamadas, permita que o Wire mostre notificações.</string>
     <string name="call_permission_dialog_description">Para fazer uma chamada, permita que o Wire acesse seu microfone nas configurações do seu dispositivo.</string>
     <string name="record_video_permission_dialog_description">Para gravar um vídeo, permita que o Wire acesse sua câmera nas configurações do dispositivo.</string>
@@ -1418,10 +1414,6 @@ registrado. Tente novamente.</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Remover mídia</string>
     <string name="asset_attention_description">Ativo de atenção</string>
-    <!-- No Activity Errors -->
-    <string name="no_camera_app">Nenhum aplicativo de câmera encontrado para concluir esta ação.</string>
-    <string name="no_gallery_app">Nenhum app de galeria encontrado para concluir esta ação.</string>
-    <string name="no_file_manager_app">Nenhum aplicativo de gerenciador de arquivo foi encontrado para concluir esta ação.</string>
     <string name="restricted_asset_error_toast_message">O envio de arquivos é proibido devido a restrições da empresa</string>
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">Chamar a atenção</string>

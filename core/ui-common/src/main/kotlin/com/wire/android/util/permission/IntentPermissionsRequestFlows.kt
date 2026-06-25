@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +26,9 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
-import com.wire.android.R
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.launch
 
 /**
@@ -52,7 +53,7 @@ fun rememberTakePictureFlow(
     return rememberCheckPermissionsAndLaunchIntentRequestFlow(
         resultContract = ActivityResultContracts.TakePicture(),
         input = targetPictureFileUri,
-        requiredPermissions = arrayOf(Manifest.permission.CAMERA),
+        requiredPermissions = persistentSetOf(Manifest.permission.CAMERA),
         onResult = onPictureTaken,
         onAnyPermissionDenied = onPermissionDenied,
         onAnyPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
@@ -87,8 +88,8 @@ fun rememberCaptureVideoFlow(
         resultContract = ActivityResultContracts.CaptureVideo(),
         input = targetVideoFileUri,
         requiredPermissions = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> arrayOf(Manifest.permission.CAMERA)
-            else -> arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> persistentSetOf(Manifest.permission.CAMERA)
+            else -> persistentSetOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
         },
         onResult = onVideoCaptured,
         onAnyPermissionDenied = onPermissionDenied,
@@ -126,8 +127,8 @@ fun rememberCreateFileFlow(
         resultContract = ActivityResultContracts.CreateDocument(fileMimeType),
         input = fileName,
         requiredPermissions = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> emptyArray()
-            else -> arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> persistentSetOf()
+            else -> persistentSetOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         },
         onResult = { onFileCreatedUri ->
             onFileCreatedUri?.let { onFileCreated(it) }
@@ -165,8 +166,8 @@ fun rememberChooseSingleFileFlow(
         resultContract = ActivityResultContracts.GetContent(),
         input = fileType.mimeType,
         requiredPermissions = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> emptyArray()
-            else -> arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> persistentSetOf()
+            else -> persistentSetOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         },
         onResult = onFileBrowserItemPicked,
         onAnyPermissionDenied = onPermissionDenied,
@@ -202,8 +203,8 @@ fun rememberChooseMultipleFilesFlow(
         resultContract = ActivityResultContracts.GetMultipleContents(),
         input = fileType.mimeType,
         requiredPermissions = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> emptyArray()
-            else -> arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> persistentSetOf()
+            else -> persistentSetOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         },
         onResult = onFileBrowserItemPicked,
         onAnyPermissionDenied = onPermissionDenied,

@@ -44,6 +44,11 @@ class TeamCreationTest : BaseUiTest() {
         backendClient = BackendClient.loadBackend("STAGING")
     }
 
+    private fun registerTeamOwnerForCleanup(userInfo: ClientUser) {
+        userInfo.isTeamOwner = true
+        teamHelper.usersManager.appendCustomUser(userInfo)
+    }
+
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4558", "TC-4562")
     @Category("regression", "RC", "teamCreation")
@@ -117,6 +122,7 @@ class TeamCreationTest : BaseUiTest() {
 
         step("And I tap continue button on create team page") {
             pages.teamCreationPage.apply {
+                scrollToContinueButton()
                 clickContinueButton()
             }
         }
@@ -145,6 +151,7 @@ class TeamCreationTest : BaseUiTest() {
             pages.teamCreationPage.apply {
                 assertTeamCreatedPageVisible()
             }
+            registerTeamOwnerForCleanup(userInfo)
         }
 
         step("When I close team created page") {
@@ -198,7 +205,7 @@ class TeamCreationTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4559", "TC-4560", "TC-4561")
+    @TestCaseId("TC-4559")
     @Category("regression", "RC", "teamCreation")
     @Test
     fun givenIWantToRegisterWithAnInvalidEmail_whenISubmitTheEmail_thenISeeAnError() {
@@ -262,28 +269,85 @@ class TeamCreationTest : BaseUiTest() {
 
         step("And I submit create team form") {
             pages.teamCreationPage.apply {
+                scrollToContinueButton()
                 clickContinueButton()
             }
         }
 
-        step("Then I see invalid email error message") {
+        step("Then I scroll down a little and see invalid email error message") {
+            pages.teamCreationPage.apply {
+                scrollDownALittle()
+            }
             iSeeSystemMessage("Something went wrong. Please reload the page and try again.")
         }
+    }
 
-        // TC-4561 I want to see an error when my passwords do not match
+    @Suppress("LongMethod")
+    @TestCaseId("TC-4561")
+    @Category("regression", "RC", "teamCreation")
+    @Test
+    fun givenIWantToRegisterWithUnmatchedPasswords_whenISubmitTheForm_thenISeeAnError() {
+        lateinit var userInfo: ClientUser
 
-        step("When I clear email and confirm password then enter valid email and unmatched confirm password") {
+        step("Given User user1Name is available for team creation") {
+            userInfo = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+        }
+
+        step("And I see email verification welcome page") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+        }
+
+        step("And I open staging backend via deep link and proceed") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+            }
+        }
+
+        step("When I enter my email and tap next on email verification welcome page") {
+            pages.registrationPage.apply {
+                enterPersonalUserRegistrationEmail(userInfo.email)
+                clickLoginButton()
+            }
+        }
+
+        step("And I start create team flow") {
+            pages.registrationPage.apply {
+                clickCreateAccountButton()
+                clickCreateTeamButton()
+            }
+        }
+
+        step("Then I see create team page") {
             pages.teamCreationPage.apply {
-                enterEmail("")
+                assertCreateTeamPageVisible()
+            }
+        }
+
+        step("When I enter team owner details with unmatched password confirmation") {
+            pages.teamCreationPage.apply {
                 enterEmail(userInfo.email)
-                enterConfirmPassword("")
+                enterProfileName(userInfo.name)
+                enterTeamName("SuperTeam")
+                closeKeyboardIfOpened()
+                enterPassword(userInfo.password)
+                closeKeyboardIfOpened()
                 enterConfirmPassword("unmatchedPassword")
                 closeKeyboardIfOpened()
             }
         }
 
+        step("And I accept terms and conditions") {
+            pages.teamCreationPage.apply {
+                checkIAcceptTermsAndConditions()
+            }
+        }
+
         step("And I submit create team form") {
             pages.teamCreationPage.apply {
+                scrollToContinueButton()
                 clickContinueButton()
             }
         }
@@ -291,21 +355,74 @@ class TeamCreationTest : BaseUiTest() {
         step("Then I see password mismatch error message") {
             iSeeSystemMessage("The password doesn’t match!")
         }
+    }
 
-        // TC-4560 I want to see an error when I use an invalid password
+    @Suppress("LongMethod")
+    @TestCaseId("TC-4560")
+    @Category("regression", "RC", "teamCreation")
+    @Test
+    fun givenIWantToRegisterWithAnInvalidPassword_whenISubmitTheForm_thenISeeAnError() {
+        lateinit var userInfo: ClientUser
 
-        step("When I clear password fields and enter invalid password in both fields") {
+        step("Given User user1Name is available for team creation") {
+            userInfo = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+        }
+
+        step("And I see email verification welcome page") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+        }
+
+        step("And I open staging backend via deep link and proceed") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+            }
+        }
+
+        step("When I enter my email and tap next on email verification welcome page") {
+            pages.registrationPage.apply {
+                enterPersonalUserRegistrationEmail(userInfo.email)
+                clickLoginButton()
+            }
+        }
+
+        step("And I start create team flow") {
+            pages.registrationPage.apply {
+                clickCreateAccountButton()
+                clickCreateTeamButton()
+            }
+        }
+
+        step("Then I see create team page") {
             pages.teamCreationPage.apply {
-                enterPassword("")
+                assertCreateTeamPageVisible()
+            }
+        }
+
+        step("When I enter team owner details with invalid password") {
+            pages.teamCreationPage.apply {
+                enterEmail(userInfo.email)
+                enterProfileName(userInfo.name)
+                enterTeamName("SuperTeam")
+                closeKeyboardIfOpened()
                 enterPassword("invalidPassword")
-                enterConfirmPassword("")
+                closeKeyboardIfOpened()
                 enterConfirmPassword("invalidPassword")
                 closeKeyboardIfOpened()
             }
         }
 
+        step("And I accept terms and conditions") {
+            pages.teamCreationPage.apply {
+                checkIAcceptTermsAndConditions()
+            }
+        }
+
         step("And I submit create team form") {
             pages.teamCreationPage.apply {
+                scrollToContinueButton()
                 clickContinueButton()
             }
         }
@@ -382,6 +499,7 @@ class TeamCreationTest : BaseUiTest() {
 
         step("And I tap continue button on create team page") {
             pages.teamCreationPage.apply {
+                scrollToContinueButton()
                 clickContinueButton()
             }
         }

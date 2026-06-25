@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.core.criticalFlows
+package com.wire.android.tests.core.e2eTests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import backendUtils.BackendClient
@@ -47,7 +47,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11259")
-    @Category("criticalFlow", "sessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenLoggedInAccount_whenSecondAccountHitsTooManyDevicesAndLoginIsCancelled_thenPreviousSessionIsRestored() {
         step("Prepare staging users and make the second account reach the client limit") {
@@ -85,7 +85,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11260")
-    @Category("criticalFlow", "sessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenTwoLoggedInAccounts_whenSwitchingFromProfile_thenConversationListUsesSelectedSession() {
         step("Prepare staging users") {
@@ -121,7 +121,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11261")
-    @Category("criticalFlow", "sessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenSingleLoggedInAccount_whenCurrentClientIsRemovedRemotely_thenLoginScreenOpens() {
         step("Prepare staging users") {
@@ -146,7 +146,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11262")
-    @Category("criticalFlow", "sessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenTwoLoggedInAccounts_whenCurrentClientIsRemovedRemotely_thenNextSessionIsRestored() {
         step("Prepare staging users") {
@@ -176,7 +176,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11263")
-    @Category("criticalFlow", "sessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenTwoLoggedInAccounts_whenLoggingOutCurrentAccount_thenNextSessionIsRestored() {
         step("Prepare staging users") {
@@ -208,7 +208,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11264")
-    @Category("criticalFlow", "sessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenNoLoggedInAccount_whenLoginHitsTooManyDevicesAndIsCancelled_thenLoginScreenOpens() {
         step("Prepare staging user with the client limit reached") {
@@ -231,7 +231,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11265")
-    @Category("criticalFlow", "sessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenNoLoggedInAccount_whenRemovingDeviceFromTooManyDevices_thenLoginCompletes() {
         step("Prepare staging user with the client limit reached") {

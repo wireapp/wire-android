@@ -4874,6 +4874,12 @@ private fun com.wire.android.ui.home.conversations.banner.styleBannerText(uiText
     - spannedTexts: RUNTIME (requires runtime check)
 
 @Composable
+public fun com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs(): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.wire.android.ui.home.conversations.channels.BrowseChannelsEmptyScreen(modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -9136,7 +9142,7 @@ public fun com.wire.android.ui.home.settings.SettingsScreen(homeStateHolder: com
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-public fun com.wire.android.ui.home.settings.SettingsScreenContent(settingsState: com.wire.android.ui.home.settings.SettingsState, onItemClicked: kotlin.Function1<com.wire.android.ui.home.settings.SettingsItem.DirectionItem, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, lazyListState: androidx.compose.foundation.lazy.LazyListState, onAppLockSwitchChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.home.settings.SettingsScreenContent(settingsState: com.wire.android.ui.home.settings.SettingsState, onItemClicked: kotlin.Function1<com.wire.android.ui.home.settings.SettingsItem, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, lazyListState: androidx.compose.foundation.lazy.LazyListState, onAppLockSwitchChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:

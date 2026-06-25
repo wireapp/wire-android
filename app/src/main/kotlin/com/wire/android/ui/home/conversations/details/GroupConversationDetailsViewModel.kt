@@ -20,16 +20,16 @@ package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
-import com.wire.android.ui.common.ActionsManager
-import com.wire.android.ui.common.ActionsManagerImpl
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
-import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
+import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsManager
+import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsManagerImpl
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.home.newconversation.channelaccess.toUiEnum
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.AppsUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -48,8 +48,8 @@ import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -76,8 +76,12 @@ class GroupConversationDetailsViewModel(
     private val isMLSEnabled: IsMLSEnabledUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
-) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata),
-    ActionsManager<GroupConversationDetailsViewAction> by ActionsManagerImpl() {
+) : ActionsViewModel<GroupConversationDetailsViewAction>(),
+    GroupConversationParticipantsManager by GroupConversationParticipantsManagerImpl(
+        savedStateHandle = savedStateHandle,
+        observeConversationMembers = observeConversationMembers,
+        refreshUsersWithoutMetadata = refreshUsersWithoutMetadata
+    ) {
 
     private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = groupConversationDetailsNavArgs.conversationId
@@ -148,7 +152,7 @@ class GroupConversationDetailsViewModel(
                             true
 
                         else -> false
-                }
+                    }
 
                 val shouldUseNewAppsUi = computeShouldUseNewAppsUi(groupDetails, appsAllowedResult)
                 val isUpdatingAppsAllowedForConversation =
@@ -208,18 +212,18 @@ class GroupConversationDetailsViewModel(
         groupDetails: ConversationDetails.Group,
         appsAllowedResult: AppsAllowedResult
     ) = canSelfPerformAdminTasks &&
-        isSelfInTeamThatOwnsConversation &&
-        isServicesSupportedForConversation(groupDetails.conversation.protocol, appsAllowedResult)
+            isSelfInTeamThatOwnsConversation &&
+            isServicesSupportedForConversation(groupDetails.conversation.protocol, appsAllowedResult)
 
     private fun isServicesSupportedForConversation(
         protocolInfo: Conversation.ProtocolInfo,
         appsAllowedResult: AppsAllowedResult
     ) = appsAllowedResult is AppsAllowedResult.Enabled &&
-        when (protocolInfo) {
-            is Conversation.ProtocolInfo.MLS -> AppsUtil.isAppsAllowed(appsAllowedResult, protocolInfo)
-            is Conversation.ProtocolInfo.Proteus -> true
-            is Conversation.ProtocolInfo.Mixed -> AppsUtil.isAppsAllowed(appsAllowedResult, protocolInfo)
-        }
+            when (protocolInfo) {
+                is Conversation.ProtocolInfo.MLS -> AppsUtil.isAppsAllowed(appsAllowedResult, protocolInfo)
+                is Conversation.ProtocolInfo.Proteus -> true
+                is Conversation.ProtocolInfo.Mixed -> AppsUtil.isAppsAllowed(appsAllowedResult, protocolInfo)
+            }
 
     private fun computeShouldUseNewAppsUi(
         groupDetails: ConversationDetails.Group,

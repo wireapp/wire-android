@@ -58,7 +58,7 @@ sealed interface JoinOrStartCallScreenDialogType {
 }
 
 @Composable
-fun JoinOrStartCallViewModel.HandleJoinOrStartCallScreenDialogs() = when (val dialogType = joinOrStartCallViewState.dialogType) {
+fun JoinOrStartCallManager.HandleJoinOrStartCallScreenDialogs() = when (val dialogType = joinOrStartCallViewState.dialogType) {
     is JoinOrStartCallScreenDialogType.JoinAnyway -> JoinAnywayDialog(
         onDismiss = ::dismissDialog,
         onConfirm = { joinAnyway(dialogType.conversationId) },

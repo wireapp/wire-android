@@ -22,13 +22,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -63,18 +63,21 @@ class ConversationCallViewModel(
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val observeConferenceCallingEnabled: ObserveConferenceCallingEnabledUseCase,
     private val observeSelf: ObserveSelfUserUseCase
-) : JoinOrStartCallViewModel(
-    currentAccount = currentAccount,
-    observeEstablishedCalls = observeEstablishedCalls,
-    observeParticipantsForConversation = observeParticipantsForConversation,
-    answerCall = answerCall,
-    endCall = endCall,
-    observeSyncState = observeSyncState,
-    isEligibleToStartCall = isConferenceCallingEnabled,
-    setUserInformedAboutVerification = setUserInformedAboutVerification,
-    observeDegradedConversationNotified = observeDegradedConversationNotified,
-    observeSelf = observeSelf,
-) {
+) : ViewModel() {
+    val callManager = JoinOrStartCallManager(
+        scope = viewModelScope,
+        currentAccount = currentAccount,
+        observeEstablishedCalls = observeEstablishedCalls,
+        observeParticipantsForConversation = observeParticipantsForConversation,
+        answerCall = answerCall,
+        endCall = endCall,
+        observeSyncState = observeSyncState,
+        isEligibleToStartCall = isConferenceCallingEnabled,
+        setUserInformedAboutVerification = setUserInformedAboutVerification,
+        observeDegradedConversationNotified = observeDegradedConversationNotified,
+        observeSelf = observeSelf,
+    )
+
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
@@ -103,9 +106,6 @@ class ConversationCallViewModel(
         }
     }
 
-    override suspend fun participantsCountForConversation(conversationId: ConversationId): Int =
-        conversationCallViewState.participantsCount // to avoid multiple calls to the use case, re-use the value from the state
-
     private fun listenOngoingCall() = viewModelScope.launch {
         combine(observeOngoingCalls(), observeConversationDetails(conversationId)) { calls, conversationDetailsResult ->
             val hasOngoingCall = calls.any { call -> call.conversationId == conversationId }
@@ -130,7 +130,7 @@ class ConversationCallViewModel(
         }
     }
 
-    fun joinOngoingCall() = joinOngoingCall(conversationId)
+    fun joinOngoingCall() = callManager.joinOngoingCall(conversationId)
 
-    fun startCallIfPossible(conversationType: Conversation.Type) = startCallIfPossible(conversationId, conversationType)
+    fun startCallIfPossible(conversationType: Conversation.Type) = callManager.startCallIfPossible(conversationId, conversationType)
 }

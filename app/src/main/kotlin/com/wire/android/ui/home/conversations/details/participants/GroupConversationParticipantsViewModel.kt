@@ -24,22 +24,36 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import kotlinx.coroutines.launch
 
-open class GroupConversationParticipantsViewModel(
+class GroupConversationParticipantsViewModel(
     savedStateHandle: SavedStateHandle,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
-) : ViewModel() {
+    maxNumberOfItems: Int = -1, // -1 means return whole list
+) : ViewModel(),
+    GroupConversationParticipantsManager by GroupConversationParticipantsManagerImpl(
+        savedStateHandle = savedStateHandle,
+        observeConversationMembers = observeConversationMembers,
+        refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
+        maxNumberOfItems = maxNumberOfItems
+    )
 
-    open val maxNumberOfItems get() = -1 // -1 means return whole list
+interface GroupConversationParticipantsManager {
+    var groupParticipantsState: GroupConversationParticipantsState
+}
 
-    var groupParticipantsState: GroupConversationParticipantsState by mutableStateOf(GroupConversationParticipantsState())
-
+class GroupConversationParticipantsManagerImpl(
+    savedStateHandle: SavedStateHandle,
+    private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
+    private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
+    val maxNumberOfItems: Int = -1 // -1 means return whole list
+) : ViewModel(), GroupConversationParticipantsManager {
+    override var groupParticipantsState: GroupConversationParticipantsState by mutableStateOf(GroupConversationParticipantsState())
     private val groupConversationAllParticipantsNavArgs: GroupConversationAllParticipantsNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = groupConversationAllParticipantsNavArgs.conversationId
 

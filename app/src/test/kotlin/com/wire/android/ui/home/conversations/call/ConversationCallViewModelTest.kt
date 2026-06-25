@@ -19,14 +19,13 @@ package com.wire.android.ui.home.conversations.call
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.wire.android.assertIs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
@@ -49,7 +48,6 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.emptyFlow
@@ -99,23 +97,6 @@ class ConversationCallViewModelTest {
         advanceUntilIdle()
 
         assertEquals(LARGE_GROUP_PARTICIPANTS_COUNT, viewModel.conversationCallViewState.participantsCount)
-    }
-
-    @Test
-    fun `given cached large participants count, when starting call, then use cached count`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withParticipantsCount(LARGE_GROUP_PARTICIPANTS_COUNT)
-            .arrange()
-
-        advanceUntilIdle()
-
-        viewModel.startCallIfPossible(Conversation.Type.Group.Regular)
-        advanceUntilIdle()
-
-        assertIs<JoinOrStartCallScreenDialogType.CallConfirmation>(viewModel.joinOrStartCallViewState.dialogType).also {
-            assertEquals(LARGE_GROUP_PARTICIPANTS_COUNT, it.participantsCount)
-        }
-        coVerify(exactly = 1) { arrangement.observeParticipantsForConversation(arrangement.conversationId) }
     }
 
     @Test

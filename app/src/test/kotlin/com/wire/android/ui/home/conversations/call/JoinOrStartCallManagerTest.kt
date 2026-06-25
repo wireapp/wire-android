@@ -51,6 +51,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -61,7 +62,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @Suppress("UnusedFlow")
 @ExtendWith(CoroutineTestExtension::class)
-class JoinOrStartCallViewModelTest {
+class JoinOrStartCallManagerTest {
 
     @Test
     fun `given JoinAnyway dialog is displayed, when user dismiss it, then hide it`() = runTest {
@@ -79,6 +80,7 @@ class JoinOrStartCallViewModelTest {
         val (_, viewModel) = Arrangement()
             .withSelfAsAdmin()
             .arrange()
+        advanceUntilIdle()
 
         assertTrue(viewModel.selfTeamRole.value.isTeamAdmin())
     }
@@ -306,6 +308,7 @@ class JoinOrStartCallViewModelTest {
             .withSelfUserType(UserType.INTERNAL)
             .withIsConferenceCallingEnabled(ConferenceCallingResult.Disabled.Unavailable)
             .arrange()
+        advanceUntilIdle()
 
         viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
         advanceUntilIdle()
@@ -319,6 +322,7 @@ class JoinOrStartCallViewModelTest {
             .withSelfUserType(UserType.ADMIN)
             .withIsConferenceCallingEnabled(ConferenceCallingResult.Disabled.Unavailable)
             .arrange()
+        advanceUntilIdle()
 
         viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
         advanceUntilIdle()
@@ -332,6 +336,7 @@ class JoinOrStartCallViewModelTest {
             .withSelfUserType(UserType.GUEST)
             .withIsConferenceCallingEnabled(ConferenceCallingResult.Disabled.Unavailable)
             .arrange()
+        advanceUntilIdle()
 
         viewModel.startCallIfPossible(conversationId, Conversation.Type.Group.Regular)
         advanceUntilIdle()
@@ -339,7 +344,7 @@ class JoinOrStartCallViewModelTest {
         assertIs<JoinOrStartCallScreenDialogType.CallingFeatureUnavailable.Other>(viewModel.joinOrStartCallViewState.dialogType)
     }
 
-    private class Arrangement {
+    private inner class Arrangement {
         @MockK
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
@@ -424,7 +429,8 @@ class JoinOrStartCallViewModelTest {
 
         private var initialDialogType: JoinOrStartCallScreenDialogType = JoinOrStartCallScreenDialogType.None
 
-        fun arrange() = this to JoinOrStartCallViewModel(
+        fun arrange() = this to JoinOrStartCallManager(
+            scope = TestScope(),
             currentAccount = currentAccount,
             observeEstablishedCalls = observeEstablishedCalls,
             observeParticipantsForConversation = observeParticipantsForConversation,

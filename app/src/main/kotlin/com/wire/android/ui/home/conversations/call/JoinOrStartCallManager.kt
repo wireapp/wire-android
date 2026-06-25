@@ -23,8 +23,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.common.ActionsViewModel
+import com.wire.android.ui.common.ActionsManager
+import com.wire.android.ui.common.ActionsManagerImpl
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -44,6 +44,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNot
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -52,7 +53,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
-open class JoinOrStartCallViewModel(
+open class JoinOrStartCallManager(
+    private val scope: CoroutineScope,
     val currentAccount: UserId,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
@@ -64,7 +66,7 @@ open class JoinOrStartCallViewModel(
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val observeSelf: ObserveSelfUserUseCase,
     private val initialState: JoinOrStartCallViewState = JoinOrStartCallViewState() // for testing
-) : ActionsViewModel<JoinOrStartCallViewActions>() {
+) : ActionsManager<JoinOrStartCallViewActions> by ActionsManagerImpl(scope) {
 
     var joinOrStartCallViewState by mutableStateOf(initialState)
         @VisibleForTesting internal set
@@ -79,14 +81,14 @@ open class JoinOrStartCallViewModel(
     }
 
     private fun observeSelfTeamRole() {
-        viewModelScope.launch {
+        scope.launch {
             observeSelf().collectLatest { self ->
                 selfTeamRole.value = self.userType
             }
         }
     }
 
-    private fun observeEstablishedCall() = viewModelScope.launch {
+    private fun observeEstablishedCall() = scope.launch {
         observeEstablishedCalls()
             .distinctUntilChanged()
             .collect {
@@ -101,7 +103,7 @@ open class JoinOrStartCallViewModel(
     }
 
     fun joinAnyway(conversationId: ConversationId) {
-        viewModelScope.launch {
+        scope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
                 delay(DELAY_END_CALL)
@@ -111,7 +113,7 @@ open class JoinOrStartCallViewModel(
     }
 
     fun joinOngoingCall(conversationId: ConversationId) {
-        viewModelScope.launch {
+        scope.launch {
             if (joinOrStartCallViewState.hasEstablishedCall) {
                 updateDialogType(JoinOrStartCallScreenDialogType.JoinAnyway(conversationId))
             } else {
@@ -127,7 +129,7 @@ open class JoinOrStartCallViewModel(
     }
 
     fun initiateCall(conversationId: ConversationId) {
-        viewModelScope.launch {
+        scope.launch {
             initiateCallInternal(conversationId)
         }
     }
@@ -140,20 +142,20 @@ open class JoinOrStartCallViewModel(
     }
 
     fun startCallIfPossible(conversationId: ConversationId, conversationType: Conversation.Type) {
-        viewModelScope.launch {
+        scope.launch {
             startCallIfPossible(conversationId, conversationType, shouldCheckParticipantCount = true, shouldCheckVerification = true)
         }
     }
 
     fun startCallAfterDegradedVerification(conversationId: ConversationId, conversationType: Conversation.Type) {
-        viewModelScope.launch {
+        scope.launch {
             onApplyConversationDegradation(conversationId)
             startCallIfPossible(conversationId, conversationType, shouldCheckParticipantCount = true, shouldCheckVerification = false)
         }
     }
 
     fun startCallAfterConfirming(conversationId: ConversationId, conversationType: Conversation.Type) {
-        viewModelScope.launch {
+        scope.launch {
             startCallIfPossible(conversationId, conversationType, shouldCheckParticipantCount = false, shouldCheckVerification = false)
         }
     }

@@ -344,7 +344,7 @@ fun ConversationScreen(
         }
     }
 
-    HandleActions(conversationCallViewModel.actions) { action ->
+    HandleActions(conversationCallViewModel.callManager.actions) { action ->
         when (action) {
             is JoinOrStartCallViewActions.InitiatedCall -> {
                 context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
@@ -390,7 +390,7 @@ fun ConversationScreen(
         ConversationScreenDialogType.NONE -> {}
     }
 
-    conversationCallViewModel.HandleJoinOrStartCallScreenDialogs()
+    conversationCallViewModel.callManager.HandleJoinOrStartCallScreenDialogs()
 
     ConversationScreen(
         bannerMessage = conversationBannerViewModel.bannerState,

@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import coil3.annotation.ExperimentalCoilApi
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -93,7 +94,7 @@ fun MediaGalleryScreen(
         onPermissionPermanentlyDenied = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = R.string.save_permission_dialog_description
                 )
             )

@@ -1454,10 +1454,6 @@ Kérjük, próbálja meg újra.</string>
     <string name="sure_about_calling_in_degraded_dialog_title">A beszélgetés többé nem ellenőrzött</string>
     <string name="sure_about_calling_in_degraded_dialog_body">Legalább egy résztvevő új eszközt kezdett használni, vagy érvénytelen a tanúsítványa.\n\nMégis kezdeményezni kívánja a hívást?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Hívás mindenképpen</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">Alkalmazásengedélyek</string>
-    <string name="app_permission_dialog_settings_positive_button">Beállítások</string>
-    <string name="app_permission_dialog_settings_negative_button">Most nem</string>
     <string name="notifications_permission_dialog_description">Az alkalmazás teljeskörű használatához, üzenetek és hívások fogadásához engedélyezze a Wire számára, hogy értesítéseket jeleníthessen meg.</string>
     <string name="call_permission_dialog_description">Hanghíváshoz engedélyezze az eszköze beállításaiban, hogy a Wire használhassa mikrofonját.</string>
     <string name="record_video_permission_dialog_description">Videórögzítéshez engedélyezze az eszköze beállításaiban, hogy a Wire használhassa kameráját.</string>
@@ -1476,10 +1472,6 @@ Kérjük, próbálja meg újra.</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Állomány eltávolítása</string>
     <string name="asset_attention_description">Állományfigyelés</string>
-    <!-- No Activity Errors -->
-    <string name="no_camera_app">A művelet végrehajtásához szükséges kameraalkalmazás nem található.</string>
-    <string name="no_gallery_app">A művelet végrehajtásához szükséges galériaalkalmazás nem található.</string>
-    <string name="no_file_manager_app">A művelet végrehajtásához szükséges fájlkezelő-alkalmazás nem található.</string>
     <string name="restricted_asset_error_toast_message">Fájlok küldése a céges korlátozások értelmében tilos</string>
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">Kopogás küldése</string>

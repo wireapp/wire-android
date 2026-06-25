@@ -22,6 +22,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.Composable
+import kotlinx.collections.immutable.ImmutableSet
 
 /**
  * Flow that will launch the given [ActivityResultContract].
@@ -36,17 +37,17 @@ import androidx.compose.runtime.Composable
  * @param onActivityNotFound action to be executed when no activity to handle given [ActivityResultContract] is found
  */
 @Composable
-fun <P, T> rememberCheckPermissionsAndLaunchIntentRequestFlow(
-    resultContract: ActivityResultContract<P, T>,
-    input: P,
-    requiredPermissions: Array<String>,
-    onResult: (T) -> Unit,
+fun <I, O> rememberCheckPermissionsAndLaunchIntentRequestFlow(
+    resultContract: ActivityResultContract<I, O>,
+    input: I,
+    requiredPermissions: ImmutableSet<String>,
+    onResult: (O) -> Unit,
     onAnyPermissionDenied: () -> Unit,
     onAnyPermissionPermanentlyDenied: () -> Unit,
     onActivityNotFound: () -> Unit,
 ): RequestLauncher {
 
-    val intentLauncher: ManagedActivityResultLauncher<P, T> =
+    val intentLauncher: ManagedActivityResultLauncher<I, O> =
         rememberLauncherForActivityResult(resultContract) { result ->
             onResult(result)
         }

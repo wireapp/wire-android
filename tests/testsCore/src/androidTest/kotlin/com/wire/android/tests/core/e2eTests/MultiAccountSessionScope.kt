@@ -80,7 +80,7 @@ class MultiAccountSessionScope : BaseUiTest() {
                 assertCancelLoginDialogVisible()
                 confirmCancelLogin()
             }
-            pages.conversationListPage.assertConversationShellVisible()
+            pages.conversationListPage.assertConversationListVisible()
         }
     }
 
@@ -107,7 +107,7 @@ class MultiAccountSessionScope : BaseUiTest() {
                 iSeeUserProfilePage()
                 tapOtherAccountByName(primaryUser?.name.orEmpty())
             }
-            pages.conversationListPage.assertConversationShellVisible()
+            pages.conversationListPage.assertConversationListVisible()
         }
 
         step("Verify the second account is available after switching") {
@@ -116,7 +116,7 @@ class MultiAccountSessionScope : BaseUiTest() {
                 iSeeUserProfilePage()
                 tapOtherAccountByName(secondaryUser?.name.orEmpty())
             }
-            pages.conversationListPage.assertConversationShellVisible()
+            pages.conversationListPage.assertConversationListVisible()
         }
     }
 
@@ -171,7 +171,7 @@ class MultiAccountSessionScope : BaseUiTest() {
                 assertRemovedDeviceDialogVisible()
                 confirmRemovedDeviceDialog()
             }
-            pages.conversationListPage.assertConversationShellVisible()
+            pages.conversationListPage.assertConversationListVisible()
         }
     }
 
@@ -203,7 +203,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
 
         step("Verify the remaining session is restored") {
-            pages.conversationListPage.assertConversationShellVisible()
+            pages.conversationListPage.assertConversationListVisible()
         }
     }
 

@@ -76,25 +76,6 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertConversationShellVisible(timeout: Duration = 45.seconds): ConversationListPage {
-        val shellElement = UiWaitUtils.waitAnyVisible(
-            selectors = listOf(
-                conversationListHeading,
-                searchField,
-                userProfileButtonNoPhoto,
-                userProfileButton,
-                mainMenuButton
-            ),
-            timeout = timeout,
-            pollingInterval = UiWaitUtils.POLLING_FAST
-        )
-        Assert.assertTrue(
-            "Conversation shell is not visible",
-            shellElement != null && !shellElement.visibleBounds.isEmpty
-        )
-        return this
-    }
-
     fun assertConversationListNotVisible(): ConversationListPage {
         val heading = findElementOrNull(conversationListHeading)
         Assert.assertTrue(

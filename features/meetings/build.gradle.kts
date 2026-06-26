@@ -13,6 +13,7 @@ plugins {
 dependencies {
     implementation("com.wire.kalium:kalium-common")
     implementation("com.wire.kalium:kalium-logic")
+    implementation("com.wire.kalium:kalium-util")
     implementation(projects.core.di)
     implementation(projects.core.uiCommon)
     implementation(projects.core.search)

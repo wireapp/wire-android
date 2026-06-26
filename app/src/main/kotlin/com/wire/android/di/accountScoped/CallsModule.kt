@@ -51,6 +51,7 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import dev.zacsweers.metro.BindingContainer
@@ -113,6 +114,10 @@ class CallsModule {
         callsScope: CallsScope
     ): ObserveOutgoingCallUseCase =
         callsScope.observeOutgoingCall
+
+    @Provides
+    fun provideActiveCallsUseCase(callsScope: CallsScope): ObserveActiveCallsUseCase =
+        callsScope.observeActiveCalls
 
     @Provides
     fun provideStartCallUseCase(callsScope: CallsScope): StartCallUseCase =

@@ -77,6 +77,8 @@
     <string name="new_meeting_repeats_input_label">Repeats</string>
     <string name="content_description_new_meeting_repeating_options">Select repeat option</string>
     <string name="new_meeting_allow_guests_label">Allow guests</string>
+    <string name="content_description_join_meeting_label">join a meeting call</string>
+    <string name="content_description_attending_meeting_label">return to a meeting call</string>
 
     <plurals name="new_meeting_participants_input_more_suffix">
         <item quantity="one">+%1$d more</item>

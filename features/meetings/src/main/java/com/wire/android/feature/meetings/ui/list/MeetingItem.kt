@@ -45,8 +45,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingItem
@@ -87,6 +90,9 @@ fun MeetingItem(
     meeting: MeetingItem,
     modifier: Modifier = Modifier,
     openMeetingOptions: (meetingId: String) -> Unit = {},
+    startCall: (conversationId: ConversationId) -> Unit = {},
+    joinCall: (conversationId: ConversationId) -> Unit = {},
+    returnToCall: (conversationId: ConversationId) -> Unit = {},
 ) {
     RowItemTemplate(
         modifier = modifier.padding(start = dimensions().spacing8x),
@@ -108,9 +114,21 @@ fun MeetingItem(
         },
         subtitle = {
             Column {
-                MeetingTimeInfoRow(status = meeting.status, repeatingInterval = meeting.repeatingInterval)
-                MeetingBelongingInfoRow(conversationId = meeting.conversationId, type = meeting.belongingType)
-                MeetingOngoingAttendingRow(status = meeting.status, onJoinClick = { /* TODO */ })
+                MeetingTimeInfoRow(
+                    status = meeting.status,
+                    repeatingInterval = meeting.repeatingInterval
+                )
+                MeetingBelongingInfoRow(
+                    conversationId = meeting.conversationId,
+                    type = meeting.belongingType
+                )
+                MeetingOngoingAttendingRow(
+                    conversationId = meeting.conversationId,
+                    status = meeting.status,
+                    startCall = startCall,
+                    joinCall = joinCall,
+                    returnToCall = returnToCall,
+                )
             }
         },
         actions = {
@@ -151,7 +169,7 @@ private fun MeetingItemDivider() {
 internal fun VideoCallIcon(tint: Color, modifier: Modifier = Modifier) {
     Icon(
         painter = painterResource(id = UICommonR.drawable.ic_video_call),
-        contentDescription = stringResource(R.string.content_description_meeting_icon),
+        contentDescription = null,
         tint = tint,
         modifier = modifier
             .padding(start = dimensions().spacing2x) // visually center the icon as it is not perfectly centered in the asset
@@ -163,7 +181,7 @@ internal fun VideoCallIcon(tint: Color, modifier: Modifier = Modifier) {
 internal fun CalendarIcon(tint: Color, modifier: Modifier = Modifier) {
     Icon(
         painter = painterResource(id = UICommonR.drawable.ic_calendar),
-        contentDescription = stringResource(R.string.content_description_meeting_icon),
+        contentDescription = null,
         tint = tint,
         modifier = modifier.size(dimensions().spacing16x)
     )
@@ -308,14 +326,29 @@ private fun JoinMeetingPrimaryButton(onClick: () -> Unit) {
             )
         },
         text = stringResource(R.string.meeting_join_button),
+        onClickDescription = stringResource(R.string.content_description_join_meeting_label),
     )
 }
 
 @Composable
-private fun MeetingAttendingPrimaryBodyText() {
+private fun MeetingAttendingPrimaryBodyText(onClick: () -> Unit, startNegativePadding: Dp = dimensions().spacing4x) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x)
+        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
+        modifier = Modifier
+            .layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    placeable.placeRelative(-startNegativePadding.roundToPx(), 0)
+                }
+            }
+            .clip(RoundedCornerShape(dimensions().buttonCornerSize))
+            .clickable(
+                onClick = onClick,
+                onClickLabel = stringResource(R.string.content_description_attending_meeting_label),
+                role = Role.Button,
+            )
+            .padding(horizontal = startNegativePadding)
     ) {
         VideoCallIcon(tint = colorsScheme().primary)
         PrimaryBodyText(text = stringResource(R.string.meeting_attending))
@@ -348,13 +381,30 @@ private fun MeetingStartingInPrimaryBodyText(startTime: Instant) {
 }
 
 @Composable
-private fun MeetingOngoingAttendingRow(status: Status, onJoinClick: () -> Unit) {
+private fun MeetingOngoingAttendingRow(
+    conversationId: ConversationId,
+    status: Status,
+    joinCall: (conversationId: ConversationId) -> Unit,
+    startCall: (conversationId: ConversationId) -> Unit,
+    returnToCall: (conversationId: ConversationId) -> Unit,
+) {
     Box(modifier = Modifier.heightIn(min = dimensions().spacing8x)) {
         if (status is Status.Ongoing) {
-            if (status.ongoingCallStatus?.isSelfUserAttending == true) {
-                MeetingAttendingPrimaryBodyText()
-            } else {
-                JoinMeetingPrimaryButton(onClick = onJoinClick)
+            when {
+                status.ongoingCallStatus?.isSelfUserAttending == true -> {
+                    // user is attending the ongoing call, show "Attending" text with option to return to the call
+                    MeetingAttendingPrimaryBodyText(onClick = { returnToCall(conversationId) })
+                }
+
+                status.ongoingCallStatus != null -> {
+                    // there is an ongoing call but the user is not attending, show option to join the call
+                    JoinMeetingPrimaryButton(onClick = { joinCall(conversationId) }) // TODO handle permissions!!
+                }
+
+                else -> {
+                    // there is no ongoing call, show option to start the call
+                    JoinMeetingPrimaryButton(onClick = { startCall(conversationId) })
+                }
             }
         } else if (status is Status.Scheduled) {
             MeetingStartingInPrimaryBodyText(startTime = status.startTime)

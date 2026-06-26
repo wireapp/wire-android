@@ -264,7 +264,7 @@ class JoinOrStartCallManagerTest {
         val (arrangement, viewModel) = Arrangement().arrange()
 
         viewModel.actions.test {
-            viewModel.startCallAfterConfirming(conversationId, Conversation.Type.Group.Regular)
+            viewModel.startCallAfterConfirmingParticipantsCount(conversationId, Conversation.Type.Group.Regular)
             advanceUntilIdle()
 
             assertEquals(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())

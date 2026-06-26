@@ -17,7 +17,7 @@ public fun com.ramcosta.composedestinations.generated.meetings.destinations.NewM
   params:
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.AllMeetingsScreen(lazyListState: androidx.compose.foundation.lazy.LazyListState, contentPadding: androidx.compose.foundation.layout.PaddingValues, tabs: kotlinx.collections.immutable.ImmutableList<com.wire.android.feature.meetings.ui.MeetingsTabItem>, initialTab: com.wire.android.feature.meetings.ui.MeetingsTabItem): kotlin.Unit
+public fun com.wire.android.feature.meetings.ui.AllMeetingsScreen(lazyListState: androidx.compose.foundation.lazy.LazyListState, contentPadding: androidx.compose.foundation.layout.PaddingValues, tabs: kotlinx.collections.immutable.ImmutableList<com.wire.android.feature.meetings.ui.MeetingsTabItem>, initialTab: com.wire.android.feature.meetings.ui.MeetingsTabItem, startCall: kotlin.Function1<@[ParameterName(name = \, joinCall: kotlin.Function1<@[ParameterName(name = \, returnToCall: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -25,6 +25,9 @@ public fun com.wire.android.feature.meetings.ui.AllMeetingsScreen(lazyListState:
     - contentPadding: STABLE (marked @Stable or @Immutable)
     - tabs: STABLE (known stable type)
     - initialTab: STABLE (class with no mutable properties)
+    - startCall: STABLE (function type)
+    - joinCall: STABLE (function type)
+    - returnToCall: STABLE (function type)
 
 @Composable
 public fun com.wire.android.feature.meetings.ui.NewMeetingBottomSheet(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.Unit>, onMeetNowClick: kotlin.Function0<kotlin.Unit>, onScheduleClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -140,10 +143,12 @@ private fun com.wire.android.feature.meetings.ui.list.JoinMeetingPrimaryButton(o
     - onClick: STABLE (function type)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.MeetingAttendingPrimaryBodyText(): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.list.MeetingAttendingPrimaryBodyText(onClick: kotlin.Function0<kotlin.Unit>, startNegativePadding: androidx.compose.ui.unit.Dp): kotlin.Unit
   skippable: true
   restartable: true
   params:
+    - onClick: STABLE (function type)
+    - startNegativePadding: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.MeetingBelongingInfoRow(conversationId: com.wire.kalium.logic.data.id.QualifiedID, type: com.wire.android.feature.meetings.model.MeetingItem.BelongingType): kotlin.Unit
@@ -162,13 +167,16 @@ public fun com.wire.android.feature.meetings.ui.list.MeetingHeader(header: com.w
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.list.MeetingItem(meeting: com.wire.android.feature.meetings.model.MeetingItem, modifier: androidx.compose.ui.Modifier, openMeetingOptions: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+public fun com.wire.android.feature.meetings.ui.list.MeetingItem(meeting: com.wire.android.feature.meetings.model.MeetingItem, modifier: androidx.compose.ui.Modifier, openMeetingOptions: kotlin.Function1<@[ParameterName(name = \, startCall: kotlin.Function1<@[ParameterName(name = \, joinCall: kotlin.Function1<@[ParameterName(name = \, returnToCall: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - meeting: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
     - openMeetingOptions: STABLE (function type)
+    - startCall: STABLE (function type)
+    - joinCall: STABLE (function type)
+    - returnToCall: STABLE (function type)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.MeetingItemDivider(): kotlin.Unit
@@ -183,7 +191,7 @@ internal fun com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon(): kot
   params:
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.list.MeetingList(type: com.wire.android.feature.meetings.ui.MeetingsTabItem, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, lazyListState: androidx.compose.foundation.lazy.LazyListState, openMeetingOptions: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+public fun com.wire.android.feature.meetings.ui.list.MeetingList(type: com.wire.android.feature.meetings.ui.MeetingsTabItem, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, lazyListState: androidx.compose.foundation.lazy.LazyListState, openMeetingOptions: kotlin.Function1<@[ParameterName(name = \, startCall: kotlin.Function1<@[ParameterName(name = \, joinCall: kotlin.Function1<@[ParameterName(name = \, returnToCall: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -192,6 +200,9 @@ public fun com.wire.android.feature.meetings.ui.list.MeetingList(type: com.wire.
     - contentPadding: STABLE (marked @Stable or @Immutable)
     - lazyListState: STABLE (marked @Stable or @Immutable)
     - openMeetingOptions: STABLE (function type)
+    - startCall: STABLE (function type)
+    - joinCall: STABLE (function type)
+    - returnToCall: STABLE (function type)
 
 @Composable
 public fun com.wire.android.feature.meetings.ui.list.MeetingLoadMoreFooter(modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -208,12 +219,15 @@ private fun com.wire.android.feature.meetings.ui.list.MeetingMoreButton(onMenuCl
     - onMenuClick: STABLE (function type)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.MeetingOngoingAttendingRow(status: com.wire.android.feature.meetings.model.MeetingItem.Status, onJoinClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.list.MeetingOngoingAttendingRow(conversationId: com.wire.kalium.logic.data.id.QualifiedID, status: com.wire.android.feature.meetings.model.MeetingItem.Status, joinCall: kotlin.Function1<@[ParameterName(name = \, startCall: kotlin.Function1<@[ParameterName(name = \, returnToCall: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: true
   restartable: true
   params:
+    - conversationId: STABLE (matched by stability configuration)
     - status: STABLE (marked @Stable or @Immutable)
-    - onJoinClick: STABLE (function type)
+    - joinCall: STABLE (function type)
+    - startCall: STABLE (function type)
+    - returnToCall: STABLE (function type)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.MeetingOngoingDurationTimeSublineText(startedTime: kotlinx.datetime.Instant): kotlin.Unit

@@ -28,6 +28,7 @@ import com.wire.android.feature.meetings.ui.mock.Meeting
 import com.wire.android.feature.meetings.ui.usecase.GetMeetingsPaginatedUseCase
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.clearMocks
 import io.mockk.every
@@ -44,8 +45,8 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
@@ -153,7 +154,6 @@ class MeetingListViewModelTest {
         startTime = startTime,
         endTime = startTime + 30.minutes,
         repeatingInterval = MeetingItem.RepeatingInterval.Never,
-        ongoingCallStatus = null,
         selfRole = MeetingItem.SelfRole.Admin,
     )
 
@@ -165,6 +165,9 @@ class MeetingListViewModelTest {
 
         @MockK
         lateinit var getMeetingsPaginated: GetMeetingsPaginatedUseCase
+
+        @MockK
+        lateinit var observeActiveCalls: ObserveActiveCallsUseCase
 
         init {
             MockKAnnotations.init(this)
@@ -182,6 +185,7 @@ class MeetingListViewModelTest {
             dispatcher = TestDispatcherProvider(dispatcher),
             currentTimeProvider = currentTimeProvider,
             getMeetingsPaginated = getMeetingsPaginated,
+            observeActiveCalls = observeActiveCalls,
         )
     }
 }

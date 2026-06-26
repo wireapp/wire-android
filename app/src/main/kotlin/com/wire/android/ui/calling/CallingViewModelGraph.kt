@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversationslist.ConversationListCallViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelImpl
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelPreview
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
+import com.wire.android.ui.home.meetings.MeetingsCallViewModel
 import com.wire.kalium.logic.data.id.ConversationId
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.metroViewModel as metroxViewModel
@@ -86,3 +87,6 @@ fun conversationListCallViewModel(conversationsSource: ConversationsSource): Con
     LocalInspectionMode.current -> ConversationListCallViewModelPreview
     else -> sessionKeyedMetroViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
 }
+
+@Composable
+fun meetingsCallViewModel(): MeetingsCallViewModel = sessionKeyedMetroViewModel()

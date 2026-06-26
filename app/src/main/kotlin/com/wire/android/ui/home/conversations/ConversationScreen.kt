@@ -43,9 +43,9 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -105,8 +105,6 @@ import com.sebaslogen.resaca.rememberKeysInScope
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
-import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.cells.ui.dialog.IncompatibleFileNameDialog
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
@@ -119,9 +117,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.calling.conversationCallViewModel
-import com.wire.android.ui.calling.getOutgoingCallIntent
-import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
-import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.PageLoadingIndicator
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -148,8 +143,8 @@ import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
+import com.wire.android.ui.home.conversations.call.HandleActions
 import com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs
-import com.wire.android.ui.home.conversations.call.JoinOrStartCallViewActions
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
@@ -344,20 +339,6 @@ fun ConversationScreen(
         }
     }
 
-    HandleActions(conversationCallViewModel.callManager.actions) { action ->
-        when (action) {
-            is JoinOrStartCallViewActions.InitiatedCall -> {
-                context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
-            }
-
-            is JoinOrStartCallViewActions.JoinedCall -> {
-                context.startActivity(getOngoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-            }
-        }
-    }
-
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
         navigator.navigate(
             NavigationCommand(
@@ -390,6 +371,7 @@ fun ConversationScreen(
         ConversationScreenDialogType.NONE -> {}
     }
 
+    conversationCallViewModel.callManager.actions.HandleActions()
     conversationCallViewModel.callManager.HandleJoinOrStartCallScreenDialogs()
 
     ConversationScreen(

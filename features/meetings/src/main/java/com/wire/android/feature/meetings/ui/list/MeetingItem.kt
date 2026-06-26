@@ -62,7 +62,7 @@ import com.wire.android.feature.meetings.ui.mock.ongoingAttendingOneOnOneMeeting
 import com.wire.android.feature.meetings.ui.mock.scheduledChannelMeetingStartingSoon
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
-import com.wire.android.util.rememberCurrentTimeProvider
+import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarsRow
 import com.wire.android.ui.common.button.WireItemLabel
@@ -72,17 +72,21 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.RowItemDivider
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar
 import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
+import com.wire.android.util.permission.PermissionsDeniedRequestDialog
+import com.wire.android.util.permission.RequestLauncher
+import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
+import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
-import com.wire.android.ui.common.R as UICommonR
 import com.wire.android.ui.common.R as commonR
 
 @Composable
@@ -168,7 +172,7 @@ private fun MeetingItemDivider() {
 @Composable
 internal fun VideoCallIcon(tint: Color, modifier: Modifier = Modifier) {
     Icon(
-        painter = painterResource(id = UICommonR.drawable.ic_video_call),
+        painter = painterResource(id = commonR.drawable.ic_video_call),
         contentDescription = null,
         tint = tint,
         modifier = modifier
@@ -180,7 +184,7 @@ internal fun VideoCallIcon(tint: Color, modifier: Modifier = Modifier) {
 @Composable
 internal fun CalendarIcon(tint: Color, modifier: Modifier = Modifier) {
     Icon(
-        painter = painterResource(id = UICommonR.drawable.ic_calendar),
+        painter = painterResource(id = commonR.drawable.ic_calendar),
         contentDescription = null,
         tint = tint,
         modifier = modifier.size(dimensions().spacing16x)
@@ -311,12 +315,13 @@ private fun MeetingBelongingInfoRow(conversationId: ConversationId, type: Belong
 
 @Composable
 private fun JoinMeetingPrimaryButton(onClick: () -> Unit) {
+    val audioPermissionCheck = audioPermissionCheckFlow(onPermissionGranted = onClick)
     WirePrimaryButton(
         fillMaxWidth = false,
         minSize = dimensions().buttonMediumMinSize,
         minClickableSize = dimensions().buttonMediumMinSize.plus(DpSize(dimensions().spacing0x, dimensions().spacing16x)),
         contentPadding = PaddingValues(dimensions().spacing8x),
-        onClick = onClick,
+        onClick = audioPermissionCheck::launch,
         leadingIcon = {
             VideoCallIcon(
                 tint = colorsScheme().onPrimary,
@@ -398,7 +403,7 @@ private fun MeetingOngoingAttendingRow(
 
                 status.ongoingCallStatus != null -> {
                     // there is an ongoing call but the user is not attending, show option to join the call
-                    JoinMeetingPrimaryButton(onClick = { joinCall(conversationId) }) // TODO handle permissions!!
+                    JoinMeetingPrimaryButton(onClick = { joinCall(conversationId) })
                 }
 
                 else -> {
@@ -429,6 +434,25 @@ private fun PrimaryBodyText(text: String) {
         style = typography().body03,
         color = colorsScheme().primary,
         modifier = Modifier.padding(vertical = dimensions().spacing8x),
+    )
+}
+
+@Composable
+private fun audioPermissionCheckFlow(onPermissionGranted: () -> Unit): RequestLauncher {
+    val audioPermissionPermanentlyDeniedDialogState = rememberVisibilityState<Unit>()
+    VisibilityState(audioPermissionPermanentlyDeniedDialogState) {
+        PermissionsDeniedRequestDialog(
+            title = commonR.string.app_permission_dialog_title,
+            body = R.string.meeting_audio_permission_dialog_description,
+            onDismiss = audioPermissionPermanentlyDeniedDialogState::dismiss
+        )
+    }
+    return rememberRecordAudioPermissionFlow(
+        onPermissionGranted = onPermissionGranted,
+        onPermissionDenied = { },
+        onPermissionPermanentlyDenied = {
+            audioPermissionPermanentlyDeniedDialogState.show(Unit)
+        }
     )
 }
 

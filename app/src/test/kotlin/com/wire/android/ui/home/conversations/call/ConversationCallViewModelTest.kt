@@ -19,18 +19,23 @@ package com.wire.android.ui.home.conversations.call
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.framework.TestUser
+import com.wire.android.framework.TestConversationDetails
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.kalium.common.error.StorageFailure
+import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.data.user.type.UserTypeInfo
-import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveConferenceCallingEnabledUseCase
@@ -43,13 +48,14 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -58,78 +64,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ConversationCallViewModelTest {
 
     @Test
-    fun `given join dialog displayed, when user dismiss it, then hide it`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withDefaultAnswers()
-            .arrange()
-        viewModel.conversationCallViewState = viewModel.conversationCallViewState.copy(
-            shouldShowJoinAnywayDialog = true
-        )
-
-        viewModel.dismissJoinCallAnywayDialog()
-
-        assertEquals(false, viewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
-    }
-
-    @Test
-    fun `given no ongoing call, when user tries to join a call, then invoke answerCall call use case`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withDefaultAnswers()
-            .withJoinCallResponse()
-            .arrange()
-        viewModel.conversationCallViewState = viewModel.conversationCallViewState.copy(hasEstablishedCall = false)
-
-        viewModel.actions.test {
-            viewModel.joinOngoingCall()
-
-            coVerify(exactly = 1) { arrangement.joinCall(conversationId = arrangement.conversationId) }
-            assertEquals(ConversationCallViewActions.JoinedCall(arrangement.conversationId, arrangement.currentAccount), awaitItem())
-            assertEquals(false, viewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
-        }
-    }
-
-    @Test
-    fun `given an ongoing call, when user tries to join a call, then show JoinCallAnywayDialog`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withDefaultAnswers()
-            .arrange()
-        viewModel.conversationCallViewState = viewModel.conversationCallViewState.copy(hasEstablishedCall = true)
-
-        viewModel.joinOngoingCall()
-
-        assertEquals(true, viewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
-        coVerify(inverse = true) { arrangement.joinCall(conversationId = any()) }
-    }
-
-    @Test
-    fun `given an ongoing call, when user confirms dialog to join a call, then end current call and join the newer one`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withDefaultAnswers()
-            .withEndCallResponse()
-            .arrange()
-        viewModel.conversationCallViewState =
-            viewModel.conversationCallViewState.copy(hasEstablishedCall = true)
-        viewModel.establishedCallConversationId = ConversationId("value", "Domain")
-
-        viewModel.joinAnyway()
-
-        coVerify(exactly = 1) { arrangement.endCall(any()) }
-    }
-
-    @Test
-    fun `given self team role as admin in conversation, when we observe own role, then its properly propagated`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withDefaultAnswers()
-            .withSelfAsAdmin()
-            .arrange()
-
-        assertTrue(viewModel.selfTeamRole.value.isTeamAdmin())
-    }
-
-    @Test
     fun `given calling enabled event, when we observe it, then its properly propagated`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withDefaultAnswers()
             .withConferenceCallingEnabledResponse()
             .arrange()
 
@@ -143,7 +79,6 @@ class ConversationCallViewModelTest {
     @Test
     fun `given no calling enabled event, when we observe it, then there are no events propagated`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withDefaultAnswers()
             .arrange()
 
         val callingEnabled = viewModel.callingEnabled
@@ -151,6 +86,69 @@ class ConversationCallViewModelTest {
         callingEnabled.test {
             expectNoEvents()
         }
+    }
+
+    @Test
+    fun `given participants count is observed, when arranging, then update participants count state`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withParticipantsCount(LARGE_GROUP_PARTICIPANTS_COUNT)
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertEquals(LARGE_GROUP_PARTICIPANTS_COUNT, viewModel.conversationCallViewState.participantsCount)
+    }
+
+    @Test
+    fun `given ongoing call in valid conversation, when observing calls, then set ongoing call state`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withOngoingCalls(listOf(ongoingCall))
+            .withConversationDetails(ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP))
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertTrue(viewModel.conversationCallViewState.hasOngoingCall)
+    }
+
+    @Test
+    fun `given ongoing call in another conversation, when observing calls, then keep ongoing call state false`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withOngoingCalls(listOf(otherConversationOngoingCall))
+            .withConversationDetails(ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP))
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.conversationCallViewState.hasOngoingCall)
+    }
+
+    @Test
+    fun `given ongoing call in conversation where self is not member, when observing calls, then keep ongoing call state false`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withOngoingCalls(listOf(ongoingCall))
+            .withConversationDetails(
+                ObserveConversationDetailsUseCase.Result.Success(
+                    TestConversationDetails.GROUP.copy(isSelfUserMember = false)
+                )
+            )
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.conversationCallViewState.hasOngoingCall)
+    }
+
+    @Test
+    fun `given ongoing call and failed conversation details, when observing calls, then keep ongoing call state false`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withOngoingCalls(listOf(ongoingCall))
+            .withConversationDetails(ObserveConversationDetailsUseCase.Result.Failure(StorageFailure.DataNotFound))
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.conversationCallViewState.hasOngoingCall)
     }
 
     private class Arrangement {
@@ -179,7 +177,7 @@ class ConversationCallViewModelTest {
         private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
         @MockK
-        private lateinit var observeParticipantsForConversation: ObserveParticipantsForConversationUseCase
+        lateinit var observeParticipantsForConversation: ObserveParticipantsForConversationUseCase
 
         @MockK
         lateinit var setUserInformedAboutVerificationUseCase: SetUserInformedAboutVerificationUseCase
@@ -197,39 +195,36 @@ class ConversationCallViewModelTest {
         val currentAccount = UserId("current-account-id", "domain.com")
 
         init {
-            MockKAnnotations.init(this)
-        }
-
-        suspend fun withDefaultAnswers() = apply {
+            MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
             coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
             coEvery { observeOngoingCalls.invoke() } returns emptyFlow()
             coEvery { observeConversationDetails(any()) } returns flowOf()
             coEvery { observeParticipantsForConversation(any()) } returns flowOf()
+            every { observeSyncState() } returns flowOf(SyncState.Live)
+            coEvery { isConferenceCallingEnabled(any(), any()) } returns ConferenceCallingResult.Enabled
             coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
-            coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(false)
+            every { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
             coEvery { observeSelfUserUseCase() } returns flowOf()
             coEvery { observeConferenceCallingEnabled() } returns flowOf()
         }
 
-        suspend fun withSelfAsAdmin() = apply {
-            coEvery { observeSelfUserUseCase.invoke() } returns flowOf(
-                TestUser.SELF_USER.copy(
-                    userType = UserTypeInfo.Regular(UserType.ADMIN)
-                )
-            )
-        }
-
-        suspend fun withConferenceCallingEnabledResponse() = apply {
+        fun withConferenceCallingEnabledResponse() = apply {
             coEvery { observeConferenceCallingEnabled() } returns flowOf(Unit)
         }
 
-        suspend fun withJoinCallResponse() = apply {
-            coEvery { joinCall(conversationId = any()) } returns Unit
+        fun withParticipantsCount(participantsCount: Int) = apply {
+            coEvery { observeParticipantsForConversation(any()) } returns flowOf(
+                ConversationParticipantsData(allParticipantsCount = participantsCount)
+            )
         }
 
-        suspend fun withEndCallResponse() = apply {
-            coEvery { endCall(any()) } returns Unit
+        fun withOngoingCalls(calls: List<Call>) = apply {
+            coEvery { observeOngoingCalls() } returns flowOf(calls)
+        }
+
+        fun withConversationDetails(result: ObserveConversationDetailsUseCase.Result) = apply {
+            coEvery { observeConversationDetails(any()) } returns flowOf(result)
         }
 
         fun arrange(): Pair<Arrangement, ConversationCallViewModel> = this to ConversationCallViewModel(
@@ -247,6 +242,26 @@ class ConversationCallViewModelTest {
             observeConferenceCallingEnabled = observeConferenceCallingEnabled,
             observeSelf = observeSelfUserUseCase,
             currentAccount = currentAccount,
+        )
+    }
+
+    companion object {
+        private const val LARGE_GROUP_PARTICIPANTS_COUNT = 6
+        private val otherConversationId = ConversationId("other-conversation-id", "some.dummy.domain")
+        private val ongoingCall = call()
+        private val otherConversationOngoingCall = call(conversationId = otherConversationId)
+
+        private fun call(conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")) = Call(
+            conversationId = conversationId,
+            status = CallStatus.INCOMING,
+            isMuted = false,
+            isCameraOn = false,
+            isCbrEnabled = false,
+            callerId = QualifiedID("caller-id", "some.dummy.domain"),
+            conversationName = "conversation",
+            conversationType = Conversation.Type.Group.Regular,
+            callerName = "caller",
+            callerTeamName = "team"
         )
     }
 }

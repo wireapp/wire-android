@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Fri Jun 26 07:52:48 CEST 2026","Fri Jun 26 07:53:49 CEST 2026","61044","","com.wire.android.tests.core.criticalFlows.NewMemberMessaging","","com.wire.android.tests.core.criticalFlows.NewMemberMessaging","givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions","givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions",""

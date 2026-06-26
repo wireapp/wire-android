@@ -1,0 +1,1 @@
+[{"uid":"3ee241928a108a21","name":"givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions","time":{"start":1782453168541,"stop":1782453229585,"duration":61044},"status":"passed","severity":"normal"}]

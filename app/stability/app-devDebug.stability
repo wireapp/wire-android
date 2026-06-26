@@ -4874,6 +4874,12 @@ private fun com.wire.android.ui.home.conversations.banner.styleBannerText(uiText
     - spannedTexts: RUNTIME (requires runtime check)
 
 @Composable
+public fun com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs(): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.wire.android.ui.home.conversations.channels.BrowseChannelsEmptyScreen(modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true

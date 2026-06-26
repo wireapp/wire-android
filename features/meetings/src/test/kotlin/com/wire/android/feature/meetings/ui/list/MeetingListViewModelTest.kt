@@ -45,8 +45,8 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
@@ -171,6 +171,7 @@ class MeetingListViewModelTest {
 
         init {
             MockKAnnotations.init(this)
+            every { observeActiveCalls() } returns flowOf(emptyList())
         }
         fun withCurrentTimeProvider(currentTime: () -> Instant) = apply {
             currentTimeProvider = CurrentTimeProvider(currentTime)

@@ -218,7 +218,7 @@ class JoinOrStartCallManager(
         }
     } ?: false
 
-    internal open suspend fun participantsCountForConversation(conversationId: ConversationId): Int =
+    private suspend fun participantsCountForConversation(conversationId: ConversationId): Int =
         observeParticipantsForConversation(conversationId).firstOrNull()?.allCount ?: 0
 
     private suspend fun isConferenceCallingEnabled(conversationId: ConversationId, conversationType: Conversation.Type) =

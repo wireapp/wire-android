@@ -291,8 +291,6 @@ fun ConversationScreen(
     // then ViewModel also detects it's removed and calls onNotFound which can execute navigateBack again and close the app
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
 
-    val context = LocalContext.current
-
     LaunchedEffect(conversationScreenState.isAnySheetVisible) {
         with(messageComposerStateHolder) {
             if (conversationScreenState.isAnySheetVisible) {

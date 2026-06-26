@@ -98,7 +98,6 @@
     <string name="content_description_conversation_back_btn"> Sohbet listesine geri dön</string>
     <string name="content_description_conversation_open_details_label">konuşma detaylarını aç</string>
     <string name="content_description_send_button">Gönder</string>
-    <string name="content_description_timed_message_button">Kendini yok eden iletiler, düğme</string>
     <string name="content_description_menu_button">Ana navigasyon</string>
     <string name="content_description_drop_down_icon">Aşağı ok</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Cihaz öğesi</string>
@@ -141,7 +140,6 @@
     <string name="content_description_calling_call_unmuted">Çağrının sesi açıldı</string>
     <string name="content_description_calling_call_paused_camera">Kamerayı dondur</string>
     <string name="content_description_more_emojis">Daha fazla emoji</string>
-    <string name="content_description_self_deletion_selector_button">Kendi kendine silme moduna geç, düğmesi</string>
     <string name="content_description_message_sending_status">Mesaj gönderme durumu</string>
     <string name="content_description_message_sent_status">Mesaj gönderme durumu</string>
     <string name="content_description_message_error_status">Mesaj hata durumu</string>
@@ -372,7 +370,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Gallery -->
     <!--sso dialog-->
     <!--prohibited asset messages -->
-    <!--wire dropdown-->
     <!--block user dialog -->
     <!--Settings -->
     <!--Settings, Appearance -->
@@ -413,10 +410,8 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- legal hold -->
     <!-- Sure want to send message Dialog -->
     <!-- Sure want to call Dialog -->
-    <!-- Go to app settings permissions dialog -->
     <!-- Share Location -->
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->

@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Wire
   ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
@@ -113,6 +114,7 @@
     <string name="content_description_unselect_label">отменить выбор</string>
     <string name="label_show_more">Развернуть</string>
     <string name="label_show_less">Свернуть</string>
+    <string name="label_select">Выбрать</string>
     <string name="content_description_change_it_label">изменить</string>
     <string name="wire_dropdown_placeholder">Выбрать элемент</string>
     <string name="content_description_drop_down">Раскрывающийся список</string>

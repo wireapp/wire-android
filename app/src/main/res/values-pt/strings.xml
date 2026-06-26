@@ -96,7 +96,6 @@
     <string name="content_description_conversation_back_btn">Voltar para a lista de conversas</string>
     <string name="content_description_conversation_open_details_label">abrir detalhes da conversa</string>
     <string name="content_description_send_button">Enviar</string>
-    <string name="content_description_timed_message_button">Mensagens autodestrutivas, botão</string>
     <string name="content_description_menu_button">Navegação principal</string>
     <string name="content_description_drop_down_icon">Seta para baixo</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Dispositivo</string>
@@ -139,7 +138,6 @@
     <string name="content_description_calling_call_unmuted">Chamada não-muda</string>
     <string name="content_description_calling_call_paused_camera">Câmera pausada</string>
     <string name="content_description_more_emojis">Mais emojis</string>
-    <string name="content_description_self_deletion_selector_button">Alterar modo de auto-exclusão</string>
     <string name="content_description_message_sending_status">Status de envio de mensagem</string>
     <string name="content_description_message_sent_status">Estado de mensagem enviada</string>
     <string name="content_description_message_error_status">Status de erro da mensagem</string>

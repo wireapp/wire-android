@@ -19,6 +19,7 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
@@ -476,9 +477,34 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
     }
 
-    fun tapBackButtonToCloseConversationViewPage(): ConversationViewPage {
-        UiWaitUtils.waitElement(backButton).click()
+    fun tapBackButtonToCloseConversationViewPage(timeout: Duration = 5.seconds): ConversationViewPage {
+        val closed = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            UiWaitUtils.clickWhenClickable(
+                backButton,
+                timeout = UiWaitUtils.POLLING_DEFAULT,
+                pollingInterval = UiWaitUtils.POLLING_FAST
+            )
+            !isConversationViewStillVisible()
+        }
+
+        if (!closed) {
+            throw AssertionError("Conversation view was still visible after tapping back within ${timeout.inWholeMilliseconds}ms")
+        }
+
         return this
+    }
+
+    private fun isConversationViewStillVisible(): Boolean {
+        return try {
+            val typeMessageVisible = findElementOrNull(typeMessageField)?.let { !it.visibleBounds.isEmpty } == true
+            val sendButtonVisible = findElementOrNull(sendButton)?.let { !it.visibleBounds.isEmpty } == true
+            typeMessageVisible || sendButtonVisible
+        } catch (_: StaleObjectException) {
+            false
+        }
     }
 
     fun tapMessageInInputField(): ConversationViewPage {

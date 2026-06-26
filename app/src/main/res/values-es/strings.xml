@@ -949,12 +949,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!--    biometrics-->
     <!--    e2ei-->
     <!-- legal hold -->
-    <!-- Sure want to send message Dialog -->
-    <!-- Sure want to call Dialog -->
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">Permisos de aplicación</string>
-    <string name="app_permission_dialog_settings_positive_button">Ajustes</string>
-    <string name="app_permission_dialog_settings_negative_button">Ahora no</string>
     <!-- Share Location -->
     <string name="location_attachment_share_title">Compartir ubicación</string>
     <string name="location_app_permission_dialog_body">Permite a Wire acceder a la ubicación del dispositivo para enviar tu ubicación.</string>

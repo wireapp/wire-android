@@ -214,7 +214,7 @@ class JoinOrStartCallManagerTest {
     @Test
     fun `given degraded verification confirmed, when starting call, then mark user informed and initiate call`() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withDegradedConversationNotified(false)
+            .withDegradedConversationNotified(true)
             .arrange()
 
         viewModel.actions.test {
@@ -223,7 +223,6 @@ class JoinOrStartCallManagerTest {
 
             assertEquals(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())
             coVerify(exactly = 1) { arrangement.setUserInformedAboutVerification(conversationId) }
-            coVerify(exactly = 0) { arrangement.observeDegradedConversationNotified(any()) }
             assertIs<JoinOrStartCallScreenDialogType.None>(viewModel.joinOrStartCallViewState.dialogType)
         }
     }

@@ -184,19 +184,17 @@ class JoinOrStartCallManager(
             shouldInformAboutVerification(conversationId) ->
                 JoinOrStartCallScreenDialogType.VerificationDegraded(conversationId, conversationType)
             else -> dialogTypeForCallAvailability(conversationId, conversationType)
-        }.also {
-            updateDialogType(it)
-            if (it == JoinOrStartCallScreenDialogType.None) {
-                initiateCallInternal(conversationId)
-            }
-        }
+        }.also(::updateDialogType)
     }
 
     private suspend fun dialogTypeForCallAvailability(
         conversationId: ConversationId,
         conversationType: Conversation.Type,
     ) = when (isConferenceCallingEnabled(conversationId, conversationType)) {
-        ConferenceCallingResult.Enabled -> JoinOrStartCallScreenDialogType.None
+        ConferenceCallingResult.Enabled -> {
+            initiateCallInternal(conversationId)
+            JoinOrStartCallScreenDialogType.None
+        }
 
         ConferenceCallingResult.Disabled.Established -> {
             sendAction(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount))

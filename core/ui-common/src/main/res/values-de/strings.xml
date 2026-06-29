@@ -106,16 +106,14 @@
     <string name="content_description_unselect_label">Abwählen</string>
     <string name="label_show_more">Mehr anzeigen</string>
     <string name="label_show_less">Weniger anzeigen</string>
-    <string name="wire_dropdown_placeholder">Bitte auswählen</string>
-    <string name="content_description_drop_down">Auswahlliste</string>
-    <string name="content_description_close_dropdown">Dropdown schließen</string>
     <!--wire dropdown-->
-        <string name="wire_dropdown_default_indicator">" (Standard)"</string>
-    <string name="no_file_manager_app">Keine App für Dateimanager gefunden, um diese Aktion abzuschließen.</string>
+    <string name="wire_dropdown_default_indicator">" (Standard)"</string>
     <!-- No Activity Errors -->
-        <string name="no_gallery_app">Keine Galerie-App gefunden, um diese Aktion abzuschließen.</string>
+    <string name="no_camera_app">Keine Kamera-App gefunden, mit der diese Aktion ausgeführt werden kann.</string>
+    <string name="no_file_manager_app">Es wurde keine Dateimanager-App gefunden, mit der diese Aktion ausgeführt werden kann.</string>
+    <string name="no_gallery_app">Keine Galerie-App gefunden, mit der diese Aktion ausgeführt werden kann.</string>
     <!-- Go to app settings permissions dialog -->
-        <string name="app_permission_dialog_title">App-Berechtigungen</string>
+    <string name="app_permission_dialog_title">App-Berechtigungen</string>
     <string name="app_permission_dialog_settings_positive_button">Einstellungen</string>
     <string name="app_permission_dialog_settings_negative_button">Nicht jetzt</string>
 </resources>

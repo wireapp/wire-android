@@ -111,7 +111,7 @@
     <string name="content_description_new_meeting">Meeting starten oder planen</string>
     <string name="content_description_back_button">Zurück</string>
     <string name="content_description_send_button">Senden</string>
-    <string name="content_description_timed_message_button">Selbstlöschende Nachrichten, Taste</string>
+    <string name="content_description_timed_message_button">Selbstlöschende Nachrichten</string>
     <string name="content_description_close_button">Schließen</string>
     <string name="content_description_menu_button">Hauptnavigation</string>
     <string name="content_description_drop_down_icon">Dropdown-Pfeil</string>
@@ -169,6 +169,7 @@
     <string name="content_description_calling_call_muted">Anruf stummgeschaltet</string>
     <string name="content_description_calling_call_paused_camera">Kamera angehalten</string>
     <string name="content_description_more_emojis">Weitere Emojis</string>
+    <string name="content_description_self_deletion_selector_button">Umschalttaste für selbtlöschende Nachrichten</string>
     <string name="content_description_message_sending_status">Nachricht wird gesendet</string>
     <string name="content_description_message_sent_status">Nachricht wurde gesendet</string>
     <string name="content_description_message_delivered_status">Nachricht wurde zugestellt</string>
@@ -202,6 +203,8 @@
     <string name="content_description_edit_label">bearbeiten</string>
     <string name="content_description_selected_label">ausgewählt</string>
     <string name="content_description_toggle_setting_label">umschalten</string>
+    <string name="content_description_switch_on">an</string>
+    <string name="content_description_switch_off">aus</string>
     <string name="content_description_edit_guests_option_back_btn">Zurück zu Unterhaltungsdetails</string>
     <string name="content_description_edit_self_delete_back_btn">Zurück zu Unterhaltungsdetails</string>
     <string name="content_description_accept_or_ignore_connection_label">Anfrage akzeptieren oder ignorieren</string>
@@ -801,7 +804,7 @@
     <string name="label_system_message_conversation_history_lost_protocol_changed">Sie haben Ihre App nicht rechtzeitig aktualisiert. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migration des Verschlüsselungsprotokolls wurde abgebrochen.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Aufgrund der Umstellung auf MLS haben Sie möglicherweise Probleme mit Ihrem aktuellen Anruf. Wenn das der Fall ist, legen Sie auf und rufen Sie erneut an.</string>
-    <string name="label_system_message_conversation_protocol_changed_mixed">Das Standard-Nachrichtenprotokoll wird von Proteus auf Messaging-Layer-Security (MLS) umgestellt.</string>
+    <string name="label_system_message_conversation_protocol_changed_mixed">Die Migration des Verschlüsselungsprotokolls wurde gestartet. Stellen Sie sicher, dass alle Ihre Geräte aktualisiert werden.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Diese Unterhaltung verwendet jetzt das neue Protokoll namens Messaging-Layer-Security (MLS). Um eine reibungslose Kommunikation zu gewährleisten, verwenden Sie immer die neueste Wire-Version auf Ihren Geräten.</string>
     <string name="label_system_message_receipt_mode_on">ein</string>
     <string name="label_system_message_receipt_mode_off">aus</string>
@@ -1250,6 +1253,8 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="max_account_reached_dialog_button_open_profile">Profil öffnen</string>
     <!--nomad account blocks login dialog-->
     <string name="cant_switch_account_in_call">Sie können während eines Anrufs nicht das Konto wechseln</string>
+    <string name="cross_backend_login_blocked_title">Wechseln der Backends ist gesperrt</string>
+    <string name="cross_backend_login_blocked_message">Derzeit können Sie sich nicht bei einem anderen Backend anmelden. Melden Sie sich zunächst ab und melden Sie sich dann bei einem anderen Backend an.</string>
     <string name="custom_backend_dialog_title">Umleitung auf ein lokales Backend?</string>
     <string name="custom_backend_dialog_body">Wenn Sie fortfahren, wird Ihr Client an das folgende lokale Backend weitergeleitet:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend-Name:</string>
@@ -1268,6 +1273,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="label_text_copied">Text in Zwischenablage kopiert</string>
     <string name="label_logs_option_title">Protokolle</string>
     <string name="label_share_logs">Protokolle teilen</string>
+    <string name="label_share_logs_failed">Fehlerbericht konnte nicht zum Teilen erstellt werden</string>
     <string name="label_delete_logs">Alle Protokolle löschen</string>
     <string name="restart_slowsync_for_recovery_button">Neu starten</string>
     <string name="label_mls_option_title">MLS-Optionen</string>

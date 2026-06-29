@@ -21,13 +21,7 @@
     <!-- Connections -->
     <!-- Missing keyPackages dialog -->
     <!-- Search Contact-->
-    <string name="wire_dropdown_placeholder">Seleccionar una opci&#243;n</string>
     <!--wire dropdown-->
-        <string name="wire_dropdown_default_indicator">" (predeterminado)"</string>
+    <!-- No Activity Errors -->
     <!-- Go to app settings permissions dialog -->
-        <string name="app_permission_dialog_title">Permisos de aplicación</string>
-    <!-- Sure want to call Dialog -->
-        <string name="app_permission_dialog_settings_positive_button">Ajustes</string>
-    <!-- Sure want to send message Dialog -->
-        <string name="app_permission_dialog_settings_negative_button">Ahora no</string>
 </resources>

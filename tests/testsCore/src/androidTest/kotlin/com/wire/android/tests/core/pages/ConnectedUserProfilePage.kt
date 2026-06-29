@@ -34,6 +34,8 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val blockedLabel = UiSelectorParams(text = "Blocked")
 
     private val unblockUserButton = UiSelectorParams(text = "Unblock User")
+    private val unblockOption = UiSelectorParams(text = "Unblock")
+    private val unblockButtonAlert = UiSelectorParams(text = "Unblock")
     private val blockButtonAlert = UiSelectorParams(text = "Block")
     private val participantRemoveFromConversationButton = UiSelectorParams(textContains = "Remove from conversation")
 
@@ -86,6 +88,15 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         return this
     }
 
+    fun assertBlockOptionNotVisible(): ConnectedUserProfilePage {
+        val option = UiWaitUtils.findElementOrNull(blockOption)
+        assertTrue(
+            "Block option is visible",
+            option == null || option.visibleBounds.isEmpty
+        )
+        return this
+    }
+
     fun clickBlockButtonAlert(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(blockButtonAlert).click()
         return this
@@ -100,12 +111,45 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         return this
     }
 
+    fun assertBlockedLabelNotVisible(): ConnectedUserProfilePage {
+        val label = UiWaitUtils.findElementOrNull(blockedLabel)
+        assertTrue(
+            "Blocked label is visible",
+            label == null || label.visibleBounds.isEmpty
+        )
+        return this
+    }
+
     fun assertUnblockUserButtonVisible(): ConnectedUserProfilePage {
         try {
             UiWaitUtils.waitElement(unblockUserButton)
         } catch (e: AssertionError) {
             throw AssertionError("Unblock User button is not visible", e)
         }
+        return this
+    }
+
+    fun assertUnblockUserButtonNotVisible(): ConnectedUserProfilePage {
+        val button = UiWaitUtils.findElementOrNull(unblockUserButton)
+        assertTrue(
+            "Unblock User button is visible",
+            button == null || button.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun clickUnblockUserButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(unblockUserButton).click()
+        return this
+    }
+
+    fun clickUnblockOption(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(unblockOption).click()
+        return this
+    }
+
+    fun clickUnblockButtonAlert(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(unblockButtonAlert).click()
         return this
     }
 

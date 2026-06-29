@@ -176,6 +176,12 @@ suspend fun BackendClient.createTeamOwnerViaBackend(
 
 fun getImageInputStream(context: Context) = context.resources.openRawResource(R.drawable.default_team_avatar)
 
+fun BackendClient.updateUserProfileImage(user: ClientUser, context: Context) {
+    runBlocking {
+        updateUserPicture(user, context)
+    }
+}
+
 private suspend fun BackendClient.updateUserPicture(user: ClientUser, context: Context) {
     val bitmap = getImageInputStream(context).use {
         BitmapFactory.decodeStream(it)

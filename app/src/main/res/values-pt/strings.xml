@@ -36,7 +36,6 @@
     <string name="label_learn_more">Saiba mais</string>
     <string name="label_removing">Removendo…</string>
     <string name="label_logging_in">Iniciando sessão…</string>
-    <string name="label_user_deleted">Excluído</string>
     <string name="label_try_again">Tente novamente</string>
     <string name="label_done">Pronto</string>
     <string name="label_message_sent_failure">A mensagem não pôde ser enviada devido a problemas de conexão.</string>
@@ -65,7 +64,6 @@
     <string name="label_open_asset_externally">Abrir</string>
     <string name="label_show">Mostrar</string>
     <string name="label_show_all">Mostrar tudo</string>
-    <string name="label_show_less">Mostrar menos</string>
     <string name="label_show_details">Mostrar Detalhes</string>
     <string name="label_hide_details">Ocultar Detalhes</string>
     <string name="label_message_status_edited_with_date">Editado em %s</string>
@@ -76,7 +74,6 @@
     <string name="folder_label_access">Acesso</string>
     <string name="folder_label_protocol_details">Detalhes do protocolo</string>
     <string name="folder_label_messaging">Mensagens</string>
-    <string name="label_user_blocked">Bloqueado</string>
     <string name="label_and">e</string>
     <string name="label_retry">Tentar novamente</string>
     <string name="label_draft">*Rascunho*</string>
@@ -99,7 +96,6 @@
     <string name="content_description_conversation_back_btn">Voltar para a lista de conversas</string>
     <string name="content_description_conversation_open_details_label">abrir detalhes da conversa</string>
     <string name="content_description_send_button">Enviar</string>
-    <string name="content_description_timed_message_button">Mensagens autodestrutivas, botão</string>
     <string name="content_description_menu_button">Navegação principal</string>
     <string name="content_description_drop_down_icon">Seta para baixo</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Dispositivo</string>
@@ -107,8 +103,6 @@
     <string name="content_description_avatar_preview">Visualização da foto de perfil</string>
     <string name="content_description_choose_from_gallery">Escolher da galeria</string>
     <string name="content_description_take_a_picture">Tirar uma foto</string>
-    <string name="content_description_right_arrow">Seta para a direita</string>
-    <string name="content_description_left_arrow">Voltar</string>
     <string name="content_description_mention_icon">Ícone de menção</string>
     <string name="content_description_open_message_details">Abrir detalhes da mensagem</string>
     <string name="content_description_copy_the_message">Copiar a mensagem</string>
@@ -116,7 +110,6 @@
     <string name="content_description_delete_the_message">Apagar a mensagem</string>
     <string name="content_description_edit_the_message">Editar a mensagem</string>
     <string name="content_description_more_options">Mais opções</string>
-    <string name="content_description_add_contact">Adicionar contato</string>
     <string name="content_description_image_message">Mensagem de imagem</string>
     <string name="content_description_pause_audio">Pausar o áudio</string>
     <string name="content_description_play_audio">Reproduzir áudio</string>
@@ -145,7 +138,6 @@
     <string name="content_description_calling_call_unmuted">Chamada não-muda</string>
     <string name="content_description_calling_call_paused_camera">Câmera pausada</string>
     <string name="content_description_more_emojis">Mais emojis</string>
-    <string name="content_description_self_deletion_selector_button">Alterar modo de auto-exclusão</string>
     <string name="content_description_message_sending_status">Status de envio de mensagem</string>
     <string name="content_description_message_sent_status">Estado de mensagem enviada</string>
     <string name="content_description_message_error_status">Status de erro da mensagem</string>
@@ -173,28 +165,18 @@
     <string name="content_description_search_text_in_conversation_btn">Buscar mensagens de texto</string>
     <string name="content_description_see_media_in_conversation_btn">Abrir visão geral de imagens e arquivos</string>
     <string name="content_description_add_participants_close">Fechar visualização de adição de participantes</string>
-    <string name="content_description_add_participants_search_field">Pesquisar pessoas por nome ou nome de usuário</string>
-    <string name="content_description_add_participants_back_btn">Voltar para a visualização de adição de participantes</string>
     <string name="content_description_home_profile_btn">Seu perfil</string>
     <string name="content_description_home_profile_btn_with_notification">Seu perfil, uma dica não lida.</string>
     <string name="content_description_open_label">abrir</string>
     <string name="content_description_join_call_label">participar de uma chamada</string>
     <string name="content_description_share_label">compartilhar</string>
     <string name="content_description_edit_label">editar</string>
-    <string name="content_description_select_label">selecionar</string>
-    <string name="content_description_unselect_label">desmarcar</string>
     <string name="content_description_selected_label">selecionado</string>
     <string name="content_description_toggle_setting_label">alterar configuração</string>
     <string name="content_description_edit_guests_option_back_btn">Voltar para os detalhes da conversa</string>
     <string name="content_description_edit_self_delete_back_btn">Voltar para os detalhes da conversa</string>
     <string name="content_description_accept_or_ignore_connection_label">aceitar ou ignorar a solicitação</string>
-    <string name="content_description_open_user_profile_label">perfil aberto</string>
-    <string name="content_description_open_conversation_label">abrir conversa</string>
-    <string name="content_description_change_it_label">alterar isto</string>
-    <string name="content_description_open_link_label">abrir link</string>
     <string name="content_description_alert">Alerta</string>
-    <string name="content_description_drop_down">Menu suspenso</string>
-    <string name="content_description_close_dropdown">fechar menu suspenso</string>
     <string name="content_description_open_notification_settings_label">abrir configurações de notificação</string>
     <string name="content_description_new_conversation_close_btn">Fechar visualização de novas conversas</string>
     <string name="content_description_new_conversation_name_back_btn">Voltar à visualização de nova conversa</string>
@@ -496,7 +478,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="member_name_you_label_titlecase">Você</string>
     <string name="member_name_you_label_lowercase">você</string>
     <string name="label_add_participants">Adicionar participantes</string>
-    <string name="username_unavailable_label">Nome indisponível</string>
     <string name="temporary_user_label">%s restante(s)</string>
     <string name="conversation_details_title">Detalhes da Conversa</string>
     <string name="conversation_details_options_tab">OPÇÕES</string>
@@ -558,7 +539,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="user_profile_details_tab">Detalhes</string>
     <string name="user_profile_devices_tab">Dispositivos</string>
     <string name="user_profile_role_change_error">Houve um erro ao tentar alterar a função. Por favor, verifique sua conexão com a internet e tente novamente</string>
-    <string name="user_profile_unblock_user">Desbloquear usuário</string>
     <string name="user_profile_logging_out_progress">Saindo...</string>
     <string name="user_profile_qr_code">Abrir código QR</string>
     <string name="user_profile_qr_code_title">Compartilhar perfil</string>
@@ -780,8 +760,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="label_conversation_pictures">Imagens</string>
     <string name="label_conversation_pictures_empty">Ninguém compartilhou fotos nesta conversa ainda 🥲</string>
     <string name="label_conversation_files_empty">Ninguém compartilhou arquivos nesta conversa ainda 🙀</string>
-    <!-- Search Contact-->
-    <string name="label_contacts">Contatos</string>
     <string name="label_new_group">Novo Grupo</string>
     <string name="label_new_channel">Novo Canal</string>
     <string name="label_create_new_group">Novo Grupo</string>
@@ -798,13 +776,7 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="label_search_channels_empty_title">Nenhum canal público foi criado para esta equipe ainda.</string>
     <string name="label_learn_more_about_channels">Saiba mais sobre os canais</string>
     <string name="label_new_conversation">Nova Conversa</string>
-    <string name="label_search_people">Procurar pessoas</string>
-    <string name="label_public_wire">Wire Público</string>
-    <string name="label_search_people_instruction">Pesquise pessoas pelo seu nome de perfil ou @nome.de.usuario</string>
-    <string name="label_learn_more_searching_user">Saiba mais</string>
-    <string name="label_no_results_found">Não foi possível encontrar nenhum resultado. Por favor, tente novamente.</string>
     <string name="label_general_error">Algo deu errado</string>
-    <string name="label_add_member_people">Pessoas</string>
     <string name="label_empty_contacts_list">Procure por pessoas pelo nome ou nome de usuário para iniciar uma conversa 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Algo deu errado</string>
@@ -832,7 +804,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="conversation_on_file_downloaded">O arquivo %s foi salvo com sucesso na pasta Downloads.</string>
     <string name="error_blocking_user">O usuário não pôde ser bloqueado.</string>
     <string name="blocking_user_success">%s bloqueado.</string>
-    <string name="error_unblocking_user">O usuário não pôde ser desbloqueado.</string>
     <string name="error_limit_number_assets_imported_exceeded">Você só pode enviar até 20 arquivos de uma vez.</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Conversa arquivada</string>
@@ -848,8 +819,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="error_adding_to_favorite">“%s” não pôde ser adicionado aos Favoritos</string>
     <string name="error_removing_from_favorite">“%s” não pôde ser removido dos Favoritos</string>
     <!-- Animation label -->
-    <string name="label_open_conversation">Abrir conversa</string>
-    <string name="label_start_conversation">Iniciar Conversa</string>
     <string name="email_label">E-mail</string>
     <string name="phone_label">Telefone</string>
     <!-- Notifications -->
@@ -917,33 +886,15 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="connectivity_status_bar_return_to_outgoing_call">Chamando %1$s…</string>
     <string name="connectivity_status_bar_connecting">Descriptografando mensagens</string>
     <string name="connectivity_status_bar_waiting_for_network">Aguardando conexão</string>
-    <!-- Connections -->
-    <string name="connection_label_connect">Conectar</string>
-    <string name="connection_label_cancel_request">Cancelar solicitação</string>
     <string name="connection_label_member_not_belongs_to_team">Esse usuário não pertence à sua equipe. Se ele aceitar sua solicitação de conexão, estará disponível como um contato.</string>
     <string name="connection_label_member_not_conneted">Quando sua solicitação de conexão for aceita, você poderá se comunicar diretamente com este contato.</string>
-    <string name="connection_request_sent">Solicitação de conexão enviada</string>
-    <string name="connection_request_canceled">Solicitação de conexão cancelada</string>
-    <string name="connection_request_ignored">Você ignorou a solicitação de %1$s</string>
-    <string name="connection_request_accepted">Solicitação de conexão aceita</string>
-    <string name="connection_request_sent_error">Não foi possível enviar a solicitação de conexão</string>
-    <string name="connection_request_sent_federation_denied_error">Seu backend não federa com o backend de %1$s. Você não pode se conectar a eles.</string>
-    <string name="connection_request_accept_error">Não foi possível aceitar a solicitação de conexão</string>
-    <string name="connection_request_ignore_error">Não foi possível ignorar a solicitação de conexão</string>
-    <string name="connection_request_cancel_error">Não foi possível cancelar a solicitação de conexão</string>
     <string name="connection_pending_message">quer se conectar</string>
-    <string name="connection_pending_label">pendente</string>
     <string name="connection_label_user_wants_to_conect">Este usuário quer se conectar com você.</string>
     <string name="connection_label_accepting_request_description">Se você aceitar a solicitação deles, eles serão adicionados como um contato e você poderá comunicar diretamente com eles.</string>
-    <string name="connection_label_accept">Aceitar</string>
-    <string name="connection_label_ignore">Ignorar</string>
     <string name="connection_label_send_unverified_warning">Tenha certeza sobre a identidade de %s antes de se conectar.</string>
     <string name="connection_label_received_unverified_warning">Verifique a identidade da pessoa antes de aceitar a solicitação de conexão.</string>
     <string name="connection_label_user_not_found_warning_title">O Wire não consegue encontrar esta pessoa</string>
     <string name="connection_label_user_not_found_warning_description">Você pode não ter permissão com esta conta ou a pessoa pode não estar no Wire.</string>
-    <!-- Missing keyPackages dialog -->
-    <string name="missing_keypackage_dialog_title">Não foi possível iniciar a conversa</string>
-    <string name="missing_keypackage_dialog_body">Você não pode iniciar a conversa com %1$s agora. %1$s precisa abrir o Wire ou entrar novamente primeiro. Por favor, tente novamente mais tarde.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galeria de mídia</string>
     <string name="media_gallery_on_image_downloaded">Salvo na pasta de Downloads</string>
@@ -952,7 +903,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="sso_error_dialog_title">Não foi possível fazer login com SSO</string>
     <string name="sso_error_dialog_message">Por favor tente novamente. Se isso não resolver, contate um administrador e forneça este código:\n%d\"</string>
     <string name="asset_download_dialog_default_title">Baixar arquivo</string>
-    <string name="label_show_more">Mostrar Mais</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">O recebimento de imagens está desabilitado</string>
     <string name="prohibited_videos_message">O recebimento de videos está desabilitado</string>
@@ -961,9 +911,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="team_settings_changed">Configurações do time mudaram</string>
     <string name="sharing_files_enabled">Compartilhar e receber arquivos de todos os tipos está habilitado</string>
     <string name="sharing_files_disabled">Compartilhar e receber arquivos de todos os tipos está desabilitado</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (padrão)"</string>
-    <string name="wire_dropdown_placeholder">Selecione um item</string>
     <string name="change">Trocar</string>
     <string name="allow_guests">Permitir convidados</string>
     <string name="allow_guest_switch_description">Abrir esta conversa para pessoas fora do seu time. Você pode sempre alterar isso depois.</string>
@@ -1052,10 +999,6 @@ Em conversas de grupo, o administrador do grupo pode substituir essa configuraç
     <string name="current_device_label">Dispositivos Atuais</string>
     <string name="other_devices_label">Outros Dispositivos</string>
     <string name="devices_loading_error">Houve um erro ao tentar obter os dispositivos. Verifique sua conexão com a Internet e tente novamente.</string>
-    <!--unblock user dialog -->
-    <string name="unblock_user_dialog_title">Desbloquear usuário?</string>
-    <string name="unblock_user_dialog_body">%1$s poderá contactá-lo e adicioná-lo a conversas em grupo. Você poderá acessar uma conversa com ele(a).</string>
-    <string name="unblock_user_dialog_confirm_button">Desbloquear</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">uma conta ativa</item>
@@ -1421,7 +1364,6 @@ registrado. Tente novamente.</string>
     <string name="legal_hold_requested_dialog_enter_password">Digite sua senha para confirmar.</string>
     <string name="legal_hold_requested_dialog_accept_button">Aceitar</string>
     <string name="legal_hold_requested_dialog_not_now_button">Agora Não</string>
-    <string name="legal_hold_learn_more_button">Saiba mais sobre retenção legal</string>
     <string name="legal_hold_deactivated_dialog_title">Retenção legal desativada</string>
     <string name="legal_hold_deactivated_dialog_description">As mensagens futuras não serão gravadas.</string>
     <string name="legal_hold_subject_dialog_title">%1$s está sujeito a retenção legal</string>
@@ -1432,8 +1374,6 @@ registrado. Tente novamente.</string>
     <string name="legal_hold_subject_dialog_message_title">A conversa está agora sujeita a proteção jurídica</string>
     <string name="legal_hold_subject_dialog_description_message">Ainda quer enviar sua mensagem?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Enviar Assim Mesmo</string>
-    <string name="legal_hold_connection_failed_dialog_title">Não é possível conectar</string>
-    <string name="legal_hold_connection_failed_dialog_description">Você não pode se conectar a este usuário devido a restrição legal.</string>
     <string name="legal_hold_subject_to">Sujeito a %1$s.</string>
     <string name="legal_hold_label">retenção legal</string>
     <string name="legal_hold_is_active_label">A retenção jurídica está ativa</string>
@@ -1454,10 +1394,6 @@ registrado. Tente novamente.</string>
     <string name="sure_about_calling_in_degraded_dialog_title">Conversa não mais verificada</string>
     <string name="sure_about_calling_in_degraded_dialog_body">Ao menos um participante começou a usar outro dispositivo ou tem um certificado inválido.\n\nAinda deseja iniciar a chamada?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Chamar Assim Mesmo</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">Permissões do app</string>
-    <string name="app_permission_dialog_settings_positive_button">Configurações</string>
-    <string name="app_permission_dialog_settings_negative_button">Agora Não</string>
     <string name="notifications_permission_dialog_description">Para fazer pleno uso do aplicativo, receber mensagens e responder chamadas, permita que o Wire mostre notificações.</string>
     <string name="call_permission_dialog_description">Para fazer uma chamada, permita que o Wire acesse seu microfone nas configurações do seu dispositivo.</string>
     <string name="record_video_permission_dialog_description">Para gravar um vídeo, permita que o Wire acesse sua câmera nas configurações do dispositivo.</string>
@@ -1476,10 +1412,6 @@ registrado. Tente novamente.</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Remover mídia</string>
     <string name="asset_attention_description">Ativo de atenção</string>
-    <!-- No Activity Errors -->
-    <string name="no_camera_app">Nenhum aplicativo de câmera encontrado para concluir esta ação.</string>
-    <string name="no_gallery_app">Nenhum app de galeria encontrado para concluir esta ação.</string>
-    <string name="no_file_manager_app">Nenhum aplicativo de gerenciador de arquivo foi encontrado para concluir esta ação.</string>
     <string name="restricted_asset_error_toast_message">O envio de arquivos é proibido devido a restrições da empresa</string>
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">Chamar a atenção</string>

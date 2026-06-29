@@ -58,9 +58,11 @@ class KaliumConfigsModule {
             isMlsResetEnabled = BuildConfig.IS_MLS_RESET_ENABLED,
             collaboraIntegration = BuildConfig.COLLABORA_INTEGRATION_ENABLED,
             dbInvalidationControlEnabled = BuildConfig.DB_INVALIDATION_CONTROL_ENABLED,
+            pendingMessages = BuildConfig.PENDING_MESSAGES,
             domainWithFaultyKeysMap = BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR,
             isDebug = BuildConfig.DEBUG,
-            linkPreviewEnabled = BuildConfig.LINK_PREVIEW_ENABLED
+            blockCrossBackendLogin = BuildConfig.BLOCK_CROSS_BACKEND_LOGIN,
+            linkPreviewEnabled = BuildConfig.LINK_PREVIEW_ENABLED,
         )
     }
 }

@@ -29,10 +29,36 @@ public fun com.wire.android.model.ImageAsset.UserAvatarAsset.paint(fallbackData:
     - withCrossfadeAnimation: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.model.remoteAssetImageViewModel(): com.wire.android.model.RemoteAssetImageViewModel
+private fun com.wire.android.ui.common.ArrowIcon(arrowIcon: kotlin.Int, contentDescription: kotlin.Int?, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
+    - arrowIcon: STABLE (primitive type)
+    - contentDescription: STABLE (class with no mutable properties)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.common.ArrowLeftIcon(modifier: androidx.compose.ui.Modifier, contentDescription: kotlin.Int?): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - contentDescription: STABLE (class with no mutable properties)
+
+@Composable
+public fun com.wire.android.ui.common.ArrowRightIcon(modifier: androidx.compose.ui.Modifier, contentDescription: kotlin.Int?): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - contentDescription: STABLE (class with no mutable properties)
+
+@Composable
+public fun com.wire.android.ui.common.BlockedLabel(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.common.CollapsingTopBarScaffold(topBarHeader: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, topBarCollapsing: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, maxBarElevation: androidx.compose.ui.unit.Dp, topBarBackgroundColor: androidx.compose.ui.graphics.Color, topBarFooter: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, bottomBar: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, floatingActionButton: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, floatingActionButtonPosition: androidx.compose.material3.FabPosition, collapsingEnabled: kotlin.Boolean, snapOnFling: kotlin.Boolean, contentLazyListState: androidx.compose.foundation.lazy.LazyListState?, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
@@ -54,6 +80,13 @@ public fun com.wire.android.ui.common.CollapsingTopBarScaffold(topBarHeader: @[C
     - content: STABLE (composable function type)
 
 @Composable
+public fun com.wire.android.ui.common.DeletedLabel(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 private fun com.wire.android.ui.common.DialogButtonsSection(dismissButtonProperties: com.wire.android.ui.common.WireDialogButtonProperties?, optionButton1Properties: com.wire.android.ui.common.WireDialogButtonProperties?, optionButton2Properties: com.wire.android.ui.common.WireDialogButtonProperties?, buttonsHorizontalAlignment: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
@@ -62,6 +95,16 @@ private fun com.wire.android.ui.common.DialogButtonsSection(dismissButtonPropert
     - optionButton1Properties: STABLE (class with no mutable properties)
     - optionButton2Properties: STABLE (class with no mutable properties)
     - buttonsHorizontalAlignment: STABLE (primitive type)
+
+@Composable
+private fun com.wire.android.ui.common.DropdownItem(text: kotlin.String, leadingCompose: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, isSelected: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - text: STABLE (String is immutable)
+    - leadingCompose: STABLE (composable function type)
+    - isSelected: STABLE (primitive type)
+    - onClick: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.common.HandleActions(actionsFlow: kotlinx.coroutines.flow.Flow<T of com.wire.android.ui.common.HandleActions>, onAction: kotlin.Function1<T of com.wire.android.ui.common.HandleActions, kotlin.Unit>): kotlin.Unit
@@ -79,11 +122,46 @@ public fun com.wire.android.ui.common.Icon(modifier: androidx.compose.ui.Modifie
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
+private fun com.wire.android.ui.common.LeadingIcon(convent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - convent: STABLE (composable function type)
+
+@Composable
 public fun com.wire.android.ui.common.LoadingWireTabRow(modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.common.MembershipQualifierLabel(membership: com.wire.android.ui.home.conversationslist.model.Membership, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - membership: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.ui.common.MenuPopUp(shape: androidx.compose.foundation.shape.RoundedCornerShape, textFieldSize: androidx.compose.ui.geometry.Size, expanded: kotlin.Boolean, borderColor: androidx.compose.ui.graphics.Color, leadingCompose: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, selectedIndex: kotlin.Int, items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, showDefaultTextIndicator: kotlin.Boolean, showSelectionField: kotlin.Boolean, defaultItemIndex: kotlin.Int, selectionText: kotlin.String, arrowRotation: kotlin.Float, hidePopUp: kotlin.Function0<kotlin.Unit>, onChange: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - shape: STABLE (known stable type)
+    - textFieldSize: STABLE (marked @Stable or @Immutable)
+    - expanded: STABLE (primitive type)
+    - borderColor: STABLE (marked @Stable or @Immutable)
+    - leadingCompose: STABLE (composable function type)
+    - selectedIndex: STABLE (primitive type)
+    - items: STABLE (known stable type)
+    - showDefaultTextIndicator: STABLE (primitive type)
+    - showSelectionField: STABLE (primitive type)
+    - defaultItemIndex: STABLE (primitive type)
+    - selectionText: STABLE (String is immutable)
+    - arrowRotation: STABLE (primitive type)
+    - hidePopUp: STABLE (function type)
+    - onChange: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.common.MoreOptionIcon(onButtonClicked: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, state: com.wire.android.ui.common.button.WireButtonState, contentDescription: kotlin.Int): kotlin.Unit
@@ -117,6 +195,14 @@ private fun com.wire.android.ui.common.OverlappingCirclesRowPreview(overlapCutou
     - count: STABLE (primitive type)
 
 @Composable
+public fun com.wire.android.ui.common.ProtocolLabel(protocolName: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - protocolName: STABLE (String is immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 public fun com.wire.android.ui.common.SearchBarInput(placeholderText: kotlin.String, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, textState: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, inputModifier: androidx.compose.ui.Modifier, clearButtonModifier: androidx.compose.ui.Modifier, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource, textStyle: androidx.compose.ui.text.TextStyle, textFieldState: com.wire.android.ui.common.textfield.WireTextFieldState, isLoading: kotlin.Boolean, inputEnabled: kotlin.Boolean, semanticDescription: kotlin.String?, onTap: kotlin.Function0<kotlin.Unit>?): kotlin.Unit
   skippable: true
   restartable: true
@@ -136,6 +222,28 @@ public fun com.wire.android.ui.common.SearchBarInput(placeholderText: kotlin.Str
     - inputEnabled: STABLE (primitive type)
     - semanticDescription: STABLE (class with no mutable properties)
     - onTap: STABLE (function type)
+
+@Composable
+private fun com.wire.android.ui.common.SelectionField(leadingCompose: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, selectedIndex: kotlin.Int, text: kotlin.String, arrowRotation: kotlin.Float, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - leadingCompose: STABLE (composable function type)
+    - selectedIndex: STABLE (primitive type)
+    - text: STABLE (String is immutable)
+    - arrowRotation: STABLE (primitive type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.common.StatusBox(statusText: kotlin.String, modifier: androidx.compose.ui.Modifier, textColor: androidx.compose.ui.graphics.Color, badgeColor: androidx.compose.ui.graphics.Color, withBorder: kotlin.Boolean): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - statusText: STABLE (String is immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - textColor: STABLE (marked @Stable or @Immutable)
+    - badgeColor: STABLE (marked @Stable or @Immutable)
+    - withBorder: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.ui.common.SurfaceBackgroundWrapper(modifier: androidx.compose.ui.Modifier, backgroundColor: androidx.compose.ui.graphics.Color, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
@@ -179,12 +287,42 @@ private fun com.wire.android.ui.common.TitleDialogSection(title: kotlin.String, 
     - titleLoading: STABLE (primitive type)
 
 @Composable
+public fun com.wire.android.ui.common.UserBadge(membership: com.wire.android.ui.home.conversationslist.model.Membership, modifier: androidx.compose.ui.Modifier, connectionState: com.wire.kalium.logic.data.user.ConnectionState?, isDeleted: kotlin.Boolean, startPadding: androidx.compose.ui.unit.Dp, topPadding: androidx.compose.ui.unit.Dp): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - membership: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - connectionState: STABLE (class with no mutable properties)
+    - isDeleted: STABLE (primitive type)
+    - startPadding: STABLE (marked @Stable or @Immutable)
+    - topPadding: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.common.VisibilityState(status: com.wire.android.ui.common.visbility.VisibilityState<State of com.wire.android.ui.common.VisibilityState>, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<State of com.wire.android.ui.common.VisibilityState, kotlin.Unit>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - status: UNSTABLE (has mutable properties or unstable members)
+    - content: STABLE (composable function type)
+
+@Composable
 public fun com.wire.android.ui.common.WireCheckIcon(modifier: androidx.compose.ui.Modifier, contentDescription: kotlin.Int): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - modifier: STABLE (marked @Stable or @Immutable)
     - contentDescription: STABLE (primitive type)
+
+@Composable
+public fun com.wire.android.ui.common.WireCheckbox(checked: kotlin.Boolean, onCheckedChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>?, modifier: androidx.compose.ui.Modifier, enabled: kotlin.Boolean): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - checked: STABLE (primitive type)
+    - onCheckedChange: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - enabled: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.ui.common.WireDialog(title: kotlin.String, text: kotlin.String?, onDismiss: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, textSuffixLink: com.wire.android.ui.common.DialogTextSuffixLink?, optionButton1Properties: com.wire.android.ui.common.WireDialogButtonProperties?, optionButton2Properties: com.wire.android.ui.common.WireDialogButtonProperties?, dismissButtonProperties: com.wire.android.ui.common.WireDialogButtonProperties?, buttonsHorizontalAlignment: kotlin.Boolean, shape: androidx.compose.ui.graphics.Shape, contentPadding: androidx.compose.foundation.layout.PaddingValues, properties: androidx.compose.ui.window.DialogProperties, centerContent: kotlin.Boolean, titleLoading: kotlin.Boolean, dialogDescription: kotlin.String, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?): kotlin.Unit
@@ -250,11 +388,44 @@ public fun com.wire.android.ui.common.WireDialogContent(title: kotlin.String?, m
     - content: STABLE (composable function type)
 
 @Composable
+public fun com.wire.android.ui.common.WireDropDown(items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, label: kotlin.String?, modifier: androidx.compose.ui.Modifier, defaultItemIndex: kotlin.Int, selectedItemIndex: kotlin.Int, autoUpdateSelection: kotlin.Boolean, showDefaultTextIndicator: kotlin.Boolean, showSelectionFieldWhenExpanded: kotlin.Boolean, leadingCompose: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, onChangeClickDescription: kotlin.String, placeholder: kotlin.String, onSelected: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - items: STABLE (known stable type)
+    - label: STABLE (class with no mutable properties)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - defaultItemIndex: STABLE (primitive type)
+    - selectedItemIndex: STABLE (primitive type)
+    - autoUpdateSelection: STABLE (primitive type)
+    - showDefaultTextIndicator: STABLE (primitive type)
+    - showSelectionFieldWhenExpanded: STABLE (primitive type)
+    - leadingCompose: STABLE (composable function type)
+    - onChangeClickDescription: STABLE (String is immutable)
+    - placeholder: STABLE (String is immutable)
+    - onSelected: STABLE (function type)
+
+@Composable
 private fun com.wire.android.ui.common.WireIndicator(modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.common.WireLabelledCheckbox(label: kotlin.String, checked: kotlin.Boolean, onCheckClicked: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, maxLine: kotlin.Int, overflow: androidx.compose.ui.text.style.TextOverflow, horizontalArrangement: androidx.compose.foundation.layout.Arrangement.Horizontal, contentPadding: androidx.compose.foundation.layout.PaddingValues, checkboxEnabled: kotlin.Boolean): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - label: STABLE (String is immutable)
+    - checked: STABLE (primitive type)
+    - onCheckClicked: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - maxLine: STABLE (primitive type)
+    - overflow: STABLE (known stable type)
+    - horizontalArrangement: STABLE (marked @Stable or @Immutable)
+    - contentPadding: STABLE (marked @Stable or @Immutable)
+    - checkboxEnabled: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.ui.common.WirePromotionCard(title: kotlin.String, description: kotlin.String, modifier: androidx.compose.ui.Modifier, buttonLabel: kotlin.String?, onButtonClick: kotlin.Function0<kotlin.Unit>, shape: androidx.compose.ui.graphics.Shape, contentPadding: androidx.compose.foundation.layout.PaddingValues): kotlin.Unit
@@ -429,14 +600,14 @@ private fun com.wire.android.ui.common.avatar.getDefaultAvatar(membership: com.w
   skippable: true
   restartable: true
   params:
-    - membership: STABLE (class with no mutable properties)
+    - membership: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.ui.common.avatar.getDefaultAvatarResourceId(membership: com.wire.android.ui.home.conversationslist.model.Membership): kotlin.Int
   skippable: true
   restartable: true
   params:
-    - membership: STABLE (class with no mutable properties)
+    - membership: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.ui.common.avatar.painter(data: com.wire.android.model.UserAvatarData, showPlaceholderIfNoAsset: kotlin.Boolean, withCrossfadeAnimation: kotlin.Boolean): androidx.compose.ui.graphics.painter.Painter
@@ -631,6 +802,12 @@ public fun com.wire.android.ui.common.bottomsheet.WireModalSheetLayout(sheetStat
     - sheetContent: STABLE (composable function type)
 
 @Composable
+private fun com.wire.android.ui.common.bottomsheet.defaultDragHandleModifier(): androidx.compose.ui.Modifier
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.wire.android.ui.common.bottomsheet.onShow(block: kotlin.coroutines.SuspendFunction0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -758,7 +935,7 @@ public fun com.wire.android.ui.common.button.WireButtonColors.rippleColor(state:
     - state: STABLE (class with no mutable properties)
 
 @Composable
-public fun com.wire.android.ui.common.button.WireItemLabel(text: kotlin.String, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, shape: androidx.compose.ui.graphics.Shape, contentDescription: kotlin.String): kotlin.Unit
+public fun com.wire.android.ui.common.button.WireItemLabel(text: kotlin.String, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, shape: androidx.compose.ui.graphics.Shape, textStyle: androidx.compose.ui.text.TextStyle, contentDescription: kotlin.String): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -766,6 +943,7 @@ public fun com.wire.android.ui.common.button.WireItemLabel(text: kotlin.String, 
     - modifier: STABLE (marked @Stable or @Immutable)
     - contentPadding: STABLE (marked @Stable or @Immutable)
     - shape: STABLE (marked @Stable or @Immutable)
+    - textStyle: STABLE (marked @Stable or @Immutable)
     - contentDescription: STABLE (String is immutable)
 
 @Composable
@@ -1067,11 +1245,12 @@ public fun com.wire.android.ui.common.chip.WireFilterChip(label: kotlin.String, 
     - trailingIconResource: STABLE (class with no mutable properties)
 
 @Composable
-public fun com.wire.android.ui.common.clickable(clickable: com.wire.android.model.Clickable?): androidx.compose.ui.Modifier
+public fun com.wire.android.ui.common.clickable(clickable: com.wire.android.model.Clickable?, role: androidx.compose.ui.semantics.Role?): androidx.compose.ui.Modifier
   skippable: true
   restartable: true
   params:
     - clickable: STABLE (class with no mutable properties)
+    - role: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.common.colorsScheme(accent: com.wire.android.ui.theme.Accent?): com.wire.android.ui.theme.WireColorScheme
@@ -1079,6 +1258,45 @@ public fun com.wire.android.ui.common.colorsScheme(accent: com.wire.android.ui.t
   restartable: true
   params:
     - accent: STABLE (class with no mutable properties)
+
+@Composable
+public fun com.wire.android.ui.common.connection.AddContactButton(userId: com.wire.kalium.logic.data.id.QualifiedID, userName: kotlin.String, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.ui.common.connection.ConnectionActionButtonViewModel): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - userId: STABLE (matched by stability configuration)
+    - userName: STABLE (String is immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - viewModel: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.ui.common.connection.ConnectionActionButton(userId: com.wire.kalium.logic.data.id.QualifiedID, userName: kotlin.String, fullName: kotlin.String, connectionStatus: com.wire.kalium.logic.data.user.ConnectionState, isConversationStarted: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, onConnectionRequestIgnored: kotlin.Function1<kotlin.String, kotlin.Unit>, onOpenConversation: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, viewModel: com.wire.android.ui.common.connection.ConnectionActionButtonViewModel): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - userId: STABLE (matched by stability configuration)
+    - userName: STABLE (String is immutable)
+    - fullName: STABLE (String is immutable)
+    - connectionStatus: STABLE (class with no mutable properties)
+    - isConversationStarted: STABLE (primitive type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - onConnectionRequestIgnored: STABLE (function type)
+    - onOpenConversation: STABLE (function type)
+    - viewModel: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.ui.common.connection.UnableStartConversationDialogContent(dialogState: com.wire.android.ui.common.visbility.VisibilityState<com.wire.android.ui.common.connection.UnableStartConversationDialogState>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - dialogState: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+public fun com.wire.android.ui.common.connectionActionButtonViewModel(args: com.wire.android.ui.common.connection.ConnectionActionButtonArgs): com.wire.android.ui.common.connection.ConnectionActionButtonViewModel
+  skippable: false
+  restartable: true
+  params:
+    - args: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
 public fun com.wire.android.ui.common.darkColorsScheme(): com.wire.android.ui.theme.WireColorScheme
@@ -1127,6 +1345,14 @@ public fun com.wire.android.ui.common.datetime.WireTimePickerDialog(title: kotli
     - selectedTime: STABLE (class with no mutable properties)
     - onTimeSelected: STABLE (function type)
     - onDismiss: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.common.dialogs.UnblockUserDialogContent(dialogState: com.wire.android.ui.common.visbility.VisibilityState<com.wire.android.ui.common.dialogs.UnblockUserDialogState>, onUnblock: kotlin.Function1<com.wire.android.ui.common.dialogs.UnblockUserDialogState, kotlin.Unit>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - dialogState: UNSTABLE (has mutable properties or unstable members)
+    - onUnblock: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.common.dimensions(): com.wire.android.ui.theme.WireDimensions
@@ -1180,6 +1406,30 @@ public fun com.wire.android.ui.common.image.WireImage(model: kotlin.Any?, conten
     - modifier: STABLE (marked @Stable or @Immutable)
     - contentScale: STABLE (marked @Stable or @Immutable)
     - placeholder: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.ui.common.image.ZoomableImageContainer(painter: kotlin.Function0<androidx.compose.ui.graphics.painter.Painter>, contentDescription: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - painter: STABLE (function type)
+    - contentDescription: STABLE (String is immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.common.legalhold.dialog.common.LearnMoreAboutLegalHoldButton(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.common.legalhold.dialog.connectionfailed.LegalHoldSubjectConnectionFailedDialog(dialogDismissed: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - dialogDismissed: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.common.lightColorsScheme(): com.wire.android.ui.theme.WireColorScheme
@@ -1243,6 +1493,14 @@ public fun com.wire.android.ui.common.rememberClickBlockAction(clickBlockParams:
   params:
     - clickBlockParams: STABLE (class with no mutable properties)
     - clickAction: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.common.rememberFlow(flow: kotlinx.coroutines.flow.Flow<T of com.wire.android.ui.common.rememberFlow>, lifecycleOwner: androidx.lifecycle.LifecycleOwner): kotlinx.coroutines.flow.Flow<T of com.wire.android.ui.common.rememberFlow>
+  skippable: false
+  restartable: true
+  params:
+    - flow: RUNTIME (requires runtime check)
+    - lifecycleOwner: RUNTIME (requires runtime check)
 
 @Composable
 public fun com.wire.android.ui.common.rememberTopBarElevationState(maxElevation: androidx.compose.ui.unit.Dp): androidx.compose.runtime.State<androidx.compose.ui.unit.Dp>
@@ -1409,6 +1667,16 @@ public fun com.wire.android.ui.common.search.rememberSearchbarState(initialIsSea
     - searchQueryTextState: STABLE (marked @Stable or @Immutable)
 
 @Composable
+public fun com.wire.android.ui.common.selectableBackground(isSelected: kotlin.Boolean, onClickDescription: kotlin.String, role: androidx.compose.ui.semantics.Role?, onClick: kotlin.Function0<kotlin.Unit>): androidx.compose.ui.Modifier
+  skippable: true
+  restartable: true
+  params:
+    - isSelected: STABLE (primitive type)
+    - onClickDescription: STABLE (String is immutable)
+    - role: STABLE (marked @Stable or @Immutable)
+    - onClick: STABLE (function type)
+
+@Composable
 public fun com.wire.android.ui.common.shimmerPlaceholder(visible: kotlin.Boolean, color: androidx.compose.ui.graphics.Color, shimmerColor: androidx.compose.ui.graphics.Color, shape: androidx.compose.ui.graphics.Shape): androidx.compose.ui.Modifier
   skippable: true
   restartable: true
@@ -1427,6 +1695,13 @@ public fun com.wire.android.ui.common.snackbar.SwipeableSnackbar(hostState: andr
     - data: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
     - onDismiss: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.common.snackbar.collectAndShowSnackbar(snackbarFlow: kotlinx.coroutines.flow.SharedFlow<com.wire.android.util.ui.UIText>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - snackbarFlow: RUNTIME (requires runtime check)
 
 @Composable
 public fun com.wire.android.ui.common.spacers.HorizontalSpace.x12(): kotlin.Unit
@@ -1577,21 +1852,21 @@ public fun com.wire.android.ui.common.textfield.InnerBasicTextFieldBuilder.Build
     - textFieldModifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.common.textfield.InnerTextLayout(innerTextField: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, shouldShowPlaceholder: kotlin.Boolean, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, placeholderText: kotlin.String?, style: com.wire.android.ui.common.textfield.WireTextFieldState, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, inputMinHeight: androidx.compose.ui.unit.Dp, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onTap: kotlin.Function0<kotlin.Unit>?): kotlin.Unit
+private fun com.wire.android.ui.common.textfield.InnerTextLayout(innerTextField: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, shouldShowPlaceholder: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, placeholderText: kotlin.String?, style: com.wire.android.ui.common.textfield.WireTextFieldState, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onInputSizeChanged: kotlin.Function1<androidx.compose.ui.unit.IntSize, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - innerTextField: STABLE (composable function type)
     - shouldShowPlaceholder: STABLE (primitive type)
+    - modifier: STABLE (marked @Stable or @Immutable)
     - leadingIcon: STABLE (composable function type)
     - trailingIcon: STABLE (composable function type)
     - placeholderText: STABLE (class with no mutable properties)
     - style: STABLE (class with no mutable properties)
     - placeholderTextStyle: STABLE (marked @Stable or @Immutable)
     - placeholderAlignment: STABLE (marked @Stable or @Immutable)
-    - inputMinHeight: STABLE (marked @Stable or @Immutable)
     - colors: STABLE (marked @Stable or @Immutable)
-    - onTap: STABLE (function type)
+    - onInputSizeChanged: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.common.textfield.VisibilityIconButton(isVisible: kotlin.Boolean, onVisibleChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
@@ -1641,7 +1916,7 @@ public fun com.wire.android.ui.common.textfield.WirePasswordTextField(textState:
     - testTag: STABLE (String is immutable)
 
 @Composable
-public fun com.wire.android.ui.common.textfield.WireTextField(textState: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, inputModifier: androidx.compose.ui.Modifier, placeholderText: kotlin.String?, labelText: kotlin.String?, labelMandatoryIcon: kotlin.Boolean, descriptionText: kotlin.String?, semanticDescription: kotlin.String?, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, state: com.wire.android.ui.common.textfield.WireTextFieldState, autoFillType: com.wire.android.ui.common.textfield.WireAutoFillType, lineLimits: androidx.compose.foundation.text.input.TextFieldLineLimits, inputTransformation: androidx.compose.foundation.text.input.InputTransformation, outputTransformation: androidx.compose.foundation.text.input.OutputTransformation?, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, scrollState: androidx.compose.foundation.ScrollState, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource, textStyle: androidx.compose.ui.text.TextStyle, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, inputMinHeight: androidx.compose.ui.unit.Dp, shape: androidx.compose.ui.graphics.Shape, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>, onTap: kotlin.Function0<kotlin.Unit>?, testTag: kotlin.String, validateKeyboardOptions: kotlin.Boolean, enabled: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.common.textfield.WireTextField(textState: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, inputModifier: androidx.compose.ui.Modifier, placeholderText: kotlin.String?, labelText: kotlin.String?, labelMandatoryIcon: kotlin.Boolean, descriptionText: kotlin.String?, semanticDescription: kotlin.String?, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, state: com.wire.android.ui.common.textfield.WireTextFieldState, autoFillType: com.wire.android.ui.common.textfield.WireAutoFillType, lineLimits: androidx.compose.foundation.text.input.TextFieldLineLimits, inputTransformation: androidx.compose.foundation.text.input.InputTransformation, outputTransformation: androidx.compose.foundation.text.input.OutputTransformation?, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, scrollState: androidx.compose.foundation.ScrollState, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource, textStyle: androidx.compose.ui.text.TextStyle, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, inputMinHeight: androidx.compose.ui.unit.Dp, shape: androidx.compose.ui.graphics.Shape, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>, onInputSizeChanged: kotlin.Function1<androidx.compose.ui.unit.IntSize, kotlin.Unit>, onTap: kotlin.Function0<kotlin.Unit>?, testTag: kotlin.String, validateKeyboardOptions: kotlin.Boolean, readOnly: kotlin.Boolean, enabled: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -1672,9 +1947,11 @@ public fun com.wire.android.ui.common.textfield.WireTextField(textState: android
     - colors: STABLE (marked @Stable or @Immutable)
     - onSelectedLineIndexChanged: STABLE (function type)
     - onLineBottomYCoordinateChanged: STABLE (function type)
+    - onInputSizeChanged: STABLE (function type)
     - onTap: STABLE (function type)
     - testTag: STABLE (String is immutable)
     - validateKeyboardOptions: STABLE (primitive type)
+    - readOnly: STABLE (primitive type)
     - enabled: STABLE (primitive type)
 
 @Composable
@@ -1743,7 +2020,7 @@ public fun com.wire.android.ui.common.textfield.WireTextFieldColors.textColor(st
     - state: STABLE (class with no mutable properties)
 
 @Composable
-internal fun com.wire.android.ui.common.textfield.WireTextFieldLayout(shouldShowPlaceholder: kotlin.Boolean, innerBasicTextField: com.wire.android.ui.common.textfield.InnerBasicTextFieldBuilder, modifier: androidx.compose.ui.Modifier, placeholderText: kotlin.String?, labelText: kotlin.String?, labelMandatoryIcon: kotlin.Boolean, descriptionText: kotlin.String?, semanticDescription: kotlin.String?, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, state: com.wire.android.ui.common.textfield.WireTextFieldState, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, inputMinHeight: androidx.compose.ui.unit.Dp, shape: androidx.compose.ui.graphics.Shape, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onTap: kotlin.Function0<kotlin.Unit>?, testTag: kotlin.String): kotlin.Unit
+internal fun com.wire.android.ui.common.textfield.WireTextFieldLayout(shouldShowPlaceholder: kotlin.Boolean, innerBasicTextField: com.wire.android.ui.common.textfield.InnerBasicTextFieldBuilder, modifier: androidx.compose.ui.Modifier, placeholderText: kotlin.String?, labelText: kotlin.String?, labelMandatoryIcon: kotlin.Boolean, descriptionText: kotlin.String?, semanticDescription: kotlin.String?, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, state: com.wire.android.ui.common.textfield.WireTextFieldState, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, inputMinHeight: androidx.compose.ui.unit.Dp, shape: androidx.compose.ui.graphics.Shape, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onInputSizeChanged: kotlin.Function1<androidx.compose.ui.unit.IntSize, kotlin.Unit>, onTap: kotlin.Function0<kotlin.Unit>?, testTag: kotlin.String): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1764,6 +2041,7 @@ internal fun com.wire.android.ui.common.textfield.WireTextFieldLayout(shouldShow
     - inputMinHeight: STABLE (marked @Stable or @Immutable)
     - shape: STABLE (marked @Stable or @Immutable)
     - colors: STABLE (marked @Stable or @Immutable)
+    - onInputSizeChanged: STABLE (function type)
     - onTap: STABLE (function type)
     - testTag: STABLE (String is immutable)
 
@@ -1868,7 +2146,7 @@ public fun com.wire.android.ui.common.topappbar.NavigationIconButton(iconType: c
   skippable: true
   restartable: true
   params:
-    - iconType: STABLE (class with no mutable properties)
+    - iconType: STABLE (marked @Stable or @Immutable)
     - onClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
 
@@ -1884,7 +2162,7 @@ public fun com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar(title
     - maxLines: STABLE (primitive type)
     - subtitleContent: STABLE (composable function type)
     - onNavigationPressed: STABLE (function type)
-    - navigationIconType: STABLE (class with no mutable properties)
+    - navigationIconType: STABLE (marked @Stable or @Immutable)
     - elevation: STABLE (marked @Stable or @Immutable)
     - titleContentDescription: STABLE (class with no mutable properties)
     - actions: STABLE (composable function type)
@@ -1900,7 +2178,7 @@ public fun com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar(title
     - navigationIconModifier: STABLE (marked @Stable or @Immutable)
     - subtitleContent: STABLE (composable function type)
     - onNavigationPressed: STABLE (function type)
-    - navigationIconType: STABLE (class with no mutable properties)
+    - navigationIconType: STABLE (marked @Stable or @Immutable)
     - elevation: STABLE (marked @Stable or @Immutable)
     - actions: STABLE (composable function type)
     - bottomContent: STABLE (composable function type)
@@ -2049,6 +2327,20 @@ public fun com.wire.android.ui.common.typography(): com.wire.android.ui.theme.Wi
   params:
 
 @Composable
+public fun com.wire.android.ui.common.upgradetoapps.UpgradeToGetAppsBanner(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.common.visbility.rememberVisibilityState(saveable: Saveable of com.wire.android.ui.common.visbility.rememberVisibilityState?): com.wire.android.ui.common.visbility.VisibilityState<Saveable of com.wire.android.ui.common.visbility.rememberVisibilityState>
+  skippable: false
+  restartable: true
+  params:
+    - saveable: RUNTIME (requires runtime check)
+
+@Composable
 public fun com.wire.android.ui.common.wireDialogPropertiesBuilder(dismissOnBackPress: kotlin.Boolean, dismissOnClickOutside: kotlin.Boolean, usePlatformDefaultWidth: kotlin.Boolean): androidx.compose.ui.window.DialogProperties
   skippable: true
   restartable: true
@@ -2080,6 +2372,20 @@ private fun com.wire.android.ui.home.conversationslist.common.ChannelLock(modifi
     - size: STABLE (marked @Stable or @Immutable)
 
 @Composable
+public fun com.wire.android.ui.home.conversationslist.common.ConnectPendingRequestBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.home.conversationslist.common.ConnectRequestBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 public fun com.wire.android.ui.home.conversationslist.common.CustomGroupAvatarDrawing(rightSideShapeColor: androidx.compose.ui.graphics.Color, middleSideShapeColor: androidx.compose.ui.graphics.Color, leftSideShapeColor: androidx.compose.ui.graphics.Color, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -2087,6 +2393,29 @@ public fun com.wire.android.ui.home.conversationslist.common.CustomGroupAvatarDr
     - rightSideShapeColor: STABLE (marked @Stable or @Immutable)
     - middleSideShapeColor: STABLE (marked @Stable or @Immutable)
     - leftSideShapeColor: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.home.conversationslist.common.EventBadgeFactory(eventType: com.wire.android.model.BadgeEventType, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - eventType: STABLE (class with no mutable properties)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.ui.home.conversationslist.common.MissedCallBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.ui.home.conversationslist.common.NotificationBadgeContainer(notificationIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - notificationIcon: STABLE (composable function type)
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
@@ -2101,6 +2430,35 @@ public fun com.wire.android.ui.home.conversationslist.common.RegularGroupConvers
     - padding: STABLE (marked @Stable or @Immutable)
     - borderWidth: STABLE (marked @Stable or @Immutable)
     - borderColor: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.home.conversationslist.common.UnreadKnockBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.ui.home.conversationslist.common.UnreadMentionBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.home.conversationslist.common.UnreadMessageEventBadge(unreadMessageCount: kotlin.Int, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - unreadMessageCount: STABLE (primitive type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.ui.home.conversationslist.common.UnreadReplyBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.theme.OrientationDependent.currentOrientation(): T of com.wire.android.ui.theme.OrientationDependent
@@ -2203,10 +2561,150 @@ public fun com.wire.android.ui.theme.wireTypography(): com.wire.android.ui.theme
   params:
 
 @Composable
+public fun com.wire.android.util.permission.PermissionsDeniedRequestDialog(body: kotlin.Int, title: kotlin.Int, positiveButton: kotlin.Int, negativeButton: kotlin.Int, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - body: STABLE (primitive type)
+    - title: STABLE (primitive type)
+    - positiveButton: STABLE (primitive type)
+    - negativeButton: STABLE (primitive type)
+    - onDismiss: STABLE (function type)
+
+@Composable
+public fun com.wire.android.util.permission.rememberCameraPermissionFlow(onPermissionGranted: kotlin.Function0<kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
+  skippable: true
+  restartable: true
+  params:
+    - onPermissionGranted: STABLE (function type)
+    - onPermissionDenied: STABLE (function type)
+    - onPermissionPermanentlyDenied: STABLE (function type)
+
+@Composable
+public fun com.wire.android.util.permission.rememberCaptureVideoFlow(targetVideoFileUri: android.net.Uri, onVideoCaptured: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
+  skippable: true
+  restartable: true
+  params:
+    - targetVideoFileUri: STABLE (matched by stability configuration)
+    - onVideoCaptured: STABLE (function type)
+    - onPermissionDenied: STABLE (function type)
+    - onPermissionPermanentlyDenied: STABLE (function type)
+
+@Composable
+public fun com.wire.android.util.permission.rememberCheckPermissionsAndLaunchIntentRequestFlow(resultContract: androidx.activity.result.contract.ActivityResultContract<I of com.wire.android.util.permission.rememberCheckPermissionsAndLaunchIntentRequestFlow, O of com.wire.android.util.permission.rememberCheckPermissionsAndLaunchIntentRequestFlow>, input: I of com.wire.android.util.permission.rememberCheckPermissionsAndLaunchIntentRequestFlow, requiredPermissions: kotlinx.collections.immutable.ImmutableSet<kotlin.String>, onResult: kotlin.Function1<O of com.wire.android.util.permission.rememberCheckPermissionsAndLaunchIntentRequestFlow, kotlin.Unit>, onAnyPermissionDenied: kotlin.Function0<kotlin.Unit>, onAnyPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onActivityNotFound: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
+  skippable: false
+  restartable: true
+  params:
+    - resultContract: RUNTIME (requires runtime check)
+    - input: RUNTIME (requires runtime check)
+    - requiredPermissions: STABLE (known stable type)
+    - onResult: STABLE (function type)
+    - onAnyPermissionDenied: STABLE (function type)
+    - onAnyPermissionPermanentlyDenied: STABLE (function type)
+    - onActivityNotFound: STABLE (function type)
+
+@Composable
+public fun com.wire.android.util.permission.rememberCheckPermissionsRequestFlow(permissions: kotlinx.collections.immutable.ImmutableSet<kotlin.String>, onAllPermissionsGranted: kotlin.Function0<kotlin.Unit>, onAnyPermissionDenied: kotlin.Function0<kotlin.Unit>, onAnyPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, key: K of com.wire.android.util.permission.rememberCheckPermissionsRequestFlow?): com.wire.android.util.permission.RequestLauncher
+  skippable: false
+  restartable: true
+  params:
+    - permissions: STABLE (known stable type)
+    - onAllPermissionsGranted: STABLE (function type)
+    - onAnyPermissionDenied: STABLE (function type)
+    - onAnyPermissionPermanentlyDenied: STABLE (function type)
+    - key: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.util.permission.rememberChooseMultipleFilesFlow(onFileBrowserItemPicked: kotlin.Function1<kotlin.collections.List<android.net.Uri>, kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, fileType: com.wire.android.util.permission.FileType): com.wire.android.util.permission.RequestLauncher
+  skippable: true
+  restartable: true
+  params:
+    - onFileBrowserItemPicked: STABLE (function type)
+    - onPermissionDenied: STABLE (function type)
+    - onPermissionPermanentlyDenied: STABLE (function type)
+    - fileType: STABLE (class with no mutable properties)
+
+@Composable
+public fun com.wire.android.util.permission.rememberChooseSingleFileFlow(onFileBrowserItemPicked: kotlin.Function1<android.net.Uri?, kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, fileType: com.wire.android.util.permission.FileType): com.wire.android.util.permission.RequestLauncher
+  skippable: true
+  restartable: true
+  params:
+    - onFileBrowserItemPicked: STABLE (function type)
+    - onPermissionDenied: STABLE (function type)
+    - onPermissionPermanentlyDenied: STABLE (function type)
+    - fileType: STABLE (class with no mutable properties)
+
+@Composable
+public fun com.wire.android.util.permission.rememberCreateFileFlow(fileName: kotlin.String, onFileCreated: kotlin.Function1<android.net.Uri, kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, fileMimeType: kotlin.String): com.wire.android.util.permission.RequestLauncher
+  skippable: true
+  restartable: true
+  params:
+    - fileName: STABLE (String is immutable)
+    - onFileCreated: STABLE (function type)
+    - onPermissionDenied: STABLE (function type)
+    - onPermissionPermanentlyDenied: STABLE (function type)
+    - fileMimeType: STABLE (String is immutable)
+
+@Composable
+public fun com.wire.android.util.permission.rememberCurrentLocationPermissionFlow(onAllPermissionsGranted: kotlin.Function0<kotlin.Unit>, onAnyPermissionDenied: kotlin.Function0<kotlin.Unit>, onAnyPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
+  skippable: true
+  restartable: true
+  params:
+    - onAllPermissionsGranted: STABLE (function type)
+    - onAnyPermissionDenied: STABLE (function type)
+    - onAnyPermissionPermanentlyDenied: STABLE (function type)
+
+@Composable
+public fun com.wire.android.util.permission.rememberRecordAudioPermissionFlow(onPermissionGranted: kotlin.Function0<kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
+  skippable: true
+  restartable: true
+  params:
+    - onPermissionGranted: STABLE (function type)
+    - onPermissionDenied: STABLE (function type)
+    - onPermissionPermanentlyDenied: STABLE (function type)
+
+@Composable
+public fun com.wire.android.util.permission.rememberShowNotificationsPermissionFlow(onPermissionGranted: kotlin.Function0<kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
+  skippable: true
+  restartable: true
+  params:
+    - onPermissionGranted: STABLE (function type)
+    - onPermissionDenied: STABLE (function type)
+    - onPermissionPermanentlyDenied: STABLE (function type)
+
+@Composable
+public fun com.wire.android.util.permission.rememberTakePictureFlow(targetPictureFileUri: android.net.Uri, onPictureTaken: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
+  skippable: true
+  restartable: true
+  params:
+    - targetPictureFileUri: STABLE (matched by stability configuration)
+    - onPictureTaken: STABLE (function type)
+    - onPermissionDenied: STABLE (function type)
+    - onPermissionPermanentlyDenied: STABLE (function type)
+
+@Composable
+public fun com.wire.android.util.permission.rememberWriteStoragePermissionFlow(onPermissionGranted: kotlin.Function0<kotlin.Unit>, onPermissionDenied: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
+  skippable: true
+  restartable: true
+  params:
+    - onPermissionGranted: STABLE (function type)
+    - onPermissionDenied: STABLE (function type)
+    - onPermissionPermanentlyDenied: STABLE (function type)
+
+@Composable
 public fun com.wire.android.util.rememberCurrentTimeProvider(): com.wire.android.util.CurrentTimeProvider
   skippable: true
   restartable: true
   params:
+
+@Composable
+public fun com.wire.android.util.ui.LinkText(linkTextData: kotlin.collections.List<com.wire.android.util.ui.LinkTextData>, modifier: androidx.compose.ui.Modifier, textColor: androidx.compose.ui.graphics.Color): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - linkTextData: RUNTIME (requires runtime check)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - textColor: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.util.ui.UIText.DynamicString.asString(): kotlin.String
@@ -2249,6 +2747,13 @@ public fun com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle(minAct
     - minActiveState: STABLE (class with no mutable properties)
     - context: RUNTIME (requires runtime check)
     - lifecycle: RUNTIME (requires runtime check)
+
+@Composable
+private fun com.wire.android.util.ui.createAnnotatedString(data: kotlin.collections.List<com.wire.android.util.ui.LinkTextData>): androidx.compose.ui.text.AnnotatedString
+  skippable: false
+  restartable: true
+  params:
+    - data: RUNTIME (requires runtime check)
 
 @Composable
 public fun com.wire.android.util.ui.rememberLazyListStateProvider(): com.wire.android.util.ui.LazyListStateProvider<T of com.wire.android.util.ui.rememberLazyListStateProvider>

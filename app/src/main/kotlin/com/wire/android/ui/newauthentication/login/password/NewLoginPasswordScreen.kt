@@ -55,6 +55,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
@@ -206,13 +207,34 @@ internal fun LoginPasswordContent(
                     },
                     isEnabled = loginEmailState.userIdentifierEnabled,
                 )
+                val invalidCredentialsErrorText = if (loginEmailState.showInvalidCredentialsError) {
+                    stringResource(R.string.login_error_invalid_credentials_message)
+                } else {
+                    null
+                }
                 PasswordInput(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = dimensions().spacing8x)
                         .testTag("PasswordInput"),
                     passwordState = passwordTextState,
+                    state = if (loginEmailState.showInvalidCredentialsError) {
+                        WireTextFieldState.Error()
+                    } else {
+                        WireTextFieldState.Default
+                    },
                 )
+                if (loginEmailState.showInvalidCredentialsError) {
+                    Text(
+                        text = invalidCredentialsErrorText.orEmpty(),
+                        style = typography().body01,
+                        color = colorsScheme().error,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = dimensions().spacing16x)
+                            .testTag("invalidCredentialsError")
+                    )
+                }
                 if (serverConfig.isProxyAuthRequired) {
                     ForgotPasswordLabel(
                         forgotPasswordUrl = serverConfig.forgotPassword,
@@ -288,10 +310,11 @@ fun EmailInput(
 }
 
 @Composable
-fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
+fun PasswordInput(passwordState: TextFieldState, state: WireTextFieldState, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = passwordState,
+        state = state,
         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
         onKeyboardAction = { keyboardController?.hide() },
         semanticDescription = stringResource(R.string.content_description_login_password_field),
@@ -385,7 +408,9 @@ fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Na
         when (it) {
             is LoginState.Success -> {
                 val destination = when {
-                    it.isE2EIRequired -> E2EIEnrollmentScreenDestination
+                    it.isE2EIRequired -> E2EIEnrollmentScreenDestination(
+                        SessionBackedAuthenticationNavArgs.from(it.userId)
+                    )
                     it.initialSyncCompleted -> HomeScreenDestination
                     else -> InitialSyncScreenDestination
                 }
@@ -394,7 +419,12 @@ fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Na
 
             is LoginState.Error.TooManyDevicesError -> {
                 viewModel.clearLoginErrors()
-                navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+                navigator.navigate(
+                    NavigationCommand(
+                        RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(it.userId)),
+                        BackStackMode.CLEAR_WHOLE,
+                    )
+                )
             }
 
             is LoginState.Canceled -> {

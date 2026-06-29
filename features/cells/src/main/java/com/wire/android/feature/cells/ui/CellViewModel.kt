@@ -107,14 +107,20 @@ class CellViewModel(
     private val networkStateObserver: NetworkStateObserver,
     private val getConversationName: GetConversationNameUseCase,
     private val getUserName: GetUserNameUseCase,
+    /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
+    val offlineFilesEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
 
-    private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
     private val searchNavArgs: SearchNavArgs? = try {
         SearchScreenDestination.argsFrom(savedStateHandle)
     } catch (_: RuntimeException) {
         // Not coming from Search screen, ignore
         null
+    }
+    private val navArgs: CellFilesNavArgs = try {
+        ConversationFilesScreenDestination.argsFrom(savedStateHandle)
+    } catch (_: RuntimeException) {
+        searchNavArgs?.toCellFilesNavArgs() ?: CellFilesNavArgs()
     }
 
     // Show menu with actions for the selected file.
@@ -269,7 +275,7 @@ class CellViewModel(
     }.flatMapLatest { (cellAvailable, online) ->
         when {
             !cellAvailable || searchNavArgs != null -> flowOf(emptyData)
-            !online -> offlineNodesFlow
+            offlineFilesEnabled && !online -> offlineNodesFlow
             else -> sharedNodesFlow
         }
     }
@@ -371,6 +377,10 @@ class CellViewModel(
     }
 
     private fun openFileContentUrl(file: CellNodeUi.File) {
+        if (file.assetType == AttachmentFileType.IMAGE) {
+            sendAction(OpenImageViewer(file))
+            return
+        }
         file.contentUrl?.let { url ->
             fileHelper.openAssetUrlWithExternalApp(
                 url = url,
@@ -383,6 +393,10 @@ class CellViewModel(
     }
 
     private fun openLocalFile(file: CellNodeUi.File) {
+        if (file.assetType == AttachmentFileType.IMAGE) {
+            sendAction(OpenImageViewer(file))
+            return
+        }
         file.localPath?.let { path ->
             fileHelper.openAssetFileWithExternalApp(
                 localPath = path.toPath(),
@@ -629,6 +643,7 @@ internal data object RefreshData : CellViewAction
 internal data class OpenFolder(val path: String, val title: String, val parentFolderUuid: String?) : CellViewAction
 internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
 internal data object ShowOfflineFileSaved : CellViewAction
+internal data class OpenImageViewer(val file: CellNodeUi.File) : CellViewAction
 
 internal enum class CellError(val message: Int) {
     NO_APP_FOUND(R.string.no_app_found),
@@ -641,5 +656,8 @@ data class MenuOptions(
     val node: CellNodeUi,
     val actions: List<NodeBottomSheetAction>
 )
+
+private fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =
+    CellFilesNavArgs(conversationId = conversationId)
 
 private const val RESTORE_DELAY_MS = 300L

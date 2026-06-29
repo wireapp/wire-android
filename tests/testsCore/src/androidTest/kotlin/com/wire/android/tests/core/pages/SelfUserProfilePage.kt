@@ -18,8 +18,12 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiScrollable
+import androidx.test.uiautomator.UiSelector
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 data class SelfUserProfilePage(private val device: UiDevice) {
 
@@ -27,20 +31,75 @@ data class SelfUserProfilePage(private val device: UiDevice) {
     private val logoutButton = UiSelectorParams(text = "Log out")
     private val clearDataAlert = UiSelectorParams(text = "Clear Data?")
     private val newTeamOrAddAccountButton = UiSelectorParams(text = "New Team or Add Account")
+    private val newAccountButton = UiSelectorParams(resourceId = "New Team or Account")
+    private val otherAccountsHeader = UiSelectorParams(text = "Your Other Accounts")
+    private val cancelLoginDialogTitle = UiSelectorParams(text = "Are you sure you want to cancel?")
+    private val cancelLoginDialogCancelButton = UiSelectorParams(text = "Cancel")
+    private val removedDeviceDialogTitle = UiSelectorParams(text = "Removed Device")
+    private val okButton = UiSelectorParams(text = "OK")
 
     private val infoTextCheckbox = UiSelectorParams(className = "android.widget.CheckBox")
 
-    fun iSeeUserProfilePage(): SelfUserProfilePage {
-        try {
-            UiWaitUtils.waitElement(userProfilePageTitle)
-        } catch (e: AssertionError) {
-            throw AssertionError("User Profile Page is not displayed", e)
-        }
+    fun iSeeUserProfilePage(timeout: Duration = 30.seconds): SelfUserProfilePage {
+        UiWaitUtils.waitAnyVisible(
+            selectors = listOf(userProfilePageTitle, logoutButton),
+            timeout = timeout
+        ) ?: throw AssertionError("User Profile Page is not displayed")
         return this
     }
 
     fun tapLogoutButton(): SelfUserProfilePage {
         UiWaitUtils.waitElement(logoutButton).click()
+        return this
+    }
+
+    fun tapNewAccountButton(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(newAccountButton).click()
+        return this
+    }
+
+    fun assertOtherAccountsVisible(timeout: Duration = 15.seconds): SelfUserProfilePage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = otherAccountsHeader,
+            timeout = timeout,
+            errorMessage = "Other accounts section is not visible."
+        )
+        return this
+    }
+
+    fun tapOtherAccountByName(displayName: String): SelfUserProfilePage {
+        runCatching {
+            UiScrollable(UiSelector().scrollable(true)).apply {
+                setAsVerticalList()
+                setMaxSearchSwipes(5)
+                scrollIntoView(UiSelector().text(displayName))
+            }
+        }
+        UiWaitUtils.waitElement(UiSelectorParams(text = displayName)).click()
+        return this
+    }
+
+    fun assertCancelLoginDialogVisible(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(cancelLoginDialogTitle)
+        return this
+    }
+
+    fun confirmCancelLogin(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(cancelLoginDialogCancelButton).click()
+        return this
+    }
+
+    fun assertRemovedDeviceDialogVisible(timeout: Duration = 30.seconds): SelfUserProfilePage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = removedDeviceDialogTitle,
+            timeout = timeout,
+            errorMessage = "Removed Device dialog is not visible."
+        )
+        return this
+    }
+
+    fun confirmRemovedDeviceDialog(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(okButton).click()
         return this
     }
 

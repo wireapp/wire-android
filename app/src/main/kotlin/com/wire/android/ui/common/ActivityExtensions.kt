@@ -20,21 +20,17 @@ package com.wire.android.ui.common
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import com.wire.android.BuildConfig
 
 /**
- * Sets up screen orientation based on device type.
- * - Tablets (smallestScreenWidthDp >= 600dp): Can rotate freely in all orientations
- * - Phones (smallestScreenWidthDp < 600dp): Locked to portrait orientation only
- *
- * This uses the same 600dp threshold that the app uses throughout its UI system
- * for determining tablet vs phone layouts.
+ * Sets up screen orientation based on device type and build configuration.
  */
 fun Activity.setupOrientationForDevice() {
     val isTablet = resources.configuration.smallestScreenWidthDp >= TABLET_MIN_SCREEN_WIDTH_DP
-    requestedOrientation = if (isTablet) {
-        ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
-    } else {
-        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    requestedOrientation = when {
+        isTablet -> ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+        BuildConfig.PHONE_LANDSCAPE_ENABLED -> ActivityInfo.SCREEN_ORIENTATION_USER
+        else -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 }
 

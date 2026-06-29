@@ -80,7 +80,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.connection.ConnectionActionButton
+import com.wire.android.ui.common.connection.ConnectionActionButton
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationMediaScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
@@ -145,7 +145,7 @@ fun OtherUserProfileScreen(
     OtherProfileScreenContent(
         scope = scope,
         state = viewModel.state,
-        conversationOptionsSheetState = conversationOptionsSheetState,
+                conversationOptionsSheetState = conversationOptionsSheetState,
         changeRoleSheetState = changeRoleSheetState,
         removeMemberDialogState = viewModel.removeConversationMemberDialogState,
         eventsHandler = viewModel as OtherUserProfileEventsHandler,
@@ -309,7 +309,7 @@ fun OtherProfileScreenContent(
         sheetState = conversationOptionsSheetState,
         openConversationFolders = onMoveToFolder,
         openConversationDebugMenu = openConversationDebugMenu,
-    )
+            )
     EditGroupRoleBottomSheet(
         sheetState = changeRoleSheetState,
         changeMemberRole = onChangeMemberRole,

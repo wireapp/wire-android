@@ -151,7 +151,7 @@ fun ImportMediaScreen(
         is FeatureFlagState.FileSharingState.AllowSome -> {
             ImportMediaAuthenticatedContent(
                 navigator = navigator,
-                isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.FileSharingState.DisabledByTeam,
+                                isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.FileSharingState.DisabledByTeam,
             )
         }
     }
@@ -464,9 +464,9 @@ private fun ImportMediaBottomBar(
     checkRestrictionsAndSendImportedMedia: () -> Unit,
 ) {
     val selfDeletionTimer = state.selfDeletingTimer
-    val shortDurationLabel = selfDeletionTimer.duration.toSelfDeletionDuration().shortLabel
+    val selfDeletionDuration = selfDeletionTimer.duration.toSelfDeletionDuration()
     val mainButtonText = if (selfDeletionTimer.duration.isPositiveNotNull()) {
-        "${stringResource(id = R.string.self_deleting_message_label)} (${shortDurationLabel.asString()})"
+        "${stringResource(id = R.string.self_deleting_message_label)} (${selfDeletionDuration.shortLabel.asString()})"
     } else {
         stringResource(id = R.string.import_media_send_button_title)
     }

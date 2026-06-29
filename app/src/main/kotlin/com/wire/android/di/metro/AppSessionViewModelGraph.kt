@@ -18,15 +18,9 @@
 package com.wire.android.di.metro
 
 import com.wire.android.di.CurrentAccount
-import com.wire.android.feature.cells.ui.CellsViewModelFactory
-import com.wire.android.feature.cells.ui.CellsViewModelGraph
-import com.wire.android.feature.meetings.ui.MeetingsViewModelFactory
-import com.wire.android.feature.meetings.ui.MeetingsViewModelGraph
-import com.wire.android.model.ImageAssetViewModelFactory
-import com.wire.android.model.ImageAssetViewModelGraph
+import com.wire.android.di.ImageLoadingModule
 import com.wire.android.ui.MiscViewModelFactory
 import com.wire.android.ui.MiscViewModelGraph
-import com.wire.android.ui.authentication.AuthenticationViewModelFactory
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
 import com.wire.android.ui.calling.CallingViewModelFactory
 import com.wire.android.ui.calling.CallingViewModelGraph
@@ -36,92 +30,49 @@ import com.wire.android.ui.debug.DebugInfoViewModelFactory
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
 import com.wire.android.ui.home.HomeViewModelFactory
 import com.wire.android.ui.home.HomeViewModelGraph
-import com.wire.android.ui.home.conversations.ConversationCoreViewModelFactory
-import com.wire.android.ui.home.conversations.ConversationCoreViewModelGraph
-import com.wire.android.ui.home.conversations.ConversationDetailsViewModelFactory
-import com.wire.android.ui.home.conversations.ConversationDetailsViewModelGraph
-import com.wire.android.ui.home.conversations.ConversationSearchFolderViewModelFactory
-import com.wire.android.ui.home.conversations.ConversationSearchFolderViewModelGraph
-import com.wire.android.ui.home.conversations.ScopedMessageViewModelFactory
-import com.wire.android.ui.home.conversations.ScopedMessageViewModelGraph
-import com.wire.android.ui.home.settings.SettingsViewModelFactory
-import com.wire.android.ui.home.settings.SettingsViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserId
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.GraphExtension
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.Scope
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metrox.viewmodel.ViewModelGraph
 
-@Suppress("LongParameterList")
-class AppSessionViewModelGraph @Inject constructor(
-    @CurrentAccount currentAccount: UserId,
-    imageLoader: () -> WireSessionImageLoader,
-    private val cellsViewModelFactoryProvider: () -> CellsViewModelFactory,
-    private val miscViewModelFactoryProvider: () -> MiscViewModelFactory,
-    private val authenticationViewModelFactoryProvider: () -> AuthenticationViewModelFactory,
-    private val callingViewModelFactoryProvider: () -> CallingViewModelFactory,
-    private val debugInfoViewModelFactoryProvider: () -> DebugInfoViewModelFactory,
-    private val homeViewModelFactoryProvider: () -> HomeViewModelFactory,
-    private val settingsViewModelFactoryProvider: () -> SettingsViewModelFactory,
-    private val conversationCoreViewModelFactoryProvider: () -> ConversationCoreViewModelFactory,
-    private val conversationDetailsViewModelFactoryProvider: () -> ConversationDetailsViewModelFactory,
-    private val conversationSearchFolderViewModelFactoryProvider: () -> ConversationSearchFolderViewModelFactory,
-    private val meetingsViewModelFactoryProvider: () -> MeetingsViewModelFactory,
-    private val scopedMessageViewModelFactoryProvider: () -> ScopedMessageViewModelFactory,
-    private val commonViewModelFactoryProvider: () -> CommonViewModelFactory,
-) : ImageAssetViewModelGraph,
-    CellsViewModelGraph,
+@Scope
+annotation class MetroSessionScope
+
+@GraphExtension(MetroSessionScope::class, bindingContainers = [WireMetroViewModelBindings::class, ImageLoadingModule::class])
+interface AppSessionViewModelGraph :
+    ViewModelGraph,
     MiscViewModelGraph,
     AuthenticationViewModelGraph,
     CallingViewModelGraph,
     DebugInfoViewModelGraph,
     HomeViewModelGraph,
-    SettingsViewModelGraph,
-    ConversationCoreViewModelGraph,
-    ConversationDetailsViewModelGraph,
-    ConversationSearchFolderViewModelGraph,
-    MeetingsViewModelGraph,
-    ScopedMessageViewModelGraph,
     CommonViewModelGraph {
-    override val viewModelScopeKey: String = currentAccount.toString()
+    @get:CurrentAccount
+    val currentAccount: UserId
 
-    override val imageAssetViewModelFactory: ImageAssetViewModelFactory =
-        ImageAssetViewModelFactory(imageLoader = imageLoader)
+    override val viewModelScopeKey: String
+        get() = currentAccount.toString()
 
-    override val cellsViewModelFactory: CellsViewModelFactory
-        get() = cellsViewModelFactoryProvider()
+    val wireSessionImageLoader: WireSessionImageLoader
 
     override val miscViewModelFactory: MiscViewModelFactory
-        get() = miscViewModelFactoryProvider()
-
-    override val authenticationViewModelFactory: AuthenticationViewModelFactory
-        get() = authenticationViewModelFactoryProvider()
-
     override val callingViewModelFactory: CallingViewModelFactory
-        get() = callingViewModelFactoryProvider()
-
     override val debugInfoViewModelFactory: DebugInfoViewModelFactory
-        get() = debugInfoViewModelFactoryProvider()
-
     override val homeViewModelFactory: HomeViewModelFactory
-        get() = homeViewModelFactoryProvider()
-
-    override val settingsViewModelFactory: SettingsViewModelFactory
-        get() = settingsViewModelFactoryProvider()
-
-    override val conversationCoreViewModelFactory: ConversationCoreViewModelFactory
-        get() = conversationCoreViewModelFactoryProvider()
-
-    override val conversationDetailsViewModelFactory: ConversationDetailsViewModelFactory
-        get() = conversationDetailsViewModelFactoryProvider()
-
-    override val conversationSearchFolderViewModelFactory: ConversationSearchFolderViewModelFactory
-        get() = conversationSearchFolderViewModelFactoryProvider()
-
-    override val meetingsViewModelFactory: MeetingsViewModelFactory
-        get() = meetingsViewModelFactoryProvider()
-
-    override val scopedMessageViewModelFactory: ScopedMessageViewModelFactory
-        get() = scopedMessageViewModelFactoryProvider()
-
     override val commonViewModelFactory: CommonViewModelFactory
-        get() = commonViewModelFactoryProvider()
+
+    @ContributesTo(AppScope::class)
+    @GraphExtension.Factory
+    interface Factory {
+        fun createAppSessionViewModelGraph(@Provides @CurrentAccount currentAccount: UserId): AppSessionViewModelGraph
+    }
+}
+
+fun WireApplicationGraph.createSessionViewModelGraph(currentAccount: UserId): AppSessionViewModelGraph {
+    return asContribution<AppSessionViewModelGraph.Factory>().createAppSessionViewModelGraph(currentAccount)
 }

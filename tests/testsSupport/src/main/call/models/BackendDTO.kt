@@ -18,7 +18,9 @@
 package call.models
 
 import backendUtils.BackendClient
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class BackendDTO(
     var name: String,
     val webappUrl: String,

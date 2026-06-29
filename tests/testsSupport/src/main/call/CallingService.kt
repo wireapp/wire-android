@@ -17,9 +17,11 @@ import call.models.CallFlow
 import call.models.CallRequest
 import call.models.Instance
 import call.models.InstanceRequest
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.wire.android.testSupport.BuildConfig
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import network.HttpRequestException
 import java.io.IOException
 import java.net.HttpCookie
@@ -37,7 +39,13 @@ class CallingService(
     val applicationJson = "application/json"
     val contentTypeString = "Content-Type"
 
-    private val gson = Gson()
+    @OptIn(ExperimentalSerializationApi::class)
+    private val json = Json {
+        coerceInputValues = true
+        encodeDefaults = true
+        explicitNulls = false
+        ignoreUnknownKeys = true
+    }
     private val cookies = ConcurrentHashMap<String, HttpCookie>()
     private var basicAuthUser: String? = null
     private var basicAuthPassword: String? = null
@@ -100,8 +108,8 @@ class CallingService(
             conn.setRequestProperty(contentTypeString, applicationJson)
             conn.setRequestProperty("Accept", applicationJson)
 
-            val response = httpPost(conn, gson.toJson(request), intArrayOf(HttpURLConnection.HTTP_OK))
-            val instance = gson.fromJson(response, Instance::class.java)
+            val response = httpPost(conn, json.encodeToString(request), intArrayOf(HttpURLConnection.HTTP_OK))
+            val instance = json.decodeFromString<Instance>(response)
 
             conn.getHeaderField("Set-Cookie")?.let { cookieHeader ->
                 HttpCookie.parse(cookieHeader)
@@ -120,7 +128,7 @@ class CallingService(
         return try {
             val response = httpPut(conn, "", intArrayOf(HttpURLConnection.HTTP_OK))
             cookies.remove(instance.id)
-            gson.fromJson(response, Instance::class.java)
+            json.decodeFromString<Instance>(response)
         } catch (ex: Exception) {
             throw HttpRequestException("destroyInstance failed: ${ex.message}", 500)
         }
@@ -131,7 +139,7 @@ class CallingService(
         val conn = buildRequestForInstance(instance.id, target)
         return try {
             val response = httpGet(conn, intArrayOf(HttpURLConnection.HTTP_OK))
-            gson.fromJson(response, Instance::class.java)
+            json.decodeFromString<Instance>(response)
         } catch (ex: Exception) {
             throw HttpRequestException("getInstance failed: ${ex.message}", 500)
         }
@@ -142,8 +150,7 @@ class CallingService(
         val conn = buildRequestForInstance(instance.id, target)
         return try {
             val response = httpGet(conn, intArrayOf(HttpURLConnection.HTTP_OK))
-            val type = object : TypeToken<List<CallFlow>>() {}.type
-            gson.fromJson(response, type)
+            json.decodeFromString<List<CallFlow>>(response)
         } catch (ex: Exception) {
             throw HttpRequestException("getFlows failed: ${ex.message}", 500)
         }
@@ -190,8 +197,7 @@ class CallingService(
             val conn = buildRequestForCertainInstance(serverId, target)
             try {
                 val response = httpGet(conn, intArrayOf(HttpURLConnection.HTTP_OK))
-                val type = object : TypeToken<List<Instance>>() {}.type
-                val serverInstances: List<Instance> = gson.fromJson(response, type)
+                val serverInstances = json.decodeFromString<List<Instance>>(response)
                 serverInstances.forEach {
                     if (!cookies.containsKey(it.id)) {
                         cookies[it.id!!] = HttpCookie("SERVERID", serverId)
@@ -273,22 +279,22 @@ class CallingService(
 
     // region CALL HELPERS
 
-    private fun performCall(instance: Instance, path: String, request: Any): Call {
+    private fun performCall(instance: Instance, path: String, request: CallRequest): Call {
         val conn = buildRequestForInstance(instance.id, "/api/v1/instance/${instance.id}$path")
-        val response = httpPost(conn, gson.toJson(request), intArrayOf(HttpURLConnection.HTTP_OK))
-        return gson.fromJson(response, Call::class.java)
+        val response = httpPost(conn, json.encodeToString(request), intArrayOf(HttpURLConnection.HTTP_OK))
+        return json.decodeFromString<Call>(response)
     }
 
     private fun performCallPut(instance: Instance, path: String): Call {
         val conn = buildRequestForInstance(instance.id, "/api/v1/instance/${instance.id}$path")
         val response = httpPut(conn, "", intArrayOf(HttpURLConnection.HTTP_OK))
-        return gson.fromJson(response, Call::class.java)
+        return json.decodeFromString<Call>(response)
     }
 
     private fun performCallGet(instance: Instance, path: String): Call {
         val conn = buildRequestForInstance(instance.id, "/api/v1/instance/${instance.id}$path")
         val response = httpGet(conn, intArrayOf(HttpURLConnection.HTTP_OK))
-        return gson.fromJson(response, Call::class.java)
+        return json.decodeFromString<Call>(response)
     }
 
     // endregion

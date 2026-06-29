@@ -34,12 +34,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.home.settings.backupAndRestoreViewModel
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -163,7 +166,7 @@ fun BackupAndRestoreContent(
                 onPermissionPermanentlyDenied = {
                     permissionPermanentlyDeniedDialogState.show(
                         PermissionPermanentlyDeniedDialogState.Visible(
-                            R.string.app_permission_dialog_title,
+                            commonR.string.app_permission_dialog_title,
                             R.string.save_backup_file_permission_dialog_description
                         )
                     )
@@ -185,7 +188,7 @@ fun BackupAndRestoreContent(
                 onChooseFilePermissionPermanentlyDenied = {
                     permissionPermanentlyDeniedDialogState.show(
                         PermissionPermanentlyDeniedDialogState.Visible(
-                            R.string.app_permission_dialog_title,
+                            commonR.string.app_permission_dialog_title,
                             R.string.restore_backup_permission_dialog_description
                         )
                     )
@@ -246,6 +249,7 @@ private fun BackupAndRestoreText(lastBackupTime: Long?, modifier: Modifier = Mod
             color = MaterialTheme.wireColorScheme.secondaryText,
             modifier = Modifier
                 .padding(top = MaterialTheme.wireDimensions.spacing32x)
+                .semantics { heading() }
         )
         Text(
             text = lastBackupText,

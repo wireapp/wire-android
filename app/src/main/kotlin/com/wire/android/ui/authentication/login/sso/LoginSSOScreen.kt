@@ -58,13 +58,14 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 @Composable
 fun LoginSSOScreen(
-    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
-    onRemoveDeviceNeeded: () -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
+    onRemoveDeviceNeeded: (UserId) -> Unit,
     loginNavArgs: LoginNavArgs,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: SSOCodeAutoLogin?,
@@ -96,9 +97,9 @@ fun LoginSSOScreen(
         ssoCodeTextState = loginSSOViewModel.ssoTextState,
         loginSSOState = loginSSOViewModel.loginState,
         onErrorDialogDismiss = loginSSOViewModel::clearLoginErrors,
-        onRemoveDeviceOpen = {
+        onRemoveDeviceOpen = { userId ->
             loginSSOViewModel.clearLoginErrors()
-            onRemoveDeviceNeeded()
+            onRemoveDeviceNeeded(userId)
         },
         onLoginButtonClick = loginSSOViewModel::login,
         onCustomServerDialogDismiss = loginSSOViewModel::onCustomServerDialogDismiss,
@@ -112,7 +113,7 @@ fun LoginSSOScreen(
     }
     LaunchedEffect(loginSSOViewModel.loginState.flowState) {
         (loginSSOViewModel.loginState.flowState as? LoginState.Success)?.let {
-            onSuccess(it.initialSyncCompleted, it.isE2EIRequired)
+            onSuccess(it.initialSyncCompleted, it.isE2EIRequired, it.userId)
         }
     }
 }
@@ -123,7 +124,7 @@ private fun LoginSSOContent(
     loginSSOState: LoginSSOState,
     ssoCodeTextState: TextFieldState,
     onErrorDialogDismiss: () -> Unit,
-    onRemoveDeviceOpen: () -> Unit,
+    onRemoveDeviceOpen: (UserId) -> Unit,
     onLoginButtonClick: () -> Unit,
     onCustomServerDialogDismiss: () -> Unit,
     onCustomServerDialogConfirm: () -> Unit,
@@ -156,7 +157,7 @@ private fun LoginSSOContent(
     if (loginSSOState.flowState is LoginState.Error.DialogError) {
         LoginErrorDialog(loginSSOState.flowState.toLoginDialogErrorData(), onErrorDialogDismiss)
     } else if (loginSSOState.flowState is LoginState.Error.TooManyDevicesError) {
-        onRemoveDeviceOpen()
+        onRemoveDeviceOpen(loginSSOState.flowState.userId)
     }
 
     if (loginSSOState.customServerDialogState != null) {

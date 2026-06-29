@@ -36,7 +36,6 @@
     <string name="label_learn_more">Más información</string>
     <string name="label_removing">Eliminando...</string>
     <string name="label_logging_in">Iniciando sesión…</string>
-    <string name="label_user_deleted">Eliminado</string>
     <string name="label_try_again">Intentar de nuevo</string>
     <string name="label_done">Listo</string>
     <string name="label_message_sent_failure">No se pudo enviar el mensaje debido a problemas de conectividad.</string>
@@ -65,7 +64,6 @@
     <string name="label_open_asset_externally">Abrir</string>
     <string name="label_show">Mostrar</string>
     <string name="label_show_all">Mostrar todo</string>
-    <string name="label_show_less">Mostrar menos</string>
     <string name="label_show_details">Ver detalles</string>
     <string name="label_hide_details">Ocultar detalles</string>
     <string name="label_message_status_edited_with_date">Editado el %s</string>
@@ -76,7 +74,6 @@
     <string name="folder_label_access">Acceso</string>
     <string name="folder_label_protocol_details">Detalles del protocolo</string>
     <string name="folder_label_messaging">Mensajería</string>
-    <string name="label_user_blocked">Bloqueado</string>
     <string name="label_and">y</string>
     <string name="label_retry">Reintentar</string>
     <string name="label_draft">*Borrador*</string>
@@ -101,7 +98,6 @@
     <string name="content_description_conversation_back_btn">Volver a la lista de conversaciones</string>
     <string name="content_description_conversation_open_details_label">abrir detalles de conversación</string>
     <string name="content_description_send_button">Enviar</string>
-    <string name="content_description_timed_message_button">Botón, mensaje con autoborrado</string>
     <string name="content_description_menu_button">Navegación principal</string>
     <string name="content_description_drop_down_icon">Menú desplegable</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Dispositivo</string>
@@ -109,8 +105,6 @@
     <string name="content_description_avatar_preview">Vista previa de la foto de perfil</string>
     <string name="content_description_choose_from_gallery">Elegir de la galería</string>
     <string name="content_description_take_a_picture">Tomar una foto</string>
-    <string name="content_description_right_arrow">Flecha derecha</string>
-    <string name="content_description_left_arrow">Regresar</string>
     <string name="content_description_mention_icon">Icono de mención</string>
     <string name="content_description_open_message_details">Abrir detalles del mensaje</string>
     <string name="content_description_copy_the_message">Copiar el mensaje</string>
@@ -118,7 +112,6 @@
     <string name="content_description_delete_the_message">Eliminar el mensaje</string>
     <string name="content_description_edit_the_message">Editar el mensaje</string>
     <string name="content_description_more_options">M&#225;s opciones</string>
-    <string name="content_description_add_contact">Agregar contacto</string>
     <string name="content_description_image_message">Mensaje de imagen</string>
     <string name="content_description_pause_audio">Pausar el sonido</string>
     <string name="content_description_play_audio">Reproducir sonido</string>
@@ -147,12 +140,10 @@
     <string name="content_description_calling_call_unmuted">Llamada reanudada</string>
     <string name="content_description_calling_call_paused_camera">C&#225;mara pausada</string>
     <string name="content_description_more_emojis">M&#225;s emojis</string>
-    <string name="content_description_self_deletion_selector_button">Cambiar modo de autoborrado, botón</string>
     <string name="content_description_message_sending_status">Estado de envío del mensaje</string>
     <string name="content_description_message_sent_status">Estado del mensaje enviado</string>
     <string name="content_description_message_error_status">Estado de error del mensaje</string>
     <string name="content_description_location_icon">Compartir ubicación</string>
-    <string name="content_description_open_service_label">abrir aplicación</string>
     <string name="content_description_new_channel_options_back_btn">Volver a la creación de canal</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
@@ -409,7 +400,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="user_profile_details_tab">Detalles</string>
     <string name="user_profile_devices_tab">Dispositivos</string>
     <string name="user_profile_role_change_error">Ocurri&#243; un error al intentar cambiar el rol. Por favor, verifica tu conexi&#243;n a internet e intenta de nuevo.</string>
-    <string name="user_profile_unblock_user">Desbloquear usuario</string>
     <string name="user_profile_logging_out_progress">Cerrando sesión...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) no podr&#225; enviar ni recibir mensajes en esta conversaci&#243;n.</string>
@@ -588,21 +578,13 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_search_button">Buscar</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Multimedia</string>
-    <!-- Search Contact-->
-    <string name="label_contacts">Contactos</string>
     <string name="label_new_group">Nuevo Grupo</string>
     <string name="label_new_channel">Nuevo Canal</string>
     <string name="label_create_new_group">Nuevo Grupo</string>
     <string name="label_create_new_channel">Nuevo Canal</string>
     <!-- Search Channels -->
     <string name="label_new_conversation">Nueva Conversaci&#243;n</string>
-    <string name="label_search_people">Buscar Personas</string>
-    <string name="label_search_people_or_apps">Buscar personas o aplicaciones</string>
-    <string name="label_search_people_instruction">Busca personas por su nombre de perfil o @nombredeusuario</string>
-    <string name="label_learn_more_searching_user">Aprende m&#225;s</string>
-    <string name="label_no_results_found">No se encontraron resultados. Por favor intenta nuevamente.</string>
     <string name="label_general_error">Algo sali&#243; mal</string>
-    <string name="label_add_member_services">Aplicaciones</string>
     <string name="label_empty_contacts_list">Buscar personas por su nombre o nombre de usuario para iniciar una conversación 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Algo sali&#243; mal</string>
@@ -629,12 +611,10 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="conversation_on_file_downloaded">El archivo %s se guard&#243; correctamente en la carpeta de descargas.</string>
     <string name="error_blocking_user">No se pudo bloquear al usuario.</string>
     <string name="blocking_user_success">%s bloqueado.</string>
-    <string name="error_unblocking_user">No se pudo desbloquear al usuario.</string>
     <string name="error_limit_number_assets_imported_exceeded">Solo puedes enviar hasta 20 archivos a la vez.</string>
     <!-- Archiving -->
     <!-- Favorite -->
     <!-- Animation label -->
-    <string name="label_open_conversation">Abrir conversaci&#243;n</string>
     <string name="email_label">Correo electr&#243;nico</string>
     <string name="phone_label">Tel&#233;fono</string>
     <!-- Notifications -->
@@ -681,26 +661,11 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Volver a la llamada</string>
     <string name="connectivity_status_bar_waiting_for_network">Esperando a la red</string>
-    <!-- Connections -->
-    <string name="connection_label_connect">Conectar</string>
-    <string name="connection_label_cancel_request">Cancelar solicitud</string>
     <string name="connection_label_member_not_belongs_to_team">Este usuario no pertenece a su equipo. Si aceptan su solicitud de conexi&#243;n, estar&#225;n disponibles como contacto.</string>
     <string name="connection_label_member_not_conneted">Cuando se acepte su solicitud de conexi&#243;n, podr&#225; comunicarse directamente con este contacto.</string>
-    <string name="connection_request_sent">Solicitud de conexi&#243;n enviada</string>
-    <string name="connection_request_canceled">Solicitud de conexi&#243;n cancelada</string>
-    <string name="connection_request_ignored">Ignoraste la solicitud de %1$s</string>
-    <string name="connection_request_accepted">Solicitud de conexi&#243;n aceptada</string>
-    <string name="connection_request_sent_error">No se pudo enviar la solicitud de conexi&#243;n</string>
-    <string name="connection_request_accept_error">No se pudo aceptar la solicitud de conexi&#243;n</string>
-    <string name="connection_request_ignore_error">No se pudo ignorar la solicitud de conexi&#243;n</string>
-    <string name="connection_request_cancel_error">No se pudo cancelar la solicitud de conexi&#243;n</string>
     <string name="connection_pending_message">Quiere conectarse</string>
-    <string name="connection_pending_label">pendiente</string>
     <string name="connection_label_user_wants_to_conect">Este usuario desea conectarse contigo.</string>
     <string name="connection_label_accepting_request_description">Si acepta su solicitud de conexi&#243;n, se agregar&#225;n como contacto y podr&#225;n comunicarse directamente.</string>
-    <string name="connection_label_accept">Aceptar</string>
-    <string name="connection_label_ignore">Ignorar</string>
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galer&#237;a multimedia</string>
     <string name="media_gallery_on_image_downloaded">Guardado en la carpeta Descargas</string>
@@ -710,7 +675,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="sso_error_dialog_message">Por favor, int&#233;ntelo de nuevo. Si esto no ayuda, p&#243;ngase en contacto con su administrador y proporcione este c&#243;digo:
 %d</string>
     <string name="asset_download_dialog_default_title">Descargar archivo</string>
-    <string name="label_show_more">Mostrar m&#225;s</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">No se permiten recibir im&#225;genes</string>
     <string name="prohibited_videos_message">No se permiten recibir videos</string>
@@ -719,9 +683,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="team_settings_changed">Configuraci&#243;n del equipo cambiada</string>
     <string name="sharing_files_enabled">Ahora est&#225; habilitada la compartici&#243;n y recepci&#243;n de todo tipo de archivos</string>
     <string name="sharing_files_disabled">Ahora est&#225; deshabilitada la compartici&#243;n y recepci&#243;n de todo tipo de archivos</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (predeterminado)"</string>
-    <string name="wire_dropdown_placeholder">Seleccionar una opci&#243;n</string>
     <string name="change">Cambiar</string>
     <string name="allow_guests">Permitir invitados</string>
     <string name="allow_guest_switch_description">Abra esta conversaci&#243;n a personas fuera de su equipo. Siempre puede cambiarlo m&#225;s tarde.</string>
@@ -781,10 +742,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="devices_title">Tus dispositivos</string>
     <string name="current_device_label">Dispositivo actual</string>
     <string name="other_devices_label">Otros dispositivos</string>
-    <!--unblock user dialog -->
-    <string name="unblock_user_dialog_title">&#191;Desbloquear usuario?</string>
-    <string name="unblock_user_dialog_body">%1$s podr&#225; ponerse en contacto contigo o agregarte a conversaciones de grupo. Podr&#225;s acceder a una conversaci&#243;n 1:1 con ellos.</string>
-    <string name="unblock_user_dialog_confirm_button">Desbloquear</string>
     <!--max account reached dialog-->
     <string name="max_account_reached_dialog_button_open_profile">Abrir perfil</string>
     <!--nomad account blocks login dialog-->
@@ -992,17 +949,12 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!-- legal hold -->
     <!-- Sure want to send message Dialog -->
     <!-- Sure want to call Dialog -->
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">Permisos de aplicación</string>
-    <string name="app_permission_dialog_settings_positive_button">Ajustes</string>
-    <string name="app_permission_dialog_settings_negative_button">Ahora no</string>
     <!-- Share Location -->
     <string name="location_attachment_share_title">Compartir ubicación</string>
     <string name="location_app_permission_dialog_body">Permite a Wire acceder a la ubicación del dispositivo para enviar tu ubicación.</string>
     <string name="location_loading_label">Un momento...</string>
     <string name="location_could_not_be_shared">No se pudo compartir la ubicación</string>
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
@@ -1012,15 +964,9 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <!-- Apps-->
-    <string name="apps_upgrade_teams_for_apps_banner_title">Tu equipo aún no utiliza aplicaciones</string>
-    <string name="apps_upgrade_teams_for_apps_banner_content">Para mejorar tu flujo de trabajo con las aplicaciones, tu equipo necesita configuración. Por favor, contacta al administrador de tu equipo.</string>
     <string name="apps_edit_apps_option_title">Aplicaciones</string>
     <string name="content_description_edit_apps_option_back_btn">Volver a los detalles de la conversación</string>
     <string name="content_description_conversation_details_apps_action">ajustar acceso a aplicaciones</string>
-    <string name="search_results_apps_empty_title">Tu equipo aún no ha añadido aplicaciones</string>
-    <string name="search_results_apps_empty_description_team_admin">Las aplicaciones son de ayuda para mejorar tu flujo de trabajo. Como administrador del equipo, puedes añadirlas en las configuraciones del equipo.</string>
-    <string name="search_results_apps_empty_description_non_team_admin">Las aplicaciones son de ayuda para mejorar tu flujo de trabajo. Para usarlas, póngase en contacto con el administrador del equipo.</string>
-    <string name="search_results_apps_empty_description_disabled_for_conversation">Las aplicaciones están desactivadas en esta conversación. Puedes habilitarlas en las opciones de conversación.</string>
     <string name="label_system_message_apps_access_enabled_by_self">%1$s has habilitado las **aplicaciones** para esta conversación</string>
     <string name="label_system_message_apps_access_disabled_by_self">%1$s has deshabilitado las **aplicaciones** para esta conversación</string>
     <string name="label_system_message_apps_access_enabled_by_other">%1$s ha habilitado las **aplicaciones** para esta conversación</string>

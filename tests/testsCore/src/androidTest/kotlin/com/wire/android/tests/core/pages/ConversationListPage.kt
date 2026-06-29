@@ -36,7 +36,8 @@ data class ConversationListPage(private val device: UiDevice) {
 
     private val searchField = UiSelectorParams(description = "Search conversations")
     private val userProfileButtonNoPhoto = UiSelectorParams(description = "Your profile")
-
+    private val userProfilePageTitle = UiSelectorParams(text = "User Profile")
+    private val logoutButton = UiSelectorParams(text = "Log out")
     private val userProfileButton = UiSelectorParams(resourceId = "User avatar")
     private val conversationListHeading = UiSelectorParams(
         textContains = "Conversations"
@@ -71,6 +72,15 @@ data class ConversationListPage(private val device: UiDevice) {
         Assert.assertTrue(
             "Conversation list heading is not visible",
             !heading.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun assertConversationListNotVisible(): ConversationListPage {
+        val heading = findElementOrNull(conversationListHeading)
+        Assert.assertTrue(
+            "Conversation list heading is visible",
+            heading == null || heading.visibleBounds.isEmpty
         )
         return this
     }
@@ -410,12 +420,35 @@ data class ConversationListPage(private val device: UiDevice) {
     }
 
     fun clickUserProfileButton(): ConversationListPage {
-        val buttonWithPhoto = UiWaitUtils.findElementOrNull(userProfileButton)
-        if (buttonWithPhoto != null && !buttonWithPhoto.visibleBounds.isEmpty) {
-            buttonWithPhoto.click()
-        } else {
-            val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
-            buttonNoPhoto.click()
+        val opened = UiWaitUtils.retryUntilTimeout(
+            timeout = 30.seconds,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        ) {
+            listOf(userProfileButtonNoPhoto, userProfileButton).any { selector ->
+                val button = UiWaitUtils.findElementOrNull(selector)
+                if (button != null && !button.visibleBounds.isEmpty) {
+                    val bounds = button.visibleBounds
+                    val clickPoints = listOf(
+                        bounds.centerX() to bounds.centerY(),
+                        bounds.left + bounds.width() / 3 to bounds.centerY(),
+                        bounds.right - bounds.width() / 3 to bounds.centerY()
+                    )
+                    clickPoints.any { (x, y) ->
+                        device.click(x, y)
+                        UiWaitUtils.waitAnyVisible(
+                            selectors = listOf(userProfilePageTitle, logoutButton),
+                            timeout = 2.seconds,
+                            pollingInterval = UiWaitUtils.POLLING_FAST
+                        ) != null
+                    }
+                } else {
+                    false
+                }
+            }
+        }
+
+        if (!opened) {
+            throw AssertionError("User profile button did not open the profile page.")
         }
         return this
     }

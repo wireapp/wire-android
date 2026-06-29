@@ -13,8 +13,9 @@ plugins {
 dependencies {
     implementation("com.wire.kalium:kalium-common")
     implementation("com.wire.kalium:kalium-logic")
-    implementation(project(":core:di"))
-    implementation(project(":core:ui-common"))
+    implementation(projects.core.di)
+    implementation(projects.core.uiCommon)
+    implementation(projects.core.search)
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.ktx.immutableCollections)
@@ -27,6 +28,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)
+    implementation(libs.metrox.viewModelCompose)
 
     implementation(libs.ktx.dateTime)
 

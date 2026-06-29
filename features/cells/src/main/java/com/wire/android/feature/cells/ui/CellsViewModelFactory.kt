@@ -21,6 +21,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
+import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkViewModel
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationScreenViewModel
@@ -68,6 +69,7 @@ import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.logic.util.RandomPassword
 import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Named
 
 @Suppress("LongParameterList")
 class CellsViewModelFactory @Inject constructor(
@@ -89,6 +91,7 @@ class CellsViewModelFactory @Inject constructor(
     private val networkStateObserver: NetworkStateObserver,
     private val getConversationNameUseCase: GetConversationNameUseCase,
     private val getUserNameUseCase: GetUserNameUseCase,
+    @Named("offlineFilesEnabled") private val offlineFilesEnabled: Boolean,
     private val createPresentationFileUseCase: CreatePresentationFileUseCase,
     private val createDocumentFileUseCase: CreateDocumentFileUseCase,
     private val createSpreadsheetFileUseCase: CreateSpreadsheetFileUseCase,
@@ -135,6 +138,7 @@ class CellsViewModelFactory @Inject constructor(
         networkStateObserver = networkStateObserver,
         getConversationName = getConversationNameUseCase,
         getUserName = getUserNameUseCase,
+        offlineFilesEnabled = offlineFilesEnabled,
     )
 
     internal fun createFileViewModel(savedStateHandle: SavedStateHandle) = CreateFileViewModel(
@@ -208,5 +212,9 @@ class CellsViewModelFactory @Inject constructor(
         onlineEditor = onlineEditor,
         getEditorUrl = getEditorUrl,
         dispatchers = dispatchers,
+    )
+
+    internal fun cellImageViewerViewModel(savedStateHandle: SavedStateHandle) = CellImageViewerViewModel(
+        savedStateHandle = savedStateHandle,
     )
 }

@@ -129,7 +129,7 @@ class LoginEmailViewModel @AssistedInject constructor(
                 proxyPasswordTextState.textAsFlow()
             ) { _, _, _, _ -> }.collectLatest {
                 if (loginState.flowState != LoginState.Loading) {
-                    updateEmailFlowState(LoginState.Default)
+                    updateEmailFlowState(LoginState.Default, showInvalidCredentialsError = false)
                 }
             }
         }
@@ -143,14 +143,22 @@ class LoginEmailViewModel @AssistedInject constructor(
         }
     }
 
-    private fun updateEmailFlowState(flowState: LoginState) {
+    private fun updateEmailFlowState(
+        flowState: LoginState,
+        showInvalidCredentialsError: Boolean = when (flowState) {
+            LoginState.Error.DialogError.InvalidCredentialsError -> true
+            LoginState.Default -> loginState.showInvalidCredentialsError
+            else -> false
+        }
+    ) {
         val proxyFieldsNotEmpty = proxyIdentifierTextState.text.isNotEmpty() && proxyPasswordTextState.text.isNotEmpty()
         loginState = loginState.copy(
             flowState = flowState,
             loginEnabled = userIdentifierTextState.text.isNotEmpty()
                     && passwordTextState.text.isNotEmpty()
                     && (!serverConfig.isProxyAuthRequired || proxyFieldsNotEmpty)
-                    && flowState !is LoginState.Loading
+                    && flowState !is LoginState.Loading,
+            showInvalidCredentialsError = showInvalidCredentialsError
         )
     }
 
@@ -253,15 +261,15 @@ class LoginEmailViewModel @AssistedInject constructor(
             }.let {
                 when (it) {
                     is RegisterClientResult.Success -> {
-                        updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false))
+                        updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false, storedUserId))
                     }
 
                     is RegisterClientResult.E2EICertificateRequired -> {
-                        updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), true))
+                        updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), true, storedUserId))
                     }
 
                     is RegisterClientResult.Failure.TooManyClients -> {
-                        updateEmailFlowState(LoginState.Error.TooManyDevicesError)
+                        updateEmailFlowState(LoginState.Error.TooManyDevicesError(storedUserId))
                     }
 
                     is RegisterClientResult.Failure -> {

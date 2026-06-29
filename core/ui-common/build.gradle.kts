@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
+    alias(libs.plugins.ksp)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
     alias(libs.plugins.compose.stability.analyzer)
 }
@@ -13,15 +14,22 @@ android {
     testFixtures.enable = true
 }
 
+ksp {
+    arg("wire.viewmodelScopedPreview.aggregateName", "CoreUICommonViewModelScopedPreviews")
+}
+
 dependencies {
     implementation(project(":core:di"))
 
     implementation("com.wire.kalium:kalium-logic")
+    implementation("com.wire.kalium:kalium-util")
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.browser)
     implementation(libs.ktx.serialization)
     implementation(libs.bundlizer.core)
     implementation(libs.coroutines.android)
+    implementation(libs.ktx.immutableCollections)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
@@ -30,6 +38,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.navigation)
     implementation(libs.compose.ui.preview)
+    implementation(libs.metrox.viewModelCompose)
     debugImplementation(libs.compose.ui.tooling)
 
     implementation(libs.visibilityModifiers)
@@ -55,10 +64,14 @@ dependencies {
     // Accompanist
     implementation(libs.accompanist.placeholder)
 
+    implementation(projects.ksp)
+    ksp(project(":ksp"))
+
     testImplementation(libs.junit5.core)
     testImplementation(libs.junit5.params)
     testImplementation(libs.mockk.core)
     testImplementation(libs.coroutines.test)
+    testImplementation(libs.turbine)
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,5 +80,7 @@ dependencies {
     testFixturesImplementation(libs.coroutines.test)
     testFixturesImplementation(libs.okio.fakeFileSystem)
     testFixturesImplementation("com.wire.kalium:kalium-logic")
+    testFixturesImplementation(libs.junit5.core)
+    testFixturesImplementation(libs.mockk.core)
 
 }

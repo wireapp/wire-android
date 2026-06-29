@@ -5,6 +5,7 @@ import java.util.Properties
 // Apply your test library plugin
 plugins {
     id(libs.plugins.wire.android.test.library.get().pluginId)
+    alias(libs.plugins.kotlin.serialization)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
 }
 
@@ -83,7 +84,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.test.uiAutomator)
     implementation(libs.datafaker)
-    androidTestImplementation(libs.gson)
+    implementation(libs.ktx.serialization)
 }
 
 // Register a custom Gradle task 'fetchSecrets' to fetch secrets from 1Password CLI and generate secrets.json

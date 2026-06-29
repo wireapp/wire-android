@@ -28,6 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.ui.common.R
 import com.wire.android.ui.common.dimensions
@@ -52,10 +54,12 @@ fun EmptyListContent(
     ) {
         title?.let { title ->
             Text(
-                modifier = Modifier.padding(
-                    bottom = dimensions().spacing16x,
-                    top = dimensions().spacing100x
-                ),
+                modifier = Modifier
+                    .padding(
+                        bottom = dimensions().spacing16x,
+                        top = dimensions().spacing100x
+                    )
+                    .semantics { heading() },
                 text = title,
                 style = MaterialTheme.wireTypography.title01,
                 color = MaterialTheme.wireColorScheme.onSurface,

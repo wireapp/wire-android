@@ -189,7 +189,9 @@ fun EnabledMessageComposer(
                 ) {
                     messageListContent()
                     if (!inputStateHolder.isTextExpanded) {
-                        UsersTypingIndicatorForConversation(conversationId = conversationId)
+                        UsersTypingIndicatorForConversation(
+                            conversationId = conversationId,
+                        )
                     }
                     if (!inputStateHolder.isTextExpanded && messageComposerViewState.value.mentionSearchResult.isNotEmpty()) {
                         MembersMentionList(
@@ -388,8 +390,13 @@ fun EnabledMessageComposer(
                                 additionalOptionStateHolder.toRichTextEditing()
                             },
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                            onDrawingModeClicked = openDrawingCanvas,
-                            isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled
+                            onDrawingModeClicked = {
+                                if (messageComposerViewState.value.areAttachmentOptionsEnabled) {
+                                    openDrawingCanvas()
+                                }
+                            },
+                            isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
+                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled,
                         )
                     }
                 }
@@ -453,6 +460,7 @@ fun EnabledMessageComposer(
                         AdditionalOptionSubMenu(
                             optionsVisible = inputStateHolder.optionsVisible,
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
+                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
                             onRecordAudioMessageClicked = {
                                 if (!messageComposerViewState.value.isCallOngoing) {

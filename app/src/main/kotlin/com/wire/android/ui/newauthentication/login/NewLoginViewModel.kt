@@ -229,7 +229,7 @@ class NewLoginViewModel(
                                     NewLoginAction.EmailPassword(
                                         userIdentifier = email,
                                         loginPasswordPath = LoginPasswordPath(
-                                            customServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig,
+                                            customServerConfig = serverConfig,
                                             isCloudAccountCreationPossible = loginRedirectPath.isCloudAccountCreationPossible,
                                         )
                                     )
@@ -242,7 +242,7 @@ class NewLoginViewModel(
                                     NewLoginAction.EmailPassword(
                                         userIdentifier = email,
                                         loginPasswordPath = LoginPasswordPath(
-                                            customServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig,
+                                            customServerConfig = serverConfig,
                                             isCloudAccountCreationPossible = loginRedirectPath.isCloudAccountCreationPossible,
                                             isDomainClaimedByOrg = DomainClaimedByOrg.Claimed(
                                                 loginRedirectPath.domain
@@ -367,12 +367,12 @@ class NewLoginViewModel(
                     }
 
                     is RegisterClientResult.E2EICertificateRequired -> {
-                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
+                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment(userId)))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
 
                     is RegisterClientResult.Failure.TooManyClients -> {
-                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
+                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices(userId)))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
 

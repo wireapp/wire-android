@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -42,6 +43,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.NewConversati
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.PromoteAdminScreenDestination
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
@@ -81,7 +83,7 @@ import com.wire.kalium.logic.data.user.UserId
  * This is a base for creating screens for displaying list of conversations.
  * Can be used to create proper navigation destination for different sources of conversations, like archive.
  */
-@Suppress("ComplexMethod", "NestedBlockDepth", "Wrapping")
+@Suppress("ComplexMethod", "NestedBlockDepth", "Wrapping", "SlotReused")
 @Composable
 fun ConversationsScreenContent(
     navigator: Navigator,
@@ -93,8 +95,15 @@ fun ConversationsScreenContent(
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     emptySearchResultFocusRequester: FocusRequester? = null,
     firstConversationFocusRequester: FocusRequester? = null,
-    conversationListCallViewModel: ConversationListCallViewModel = conversationListCallViewModel(conversationsSource),
-    conversationListViewModel: ConversationListViewModel = conversationListViewModel(conversationsSource),
+    onConversationOpened: () -> Unit = {},
+    conversationListCallViewModel: ConversationListCallViewModel = when {
+        LocalInspectionMode.current -> ConversationListCallViewModelPreview
+        else -> conversationListCallViewModel(conversationsSource)
+    },
+    conversationListViewModel: ConversationListViewModel = when {
+        LocalInspectionMode.current -> ConversationListViewModelPreview()
+        else -> conversationListViewModel(conversationsSource)
+    },
 ) {
     val sheetState = rememberWireModalSheetState<ConversationSheetState>()
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -131,9 +140,10 @@ fun ConversationsScreenContent(
         }
     }
 
-    val onOpenConversation: (ConversationItem) -> Unit = remember(navigator) {
+    val onOpenConversation: (ConversationItem) -> Unit = remember(navigator, onConversationOpened) {
         {
             navigator.navigate(NavigationCommand(ConversationScreenDestination(it.conversationId)))
+            onConversationOpened()
         }
     }
     val onOpenUserProfile: (UserId) -> Unit = remember(navigator) {
@@ -190,7 +200,7 @@ fun ConversationsScreenContent(
                         onAudioPermissionPermanentlyDenied = {
                             permissionPermanentlyDeniedDialogState.show(
                                 PermissionPermanentlyDeniedDialogState.Visible(
-                                    R.string.app_permission_dialog_title,
+                                    commonR.string.app_permission_dialog_title,
                                     R.string.call_permission_dialog_description
                                 )
                             )
@@ -231,7 +241,7 @@ fun ConversationsScreenContent(
                         onAudioPermissionPermanentlyDenied = {
                             permissionPermanentlyDeniedDialogState.show(
                                 PermissionPermanentlyDeniedDialogState.Visible(
-                                    R.string.app_permission_dialog_title,
+                                    commonR.string.app_permission_dialog_title,
                                     R.string.call_permission_dialog_description
                                 )
                             )

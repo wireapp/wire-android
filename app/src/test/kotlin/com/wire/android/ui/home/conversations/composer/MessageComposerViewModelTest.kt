@@ -41,6 +41,30 @@ import org.junit.jupiter.api.extension.ExtendWith
 class MessageComposerViewModelTest {
 
     @Test
+    fun `given guest in foreign-team cells conversation when init then attachment options are disabled`() = runTest {
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withAttachmentOptionsAvailability(false)
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.messageComposerViewState.value.areAttachmentOptionsEnabled)
+    }
+
+    @Test
+    fun `given guest in self-team cells conversation when init then attachment options stay enabled`() = runTest {
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withAttachmentOptionsAvailability(true)
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertTrue(viewModel.messageComposerViewState.value.areAttachmentOptionsEnabled)
+    }
+
+    @Test
     fun `given that user types a text message, when invoked typing invoked, then send typing event is called`() = runTest {
         // given
         val (arrangement, viewModel) = MessageComposerViewModelArrangement()

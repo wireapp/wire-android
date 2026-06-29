@@ -37,10 +37,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.settings.serviceDetailsViewModel
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.NameBasedAvatar
@@ -196,6 +199,7 @@ private fun ServiceDetailsProfileInfo(state: ServiceDetailsState) {
                         color = MaterialTheme.colorScheme.onBackground,
                         overflow = TextOverflow.Visible,
                         maxLines = 1,
+                        modifier = Modifier.semantics { heading() }
                     )
                     UserBadge(
                         membership = Membership.Service,
@@ -307,9 +311,9 @@ private fun ServiceDetailsStartOrOpenConversation(
                     state = if (isActionLoading) WireButtonState.Disabled else WireButtonState.Default,
                     text = stringResource(
                         id = if (isConversationStarted) {
-                            R.string.label_open_conversation
+                            commonR.string.label_open_conversation
                         } else {
-                            R.string.label_start_conversation
+                            commonR.string.label_start_conversation
                         }
                     ),
                     onClick = onOpenConversation,

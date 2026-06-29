@@ -19,6 +19,7 @@
 package com.wire.android.mapper
 
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.markdown.MarkdownConstants
@@ -112,7 +113,7 @@ private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount
 private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
     isSelfMessage -> UIText.StringResource(R.string.member_name_you_label_titlecase)
     this != null -> UIText.DynamicString(this)
-    else -> UIText.StringResource(R.string.username_unavailable_label)
+    else -> UIText.StringResource(commonR.string.username_unavailable_label)
 }
 
 @Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth", "UNUSED_PARAMETER")

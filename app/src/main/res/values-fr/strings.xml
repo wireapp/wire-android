@@ -35,7 +35,6 @@
     <string name="label_learn_more">En savoir plus</string>
     <string name="label_removing">Suppression en cours…</string>
     <string name="label_logging_in">Connexion en cours…</string>
-    <string name="label_user_deleted">Supprimé.e</string>
     <string name="label_message_sent_failure">Le message n\'a pas pu être envoyé en raison de problèmes de connexion.</string>
     <string name="label_message_edit_sent_failure">Le message modifié n\'a pas pu être envoyé en raison de problèmes de connexion.</string>
     <string name="label_message_sent_remotely_failure">Le message n\'a pas pu être envoyé, car le serveur de %s n\'est pas joignable.</string>
@@ -58,7 +57,6 @@
     <string name="label_open_asset_externally">Ouvrir</string>
     <string name="label_show">Afficher</string>
     <string name="label_show_all">Tout afficher</string>
-    <string name="label_show_less">Afficher moins</string>
     <string name="label_show_details">Afficher les détails</string>
     <string name="label_hide_details">Masquer les détails</string>
     <string name="label_message_status_edited_with_date">Modifié le %s</string>
@@ -69,7 +67,6 @@
     <string name="folder_label_access">Accès</string>
     <string name="folder_label_protocol_details">Détails du protocole</string>
     <string name="folder_label_messaging">Messagerie</string>
-    <string name="label_user_blocked">Bloqué</string>
     <string name="label_and">et</string>
     <string name="label_retry">Réessayer</string>
     <string name="label_draft">Brouillons</string>
@@ -90,7 +87,6 @@
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">Mentionner quelqu\'un</string>
     <string name="content_description_send_button">Envoyer</string>
-    <string name="content_description_timed_message_button">Bouton messages auto-supprimés</string>
     <string name="content_description_menu_button">Navigation principale</string>
     <string name="content_description_drop_down_icon">Flèche déroulante</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Élément de l\'appareil</string>
@@ -98,8 +94,6 @@
     <string name="content_description_avatar_preview">Aperçu de l\'image de profil</string>
     <string name="content_description_choose_from_gallery">Choisir dans la galerie</string>
     <string name="content_description_take_a_picture">Prendre une photo</string>
-    <string name="content_description_right_arrow">Flèche droite</string>
-    <string name="content_description_left_arrow">Revenir en arrière</string>
     <string name="content_description_mention_icon">Icône mentionner</string>
     <string name="content_description_open_message_details">Ouvrir les détails du message</string>
     <string name="content_description_copy_the_message">Copier le message</string>
@@ -107,7 +101,6 @@
     <string name="content_description_delete_the_message">Supprimer le message</string>
     <string name="content_description_edit_the_message">Éditer le message</string>
     <string name="content_description_more_options">Plus d\'options</string>
-    <string name="content_description_add_contact">Ajouter un contact</string>
     <string name="content_description_image_message">Image</string>
     <string name="content_description_file_message">Fichier</string>
     <string name="content_description_ping_everyone">Ping</string>
@@ -132,7 +125,6 @@
     <string name="content_description_calling_call_unmuted">Appel rétabli</string>
     <string name="content_description_calling_call_paused_camera">Caméra en pause</string>
     <string name="content_description_more_emojis">Plus d\'émojis</string>
-    <string name="content_description_self_deletion_selector_button">Basculer en mode auto-suppression, bouton</string>
     <string name="content_description_message_sending_status">État d\'envoi des messages</string>
     <string name="content_description_message_sent_status">Statut du message envoyé</string>
     <string name="content_description_message_error_status">Statut d\'erreur du message</string>
@@ -367,7 +359,6 @@
     <string name="member_name_you_label_titlecase">Vous</string>
     <string name="member_name_you_label_lowercase">vous</string>
     <string name="label_add_participants">Ajouter des participants</string>
-    <string name="username_unavailable_label">Le nom n’est pas disponible</string>
     <string name="conversation_details_title">Détails de la conversation</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
@@ -425,7 +416,6 @@
     <string name="user_profile_details_tab">Informations</string>
     <string name="user_profile_devices_tab">Appareils</string>
     <string name="user_profile_role_change_error">Il y a eu une erreur en essayant de modifier le rôle. Veuillez vérifier votre connexion internet et réessayer</string>
-    <string name="user_profile_unblock_user">Débloquer l\'utilisateur</string>
     <string name="user_profile_logging_out_progress">Déconnexion...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) ne pourra ni envoyer ni recevoir de message dans cette conversation.</string>
@@ -475,7 +465,6 @@
     <!--Typing Indicator-->
     <!-- Search Messages -->
     <!-- Conversation Media -->
-    <!-- Search Contact-->
     <!-- Search Channels -->
     <!-- Snackbar messages -->
     <!-- Archiving -->
@@ -484,12 +473,9 @@
     <!-- Notifications -->
     <!-- Calling-->
     <!-- Connectivity Status Bar -->
-    <!-- Connections -->
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <!--sso dialog-->
     <!--prohibited asset messages -->
-    <!--wire dropdown-->
     <!--block user dialog -->
     <!--Settings -->
     <!--Settings, Appearance -->
@@ -498,7 +484,6 @@
     <!--Privacy Settings -->
     <!--Privacy Settings, App lock -->
     <!--Devices -->
-    <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--nomad account blocks login dialog-->
     <!--create and restore backup-->
@@ -521,10 +506,8 @@
     <!-- legal hold -->
     <!-- Sure want to send message Dialog -->
     <!-- Sure want to call Dialog -->
-    <!-- Go to app settings permissions dialog -->
     <!-- Share Location -->
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->

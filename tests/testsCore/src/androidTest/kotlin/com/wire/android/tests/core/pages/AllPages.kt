@@ -20,9 +20,11 @@ package com.wire.android.tests.core.pages
 import androidx.test.uiautomator.UiDevice
 
 class AllPages(val device: UiDevice) {
+    val commonAppPage = CommonAppPage(device)
     val registrationPage = RegistrationPage(device)
     val loginPage = LoginPage(device)
     val settingsPage = SettingsPage(device)
+    val appLockPage = AppLockPage(device)
     val unconnectedUserProfilePage = UnconnectedUserProfilePage(device)
 
     val connectedUserProfilePage = ConnectedUserProfilePage(device)
@@ -40,6 +42,8 @@ class AllPages(val device: UiDevice) {
     val ssoPage = SSOPage(device)
 
     val chromePage = ChromePage(device)
+
+    val teamCreationPage = TeamCreationPage(device)
 
     val selfUserProfilePage = SelfUserProfilePage(device)
     val callingPage = CallingPage(device)

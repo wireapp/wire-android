@@ -27,6 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
@@ -44,9 +46,11 @@ fun ArchiveEmptyContent(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            modifier = Modifier.padding(
-                bottom = dimensions().spacing24x,
-            ),
+            modifier = Modifier
+                .padding(
+                    bottom = dimensions().spacing24x,
+                )
+                .semantics { heading() },
             text = stringResource(R.string.archive_screen_empty_state_title),
             style = MaterialTheme.wireTypography.title01,
             color = MaterialTheme.wireColorScheme.onSurface,

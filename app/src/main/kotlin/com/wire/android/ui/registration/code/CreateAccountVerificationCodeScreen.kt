@@ -40,6 +40,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.authentication.createAccountVerificationCodeViewModel
 import com.wire.android.R
@@ -49,6 +51,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
 import com.wire.android.ui.common.WireDialog
@@ -116,12 +119,13 @@ fun CreateAccountVerificationCodeScreen(
             if (codeState.result is CreateAccountCodeResult.Success) {
                 navigateToUsernameScreen()
             }
-            if (codeState.result is CreateAccountCodeResult.Error.TooManyDevicesError) {
+            val tooManyDevicesError = codeState.result as? CreateAccountCodeResult.Error.TooManyDevicesError
+            if (tooManyDevicesError != null) {
                 clearCodeError()
                 clearCodeField()
                 navigator.navigate(
                     NavigationCommand(
-                        RemoveDeviceScreenDestination,
+                        RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(tooManyDevicesError.userId)),
                         BackStackMode.CLEAR_WHOLE
                     )
                 )
@@ -152,6 +156,7 @@ private fun CodeContent(
                     Text(
                         text = stringResource(id = R.string.create_personal_account_title),
                         style = MaterialTheme.wireTypography.title01,
+                        modifier = Modifier.semantics { heading() }
                     )
                     if (serverConfig.isOnPremises == true) {
                         ServerTitle(

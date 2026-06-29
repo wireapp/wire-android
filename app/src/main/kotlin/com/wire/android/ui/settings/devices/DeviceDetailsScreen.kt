@@ -156,7 +156,7 @@ fun DeviceDetailsContent(
     onUpdateClientVerification: (Boolean) -> Unit = {},
     onEnrollE2EIErrorDismiss: () -> Unit = {},
     onEnrollE2EISuccessDismiss: () -> Unit = {},
-    onBreakSession: () -> Unit = {}
+    onBreakSession: () -> Unit = {},
 ) {
     val screenState = rememberConversationScreenState()
     WireScaffold(

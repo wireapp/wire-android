@@ -18,10 +18,8 @@
 
 package com.wire.android.ui.debug
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -46,6 +44,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -58,13 +57,9 @@ import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
 import com.wire.android.ui.home.settings.backup.rememberBackUpAndRestoreStateHolder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.AppNameUtil
-import com.wire.android.util.getMimeType
-import com.wire.android.util.getUrisOfFilesInDirectory
-import com.wire.android.util.multipleFileSharingIntent
+import com.wire.android.util.logging.LogShareLauncher
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.launch
 import java.io.File
 
 @WireRootDestination
@@ -72,6 +67,8 @@ import java.io.File
 fun DebugScreen(
     navigator: Navigator,
     userDebugViewModel: UserDebugViewModel = userDebugViewModel(),
+    debugDataOptionsViewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel(),
+    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel(),
 ) {
     UserDebugContent(
         onNavigationPressed = navigator::navigateBack,
@@ -80,12 +77,23 @@ fun DebugScreen(
         onDeleteLogs = userDebugViewModel::deleteLogs,
         onFlushLogs = userDebugViewModel::flushLogs,
         onDatabaseLoggerEnabledChanged = userDebugViewModel::setDatabaseLoggerEnabledState,
-        onShowFeatureFlags = {
-            navigator.navigate(NavigationCommand(DebugFeatureFlagsScreenDestination))
+        debugDataOptionsContent = { debugContentState ->
+            DebugDataOptions(
+                appVersion = AppNameUtil.createAppName(),
+                buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
+                onCopyText = debugContentState::copyToClipboard,
+                onShowFeatureFlags = {
+                    navigator.navigate(NavigationCommand(DebugFeatureFlagsScreenDestination))
+                },
+                onShowCryptoStats = {
+                    navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
+                },
+                viewModel = debugDataOptionsViewModel,
+            )
         },
-        onShowCryptoStats = {
-            navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
-        }
+        dangerOptionsContent = {
+            DangerOptions(exportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel)
+        },
     )
 }
 
@@ -97,10 +105,8 @@ internal fun UserDebugContent(
     onDatabaseLoggerEnabledChanged: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
     onFlushLogs: () -> Deferred<Unit>,
-    onShowFeatureFlags: () -> Unit,
-    onShowCryptoStats: () -> Unit,
-    debugDataOptionsViewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel(),
-    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel(),
+    debugDataOptionsContent: @Composable (DebugContentState) -> Unit,
+    dangerOptionsContent: @Composable () -> Unit,
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
 
@@ -130,16 +136,9 @@ internal fun UserDebugContent(
                     onDBLoggerEnabledChange = onDatabaseLoggerEnabledChanged,
                     isPrivateBuild = BuildConfig.PRIVATE_BUILD,
                 )
-                DebugDataOptions(
-                    appVersion = AppNameUtil.createAppName(),
-                    buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
-                    onCopyText = debugContentState::copyToClipboard,
-                    onShowFeatureFlags = onShowFeatureFlags,
-                    onShowCryptoStats = onShowCryptoStats,
-                    viewModel = debugDataOptionsViewModel,
-                )
+                debugDataOptionsContent(debugContentState)
                 if (BuildConfig.PRIVATE_BUILD) {
-                    DangerOptions(exportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel)
+                    dangerOptionsContent()
                 }
             }
         }
@@ -148,8 +147,8 @@ internal fun UserDebugContent(
 
 @Composable
 fun DangerOptions(
+    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel,
     modifier: Modifier = Modifier,
-    exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel()
 ) {
 
     Column(modifier = modifier) {
@@ -193,14 +192,24 @@ fun rememberDebugContentState(logPath: String): DebugContentState {
     val clipboardManager = LocalClipboardManager.current
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
+    val shareLogsFailureMessage = stringResource(R.string.label_share_logs_failed)
+    val logShareLauncher = remember(context, coroutineScope, shareLogsFailureMessage) {
+        LogShareLauncher(
+            context = context,
+            coroutineScope = coroutineScope,
+            onFailure = {
+                Toast.makeText(context, shareLogsFailureMessage, Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
 
-    return remember {
+    return remember(context, clipboardManager, logPath, scrollState, logShareLauncher) {
         DebugContentState(
             context,
             clipboardManager,
             logPath,
             scrollState,
-            coroutineScope
+            logShareLauncher
         )
     }
 }
@@ -210,7 +219,7 @@ data class DebugContentState(
     val clipboardManager: ClipboardManager,
     val logPath: String,
     val scrollState: ScrollState,
-    val coroutineScope: CoroutineScope
+    val logShareLauncher: LogShareLauncher
 ) {
     fun copyToClipboard(text: String) {
         clipboardManager.setText(AnnotatedString(text))
@@ -222,20 +231,12 @@ data class DebugContentState(
     }
 
     fun shareLogs(onFlushLogs: () -> Deferred<Unit>) {
-        coroutineScope.launch {
-            // Flush any buffered logs before sharing to ensure completeness
-            onFlushLogs().await()
-            val dir = File(logPath).parentFile
-            val fileUris =
-                if (dir != null && dir.exists()) context.getUrisOfFilesInDirectory(dir) else arrayListOf()
-            val intent = context.multipleFileSharingIntent(fileUris)
-            // The first log file is simply text, not compressed. Get its mime type separately
-            // and set it as the mime type for the intent.
-            intent.type = fileUris.firstOrNull()?.getMimeType(context) ?: "text/plain"
-            // Get all other mime types and add them
-            val mimeTypes = fileUris.drop(1).mapNotNull { it.getMimeType(context) }
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toSet().toTypedArray())
-            context.startActivity(intent)
+        val dir = File(logPath).parentFile
+        if (dir != null && dir.exists()) {
+            logShareLauncher.shareLogs(dir) {
+                // Flush any buffered logs before sharing to ensure completeness.
+                onFlushLogs().await()
+            }
         }
     }
 }
@@ -253,7 +254,18 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onDeleteLogs = {},
         onFlushLogs = { CompletableDeferred(Unit) },
         onDatabaseLoggerEnabledChanged = {},
-        onShowFeatureFlags = {},
-        onShowCryptoStats = {},
+        debugDataOptionsContent = {
+            DebugDataOptions(
+                appVersion = AppNameUtil.createAppName(),
+                buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
+                onCopyText = it::copyToClipboard,
+                onShowFeatureFlags = {},
+                onShowCryptoStats = {},
+                viewModel = object : DebugDataOptionsViewModel {},
+            )
+        },
+        dangerOptionsContent = {
+            DangerOptions(exportObfuscatedCopyViewModel = object : ExportObfuscatedCopyViewModel {})
+        },
     )
 }

@@ -66,6 +66,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -79,6 +80,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.common.ObservePictureInPictureMode
 import com.wire.android.ui.calling.common.ObserveRotation
@@ -222,7 +224,7 @@ fun OngoingCallScreen(
         {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = R.string.camera_permission_dialog_description
                 )
             )
@@ -676,7 +678,8 @@ private fun OngoingCallTopBar(
                         text = conversationName,
                         style = MaterialTheme.wireTypography.title02,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.semantics { heading() }
                     )
                     ConversationVerificationIcons(
                         protocolInfo,

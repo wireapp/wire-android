@@ -38,6 +38,8 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
@@ -95,7 +97,7 @@ fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: ()
 @SuppressLint("ComposeComposableModifier")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
+fun Modifier.clickable(clickable: Clickable?, role: Role? = null) = clickable?.let {
     if (clickable.enabled) {
         val onClick = rememberClickBlockAction(clickable.clickBlockParams, clickable.onClick)
         val onLongClick = clickable.onLongClick?.let { onLongClick ->
@@ -106,11 +108,14 @@ fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
             onClick = onClick,
             onLongClick = onLongClick,
             onClickLabel = clickable.onClickDescription,
-            onLongClickLabel = clickable.onLongClickDescription
+            onLongClickLabel = clickable.onLongClickDescription,
+            role = role
         )
     } else {
         // even though element is disabled we want to merge all inner elements into one for TalkBack
-        this.semantics(mergeDescendants = true) { }
+        this.semantics(mergeDescendants = true) {
+            role?.let { this.role = it }
+        }
     }
 } ?: this
 

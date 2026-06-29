@@ -280,6 +280,62 @@ class ConversationMessagesViewModelTest {
         }
 
     @Test
+    fun `given offline state and multiple pending blocks, when adding offline indicator, then indicators have unique ids`() =
+        runTest {
+            val firstPending = regularMessage(id = "pending-1", flowStatus = MessageFlowStatus.Sending)
+            val firstSent = regularMessage(id = "sent-1")
+            val secondPending = regularMessage(id = "pending-2", flowStatus = MessageFlowStatus.Sending)
+            val secondSent = regularMessage(id = "sent-2")
+
+            val snapshot = flowOf(
+                PagingData.from(listOf<UIMessage>(firstPending, firstSent, secondPending, secondSent))
+                    .withOfflineIndicator(TEST_CONVERSATION_ID, isOffline = true)
+            ).asSnapshot()
+
+            val offlineIndicatorIds = snapshot
+                .map { it.header.messageId }
+                .filter { it.startsWith("offline-message:") }
+
+            assertEquals(offlineIndicatorIds.distinct(), offlineIndicatorIds)
+        }
+
+    @Test
+    fun `given network connected, when observing state, then isNetworkAvailable is true`() = runTest {
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        arrangement.networkState.value = NetworkState.ConnectedWithInternet
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.conversationViewState.isNetworkAvailable)
+    }
+
+    @Test
+    fun `given network disconnected, when observing state, then isNetworkAvailable is false`() = runTest {
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        arrangement.networkState.value = NetworkState.NotConnected
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.conversationViewState.isNetworkAvailable)
+    }
+
+    @Test
+    fun `given network without internet, when observing state, then isNetworkAvailable is false`() = runTest {
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        arrangement.networkState.value = NetworkState.ConnectedWithoutInternet
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.conversationViewState.isNetworkAvailable)
+    }
+
+    @Test
     fun `given online state, when adding offline indicator, then indicator is not inserted`() = runTest {
         val message = regularMessage(id = "sent")
 

@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.home
 
 import androidx.compose.runtime.Composable
@@ -22,8 +24,8 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.metroSavedStateViewModel
-import com.wire.android.di.metro.metroViewModel
+import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
+import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
@@ -31,6 +33,11 @@ import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+
+interface HomeManualViewModelFactory : ManualViewModelAssistedFactory {
+    fun conversationListViewModel(conversationsSource: ConversationsSource): ConversationListViewModelImpl
+}
 
 interface HomeViewModelGraph : MetroViewModelGraph {
     val homeViewModelFactory: HomeViewModelFactory
@@ -38,21 +45,23 @@ interface HomeViewModelGraph : MetroViewModelGraph {
 
 @Composable
 fun homeViewModel(): HomeViewModel =
-    metroSavedStateViewModel<HomeViewModelGraph, HomeViewModel> { homeViewModelFactory.homeViewModel(it) }
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun appSyncViewModel(): AppSyncViewModel =
-    metroViewModel<HomeViewModelGraph, AppSyncViewModel> { homeViewModelFactory.appSyncViewModel() }
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun homeDrawerViewModel(): HomeDrawerViewModel =
-    metroSavedStateViewModel<HomeViewModelGraph, HomeDrawerViewModel> { homeViewModelFactory.homeDrawerViewModel(it) }
+    sessionKeyedMetroViewModel()
 
 @Composable
 fun conversationListViewModel(conversationsSource: ConversationsSource): ConversationListViewModel = when {
     LocalInspectionMode.current -> ConversationListViewModelPreview()
-    else -> metroViewModel<HomeViewModelGraph, ConversationListViewModelImpl>(key = "list_$conversationsSource") {
-        homeViewModelFactory.conversationListViewModel(conversationsSource)
+    else -> sessionKeyedAssistedMetroViewModel<ConversationListViewModelImpl, HomeManualViewModelFactory>(
+        key = "list_$conversationsSource",
+    ) {
+        conversationListViewModel(conversationsSource)
     }
 }
 
@@ -62,12 +71,10 @@ fun newConversationViewModel(
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
 ): NewConversationViewModel =
-    metroViewModel<HomeViewModelGraph, NewConversationViewModel>(viewModelStoreOwner = viewModelStoreOwner) {
-        homeViewModelFactory.newConversationViewModel()
-    }
+    sessionKeyedMetroViewModel(
+        viewModelStoreOwner = viewModelStoreOwner,
+    )
 
 @Composable
 fun featureFlagNotificationViewModel(): FeatureFlagNotificationViewModel =
-    metroViewModel<HomeViewModelGraph, FeatureFlagNotificationViewModel> {
-        homeViewModelFactory.featureFlagNotificationViewModel()
-    }
+    sessionKeyedMetroViewModel()

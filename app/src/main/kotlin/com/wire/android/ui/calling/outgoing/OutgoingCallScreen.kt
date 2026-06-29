@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
@@ -92,7 +93,7 @@ fun OutgoingCallScreen(
             onCameraPermissionPermanentlyDenied = {
                 permissionPermanentlyDeniedDialogState.show(
                     PermissionPermanentlyDeniedDialogState.Visible(
-                        title = R.string.app_permission_dialog_title,
+                        title = commonR.string.app_permission_dialog_title,
                         description = R.string.camera_permission_dialog_description
                     )
                 )

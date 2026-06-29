@@ -18,20 +18,17 @@
 package com.wire.android.tests.core.e2eTests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.user.deleteUser
+import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
-import com.wire.android.tests.core.pages.AllPages
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.inject
 import user.utils.ClientUser
-import com.wire.android.tests.core.BaseUiTest
-import com.wire.android.tests.support.tags.Category
-import com.wire.android.tests.support.tags.TestCaseId
 
 /*
 This test works on the following conditions:
@@ -39,9 +36,6 @@ This test works on the following conditions:
 */
 @RunWith(AndroidJUnit4::class)
 class GdprTest : BaseUiTest() {
-    private val pages: AllPages by inject()
-    private lateinit var device: UiDevice
-    private lateinit var backendClient: BackendClient
     private var registeredUser: ClientUser? = null
 
     @Before

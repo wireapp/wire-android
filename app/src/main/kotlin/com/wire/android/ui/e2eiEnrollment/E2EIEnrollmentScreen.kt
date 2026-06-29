@@ -41,6 +41,7 @@ import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.clearSessionViewModel
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
+import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.common.TextWithLearnMore
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -65,12 +66,15 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 
 @WireRootDestination(
-    style = PopUpNavigationAnimation::class
+    style = PopUpNavigationAnimation::class,
+    navArgs = SessionBackedAuthenticationNavArgs::class,
 )
 @Composable
+@Suppress("UnusedParameter")
 fun E2EIEnrollmentScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
+    sessionBackedAuthenticationNavArgs: SessionBackedAuthenticationNavArgs,
     viewModel: E2EIEnrollmentViewModel = e2EIEnrollmentViewModel(),
     clearSessionViewModel: ClearSessionViewModel = clearSessionViewModel(),
 ) {
@@ -117,7 +121,7 @@ private fun E2EIEnrollmentScreenContent(
     openCertificateDetails: () -> Unit,
     onBackButtonClicked: () -> Unit,
     onCancelEnrollmentClicked: () -> Unit,
-    onProceedEnrollmentClicked: () -> Unit
+    onProceedEnrollmentClicked: () -> Unit,
 ) {
     BackHandler {
         onBackButtonClicked()

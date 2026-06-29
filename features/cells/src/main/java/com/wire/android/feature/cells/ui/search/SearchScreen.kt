@@ -41,6 +41,7 @@ import com.wire.android.feature.cells.ui.searchScreenViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
@@ -49,6 +50,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.cells.ui.common.OfflineBanner
+import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
@@ -83,7 +85,9 @@ fun SearchScreen(
     searchScreenViewModel: SearchScreenViewModel = searchScreenViewModel(),
 ) {
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
-    val isOnline by cellViewModel.isOnline.collectAsState()
+    val isOnlineState by cellViewModel.isOnline.collectAsState()
+    // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
+    val isOnline = isOnlineState || !cellViewModel.offlineFilesEnabled
 
     val filterTypeSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
     val filterTagsSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
@@ -250,6 +254,21 @@ fun SearchScreen(
                 },
                 showVersionHistoryScreen = { uuid, fileName ->
                     navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(uuid, fileName)))
+                },
+                showImageViewer = { file ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            CellImageViewerScreenDestination(
+                                CellImageViewerNavArgs(
+                                    localPath = file.localPath,
+                                    contentUrl = file.contentUrl,
+                                    previewUrl = file.previewUrl,
+                                    contentHash = file.contentHash,
+                                    fileName = file.name,
+                                )
+                            )
+                        )
+                    )
                 },
                 retryEditNodeError = { cellViewModel.editNode(it) },
                 isRefreshing = remember { mutableStateOf(false) },

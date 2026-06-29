@@ -7,7 +7,7 @@ grgitCore = "5.3.3"
 kotlin = "2.3.20"
 
 # KotlinX
-coroutines = "1.10.2"
+coroutines = "1.11.0"
 ktx-dateTime = "0.6.1"
 ktx-immutableCollections = "0.4.0"
 ktx-serialization = "1.11.0"
@@ -21,10 +21,10 @@ google-gms = "4.4.4"
 gms-location = "21.3.0"
 android-gradlePlugin = "9.0.1"
 desugaring = "2.1.5"
-firebaseBOM = "34.7.0"
+firebaseBOM = "34.13.0"
 fragment = "1.5.6"
 resaca = "5.0.2"
-metro = "1.1.1"
+metro = "1.2.0"
 bundlizer = "0.8.0"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
@@ -116,7 +116,6 @@ hamcrest = "3.0"
 rules = "1.7.0"
 zxing = "3.5.2"
 zxingAndroid = "4.3.0"
-gson = "2.13.2"
 allureKotlin = "2.4.0"
 androidx-test-services = "1.6.0"
 
@@ -163,6 +162,7 @@ googleGms-location = { module = "com.google.android.gms:play-services-location",
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
 kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
 metro-gradlePlugin = { module = "dev.zacsweers.metro:dev.zacsweers.metro.gradle.plugin", version.ref = "metro" }
+metrox-viewModelCompose = { module = "dev.zacsweers.metro:metrox-viewmodel-compose", version.ref = "metro" }
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }
@@ -189,6 +189,7 @@ android-desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", versio
 squareup-javapoet = { module = "com.squareup:javapoet", version.ref = "squareup-javapoet" }
 visibilityModifiers = { module = "io.github.esentsov:kotlin-visibility", version.ref = "visibilityModifiers" }
 resaca-core = { module = "io.github.sebaslogen:resaca", version.ref = "resaca" }
+resaca-metro = { module = "io.github.sebaslogen:resacametro", version.ref = "resaca" }
 bundlizer-core = { module = "dev.ahmedmourad.bundlizer:bundlizer-core", version.ref = "bundlizer" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBOM" }
 firebase-fcm = { module = "com.google.firebase:firebase-messaging" }
@@ -303,7 +304,6 @@ androidx-test-work = { module = "androidx.work:work-testing", version.ref = "and
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroid" }
-gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 # Test
 androidx-espresso-accessibility = { module = "androidx.test.espresso:espresso-accessibility", version.ref = "androidx-espresso" }

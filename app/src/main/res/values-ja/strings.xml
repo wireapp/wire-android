@@ -89,7 +89,6 @@
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">他のユーザーをメンション</string>
     <string name="content_description_send_button">送信</string>
-    <string name="content_description_timed_message_button">自動削除メッセージボタン</string>
     <string name="content_description_menu_button">メインナビゲーション</string>
     <string name="content_description_drop_down_icon">ドロップダウンの矢印</string>
     <string name="content_description_remove_devices_screen_device_item_icon">デバイス項目</string>
@@ -128,7 +127,6 @@
     <string name="content_description_calling_call_unmuted">通話のミュートが解除されました</string>
     <string name="content_description_calling_call_paused_camera">カメラが停止しました</string>
     <string name="content_description_more_emojis">その他の絵文字</string>
-    <string name="content_description_self_deletion_selector_button">自己削除モードの切り替えボタン</string>
     <string name="content_description_message_sending_status">メッセージ送信中の状態</string>
     <string name="content_description_message_sent_status">メッセージ送信後の状態</string>
     <string name="content_description_message_error_status">メッセージのエラー状態</string>
@@ -312,7 +310,6 @@
     <!-- Gallery -->
     <!--sso dialog-->
     <!--prohibited asset messages -->
-    <!--wire dropdown-->
     <!--block user dialog -->
     <!--Settings -->
     <!--Settings, Appearance -->
@@ -343,10 +340,8 @@
     <!-- legal hold -->
     <!-- Sure want to send message Dialog -->
     <!-- Sure want to call Dialog -->
-    <!-- Go to app settings permissions dialog -->
     <!-- Share Location -->
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->

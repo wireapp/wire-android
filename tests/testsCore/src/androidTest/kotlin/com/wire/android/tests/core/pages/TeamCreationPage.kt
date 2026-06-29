@@ -21,6 +21,7 @@ import android.view.KeyEvent
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
+import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
@@ -32,6 +33,8 @@ class TeamCreationPage(private val device: UiDevice) {
     private val createTeamHeading = UiSelectorParams(text = "Create a team")
     private val profileNameInputField = UiSelectorParams(resourceId = "display-name")
     private val teamNameInputField = UiSelectorParams(resourceId = "team-name")
+    private val passwordLabel = UiSelectorParams(text = "Password")
+    private val confirmPasswordLabel = UiSelectorParams(text = "Confirm password")
     private val organizationSizeDropdown = UiSelectorParams(text = "Please select")
     private val firstOrganizationSizeOption = UiSelectorParams(text = "1 - 25")
     private val continueButton = UiSelectorParams(text = "Continue")
@@ -67,17 +70,24 @@ class TeamCreationPage(private val device: UiDevice) {
     }
 
     fun enterPassword(password: String?): TeamCreationPage {
-        val passwordField = passwordTextFields().first()
+        val passwordField = inputFieldAfter(passwordLabel, "Password")
         passwordField.click()
         passwordField.text = password
         return this
     }
 
     fun enterConfirmPassword(password: String?): TeamCreationPage {
-        val confirmPasswordField = passwordTextFields().last()
+        val confirmPasswordField = inputFieldAfter(confirmPasswordLabel, "Confirm password")
         confirmPasswordField.click()
         confirmPasswordField.text = password
         return this
+    }
+
+    private fun inputFieldAfter(label: UiSelectorParams, text: String): UiObject2 {
+        val labelElement = UiWaitUtils.waitElement(label, timeout = 15.seconds)
+        val children = labelElement.parent.children
+        return children[children.indexOfFirst { it.text == text } + 1]
+            .findObject(By.clazz("android.widget.EditText"))
     }
 
     fun selectFirstOrganizationSizeOption(): TeamCreationPage {
@@ -93,6 +103,26 @@ class TeamCreationPage(private val device: UiDevice) {
 
     fun checkIAgreeToShareAnonymousUsageData(): TeamCreationPage {
         checkBoxAt(1)
+        return this
+    }
+
+    fun scrollToContinueButton(): TeamCreationPage {
+        UiScrollable(UiSelector().scrollable(true)).apply {
+            setAsVerticalList()
+            scrollForward()
+        }
+        return this
+    }
+
+    @Suppress("MagicNumber")
+    fun scrollDownALittle(): TeamCreationPage {
+        device.swipe(
+            device.displayWidth / 2,
+            (device.displayHeight * 0.45).toInt(),
+            device.displayWidth / 2,
+            (device.displayHeight * 0.55).toInt(),
+            10
+        )
         return this
     }
 
@@ -136,22 +166,5 @@ class TeamCreationPage(private val device: UiDevice) {
         if (!checkbox.isChecked) {
             checkbox.click()
         }
-    }
-
-    private fun passwordTextFields(): List<UiObject2> {
-        val textFields = sortedTextFields()
-        if (textFields.size < PASSWORD_FIELD_COUNT) {
-            throw AssertionError("Expected at least $PASSWORD_FIELD_COUNT text fields on Create a team page, but found ${textFields.size}")
-        }
-        return textFields.takeLast(PASSWORD_FIELD_COUNT)
-    }
-
-    private fun sortedTextFields(): List<UiObject2> =
-        device.findObjects(By.clazz("android.widget.EditText"))
-            .filter { !it.visibleBounds.isEmpty }
-            .sortedWith(compareBy({ it.visibleBounds.top }, { it.visibleBounds.left }))
-
-    private companion object {
-        const val PASSWORD_FIELD_COUNT = 2
     }
 }

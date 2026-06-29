@@ -21,7 +21,7 @@
     <!-- Connections -->
     <!-- Missing keyPackages dialog -->
     <!-- Search Contact-->
-    <string name="wire_dropdown_placeholder">Виберіть елемент</string>
     <!--wire dropdown-->
-        <string name="wire_dropdown_default_indicator">" (за замовчуванням)"</string>
+    <!-- No Activity Errors -->
+    <!-- Go to app settings permissions dialog -->
 </resources>

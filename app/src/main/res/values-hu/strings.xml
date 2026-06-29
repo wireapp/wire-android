@@ -98,7 +98,6 @@
     <string name="content_description_conversation_back_btn">Vissza a beszélgetések listájához</string>
     <string name="content_description_conversation_open_details_label">beszélgetés részleteinek megnyitása</string>
     <string name="content_description_send_button">Küldés</string>
-    <string name="content_description_timed_message_button">Önmegsemmisítő üzenetek gomb</string>
     <string name="content_description_menu_button">Menü gomb</string>
     <string name="content_description_drop_down_icon">Lefelé nyíló ikon</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Eszköz ikon</string>
@@ -141,7 +140,6 @@
     <string name="content_description_calling_call_unmuted">A hívás némítása feloldva</string>
     <string name="content_description_calling_call_paused_camera">Kamera felfüggesztve</string>
     <string name="content_description_more_emojis">További hangulatjelek</string>
-    <string name="content_description_self_deletion_selector_button">Önmegsemmisítő mód kapcsológombja</string>
     <string name="content_description_message_sending_status">Üzenet küldése állapot</string>
     <string name="content_description_message_sent_status">Üzenet elküldve állapot</string>
     <string name="content_description_message_error_status">Üzenet hiba állapot</string>

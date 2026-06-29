@@ -86,7 +86,7 @@ fun ConversationParticipantItem(
         },
         titleStartPadding = dimensions().spacing0x,
         title = {
-            FlowRow (itemVerticalAlignment = Alignment.CenterVertically) {
+            FlowRow(itemVerticalAlignment = Alignment.CenterVertically) {
                 HighlightName(
                     name = if (uiParticipant.unavailable) stringResource(commonR.string.username_unavailable_label) else uiParticipant.name,
                     searchQuery = searchQuery,

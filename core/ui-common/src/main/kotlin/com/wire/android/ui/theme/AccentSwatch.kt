@@ -205,7 +205,7 @@ private val LightRoles = AccentRoleMap(
     primaryButtonFocus = Tone.T700,
     primaryButtonSelected = Tone.T700,
 
-    secondaryButtonFocus = Tone.G30,
+    secondaryButtonFocus = Tone.T500,
     secondaryButtonFocusOutline = Tone.T500,
     secondaryButtonSelected = Tone.T50,
     secondaryButtonSelectedOutline = Tone.T300,
@@ -236,16 +236,16 @@ private val DarkRoles = AccentRoleMap(
     primaryContainer = Tone.T400, // TODO for bubbles should be 800 or 900
 
     primaryButtonEnabled = Tone.T500,
-    primaryButtonFocus = Tone.T400, // TODO should be darker
+    primaryButtonFocus = Tone.T50,
     primaryButtonSelected = Tone.T400,
 
-    secondaryButtonFocus = Tone.T800,
+    secondaryButtonFocus = Tone.White,
     secondaryButtonFocusOutline = Tone.T500,
     secondaryButtonSelected = Tone.T800,
     secondaryButtonSelectedOutline = Tone.T500,
     onSecondaryButtonSelected = Tone.White,
 
-    tertiaryButtonFocusOutline = Tone.T500,
+    tertiaryButtonFocusOutline = Tone.White,
     tertiaryButtonSelected = Tone.G95,
     tertiaryButtonSelectedOutline = Tone.G90,
     onTertiaryButtonSelected = Tone.T500,

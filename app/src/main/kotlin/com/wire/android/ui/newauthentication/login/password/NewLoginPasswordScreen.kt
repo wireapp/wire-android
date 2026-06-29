@@ -22,6 +22,7 @@ import com.wire.android.navigation.annotation.app.WireNewLoginDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -74,6 +75,7 @@ import com.wire.android.ui.authentication.welcome.isProxyEnabled
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.focusedBorder
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.common.textfield.DefaultEmailNext
 import com.wire.android.ui.common.textfield.DefaultPassword
@@ -374,6 +376,8 @@ private fun CreateAccountContent(onCreateAccountClicked: () -> Unit, modifier: M
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(dimensions().spacing8x)
         ) {
+            val interactionSource = remember { MutableInteractionSource() }
+            val isFocused = interactionSource.collectIsFocusedAsState()
             Text(
                 text = stringResource(R.string.enterprise_login_create_account_label),
                 style = typography().body01,
@@ -388,8 +392,9 @@ private fun CreateAccountContent(onCreateAccountClicked: () -> Unit, modifier: M
                 ),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
+                    .focusedBorder(isFocused.value)
                     .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
+                        interactionSource = interactionSource,
                         indication = null,
                         onClick = onCreateAccountClicked,
                         onClickLabel = stringResource(R.string.content_description_self_profile_new_account_btn)

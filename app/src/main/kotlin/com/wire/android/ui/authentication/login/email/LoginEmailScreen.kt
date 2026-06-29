@@ -21,6 +21,7 @@ package com.wire.android.ui.authentication.login.email
 import android.content.Context
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,6 +70,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
 import com.wire.android.ui.common.textfield.DefaultEmailNext
 import com.wire.android.ui.common.textfield.DefaultPassword
+import com.wire.android.ui.common.focusedBorder
 import com.wire.android.ui.common.textfield.WireAutoFillType
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
@@ -330,11 +332,13 @@ private fun PasswordInput(passwordState: TextFieldState, state: WireTextFieldSta
 @Composable
 fun ForgotPasswordLabel(
     forgotPasswordUrl: String,
+    modifier: Modifier = Modifier,
     textColor: Color = colorsScheme().primary,
-    modifier: Modifier = Modifier
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val context = LocalContext.current
+        val interactionSource = remember { MutableInteractionSource() }
+        val isFocused = interactionSource.collectIsFocusedAsState()
         Text(
             text = stringResource(R.string.login_forgot_password),
             style = MaterialTheme.wireTypography.body02.copy(
@@ -343,8 +347,9 @@ fun ForgotPasswordLabel(
             ),
             textAlign = TextAlign.Center,
             modifier = Modifier
+                .focusedBorder(isFocused.value)
                 .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
+                    interactionSource = interactionSource,
                     indication = null,
                     role = Role.Button,
                     onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
@@ -365,9 +370,9 @@ private fun openForgotPasswordPage(context: Context, forgotPasswordUrl: String) 
 fun LoginButton(
     loading: Boolean,
     enabled: Boolean,
+    modifier: Modifier = Modifier,
     text: String = stringResource(R.string.label_login),
     loadingText: String = stringResource(R.string.label_logging_in),
-    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }

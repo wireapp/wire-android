@@ -113,7 +113,11 @@ class NewMeetingViewModelImpl(
     }
 
     override fun updateStartTime(startTime: Instant) {
-        state = state.copy(startTime = startTime)
+        val currentDuration = state.endTime - state.startTime
+        state = state.copy(
+            startTime = startTime,
+            endTime = startTime.plus(currentDuration) // adjust end time based on the new start time but keep the same duration
+        )
         validateStartAndEndTime()
     }
 
@@ -170,12 +174,9 @@ class NewMeetingViewModelImpl(
 }
 
 internal fun getNextFullHour(now: Instant, timeZone: TimeZone = TimeZone.currentSystemDefault()): Instant {
-    val localNow = now.toLocalDateTime(timeZone)
-    val hasPassedTime = localNow.minute > 0 || localNow.second > 0 || localNow.nanosecond > 0
-    val targetDateTime = if (hasPassedTime) {
-        val futureHour = now.plus(1, DateTimeUnit.HOUR, timeZone)
-        val localFuture = futureHour.toLocalDateTime(timeZone)
-        LocalDateTime(
+    val futureHour = now.plus(1, DateTimeUnit.HOUR, timeZone)
+    val localFuture = futureHour.toLocalDateTime(timeZone)
+    return LocalDateTime(
             year = localFuture.year,
             monthNumber = localFuture.monthNumber,
             dayOfMonth = localFuture.dayOfMonth,
@@ -183,11 +184,7 @@ internal fun getNextFullHour(now: Instant, timeZone: TimeZone = TimeZone.current
             minute = 0,
             second = 0,
             nanosecond = 0
-        )
-    } else {
-        localNow
-    }
-    return targetDateTime.toInstant(timeZone)
+        ).toInstant(timeZone)
 }
 
 @Stable

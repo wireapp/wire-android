@@ -211,6 +211,7 @@ fun NewMeetingContent(
                     RepeatingIntervalDropDown(
                         repeatingInterval = state.repeatingInterval,
                         onRepeatingIntervalChanged = onRepeatingIntervalChanged,
+                        items = MeetingItem.RepeatingInterval.entries.minus(MeetingItem.RepeatingInterval.Annually),
                     )
                 }
                 VerticalSpace.x24()

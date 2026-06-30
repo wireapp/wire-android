@@ -77,8 +77,8 @@ class NewMeetingViewModelTest {
         )
 
         assertEquals(NewMeetingType.Schedule, viewModel.type)
-        assertEquals(currentTime, viewModel.state.startTime)
-        assertEquals(currentTime + 1.hours, viewModel.state.endTime)
+        assertEquals(currentTime + 1.hours, viewModel.state.startTime) // next full hour
+        assertEquals(currentTime + 2.hours, viewModel.state.endTime) // start time + 1 hour
         assertFalse(viewModel.state.continueButtonEnabled)
         assertNull(viewModel.state.titleError)
         assertNull(viewModel.state.startTimeError)

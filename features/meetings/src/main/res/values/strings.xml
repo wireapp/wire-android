@@ -21,7 +21,7 @@
     <string name="meeting_repeating_never">Never</string>
     <string name="meeting_repeating_daily">Daily</string>
     <string name="meeting_repeating_weekly">Weekly</string>
-    <string name="meeting_repeating_biweekly">Biweekly</string>
+    <string name="meeting_repeating_biweekly">Every 2 weeks</string>
     <string name="meeting_repeating_monthly">Monthly</string>
     <string name="meeting_repeating_annually">Annually</string>
     <string name="meeting_started_at">Started at %1$s</string>

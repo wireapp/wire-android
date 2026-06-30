@@ -43,6 +43,7 @@ class DebugScreenComposeTest {
                     onFlushLogs = { CompletableDeferred(Unit) },
                     debugDataOptionsContent = {},
                     dangerOptionsContent = {},
+                    onShareLogsViaWire = {},
                 )
             }
         }

@@ -31,7 +31,9 @@ import com.wire.android.ui.theme.wireColorScheme
 fun wirePrimaryButtonColors() = wireButtonColors(
     enabled = MaterialTheme.wireColorScheme.primaryButtonEnabled,
     onEnabled = MaterialTheme.wireColorScheme.onPrimaryButtonEnabled,
-    enabledOutline = MaterialTheme.wireColorScheme.primaryButtonEnabled,
+    enabledOutline = MaterialTheme.wireColorScheme.primaryButtonSelected,
+    focused = MaterialTheme.wireColorScheme.primaryButtonFocused,
+    focusedOutline = MaterialTheme.wireColorScheme.primaryButtonRipple,
     enabledRipple = MaterialTheme.wireColorScheme.primaryButtonRipple,
     disabled = MaterialTheme.wireColorScheme.primaryButtonDisabled,
     onDisabled = MaterialTheme.wireColorScheme.onPrimaryButtonDisabled,
@@ -63,6 +65,7 @@ fun wireSecondaryButtonColors() = wireButtonColors(
     onEnabled = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
     enabledOutline = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
     enabledRipple = MaterialTheme.wireColorScheme.secondaryButtonRipple,
+    focused = MaterialTheme.wireColorScheme.secondaryButtonFocused,
     disabled = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
     onDisabled = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
     disabledOutline = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
@@ -91,6 +94,7 @@ fun wireTertiaryButtonColors() = wireButtonColors(
     onDisabled = MaterialTheme.wireColorScheme.onTertiaryButtonDisabled,
     disabledOutline = MaterialTheme.wireColorScheme.tertiaryButtonDisabled,
     disabledRipple = MaterialTheme.wireColorScheme.tertiaryButtonRipple,
+    focused = MaterialTheme.wireColorScheme.tertiaryButtonFocused,
     selected = MaterialTheme.wireColorScheme.tertiaryButtonSelected,
     onSelected = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
     selectedOutline = MaterialTheme.wireColorScheme.tertiaryButtonSelectedOutline,
@@ -135,8 +139,10 @@ private fun wireButtonColors(
     onPositive: Color,
     positiveOutline: Color,
     positiveRipple: Color,
+    focused: Color = enabled,
+    focusedOutline: Color = enabledOutline,
 ) = WireButtonColors(
-    enabled, onEnabled, enabledOutline, enabledRipple,
+    enabled, onEnabled, enabledOutline, focused, focusedOutline, enabledRipple,
     disabled, onDisabled, disabledOutline, disabledRipple,
     selected, onSelected, selectedOutline, selectedRipple,
     error, onError, errorOutline, errorRipple,
@@ -148,6 +154,8 @@ data class WireButtonColors(
     val enabled: Color,
     val onEnabled: Color,
     val enabledOutline: Color,
+    val focused: Color,
+    val focusedOutline: Color,
     val enabledRipple: Color,
     val disabled: Color,
     val onDisabled: Color,
@@ -168,9 +176,9 @@ data class WireButtonColors(
 ) {
 
     @Composable
-    fun containerColor(state: WireButtonState): State<Color> = animateColorAsState(
+    fun containerColor(state: WireButtonState, isFocused: Boolean = false): State<Color> = animateColorAsState(
         when (state) {
-            WireButtonState.Default -> enabled
+            WireButtonState.Default -> if (isFocused) focused else enabled
             WireButtonState.Disabled -> disabled
             WireButtonState.Selected -> selected
             WireButtonState.Error -> error
@@ -179,9 +187,9 @@ data class WireButtonColors(
     )
 
     @Composable
-    fun outlineColor(state: WireButtonState): State<Color> = animateColorAsState(
+    fun outlineColor(state: WireButtonState, isFocused: Boolean = false): State<Color> = animateColorAsState(
         when (state) {
-            WireButtonState.Default -> enabledOutline
+            WireButtonState.Default -> if (isFocused) focusedOutline else enabledOutline
             WireButtonState.Disabled -> disabledOutline
             WireButtonState.Selected -> selectedOutline
             WireButtonState.Error -> errorOutline

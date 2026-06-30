@@ -182,8 +182,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 "user1Name",
                 "Hello to you too!",
                 "Device1",
-                "user3Name",
-                false
+                "user3Name"
             )
 
             closeKeyboardIfOpened()

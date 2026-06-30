@@ -226,8 +226,7 @@ class ChannelTest : BaseUiTest() {
                 "user3Name",
                 "Hello from Member2",
                 "Device2",
-                "TestChannel",
-                false
+                "TestChannel"
             )
         }
 
@@ -449,8 +448,7 @@ class ChannelTest : BaseUiTest() {
                 "user3Name",
                 "Hello from Member2",
                 "Device2",
-                "LeavingChannel",
-                false
+                "LeavingChannel"
             )
         }
 
@@ -520,8 +518,7 @@ class ChannelTest : BaseUiTest() {
                 "user3Name",
                 "Hello Again",
                 "Device2",
-                "LeavingChannel",
-                false
+                "LeavingChannel"
             )
         }
 
@@ -1514,8 +1511,7 @@ class ChannelTest : BaseUiTest() {
                 "user2Name",
                 "Hello from Member1",
                 "Device1",
-                "DeleteMe",
-                false
+                "DeleteMe"
             )
         }
 
@@ -1612,8 +1608,7 @@ class ChannelTest : BaseUiTest() {
                 "user3Name",
                 "Hello from Member2",
                 "Device2",
-                "Stay",
-                false
+                "Stay"
             )
         }
 

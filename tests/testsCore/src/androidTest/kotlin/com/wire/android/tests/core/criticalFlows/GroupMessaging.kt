@@ -128,7 +128,7 @@ class GroupMessaging : BaseUiTest() {
         step("Send a message to the group conversation as another member via backend") {
             testServiceHelper.apply {
                 addDevice("user2Name", null, "Device1")
-                userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam", false)
+                userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam")
             }
         }
 

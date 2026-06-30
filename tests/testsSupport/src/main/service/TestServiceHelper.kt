@@ -55,6 +55,7 @@ class TestServiceHelper(
     private val usersManager: ClientUserManager
 ) {
     val wireReceiptMode = "WIRE_RECEIPT_MODE"
+    private val noExpirationTimeout = Duration.ZERO
 
     val testServiceClient by lazy {
         TestService("http://192.168.2.18:8080", "TestService")
@@ -120,7 +121,7 @@ class TestServiceHelper(
             return Duration.ofMillis(conversationMessageTimerMillis.toLong())
         }
 
-        return Duration.ofMillis(Int.MAX_VALUE.toLong()) // ~24.8 days, safe int millis
+        return noExpirationTimeout
     }
 
     private fun getConversationMessageTimer(user: ClientUser, conversationName: String): Int {
@@ -386,8 +387,7 @@ class TestServiceHelper(
         senderAlias: String,
         msg: String,
         deviceName: String,
-        dstConvoName: String,
-        isSelfDeleting: Boolean
+        dstConvoName: String
     ) {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObj(clientUser, dstConvoName)
@@ -396,7 +396,7 @@ class TestServiceHelper(
             conversation = conversation,
             msg = msg,
             deviceName = deviceName,
-            timeout = resolveMessageTimeout(senderAlias, dstConvoName, isSelfDeleting)
+            timeout = resolveMessageTimeout(senderAlias, dstConvoName)
         )
     }
 
@@ -404,8 +404,7 @@ class TestServiceHelper(
         senderAlias: String,
         msg: String,
         deviceName: String,
-        dstConvoName: String,
-        isSelfDeleting: Boolean
+        dstConvoName: String
     ) {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObjPersonal(clientUser, dstConvoName)
@@ -414,7 +413,7 @@ class TestServiceHelper(
             conversation = conversation,
             msg = msg,
             deviceName = deviceName,
-            timeout = resolveMessageTimeout(senderAlias, dstConvoName, isSelfDeleting)
+            timeout = resolveMessageTimeout(senderAlias, dstConvoName)
         )
     }
 
@@ -437,14 +436,13 @@ class TestServiceHelper(
                 senderAlias = senderAlias,
                 convoName = convoName,
                 deviceName = deviceName,
-                isSelfDeleting = false,
                 msg = message,
                 title = title,
                 imagePath = tempFile.absolutePath
             )
 
             tempFile.deleteOnExit()
-        } ?: userSendMessageToConversation(senderAlias, message, deviceName.orEmpty(), convoName, false)
+        } ?: userSendMessageToConversation(senderAlias, message, deviceName.orEmpty(), convoName)
     }
 
     @Suppress("LongParameterList")
@@ -452,7 +450,6 @@ class TestServiceHelper(
         senderAlias: String,
         convoName: String,
         deviceName: String? = null,
-        isSelfDeleting: Boolean = true,
         msg: String,
         title: String,
         imagePath: String
@@ -465,6 +462,7 @@ class TestServiceHelper(
 
         val user = toClientUser(senderAlias)
         val conversation = toConvoObj(user, convoName)
+        val messageTimer = resolveMessageTimeout(senderAlias, convoName)
 
         testServiceClient.sendLinkPreview(
             SendTextWithLinkParams(
@@ -483,8 +481,8 @@ class TestServiceHelper(
                 filePath = imagePath,
                 imagePath = imagePath,
                 imageFile = File(imagePath),
-                timeout = Duration.ofSeconds(1000),
-                messageTimer = if (isSelfDeleting) Duration.ofSeconds(1000) else Duration.ZERO,
+                timeout = messageTimer,
+                messageTimer = messageTimer,
             )
         )
     }
@@ -540,33 +538,27 @@ class TestServiceHelper(
 
     private fun resolveMessageTimeout(
         senderAlias: String,
-        dstConvoName: String,
-        isSelfDeleting: Boolean
+        dstConvoName: String
     ): Duration {
-        return if (isSelfDeleting) {
-            Duration.ofSeconds(1000)
-        } else {
-            getSelfDeletingMessageTimeout(senderAlias, dstConvoName).let { timeout ->
-                if (timeout == Duration.ofMillis(Int.MAX_VALUE.toLong())) Duration.ZERO else timeout
-            }
-        }
+        return getSelfDeletingMessageTimeout(senderAlias, dstConvoName)
     }
 
     fun userXSharesLocationTo(
         senderAlias: String,
         convoName: String,
-        deviceName: String,
-        isSelfDeleting: Boolean
+        deviceName: String
     ) {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObj(clientUser, convoName)
+        val timeout = resolveMessageTimeout(senderAlias, convoName)
+
         testServiceClient.sendLocation(
             SendLocationParams(
                 owner = clientUser,
                 deviceName = deviceName,
                 convoId = conversation.id,
                 convoDomain = conversation.qualifiedID.domain,
-                timeout = if (isSelfDeleting) Duration.ofSeconds(1000) else Duration.ZERO,
+                timeout = timeout,
                 longitude = 0f,
                 latitude = 0f,
                 locationName = "location",

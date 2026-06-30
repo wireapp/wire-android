@@ -162,8 +162,7 @@ class UpgradeVersion : BaseUiTest() {
                     "user3Name",
                     "Hello!",
                     "Device1",
-                    "UpgradeVersion",
-                    false
+                    "UpgradeVersion"
                 )
             }
         }
@@ -198,8 +197,7 @@ class UpgradeVersion : BaseUiTest() {
                 "user3Name",
                 "Hello friend",
                 "Device1",
-                "user2Name",
-                false
+                "user2Name"
             )
         }
 

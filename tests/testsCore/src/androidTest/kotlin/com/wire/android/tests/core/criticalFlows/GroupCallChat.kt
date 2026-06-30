@@ -176,8 +176,7 @@ class GroupCallChat : BaseCallUiTest() {
                     "user2Name",
                     "Hello Friends",
                     "Device1",
-                    "GroupCallChat",
-                    false
+                    "GroupCallChat"
                 )
             }
         }
@@ -212,8 +211,7 @@ class GroupCallChat : BaseCallUiTest() {
             testServiceHelper.userXSharesLocationTo(
                 "user3Name",
                 "GroupCallChat",
-                "Device1",
-                false
+                "Device1"
             )
 
             pages.conversationViewPage.apply {

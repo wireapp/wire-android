@@ -166,8 +166,7 @@ class GroupInteraction : BaseUiTest() {
                     "user2Name",
                     "Hello fellow members",
                     "Device2",
-                    "BotsConversation",
-                    false
+                    "BotsConversation"
                 )
             }
         }

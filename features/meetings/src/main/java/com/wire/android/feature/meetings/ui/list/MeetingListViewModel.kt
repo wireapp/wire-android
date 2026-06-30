@@ -26,6 +26,7 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.wire.android.feature.meetings.mapper.toMeetingItem
+import com.wire.android.feature.meetings.mapper.toOngoingCallStatus
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
@@ -34,6 +35,7 @@ import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.usecase.GetMeetingsPaginatedUseCase
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -75,6 +77,7 @@ class MeetingListViewModelImpl(
     val type: MeetingsTabItem,
     override val currentTimeProvider: CurrentTimeProvider,
     getMeetingsPaginated: GetMeetingsPaginatedUseCase,
+    observeActiveCalls: ObserveActiveCallsUseCase,
     dispatcher: DispatcherProvider,
 ) : ViewModel(), MeetingListViewModel {
     override val isShowingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
@@ -93,10 +96,15 @@ class MeetingListViewModelImpl(
         .flowOn(dispatcher.io())
         .cachedIn(viewModelScope)
 
-    override val meetings: Flow<PagingData<MeetingListItem>> = combine(pagingDataFlow, alignedTickerFlow) { pagingData, currentTime ->
+    override val meetings: Flow<PagingData<MeetingListItem>> = combine(
+        pagingDataFlow,
+        observeActiveCalls(),
+        alignedTickerFlow
+    ) { pagingData, activeCalls, currentTime ->
         pagingData
             .map { rawMeeting ->
-                rawMeeting.toMeetingItem(time = currentTime)
+                val activeCall = activeCalls.find { it.conversationId == rawMeeting.conversationId }
+                rawMeeting.toMeetingItem(time = currentTime, ongoingCallStatus = activeCall?.toOngoingCallStatus())
             }
             .insertHeaders(type = type)
     }

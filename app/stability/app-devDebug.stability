@@ -1964,6 +1964,12 @@ public fun com.wire.android.ui.calling.incomingCallViewModel(conversationId: com
     - conversationId: STABLE (matched by stability configuration)
 
 @Composable
+public fun com.wire.android.ui.calling.meetingsCallViewModel(): com.wire.android.ui.home.meetings.MeetingsCallViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 private fun com.wire.android.ui.calling.ongoing.CallingControls(conversationId: com.wire.kalium.logic.data.id.QualifiedID, isMuted: kotlin.Boolean, isCameraOn: kotlin.Boolean, isSpeakerOn: kotlin.Boolean, isShowingCallReactions: kotlin.Boolean, isConnecting: kotlin.Boolean, inCallReactionsEnabled: kotlin.Boolean, toggleSpeaker: kotlin.Function0<kotlin.Unit>, toggleMute: kotlin.Function0<kotlin.Unit>, onHangUpCall: kotlin.Function0<kotlin.Unit>, onToggleVideo: kotlin.Function0<kotlin.Unit>, onCallReactionsClick: kotlin.Function0<kotlin.Unit>, onCameraPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -4872,6 +4878,12 @@ private fun com.wire.android.ui.home.conversations.banner.styleBannerText(uiText
   params:
     - uiText: STABLE (class with no mutable properties)
     - spannedTexts: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.ui.home.conversations.call.HandleActions(): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
 
 @Composable
 public fun com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs(): kotlin.Unit
@@ -8020,11 +8032,12 @@ public fun com.wire.android.ui.home.homeViewModel(): com.wire.android.ui.home.Ho
   params:
 
 @Composable
-public fun com.wire.android.ui.home.meetings.MeetingsScreen(homeStateHolder: com.wire.android.ui.home.HomeStateHolder): kotlin.Unit
+public fun com.wire.android.ui.home.meetings.MeetingsScreen(homeStateHolder: com.wire.android.ui.home.HomeStateHolder, viewModel: com.wire.android.ui.home.meetings.MeetingsCallViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - homeStateHolder: UNSTABLE (has mutable properties or unstable members)
+    - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
 public fun com.wire.android.ui.home.messagecomposer.ActiveMessageComposerInput(conversationId: com.wire.kalium.logic.data.id.QualifiedID, messageComposition: com.wire.android.ui.home.messagecomposer.model.MessageComposition, messageTextState: androidx.compose.foundation.text.input.TextFieldState, isTextExpanded: kotlin.Boolean, inputType: com.wire.android.ui.home.messagecomposer.state.InputType, focusRequester: androidx.compose.ui.focus.FocusRequester, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, canSendMessage: kotlin.Boolean, onSendButtonClicked: kotlin.Function0<kotlin.Unit>, onEditButtonClicked: kotlin.Function0<kotlin.Unit>, onChangeSelfDeletionClicked: kotlin.Function1<@[ParameterName(name = \, onToggleInputSize: kotlin.Function0<kotlin.Unit>, onCancelReply: kotlin.Function0<kotlin.Unit>, onCancelEdit: kotlin.Function0<kotlin.Unit>, onFocused: kotlin.Function0<kotlin.Unit>, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>, showOptions: kotlin.Boolean, optionsSelected: kotlin.Boolean, onPlusClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit

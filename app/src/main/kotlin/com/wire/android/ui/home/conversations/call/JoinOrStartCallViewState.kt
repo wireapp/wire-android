@@ -17,15 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.call
 
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
-
 data class JoinOrStartCallViewState(
     val hasEstablishedCall: Boolean = false,
     val dialogType: JoinOrStartCallScreenDialogType = JoinOrStartCallScreenDialogType.None
 )
-
-sealed interface JoinOrStartCallViewActions {
-    data class JoinedCall(val conversationId: ConversationId, val userId: UserId) : JoinOrStartCallViewActions
-    data class InitiatedCall(val conversationId: ConversationId, val userId: UserId) : JoinOrStartCallViewActions
-}

@@ -42,6 +42,7 @@ import com.wire.android.ui.common.rowitem.EmptyListArrowFooter
 import com.wire.android.ui.common.rowitem.EmptyListContent
 import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.theme.WireTheme
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Suppress("CyclomaticComplexMethod")
 @Composable
@@ -51,6 +52,9 @@ fun MeetingList(
     contentPadding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
     openMeetingOptions: (meetingId: String) -> Unit = {},
+    startCall: (conversationId: ConversationId) -> Unit = {},
+    joinCall: (conversationId: ConversationId) -> Unit = {},
+    returnToCall: (conversationId: ConversationId) -> Unit = {},
 ) {
     val meetingListViewModel: MeetingListViewModel = when {
         LocalInspectionMode.current -> remember(type) { MeetingListViewModelPreview(type = type) }
@@ -99,7 +103,10 @@ fun MeetingList(
                             is MeetingItem -> MeetingItem(
                                 meeting = item,
                                 modifier = Modifier.animateItem(),
-                                openMeetingOptions = openMeetingOptions
+                                openMeetingOptions = openMeetingOptions,
+                                startCall = startCall,
+                                joinCall = joinCall,
+                                returnToCall = returnToCall,
                             )
                         }
                     }

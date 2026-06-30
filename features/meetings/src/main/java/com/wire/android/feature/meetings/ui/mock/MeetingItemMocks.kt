@@ -73,7 +73,7 @@ val CurrentTimeProvider.ongoingAttendingOneOnOneMeeting
             startTime = currentTime().fullMinutes().minus(15.minutes),
             scheduledEndTime = currentTime().fullMinutes().plus(45.minutes),
             ongoingCallStatus = MeetingItem.OngoingCallStatus(
-                currentCallStartedTime = currentTime().fullMinutes().minus(15.minutes),
+                currentCallEstablishedTime = currentTime().fullMinutes().minus(15.minutes),
                 isSelfUserAttending = true,
             )
         )
@@ -331,6 +331,5 @@ data class Meeting(
     val startTime: Instant,
     val endTime: Instant?,
     val repeatingInterval: MeetingItem.RepeatingInterval,
-    val ongoingCallStatus: MeetingItem.OngoingCallStatus?,
     val selfRole: SelfRole,
 )

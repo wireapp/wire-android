@@ -34,6 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.wireDimensions
@@ -91,6 +96,10 @@ fun SwipeableSnackbar(
         snackbarData = data,
         shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonSmallCornerSize),
         modifier = modifier
+            .semantics {
+                text = AnnotatedString(data.visuals.message)
+                liveRegion = LiveRegionMode.Polite
+            }
             .anchoredDraggable(
                 state = state,
                 orientation = Orientation.Horizontal

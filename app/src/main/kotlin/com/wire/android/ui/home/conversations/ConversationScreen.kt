@@ -214,9 +214,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import java.util.Date
-import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 import com.wire.android.ui.common.R as commonR
+import androidx.compose.ui.platform.LocalLocale
 
 /**
  * The maximum number of messages the user can scroll while still
@@ -1632,7 +1632,7 @@ private fun MessageGroupDateTime(
             HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
             HorizontalSpace.x4()
             Text(
-                text = timeString.uppercase(Locale.getDefault()),
+                text = timeString.uppercase(LocalLocale.current.platformLocale),
                 maxLines = 1,
                 color = colorsScheme().onBackground,
                 style = MaterialTheme.wireTypography.label02,
@@ -1656,7 +1656,7 @@ private fun MessageGroupDateTime(
                 )
         ) {
             Text(
-                text = timeString.uppercase(Locale.getDefault()),
+                text = timeString.uppercase(LocalLocale.current.platformLocale),
                 color = colorsScheme().secondaryText,
                 style = MaterialTheme.wireTypography.title03,
             )

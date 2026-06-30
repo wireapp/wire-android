@@ -19,7 +19,6 @@ package com.wire.android.tests.core.criticalFlows
 
 import InbucketClient
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.runner.RunWith
 import backendUtils.BackendClient
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -28,6 +27,7 @@ import com.wire.android.tests.support.tags.TestCaseId
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
@@ -56,7 +56,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
     @Test
     fun givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved() {
         step("Prepare backend users and device") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "chatFriend",
                 "en_US",
@@ -65,8 +65,8 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 context
             )
 
-            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-            personalUser = teamHelper.usersManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            personalUser = clientUserManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
 
             testServiceHelper.addDevice("user1Name", null, "Device1")
         }
@@ -130,7 +130,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 assertConversationPageVisible()
             }
             // Register the UI-created personal user so shared teardown can see and delete it.
-            personalUser?.let(teamHelper.usersManager::appendCustomUser)
+            personalUser?.let(::trackCreatedUserForCleanup)
         }
 
         step("Send connection request to existing team owner") {
@@ -138,7 +138,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
 
             pages.searchPage.apply {
                 tapSearchPeopleField()
-                typeUniqueUserNameInSearchField(teamHelper, "user1Name")
+                typeUniqueUserNameInSearchField(clientUserManager, "user1Name")
                 assertUsernameInSearchResultIs(teamOwner?.name ?: "")
                 tapUsernameInSearchResult(teamOwner?.name ?: "")
             }
@@ -154,10 +154,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
         }
 
         step("Accept connection request via backend and start conversation") {
-            runBlocking {
-                val user = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
-                backendClient.acceptAllIncomingConnectionRequests(user)
-            }
+            backendSetupHelper.userAcceptsAllIncomingConnectionRequests("user1Name", backendClient)
             UiWaitUtils.waitFor(1.seconds)
             pages.conversationListPage.apply {
                 assertPendingStatusIsNoLongerVisible()

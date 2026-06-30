@@ -19,6 +19,8 @@ package com.wire.android.tests.core.e2eTests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import backendUtils.BackendClient
+import backendUtils.client.getBackendClientIds
+import backendUtils.client.removeBackendClient
 import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -258,7 +260,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     private fun prepareTeamUsers(teamName: String) {
-        teamHelper.usersManager.createTeamOwnerByAlias(
+        backendSetupHelper.createTeamOwnerByAlias(
             "user1Name",
             teamName,
             "en_US",
@@ -266,7 +268,7 @@ class MultiAccountSessionScope : BaseUiTest() {
             backendClient,
             context
         )
-        teamHelper.userXAddsUsersToTeam(
+        backendSetupHelper.userXAddsUsersToTeam(
             "user1Name",
             "user2Name",
             teamName,
@@ -275,8 +277,8 @@ class MultiAccountSessionScope : BaseUiTest() {
             context,
             true
         )
-        primaryUser = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-        secondaryUser = teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+        primaryUser = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+        secondaryUser = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
     }
 
     private fun loginUser(user: ClientUser?, configureStagingBackend: Boolean = true) {

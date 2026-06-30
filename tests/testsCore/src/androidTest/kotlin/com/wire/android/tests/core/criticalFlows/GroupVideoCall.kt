@@ -57,7 +57,7 @@ class GroupVideoCall : BaseCallUiTest() {
     fun givenGroupCall_whenVideoIsEnabled_thenGroupVideoIsVisible() {
 
         step("Given backend teams are prepared (WeLikeCalls + IJoinCalls) with owners and members") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "WeLikeCalls",
                 "en_US",
@@ -65,12 +65,12 @@ class GroupVideoCall : BaseCallUiTest() {
                 backendClient,
                 context
             )
-            teamOwnerA = teamHelper.usersManager.findUserBy(
+            teamOwnerA = clientUserManager.findUserBy(
                 "user1Name",
                 ClientUserManager.FindBy.NAME_ALIAS
             )
 
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name, user3Name",
                 "WeLikeCalls",
@@ -80,7 +80,7 @@ class GroupVideoCall : BaseCallUiTest() {
                 true
             )
 
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user4Name",
                 "IJoinCalls",
                 "en_US",
@@ -88,14 +88,14 @@ class GroupVideoCall : BaseCallUiTest() {
                 backendClient,
                 context
             )
-            teamOwnerB = teamHelper.usersManager.findUserBy(
+            teamOwnerB = clientUserManager.findUserBy(
                 "user4Name",
                 ClientUserManager.FindBy.NAME_ALIAS
             )
         }
 
         step("And WeLikeCalls team owner creates GroupVideoCall conversation with team members") {
-            testServiceHelper.userHasGroupConversationInTeam(
+            backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
                 "GroupVideoCall",
                 "user2Name, user3Name",
@@ -104,12 +104,10 @@ class GroupVideoCall : BaseCallUiTest() {
         }
 
         step("And participant devices and unique username are prepared for group call") {
-            testServiceHelper.apply {
-                addDevice("user4Name", null, "Device2")
-                addDevice("user3Name", null, "Device1")
-                runBlocking {
-                    usersSetUniqueUsername("user3Name")
-                }
+            testServiceHelper.addDevice("user4Name", null, "Device2")
+            testServiceHelper.addDevice("user3Name", null, "Device1")
+            runBlocking {
+                backendSetupHelper.usersSetUniqueUsername("user3Name")
             }
         }
 
@@ -171,7 +169,7 @@ class GroupVideoCall : BaseCallUiTest() {
 
         step("And I search TeamOwnerB by unique username") {
             pages.searchPage.apply {
-                typeUniqueUserNameInSearchField(teamHelper, "user4Name")
+                typeUniqueUserNameInSearchField(clientUserManager, "user4Name")
             }
         }
 
@@ -222,10 +220,7 @@ class GroupVideoCall : BaseCallUiTest() {
         }
 
         step("And TeamOwnerB connection request is accepted via backend") {
-            runBlocking {
-                val user = teamHelper.usersManager.findUserByNameOrNameAlias("user4Name")
-                backendClient.acceptAllIncomingConnectionRequests(user)
-            }
+            backendSetupHelper.userAcceptsAllIncomingConnectionRequests("user4Name", backendClient)
         }
 
         step("And I verify pending status is removed and GroupVideoCall conversation remains visible") {
@@ -326,7 +321,7 @@ class GroupVideoCall : BaseCallUiTest() {
         step("And users <Member1>, <Member2>, and <TeamOwnerB> switch video on") {
             runBlocking {
                 val callParticipantsSwitchVideoOn =
-                    teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name")
+                    clientUserManager.splitAliases("user2Name, user3Name, user4Name")
                 callingManager.switchVideoOn(callParticipantsSwitchVideoOn)
             }
         }
@@ -334,7 +329,7 @@ class GroupVideoCall : BaseCallUiTest() {
         step("And users <Member1>, <Member2>, and <TeamOwnerB> verify audio and video are received") {
             runBlocking {
                 val assertCallParticipantsReceiveAudioVideo =
-                    teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name")
+                    clientUserManager.splitAliases("user2Name, user3Name, user4Name")
                 callingManager.verifyReceiveAudioAndVideo(assertCallParticipantsReceiveAudioVideo)
             }
         }

@@ -49,7 +49,7 @@ class GroupMessaging : BaseUiTest() {
     @Test
     fun givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires() {
         step("Prepare team via backend and group conversation with members") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "GroupMessaging",
                 "en_US",
@@ -58,9 +58,9 @@ class GroupMessaging : BaseUiTest() {
                 context
             )
 
-            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
 
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name,user5Name,user6Name",
                 "GroupMessaging",
@@ -70,7 +70,7 @@ class GroupMessaging : BaseUiTest() {
                 true
             )
 
-            testServiceHelper.userHasGroupConversationInTeam(
+            backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
                 "MyTeam",
                 "user2Name,user3Name,user4Name,user5Name,user6Name",

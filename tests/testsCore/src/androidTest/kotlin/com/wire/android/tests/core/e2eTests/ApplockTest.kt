@@ -53,7 +53,7 @@ class ApplockTest : BaseUiTest() {
     @Test
     fun givenUserEnablesAppLock_whenAppIsBackgroundedForOneMinute_thenAppRequiresUnlockOnReturn() {
         step("Given there is TeamOwner with team AppLock and members on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "AppLock",
                 "en_US",
@@ -62,7 +62,7 @@ class ApplockTest : BaseUiTest() {
                 context
             )
 
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name,user5Name",
                 "AppLock",
@@ -72,7 +72,7 @@ class ApplockTest : BaseUiTest() {
                 true
             )
 
-            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
         step("And I see welcome screen before login") {
@@ -184,7 +184,7 @@ class ApplockTest : BaseUiTest() {
     @Test
     fun givenUserEnablesAppLock_whenWrongPasscodeIsEntered_thenAppStaysLockedUntilCorrectPasscodeIsEntered() {
         step("Given there is TeamOwner with team AppLockInvalidPassphrase and Member1 on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "AppLockInvalidPassphrase",
                 "en_US",
@@ -193,7 +193,7 @@ class ApplockTest : BaseUiTest() {
                 context
             )
 
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
                 "AppLockInvalidPassphrase",
@@ -203,13 +203,13 @@ class ApplockTest : BaseUiTest() {
                 true
             )
 
-            testServiceHelper.userHas1on1ConversationInTeam(
+            backendSetupHelper.userHas1on1ConversationInTeam(
                 "user1Name",
                 "user2Name",
                 "AppLockInvalidPassphrase"
             )
 
-            member1 = teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+            member1 = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
         step("And I see welcome screen before login") {
@@ -342,7 +342,7 @@ class ApplockTest : BaseUiTest() {
     @Test
     fun givenTeamAppLockIsEnforced_whenTeamOwnerSetsPasscode_thenAppLockCannotBeChanged() {
         step("Given there is TeamOwner with team AppLockEnforced and Member1 on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "AppLockEnforced",
                 "en_US",
@@ -351,7 +351,7 @@ class ApplockTest : BaseUiTest() {
                 context
             )
 
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
                 "AppLockEnforced",
@@ -361,13 +361,13 @@ class ApplockTest : BaseUiTest() {
                 true
             )
 
-            testServiceHelper.userHas1on1ConversationInTeam(
+            backendSetupHelper.userHas1on1ConversationInTeam(
                 "user1Name",
                 "user2Name",
                 "AppLockEnforced"
             )
 
-            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
         step("And I see welcome screen before login") {
@@ -396,7 +396,7 @@ class ApplockTest : BaseUiTest() {
         }
 
         step("When TeamOwner enables force app lock feature for team AppLockEnforced with timeout of 30 seconds") {
-            teamHelper.enableForceAppLockFeature(
+            backendSetupHelper.enableForceAppLockFeature(
                 "user1Name",
                 "AppLockEnforced",
                 30,

@@ -151,7 +151,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 @Suppress("ParameterWrapping", "CyclomaticComplexMethod")
 @Composable
@@ -703,7 +703,7 @@ private fun OngoingCallTopBar(
                     .offset(y = -(5).dp),
                 textAlign = TextAlign.Center,
                 text = stringResource(id = R.string.calling_constant_bit_rate_indication).uppercase(
-                    Locale.getDefault()
+                    LocalLocale.current.platformLocale
                 ),
                 color = colorsScheme().secondaryText,
                 style = MaterialTheme.wireTypography.title03,

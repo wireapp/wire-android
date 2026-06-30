@@ -68,7 +68,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 @WireRootDestination
 @Composable
@@ -152,7 +152,7 @@ fun EnterLockCodeScreenContent(
                     autoFill = false,
                     placeholderText = stringResource(R.string.settings_set_lock_screen_passcode_label),
                     labelText = stringResource(R.string.settings_set_lock_screen_passcode_label).uppercase(
-                        Locale.getDefault()
+                        LocalLocale.current.platformLocale
                     )
                 )
 

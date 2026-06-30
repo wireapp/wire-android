@@ -52,7 +52,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AttachmentType
 import okio.Path.Companion.toPath
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -108,7 +108,7 @@ fun AssetTilePreview(
 @Composable
 fun AssetExtensionPreviewTile(assetName: String, modifier: Modifier = Modifier) {
     Text(
-        text = assetName.split(".").last().uppercase(Locale.getDefault()),
+        text = assetName.split(".").last().uppercase(LocalLocale.current.platformLocale),
         style = MaterialTheme.wireTypography.title05,
         color = MaterialTheme.wireColorScheme.secondaryText,
         modifier = modifier

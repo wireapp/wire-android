@@ -21,7 +21,7 @@ dependencies {
     implementation(libs.ktx.immutableCollections)
     implementation(libs.ktx.serialization)
 
-    val composeBom = platform(libs.compose.bom)
+    val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)

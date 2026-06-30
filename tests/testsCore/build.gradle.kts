@@ -23,7 +23,7 @@ android {
 }
 dependencies {
     implementation(libs.androidx.rules)
-    val composeBom = platform(libs.compose.bom)
+    val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.compose.ui)
     androidTestImplementation(libs.androidx.test.runner)

@@ -52,10 +52,10 @@ class BlockTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4246")
+    @TestCaseId("TC-4249", "TC-4246")
     @Category("regression", "RC", "blockUser")
     @Test
-    fun givenTeamOwnerWhenViewingTeamMemberFromGroupDetails_thenBlockOptionIsNotVisible() {
+    fun givenTeamOwner_whenOpeningTeamMemberContextMenusFromConversationListAndGroupDetails_thenBlockOptionIsNotVisible() {
         step("Given there is TeamOwner with team Blocking on Staging backend") {
             teamHelper.usersManager.createTeamOwnerByAlias(
                 "user1Name",
@@ -120,6 +120,30 @@ class BlockTests : BaseUiTest() {
             }
         }
 
+        // TC-4249 I should not be able to block a team user from conversation list
+        step("And I see conversation Member1 in conversation list") {
+            pages.conversationListPage.apply {
+                assertConversationVisible(member1.name ?: "")
+            }
+        }
+
+        step("When I long tap on conversation name Member1 in conversation list") {
+            pages.conversationListPage.apply {
+                longPressConversation(member1.name ?: "")
+            }
+        }
+
+        step("Then I do not see Block option on conversation list") {
+            pages.conversationListPage.apply {
+                assertBlockOptionNotVisibleInConversationActions()
+            }
+        }
+
+        step("When I press back button") {
+            device.pressBack()
+        }
+
+        // TC-4246 I should not be able to block a team user from group details
         step("Then I see conversation Member1 in conversation list and tap on it") {
             pages.conversationListPage.apply {
                 assertConversationVisible(member1.name ?: "")
@@ -136,7 +160,7 @@ class BlockTests : BaseUiTest() {
             pages.connectedUserProfilePage.clickShowMoreOptions()
         }
 
-        step("Then I do not see Block option") {
+        step("Then I do not see Block option on user profile screen") {
             pages.connectedUserProfilePage.assertBlockOptionNotVisible()
         }
     }
@@ -213,13 +237,13 @@ class BlockTests : BaseUiTest() {
 
         step("Then I see conversation view with Contact1 is in foreground") {
             pages.conversationViewPage.apply {
-                assertConversationScreenVisible()
                 assertConversationIsVisibleWithTeamOwner(contact1.name ?: "")
             }
         }
 
         step("When I open conversation details for 1:1 conversation with Contact1 and tap show more options button") {
             pages.conversationViewPage.apply {
+                UiWaitUtils.waitFor(2.seconds)
                 click1On1ConversationDetails(contact1.name ?: "")
             }
             pages.connectedUserProfilePage.apply {
@@ -296,94 +320,6 @@ class BlockTests : BaseUiTest() {
             pages.connectedUserProfilePage.apply {
                 assertBlockedLabelNotVisible()
                 assertUnblockUserButtonNotVisible()
-            }
-        }
-    }
-
-    @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4249")
-    @Category("regression", "RC", "blockUser")
-    @Test
-    fun givenTeamOwner_whenViewingTeamMemberFromConversationList_thenBlockOptionIsNotVisible() {
-        step("Given there is TeamOwner with team Blocking on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
-                "user1Name",
-                "Blocking",
-                "en_US",
-                true,
-                backendClient,
-                context
-            )
-        }
-
-        step("And User TeamOwner adds user Member1 to team Blocking with role Member") {
-            teamHelper.userXAddsUsersToTeam(
-                "user1Name",
-                "user2Name",
-                "Blocking",
-                TeamRoles.Member,
-                backendClient,
-                context,
-                true
-            )
-        }
-
-        step("And User TeamOwner has 1:1 conversation with Member1 in team Blocking") {
-            testServiceHelper.userHas1on1ConversationInTeam(
-                "user1Name",
-                "user2Name",
-                "Blocking"
-            )
-        }
-
-        step("And User TeamOwner is me") {
-            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
-        }
-
-        step("And User Member1 is available for conversation list checks") {
-            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
-        }
-
-        step("And I see welcome screen before login") {
-            pages.registrationPage.apply {
-                assertEmailWelcomePage()
-            }
-        }
-
-        step("And I open staging deep link and login as TeamOwner") {
-            pages.loginPage.apply {
-                clickStagingDeepLink()
-                clickProceedButtonOnDeeplinkOverlay()
-                enterTeamOwnerLoggingEmail(teamOwner.email ?: "")
-                clickLoginButton()
-                enterTeamOwnerLoggingPassword(teamOwner.password ?: "")
-                clickLoginButton()
-            }
-        }
-
-        step("And I complete post-login permission and privacy prompts") {
-            pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
-                clickAllowNotificationButton()
-                clickDeclineShareDataAlert()
-            }
-        }
-
-        step("And I see conversation Member1 in conversation list") {
-            pages.conversationListPage.apply {
-                assertConversationVisible(member1.name ?: "")
-            }
-        }
-
-        step("When I long tap on conversation name Member1 in conversation list") {
-            pages.conversationListPage.apply {
-                longPressConversation(member1.name ?: "")
-            }
-        }
-
-        step("Then I do not see Block option on conversation list") {
-            pages.conversationListPage.apply {
-                assertBlockOptionNotVisibleInConversationActions()
             }
         }
     }
@@ -501,139 +437,10 @@ class BlockTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4254", "TC-4255")
+    @TestCaseId("TC-4256", "TC-4257", "TC-4254", "TC-4255")
     @Category("regression", "RC", "blockUser", "unblockUser")
     @Test
-    fun givenConnectedTeamUserFromAnotherTeam_whenBlockingAndUnblockingFromUserProfile_thenUserIsBlockedAndUnblockedSuccessfully() {
-        step("Given there is TeamOwnerA with team Blocking on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
-                "user1Name",
-                "Blocking",
-                "en_US",
-                true,
-                backendClient,
-                context
-            )
-        }
-
-        step("And there is TeamOwnerB with team ToBeBlocked on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
-                "user2Name",
-                "ToBeBlocked",
-                "en_US",
-                true,
-                backendClient,
-                context
-            )
-        }
-
-        step("And User TeamOwnerA is connected to TeamOwnerB") {
-            testServiceHelper.userIsConnectedTo("user1Name", "user2Name")
-        }
-
-        step("And User TeamOwnerA has 1:1 conversation with TeamOwnerB in team Blocking") {
-            testServiceHelper.userHas1on1ConversationInTeam(
-                "user1Name",
-                "user2Name",
-                "Blocking"
-            )
-        }
-
-        step("And User TeamOwnerA is me") {
-            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
-        }
-
-        step("And User TeamOwnerB is available for 1:1 conversation checks") {
-            teamOwnerB = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
-        }
-
-        step("And I see welcome screen before login") {
-            pages.registrationPage.apply {
-                assertEmailWelcomePage()
-            }
-        }
-
-        step("And I open staging deep link and login as TeamOwnerA") {
-            pages.loginPage.apply {
-                clickStagingDeepLink()
-                clickProceedButtonOnDeeplinkOverlay()
-                enterTeamOwnerLoggingEmail(teamOwner.email ?: "")
-                clickLoginButton()
-                enterTeamOwnerLoggingPassword(teamOwner.password ?: "")
-                clickLoginButton()
-            }
-        }
-
-        step("And I complete post-login permission and privacy prompts") {
-            pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
-                clickAllowNotificationButton()
-                clickDeclineShareDataAlert()
-            }
-        }
-
-        step("Then I see conversation TeamOwnerB in conversation list and tap on it") {
-            pages.conversationListPage.apply {
-                assertConversationVisible(teamOwnerB.name ?: "")
-                tapConversationNameInConversationList(teamOwnerB.name ?: "")
-            }
-        }
-
-        step("And I open conversation details for 1:1 conversation with TeamOwnerB") {
-            UiWaitUtils.waitFor(1.seconds)
-            pages.conversationViewPage.click1On1ConversationDetails(teamOwnerB.name ?: "")
-        }
-
-        step("When I tap show more options button on user profile screen") {
-            pages.connectedUserProfilePage.clickShowMoreOptions()
-        }
-
-        step("And I tap on Block option and Block button on alert") {
-            pages.connectedUserProfilePage.apply {
-                clickBlockOption()
-                clickBlockButtonAlert()
-            }
-        }
-
-        step("Then I see toast message TeamOwnerB blocked in user profile screen") {
-            pages.connectedUserProfilePage.apply {
-                assertToastMessageIsDisplayed("${teamOwnerB.name ?: ""} blocked")
-            }
-        }
-
-        step("And I see Blocked label") {
-            pages.connectedUserProfilePage.apply {
-                assertBlockedLabelVisible()
-            }
-        }
-
-        step("And I see Unblock User button") {
-            pages.connectedUserProfilePage.apply {
-                assertUnblockUserButtonVisible()
-            }
-        }
-
-        // TC-4255 I want to be able to unblock a guest user from group details through the unblock button
-        step("When I tap Unblock User button and Unblock button alert") {
-            pages.connectedUserProfilePage.apply {
-                clickUnblockUserButton()
-                clickUnblockButtonAlert()
-            }
-        }
-
-        step("Then I do not see Blocked label and Unblock User button") {
-            pages.connectedUserProfilePage.apply {
-                assertBlockedLabelNotVisible()
-                assertUnblockUserButtonNotVisible()
-            }
-        }
-    }
-
-    @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4256", "TC-4257")
-    @Category("regression", "RC", "blockUser", "unblockUser")
-    @Test
-    fun givenConnectedTeamUserFromAnotherTeam_whenBlockingAndUnblockingFromConversationList_thenUserIsBlockedAndUnblockedSuccessfully() {
+    fun givenConnectedTeamUserFromAnotherTeam_whenBlockingAndUnblockingFromConversationListAndGroupDetails_thenUserIsBlockedAndUnblockedSuccessfully() {
         step("Given there is TeamOwnerA with team Blocking on Staging backend") {
             teamHelper.usersManager.createTeamOwnerByAlias(
                 "user1Name",
@@ -701,6 +508,7 @@ class BlockTests : BaseUiTest() {
             }
         }
 
+        // TC-4256 I want to be able to block a team user from another team from conversation list
         step("Then I see conversation TeamOwnerB in conversation list") {
             pages.conversationListPage.apply {
                 assertConversationVisible(teamOwnerB.name ?: "")
@@ -733,7 +541,7 @@ class BlockTests : BaseUiTest() {
             }
         }
 
-        // TC-4257 I want to be able to unblock a guest user from conversation list
+        // TC-4257 I want to be able to unblock a team user from another team from conversation list
         step("When I long tap on conversation name TeamOwnerB in conversation list") {
             pages.conversationListPage.apply {
                 longPressConversation(teamOwnerB.name ?: "")
@@ -751,6 +559,62 @@ class BlockTests : BaseUiTest() {
             pages.conversationListPage.apply {
                 assertConversationVisible(teamOwnerB.name ?: "")
                 assertBlockedLabelNotVisibleInConversationList()
+            }
+        }
+
+        // TC-4254 I want to be able to block a team user from another team from group details
+        step("When I tap on conversation name TeamOwnerB in conversation list") {
+            pages.conversationListPage.apply {
+                tapConversationNameInConversationList(teamOwnerB.name ?: "")
+            }
+        }
+
+        step("And I open conversation details for 1:1 conversation with TeamOwnerB") {
+            UiWaitUtils.waitFor(1.seconds)
+            pages.conversationViewPage.click1On1ConversationDetails(teamOwnerB.name ?: "")
+        }
+
+        step("When I tap show more options button on user profile screen") {
+            pages.connectedUserProfilePage.clickShowMoreOptions()
+        }
+
+        step("And I tap on Block option and Block button on alert") {
+            pages.connectedUserProfilePage.apply {
+                clickBlockOption()
+                clickBlockButtonAlert()
+            }
+        }
+
+        step("Then I see toast message TeamOwnerB blocked in user profile screen") {
+            pages.connectedUserProfilePage.apply {
+                assertToastMessageIsDisplayed("${teamOwnerB.name ?: ""} blocked")
+            }
+        }
+
+        step("And I see Blocked label") {
+            pages.connectedUserProfilePage.apply {
+                assertBlockedLabelVisible()
+            }
+        }
+
+        step("And I see Unblock User button") {
+            pages.connectedUserProfilePage.apply {
+                assertUnblockUserButtonVisible()
+            }
+        }
+
+        // TC-4255 I want to be able to unblock a team user from another team from group details through the unblock button
+        step("When I tap Unblock User button and Unblock button alert") {
+            pages.connectedUserProfilePage.apply {
+                clickUnblockUserButton()
+                clickUnblockButtonAlert()
+            }
+        }
+
+        step("Then I do not see Blocked label and Unblock User button") {
+            pages.connectedUserProfilePage.apply {
+                assertBlockedLabelNotVisible()
+                assertUnblockUserButtonNotVisible()
             }
         }
     }

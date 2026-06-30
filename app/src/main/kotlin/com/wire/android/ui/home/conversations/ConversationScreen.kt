@@ -200,8 +200,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
 import com.wire.android.ui.sharing.ImportMediaNavArgs
-import com.wire.kalium.common.error.NetworkFailure
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId

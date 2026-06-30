@@ -36,7 +36,7 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveConferenceCallingEnabledUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
 class ConversationCallViewModel(
     val savedStateHandle: SavedStateHandle,
     currentAccount: UserId,
-    private val observeOngoingCalls: ObserveOngoingCallsUseCase,
+    private val observeJoinableCalls: ObserveJoinableCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
     private val answerCall: AnswerCallUseCase,
@@ -107,7 +107,7 @@ class ConversationCallViewModel(
     }
 
     private fun listenOngoingCall() = viewModelScope.launch {
-        combine(observeOngoingCalls(), observeConversationDetails(conversationId)) { calls, conversationDetailsResult ->
+        combine(observeJoinableCalls(), observeConversationDetails(conversationId)) { calls, conversationDetailsResult ->
             val hasOngoingCall = calls.any { call -> call.conversationId == conversationId }
             // valid conversation is a conversation where the user is a member and it's not deleted
             val validConversation = when (conversationDetailsResult) {

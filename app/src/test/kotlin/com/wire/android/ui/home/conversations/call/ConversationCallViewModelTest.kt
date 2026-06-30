@@ -40,7 +40,7 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveConferenceCallingEnabledUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
@@ -156,7 +156,7 @@ class ConversationCallViewModelTest {
         private lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
-        private lateinit var observeOngoingCalls: ObserveOngoingCallsUseCase
+        private lateinit var observeJoinableCalls: ObserveJoinableCallsUseCase
 
         @MockK
         private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
@@ -198,7 +198,7 @@ class ConversationCallViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
             coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
-            coEvery { observeOngoingCalls.invoke() } returns emptyFlow()
+            coEvery { observeJoinableCalls.invoke() } returns emptyFlow()
             coEvery { observeConversationDetails(any()) } returns flowOf()
             coEvery { observeParticipantsForConversation(any()) } returns flowOf()
             every { observeSyncState() } returns flowOf(SyncState.Live)
@@ -220,7 +220,7 @@ class ConversationCallViewModelTest {
         }
 
         fun withOngoingCalls(calls: List<Call>) = apply {
-            coEvery { observeOngoingCalls() } returns flowOf(calls)
+            coEvery { observeJoinableCalls() } returns flowOf(calls)
         }
 
         fun withConversationDetails(result: ObserveConversationDetailsUseCase.Result) = apply {
@@ -229,7 +229,7 @@ class ConversationCallViewModelTest {
 
         fun arrange(): Pair<Arrangement, ConversationCallViewModel> = this to ConversationCallViewModel(
             savedStateHandle = savedStateHandle,
-            observeOngoingCalls = observeOngoingCalls,
+            observeJoinableCalls = observeJoinableCalls,
             observeEstablishedCalls = observeEstablishedCalls,
             answerCall = joinCall,
             endCall = endCall,

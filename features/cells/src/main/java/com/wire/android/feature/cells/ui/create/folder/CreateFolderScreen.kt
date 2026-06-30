@@ -58,7 +58,6 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
-import java.util.Locale
 import androidx.compose.ui.platform.LocalLocale
 
 @WireCellsDestination(

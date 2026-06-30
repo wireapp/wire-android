@@ -155,7 +155,8 @@ fun SetLockCodeScreenContent(
                     state = WireTextFieldState.Default,
                     autoFill = false,
                     placeholderText = stringResource(R.string.settings_set_lock_screen_passcode_label),
-                    labelText = stringResource(R.string.settings_set_lock_screen_passcode_label).uppercase(LocalLocale.current.platformLocale)
+                    labelText = stringResource(R.string.settings_set_lock_screen_passcode_label)
+                        .uppercase(LocalLocale.current.platformLocale)
                 )
                 VerticalSpace.x24()
                 PasswordVerificationGroup(state.passwordValidation)

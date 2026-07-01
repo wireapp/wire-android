@@ -109,6 +109,7 @@ class CellViewModel(
     private val getUserName: GetUserNameUseCase,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     val offlineFilesEnabled: Boolean,
+    private val inAppImageViewerEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
 
     private val searchNavArgs: SearchNavArgs? = try {
@@ -377,7 +378,7 @@ class CellViewModel(
     }
 
     private fun openFileContentUrl(file: CellNodeUi.File) {
-        if (file.assetType == AttachmentFileType.IMAGE) {
+        if (file.shouldOpenInAppImageViewer()) {
             sendAction(OpenImageViewer(file))
             return
         }
@@ -393,7 +394,7 @@ class CellViewModel(
     }
 
     private fun openLocalFile(file: CellNodeUi.File) {
-        if (file.assetType == AttachmentFileType.IMAGE) {
+        if (file.shouldOpenInAppImageViewer()) {
             sendAction(OpenImageViewer(file))
             return
         }
@@ -408,6 +409,9 @@ class CellViewModel(
             )
         }
     }
+
+    private fun CellNodeUi.File.shouldOpenInAppImageViewer(): Boolean =
+        inAppImageViewerEnabled && assetType == AttachmentFileType.IMAGE
 
     private fun onItemMenuClick(cellNode: CellNodeUi) = viewModelScope.launch {
 

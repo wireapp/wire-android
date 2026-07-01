@@ -144,7 +144,7 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when image file clicked and local file is present then in-app viewer is opened`() = runTest {
+    fun `given in-app image viewer disabled when image file clicked and local file is present then external app is opened`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
@@ -152,10 +152,25 @@ class CellViewModelTest {
         viewModel.actions.test {
             viewModel.sendIntent(CellViewIntent.OnItemClick(testFiles[0].toUiModel()))
 
+            expectNoEvents()
+        }
+        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given in-app image viewer enabled when image file clicked and local file is present then in-app viewer is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withInAppImageViewerEnabled()
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFiles[0].toUiModel()))
+
             val action = awaitItem()
             assert(action is OpenImageViewer)
-            coVerify(exactly = 0) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
         }
+        coVerify(exactly = 0) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
     @Test
@@ -172,7 +187,7 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when image file clicked and local file is not present and url is openable then in-app viewer is opened`() = runTest {
+    fun `given in-app image viewer disabled when image file clicked and local file is not present and url is openable then url is opened`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
@@ -185,11 +200,32 @@ class CellViewModelTest {
         viewModel.actions.test {
             viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
 
-            val action = awaitItem()
-            assert(action is OpenImageViewer)
+            expectNoEvents()
+        }
+        coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+    }
+
+    @Test
+    fun `given in-app image viewer enabled when image file clicked and local file is not present and url is openable then in-app viewer is opened`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withLoadSuccess()
+                .withInAppImageViewerEnabled()
+                .arrange()
+
+            val testFile = testFiles[0].copy(
+                localPath = null,
+                contentUrl = "https://example.com/file"
+            )
+
+            viewModel.actions.test {
+                viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+
+                val action = awaitItem()
+                assert(action is OpenImageViewer)
+            }
             coVerify(exactly = 0) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
         }
-    }
 
     @Test
     fun `given view model when non-image file clicked and local file is not present and url is openable then url is opened`() = runTest {
@@ -316,7 +352,10 @@ class CellViewModelTest {
         }
     }
 
-    private class Arrangement(private var conversationId: String? = null) {
+    private class Arrangement(
+        private var conversationId: String? = null,
+        private var inAppImageViewerEnabled: Boolean = false,
+    ) {
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -442,6 +481,10 @@ class CellViewModelTest {
             coEvery { isCellAvailableUseCase.invoke() } returns false.right()
         }
 
+        fun withInAppImageViewerEnabled() = apply {
+            inAppImageViewerEnabled = true
+        }
+
         fun withConversationId(conversationId: String) = apply {
             this.conversationId = conversationId
             every { savedStateHandle.get<String>(any()) } returns conversationId
@@ -498,6 +541,7 @@ class CellViewModelTest {
                 getConversationName = getConversationNames,
                 getUserName = getUserNames,
                 offlineFilesEnabled = true,
+                inAppImageViewerEnabled = inAppImageViewerEnabled,
             )
         }
     }

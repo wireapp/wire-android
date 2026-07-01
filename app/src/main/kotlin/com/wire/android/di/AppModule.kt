@@ -124,6 +124,10 @@ object AppModule {
     fun provideOfflineFilesEnabled(): Boolean = BuildConfig.OFFLINE_FILES_ENABLED
 
     @Provides
+    @Named("inAppImageViewerEnabled")
+    fun provideInAppImageViewerEnabled(): Boolean = BuildConfig.IN_APP_IMAGE_VIEWER_ENABLED
+
+    @Provides
     @SingleIn(AppScope::class)
     fun provideMessageSharedState(): MessageSharedState = MessageSharedState()
 

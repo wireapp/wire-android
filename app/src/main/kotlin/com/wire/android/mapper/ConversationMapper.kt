@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem.Group.C
 import com.wire.android.ui.home.conversationslist.model.ConversationItem.Group.Regular
 import com.wire.android.ui.home.conversationslist.model.ConversationItem.PrivateConversation
 import com.wire.android.util.ui.UiTextResolver
+import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
@@ -49,10 +50,10 @@ fun ConversationDetailsWithEvents.toConversationItem(
     userTypeMapper: UserTypeMapper,
     uiTextResolver: UiTextResolver,
     selfUserTeamId: TeamId?,
-    joinableCallConversationIds: Set<ConversationId> = emptySet()
+    joinableCallsByConversationId: Map<ConversationId, Call> = emptyMap()
 ): ConversationItem = when (val conversationDetails = this.conversationDetails) {
     is Group.Regular -> {
-        val hasJoinableCall = conversationDetails.hasJoinableCall(joinableCallConversationIds)
+        val hasJoinableCall = conversationDetails.hasJoinableCall(joinableCallsByConversationId)
         Regular(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
@@ -78,7 +79,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
     }
 
     is Group.Channel -> {
-        val hasJoinableCall = conversationDetails.hasJoinableCall(joinableCallConversationIds)
+        val hasJoinableCall = conversationDetails.hasJoinableCall(joinableCallsByConversationId)
         Channel(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
@@ -174,8 +175,8 @@ fun ConversationDetailsWithEvents.toConversationItem(
     }
 }
 
-private fun Group.hasJoinableCall(joinableCallConversationIds: Set<ConversationId>): Boolean =
-    conversation.id in joinableCallConversationIds && isSelfUserMember
+private fun Group.hasJoinableCall(joinableCallsByConversationId: Map<ConversationId, Call>): Boolean =
+    joinableCallsByConversationId.containsKey(conversation.id) && isSelfUserMember
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) {

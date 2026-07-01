@@ -216,14 +216,13 @@ class ConversationListViewModelImpl(
                     observeConversationListDetailsWithEvents(
                         fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
                         conversationFilter = conversationsSource.toFilter()
-                    ).combine(observeJoinableCalls()) { conversations, joinableCalls ->
-                        val joinableCallConversationIds = joinableCalls.map { it.conversationId }.toSet()
+                    ).combine(observeJoinableCalls()) { conversations, joinableCallsByConversationId ->
                         conversations.map { conversationDetails ->
                             conversationDetails.toConversationItem(
                                 userTypeMapper = userTypeMapper,
                                 uiTextResolver = uiTextResolver,
                                 selfUserTeamId = selfTeamId,
-                                joinableCallConversationIds = joinableCallConversationIds
+                                joinableCallsByConversationId = joinableCallsByConversationId
                             )
                         } to searchQuery
                     }

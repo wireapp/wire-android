@@ -327,7 +327,7 @@ class ConversationListViewModelTest {
                 }
             )
             every { audioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
-            coEvery { observeJoinableCalls() } returns flowOf(emptyList())
+            coEvery { observeJoinableCalls() } returns flowOf(emptyMap())
             coEvery { getSelfTeamId() } returns TestUser.SELF_USER.teamId
             coEvery { uiTextResolver.resolve(any()) } answers {
                 val text = firstArg<UIText>()

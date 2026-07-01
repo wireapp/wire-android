@@ -31,12 +31,14 @@ import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
+import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
 import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -49,6 +51,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
+    private val observeJoinableCalls: ObserveJoinableCallsUseCase,
 ) {
     @Suppress("LongParameterList")
     suspend operator fun invoke(
@@ -66,7 +69,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
             initialLoadSize = INITIAL_LOAD_SIZE,
             enablePlaceholders = true,
         )
-        return when (conversationFilter) {
+        val conversationDetailsFlow = when (conversationFilter) {
             ConversationFilter.All,
             ConversationFilter.Groups,
             ConversationFilter.Channels,
@@ -96,11 +99,18 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                 observeConversationsFromFromFolder(conversationFilter.folderId)
                     .map { staticPagingItems(it) }
             }
-        }.map { pagingData ->
-                pagingData.map {
-                    it.toConversationItem(userTypeMapper, uiTextResolver, selfUserTeamId)
-                }
-            }.flowOn(dispatchers.io())
+        }
+        return combine(conversationDetailsFlow, observeJoinableCalls()) { pagingData, joinableCalls ->
+            val joinableCallConversationIds = joinableCalls.map { it.conversationId }.toSet()
+            pagingData.map {
+                it.toConversationItem(
+                    userTypeMapper = userTypeMapper,
+                    uiTextResolver = uiTextResolver,
+                    selfUserTeamId = selfUserTeamId,
+                    joinableCallConversationIds = joinableCallConversationIds
+                )
+            }
+        }.flowOn(dispatchers.io())
     }
 
     private fun staticPagingItems(conversations: List<ConversationDetailsWithEvents>): PagingData<ConversationDetailsWithEvents> {

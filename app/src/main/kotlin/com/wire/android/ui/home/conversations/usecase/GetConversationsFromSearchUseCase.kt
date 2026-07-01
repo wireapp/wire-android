@@ -97,10 +97,10 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                     .map { staticPagingItems(it) }
             }
         }.map { pagingData ->
-                pagingData.map {
-                    it.toConversationItem(userTypeMapper, uiTextResolver, selfUserTeamId)
-                }
-            }.flowOn(dispatchers.io())
+            pagingData.map {
+                it.toConversationItem(userTypeMapper, uiTextResolver, selfUserTeamId)
+            }
+        }.flowOn(dispatchers.io())
     }
 
     private fun staticPagingItems(conversations: List<ConversationDetailsWithEvents>): PagingData<ConversationDetailsWithEvents> {

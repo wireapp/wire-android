@@ -49,7 +49,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.zip.GZIPOutputStream
-import kotlin.error
 
 @Suppress("TooGenericExceptionCaught", "TooManyFunctions")
 class LogFileWriterV2Impl(

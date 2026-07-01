@@ -61,6 +61,7 @@ import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.data.call.Call
@@ -82,14 +83,13 @@ import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.server.IsCrossBackendLoginBlockedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
@@ -114,8 +114,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -820,33 +820,34 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given automated login intent with backend config, when selector disables new login, then resolved action uses old login`() = runTest {
-        val serverLinks = newServerConfig(1).links
-        val (_, viewModel) = Arrangement()
-            .withCanUseNewLogin(false)
-            .withAutomatedLoginIntent(
-                ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
-                backendConfig = "url"
-            )
-            .arrange()
-
-        viewModel.actions.test {
-            val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
-            advanceUntilIdle()
-
-            assertTrue(handled)
-            assertEquals(
-                OnAutomaticLogin(
-                    serverLinks = serverLinks,
+    fun `given automated login intent with backend config, when selector disables new login, then resolved action uses old login`() =
+        runTest {
+            val serverLinks = newServerConfig(1).links
+            val (_, viewModel) = Arrangement()
+                .withCanUseNewLogin(false)
+                .withAutomatedLoginIntent(
                     ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
-                    nomadServiceUrl = "https://nomad.example.com",
-                    cookieLabel = "shared-device",
-                    useNewLogin = false
-                ),
-                expectMostRecentItem()
-            )
+                    backendConfig = "url"
+                )
+                .arrange()
+
+            viewModel.actions.test {
+                val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+                advanceUntilIdle()
+
+                assertTrue(handled)
+                assertEquals(
+                    OnAutomaticLogin(
+                        serverLinks = serverLinks,
+                        ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
+                        nomadServiceUrl = "https://nomad.example.com",
+                        cookieLabel = "shared-device",
+                        useNewLogin = false
+                    ),
+                    expectMostRecentItem()
+                )
+            }
         }
-    }
 
     @Test
     fun `given automated login intent with only backend config, when handling intents, then intent is ignored`() = runTest {
@@ -1003,30 +1004,31 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given custom backend dialog with default login type, when selector disables new login, then old login action is emitted`() = runTest {
-        val serverLinks = newServerConfig(1).links
-        val (_, viewModel) = Arrangement()
-            .withCanUseNewLogin(false)
-            .withObserveSessionsFlow(flowOf(GetAllSessionsResult.Failure.NoSessionFound))
-            .arrange()
+    fun `given custom backend dialog with default login type, when selector disables new login, then old login action is emitted`() =
+        runTest {
+            val serverLinks = newServerConfig(1).links
+            val (_, viewModel) = Arrangement()
+                .withCanUseNewLogin(false)
+                .withObserveSessionsFlow(flowOf(GetAllSessionsResult.Failure.NoSessionFound))
+                .arrange()
 
-        viewModel.actions.test {
-            viewModel.onCustomServerConfig("url", LoginType.Default)
-            advanceUntilIdle()
-            viewModel.initValidSessionsFlowIfNeeded()
+            viewModel.actions.test {
+                viewModel.onCustomServerConfig("url", LoginType.Default)
+                advanceUntilIdle()
+                viewModel.initValidSessionsFlowIfNeeded()
 
-            viewModel.customBackendDialogProceedButtonClicked(LoginType.Default)
-            advanceUntilIdle()
+                viewModel.customBackendDialogProceedButtonClicked(LoginType.Default)
+                advanceUntilIdle()
 
-            assertEquals(
-                OnCustomBackendLogin(
-                    serverLinks = serverLinks,
-                    useNewLogin = false
-                ),
-                expectMostRecentItem()
-            )
+                assertEquals(
+                    OnCustomBackendLogin(
+                        serverLinks = serverLinks,
+                        useNewLogin = false
+                    ),
+                    expectMostRecentItem()
+                )
+            }
         }
-    }
 
     private class Arrangement {
 

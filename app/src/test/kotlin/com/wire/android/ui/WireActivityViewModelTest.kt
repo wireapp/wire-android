@@ -1053,7 +1053,7 @@ class WireActivityViewModelTest {
             coEvery { observeNewClients() } returns flowOf()
             every { observeScreenshotCensoringConfigUseCaseProviderFactory.create(any()).observeScreenshotCensoringConfig } returns
                     observeScreenshotCensoringConfigUseCase
-            coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
+            every { observeScreenshotCensoringConfigUseCase.invoke() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther())
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
             coEvery {
@@ -1133,7 +1133,7 @@ class WireActivityViewModelTest {
         lateinit var currentScreenManager: CurrentScreenManager
 
         @MockK
-        private lateinit var observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase
+        lateinit var observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase
 
         @MockK
         private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory
@@ -1309,7 +1309,7 @@ class WireActivityViewModelTest {
         }
 
         suspend fun withScreenshotCensoringConfig(result: ObserveScreenshotCensoringConfigResult) = apply {
-            coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(result)
+            every { observeScreenshotCensoringConfigUseCase.invoke() } returns flowOf(result)
         }
 
         suspend fun withScreenshotCensoringConfigForUser(id: UserId, result: ObserveScreenshotCensoringConfigResult) = apply {

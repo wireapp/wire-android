@@ -107,8 +107,8 @@ class ConversationCallViewModel(
     }
 
     private fun listenOngoingCall() = viewModelScope.launch {
-        combine(observeJoinableCalls(), observeConversationDetails(conversationId)) { calls, conversationDetailsResult ->
-            val hasOngoingCall = calls.any { call -> call.conversationId == conversationId }
+        combine(observeJoinableCalls(), observeConversationDetails(conversationId)) { callsByConversationId, conversationDetailsResult ->
+            val hasOngoingCall = callsByConversationId.containsKey(conversationId)
             // valid conversation is a conversation where the user is a member and it's not deleted
             val validConversation = when (conversationDetailsResult) {
                 is ObserveConversationDetailsUseCase.Result.Success -> {

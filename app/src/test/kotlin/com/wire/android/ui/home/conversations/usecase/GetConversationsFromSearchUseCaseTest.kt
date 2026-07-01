@@ -260,7 +260,7 @@ class GetConversationsFromSearchUseCaseTest {
                 }
             }
             coEvery { uiTextResolver.localeTag() } returns "test-locale"
-            coEvery { observeJoinableCalls() } returns flowOf(emptyList())
+            coEvery { observeJoinableCalls() } returns flowOf(emptyMap())
             withSelfTeamId()
             withPaginatedResult(emptyList())
         }
@@ -282,7 +282,7 @@ class GetConversationsFromSearchUseCaseTest {
         }
 
         fun withJoinableCalls(calls: List<Call>) = apply {
-            coEvery { observeJoinableCalls() } returns flowOf(calls)
+            coEvery { observeJoinableCalls() } returns flowOf(calls.associateBy { it.conversationId })
         }
 
         fun withSelfTeamId() = apply {

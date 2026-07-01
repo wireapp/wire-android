@@ -100,14 +100,13 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                     .map { staticPagingItems(it) }
             }
         }
-        return combine(conversationDetailsFlow, observeJoinableCalls()) { pagingData, joinableCalls ->
-            val joinableCallConversationIds = joinableCalls.map { it.conversationId }.toSet()
+        return combine(conversationDetailsFlow, observeJoinableCalls()) { pagingData, joinableCallsByConversationId ->
             pagingData.map {
                 it.toConversationItem(
                     userTypeMapper = userTypeMapper,
                     uiTextResolver = uiTextResolver,
                     selfUserTeamId = selfUserTeamId,
-                    joinableCallConversationIds = joinableCallConversationIds
+                    joinableCallsByConversationId = joinableCallsByConversationId
                 )
             }
         }.flowOn(dispatchers.io())

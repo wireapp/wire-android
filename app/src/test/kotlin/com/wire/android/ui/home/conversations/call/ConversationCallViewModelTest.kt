@@ -220,7 +220,7 @@ class ConversationCallViewModelTest {
         }
 
         fun withOngoingCalls(calls: List<Call>) = apply {
-            coEvery { observeJoinableCalls() } returns flowOf(calls)
+            coEvery { observeJoinableCalls() } returns flowOf(calls.associateBy { it.conversationId })
         }
 
         fun withConversationDetails(result: ObserveConversationDetailsUseCase.Result) = apply {

@@ -18,6 +18,7 @@
 
 package com.wire.android.util.logging
 
+import android.util.Log
 import com.wire.android.appLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -91,21 +92,28 @@ class LogFileWriterV1Impl(private val logsDirectory: File) : LogFileWriter {
      * @return A Flow that tells the current length, in bytes, of the log file.
      */
     private fun CoroutineScope.observeLogCatWritingToLoggingFile(): Flow<Long> = flow<Long> {
-        Runtime.getRuntime().exec("logcat -c")
-        val process = Runtime.getRuntime().exec("logcat")
+        Log.i(LOG_TAG, "Starting logcat capture: clearing buffer")
+        val process = try {
+            Runtime.getRuntime().exec("logcat -c")
+            Log.i(LOG_TAG, "Starting logcat capture process")
+            Runtime.getRuntime().exec("logcat")
+        } catch (t: Throwable) {
+            Log.e(LOG_TAG, "Failed to start logcat capture", t)
+            null
+        }
 
-        val reader = process.inputStream.bufferedReader()
+        val reader = process?.inputStream?.bufferedReader()
 
         appLogger.i("Starting to write log files, grabbing from logcat")
         while (isActive) {
-            val text = reader.readLine()
+            val text = reader?.readLine()
             if (!text.isNullOrBlank()) {
                 val fileSize = writeLineToFile(text)
                 emit(fileSize)
             }
         }
-        reader.close()
-        process.destroy()
+        reader?.close()
+        process?.destroy()
     }.flowOn(Dispatchers.IO)
 
     /**
@@ -193,6 +201,7 @@ class LogFileWriterV1Impl(private val logsDirectory: File) : LogFileWriter {
     }
 
     companion object {
+        private const val LOG_TAG = "LogFileWriterV1"
         private const val LOG_FILE_PREFIX = "wire"
         private const val ACTIVE_LOGGING_FILE_NAME = "${LOG_FILE_PREFIX}_logs.txt"
         private const val LOG_FILE_MAX_SIZE_THRESHOLD = 25 * 1024 * 1024

@@ -82,6 +82,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.withoutPreviewedLink
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
@@ -110,7 +111,8 @@ internal fun MessageBody(
 ) {
     val resources = LocalContext.current.resources
     val configuration = LocalConfiguration.current
-    val message = messageBody?.message
+    val displayMessageBody = remember(messageBody, linkPreviews) { messageBody?.withoutPreviewedLink(linkPreviews) }
+    val message = displayMessageBody?.message
     val (displayMentions, text) = remember(message, configuration) {
         message?.let {
             mapToDisplayMentions(it, resources)
@@ -149,7 +151,7 @@ internal fun MessageBody(
         accent = accent
     )
 
-    val markdownDocument = messageBody?.markdownDocument ?: remember(text) { text?.toMarkdownDocument() }
+    val markdownDocument = displayMessageBody?.markdownDocument ?: remember(text) { text?.toMarkdownDocument() }
 
     markdownDocument?.also {
         MarkdownDocument(
@@ -466,5 +468,14 @@ fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<List<Displa
         uiText.toMarkdownTextWithMentions()
     } else {
         Pair(listOf(), uiText.asString(resources))
+    }
+}
+
+private fun MessageBody.withoutPreviewedLink(linkPreviews: List<MessageLinkPreview>): MessageBody {
+    val updatedMessage = message.withoutPreviewedLink(linkPreviews)
+    return if (updatedMessage == message) {
+        this
+    } else {
+        copy(message = updatedMessage, markdownDocument = null)
     }
 }

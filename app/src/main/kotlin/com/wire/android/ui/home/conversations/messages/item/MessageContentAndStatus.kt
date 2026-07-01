@@ -259,7 +259,12 @@ private fun MessageContent(
             } else {
                 Column {
                     message.linkPreviews.takeIf { it.isNotEmpty() }?.let { previews ->
-                        LinkPreviewCard(preview = previews.first())
+                        LinkPreviewCard(
+                            preview = previews.first(),
+                            isAvailable = !message.isPending && message.isAvailable,
+                            messageStyle = messageStyle,
+                            onClick = { onLinkClick(previews.first().url) }
+                        )
                     }
 
                     Column(

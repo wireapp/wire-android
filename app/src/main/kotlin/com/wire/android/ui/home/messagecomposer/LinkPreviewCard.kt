@@ -20,6 +20,7 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,8 +31,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.image.WireImage
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -41,27 +44,35 @@ import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun LinkPreviewCard(preview: MessageLinkPreview) {
+fun LinkPreviewCard(
+    preview: MessageLinkPreview,
+    isAvailable: Boolean = true,
+    messageStyle: MessageStyle = MessageStyle.NORMAL,
+    onClick: (() -> Unit)? = null,
+) {
+
+    val color = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
+        MessageStyle.BUBBLE_OTHER -> when {
+            isAvailable -> colorsScheme().otherBubble.onPrimary
+            else -> MaterialTheme.wireColorScheme.secondaryText
+        }
+
+        MessageStyle.NORMAL -> {
+            when {
+                isAvailable -> MaterialTheme.colorScheme.onBackground
+                else -> MaterialTheme.wireColorScheme.secondaryText
+            }
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
-    ) {
-        preview.displayHost?.let { host ->
-            Text(
-                text = host,
-                style = MaterialTheme.wireTypography.body02,
-                color = MaterialTheme.wireColorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(
-                    start = dimensions().spacing10x,
-                    end = dimensions().spacing10x,
-                    top = dimensions().spacing10x,
-                    bottom = dimensions().spacing8x
-                )
+            .combinedClickable(
+                enabled = onClick != null,
+                onClick = { onClick?.invoke() }
             )
-        }
-
+    ) {
         preview.image?.assetDataPath?.let { assetDataPath ->
             val aspectRatio = preview.image
                 ?.takeIf { it.assetWidth > 0 && it.assetHeight > 0 }
@@ -82,7 +93,7 @@ fun LinkPreviewCard(preview: MessageLinkPreview) {
             Text(
                 text = preview.title!!,
                 style = MaterialTheme.wireTypography.title02,
-                color = MaterialTheme.wireColorScheme.onSurface,
+                color = color,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(
@@ -95,8 +106,8 @@ fun LinkPreviewCard(preview: MessageLinkPreview) {
         if (!preview.summary.isNullOrBlank()) {
             Text(
                 text = preview.summary!!,
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.secondaryText,
+                style = MaterialTheme.wireTypography.body05,
+                color = color,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(
@@ -107,6 +118,22 @@ fun LinkPreviewCard(preview: MessageLinkPreview) {
                 )
             )
         }
+        preview.displayHost?.let { host ->
+            Text(
+                text = host,
+                style = MaterialTheme.wireTypography.body02,
+                color = color,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(
+                    start = dimensions().spacing10x,
+                    end = dimensions().spacing10x,
+                    top = dimensions().spacing10x,
+                    bottom = dimensions().spacing8x
+                )
+            )
+        }
+
     }
 }
 

@@ -38,6 +38,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -47,9 +48,11 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 fun ConversationDetailsWithEvents.toConversationItem(
     userTypeMapper: UserTypeMapper,
     uiTextResolver: UiTextResolver,
-    selfUserTeamId: TeamId?
+    selfUserTeamId: TeamId?,
+    joinableCallConversationIds: Set<ConversationId> = emptySet()
 ): ConversationItem = when (val conversationDetails = this.conversationDetails) {
     is Group.Regular -> {
+        val hasJoinableCall = conversationDetails.hasJoinableCall(joinableCallConversationIds)
         Regular(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
@@ -60,7 +63,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
                 unreadEventCount = unreadEventCount
             ),
-            hasOnGoingCall = hasOngoingCall && conversationDetails.isSelfUserMember,
+            hasOnGoingCall = hasJoinableCall,
             isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
             isSelfUserMember = conversationDetails.isSelfUserMember,
             teamId = conversationDetails.conversation.teamId,
@@ -68,13 +71,14 @@ fun ConversationDetailsWithEvents.toConversationItem(
             isArchived = conversationDetails.conversation.archived,
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
-            hasNewActivitiesToShow = hasNewActivitiesToShow,
+            hasNewActivitiesToShow = hasNewActivitiesToShow || hasJoinableCall,
             isFavorite = conversationDetails.isFavorite,
             folder = conversationDetails.folder
         )
     }
 
     is Group.Channel -> {
+        val hasJoinableCall = conversationDetails.hasJoinableCall(joinableCallConversationIds)
         Channel(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
@@ -85,7 +89,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
                 unreadEventCount = unreadEventCount
             ),
-            hasOnGoingCall = hasOngoingCall && conversationDetails.isSelfUserMember,
+            hasOnGoingCall = hasJoinableCall,
             isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
             isSelfUserMember = conversationDetails.isSelfUserMember,
             teamId = conversationDetails.conversation.teamId,
@@ -93,7 +97,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             isArchived = conversationDetails.conversation.archived,
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
-            hasNewActivitiesToShow = hasNewActivitiesToShow,
+            hasNewActivitiesToShow = hasNewActivitiesToShow || hasJoinableCall,
             isFavorite = conversationDetails.isFavorite,
             folder = conversationDetails.folder,
             isPrivate = conversationDetails.access == Group.Channel.ChannelAccess.PRIVATE
@@ -169,6 +173,9 @@ fun ConversationDetailsWithEvents.toConversationItem(
         throw IllegalArgumentException("Team conversations should not be visible to the user.")
     }
 }
+
+private fun Group.hasJoinableCall(joinableCallConversationIds: Set<ConversationId>): Boolean =
+    conversation.id in joinableCallConversationIds && isSelfUserMember
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) {

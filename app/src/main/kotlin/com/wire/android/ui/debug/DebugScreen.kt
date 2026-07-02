@@ -20,6 +20,7 @@ package com.wire.android.ui.debug
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -51,10 +52,12 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationCryptoStatsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.DebugFeatureFlagsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
 import com.wire.android.ui.home.settings.backup.rememberBackUpAndRestoreStateHolder
+import com.wire.android.ui.sharing.ImportMediaNavArgs
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.logging.LogShareLauncher
@@ -94,6 +97,13 @@ fun DebugScreen(
         dangerOptionsContent = {
             DangerOptions(exportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel)
         },
+        onShareLogsViaWire = { uri ->
+            navigator.navigate(
+                NavigationCommand(
+                    ImportMediaScreenDestination(ImportMediaNavArgs(arrayListOf(uri)))
+                )
+            )
+        },
     )
 }
 
@@ -105,6 +115,7 @@ internal fun UserDebugContent(
     onDatabaseLoggerEnabledChanged: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
     onFlushLogs: () -> Deferred<Unit>,
+    onShareLogsViaWire: (Uri) -> Unit,
     debugDataOptionsContent: @Composable (DebugContentState) -> Unit,
     dangerOptionsContent: @Composable () -> Unit,
 ) {
@@ -131,7 +142,8 @@ internal fun UserDebugContent(
                     isLoggingEnabled = isLoggingEnabled,
                     onLoggingEnabledChange = onLoggingEnabledChange,
                     onDeleteLogs = onDeleteLogs,
-                    onShareLogs = { debugContentState.shareLogs(onFlushLogs) },
+                    onShareLogsExternally = { debugContentState.shareLogsExternally(onFlushLogs) },
+                    onShareLogsViaWire = { debugContentState.shareLogsViaWire(onFlushLogs, onShareLogsViaWire) },
                     isDBLoggerEnabled = state.isDBLoggingEnabled,
                     onDBLoggerEnabledChange = onDatabaseLoggerEnabledChanged,
                     isPrivateBuild = BuildConfig.PRIVATE_BUILD,
@@ -230,10 +242,23 @@ data class DebugContentState(
         ).show()
     }
 
-    fun shareLogs(onFlushLogs: () -> Deferred<Unit>) {
+    fun shareLogsExternally(onFlushLogs: () -> Deferred<Unit>) {
         val dir = File(logPath).parentFile
         if (dir != null && dir.exists()) {
             logShareLauncher.shareLogs(dir) {
+                // Flush any buffered logs before sharing to ensure completeness.
+                onFlushLogs().await()
+            }
+        }
+    }
+
+    fun shareLogsViaWire(onFlushLogs: () -> Deferred<Unit>, onShareUri: (Uri) -> Unit) {
+        val dir = File(logPath).parentFile
+        if (dir != null && dir.exists()) {
+            logShareLauncher.shareLogsViaWire(
+                logsDirectory = dir,
+                onShareUri = onShareUri
+            ) {
                 // Flush any buffered logs before sharing to ensure completeness.
                 onFlushLogs().await()
             }
@@ -253,6 +278,7 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onLoggingEnabledChange = {},
         onDeleteLogs = {},
         onFlushLogs = { CompletableDeferred(Unit) },
+        onShareLogsViaWire = {},
         onDatabaseLoggerEnabledChanged = {},
         debugDataOptionsContent = {
             DebugDataOptions(

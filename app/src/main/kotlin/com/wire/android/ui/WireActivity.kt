@@ -26,6 +26,7 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
@@ -150,12 +151,14 @@ import com.wire.android.ui.userprofile.self.LocalSelfUserProfileLogoutAction
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.ui.sharing.hasTrustedWireShareCaller
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.ShakeDetector
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
+import com.wire.android.util.getProviderAuthority
 import com.wire.android.util.launchUpdateTheApp
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.Dispatchers
@@ -277,8 +280,17 @@ class WireActivity : BaseActivity() {
             handleSynchronizeExternalData(intent)
             return
         }
-        setIntent(intent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            setIntentWithCurrentCaller(intent)
+        } else {
+            setIntent(intent)
+        }
         handleNewIntent(intent)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private fun setIntentWithCurrentCaller(intent: Intent) {
+        setIntent(intent, getCurrentCaller())
     }
 
     private fun handleNewIntent(intent: Intent, savedInstanceState: Bundle? = null) = lifecycleScope.launch {
@@ -1168,7 +1180,11 @@ class WireActivity : BaseActivity() {
         } else {
             val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent)
             if (!handled) {
-                viewModel.handleDeepLink(intent)
+                viewModel.handleDeepLink(
+                    intent = intent,
+                    providerAuthority = getProviderAuthority(),
+                    hasTrustedWireShareCaller = hasTrustedWireShareCaller()
+                )
                 intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
             }
         }

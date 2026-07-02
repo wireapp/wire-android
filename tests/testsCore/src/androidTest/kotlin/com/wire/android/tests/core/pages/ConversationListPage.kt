@@ -36,8 +36,6 @@ data class ConversationListPage(private val device: UiDevice) {
 
     private val searchField = UiSelectorParams(description = "Search conversations")
     private val userProfileButtonNoPhoto = UiSelectorParams(description = "Your profile")
-    private val userProfilePageTitle = UiSelectorParams(text = "User Profile")
-    private val logoutButton = UiSelectorParams(text = "Log out")
     private val userProfileButton = UiSelectorParams(resourceId = "User avatar")
     private val conversationListHeading = UiSelectorParams(
         textContains = "Conversations"
@@ -63,6 +61,11 @@ data class ConversationListPage(private val device: UiDevice) {
         UiSelectorParams(textContains = "You will then no longer be able to send or read messages")
     private val startNewConversation = UiSelectorParams(description = "New. Start a new conversation")
     private val createNewChannelButton = UiSelectorParams(text = "New Channel")
+    private val blockedLabel = UiSelectorParams(text = "Blocked")
+    private val blockOption = UiSelectorParams(text = "Block")
+    private val unblockOption = UiSelectorParams(text = "Unblock")
+    private val blockButtonAlert = UiSelectorParams(text = "Block")
+    private val unblockButtonAlert = UiSelectorParams(text = "Unblock")
 
     private val userConversationNamePendingLabelSelector =
         UiSelector().description("pending approval of connection request")
@@ -234,6 +237,35 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertBlockOptionNotVisibleInConversationActions(): ConversationListPage {
+        val block = findElementOrNull(blockOption)
+        Assert.assertTrue(
+            "Block option is visible in conversation actions.",
+            block == null || block.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun tapBlockOptionOnConversationList(): ConversationListPage {
+        UiWaitUtils.waitElement(blockOption).click()
+        return this
+    }
+
+    fun tapBlockConfirmButtonOnConversationList(): ConversationListPage {
+        UiWaitUtils.waitElement(blockButtonAlert).click()
+        return this
+    }
+
+    fun tapUnblockOptionOnConversationList(): ConversationListPage {
+        UiWaitUtils.waitElement(unblockOption).click()
+        return this
+    }
+
+    fun tapUnblockConfirmButtonOnConversationList(): ConversationListPage {
+        UiWaitUtils.waitElement(unblockButtonAlert).click()
+        return this
+    }
+
     fun assertDeleteConversationButtonNotVisibleInConversationActions(): ConversationListPage {
         val deleteConversation = findElementOrNull(deleteConversationButton)
         Assert.assertTrue(
@@ -333,6 +365,36 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertBlockedLabelVisibleInConversationList(): ConversationListPage {
+        try {
+            UiWaitUtils.waitElement(blockedLabel)
+        } catch (e: AssertionError) {
+            throw AssertionError("Blocked label is not visible in conversation list.", e)
+        }
+        return this
+    }
+
+    fun assertBlockedLabelNotVisibleInConversationList(): ConversationListPage {
+        val label = findElementOrNull(blockedLabel)
+        Assert.assertTrue(
+            "Blocked label is visible in conversation list.",
+            label == null || label.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun assertToastMessageIsDisplayedOnConversationList(
+        expectedMessage: String,
+        timeout: Duration = 5.seconds
+    ): ConversationListPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(text = expectedMessage),
+            timeout = timeout,
+            errorMessage = "Toast message '$expectedMessage' was not displayed within ${timeout.inWholeMilliseconds}ms."
+        )
+        return this
+    }
+
     fun tapStartNewConversationButton(): ConversationListPage {
         UiWaitUtils.waitElement(startNewConversation).click()
         return this
@@ -419,39 +481,16 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickUserProfileButton(): ConversationListPage {
-        val opened = UiWaitUtils.retryUntilTimeout(
-            timeout = 30.seconds,
-            pollingInterval = UiWaitUtils.POLLING_FAST
-        ) {
-            listOf(userProfileButtonNoPhoto, userProfileButton).any { selector ->
-                val button = UiWaitUtils.findElementOrNull(selector)
-                if (button != null && !button.visibleBounds.isEmpty) {
-                    val bounds = button.visibleBounds
-                    val clickPoints = listOf(
-                        bounds.centerX() to bounds.centerY(),
-                        bounds.left + bounds.width() / 3 to bounds.centerY(),
-                        bounds.right - bounds.width() / 3 to bounds.centerY()
-                    )
-                    clickPoints.any { (x, y) ->
-                        device.click(x, y)
-                        UiWaitUtils.waitAnyVisible(
-                            selectors = listOf(userProfilePageTitle, logoutButton),
-                            timeout = 2.seconds,
-                            pollingInterval = UiWaitUtils.POLLING_FAST
-                        ) != null
-                    }
-                } else {
-                    false
-                }
-            }
-        }
-
-        if (!opened) {
-            throw AssertionError("User profile button did not open the profile page.")
-        }
-        return this
+  fun clickUserProfileButton(): ConversationListPage {
+    val buttonWithPhoto = UiWaitUtils.findElementOrNull(userProfileButton)
+    if (buttonWithPhoto != null && !buttonWithPhoto.visibleBounds.isEmpty) {
+        buttonWithPhoto.click()
+    } else {
+        val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
+        buttonNoPhoto.click()
     }
+    return this
+}
 
     fun assertConversationIsVisibleWithTeamOwner(userName: String): ConversationListPage {
         try {

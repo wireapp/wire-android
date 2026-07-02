@@ -57,7 +57,7 @@ class BlockTests : BaseUiTest() {
     @Test
     fun givenTeamOwner_whenOpeningTeamMemberContextMenusFromConversationListAndGroupDetails_thenBlockOptionIsNotVisible() {
         step("Given there is TeamOwner with team Blocking on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "Blocking",
                 "en_US",
@@ -68,7 +68,7 @@ class BlockTests : BaseUiTest() {
         }
 
         step("And User TeamOwner adds user Member1 to team Blocking with role Member") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
                 "Blocking",
@@ -80,7 +80,7 @@ class BlockTests : BaseUiTest() {
         }
 
         step("And User TeamOwner has 1:1 conversation with Member1 in team Blocking") {
-            testServiceHelper.userHas1on1ConversationInTeam(
+            backendSetupHelper.userHas1on1ConversationInTeam(
                 "user1Name",
                 "user2Name",
                 "Blocking"
@@ -88,11 +88,11 @@ class BlockTests : BaseUiTest() {
         }
 
         step("And User TeamOwner is me") {
-            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
         step("And User Member1 is available for 1:1 conversation checks") {
-            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
 
         step("And I see welcome screen before login") {
@@ -171,30 +171,30 @@ class BlockTests : BaseUiTest() {
     @Test
     fun givenConnectedGuestUser_whenBlockingAndUnblockingFromUserProfile_thenUserIsBlockedAndUnblockedSuccessfully() {
         step("Given there are 2 personal users on Staging backend") {
-            teamHelper.usersManager.createXPersonalUsers(2, backendClient)
-            member = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
-            contact1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
+            clientUserManager.createXPersonalUsers(2, backendClient)
+            member = clientUserManager.findUserByNameOrNameAlias("user1Name")
+            contact1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
 
         step("And User Member is me") {
-            teamHelper.usersManager.setSelfUser(member)
+            clientUserManager.setSelfUser(member)
         }
 
         step("And Personal user Member sets profile image and unique username") {
             backendClient.updateUserProfileImage(member, context)
             runBlocking {
-                testServiceHelper.usersSetUniqueUsername("user1Name")
+                backendSetupHelper.usersSetUniqueUsername("user1Name")
             }
         }
 
         step("And User Contact1 is connected to Member") {
-            testServiceHelper.userIsConnectedTo("user2Name", "user1Name")
+            backendSetupHelper.userIsConnectedTo("user2Name", "user1Name")
         }
 
         step("And Personal user Contact1 sets profile image and unique username") {
             backendClient.updateUserProfileImage(contact1, context)
             runBlocking {
-                testServiceHelper.usersSetUniqueUsername("user2Name")
+                backendSetupHelper.usersSetUniqueUsername("user2Name")
             }
         }
 
@@ -330,30 +330,30 @@ class BlockTests : BaseUiTest() {
     @Test
     fun givenConnectedGuestUser_whenBlockingAndUnblockingFromConversationList_thenUserIsBlockedAndUnblockedSuccessfully() {
         step("Given there are 2 personal users on Staging backend") {
-            teamHelper.usersManager.createXPersonalUsers(2, backendClient)
-            member = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
-            contact1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
+            clientUserManager.createXPersonalUsers(2, backendClient)
+            member = clientUserManager.findUserByNameOrNameAlias("user1Name")
+            contact1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
 
         step("And User Member is me") {
-            teamHelper.usersManager.setSelfUser(member)
+            clientUserManager.setSelfUser(member)
         }
 
         step("And Personal user Member sets profile image and unique username") {
             backendClient.updateUserProfileImage(member, context)
             runBlocking {
-                testServiceHelper.usersSetUniqueUsername("user1Name")
+                backendSetupHelper.usersSetUniqueUsername("user1Name")
             }
         }
 
         step("And User Contact1 is connected to Member") {
-            testServiceHelper.userIsConnectedTo("user2Name", "user1Name")
+            backendSetupHelper.userIsConnectedTo("user2Name", "user1Name")
         }
 
         step("And Personal user Contact1 sets profile image and unique username") {
             backendClient.updateUserProfileImage(contact1, context)
             runBlocking {
-                testServiceHelper.usersSetUniqueUsername("user2Name")
+                backendSetupHelper.usersSetUniqueUsername("user2Name")
             }
         }
 
@@ -442,7 +442,7 @@ class BlockTests : BaseUiTest() {
     @Test
     fun givenConnectedTeamUserFromAnotherTeam_whenBlockingAndUnblockingFromConversationListAndGroupDetails_thenUserIsBlockedAndUnblockedSuccessfully() {
         step("Given there is TeamOwnerA with team Blocking on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "Blocking",
                 "en_US",
@@ -453,7 +453,7 @@ class BlockTests : BaseUiTest() {
         }
 
         step("And there is TeamOwnerB with team ToBeBlocked on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user2Name",
                 "ToBeBlocked",
                 "en_US",
@@ -464,11 +464,11 @@ class BlockTests : BaseUiTest() {
         }
 
         step("And User TeamOwnerA is connected to TeamOwnerB") {
-            testServiceHelper.userIsConnectedTo("user1Name", "user2Name")
+            backendSetupHelper.userIsConnectedTo("user1Name", "user2Name")
         }
 
         step("And User TeamOwnerA has 1:1 conversation with TeamOwnerB in team Blocking") {
-            testServiceHelper.userHas1on1ConversationInTeam(
+            backendSetupHelper.userHas1on1ConversationInTeam(
                 "user1Name",
                 "user2Name",
                 "Blocking"
@@ -476,11 +476,11 @@ class BlockTests : BaseUiTest() {
         }
 
         step("And User TeamOwnerA is me") {
-            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
         step("And User TeamOwnerB is available for conversation list checks") {
-            teamOwnerB = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
+            teamOwnerB = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
 
         step("And I see welcome screen before login") {

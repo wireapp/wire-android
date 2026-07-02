@@ -38,6 +38,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import android.graphics.BitmapFactory
 import backendUtils.BackendClient
+import backendUtils.conversation.getConversationByName
 import backendUtils.team.getTeamByName
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -53,7 +54,6 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.collection.IsEmptyIterable.emptyIterable
 import org.json.JSONObject
-import service.getConversationByName
 import user.utils.ClientUser
 import java.util.concurrent.TimeoutException
 import kotlin.time.Duration

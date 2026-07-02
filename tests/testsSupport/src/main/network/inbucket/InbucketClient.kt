@@ -17,6 +17,7 @@
  */
 import android.util.Base64
 import backendUtils.BackendClient
+import backendUtils.user.trigger2FA
 import kotlinx.coroutines.delay
 import logger.WireTestLogger
 import network.NetworkBackendClient.sendJsonRequest

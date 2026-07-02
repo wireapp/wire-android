@@ -84,7 +84,7 @@ data class MeetingItem(
 
     @Stable
     data class OngoingCallStatus(
-        val currentCallStartedTime: Instant, // time when the current call started (there can be many calls one after another in a meeting)
+        val currentCallEstablishedTime: Instant?, // there can be many calls one after another in a meeting, so take the current one
         val isSelfUserAttending: Boolean // is the current user attending the ongoing call
     )
 

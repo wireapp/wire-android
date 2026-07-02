@@ -20,11 +20,14 @@
 package backendUtils.team
 
 import ImageUtil
-import InbucketClient.getInbucketVerificationCode
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import backendUtils.BackendClient
+import backendUtils.auth.defaultheaders
+import backendUtils.auth.getAuthToken
+import backendUtils.user.getActivationCodeForEmail
 import com.wire.android.testSupport.R
 import com.wire.android.testSupport.backendConnections.team.Team
 import kotlinx.coroutines.delay
@@ -33,12 +36,12 @@ import logger.WireTestLogger
 import network.HttpRequestException
 import network.HttpResponseWithCookies
 import network.NetworkBackendClient
-import network.NetworkBackendClient.accessCredentials
-import network.NetworkBackendClient.response
 import network.NumberSequence
 import network.RequestOptions
 import org.json.JSONArray
 import org.json.JSONObject
+import service.models.Conversation
+import service.models.TeamMember
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
 import user.utils.AccessToken
@@ -46,6 +49,7 @@ import user.utils.Asset
 import user.utils.ClientUser
 import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
 import java.net.URLEncoder
 
@@ -146,6 +150,43 @@ suspend fun BackendClient.getAllTeams(forUser: ClientUser): List<Team> {
 
     return List(teamsArray.length()) { i ->
         Team.fromJSON(teamsArray.getJSONObject(i))
+    }
+}
+
+fun BackendClient.getTeamMembers(asUser: ClientUser): List<TeamMember> {
+    val firstTeam = runBlocking { getAllTeams(asUser).first() }
+    return getTeamMembers(runBlocking { getAuthToken(asUser)!! }, firstTeam.id)
+}
+
+private fun BackendClient.getTeamMembers(token: AccessToken, teamId: String): List<TeamMember> {
+    val url = URL("teams/$teamId/members".composeCompleteUrl())
+
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token.type} ${token.value}")
+        put("Accept", BackendClient.applicationJson)
+    }
+
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = url,
+        method = "GET",
+        headers = headers,
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+
+    val jsonResponse = JSONObject(response.body)
+    val members = jsonResponse.getJSONArray("members")
+
+    return buildList {
+        for (i in 0 until members.length()) {
+            val member = members.getJSONObject(i)
+            val userId = member.getString("user")
+            val permissions = member.getJSONObject("permissions")
+            val role = TeamRoles.getByPermissionBitMask(permissions.getInt("self"))
+            add(TeamMember(userId, role))
+        }
     }
 }
 
@@ -372,8 +413,7 @@ private fun BackendClient.updateSelfAssets(token: AccessToken?, assets: Set<Asse
     )
 }
 
-@Suppress("MagicNumber")
-private suspend fun BackendClient.updateUniqueUsername(user: ClientUser, newUniqueUsername: String) {
+suspend fun BackendClient.updateUniqueUsername(user: ClientUser, newUniqueUsername: String) {
     var username = newUniqueUsername
     val tryAvoidDuplicates = username == user.uniqueUsername
     var ntry = 0
@@ -403,63 +443,226 @@ private fun BackendClient.updateSelfHandle(token: AccessToken?, handle: String) 
     )
 }
 
-suspend fun BackendClient.getAuthToken(user: ClientUser): AccessToken? {
-    return getAuthCredentials(user).accessToken
-}
+fun BackendClient.getSelfDeletingMessagesSettings(teamMember: ClientUser): JSONObject {
+    val teamId = Uri.encode(getTeamId(teamMember))
+    val url = "i/teams/$teamId/features/selfDeletingMessages".composeCompleteUrl()
 
-private suspend fun BackendClient.getAuthCredentials(user: ClientUser): AccessCredentials {
-    val credentials = user.accessCredentials
-    return when {
-        credentials == null -> login(user).also {
-            user.accessCredentials = it
-        }
-
-        credentials.accessToken == null || credentials.accessToken.isInvalid() || credentials.accessToken.isExpired() ->
-            access(credentials).also {
-                user.accessCredentials = it
-            }
-
-        else -> credentials
+    val headers = defaultheaders.toMutableMap().apply {
+        put(BackendClient.AUTHORIZATION, basicAuth.getEncoded())
     }
-}
 
-@Suppress("MagicNumber")
-private suspend fun BackendClient.login(user: ClientUser): AccessCredentials {
-    val connection = NetworkBackendClient.makeRequest(
-        url = URL("login".composeCompleteUrl()),
-        method = "POST",
-        body = jsonOf(
-            "email" to user.email,
-            "password" to user.password,
-            "label" to ""
-        ).toString(),
-        options = RequestOptions(expectedResponseCodes = NumberSequence.Array(intArrayOf(200, 403))),
-        headers = defaultheaders,
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(url),
+        method = "GET",
+        headers = headers,
+        options = RequestOptions()
     )
 
-    return when (connection.responseCode) {
-        403 -> {
-            if (inbucketUrl.isBlank()) {
-                throw IOException("Received 403 for 2FA but no inbucket url present - check your backend settings")
-            }
-            val verificationCode = getInbucketVerificationCode(
-                user.email ?: throw IllegalArgumentException("No email tied to user")
-            )
-            val connection2fa = NetworkBackendClient.makeRequest(
-                url = URL("login".composeCompleteUrl()),
-                method = "POST",
-                body = jsonOf(
-                    "email" to user.email,
-                    "password" to user.password,
-                    "verification_code" to verificationCode
-                ).toString(),
-                headers = defaultheaders,
-            )
-            connection2fa.accessCredentials(connection2fa.response())
-        }
+    return JSONObject(response.body)
+}
 
-        else -> connection.accessCredentials(connection.response())
+suspend fun BackendClient.switchServiceForTeam(
+    ownerOrAdminUser: ClientUser,
+    teamId: String,
+    providerId: String,
+    serviceId: String,
+    isEnabled: Boolean
+) {
+    val token = getAuthToken(ownerOrAdminUser)
+    val url = URI("teams/$teamId/services/whitelist".composeCompleteUrl()).toURL()
+
+    val headers = defaultheaders.toMutableMap().apply {
+        put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
+        put(BackendClient.accept, "*/*")
     }
+
+    val requestBody = JSONObject().apply {
+        put("id", serviceId)
+        put("provider", providerId)
+        put("whitelisted", isEnabled)
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = url,
+        method = "POST",
+        headers = headers,
+        body = requestBody.toString(),
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
+}
+
+suspend fun BackendClient.addServiceToConversation(asUser: ClientUser, serviceName: String, conversation: Conversation) {
+    val teamId = conversation.teamId
+        ?: throw IllegalStateException("Conversation '${conversation.name}' has no team id.")
+    val service = getWhitelistedService(asUser, teamId, serviceName)
+    val token = getAuthToken(asUser)
+    val url = URI("conversations/${conversation.id}/bots".composeCompleteUrl()).toURL()
+
+    val headers = defaultheaders.toMutableMap().apply {
+        put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
+    }
+
+    val requestBody = JSONObject().apply {
+        put("service", service.getString("id"))
+        put("provider", service.getString("provider"))
+    }
+
+    try {
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "POST",
+            headers = headers,
+            body = requestBody.toString(),
+            options = RequestOptions(
+                accessToken = token,
+                expectedResponseCodes = NumberSequence.Array(
+                    intArrayOf(HttpURLConnection.HTTP_CREATED, HttpURLConnection.HTTP_NO_CONTENT)
+                )
+            )
+        )
+    } catch (e: HttpRequestException) {
+        throw HttpRequestException(
+            "POST $url failed with HTTP ${e.returnCode}: ${e.message}",
+            e.returnCode
+        )
+    }
+}
+
+private suspend fun BackendClient.getWhitelistedService(asUser: ClientUser, teamId: String, serviceName: String): JSONObject {
+    val token = getAuthToken(asUser)
+    val url = URI(
+        "teams/$teamId/services/whitelisted?prefix=${Uri.encode(serviceName)}".composeCompleteUrl()
+    ).toURL()
+
+    val headers = defaultheaders.toMutableMap().apply {
+        put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
+    }
+
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = url,
+        method = "GET",
+        headers = headers,
+        options = RequestOptions(accessToken = token)
+    )
+
+    val services = JSONObject(response.body).getJSONArray("services")
+    for (index in 0 until services.length()) {
+        val service = services.getJSONObject(index)
+        if (service.optString("name") == serviceName) {
+            return service
+        }
+    }
+    throw NoSuchElementException("Service '$serviceName' is not whitelisted for team '$teamId'.")
+}
+
+suspend fun BackendClient.enableMLSFeatureTeam(
+    team: Team,
+    defaultCipherSuite: Int,
+    allowedCipherSuites: List<Int>,
+    defaultProtocol: String,
+    allowedProtocols: List<String>
+) {
+    val teamId = Uri.encode(team.id)
+    val url = URI("i/teams/$teamId/features/mls".composeCompleteUrl()).toURL()
+
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", basicAuth.getEncoded())
+    }
+
+    val requestBody = JSONObject().apply {
+        put("status", "enabled")
+        put(
+            "config",
+            JSONObject().apply {
+                put("defaultCipherSuite", defaultCipherSuite)
+                put("allowedCipherSuites", JSONArray(allowedCipherSuites))
+                put("defaultProtocol", defaultProtocol)
+                put("protocolToggleUsers", JSONArray())
+                put("supportedProtocols", JSONArray(allowedProtocols))
+            }
+        )
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = url,
+        method = "PUT",
+        headers = headers,
+        body = requestBody.toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+}
+
+suspend fun BackendClient.enableChannelFeatureViaBackdoorTeam(team: Team) {
+    val teamId = Uri.encode(team.id)
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", basicAuth.getEncoded())
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI("i/teams/$teamId/features/channels".composeCompleteUrl()).toURL(),
+        method = "PATCH",
+        headers = headers,
+        body = JSONObject().put("status", "enabled").toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+}
+
+suspend fun BackendClient.unlockChannelFeature(team: Team) {
+    val teamId = Uri.encode(team.id)
+    val url = URI("i/teams/$teamId/features/channels/unlocked".composeCompleteUrl()).toURL()
+
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", basicAuth.getEncoded())
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = url,
+        method = "PUT",
+        headers = headers,
+        body = JSONObject().toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+}
+
+suspend fun BackendClient.enableForceAppLockFeature(team: Team, seconds: Int) {
+    val teamId = Uri.encode(team.id)
+    val url = URI("i/teams/$teamId/features/appLock".composeCompleteUrl()).toURL()
+
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", basicAuth.getEncoded())
+    }
+
+    val requestBody = JSONObject().apply {
+        put("status", "enabled")
+        put(
+            "config",
+            JSONObject().apply {
+                put("enforceAppLock", true)
+                put("inactivityTimeoutSecs", seconds)
+            }
+        )
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = url,
+        method = "PUT",
+        headers = headers,
+        body = requestBody.toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
 }
 
 fun ClientUser.deleteTeam(backend: BackendClient) {
@@ -501,20 +704,6 @@ fun ClientUser.suspendTeam(backend: BackendClient) {
     )
 }
 
-private fun BackendClient.access(credentials: AccessCredentials): AccessCredentials {
-    val connection = NetworkBackendClient.makeRequest(
-        url = URL("access".composeCompleteUrl()),
-        method = "POST",
-        body = jsonOf("withCredentials" to true).toString(),
-        headers = defaultheaders,
-        options = RequestOptions(
-            accessToken = credentials.accessToken,
-            cookie = credentials.accessCookie
-        ),
-    )
-    return connection.accessCredentials(connection.response())
-}
-
 @Suppress("TooGenericExceptionCaught", "MagicNumber")
 private suspend fun <T> retryOnBackendFailure(action: () -> T): T {
     var ntry = 1
@@ -538,11 +727,6 @@ enum class TeamRoutes(val route: String) {
     SelfAssets("self"),
     SelfHandle("self/handle"),
 }
-
-val defaultheaders = mapOf(
-    "Accept" to BackendClient.applicationJson,
-    BackendClient.contentType to BackendClient.applicationJson
-)
 
 enum class TeamRoles(val role: String, val permissionBitMask: Int) {
     Owner("owner", 8191),

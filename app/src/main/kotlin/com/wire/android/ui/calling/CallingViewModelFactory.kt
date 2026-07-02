@@ -39,6 +39,7 @@ import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelImpl
+import com.wire.android.ui.home.meetings.MeetingsCallViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
@@ -229,6 +230,19 @@ class CallingViewModelFactory @Inject constructor(
         setUserInformedAboutVerification = setUserInformedAboutVerification,
         observeDegradedConversationNotified = observeDegradedConversationNotified,
         observeConferenceCallingEnabled = observeConferenceCallingEnabled,
+        observeSelf = observeSelf,
+    )
+
+    fun meetingsCallViewModel() = MeetingsCallViewModel(
+        currentAccount = currentAccount,
+        observeEstablishedCalls = observeEstablishedCalls,
+        observeParticipantsForConversation = observeParticipantsForConversation,
+        answerCall = answerCall,
+        endCall = endCall,
+        observeSyncState = observeSyncState,
+        isConferenceCallingEnabled = isConferenceCallingEnabled,
+        setUserInformedAboutVerification = setUserInformedAboutVerification,
+        observeDegradedConversationNotified = observeDegradedConversationNotified,
         observeSelf = observeSelf,
     )
 

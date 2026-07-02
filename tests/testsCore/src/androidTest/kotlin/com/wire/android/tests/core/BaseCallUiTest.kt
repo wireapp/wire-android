@@ -32,10 +32,10 @@ abstract class BaseCallUiTest : BaseUiTest() {
 
     /**
      * Call after initCommonTestHelpers() and after starting the app,
-     * because this uses TeamHelper and grants permissions through UiDevice.
+     * because this uses the shared user manager and grants permissions through UiDevice.
      */
     protected fun initCallTestHelpers() {
-        callHelper.init(teamHelper.usersManager)
+        callHelper.init(clientUserManager)
         callingManager = callHelper.callingManager
         grantRuntimePermsForForegroundApp(
             device,

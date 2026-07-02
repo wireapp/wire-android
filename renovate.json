@@ -1,0 +1,30 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "enabledManagers": [
+    "github-actions",
+    "gradle",
+    "gradle-wrapper"
+  ],
+  "ignorePaths": [
+    "kalium/**"
+  ],
+  "schedule": [
+    "before 5am on monday"
+  ],
+  "prConcurrentLimit": 5,
+  "commitMessagePrefix": "chore(deps): [WPB-9777]",
+  "packageRules": [
+    {
+      "description": "Preserve the previous 14 day cooldown for Gradle updates.",
+      "matchManagers": [
+        "gradle",
+        "gradle-wrapper"
+      ],
+      "minimumReleaseAge": "14 days"
+    }
+  ]
+}

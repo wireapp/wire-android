@@ -49,7 +49,7 @@ class GroupInteraction : BaseUiTest() {
     @Test
     fun givenTeamOwnerWithGroupConversationAndBot_whenValidatingReactionsAndInteractions_thenFlowSucceeds() {
         step("There is TeamOwnerA with team Bots") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "Bots",
                 "en_US",
@@ -60,7 +60,7 @@ class GroupInteraction : BaseUiTest() {
         }
 
         step("TeamOwnerA adds Member1 and Member2 to team Bots with role Member") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
                 "Bots",
@@ -72,7 +72,7 @@ class GroupInteraction : BaseUiTest() {
         }
 
         step("There is TeamOwnerB with team ConnectedFriend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user4Name",
                 "ConnectedFriend",
                 "en_US",
@@ -83,7 +83,7 @@ class GroupInteraction : BaseUiTest() {
         }
 
         step("TeamOwnerA is connected to TeamOwnerB") {
-            testServiceHelper.userIsConnectedTo("user1Name", "user4Name")
+            backendSetupHelper.userIsConnectedTo("user1Name", "user4Name")
         }
 
         step("TeamOwnerA adds a new device Device1 with label Device1") {
@@ -91,11 +91,11 @@ class GroupInteraction : BaseUiTest() {
         }
 
         step("TeamOwnerA enables Poll Bot service for team Bots") {
-            testServiceHelper.userEnablesServiceForTeam("user1Name", "Poll Bot", "Bots")
+            backendSetupHelper.userEnablesServiceForTeam("user1Name", "Poll Bot", "Bots")
         }
 
         step("TeamOwnerA has group conversation BotsConversation with Member1, Member2, and TeamOwnerB in team Bots") {
-            testServiceHelper.userHasGroupConversationInTeam(
+            backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
                 "BotsConversation",
                 "user2Name,user3Name,user4Name",
@@ -104,11 +104,11 @@ class GroupInteraction : BaseUiTest() {
         }
 
         step("TeamOwnerA adds Poll Bot to conversation BotsConversation") {
-            testServiceHelper.userAddsBotToConversation("user1Name", "Poll Bot", "BotsConversation")
+            backendSetupHelper.userAddsBotToConversation("user1Name", "Poll Bot", "BotsConversation")
         }
 
         step("TeamOwnerA is me") {
-            teamOwnerA = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamOwnerA = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
         step("And I see welcome screen before login") {
@@ -166,8 +166,7 @@ class GroupInteraction : BaseUiTest() {
                     "user2Name",
                     "Hello fellow members",
                     "Device2",
-                    "BotsConversation",
-                    false
+                    "BotsConversation"
                 )
             }
         }
@@ -243,7 +242,7 @@ class GroupInteraction : BaseUiTest() {
         }
 
         step("Then I see Member2 in participants list") {
-            val member2 = teamHelper.usersManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
+            val member2 = clientUserManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
             pages.groupConversationDetailsPage.apply {
                 assertUsernameIsAddedToParticipantsList(member2.name ?: "")
             }
@@ -256,7 +255,7 @@ class GroupInteraction : BaseUiTest() {
         }
 
         step("And TeamOwnerA removes TeamOwnerB from group conversation BotsConversation") {
-            testServiceHelper.userRemovesUserFromGroupConversation(
+            backendSetupHelper.userRemovesUserFromGroupConversation(
                 "user1Name",
                 "user4Name",
                 "BotsConversation"
@@ -264,7 +263,7 @@ class GroupInteraction : BaseUiTest() {
         }
 
         step("Then I see system message You removed TeamOwnerB from the conversation in conversation view") {
-            val teamOwnerB = teamHelper.usersManager.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
+            val teamOwnerB = clientUserManager.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
             iSeeSystemMessage("You removed ${teamOwnerB.name ?: ""} from the conversation")
         }
 

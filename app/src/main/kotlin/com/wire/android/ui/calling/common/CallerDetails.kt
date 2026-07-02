@@ -59,7 +59,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -101,7 +101,7 @@ fun CallerDetails(
         if (isCbrEnabled) {
             Text(
                 text = stringResource(id = R.string.calling_constant_bit_rate_indication).uppercase(
-                    Locale.getDefault()
+                    LocalLocale.current.platformLocale
                 ),
                 color = colorsScheme().secondaryText,
                 style = MaterialTheme.wireTypography.title03,

@@ -49,7 +49,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.PreviewMultipleThemes
 import java.time.LocalDate
 import java.time.ZoneOffset
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,7 +92,7 @@ private fun DatePickerDialogContent(
         selectableDates = selectableDates
     )
     val dateFormatter: DatePickerFormatter = remember { DatePickerDefaults.dateFormatter() }
-    val formattedDate = dateFormatter.formatDate(datePickerState.selectedDateMillis, Locale.getDefault())
+    val formattedDate = dateFormatter.formatDate(datePickerState.selectedDateMillis, LocalLocale.current.platformLocale)
 
     LaunchedEffect(Unit) {
         datePickerState.selectedDateMillis = selectedDateMillis

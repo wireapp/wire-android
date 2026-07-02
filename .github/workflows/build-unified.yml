@@ -381,12 +381,12 @@ jobs:
           retention-days: 7
 
       - name: Generate SBOM
-        if: github.actor != 'dependabot[bot]'
+        if: github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]'
         continue-on-error: true
         run: ./gradlew generateSbom
 
       - name: Upload SBOM artifact
-        if: github.actor != 'dependabot[bot]'
+        if: github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]'
         continue-on-error: true
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:

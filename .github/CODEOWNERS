@@ -7,5 +7,5 @@ gradle/libs.versions.toml @wireapp/android
 .github/workflows/* @wireapp/android
 
 # GitHub Actions dependency/update config
-.github/dependabot.yml @wireapp/android
+renovate.json @wireapp/android
 .github/actions/* @wireapp/android

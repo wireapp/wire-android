@@ -33,7 +33,7 @@
     <!-- Connections -->
     <!-- Missing keyPackages dialog -->
     <!-- Search Contact-->
-    <string name="content_description_change_it_label">değiştir</string>
-    <string name="content_description_drop_down">Açılır liste</string>
-    <string name="content_description_close_dropdown">açılır listeyi kapat</string>
+    <!--wire dropdown-->
+    <!-- No Activity Errors -->
+    <!-- Go to app settings permissions dialog -->
 </resources>

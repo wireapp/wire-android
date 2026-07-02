@@ -20,24 +20,53 @@ package com.wire.android.feature.meetings.mapper
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingItem.Status
 import com.wire.android.feature.meetings.ui.mock.Meeting
+import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.util.DateTimeUtil
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.minutes
 
 private val BUFFER_TIME = 5.minutes
 
-fun Meeting.toMeetingItem(time: Instant): MeetingItem = MeetingItem(
+fun Meeting.toMeetingItem(time: Instant, ongoingCallStatus: MeetingItem.OngoingCallStatus?): MeetingItem = MeetingItem(
     meetingId = meetingId,
     conversationId = conversationId,
     belongingType = belongingType,
     repeatingInterval = repeatingInterval,
     title = title,
     status = when {
-        startTime > time && endTime != null -> Status.Scheduled(startTime = startTime, endTime = endTime)
-        startTime < time && endTime != null && endTime + BUFFER_TIME < time -> Status.Ended(startTime = startTime, endTime = endTime)
-        else -> Status.Ongoing(startTime = startTime, scheduledEndTime = endTime, ongoingCallStatus = ongoingCallStatus)
+        startTime > time && endTime != null -> Status.Scheduled(
+            startTime = startTime,
+            endTime = endTime
+        )
+
+        startTime < time && endTime != null && endTime + BUFFER_TIME < time -> Status.Ended(
+            startTime = startTime,
+            endTime = endTime
+        )
+
+        else -> Status.Ongoing(
+            startTime = startTime,
+            scheduledEndTime = endTime,
+            ongoingCallStatus = ongoingCallStatus
+        )
     },
     selfRole = selfRole,
 )
+
+fun Call.toOngoingCallStatus() = when (status) {
+    CallStatus.STARTED,
+    CallStatus.ANSWERED,
+    CallStatus.ESTABLISHED,
+    CallStatus.INCOMING,
+    CallStatus.STILL_ONGOING -> MeetingItem.OngoingCallStatus(
+        currentCallEstablishedTime = establishedTime?.let {
+            Instant.fromEpochMilliseconds(DateTimeUtil.fromIsoDateTimeStringToEpochMillis(it))
+        },
+        isSelfUserAttending = status in listOf(CallStatus.STARTED, CallStatus.ANSWERED, CallStatus.ESTABLISHED),
+    )
+    else -> null // only calls in these states above are considered ongoing, other statuses mean the call is closed
+}
 
 fun MeetingItem.toMeeting(): Meeting = Meeting(
     meetingId = meetingId,
@@ -51,6 +80,5 @@ fun MeetingItem.toMeeting(): Meeting = Meeting(
         is Status.Ended -> status.endTime
     },
     repeatingInterval = repeatingInterval,
-    ongoingCallStatus = (status as? Status.Ongoing)?.ongoingCallStatus,
     selfRole = selfRole
 )

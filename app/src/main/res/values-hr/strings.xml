@@ -85,7 +85,6 @@
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">Obavijesti nekoga</string>
     <string name="content_description_send_button">Pošalji</string>
-    <string name="content_description_timed_message_button">Samobrisanje poruka, gumb</string>
     <string name="content_description_menu_button">Glavna navigacija</string>
     <string name="content_description_drop_down_icon">Padajući izbornik strelica</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Stavka uređaja</string>
@@ -124,7 +123,6 @@
     <string name="content_description_calling_call_unmuted">Uključen zvuk poziva</string>
     <string name="content_description_calling_call_paused_camera">Pauzirana Kamera</string>
     <string name="content_description_more_emojis">Više emoji-a</string>
-    <string name="content_description_self_deletion_selector_button">Uključi/isključi način samostalnog brisanja, gumb</string>
     <string name="content_description_message_sending_status">Status slanja poruke</string>
     <string name="content_description_message_sent_status">Status poslane poruke</string>
     <string name="content_description_message_error_status">Status greške u poruci</string>
@@ -510,10 +508,8 @@
     <!-- legal hold -->
     <!-- Sure want to send message Dialog -->
     <!-- Sure want to call Dialog -->
-    <!-- Go to app settings permissions dialog -->
     <!-- Share Location -->
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->

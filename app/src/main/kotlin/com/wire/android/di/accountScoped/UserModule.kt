@@ -28,7 +28,6 @@ import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
 import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
-import com.wire.kalium.logic.feature.client.ObserveIsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
@@ -239,9 +238,6 @@ class UserModule {
 
     @Provides
     fun provideCellsConfigUseCase(userScope: UserScope): IsWireCellsEnabledUseCase = userScope.isWireCellsEnabled
-
-    @Provides
-    fun provideObserveCellsConfigUseCase(userScope: UserScope): ObserveIsWireCellsEnabledUseCase = userScope.observeIsWireCellsEnabled
 
     @Provides
     fun provideIsWireCellsEnabledForConversationUseCase(userScope: UserScope): IsWireCellsEnabledForConversationUseCase =

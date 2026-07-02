@@ -34,6 +34,7 @@
     <string name="label_leave">Покинуть</string>
     <string name="label_add_device">Добавить устройство</string>
     <string name="label_learn_more">Подробнее</string>
+    <string name="label_learn_more_about_mls">Узнайте больше о MLS</string>
     <string name="label_removing">Удаление...</string>
     <string name="label_logging_in">Авторизация…</string>
     <string name="label_try_again">Повторить</string>
@@ -112,7 +113,7 @@
     <string name="content_description_new_meeting">Начните или запланируйте новую встречу Wire</string>
     <string name="content_description_back_button">Назад</string>
     <string name="content_description_send_button">Отправить</string>
-    <string name="content_description_timed_message_button">Самоудаляющиеся сообщения, кнопка</string>
+    <string name="content_description_timed_message_button">Самоудаляющиеся сообщения</string>
     <string name="content_description_close_button">Закрыть</string>
     <string name="content_description_menu_button">Основное меню</string>
     <string name="content_description_drop_down_icon">Курсор вниз</string>
@@ -210,6 +211,8 @@
     <string name="content_description_edit_label">редактировать</string>
     <string name="content_description_selected_label">выбрано</string>
     <string name="content_description_toggle_setting_label">переключить настройку</string>
+    <string name="content_description_switch_on">вкл</string>
+    <string name="content_description_switch_off">выкл</string>
     <string name="content_description_edit_guests_option_back_btn">Вернуться к сведениям о беседе</string>
     <string name="content_description_edit_self_delete_back_btn">Вернуться к сведениям о беседе</string>
     <string name="content_description_accept_or_ignore_connection_label">принять или игнорировать запрос</string>
@@ -1317,6 +1320,8 @@
     <string name="nomad_account_blocks_login_title">Вход заблокирован</string>
     <string name="nomad_account_blocks_login_message">В данный момент в системе авторизован управляемый профиль. Перед добавлением другого аккаунта необходимо сначала осуществить выход.</string>
     <string name="cant_switch_account_in_call">Невозможно переключать аккаунты во время звонка</string>
+    <string name="cross_backend_login_blocked_title">Переключение бэкэндов заблокировано</string>
+    <string name="cross_backend_login_blocked_message">В данный момент вы не можете войти в другой бэкенд. Сначала необходимо осуществить выход, а затем войти в другой бэкенд.</string>
     <string name="deeplink_authorization_needed">Для выполнения этого действия необходимо авторизоваться</string>
     <string name="custom_backend_dialog_title">Перенаправить на локальный бэкэнд?</string>
     <string name="custom_backend_dialog_body">При продолжении вы будете перенаправлены на следующий локальный бэкэнд:</string>

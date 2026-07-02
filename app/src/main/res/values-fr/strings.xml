@@ -87,7 +87,6 @@
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">Mentionner quelqu\'un</string>
     <string name="content_description_send_button">Envoyer</string>
-    <string name="content_description_timed_message_button">Bouton messages auto-supprimés</string>
     <string name="content_description_menu_button">Navigation principale</string>
     <string name="content_description_drop_down_icon">Flèche déroulante</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Élément de l\'appareil</string>
@@ -126,7 +125,6 @@
     <string name="content_description_calling_call_unmuted">Appel rétabli</string>
     <string name="content_description_calling_call_paused_camera">Caméra en pause</string>
     <string name="content_description_more_emojis">Plus d\'émojis</string>
-    <string name="content_description_self_deletion_selector_button">Basculer en mode auto-suppression, bouton</string>
     <string name="content_description_message_sending_status">État d\'envoi des messages</string>
     <string name="content_description_message_sent_status">Statut du message envoyé</string>
     <string name="content_description_message_error_status">Statut d\'erreur du message</string>
@@ -478,7 +476,6 @@
     <!-- Gallery -->
     <!--sso dialog-->
     <!--prohibited asset messages -->
-    <!--wire dropdown-->
     <!--block user dialog -->
     <!--Settings -->
     <!--Settings, Appearance -->
@@ -509,10 +506,8 @@
     <!-- legal hold -->
     <!-- Sure want to send message Dialog -->
     <!-- Sure want to call Dialog -->
-    <!-- Go to app settings permissions dialog -->
     <!-- Share Location -->
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->

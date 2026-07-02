@@ -14,6 +14,7 @@ jobs:
     if: |
       github.event.issue.pull_request &&
       github.actor != 'dependabot[bot]' &&
+      github.actor != 'renovate[bot]' &&
       contains(github.event.comment.body, '@claude review') &&
       (
         github.event.comment.author_association == 'OWNER' ||

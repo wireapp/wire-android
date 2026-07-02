@@ -22,5 +22,6 @@
     <!-- Missing keyPackages dialog -->
     <!-- Search Contact-->
     <!--wire dropdown-->
-        <string name="wire_dropdown_placeholder">Izaberi stavku</string>
+    <!-- No Activity Errors -->
+    <!-- Go to app settings permissions dialog -->
 </resources>

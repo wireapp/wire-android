@@ -78,10 +78,22 @@ class ManagedConfigurationsModule {
     ): ServerConfig.Links {
         return if (BuildConfig.EMM_SUPPORT_ENABLED) {
             // Returns the current resolved server configuration links, which could be either managed or default
-            managedConfigurationsManager.currentServerConfig
+            managedConfigurationsManager.currentServerConfig ?: ServerConfigProvider.EmptyServerConfig
         } else {
             // If EMM support is disabled, always return the static default server configuration links
             provideServerConfigProvider().getDefaultServerConfig(null)
+        }
+    }
+
+    @Provides
+    @Named("isDefaultBackendConfigured")
+    fun provideIsDefaultBackendConfigured(
+        managedConfigurationsManager: ManagedConfigurationsManager
+    ): Boolean {
+        return if (BuildConfig.EMM_SUPPORT_ENABLED) {
+            managedConfigurationsManager.currentServerConfig != null
+        } else {
+            BuildConfig.DEFAULT_BACKEND_ENABLED
         }
     }
 

@@ -253,6 +253,7 @@
     <string name="content_description_login_user_identifier_field">enter your email or username</string>
     <string name="content_description_login_email_field">enter your email</string>
     <string name="content_description_enterprise_login_email_field">enter your email or sso code</string>
+    <string name="content_description_backend_config_camera_button">Open camera to scan backend configuration QR code</string>
     <string name="content_description_login_password_field">enter your password</string>
     <string name="content_description_login_sso_code_field">enter your SSO code or Wire email</string>
     <string name="content_description_whats_new_welcome_item">Welcome to Wire\'s New Android App, link to support page</string>
@@ -1885,6 +1886,15 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="restriction_keep_websocket_title">Keep WebSocket Connection</string>
     <string name="restriction_keep_websocket_description">Force persistent WebSocket connection for all users</string>
     <string name="settings_keep_websocket_enforced_by_organization">This setting is managed by your organization.</string>
+    <string name="enterprise_login_error_missing_backend_config">Backend configuration is required. Open a configuration link or contact your administrator.</string>
+    <string name="missing_backend_config_title">Set up your app</string>
+    <string name="missing_backend_config_description">To get started, enter the link or scan the QR code provided by your administration.</string>
+    <string name="missing_backend_config_input_label">CONFIGURATION LINK</string>
+    <string name="missing_backend_config_input_placeholder"></string>
+    <string name="missing_backend_config_button_setup">Set Up</string>
+    <string name="missing_backend_config_error">Something went wrong. Check the link and your connection and try again.</string>
+    <string name="backend_config_success_title">Configuration successful</string>
+    <string name="backend_config_success_description">You can now log in</string>
 
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels are available for team members.</string>

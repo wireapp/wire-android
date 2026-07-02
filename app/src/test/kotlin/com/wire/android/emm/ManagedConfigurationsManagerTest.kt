@@ -62,7 +62,7 @@ class ManagedConfigurationsManagerTest {
             val result = manager.refreshServerConfig()
             assertInstanceOf<ServerConfigResult.Success>(result)
 
-            val serverConfig = manager.currentServerConfig
+            val serverConfig = requireNotNull(manager.currentServerConfig)
             assertEquals(expected.title, serverConfig.title)
             assertEquals(expected.endpoints.accountsURL, serverConfig.accounts)
             assertEquals(expected.endpoints.backendURL, serverConfig.api)
@@ -80,7 +80,7 @@ class ManagedConfigurationsManagerTest {
 
         val result = manager.refreshServerConfig()
         assertInstanceOf<ServerConfigResult.Failure>(result)
-        val serverConfig = manager.currentServerConfig
+        val serverConfig = requireNotNull(manager.currentServerConfig)
         assertEquals(ServerConfigProvider().getDefaultServerConfig(), serverConfig)
     }
 
@@ -92,7 +92,7 @@ class ManagedConfigurationsManagerTest {
 
         val result = manager.refreshServerConfig()
         assertInstanceOf<ServerConfigResult.Failure>(result)
-        val serverConfig = manager.currentServerConfig
+        val serverConfig = requireNotNull(manager.currentServerConfig)
         assertEquals(ServerConfigProvider().getDefaultServerConfig(), serverConfig)
     }
 
@@ -142,7 +142,7 @@ class ManagedConfigurationsManagerTest {
 
         val result = manager.refreshServerConfig()
         assertInstanceOf<ServerConfigResult.Empty>(result)
-        val serverConfig = manager.currentServerConfig
+        val serverConfig = requireNotNull(manager.currentServerConfig)
         assertEquals(ServerConfigProvider().getDefaultServerConfig(), serverConfig)
     }
 
@@ -194,7 +194,7 @@ class ManagedConfigurationsManagerTest {
             val result = manager.refreshServerConfig()
             assertInstanceOf<ServerConfigResult.Success>(result)
 
-            val serverConfig = manager.currentServerConfig
+            val serverConfig = requireNotNull(manager.currentServerConfig)
             assertEquals("Secure Server", serverConfig.title)
             assertEquals("https://secure-account.wire.link", serverConfig.accounts)
         }
@@ -210,7 +210,7 @@ class ManagedConfigurationsManagerTest {
             val result = manager.refreshServerConfig()
             assertInstanceOf<ServerConfigResult.Success>(result)
 
-            val serverConfig = manager.currentServerConfig
+            val serverConfig = requireNotNull(manager.currentServerConfig)
             assertEquals("General Server", serverConfig.title)
             assertEquals("https://general-account.wire.link", serverConfig.accounts)
         }
@@ -226,7 +226,7 @@ class ManagedConfigurationsManagerTest {
             val result = manager.refreshServerConfig()
             assertInstanceOf<ServerConfigResult.Empty>(result)
 
-            val serverConfig = manager.currentServerConfig
+            val serverConfig = requireNotNull(manager.currentServerConfig)
             assertEquals(ServerConfigProvider().getDefaultServerConfig(), serverConfig)
         }
 

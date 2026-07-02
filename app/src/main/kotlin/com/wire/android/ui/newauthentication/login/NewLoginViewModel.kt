@@ -29,6 +29,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
@@ -42,8 +43,11 @@ import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Compan
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.authentication.login.sso.ssoCodeWithPrefix
+import com.wire.android.ui.authentication.toBackendConfigUrl
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.android.util.BackendSupportConfig
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -61,6 +65,8 @@ import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.server.GetServerConfigResult
+import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
@@ -86,6 +92,9 @@ class NewLoginViewModel(
     private val dispatchers: DispatcherProvider,
     defaultServerConfig: ServerConfig.Links,
     defaultSSOCodeConfig: String,
+    private val isDefaultBackendConfigured: Boolean,
+    private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>? = null,
+    private val globalDataStore: Lazy<GlobalDataStore>? = null,
 ) : ActionsViewModel<NewLoginAction>() {
 
     @Inject
@@ -98,7 +107,10 @@ class NewLoginViewModel(
         userDataStoreProvider: UserDataStoreProvider,
         dispatchers: DispatcherProvider,
         defaultServerConfig: ServerConfig.Links,
+        getServerConfigUseCase: Lazy<GetServerConfigUseCase>,
+        globalDataStore: Lazy<GlobalDataStore>,
         @Named("ssoCodeConfig") defaultSSOCodeConfig: String,
+        @Named("isDefaultBackendConfigured") isDefaultBackendConfigured: Boolean,
         @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
     ) : this(
         validateEmailOrSSOCode,
@@ -110,13 +122,19 @@ class NewLoginViewModel(
         LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, defaultWebSocketEnabledByDefault),
         dispatchers,
         defaultServerConfig,
-        defaultSSOCodeConfig
+        defaultSSOCodeConfig,
+        isDefaultBackendConfigured,
+        getServerConfigUseCase,
+        globalDataStore,
     )
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
     private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
     private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
+    private val isCustomServerDeepLink = loginNavArgs.loginPasswordPath?.customServerConfig != null
+    private val shouldShowBackendConfigSuccess = loginNavArgs.showBackendConfigSuccess && isCustomServerDeepLink
+    private var canUseBackend by mutableStateOf(isCustomServerDeepLink || isDefaultBackendConfigured)
     var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig ?: defaultServerConfig)
         private set
 
@@ -125,7 +143,6 @@ class NewLoginViewModel(
     val userIdentifierTextState: TextFieldState = TextFieldState()
 
     init {
-        val isCustomServerDeepLink = loginNavArgs.loginPasswordPath?.customServerConfig != null
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
                 preFilledUserIdentifier.userIdentifier
@@ -140,35 +157,67 @@ class NewLoginViewModel(
                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
             }.collectLatest {
                 getAndUpdateLoginFlowState { currentState: NewLoginFlowState ->
-                    if (currentState is NewLoginFlowState.Error.TextFieldError) NewLoginFlowState.Default else currentState
+                    if (!canUseBackend) {
+                        when (currentState) {
+                            NewLoginFlowState.LoadingBackendConfig,
+                            NewLoginFlowState.BackendConfigError,
+                            NewLoginFlowState.BackendConfigSuccess -> currentState
+                            else -> NewLoginFlowState.MissingBackendConfig
+                        }
+                    } else if (currentState is NewLoginFlowState.Error.TextFieldError) {
+                        NewLoginFlowState.Default
+                    } else {
+                        currentState
+                    }
                 }
             }
         }
 
-        // Fetch default SSO code for the server configuration
+        if (!canUseBackend) {
+            updateLoginFlowState(NewLoginFlowState.MissingBackendConfig)
+        } else if (shouldShowBackendConfigSuccess) {
+            updateLoginFlowState(NewLoginFlowState.BackendConfigSuccess)
+        } else if (userIdentifierTextState.text.isEmpty() && preFilledUserIdentifier is PreFilledUserIdentifierType.None) {
+            fetchDefaultSSOCodeIfNeeded(savedStateHandle)
+        }
+    }
+
+    fun onBackendConfigSuccessContinue() {
+        updateLoginFlowState(NewLoginFlowState.Default)
         if (userIdentifierTextState.text.isEmpty() && preFilledUserIdentifier is PreFilledUserIdentifierType.None) {
-            viewModelScope.launch(dispatchers.io()) {
-                appLogger.d("$TAG Fetching default SSO code for server")
-                ssoExtension.fetchDefaultSSOCode(
-                    serverConfig = serverConfig,
-                    onAuthScopeFailure = { error ->
-                        appLogger.e("$TAG Failed to create auth scope for SSO settings: $error")
-                    },
-                    onFetchSSOSettingsFailure = { error ->
-                        appLogger.e("$TAG Failed to fetch SSO settings: $error")
-                    },
-                    onSuccess = { defaultSSOCode ->
-                        if (defaultSSOCode != null && userIdentifierTextState.text.isEmpty()) {
-                            appLogger.d("$TAG Successfully fetched default SSO code")
-                            withContext(dispatchers.main()) {
-                                userIdentifierTextState.setTextAndPlaceCursorAtEnd(defaultSSOCode)
-                                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = defaultSSOCode
-                            }
-                        } else {
-                            appLogger.d("$TAG No default SSO code configured for this server")
-                        }
+            fetchDefaultSSOCodeIfNeeded()
+        }
+    }
+
+    fun onBackendConfigLinkEntered(input: String) {
+        viewModelScope.launch(dispatchers.io()) {
+            val configUrl = input.toBackendConfigUrl()
+            if (configUrl == null) {
+                updateLoginFlowState(NewLoginFlowState.BackendConfigError)
+                return@launch
+            }
+
+            updateLoginFlowState(NewLoginFlowState.LoadingBackendConfig)
+            when (val result = getServerConfigUseCase?.value?.invoke(configUrl)) {
+                is GetServerConfigResult.Success -> {
+                    CustomTabsHelper.setBackendWebsiteUrl(result.serverConfigLinks.website)
+                    globalDataStore?.let {
+                        BackendSupportConfig.storeFromConfigUrl(it.value, result.serverConfigLinks, configUrl)
                     }
-                )
+                    withContext(dispatchers.main()) {
+                        serverConfig = result.serverConfigLinks
+                        canUseBackend = true
+                    }
+                    updateLoginFlowState(NewLoginFlowState.BackendConfigSuccess)
+                }
+
+                is GetServerConfigResult.Failure.Generic,
+                null -> {
+                    if (result is GetServerConfigResult.Failure.Generic) {
+                        appLogger.e("$TAG Failed to load backend config from setup screen: ${result.genericFailure}")
+                    }
+                    updateLoginFlowState(NewLoginFlowState.BackendConfigError)
+                }
             }
         }
     }
@@ -178,6 +227,10 @@ class NewLoginViewModel(
      */
     fun onLoginStarted() {
         viewModelScope.launch(dispatchers.io()) {
+            if (!canUseBackend) {
+                updateLoginFlowState(NewLoginFlowState.MissingBackendConfig)
+                return@launch
+            }
             updateLoginFlowState(NewLoginFlowState.Loading)
             val sanitizedInput = userIdentifierTextState.text.trim().toString()
             when (validateEmailOrSSOCode(sanitizedInput)) {
@@ -474,8 +527,39 @@ class NewLoginViewModel(
         val currentUserLoginInput = userIdentifierTextState.text
         state = state.copy(
             flowState = newState,
-            nextEnabled = newState !is NewLoginFlowState.Loading && currentUserLoginInput.isNotEmpty()
+            nextEnabled = newState !is NewLoginFlowState.Loading &&
+                    newState !is NewLoginFlowState.MissingBackendConfig &&
+                    newState !is NewLoginFlowState.LoadingBackendConfig &&
+                    newState !is NewLoginFlowState.BackendConfigError &&
+                    newState !is NewLoginFlowState.BackendConfigSuccess &&
+                    currentUserLoginInput.isNotEmpty()
         )
+    }
+
+    private fun fetchDefaultSSOCodeIfNeeded(savedStateHandle: SavedStateHandle? = null) {
+        viewModelScope.launch(dispatchers.io()) {
+            appLogger.d("$TAG Fetching default SSO code for server")
+            ssoExtension.fetchDefaultSSOCode(
+                serverConfig = serverConfig,
+                onAuthScopeFailure = { error ->
+                    appLogger.e("$TAG Failed to create auth scope for SSO settings: $error")
+                },
+                onFetchSSOSettingsFailure = { error ->
+                    appLogger.e("$TAG Failed to fetch SSO settings: $error")
+                },
+                onSuccess = { defaultSSOCode ->
+                    if (defaultSSOCode != null && userIdentifierTextState.text.isEmpty()) {
+                        appLogger.d("$TAG Successfully fetched default SSO code")
+                        withContext(dispatchers.main()) {
+                            userIdentifierTextState.setTextAndPlaceCursorAtEnd(defaultSSOCode)
+                            savedStateHandle?.set(USER_IDENTIFIER_SAVED_STATE_KEY, defaultSSOCode)
+                        }
+                    } else {
+                        appLogger.d("$TAG No default SSO code configured for this server")
+                    }
+                }
+            )
+        }
     }
 
     private fun consumePendingNomadServiceUrl(): String? = pendingNomadServiceUrl.also {

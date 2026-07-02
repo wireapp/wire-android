@@ -99,6 +99,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     DEFAULT_BACKEND_URL_BLACKLIST("default_backend_url_blacklist", ConfigType.STRING),
     DEFAULT_BACKEND_URL_WEBSITE("default_backend_url_website", ConfigType.STRING),
     DEFAULT_BACKEND_TITLE("default_backend_title", ConfigType.STRING),
+    DEFAULT_BACKEND_ENABLED("default_backend_enabled", ConfigType.BOOLEAN),
 
     CERTIFICATE_PINNING_CONFIG("cert_pinning_config", ConfigType.MapOfStringToListOfStrings),
     // TODO: Add support for default proxy configs

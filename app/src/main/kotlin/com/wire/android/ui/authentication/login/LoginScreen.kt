@@ -55,9 +55,12 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireLoginDestination
 import com.wire.android.navigation.style.TransitionAnimationType
+import com.wire.android.ui.authentication.BackendConfigSuccessContent
+import com.wire.android.ui.authentication.MissingBackendConfigContent
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
+import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
@@ -172,6 +175,9 @@ private fun MainLoginContent(
 
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val isBackendConfigured = loginEmailViewModel.isBackendConfigured
+    val backendConfigState = loginEmailViewModel.loginState.backendConfigState
+    val shouldShowBackendSetup = !isBackendConfigured || backendConfigState == LoginEmailState.BackendConfigState.Success
     // Show SSO tab if we have either ssoLoginResult or ssoCodeAutoLogin
     val initialPageIndex = if (ssoLoginResult != null || ssoCodeAutoLogin != null) {
         LoginTabItem.SSO.ordinal
@@ -190,9 +196,15 @@ private fun MainLoginContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
-                title = stringResource(R.string.login_title),
+                title = stringResource(
+                    if (!shouldShowBackendSetup) {
+                        R.string.login_title
+                    } else {
+                        R.string.missing_backend_config_title
+                    }
+                ),
                 subtitleContent = {
-                    if (loginEmailViewModel.serverConfig.isOnPremises) {
+                    if (!shouldShowBackendSetup && loginEmailViewModel.serverConfig.isOnPremises) {
                         ServerTitle(
                             serverLinks = loginEmailViewModel.serverConfig,
                             style = MaterialTheme.wireTypography.body01
@@ -202,28 +214,30 @@ private fun MainLoginContent(
                 onNavigationPressed = onBackPressed,
                 navigationIconType = NavigationIconType.Back(R.string.content_description_login_back_btn)
             ) {
-                WireTabRow(
-                    tabs = LoginTabItem.values().toList(),
-                    selectedTabIndex = pagerState.calculateCurrentTab(),
-                    onTabChange = {
+                if (!shouldShowBackendSetup) {
+                    WireTabRow(
+                        tabs = LoginTabItem.values().toList(),
+                        selectedTabIndex = pagerState.calculateCurrentTab(),
+                        onTabChange = {
 
-                        if (loginEmailViewModel.serverConfig.isProxyEnabled) {
-                            if (pagerState.currentPage != LoginTabItem.SSO.ordinal) {
-                                ssoDisabledWithProxyDialogState.show(
-                                    ssoDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
-                                        R.string.sso_not_supported_dialog_description
+                            if (loginEmailViewModel.serverConfig.isProxyEnabled) {
+                                if (pagerState.currentPage != LoginTabItem.SSO.ordinal) {
+                                    ssoDisabledWithProxyDialogState.show(
+                                        ssoDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
+                                            R.string.sso_not_supported_dialog_description
+                                        )
                                     )
-                                )
+                                }
+                            } else {
+                                scope.launch { pagerState.animateScrollToPage(it) }
                             }
-                        } else {
-                            scope.launch { pagerState.animateScrollToPage(it) }
-                        }
-                    },
-                    modifier = Modifier.padding(
-                        start = MaterialTheme.wireDimensions.spacing16x,
-                        end = MaterialTheme.wireDimensions.spacing16x
-                    ),
-                )
+                        },
+                        modifier = Modifier.padding(
+                            start = MaterialTheme.wireDimensions.spacing16x,
+                            end = MaterialTheme.wireDimensions.spacing16x
+                        ),
+                    )
+                }
             }
         },
         modifier = Modifier.fillMaxHeight(),
@@ -232,30 +246,56 @@ private fun MainLoginContent(
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
 
-        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(internalPadding)
-            ) { pageIndex ->
-                when (LoginTabItem.values()[pageIndex]) {
-                    LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(
-                        onSuccess,
-                        onRemoveDeviceNeeded,
-                        loginNavArgs,
-                        ssoLoginResult,
-                        ssoCodeAutoLogin,
-                    )
+        if (!shouldShowBackendSetup) {
+            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(internalPadding)
+                ) { pageIndex ->
+                    when (LoginTabItem.values()[pageIndex]) {
+                        LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
+                        LoginTabItem.SSO -> LoginSSOScreen(
+                            onSuccess,
+                            onRemoveDeviceNeeded,
+                            loginNavArgs,
+                            ssoLoginResult,
+                            ssoCodeAutoLogin,
+                        )
+                    }
+                }
+                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
+                    LaunchedEffect(Unit) {
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                        focusedTabIndex = pagerState.currentPage
+                    }
                 }
             }
-            if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                LaunchedEffect(Unit) {
-                    keyboardController?.hide()
-                    focusManager.clearFocus()
-                    focusedTabIndex = pagerState.currentPage
-                }
+        } else {
+            if (backendConfigState == LoginEmailState.BackendConfigState.Success) {
+                BackendConfigSuccessContent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(internalPadding)
+                        .padding(MaterialTheme.wireDimensions.spacing16x),
+                    onContinue = loginEmailViewModel::onBackendConfigSuccessContinue,
+                )
+            } else {
+                MissingBackendConfigContent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(internalPadding)
+                        .padding(MaterialTheme.wireDimensions.spacing16x),
+                    errorText = if (backendConfigState == LoginEmailState.BackendConfigState.Error) {
+                        stringResource(R.string.missing_backend_config_error)
+                    } else {
+                        null
+                    },
+                    isLoading = backendConfigState == LoginEmailState.BackendConfigState.Loading,
+                    onConfigurationLinkEntered = loginEmailViewModel::onBackendConfigLinkEntered,
+                )
             }
         }
     }

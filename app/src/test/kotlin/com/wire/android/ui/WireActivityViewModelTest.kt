@@ -1055,7 +1055,8 @@ class WireActivityViewModelTest {
             coEvery { observeNewClients() } returns flowOf()
             every { observeScreenshotCensoringConfigUseCaseProviderFactory.create(any()).observeScreenshotCensoringConfig } returns
                     observeScreenshotCensoringConfigUseCase
-            every { observeScreenshotCensoringConfigUseCase.invoke() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
+            every { observeScreenshotCensoringConfigUseCase.invoke() } returns
+                    flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther())
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
             coEvery {

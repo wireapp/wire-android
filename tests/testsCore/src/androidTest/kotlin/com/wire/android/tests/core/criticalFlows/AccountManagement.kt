@@ -58,7 +58,7 @@ class AccountManagement : BaseUiTest() {
             lateinit var newEmail: ClientUser
 
             step("Prepare team via backend  (owner + members + conversation)") {
-                teamHelper.usersManager.createTeamOwnerByAlias(
+                backendSetupHelper.createTeamOwnerByAlias(
                     "user1Name",
                     "AccountManagement",
                     "en_US",
@@ -66,9 +66,9 @@ class AccountManagement : BaseUiTest() {
                     backendClient,
                     context
                 )
-                registeredUser = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+                registeredUser = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
 
-                teamHelper.userXAddsUsersToTeam(
+                backendSetupHelper.userXAddsUsersToTeam(
                     "user1Name",
                     "user2Name,user3Name",
                     "AccountManagement",
@@ -78,15 +78,15 @@ class AccountManagement : BaseUiTest() {
                     true
                 )
 
-                testServiceHelper.userHasGroupConversationInTeam(
+                backendSetupHelper.userHasGroupConversationInTeam(
                     "user1Name",
                     "MyTeam",
                     "user2Name",
                     "AccountManagement"
                 )
 
-                teamMember = teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
-                newEmail = teamHelper.usersManager.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
+                teamMember = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+                newEmail = clientUserManager.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
             }
 
             step("Login as team member in Android app") {

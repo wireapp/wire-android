@@ -17,7 +17,7 @@
  */
 package service.models
 
-import backendUtils.ConnectionStatus
+import backendUtils.connection.ConnectionStatus
 import org.json.JSONObject
 
 data class Connection(

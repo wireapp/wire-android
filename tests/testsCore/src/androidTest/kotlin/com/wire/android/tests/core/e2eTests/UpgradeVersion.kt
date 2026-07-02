@@ -57,7 +57,7 @@ class UpgradeVersion : BaseUiTest() {
     @Test
     fun givenTeamUserWithConversationHistory_whenUpdatingFromPreviousWireVersion_thenHistoryIsPreserved() {
         step("There is a team owner with a team named UpgradeTeam") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "UpgradeTeam",
                 "en_US",
@@ -68,7 +68,7 @@ class UpgradeVersion : BaseUiTest() {
         }
 
         step("Team owner adds members to the team with role Member") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
                 "UpgradeTeam",
@@ -80,7 +80,7 @@ class UpgradeVersion : BaseUiTest() {
         }
 
         step("Team owner has a group conversation with members in the team") {
-            testServiceHelper.userHasGroupConversationInTeam(
+            backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
                 "UpgradeVersion",
                 "user2Name,user3Name",
@@ -89,7 +89,7 @@ class UpgradeVersion : BaseUiTest() {
         }
 
         step("Member 1 has a 1:1 conversation with Member 2 in the team") {
-            testServiceHelper.userHas1on1ConversationInTeam(
+            backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user3Name",
                 "UpgradeTeam"
@@ -97,8 +97,8 @@ class UpgradeVersion : BaseUiTest() {
         }
 
         step("Member 1 is me") {
-            member1 = teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
-            member2 = teamHelper.usersManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
+            member1 = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+            member2 = clientUserManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
         step("And I see welcome screen before login") {
@@ -162,8 +162,7 @@ class UpgradeVersion : BaseUiTest() {
                     "user3Name",
                     "Hello!",
                     "Device1",
-                    "UpgradeVersion",
-                    false
+                    "UpgradeVersion"
                 )
             }
         }
@@ -198,8 +197,7 @@ class UpgradeVersion : BaseUiTest() {
                 "user3Name",
                 "Hello friend",
                 "Device1",
-                "user2Name",
-                false
+                "user2Name"
             )
         }
 

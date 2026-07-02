@@ -50,7 +50,7 @@ class SSODeviceBackup : BaseUiTest() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
         backendClient = BackendClient.loadBackend("STAGING")
-        SSOServiceHelper.usersManager = teamHelper.usersManager
+        SSOServiceHelper.clientUserManager = clientUserManager
         oktaApiClient = OktaApiClient()
     }
 
@@ -73,7 +73,7 @@ class SSODeviceBackup : BaseUiTest() {
                     "Messaging",
                     oktaApiClient
                 )
-                teamOwner = teamHelper.usersManager.findUserBy(
+                teamOwner = clientUserManager.findUserBy(
                     "user1Name",
                     ClientUserManager.FindBy.NAME_ALIAS
                 )
@@ -82,7 +82,7 @@ class SSODeviceBackup : BaseUiTest() {
 
                 testServiceHelper.userXIsMe("user2Name")
 
-                member1 = teamHelper.usersManager.findUserBy(
+                member1 = clientUserManager.findUserBy(
                     "user2Name",
                     ClientUserManager.FindBy.NAME_ALIAS
                 )
@@ -136,7 +136,7 @@ class SSODeviceBackup : BaseUiTest() {
                 step("Search for team owner and open their profile from search results") {
                     pages.searchPage.apply {
                         tapSearchPeopleField()
-                        typeUniqueUserNameInSearchField(teamHelper, "user1Name")
+                        typeUniqueUserNameInSearchField(clientUserManager, "user1Name")
                         assertUsernameInSearchResultIs(teamOwner?.name ?: "")
                         tapUsernameInSearchResult(teamOwner?.name ?: "")
                     }
@@ -256,7 +256,7 @@ class SSODeviceBackup : BaseUiTest() {
                         iSeeBackupPageHeading()
                         clickRestoreBackupButton()
                         clickChooseBackupFileButton()
-                        selectBackupFileInDocumentsUI(teamHelper, "user2Name")
+                        selectBackupFileInDocumentsUI(clientUserManager, "user2Name")
                         waitUntilThisTextIsDisplayedOnBackupAlert("Conversations have been restored")
                         clickOkButtonOnBackupAlert()
                     }

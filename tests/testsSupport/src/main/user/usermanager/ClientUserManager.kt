@@ -23,6 +23,7 @@ import backendUtils.BackendClient
 import backendUtils.team.TeamRoles
 import backendUtils.team.createTeamOwnerViaBackend
 import backendUtils.team.createTeamUserViaBackend
+import backendUtils.user.createPersonalUserViaBackend
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
 import user.usermanager.exceptions.NoSuchUserException

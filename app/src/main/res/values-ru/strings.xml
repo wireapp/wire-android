@@ -1865,6 +1865,8 @@
     <string name="personal_to_team_migration_error_message_unknown_error">Wire не удалось завершить создание вашей команды из-за неизвестной ошибки.</string>
     <string name="reaction_sender_self">Вы</string>
     <string name="emoji_picker_select_reaction">Выбрать реакцию</string>
+    <string name="content_description_add_this_reaction">Нажмите дважды, чтобы добавить эту реакцию</string>
+    <string name="content_description_remove_your_reaction">Нажмите дважды, чтобы удалить реакцию</string>
     <string name="label_user_database_profile">Журнал базы данных</string>
     <!-- Move to Folder -->
     <string name="move_to_folder_success">“%1$s” был перемещен в “%2$s”</string>

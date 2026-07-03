@@ -252,7 +252,7 @@
     <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
     <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
     <string name="content_description_login_email_field">enter your email or username</string>
-    <string name="content_description_backend_config_camera_button">Open camera to scan backend configuration QR code</string>
+    <string name="content_description_backend_config_camera_button">Scan QR code</string>
     <string name="content_description_login_password_field">enter your password</string>
     <string name="content_description_login_sso_code_field">enter your SSO code or Wire email</string>
     <string name="content_description_whats_new_welcome_item">Welcome to Wire\'s New Android App, link to support page</string>
@@ -361,12 +361,13 @@
     <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
     <!-- Login -->
     <string name="login_title">Log in</string>
-    <string name="missing_backend_config_title">Set up backend configuration</string>
-    <string name="missing_backend_config_description">Your app has no backend configured. Ask your administrator for a configuration link or QR code.</string>
+    <string name="missing_backend_config_title">Set up your app</string>
+    <string name="missing_backend_config_description">To get started, enter the link or scan the QR code provided by your administration.</string>
     <string name="missing_backend_config_input_label">Configuration link</string>
-    <string name="missing_backend_config_input_placeholder">https://example.com/deeplink.json</string>
-    <string name="backend_config_success_title">Configuration successful</string>
-    <string name="backend_config_success_description">You can now log in</string>
+    <string name="missing_backend_config_input_placeholder">Enter link or scan QR code</string>
+    <string name="backend_config_setup_button">Set Up</string>
+    <string name="backend_config_success_title">Your app is set up</string>
+    <string name="backend_config_success_description">In the next step, you can log in</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
@@ -1210,7 +1211,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
     <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
     <string name="custom_backend_error_title">An error occurred</string>
-    <string name="custom_backend_error_no_internet_connection_body">Redirecting to an on-premises backend was not possible, you don’t seem to be connected to the internet.\n\nEstablish an internet connection and try again.</string>
+    <string name="custom_backend_error_no_internet_connection_body">Something went wrong. Check the link and your connection, then try again.</string>
     <string name="custom_backend_error_no_internet_connection_try_again">Try again</string>
     <string name="label_fetching_your_messages">Receiving new messages</string>
     <string name="label_text_copied">Text copied to clipboard</string>

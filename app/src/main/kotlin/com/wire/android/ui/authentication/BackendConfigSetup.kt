@@ -128,7 +128,7 @@ fun MissingBackendConfigContent(
         )
         VerticalSpace.x8()
         WirePrimaryButton(
-            text = stringResource(R.string.label_continue),
+            text = stringResource(R.string.backend_config_setup_button),
             fillMaxWidth = true,
             state = if (isConfigInputEmpty) WireButtonState.Disabled else WireButtonState.Default,
             onClick = { context.openBackendConfig(backendConfigTextState.text.toString()) },

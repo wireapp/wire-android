@@ -252,6 +252,7 @@
     <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
     <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
     <string name="content_description_login_email_field">enter your email or username</string>
+    <string name="content_description_backend_config_camera_button">Open camera to scan backend configuration QR code</string>
     <string name="content_description_login_password_field">enter your password</string>
     <string name="content_description_login_sso_code_field">enter your SSO code or Wire email</string>
     <string name="content_description_whats_new_welcome_item">Welcome to Wire\'s New Android App, link to support page</string>
@@ -360,6 +361,12 @@
     <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
     <!-- Login -->
     <string name="login_title">Log in</string>
+    <string name="missing_backend_config_title">Set up backend configuration</string>
+    <string name="missing_backend_config_description">Your app has no backend configured. Ask your administrator for a configuration link or QR code.</string>
+    <string name="missing_backend_config_input_label">Configuration link</string>
+    <string name="missing_backend_config_input_placeholder">https://example.com/deeplink.json</string>
+    <string name="backend_config_success_title">Configuration successful</string>
+    <string name="backend_config_success_description">You can now log in</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>

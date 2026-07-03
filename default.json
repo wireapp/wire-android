@@ -118,6 +118,7 @@
     "default_backend_url_blacklist": "https://clientblacklist.wire.com/prod",
     "default_backend_url_website": "https://wire.com",
     "default_backend_title": "wire-production",
+    "default_backend_enabled": true,
     "cert_pinning_config": {
         "sha256/fnBeCwh0imI9t46Onid49IwvsB5vcf7RCvafRRdCyRE=": [
             "**.prod-nginz-https.wire.com",

@@ -28,27 +28,57 @@ import javax.inject.Singleton
 @Singleton
 class AuthServerConfigProvider @Inject constructor() {
     // todo check with soft logout
-    private val defaultBackendConfigs = ServerConfig.Links(
-        api = BuildConfig.DEFAULT_BACKEND_URL_BASE_API,
-        accounts = BuildConfig.DEFAULT_BACKEND_URL_ACCOUNTS,
-        webSocket = BuildConfig.DEFAULT_BACKEND_URL_BASE_WEBSOCKET,
-        teams = BuildConfig.DEFAULT_BACKEND_URL_TEAM_MANAGEMENT,
-        blackList = BuildConfig.DEFAULT_BACKEND_URL_BLACKLIST,
-        website = BuildConfig.DEFAULT_BACKEND_URL_WEBSITE,
-        title = BuildConfig.DEFAULT_BACKEND_TITLE,
-        isOnPremises = false,
-        apiProxy = null
-    )
+    private val defaultBackendConfigs = if (BuildConfig.DEFAULT_BACKEND_ENABLED) {
+        ServerConfig.Links(
+            api = BuildConfig.DEFAULT_BACKEND_URL_BASE_API,
+            accounts = BuildConfig.DEFAULT_BACKEND_URL_ACCOUNTS,
+            webSocket = BuildConfig.DEFAULT_BACKEND_URL_BASE_WEBSOCKET,
+            teams = BuildConfig.DEFAULT_BACKEND_URL_TEAM_MANAGEMENT,
+            blackList = BuildConfig.DEFAULT_BACKEND_URL_BLACKLIST,
+            website = BuildConfig.DEFAULT_BACKEND_URL_WEBSITE,
+            title = BuildConfig.DEFAULT_BACKEND_TITLE,
+            isOnPremises = false,
+            apiProxy = null
+        )
+    } else {
+        EmptyServerConfig
+    }
     private val _authServer: MutableStateFlow<ServerConfig.Links> = MutableStateFlow(defaultBackendConfigs)
     val authServer: StateFlow<ServerConfig.Links> = _authServer
 
+    private val _backendConfigSuccessVisible: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val backendConfigSuccessVisible: StateFlow<Boolean> = _backendConfigSuccessVisible
+
     fun updateAuthServer(serverLinks: ServerConfig.Links) {
         _authServer.value = serverLinks
+    }
+
+    fun updateAuthServerFromBackendConfiguration(serverLinks: ServerConfig.Links) {
+        updateAuthServer(serverLinks)
+        _backendConfigSuccessVisible.value = true
     }
 
     fun updateAuthServer(serverConfig: ServerConfig) {
         _authServer.value = serverConfig.links
     }
 
+    fun dismissBackendConfigSuccess() {
+        _backendConfigSuccessVisible.value = false
+    }
+
     fun defaultServerLinks() = defaultBackendConfigs
+
+    companion object {
+        val EmptyServerConfig = ServerConfig.Links(
+            api = "",
+            accounts = "",
+            webSocket = "",
+            teams = "",
+            blackList = "",
+            website = "",
+            title = "",
+            isOnPremises = false,
+            apiProxy = null
+        )
+    }
 }

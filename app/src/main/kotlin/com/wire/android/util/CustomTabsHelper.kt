@@ -30,7 +30,14 @@ import com.wire.kalium.logger.KaliumLogLevel
 
 object CustomTabsHelper {
 
-    fun launchUrl(context: Context, url: String) = launchUri(context, Uri.parse(url))
+    fun setBackendWebsiteUrl(url: String?) {
+        SupportUrlResolver.setBackendWebsiteUrl(url)
+    }
+
+    fun launchUrl(context: Context, url: String) {
+        val resolvedUrl = SupportUrlResolver.resolveUrl(url) ?: return
+        launchUri(context, Uri.parse(resolvedUrl))
+    }
 
     @JvmStatic
     fun launchUri(context: Context, uri: Uri) {

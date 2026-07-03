@@ -109,7 +109,7 @@ fun String.getBaseRoute(): String =
 
 fun Direction.handleNavigation(context: Context, handleOtherDirection: (Direction) -> Unit) = when (this) {
     is ExternalUriDirection -> CustomTabsHelper.launchUri(context, this.uri)
-    is ExternalUriStringResDirection -> CustomTabsHelper.launchUri(context, this.getUri(context.resources))
+    is ExternalUriStringResDirection -> CustomTabsHelper.launchUrl(context, context.resources.getString(this.uriStringRes))
     is IntentDirection -> context.startActivity(this.intent(context))
     else -> handleOtherDirection(this)
 }

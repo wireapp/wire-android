@@ -53,12 +53,24 @@ open class LoginViewModel @Inject constructor(
     var serverConfig: ServerConfig.Links by mutableStateOf(authServerConfigProvider.authServer.value)
         private set
 
+    var isBackendConfigSuccessVisible: Boolean by mutableStateOf(authServerConfigProvider.backendConfigSuccessVisible.value)
+        private set
+
     init {
         viewModelScope.launch {
             authServerConfigProvider.authServer.collect {
                 serverConfig = it
             }
         }
+        viewModelScope.launch {
+            authServerConfigProvider.backendConfigSuccessVisible.collect {
+                isBackendConfigSuccessVisible = it
+            }
+        }
+    }
+
+    fun dismissBackendConfigSuccess() {
+        authServerConfigProvider.dismissBackendConfigSuccess()
     }
 
     suspend fun registerClient(

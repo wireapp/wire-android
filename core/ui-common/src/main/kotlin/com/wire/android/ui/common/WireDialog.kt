@@ -58,6 +58,7 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.SupportUrlResolver
 
 @Stable
 fun wireDialogPropertiesBuilder(
@@ -207,7 +208,11 @@ fun WireDialogContent(
                         TextWithLinkSuffix(
                             text = text,
                             linkText = textSuffixLink?.linkText,
-                            onLinkClick = { textSuffixLink?.linkUrl?.let { uriHandler.openUri(it) } },
+                            onLinkClick = {
+                                textSuffixLink?.linkUrl
+                                    ?.let(SupportUrlResolver::resolveUrl)
+                                    ?.let(uriHandler::openUri)
+                            },
                             modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
                         )
                     }

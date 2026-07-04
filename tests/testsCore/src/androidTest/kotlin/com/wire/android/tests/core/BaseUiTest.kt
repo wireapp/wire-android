@@ -171,8 +171,8 @@ abstract class BaseUiTest : KoinTest {
     protected fun initCommonTestHelpers() {
         context = InstrumentationRegistry.getInstrumentation().context
         clientUserManager = ClientUserManager(useSpecialEmail = false)
-        backendSetupHelper = BackendSetupHelper(clientUserManager)
         testServiceHelper = TestServiceHelper(clientUserManager)
+        backendSetupHelper = BackendSetupHelper(clientUserManager, testServiceHelper::addDevice)
     }
 
     private fun tearDownCommonTestHelpers() {

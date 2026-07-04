@@ -386,7 +386,7 @@ class TestServiceHelper(
     fun userSendMessageToConversation(
         senderAlias: String,
         msg: String,
-        deviceName: String,
+        deviceName: String?,
         dstConvoName: String
     ) {
         val clientUser = toClientUser(senderAlias)
@@ -403,7 +403,7 @@ class TestServiceHelper(
     fun userSendMessageToPersonalMlsConversation(
         senderAlias: String,
         msg: String,
-        deviceName: String,
+        deviceName: String?,
         dstConvoName: String
     ) {
         val clientUser = toClientUser(senderAlias)
@@ -414,6 +414,28 @@ class TestServiceHelper(
             msg = msg,
             deviceName = deviceName,
             timeout = resolveMessageTimeout(senderAlias, dstConvoName)
+        )
+    }
+
+    fun userSendEphemeralMessageToConversation(
+        senderAlias: String,
+        msg: String,
+        deviceName: String,
+        dstConvoName: String,
+        messageTimer: Duration
+    ) {
+        val clientUser = toClientUser(senderAlias)
+        val conversation = if (runCatching { usersManager.findUserByNameOrNameAlias(dstConvoName) }.isSuccess) {
+            toConvoObjPersonal(clientUser, dstConvoName)
+        } else {
+            toConvoObj(clientUser, dstConvoName)
+        }
+        sendMessageInternal(
+            clientUser = clientUser,
+            conversation = conversation,
+            msg = msg,
+            deviceName = deviceName,
+            timeout = messageTimer
         )
     }
 
@@ -571,7 +593,7 @@ class TestServiceHelper(
         clientUser: ClientUser,
         conversation: Conversation,
         msg: String,
-        deviceName: String,
+        deviceName: String?,
         timeout: Duration
     ) {
         val convoId = conversation.qualifiedID.id

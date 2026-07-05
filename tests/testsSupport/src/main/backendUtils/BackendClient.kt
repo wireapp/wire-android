@@ -25,6 +25,7 @@ package backendUtils
 
 import CredentialsManager
 import com.wire.android.testSupport.BuildConfig
+import network.NetworkBackendClient
 import user.utils.BasicAuth
 import java.net.Authenticator
 import java.net.InetSocketAddress
@@ -48,20 +49,7 @@ class BackendClient(
     val acmeDiscoveryUrl: String,
     val k8sNamespace: String,
     val socksProxy: String,
-    var proxy: Proxy? = if (socksProxy.isNotEmpty()) {
-
-        Authenticator.setDefault(object : Authenticator() {
-            override fun getPasswordAuthentication(): PasswordAuthentication {
-                return PasswordAuthentication(
-                    "qa",
-                    BuildConfig.SOCKS_PROXY_PASSWORD_PASSWORD.toCharArray()
-                )
-            }
-        })
-        Proxy(Proxy.Type.SOCKS, InetSocketAddress("socks.wire.link", 1080))
-    } else {
-        null
-    }
+    var proxy: Proxy? = null
 ) {
 
     fun hasInbucketSetup() = inbucketUrl.isNotEmpty()
@@ -71,6 +59,7 @@ class BackendClient(
         const val accept = "Accept"
         const val applicationJson = "application/json"
         const val AUTHORIZATION = "Authorization"
+        private const val DEFAULT_BACKEND_NAME = "STAGING"
 
         data class BackendSecrets(
             val backendUrl: String,
@@ -91,8 +80,9 @@ class BackendClient(
         )
 
         private fun loadSecrets(connectionName: String): BackendSecrets {
+            val parentKey = buildConfigParentKey(connectionName)
             fun field(name: String): String? =
-                CredentialsManager.getSecretFieldValue("BACKENDCONNECTION_$connectionName", name.uppercase())
+                CredentialsManager.getSecretFieldValue(parentKey, name.toBuildConfigKeySegment())
 
             return BackendSecrets(
                 backendUrl = field("backendUrl") ?: "",
@@ -113,6 +103,23 @@ class BackendClient(
             )
         }
 
+        // Backend names can contain hyphens, while generated BuildConfig keys use underscores.
+        private fun String.toBuildConfigKeySegment(): String =
+            replace("[.\\-\\s]+".toRegex(), "_").uppercase()
+
+        private fun buildConfigParentKey(connectionName: String): String =
+            "BACKENDCONNECTION_${connectionName.toBuildConfigKeySegment()}"
+
+        private fun validateRequiredSecrets(connectionName: String, secrets: BackendSecrets) {
+            if (secrets.backendUrl.isNotBlank()) return
+
+            throw IllegalStateException(
+                "Backend '$connectionName' is missing required field 'backendUrl'. " +
+                        "Expected generated BuildConfig prefix '${buildConfigParentKey(connectionName)}'. " +
+                        "Check that secrets.json contains a matching BackendConnection item and rebuild the test APK."
+            )
+        }
+
         private fun buildBasicAuth(username: String?, password: String?, fallback: String): BasicAuth {
             return if (!username.isNullOrEmpty() && !password.isNullOrEmpty()) {
                 BasicAuth(username, password)
@@ -121,12 +128,11 @@ class BackendClient(
             }
         }
 
-        fun getDefault(): BackendClient? {
-            return loadBackend("STAGING")
-        }
+        fun getDefault(): BackendClient? = loadBackend(DEFAULT_BACKEND_NAME)
 
         fun loadBackend(connectionName: String): BackendClient {
             val secrets = loadSecrets(connectionName)
+            validateRequiredSecrets(connectionName, secrets)
 
             return BackendClient(
                 name = connectionName,
@@ -167,8 +173,13 @@ class BackendClient(
                     )
                 }
             })
-            this.proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("socks.wire.link", 1080))
+            if (proxy == null) {
+                proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("socks.wire.link", 1080))
+            }
         }
+        // Register both backend and Inbucket origins so shared requests can use SOCKS when needed.
+        NetworkBackendClient.registerProxy(backendUrl, proxy)
+        NetworkBackendClient.registerProxy(inbucketUrl, proxy)
     }
 
     fun String.composeCompleteUrl(): String {

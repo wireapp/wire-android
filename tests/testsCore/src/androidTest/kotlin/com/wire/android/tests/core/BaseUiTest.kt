@@ -168,9 +168,18 @@ abstract class BaseUiTest : KoinTest {
      */
     protected open val deletePersonalUsersAfterTest: Boolean = false
 
-    protected fun initCommonTestHelpers() {
+    protected fun initCommonTestHelpers(backendName: String = DEFAULT_BACKEND_NAME) {
+        initCommonTestHelpers(BackendClient.loadBackend(backendName))
+    }
+
+    protected fun initCommonTestHelpers(backendClient: BackendClient) {
         context = InstrumentationRegistry.getInstrumentation().context
-        clientUserManager = ClientUserManager(useSpecialEmail = false)
+        this.backendClient = backendClient
+        // The selected backend is passed into ClientUserManager, which stamps it onto generated users.
+        clientUserManager = ClientUserManager(
+            useSpecialEmail = false,
+            backendClient = backendClient
+        )
         backendSetupHelper = BackendSetupHelper(clientUserManager)
         testServiceHelper = TestServiceHelper(clientUserManager)
     }
@@ -184,5 +193,9 @@ abstract class BaseUiTest : KoinTest {
                 deletePersonalUsers = deletePersonalUsersAfterTest
             )
         }
+    }
+
+    private companion object {
+        const val DEFAULT_BACKEND_NAME = "STAGING"
     }
 }

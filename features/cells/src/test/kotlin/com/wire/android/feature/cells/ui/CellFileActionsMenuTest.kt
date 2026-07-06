@@ -42,7 +42,6 @@ class CellFileActionsMenuTest {
                 listOf(
                     NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                 ),
                 items
             )
@@ -84,7 +83,6 @@ class CellFileActionsMenuTest {
             assertEquals(
                 listOf(
                     NodeBottomSheetAction.OPEN,
-                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
                     NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MOVE,
@@ -109,7 +107,6 @@ class CellFileActionsMenuTest {
                 listOf(
                     NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                 ),
                 items
             )
@@ -132,7 +129,6 @@ class CellFileActionsMenuTest {
                 listOf(
                     NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                     NodeBottomSheetAction.EDIT,
                     NodeBottomSheetAction.VERSION_HISTORY,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
@@ -536,6 +532,37 @@ class CellFileActionsMenuTest {
                 }
             )
         }
+
+    @Test
+    fun `GIVEN offlineFilesEnabled AND file not available offline AND collabora enabled AND edit NOT supported WHEN building menu THEN MAKE_AVAILABLE_OFFLINE is added`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(isEditSupported = false),
+                withCollaboraIntegration = true,
+                isAllFiles = true,
+            )
+
+            // THEN
+            assert(NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE in items)
+            assert(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS !in items)
+        }
+
+    @Test
+    fun `GIVEN offlineFilesEnabled AND file not available offline AND collabora enabled AND edit IS supported WHEN building menu THEN no offline action is added`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(isEditSupported = true),
+                withCollaboraIntegration = true,
+                isAllFiles = true,
+            )
+
+            // THEN
+            assert(NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE !in items)
+            assert(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS !in items)
+        }
+
 
     @Test
     fun `GIVEN offline files disabled WHEN building allFiles menu THEN no offline action is added`() =

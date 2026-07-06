@@ -24,6 +24,7 @@ import user.utils.AccessToken
 import java.io.ByteArrayOutputStream
 import java.net.HttpCookie
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.Proxy
 import java.net.URL
 import java.security.MessageDigest
@@ -80,7 +81,7 @@ object NetworkBackendClient {
     fun registerProxy(baseUrl: String, proxy: Proxy?) {
         if (baseUrl.isBlank()) return
 
-        val origin = runCatching { URL(baseUrl).proxyOrigin() }.getOrNull() ?: return
+        val origin = runCatching { URI(baseUrl).toURL().proxyOrigin() }.getOrNull() ?: return
         if (proxy == null) {
             proxiesByOrigin.remove(origin)
         } else {

@@ -19,7 +19,6 @@ package com.wire.android.tests.core.e2eTests
 
 import InbucketClient
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
@@ -41,7 +40,6 @@ class TeamCreationTest : BaseUiTest() {
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
     }
 
     private fun registerTeamOwnerForCleanup(userInfo: ClientUser) {

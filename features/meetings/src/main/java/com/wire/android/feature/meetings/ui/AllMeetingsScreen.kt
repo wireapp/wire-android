@@ -47,6 +47,7 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.rememberLazyListStateProvider
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
@@ -58,6 +59,9 @@ fun AllMeetingsScreen(
     contentPadding: PaddingValues = PaddingValues(),
     tabs: ImmutableList<MeetingsTabItem> = persistentListOf(MeetingsTabItem.NEXT), // history is not available yet, only "Next" for now
     initialTab: MeetingsTabItem = MeetingsTabItem.NEXT,
+    startCall: (conversationId: ConversationId) -> Unit = {},
+    joinCall: (conversationId: ConversationId) -> Unit = {},
+    returnToCall: (conversationId: ConversationId) -> Unit = {},
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -98,7 +102,10 @@ fun AllMeetingsScreen(
                 contentPadding = contentPadding,
                 openMeetingOptions = { meetingId ->
                     meetingOptionsSheetState.show(meetingId)
-                }
+                },
+                startCall = startCall,
+                joinCall = joinCall,
+                returnToCall = returnToCall,
             )
         }
 

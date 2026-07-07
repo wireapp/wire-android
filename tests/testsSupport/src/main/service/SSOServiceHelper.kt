@@ -1,9 +1,11 @@
 import android.content.Context
+import backendUtils.BackendSetupHelper
 import backendUtils.BackendClient.Companion.AUTHORIZATION
 import backendUtils.BackendClient.Companion.accept
 import backendUtils.BackendClient.Companion.applicationJson
 import backendUtils.BackendClient.Companion.contentType
 import backendUtils.BackendClient.Companion.loadBackend
+import backendUtils.sso.createIdentityProvider
 import backendUtils.team.getTeamByName
 import kotlinx.coroutines.runBlocking
 import network.NetworkBackendClient
@@ -22,10 +24,10 @@ import java.util.UUID
 object SSOServiceHelper {
 
     var identityProviderId = ""
-    lateinit var usersManager: ClientUserManager
+    lateinit var clientUserManager: ClientUserManager
 
     fun initialize(manager: ClientUserManager) {
-        this.usersManager = manager
+        this.clientUserManager = manager
     }
 
     suspend fun TestServiceHelper.thereIsASSOTeamOwnerForOkta(
@@ -35,9 +37,16 @@ object SSOServiceHelper {
         client: OktaApiClient
     ) {
         val owner = toClientUser(ownerNameAlias)
-        thereIsATeamOwner(context, ownerNameAlias, teamName, true, backend = loadBackend(owner.backendName ?: "STAGING"))
+        val backend = loadBackend(owner.backendName ?: "STAGING")
+        BackendSetupHelper(clientUserManager).createTeamOwnerByAlias(
+            ownerNameAlias,
+            teamName,
+            "en_US",
+            updateHandle = true,
+            backend,
+            context
+        )
         enableSSOFeature(owner, teamName)
-        val backend = loadBackend(owner.backendName.orEmpty())
         val finalizeUrl = OktaApiClient.getFinalizeUrlDependingOnBackend(backend.backendUrl)
         client.createApplication(owner.name + " " + teamName + UUID.randomUUID().toString(), finalizeUrl, context)
 
@@ -51,11 +60,11 @@ object SSOServiceHelper {
 
     @Suppress("TooGenericExceptionThrown", "MagicNumber")
     suspend fun TestServiceHelper.userAddsOktaUser(ownerNameAlias: String, userNameAliases: String, oktaApiClient: OktaApiClient) {
-        val aliases = usersManager.splitAliases(userNameAliases)
+        val aliases = clientUserManager.splitAliases(userNameAliases)
         for (userNameAlias in aliases) {
             val user = toClientUser(userNameAlias)
 
-            if (usersManager.isUserCreated(user)) {
+            if (clientUserManager.isUserCreated(user)) {
                 throw Exception(
                     "Cannot add user with alias $userNameAlias to SSO team because user is already created"
                 )
@@ -86,7 +95,7 @@ object SSOServiceHelper {
     }
 
     fun TestServiceHelper.userXIsMe(nameAlias: String) {
-        usersManager.setSelfUser(toClientUser(nameAlias))
+        clientUserManager.setSelfUser(toClientUser(nameAlias))
     }
 
     fun getSSOCode(): String = "wire-$identityProviderId".also {

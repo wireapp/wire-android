@@ -18,7 +18,6 @@
 package com.wire.android.tests.core.criticalFlows
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -27,7 +26,6 @@ import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import service.userSendsGenericMessageToConversation
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import uiautomatorutils.UiWaitUtils
@@ -42,7 +40,6 @@ class NewMemberMessaging : BaseUiTest() {
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -51,7 +48,7 @@ class NewMemberMessaging : BaseUiTest() {
     @Test
     fun givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions() {
         step("Prepare team via backend, add members, and create group conversation") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "Messaging",
                 "en_US",
@@ -59,9 +56,9 @@ class NewMemberMessaging : BaseUiTest() {
                 backendClient,
                 context
             )
-            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
 
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
                 "Messaging",
@@ -71,18 +68,16 @@ class NewMemberMessaging : BaseUiTest() {
                 true
             )
 
-            member1 = teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+            member1 = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
 
-            testServiceHelper.apply {
-                userHasGroupConversationInTeam(
-                    "user1Name",
-                    "MyTeam",
-                    "user3Name",
-                    "Messaging"
-                )
-                addDevice("user1Name", null, "Device1")
-                userXAddedContactsToGroupChat("user1Name", "user2Name", "MyTeam")
-            }
+            backendSetupHelper.userHasGroupConversationInTeam(
+                "user1Name",
+                "MyTeam",
+                "user3Name",
+                "Messaging"
+            )
+            testServiceHelper.addDevice("user1Name", null, "Device1")
+            backendSetupHelper.userXAddedContactsToGroupChat("user1Name", "user2Name", "MyTeam")
         }
 
         step("Login as new team member in Android app") {
@@ -116,7 +111,7 @@ class NewMemberMessaging : BaseUiTest() {
         step("Search for team owner and start 1:1 conversation") {
             pages.searchPage.apply {
                 tapSearchPeopleField()
-                typeUniqueUserNameInSearchField(teamHelper, "user1Name")
+                typeUniqueUserNameInSearchField(clientUserManager, "user1Name")
                 assertUsernameInSearchResultIs(teamOwner?.name ?: "")
                 tapUsernameInSearchResult(teamOwner?.name ?: "")
             }
@@ -188,7 +183,7 @@ class NewMemberMessaging : BaseUiTest() {
             }
 
             testServiceHelper.apply {
-                val mentionReplacedWithUniqueUserName = teamHelper.usersManager.replaceAliasesOccurrences(
+                val mentionReplacedWithUniqueUserName = clientUserManager.replaceAliasesOccurrences(
                     "@user2Name",
                     ClientUserManager.FindBy.NAME_ALIAS
                 )
@@ -201,7 +196,7 @@ class NewMemberMessaging : BaseUiTest() {
             }
 
             pages.conversationViewPage.apply {
-                val mentionedUser = teamHelper.usersManager.replaceAliasesOccurrences(
+                val mentionedUser = clientUserManager.replaceAliasesOccurrences(
                     "@user2Name",
                     ClientUserManager.FindBy.NAME_ALIAS
                 )

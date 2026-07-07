@@ -18,13 +18,10 @@
 package com.wire.android.tests.core.e2eTests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
-import backendUtils.user.deleteUser
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,19 +34,12 @@ This test works on the following conditions:
 @RunWith(AndroidJUnit4::class)
 class GdprTest : BaseUiTest() {
     private var registeredUser: ClientUser? = null
+    override val deletePersonalUsersAfterTest: Boolean = true
 
     @Before
     fun setUp() {
+        initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
-    }
-
-    @After
-    fun tearDown() {
-        runCatching {
-            cleanupBackendClient(backendClient, registeredUser)
-            registeredUser?.deleteUser(backendClient)
-        }
     }
 
     @TestCaseId("TC-8705")
@@ -58,8 +48,7 @@ class GdprTest : BaseUiTest() {
     fun givenTeamUserAcceptsAnonymousDataSharing_whenConsentIsGiven_thenAnalyticsIdentifierIsVisibleInDebugSettings() {
 
         step("Create personal user via backend") {
-            val clientUser = ClientUser()
-            registeredUser = backendClient.createPersonalUserViaBackend(clientUser)
+            registeredUser = backendSetupHelper.createPersonalUser(ClientUser(), backendClient)
         }
 
         step("Verify welcome page and login via staging deep link") {

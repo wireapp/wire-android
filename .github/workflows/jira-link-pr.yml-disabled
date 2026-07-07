@@ -13,7 +13,7 @@ jobs:
     with:
       jira-base-url: https://wearezeta.atlassian.net
       jira-ticket-regex: '[A-Z]+-[0-9]+'
-      skip-actors: 'dependabot[bot],AndroidBob'
+      skip-actors: 'dependabot[bot],renovate[bot],AndroidBob'
       skip-branches: '^(production-release|main|master|release\/v\d+)$'
       repository-owner-check: 'wireapp'
     secrets:

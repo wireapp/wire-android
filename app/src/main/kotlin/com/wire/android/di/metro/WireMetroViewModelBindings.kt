@@ -154,6 +154,7 @@ import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewMo
 import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorArgs
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModelImpl
+import com.wire.android.ui.home.meetings.MeetingsCallViewModel
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelImpl
 import com.wire.android.ui.home.messagecomposer.attachments.IsFileSharingEnabledViewModelImpl
@@ -228,6 +229,12 @@ object WireMetroViewModelBindings {
             override fun create(extras: CreationExtras): ViewModel =
                 factory.conversationCallViewModel(extras.createSavedStateHandle())
         }
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(MeetingsCallViewModel::class)
+    fun joinOrStartCallViewModel(factory: CallingViewModelFactory): ViewModel =
+        factory.meetingsCallViewModel()
 
     @Provides
     @IntoMap

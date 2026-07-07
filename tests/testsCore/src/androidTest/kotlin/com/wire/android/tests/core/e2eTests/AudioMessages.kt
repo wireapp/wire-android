@@ -19,7 +19,6 @@ package com.wire.android.tests.core.e2eTests
 
 import android.Manifest
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -43,7 +42,6 @@ class AudioMessages : BaseUiTest() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
         grantRuntimePermsForForegroundApp(device, Manifest.permission.RECORD_AUDIO)
-        backendClient = BackendClient.loadBackend("STAGING")
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -52,7 +50,7 @@ class AudioMessages : BaseUiTest() {
     @Test
     fun givenUserReceivesAudioFile_whenPlayingAndPausingAudioMessage_thenAudioPlaybackTimeIsUpdated() {
         step("Given There is a team owner with team Audio") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "Audio",
                 "en_US",
@@ -63,7 +61,7 @@ class AudioMessages : BaseUiTest() {
         }
 
         step("And User TeamOwner adds user Member1 to team Audio with role Member") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
                 "Audio",
@@ -79,11 +77,11 @@ class AudioMessages : BaseUiTest() {
         }
 
         step("And User Member1 is me") {
-            member1 = teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+            member1 = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
         step("And User TeamOwner has group conversation SendYourAudioHere with Member1 in team Audio") {
-            testServiceHelper.userHasGroupConversationInTeam(
+            backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
                 "SendYourAudioHere",
                 "user2Name",
@@ -184,7 +182,7 @@ class AudioMessages : BaseUiTest() {
     @Test
     fun givenUserRecordsAudioMessage_whenSendingRecordedAudioMessage_thenAudioFileIsVisibleInConversation() {
         step("Given There is a team owner with team Audio") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "Audio",
                 "en_US",
@@ -195,7 +193,7 @@ class AudioMessages : BaseUiTest() {
         }
 
         step("And User TeamOwner adds user Member1 to team Audio with role Member") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
                 "Audio",
@@ -211,11 +209,11 @@ class AudioMessages : BaseUiTest() {
         }
 
         step("And User Member1 is me") {
-            member1 = teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+            member1 = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
         step("And User TeamOwner has group conversation SendYourAudioHere with Member1 in team Audio") {
-            testServiceHelper.userHasGroupConversationInTeam(
+            backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
                 "SendYourAudioHere",
                 "user2Name",
@@ -324,7 +322,7 @@ class AudioMessages : BaseUiTest() {
     @Test
     fun givenUserRecordsLongAudioMessage_whenPlayingAndApplyingFilterBeforeSending_thenAudioFileIsVisibleInConversation() {
         step("Given There is a team owner with team Audio") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "Audio",
                 "en_US",
@@ -335,7 +333,7 @@ class AudioMessages : BaseUiTest() {
         }
 
         step("And User TeamOwner adds user Member1 to team Audio with role Member") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
                 "Audio",
@@ -351,11 +349,11 @@ class AudioMessages : BaseUiTest() {
         }
 
         step("And User Member1 is me") {
-            member1 = teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+            member1 = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
         step("And User TeamOwner has group conversation SendYourAudioHere with Member1 in team Audio") {
-            testServiceHelper.userHasGroupConversationInTeam(
+            backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
                 "SendYourAudioHere",
                 "user2Name",

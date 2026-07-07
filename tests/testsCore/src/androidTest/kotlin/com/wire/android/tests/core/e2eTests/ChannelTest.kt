@@ -18,7 +18,6 @@
 package com.wire.android.tests.core.e2eTests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -27,7 +26,6 @@ import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import service.userSendsGenericMessageToConversation
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.iSeeSystemMessageContainingAll
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
@@ -45,7 +43,6 @@ class ChannelTest : BaseUiTest() {
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -54,7 +51,7 @@ class ChannelTest : BaseUiTest() {
     @Test
     fun givenTeamMemberWithChannelFeatureEnabled_whenCreatingChannelWithTeammateAndDeletingCreatedChannel_thenChannelConversationIsCreatedAndDeleted() {
         step("There is TeamOwner with team ChannelCreation on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "ChannelCreation",
                 "en_US",
@@ -65,15 +62,15 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("User TeamOwner configures MLS for team ChannelCreation") {
-            teamHelper.userConfiguresMLSForTeam("user1Name", "ChannelCreation", backendClient)
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ChannelCreation", backendClient)
         }
 
         step("TeamOwner enables channel feature for team ChannelCreation via backdoor") {
-            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "ChannelCreation", backendClient)
+            backendSetupHelper.userEnablesChannelFeatureForTeam("user1Name", "ChannelCreation", backendClient)
         }
 
         step("User TeamOwner adds users Member1,Member2 to team ChannelCreation with role Member") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
                 "ChannelCreation",
@@ -91,7 +88,7 @@ class ChannelTest : BaseUiTest() {
             }
         }
         step("TeamOwner has channel conversation TestChannel in team ChannelCreation") {
-            testServiceHelper.userHasChannelConversationInTeam(
+            backendSetupHelper.userHasChannelConversationInTeam(
                 "user1Name",
                 "TestChannel",
                 "ChannelCreation"
@@ -99,12 +96,12 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("User TeamOwner is me") {
-            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
         step("User Member1 and Member2 are available for channel participant selection") {
-            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
-            member2 = teamHelper.usersManager.findUserByNameOrNameAlias("user3Name")
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
+            member2 = clientUserManager.findUserByNameOrNameAlias("user3Name")
         }
 
         step("And I see welcome screen before login") {
@@ -227,8 +224,7 @@ class ChannelTest : BaseUiTest() {
                 "user3Name",
                 "Hello from Member2",
                 "Device2",
-                "TestChannel",
-                false
+                "TestChannel"
             )
         }
 
@@ -293,7 +289,7 @@ class ChannelTest : BaseUiTest() {
     @Test
     fun givenTeamMemberWithChannelFeatureEnabled_whenLeavingChannel_thenChannelHistoryRemainsVisibleAndNewMessagesAreNotVisible() {
         step("There is TeamOwner with team LeaveChannel on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "LeaveChannel",
                 "en_US",
@@ -304,15 +300,15 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("User TeamOwner configures MLS for team LeaveChannel") {
-            teamHelper.userConfiguresMLSForTeam("user1Name", "LeaveChannel", backendClient)
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "LeaveChannel", backendClient)
         }
 
         step("TeamOwner enables channel feature for team LeaveChannel via backdoor") {
-            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "LeaveChannel", backendClient)
+            backendSetupHelper.userEnablesChannelFeatureForTeam("user1Name", "LeaveChannel", backendClient)
         }
 
         step("User TeamOwner adds users Member1,Member2 to team LeaveChannel with role Member") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
                 "LeaveChannel",
@@ -330,7 +326,7 @@ class ChannelTest : BaseUiTest() {
             }
         }
         step("TeamOwner has channel conversation LeavingChannel in team LeaveChannel") {
-            testServiceHelper.userHasChannelConversationInTeam(
+            backendSetupHelper.userHasChannelConversationInTeam(
                 "user1Name",
                 "LeavingChannel",
                 "LeaveChannel"
@@ -338,12 +334,12 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("User TeamOwner is me") {
-            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
         step("User Member1 and Member2 are available for channel participant selection") {
-            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
-            member2 = teamHelper.usersManager.findUserByNameOrNameAlias("user3Name")
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
+            member2 = clientUserManager.findUserByNameOrNameAlias("user3Name")
         }
 
         step("And I see welcome screen before login") {
@@ -450,8 +446,7 @@ class ChannelTest : BaseUiTest() {
                 "user3Name",
                 "Hello from Member2",
                 "Device2",
-                "LeavingChannel",
-                false
+                "LeavingChannel"
             )
         }
 
@@ -521,8 +516,7 @@ class ChannelTest : BaseUiTest() {
                 "user3Name",
                 "Hello Again",
                 "Device2",
-                "LeavingChannel",
-                false
+                "LeavingChannel"
             )
         }
 
@@ -541,7 +535,7 @@ class ChannelTest : BaseUiTest() {
     @Test
     fun givenChannelConversationDeleted_whenSendingAndReceivingMessages_thenMessagesAreSentAndReceivedSuccessfully() {
         step("There is TeamOwner with team DeleteChannel on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "DeleteChannel",
                 "en_US",
@@ -552,15 +546,15 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("User TeamOwner configures MLS for team DeleteChannel") {
-            teamHelper.userConfiguresMLSForTeam("user1Name", "DeleteChannel", backendClient)
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "DeleteChannel", backendClient)
         }
 
         step("TeamOwner enables channel feature for team DeleteChannel via backdoor") {
-            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "DeleteChannel", backendClient)
+            backendSetupHelper.userEnablesChannelFeatureForTeam("user1Name", "DeleteChannel", backendClient)
         }
 
         step("User TeamOwner adds users Member1,Member2 to team DeleteChannel with role Member") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
                 "DeleteChannel",
@@ -578,7 +572,7 @@ class ChannelTest : BaseUiTest() {
             }
         }
         step("TeamOwner has channel conversation Delete in team DeleteChannel") {
-            testServiceHelper.userHasChannelConversationInTeam(
+            backendSetupHelper.userHasChannelConversationInTeam(
                 "user1Name",
                 "Delete",
                 "DeleteChannel"
@@ -586,12 +580,12 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("User TeamOwner is me") {
-            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
         step("User Member1 and Member2 are available for channel participant selection") {
-            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
-            member2 = teamHelper.usersManager.findUserByNameOrNameAlias("user3Name")
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
+            member2 = clientUserManager.findUserByNameOrNameAlias("user3Name")
         }
 
         step("And I see welcome screen before login") {
@@ -744,7 +738,7 @@ class ChannelTest : BaseUiTest() {
         step("And I search for Member1 and start 1:1 conversation") {
             pages.searchPage.apply {
                 tapSearchPeopleField()
-                typeUniqueUserNameInSearchField(teamHelper, "user2Name")
+                typeUniqueUserNameInSearchField(clientUserManager, "user2Name")
                 tapUsernameInSearchResult(member1.name ?: "")
             }
             pages.connectedUserProfilePage.apply {
@@ -803,7 +797,7 @@ class ChannelTest : BaseUiTest() {
     @Test
     fun givenChannelConversationMembersAreRemovedAndAdded_whenViewingParticipantList_thenParticipantListIsUpdatedCorrectly() {
         step("Given there is TeamOwner with team UpdateParticipantList on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "UpdateParticipantList",
                 "en_US",
@@ -814,15 +808,15 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("And User TeamOwner configures MLS for team UpdateParticipantList") {
-            teamHelper.userConfiguresMLSForTeam("user1Name", "UpdateParticipantList", backendClient)
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "UpdateParticipantList", backendClient)
         }
 
         step("And TeamOwner enables channel feature for team UpdateParticipantList via backdoor") {
-            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "UpdateParticipantList", backendClient)
+            backendSetupHelper.userEnablesChannelFeatureForTeam("user1Name", "UpdateParticipantList", backendClient)
         }
 
         step("And User TeamOwner adds users Member1,Member2 to team UpdateParticipantList with role Member") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
                 "UpdateParticipantList",
@@ -844,7 +838,7 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("And TeamOwner has channel conversation UpdateList in team UpdateParticipantList") {
-            testServiceHelper.userHasChannelConversationInTeam(
+            backendSetupHelper.userHasChannelConversationInTeam(
                 "user1Name",
                 "UpdateList",
                 "UpdateParticipantList"
@@ -852,12 +846,12 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("And User TeamOwner is me") {
-            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
         step("And User Member1 and Member2 are available for channel participant selection") {
-            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
-            member2 = teamHelper.usersManager.findUserByNameOrNameAlias("user3Name")
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
+            member2 = clientUserManager.findUserByNameOrNameAlias("user3Name")
         }
 
         step("And I see welcome screen before login") {
@@ -1016,7 +1010,7 @@ class ChannelTest : BaseUiTest() {
     @Test
     fun givenExternalUserInTeam_whenAttemptingToCreateChannelConversation_thenChannelConversationCannotBeCreated() {
         step("There is TeamOwner with team CreateChannel on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "CreateChannel",
                 "en_US",
@@ -1027,15 +1021,15 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("User TeamOwner configures MLS for team CreateChannel") {
-            teamHelper.userConfiguresMLSForTeam("user1Name", "CreateChannel", backendClient)
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "CreateChannel", backendClient)
         }
 
         step("TeamOwner enables channel feature for team CreateChannel via backdoor") {
-            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "CreateChannel", backendClient)
+            backendSetupHelper.userEnablesChannelFeatureForTeam("user1Name", "CreateChannel", backendClient)
         }
 
         step("User TeamOwner adds user Member1 to team CreateChannel with role External") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
                 "CreateChannel",
@@ -1053,7 +1047,7 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("User Member1 is available for login") {
-            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
 
         step("And I see welcome screen before login") {
@@ -1105,7 +1099,7 @@ class ChannelTest : BaseUiTest() {
     @Test
     fun givenUserIsNotCreatorOfChannelConversation_whenViewingChannelConversationOptions_thenDeleteConversationButtonIsNotVisible() {
         step("There is TeamOwner with team DeleteChannel on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "DeleteChannel",
                 "en_US",
@@ -1116,15 +1110,15 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("User TeamOwner configures MLS for team DeleteChannel") {
-            teamHelper.userConfiguresMLSForTeam("user1Name", "DeleteChannel", backendClient)
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "DeleteChannel", backendClient)
         }
 
         step("TeamOwner enables channel feature for team DeleteChannel via backdoor") {
-            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "DeleteChannel", backendClient)
+            backendSetupHelper.userEnablesChannelFeatureForTeam("user1Name", "DeleteChannel", backendClient)
         }
 
         step("User TeamOwner adds users Member1 to team DeleteChannel with role Member") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
                 "DeleteChannel",
@@ -1142,7 +1136,7 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("TeamOwner has channel conversation UnableToDelete in team DeleteChannel") {
-            testServiceHelper.userHasChannelConversationInTeam(
+            backendSetupHelper.userHasChannelConversationInTeam(
                 "user1Name",
                 "UnableToDelete",
                 "DeleteChannel"
@@ -1150,11 +1144,11 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("User TeamOwner is me") {
-            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
         step("User Member1 is available for channel participant selection and login") {
-            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
 
         step("And I see welcome screen before login") {
@@ -1321,7 +1315,7 @@ class ChannelTest : BaseUiTest() {
     @Test
     fun givenAnotherChannelConversationIsDeletedByAnotherUser_whenSendingAndReceivingMessagesInRemainingChannel_thenMessagesAreSentAndReceivedSuccessfully() {
         step("Given there is TeamOwner with team GroupDeletion on Staging backend") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "GroupDeletion",
                 "en_US",
@@ -1332,15 +1326,15 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("And User TeamOwner configures MLS for team GroupDeletion") {
-            teamHelper.userConfiguresMLSForTeam("user1Name", "GroupDeletion", backendClient)
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GroupDeletion", backendClient)
         }
 
         step("And TeamOwner enables channel feature for team GroupDeletion via backdoor") {
-            teamHelper.userEnablesChannelFeatureForTeam("user1Name", "GroupDeletion", backendClient)
+            backendSetupHelper.userEnablesChannelFeatureForTeam("user1Name", "GroupDeletion", backendClient)
         }
 
         step("And User TeamOwner adds users Member1, Member2 to team GroupDeletion with role Member") {
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
                 "GroupDeletion",
@@ -1359,7 +1353,7 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("And TeamOwner has channel conversation DeleteMe in team GroupDeletion") {
-            testServiceHelper.userHasChannelConversationInTeam(
+            backendSetupHelper.userHasChannelConversationInTeam(
                 "user1Name",
                 "DeleteMe",
                 "GroupDeletion"
@@ -1367,7 +1361,7 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("And TeamOwner has another channel conversation Stay in team GroupDeletion") {
-            testServiceHelper.userHasChannelConversationInTeam(
+            backendSetupHelper.userHasChannelConversationInTeam(
                 "user1Name",
                 "Stay",
                 "GroupDeletion"
@@ -1375,12 +1369,12 @@ class ChannelTest : BaseUiTest() {
         }
 
         step("And User TeamOwner is me") {
-            teamOwner = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
         step("And User Member1 and Member2 are available for channel participant selection") {
-            member1 = teamHelper.usersManager.findUserByNameOrNameAlias("user2Name")
-            member2 = teamHelper.usersManager.findUserByNameOrNameAlias("user3Name")
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
+            member2 = clientUserManager.findUserByNameOrNameAlias("user3Name")
         }
 
         step("And I see welcome screen before login") {
@@ -1515,8 +1509,7 @@ class ChannelTest : BaseUiTest() {
                 "user2Name",
                 "Hello from Member1",
                 "Device1",
-                "DeleteMe",
-                false
+                "DeleteMe"
             )
         }
 
@@ -1613,8 +1606,7 @@ class ChannelTest : BaseUiTest() {
                 "user3Name",
                 "Hello from Member2",
                 "Device2",
-                "Stay",
-                false
+                "Stay"
             )
         }
 

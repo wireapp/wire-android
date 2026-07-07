@@ -22,7 +22,7 @@
     <string name="meeting_repeating_never">Никогда</string>
     <string name="meeting_repeating_daily">Ежедневно</string>
     <string name="meeting_repeating_weekly">Еженедельно</string>
-    <string name="meeting_repeating_biweekly">Каждые две недели</string>
+    <string name="meeting_repeating_biweekly">Каждые 2 недели</string>
     <string name="meeting_repeating_monthly">Ежемесячно</string>
     <string name="meeting_repeating_annually">Ежегодно</string>
     <string name="meeting_started_at">Начиная с %1$s</string>
@@ -78,6 +78,9 @@
     <string name="new_meeting_repeats_input_label">Повторы</string>
     <string name="content_description_new_meeting_repeating_options">Выберите опцию повтора</string>
     <string name="new_meeting_allow_guests_label">Разрешить гостей</string>
+    <string name="content_description_join_meeting_label">присоединиться к встрече</string>
+    <string name="content_description_attending_meeting_label">вернуться к встрече</string>
+    <string name="meeting_audio_permission_dialog_description">Чтобы присоединиться к встрече, разрешите приложению Wire доступ к микрофону в настройках вашего устройства.</string>
     <plurals name="new_meeting_participants_input_more_suffix">
         <item quantity="one">Еще +%1$d</item>
         <item quantity="few">Еще +%1$d</item>

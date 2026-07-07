@@ -30,7 +30,7 @@ jobs:
     uses: wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@b00595235816b9a935c7463b990fae39864903a5
     with:
       skip-branches: '^(production-release|main|master|release\/v\d+)$'
-      skip-actors: 'dependabot[bot],AndroidBob'
+      skip-actors: 'dependabot[bot],renovate[bot],AndroidBob'
       version-name: ${{ needs.get-version.outputs.version_name }}
       fix-version-regex: '(?:^|[\s\-_])(v?\d+\.\d+(?:\.\d+)?(?:[\-\+][\w\.\-]*)?)'
     secrets:

@@ -67,7 +67,6 @@ fun JoinOrStartCallManager.HandleJoinOrStartCallScreenDialogs() = when (val dial
     is JoinOrStartCallScreenDialogType.OngoingActiveCall -> OngoingActiveCallDialog(
         onInitiateCallAnyway = {
             initiateCall(dialogType.conversationId)
-            dismissDialog()
         },
         onDialogDismiss = ::dismissDialog
     )
@@ -79,7 +78,7 @@ fun JoinOrStartCallManager.HandleJoinOrStartCallScreenDialogs() = when (val dial
 
     is JoinOrStartCallScreenDialogType.CallConfirmation -> ConfirmStartCallDialog(
         participantsCount = dialogType.participantsCount,
-        onConfirm = { startCallAfterConfirming(dialogType.conversationId, dialogType.conversationType) },
+        onConfirm = { startCallAfterConfirmingParticipantsCount(dialogType.conversationId, dialogType.conversationType) },
         onDialogDismiss = ::dismissDialog
     )
 

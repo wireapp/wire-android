@@ -25,7 +25,6 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import backendUtils.team.TeamHelper
 import junit.framework.TestCase.assertFalse
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert
@@ -507,12 +506,12 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
-    fun selectBackupFileInDocumentsUI(teamHelper: TeamHelper, userAlias: String): SettingsPage {
-        val user = teamHelper.usersManager.findUserBy(
+    fun selectBackupFileInDocumentsUI(clientUserManager: ClientUserManager, userAlias: String): SettingsPage {
+        val user = clientUserManager.findUserBy(
             userAlias,
             ClientUserManager.FindBy.NAME_ALIAS
         )
-        val uniqueUserName = user?.uniqueUsername.orEmpty()
+        val uniqueUserName = user.uniqueUsername.orEmpty()
         try {
             UiWaitUtils.waitElement(backupFileLocator(uniqueUserName)).click()
         } catch (e: AssertionError) {

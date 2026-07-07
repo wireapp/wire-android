@@ -39,7 +39,8 @@ import com.wire.android.search.util.ui.PreviewMultipleThemes
 fun HighlightName(
     name: String,
     searchQuery: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxLines: Int = 1,
 ) {
 
     val highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
@@ -75,7 +76,7 @@ fun HighlightName(
                         }
                     }
             },
-            maxLines = 1,
+            maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
             modifier = modifier
         )
@@ -89,7 +90,7 @@ fun HighlightName(
                     MaterialTheme.wireTypography.title02.color
                 }
             ),
-            maxLines = 1,
+            maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
             modifier = modifier
         )

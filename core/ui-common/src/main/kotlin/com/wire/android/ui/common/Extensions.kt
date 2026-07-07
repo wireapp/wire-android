@@ -20,7 +20,9 @@ package com.wire.android.ui.common
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -71,6 +73,18 @@ fun Modifier.shimmerPlaceholder(
     color = color,
     shape = shape,
 )
+
+@Composable
+fun Modifier.focusedBorder(isFocused: Boolean): Modifier = this
+    .border(
+        width = MaterialTheme.wireDimensions.spacing1x,
+        color = if (isFocused) MaterialTheme.wireColorScheme.primary else Color.Transparent,
+        shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x)
+    )
+    .padding(
+        horizontal = MaterialTheme.wireDimensions.spacing4x,
+        vertical = MaterialTheme.wireDimensions.spacing2x
+    )
 
 @Composable
 fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: () -> Unit): () -> Unit {

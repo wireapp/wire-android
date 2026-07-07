@@ -11,7 +11,7 @@ dependencies {
 
     api(project(":core:analytics"))
 
-    val composeBom = platform(libs.compose.bom)
+    val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.compose.ui)
 

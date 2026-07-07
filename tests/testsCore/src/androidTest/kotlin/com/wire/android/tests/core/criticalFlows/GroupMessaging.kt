@@ -18,7 +18,6 @@
 package com.wire.android.tests.core.criticalFlows
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -40,7 +39,6 @@ class GroupMessaging : BaseUiTest() {
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -49,7 +47,7 @@ class GroupMessaging : BaseUiTest() {
     @Test
     fun givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires() {
         step("Prepare team via backend and group conversation with members") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "GroupMessaging",
                 "en_US",
@@ -58,9 +56,9 @@ class GroupMessaging : BaseUiTest() {
                 context
             )
 
-            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
 
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name,user5Name,user6Name",
                 "GroupMessaging",
@@ -70,7 +68,7 @@ class GroupMessaging : BaseUiTest() {
                 true
             )
 
-            testServiceHelper.userHasGroupConversationInTeam(
+            backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
                 "MyTeam",
                 "user2Name,user3Name,user4Name,user5Name,user6Name",
@@ -128,7 +126,7 @@ class GroupMessaging : BaseUiTest() {
         step("Send a message to the group conversation as another member via backend") {
             testServiceHelper.apply {
                 addDevice("user2Name", null, "Device1")
-                userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam", false)
+                userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam")
             }
         }
 

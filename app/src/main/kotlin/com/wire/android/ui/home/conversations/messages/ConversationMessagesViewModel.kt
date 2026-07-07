@@ -433,6 +433,14 @@ class ConversationMessagesViewModel(
         }
     }
 
+    fun shareAssetViaWire(messageId: String, onAssetReady: (Path, String) -> Unit) {
+        viewModelScope.launch {
+            assetDataPath(conversationId, messageId)?.run {
+                onAssetReady(first, second)
+            }
+        }
+    }
+
     private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Pair<Path, String>? =
         getMessageAsset(conversationId, messageId).await().run {
             return when (this) {

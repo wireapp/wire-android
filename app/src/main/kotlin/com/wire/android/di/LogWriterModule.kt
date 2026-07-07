@@ -19,11 +19,12 @@
 package com.wire.android.di
 
 import android.content.Context
+import com.wire.android.BuildConfig
 import com.wire.android.util.logging.LogFileWriter
-import com.wire.android.util.logging.LogFileWriterImpl
+import com.wire.android.util.logging.LogFileWriterFactory
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
 
 @BindingContainer
@@ -33,6 +34,9 @@ class LogWriterModule {
     @Provides
     fun provideKaliumFileWriter(@ApplicationContext context: Context): LogFileWriter {
         val logsDirectory = LogFileWriter.logsDirectory(context)
-        return LogFileWriterImpl(logsDirectory)
+        return LogFileWriterFactory.create(
+            logsDirectory = logsDirectory,
+            usePlatformIndependentFileLogger = BuildConfig.USE_PLATFORM_INDEPENDENT_FILE_LOGGER
+        )
     }
 }

@@ -28,6 +28,7 @@ import android.util.Log
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.analytics.ObserveCurrentSessionAnalyticsUseCase
 import com.wire.android.datastore.GlobalDataStore
@@ -178,7 +179,7 @@ class WireApplication : BaseApp() {
     }
 
     private fun initializeMinimalLogging() {
-        val config = minimalLoggerConfig()
+        val config = minimalLoggerConfig(listOf(logFileWriter.value.logWriter))
         AppLogger.init(config)
         CoreLogger.init(config)
     }
@@ -346,14 +347,18 @@ class WireApplication : BaseApp() {
         ExternalLoggerManager.initDatadogLogger(applicationContext)
 
         val isLoggingEnabled = globalDataStore.value.isLoggingEnabled().firstOrNull() == true
-        val config = fullLoggerConfig(isLoggingEnabled)
-
-        AppLogger.init(config)
-        CoreLogger.init(config)
+        val fileWriter = logFileWriter.value
 
         if (isLoggingEnabled) {
-            logFileWriter.value.start()
+            fileWriter.start()
         }
+
+        val config = fullLoggerConfig(
+            isLoggingEnabled = isLoggingEnabled,
+            additionalLogWriters = listOf(fileWriter.logWriter)
+        )
+        AppLogger.init(config)
+        CoreLogger.init(config)
 
         appLogger.i("Logger initialized after splash")
         logDeviceInformation()
@@ -457,18 +462,21 @@ class WireApplication : BaseApp() {
     }
 
     internal companion object {
-        fun minimalLoggerConfig() = KaliumLogger.Config(
+        fun minimalLoggerConfig(additionalLogWriters: List<LogWriter> = emptyList()) = KaliumLogger.Config(
             KaliumLogLevel.WARN,
-            listOf(platformLogWriter())
+            listOf(platformLogWriter()) + additionalLogWriters
         )
 
-        fun fullLoggerConfig(isLoggingEnabled: Boolean) = if (isLoggingEnabled) {
+        fun fullLoggerConfig(
+            isLoggingEnabled: Boolean,
+            additionalLogWriters: List<LogWriter> = emptyList()
+        ) = if (isLoggingEnabled) {
             KaliumLogger.Config(
                 KaliumLogLevel.VERBOSE,
-                listOf(DataDogLogger, platformLogWriter())
+                listOf(DataDogLogger, platformLogWriter()) + additionalLogWriters
             )
         } else {
-            minimalLoggerConfig()
+            minimalLoggerConfig(additionalLogWriters)
         }
 
         enum class MemoryLevel(val level: Int) {

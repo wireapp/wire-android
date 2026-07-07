@@ -19,6 +19,7 @@
 package com.wire.android.util.logging
 
 import android.content.Context
+import co.touchlab.kermit.LogWriter
 import java.io.File
 
 /**
@@ -31,6 +32,11 @@ interface LogFileWriter {
      * The active logging file where logs are currently being written
      */
     val activeLoggingFile: File
+
+    /**
+     * Kermit sink that writes log entries into [activeLoggingFile] while this writer is started.
+     */
+    val logWriter: LogWriter
 
     /**
      * Starts the log collection system
@@ -51,7 +57,7 @@ interface LogFileWriter {
      * Deletes all log files including active and compressed files
      *
      */
-    fun deleteAllLogFiles()
+    suspend fun deleteAllLogFiles()
 
     companion object {
         fun logsDirectory(context: Context) = File(context.cacheDir, "logs")

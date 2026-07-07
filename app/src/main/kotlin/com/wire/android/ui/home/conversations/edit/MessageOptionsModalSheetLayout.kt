@@ -60,7 +60,8 @@ fun MessageOptionsModalSheetLayout(
     onDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onReplyClick: (UIMessage.Regular) -> Unit,
     onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>, isMultipart: Boolean) -> Unit,
-    onShareAssetClick: (messageId: String) -> Unit,
+    onShareAssetExternallyClick: (messageId: String) -> Unit,
+    onShareAssetViaWireClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
     viewModel: MessageOptionsMenuViewModel =
@@ -84,7 +85,8 @@ fun MessageOptionsModalSheetLayout(
                     onDetailsClick = onDetailsClick,
                     onReplyClick = onReplyClick,
                     onEditClick = onEditClick,
-                    onShareAssetClick = onShareAssetClick,
+                    onShareAssetExternallyClick = onShareAssetExternallyClick,
+                    onShareAssetViaWireClick = onShareAssetViaWireClick,
                     onDownloadAssetClick = onDownloadAssetClick,
                     onOpenAssetClick = onOpenAssetClick
                 ).also {
@@ -118,7 +120,8 @@ private fun MessageOptionsModalContent(
     onDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onReplyClick: (UIMessage.Regular) -> Unit,
     onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>, isMultipart: Boolean) -> Unit,
-    onShareAssetClick: (messageId: String) -> Unit,
+    onShareAssetExternallyClick: (messageId: String) -> Unit,
+    onShareAssetViaWireClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
 ) {
@@ -214,10 +217,17 @@ private fun MessageOptionsModalContent(
                     }
                 }
             },
-            onShareAssetClick = remember(message.header.messageId) {
+            onShareAssetExternallyClick = remember(message.header.messageId) {
                 {
                     sheetState.hide {
-                        onShareAssetClick(message.header.messageId)
+                        onShareAssetExternallyClick(message.header.messageId)
+                    }
+                }
+            },
+            onShareAssetViaWireClick = remember(message.header.messageId) {
+                {
+                    sheetState.hide {
+                        onShareAssetViaWireClick(message.header.messageId)
                     }
                 }
             },
@@ -284,7 +294,8 @@ fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
         onDetailsClick = { _, _ -> },
         onReplyClick = { },
         onEditClick = { _, _, _, _ -> },
-        onShareAssetClick = { },
+        onShareAssetExternallyClick = { },
+        onShareAssetViaWireClick = { },
         onDownloadAssetClick = { },
         onOpenAssetClick = { }
     )

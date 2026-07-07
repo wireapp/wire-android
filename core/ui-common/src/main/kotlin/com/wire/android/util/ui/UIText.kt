@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.util.AnyPrimitiveAsStringSerializer
-import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import kotlinx.serialization.Serializable
 
@@ -114,55 +113,6 @@ sealed class UIText {
 }
 
 fun String.toUIText() = UIText.DynamicString(this)
-
-fun UIText.withoutPreviewedLink(linkPreviews: List<MessageLinkPreview>): UIText {
-    val dynamicText = this as? UIText.DynamicString ?: return this
-    val preview = linkPreviews.firstOrNull() ?: return this
-    val linkStart = preview.urlOffset
-    val linkEnd = linkStart + preview.url.length
-    if (linkStart < 0 || linkEnd > dynamicText.value.length) return this
-    if (dynamicText.value.substring(linkStart, linkEnd) != preview.url) return this
-
-    val whitespaceBeforeStart = generateSequence(linkStart - 1) { index -> index - 1 }
-        .takeWhile { index -> index >= 0 && dynamicText.value[index].isWhitespace() }
-        .lastOrNull()
-        ?.plus(0)
-        ?: linkStart
-    val whitespaceAfterEnd = generateSequence(linkEnd) { index -> index + 1 }
-        .takeWhile { index -> index < dynamicText.value.length && dynamicText.value[index].isWhitespace() }
-        .lastOrNull()
-        ?.plus(1)
-        ?: linkEnd
-
-    val hasContentBefore = dynamicText.value.substring(0, whitespaceBeforeStart).isNotEmpty()
-    val hasContentAfter = dynamicText.value.substring(whitespaceAfterEnd).isNotEmpty()
-
-    val removeStart = if (whitespaceBeforeStart < linkStart) whitespaceBeforeStart else linkStart
-    val removeEnd = if (whitespaceAfterEnd > linkEnd) whitespaceAfterEnd else linkEnd
-    val prefix = dynamicText.value.substring(0, removeStart)
-    val suffix = dynamicText.value.substring(removeEnd)
-    val replacement = if (hasContentBefore && hasContentAfter) " " else ""
-    val removedLength = (removeEnd - removeStart) - replacement.length
-    val updatedValue = buildString(dynamicText.value.length - removedLength) {
-        append(prefix)
-        append(replacement)
-        append(suffix)
-    }
-
-    val adjustedMentions = dynamicText.mentions.mapNotNull { mention ->
-        val mentionEnd = mention.start + mention.length
-        when {
-            mentionEnd <= removeStart -> mention
-            mention.start >= removeEnd -> mention.copy(start = mention.start - removedLength)
-            else -> null
-        }
-    }
-
-    return UIText.DynamicString(
-        value = updatedValue,
-        mentions = adjustedMentions
-    )
-}
 
 @Suppress("SpreadOperator")
 fun UIText.resolveForTest(fakeStrings: Map<Int, String>): String = when (this) {

@@ -1,5 +1,6 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import org.gradle.api.tasks.PathSensitivity
 import java.util.Properties
 
 // Apply your test library plugin
@@ -74,6 +75,15 @@ android {
 
     buildFeatures {
         buildConfig = true  // Enable generation of BuildConfig class
+    }
+}
+
+// Regenerate BuildConfig when backend secrets change, for example when a new backend is added.
+if (secretsJson.exists()) {
+    tasks.matching { it.name.startsWith("generate") && it.name.endsWith("BuildConfig") }.configureEach {
+        inputs.file(secretsJson)
+            .withPropertyName("secretsJson")
+            .withPathSensitivity(PathSensitivity.RELATIVE)
     }
 }
 

@@ -128,8 +128,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     USE_STRICT_MLS_FILTER("use_strict_mls_filter", ConfigType.BOOLEAN),
     MEETINGS_ENABLED("meetings_enabled", ConfigType.BOOLEAN),
 
-    USE_ASYNC_FLUSH_LOGGING("use_async_flush_logging", ConfigType.BOOLEAN),
-
     /**
      * Background notification retry logic
      * Enables retry with exponential backoff for background notification sync failures

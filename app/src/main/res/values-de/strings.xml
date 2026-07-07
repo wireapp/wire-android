@@ -1751,6 +1751,8 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire konnte die Erstellung Ihres Teams aufgrund eines unbekannten Fehlers nicht abschließen.</string>
     <string name="reaction_sender_self">Sie</string>
     <string name="emoji_picker_select_reaction">Reaktion auswählen</string>
+    <string name="content_description_add_this_reaction">Doppeltippen, um diese Reaktion hinzuzufügen</string>
+    <string name="content_description_remove_your_reaction">Doppeltippen, um die Reaktion zu entfernen</string>
     <!-- Move to Folder -->
     <string name="move_to_folder_success">„%1$s“ wurde nach ‚%2$s‘ verschoben</string>
     <string name="move_to_folder_failed">“%1$s” konnte nicht verschoben werden</string>

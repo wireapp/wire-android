@@ -24,10 +24,13 @@ import user.utils.AccessToken
 import java.io.ByteArrayOutputStream
 import java.net.HttpCookie
 import java.net.HttpURLConnection
+import java.net.URI
+import java.net.Proxy
 import java.net.URL
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.Base64
+import java.util.concurrent.ConcurrentHashMap
 
 sealed interface NumberSequence {
     data class Range(val range: IntRange) : NumberSequence
@@ -67,10 +70,24 @@ object WireTestLogger {
 data class RequestOptions(
     val expectedResponseCodes: NumberSequence = NumberSequence.Range(200..299),
     val accessToken: AccessToken? = null,
-    val cookie: AccessCookie? = null
+    val cookie: AccessCookie? = null,
+    val proxy: Proxy? = null
 )
 
 object NetworkBackendClient {
+    // Proxies are keyed by origin to avoid passing proxy options through every backend helper call.
+    private val proxiesByOrigin = ConcurrentHashMap<String, Proxy>()
+
+    fun registerProxy(baseUrl: String, proxy: Proxy?) {
+        if (baseUrl.isBlank()) return
+
+        val origin = runCatching { URI(baseUrl).toURL().proxyOrigin() }.getOrNull() ?: return
+        if (proxy == null) {
+            proxiesByOrigin.remove(origin)
+        } else {
+            proxiesByOrigin[origin] = proxy
+        }
+    }
 
     @Suppress("MagicNumber")
     fun makeRequest(
@@ -81,7 +98,7 @@ object NetworkBackendClient {
         options: RequestOptions = RequestOptions()
     ): HttpURLConnection {
 
-        val connection = (url.openConnection() as HttpURLConnection).apply {
+        val connection = (url.openConfiguredConnection(options) as HttpURLConnection).apply {
             requestMethod = method
             doInput = true
             if (method != "GET") {
@@ -109,6 +126,21 @@ object NetworkBackendClient {
         handleResponseError(connection, options.expectedResponseCodes)
 
         return connection
+    }
+
+    private fun URL.openConfiguredConnection(options: RequestOptions) =
+        (options.proxy ?: proxiesByOrigin[proxyOrigin()])?.let { proxy ->
+            openConnection(proxy)
+        } ?: openConnection()
+
+    private fun URL.proxyOrigin(): String {
+        val resolvedPort = when {
+            port != -1 -> port
+            defaultPort != -1 -> defaultPort
+            else -> null
+        }
+        val normalizedOrigin = "${protocol.lowercase()}://${host.lowercase()}"
+        return resolvedPort?.let { "$normalizedOrigin:$it" } ?: normalizedOrigin
     }
 
     private fun writeRequestBody(connection: HttpURLConnection, body: Any?) {

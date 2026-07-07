@@ -180,13 +180,14 @@ private fun com.wire.android.search.users.ShowButton(isShownAll: kotlin.Boolean,
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.search.widget.HighlightName(name: kotlin.String, searchQuery: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.search.widget.HighlightName(name: kotlin.String, searchQuery: kotlin.String, modifier: androidx.compose.ui.Modifier, maxLines: kotlin.Int): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - name: STABLE (String is immutable)
     - searchQuery: STABLE (String is immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - maxLines: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.search.widget.HighlightSubtitle(subTitle: kotlin.String, modifier: androidx.compose.ui.Modifier, searchQuery: kotlin.String, prefix: kotlin.String): kotlin.Unit

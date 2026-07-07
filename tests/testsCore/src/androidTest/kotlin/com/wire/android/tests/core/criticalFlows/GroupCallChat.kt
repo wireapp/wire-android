@@ -19,7 +19,6 @@ package com.wire.android.tests.core.criticalFlows
 
 import QrCodeTestUtils.createQrImageInDeviceDownloadsFolder
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseCallUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -43,7 +42,6 @@ class GroupCallChat : BaseCallUiTest() {
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
         initCallTestHelpers()
     }
 

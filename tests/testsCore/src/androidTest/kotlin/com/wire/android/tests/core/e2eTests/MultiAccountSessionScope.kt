@@ -18,7 +18,6 @@
 package com.wire.android.tests.core.e2eTests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import backendUtils.client.getBackendClientIds
 import backendUtils.client.removeBackendClient
 import backendUtils.team.TeamRoles
@@ -45,7 +44,6 @@ class MultiAccountSessionScope : BaseUiTest() {
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
     }
 
     @TestCaseId("TC-11259")

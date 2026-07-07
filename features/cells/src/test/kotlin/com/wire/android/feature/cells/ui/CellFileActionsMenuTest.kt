@@ -563,7 +563,6 @@ class CellFileActionsMenuTest {
             assert(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS !in items)
         }
 
-
     @Test
     fun `GIVEN offline files disabled WHEN building allFiles menu THEN no offline action is added`() =
         runTest {

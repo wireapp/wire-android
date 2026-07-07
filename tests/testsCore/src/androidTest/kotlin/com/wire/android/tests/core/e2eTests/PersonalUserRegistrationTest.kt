@@ -19,7 +19,6 @@ package com.wire.android.tests.core.e2eTests
 
 import InbucketClient
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
@@ -41,8 +40,8 @@ This test works on the following conditions:
 class PersonalUserRegistrationTest : BaseUiTest() {
     @Before
     fun setUp() {
+        initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
     }
 
     @Suppress("LongMethod")

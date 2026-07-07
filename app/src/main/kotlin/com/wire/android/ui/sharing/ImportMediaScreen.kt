@@ -271,6 +271,8 @@ private fun ImportMediaAuthenticatedContent(
     }
 }
 
+private fun ImportMediaNavArgs.isInternalShare(): Boolean = internalAssetUriList.isNotEmpty()
+
 @Composable
 fun ImportMediaRestrictedContent(
     importMediaAuthenticatedState: ImportMediaAuthenticatedState,

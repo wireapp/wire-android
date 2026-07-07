@@ -289,6 +289,13 @@ internal fun com.wire.android.feature.meetings.ui.list.VideoCallIcon(tint: andro
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
+private fun com.wire.android.feature.meetings.ui.list.audioPermissionCheckFlow(onPermissionGranted: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
+  skippable: true
+  restartable: true
+  params:
+    - onPermissionGranted: STABLE (function type)
+
+@Composable
 private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: kotlinx.datetime.Instant): kotlin.String
   skippable: true
   restartable: true

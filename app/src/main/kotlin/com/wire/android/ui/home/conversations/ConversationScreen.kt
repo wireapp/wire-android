@@ -256,7 +256,8 @@ fun ConversationScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
-    val resources = LocalContext.current.resources
+    val context = LocalContext.current
+    val resources = context.resources
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(

@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.calling.ongoing
 
-import android.content.pm.PackageManager
 import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -62,7 +61,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -82,7 +80,6 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.common.ObservePictureInPictureMode
 import com.wire.android.ui.calling.common.ObserveRotation
 import com.wire.android.ui.calling.common.SharedCallingViewActions
 import com.wire.android.ui.calling.common.SharedCallingViewModel
@@ -108,7 +105,6 @@ import com.wire.android.ui.calling.ongoing.incallreactions.PreviewInCallReaction
 import com.wire.android.ui.calling.ongoing.incallreactions.drawInCallReactions
 import com.wire.android.ui.calling.ongoing.incallreactions.rememberInCallReactionsState
 import com.wire.android.ui.calling.ongoing.participantslist.ParticipantList
-import com.wire.android.ui.calling.ongoing.participantsview.FloatingSelfUserTile
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.calling.ongoing.toast.InCallToast
 import com.wire.android.ui.calling.ongoing.toast.InCallToastPanel
@@ -165,9 +161,6 @@ fun OngoingCallScreen(
     val inCallReactionsState = rememberInCallReactionsState()
     val callDetailsBottomSheetState = rememberWireModalSheetState<CallDetailsSheetState>()
     val activity = LocalActivity.current
-    val isPiPAvailableOnThisDevice = activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
-    val shouldUsePiPMode = BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice
-    var inPictureInPictureMode by remember { mutableStateOf(shouldUsePiPMode && activity.isInPictureInPictureMode) }
     val sheetState = rememberStandardBottomSheetState(
         initialValue = SheetValue.PartiallyExpanded,
         confirmValueChange = { targetValue ->
@@ -176,10 +169,6 @@ fun OngoingCallScreen(
         }
     )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
-
-    if (shouldUsePiPMode) {
-        ObservePictureInPictureMode { inPictureInPictureMode = it }
-    }
 
     LaunchedEffect(ongoingCallViewModel.state.flowState) {
         when (ongoingCallViewModel.state.flowState) {
@@ -208,14 +197,7 @@ fun OngoingCallScreen(
     }
     val onCollapse = remember {
         {
-            if (shouldUsePiPMode) {
-                (activity as OngoingCallActivity).enterPiPMode(
-                    conversationId,
-                    ongoingCallViewModel.currentUserId
-                )
-            } else {
-                activity.moveTaskToBack(true)
-            }
+            activity.moveTaskToBack(true)
             Unit
         }
     }
@@ -238,7 +220,6 @@ fun OngoingCallScreen(
             }
 
             ongoingCallViewModel.state.selectedParticipant != null -> ongoingCallViewModel.onSelectedParticipant(null)
-            shouldUsePiPMode -> (activity as OngoingCallActivity).enterPiPMode(conversationId, ongoingCallViewModel.currentUserId)
             else -> activity.moveTaskToBack(true)
         }
     }
@@ -261,7 +242,6 @@ fun OngoingCallScreen(
         onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
         onReactionClick = ongoingCallViewModel::onReactionClick,
         participants = ongoingCallViewModel.state.participants,
-        inPictureInPictureMode = inPictureInPictureMode,
         recentReactions = ongoingCallViewModel.recentReactions,
         callQuality = ongoingCallViewModel.state.callQuality.quality,
         onOpenCallDetails = {
@@ -272,27 +252,6 @@ fun OngoingCallScreen(
         onToastClick = ongoingCallViewModel::dismissToast,
     )
     ObserveRotation(sharedCallingViewModel::setUIRotation)
-
-    /**
-     * Enter PiP mode when the user leaves the app by pressing the home button.
-     */
-    val context = LocalContext.current
-    DisposableEffect(context) {
-        val onUserLeaveBehavior: () -> Unit = {
-            if (shouldUsePiPMode) {
-                (activity as OngoingCallActivity).enterPiPMode(
-                    conversationId,
-                    ongoingCallViewModel.currentUserId
-                )
-            }
-        }
-        (activity as OngoingCallActivity).addOnUserLeaveHintListener(
-            onUserLeaveBehavior
-        )
-        onDispose {
-            activity.removeOnUserLeaveHintListener(onUserLeaveBehavior)
-        }
-    }
 
     PermissionPermanentlyDeniedDialog(
         dialogState = permissionPermanentlyDeniedDialogState,
@@ -400,7 +359,6 @@ private fun OngoingCallContent(
     selectedParticipantForFullScreen: SelectedParticipant?,
     participants: PersistentList<UICallParticipant>,
     recentReactions: Map<UserId, String>,
-    inPictureInPictureMode: Boolean,
     callQuality: CallQualityState.Quality,
     othersVideosDisabled: Boolean,
     toasts: Set<InCallToast>,
@@ -416,25 +374,23 @@ private fun OngoingCallContent(
     val isConnecting = participants.isEmpty()
     WireBottomSheetScaffold(
         topBar = {
-            if (!inPictureInPictureMode) {
-                OngoingCallTopBar(
-                    conversationName = when (callState.conversationName) {
-                        is ConversationName.Known -> callState.conversationName.name
-                        is ConversationName.Unknown -> stringResource(id = callState.conversationName.resourceId)
-                        else -> ""
-                    },
-                    isCbrEnabled = callState.isCbrEnabled,
-                    onCollapse = onCollapse,
-                    protocolInfo = callState.protocolInfo,
-                    mlsVerificationStatus = callState.mlsVerificationStatus,
-                    proteusVerificationStatus = callState.proteusVerificationStatus,
-                    callQuality = callQuality,
-                    onOpenCallDetails = onOpenCallDetails,
-                    modifier = Modifier.onGloballyPositioned {
-                        topBarHeight = it.size.height.toFloat()
-                    }
-                )
-            }
+            OngoingCallTopBar(
+                conversationName = when (callState.conversationName) {
+                    is ConversationName.Known -> callState.conversationName.name
+                    is ConversationName.Unknown -> stringResource(id = callState.conversationName.resourceId)
+                    else -> ""
+                },
+                isCbrEnabled = callState.isCbrEnabled,
+                onCollapse = onCollapse,
+                protocolInfo = callState.protocolInfo,
+                mlsVerificationStatus = callState.mlsVerificationStatus,
+                proteusVerificationStatus = callState.proteusVerificationStatus,
+                callQuality = callQuality,
+                onOpenCallDetails = onOpenCallDetails,
+                modifier = Modifier.onGloballyPositioned {
+                    topBarHeight = it.size.height.toFloat()
+                }
+            )
         },
         sheetDragHandle = {
             val dragHandleContentDescription = when (scaffoldState.bottomSheetState.targetValue) {
@@ -463,57 +419,55 @@ private fun OngoingCallContent(
             }
         },
         sheetContent = {
-            if (!inPictureInPictureMode) {
-                CallingControls(
-                    conversationId = callState.conversationId,
-                    isMuted = callState.isMuted ?: true,
-                    isCameraOn = callState.isCameraOn,
-                    isSpeakerOn = callState.isSpeakerOn,
-                    isShowingCallReactions = showInCallReactionsPanel,
-                    isConnecting = isConnecting,
-                    inCallReactionsEnabled = inCallReactionsEnabled,
-                    toggleSpeaker = toggleSpeaker,
-                    toggleMute = toggleMute,
-                    onHangUpCall = hangUpCall,
-                    onToggleVideo = toggleVideo,
-                    onCallReactionsClick = {
-                        scope.launch {
-                            scaffoldState.bottomSheetState.partialExpand()
-                        }.invokeOnCompletion {
-                            showInCallReactionsPanel = !showInCallReactionsPanel
-                        }
-                    },
-                    onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .widthIn(max = dimensions().callingControlPanelMaxWidth)
-                        .onGloballyPositioned {
-                            sheetPeekHeight = it.positionInParent().y + it.size.height.toFloat()
-                        }
-                )
-                BoxWithConstraints {
-                    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                    Column(
-                        modifier = Modifier
-                            .heightIn(max = with(LocalDensity.current) { (constraints.maxHeight - topBarHeight).toDp() })
-                            .padding(top = max(dimensions().spacing8x, navBarHeight))
-                            .background(colorsScheme().background)
-                    ) {
-                        val lazyListState = rememberLazyListState()
-                        Surface(
-                            shadowElevation = lazyListState.rememberTopBarElevationState().value,
-                            color = MaterialTheme.wireColorScheme.background,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .zIndex(1f) // ensure the section header is above the participant items when scrolled
-                        ) {
-                            SectionHeader(name = stringResource(R.string.calling_details_participants_header, participants.size))
-                        }
-                        ParticipantList(
-                            lazyListState = lazyListState,
-                            participants = participants.sortedBy { it.name }.toPersistentList(),
-                        )
+            CallingControls(
+                conversationId = callState.conversationId,
+                isMuted = callState.isMuted ?: true,
+                isCameraOn = callState.isCameraOn,
+                isSpeakerOn = callState.isSpeakerOn,
+                isShowingCallReactions = showInCallReactionsPanel,
+                isConnecting = isConnecting,
+                inCallReactionsEnabled = inCallReactionsEnabled,
+                toggleSpeaker = toggleSpeaker,
+                toggleMute = toggleMute,
+                onHangUpCall = hangUpCall,
+                onToggleVideo = toggleVideo,
+                onCallReactionsClick = {
+                    scope.launch {
+                        scaffoldState.bottomSheetState.partialExpand()
+                    }.invokeOnCompletion {
+                        showInCallReactionsPanel = !showInCallReactionsPanel
                     }
+                },
+                onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .widthIn(max = dimensions().callingControlPanelMaxWidth)
+                    .onGloballyPositioned {
+                        sheetPeekHeight = it.positionInParent().y + it.size.height.toFloat()
+                    }
+            )
+            BoxWithConstraints {
+                val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = with(LocalDensity.current) { (constraints.maxHeight - topBarHeight).toDp() })
+                        .padding(top = max(dimensions().spacing8x, navBarHeight))
+                        .background(colorsScheme().background)
+                ) {
+                    val lazyListState = rememberLazyListState()
+                    Surface(
+                        shadowElevation = lazyListState.rememberTopBarElevationState().value,
+                        color = MaterialTheme.wireColorScheme.background,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .zIndex(1f) // ensure the section header is above the participant items when scrolled
+                    ) {
+                        SectionHeader(name = stringResource(R.string.calling_details_participants_header, participants.size))
+                    }
+                    ParticipantList(
+                        lazyListState = lazyListState,
+                        participants = participants.sortedBy { it.name }.toPersistentList(),
+                    )
                 }
             }
         },
@@ -554,7 +508,7 @@ private fun OngoingCallContent(
                             .fillMaxSize()
                             .drawInCallReactions(
                                 state = inCallReactionsState,
-                                enabled = !inPictureInPictureMode && inCallReactionsEnabled,
+                                enabled = inCallReactionsEnabled,
                             )
                     ) {
                         val uiCallParticipantToShowOnFullScreen by remember(participants, selectedParticipantForFullScreen) {
@@ -595,7 +549,6 @@ private fun OngoingCallContent(
                                 participants = participants,
                                 isSelfUserCameraOn = callState.isCameraOn,
                                 isSelfUserMuted = callState.isMuted ?: true,
-                                isInPictureInPictureMode = inPictureInPictureMode,
                                 isOnFrontCamera = callState.isOnFrontCamera,
                                 contentHeight = this@BoxWithConstraints.maxHeight,
                                 contentWidth = this@BoxWithConstraints.maxWidth,
@@ -608,7 +561,6 @@ private fun OngoingCallContent(
                                 othersVideosDisabled = othersVideosDisabled,
                             )
                         }
-
                         InCallToastPanel(
                             items = toasts,
                             onToastClick = onToastClick,
@@ -616,25 +568,10 @@ private fun OngoingCallContent(
                                 .align(Alignment.TopCenter)
                                 .padding(dimensions().spacing4x)
                         )
-
-                        if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
-                            val selfUser = participants.first { it.isSelfUser }
-                            FloatingSelfUserTile(
-                                modifier = Modifier.align(Alignment.TopEnd),
-                                contentHeight = this@BoxWithConstraints.maxHeight,
-                                contentWidth = this@BoxWithConstraints.maxWidth,
-                                participant = selfUser,
-                                isOnFrontCamera = callState.isOnFrontCamera,
-                                onSelfUserVideoPreviewCreated = setVideoPreview,
-                                onClearSelfUserVideoPreview = clearVideoPreview,
-                                flipCamera = flipCamera,
-                                othersVideosDisabled = othersVideosDisabled,
-                            )
-                        }
                     }
                 }
             }
-            if (!inPictureInPictureMode && showInCallReactionsPanel && inCallReactionsEnabled) {
+            if (showInCallReactionsPanel && inCallReactionsEnabled) {
                 InCallReactionsPanel(
                     onReactionClick = onReactionClick,
                     onMoreClick = { emojiPickerState.show(Unit) },
@@ -803,7 +740,6 @@ fun PreviewOngoingCallContent(
         onReactionClick = {},
         requestVideoStreams = {},
         participants = participants,
-        inPictureInPictureMode = false,
         onSelectedParticipant = {},
         selectedParticipantForFullScreen = null,
         recentReactions = emptyMap(),

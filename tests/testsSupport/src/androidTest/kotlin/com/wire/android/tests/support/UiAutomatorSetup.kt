@@ -61,6 +61,7 @@ object UiAutomatorSetup {
         }
 
         grantNotificationPermissionIfSupported(selectedPackage)
+        grantStoragePermissionsIfSupported(selectedPackage)
 
         device.executeShellCommand("settings put secure show_ime_with_hard_keyboard 0")
         device.executeShellCommand("settings put global window_animation_scale 0")
@@ -169,6 +170,18 @@ object UiAutomatorSetup {
 
         runCatching {
             grantRuntimePermsForApp(appPackage, Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    // Backup and file-picker flows request storage permissions on Android 12 (API 32) and below.
+    private fun grantStoragePermissionsIfSupported(appPackage: String) {
+        runCatching {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                grantRuntimePermsForApp(appPackage, Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                grantRuntimePermsForApp(appPackage, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
         }
     }
 

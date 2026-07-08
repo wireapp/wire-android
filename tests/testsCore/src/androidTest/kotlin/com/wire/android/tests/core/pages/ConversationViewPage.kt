@@ -78,6 +78,8 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val selfDeleteTimerButton = UiSelectorParams(description = "Set timer for self-deleting messages")
 
     private val selfDeletingMessageLabel = UiSelectorParams(description = " Self-deleting message")
+    private val conversationOptionsButton = UiSelectorParams(description = "Open conversation options")
+
     private val pingButton = UiSelectorParams(description = "Ping")
     private val pingButtonOnModal = UiSelectorParams(text = "Ping")
     private val guestsAndAppsBanner = UiSelectorParams(textContains = "Guests and apps are present")
@@ -589,6 +591,15 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertGroupConversationInForeground(conversationName: String): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(conversationDetailsGroup(conversationName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Group conversation '$conversationName' is not in foreground.", e)
+        }
+        return this
+    }
+
     fun assertGuestsAndAppsBannerVisible(): ConversationViewPage {
         try {
             UiWaitUtils.waitElement(guestsAndAppsBanner)
@@ -623,14 +634,23 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     fun clickOnGroupConversationDetails(userName: String): ConversationViewPage {
         val params = conversationDetailsGroup(userName)
+        UiWaitUtils.waitElement(backButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
 
-        UiWaitUtils.waitUntilVisible(
+        val clicked = UiWaitUtils.clickWhenClickable(
             params = params,
-            timeout = 5.seconds,
-            errorMessage = "Group conversation details for user '$userName' not visible"
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = UiWaitUtils.POLLING_FAST
         )
 
-        UiWaitUtils.waitElement(params).click()
+        if (!clicked) {
+            throw AssertionError("Group conversation details for user '$userName' was not clickable.")
+        }
+
+        try {
+            UiWaitUtils.waitElement(conversationOptionsButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
+        } catch (e: AssertionError) {
+            throw AssertionError("Group conversation details for user '$userName' did not open.", e)
+        }
         return this
     }
 

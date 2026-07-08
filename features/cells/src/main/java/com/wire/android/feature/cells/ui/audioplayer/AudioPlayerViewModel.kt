@@ -21,6 +21,7 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
+import java.io.File
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
@@ -61,12 +62,10 @@ class CellAudioPlayerViewModel(
 
     init {
         try {
-            when {
-                localPath != null -> mediaPlayer.setDataSource(localPath)
-                contentUrl != null -> mediaPlayer.setDataSource(context, Uri.parse(contentUrl))
-//                else -> return
+            audioUri()?.let { uri ->
+                mediaPlayer.setDataSource(context, uri)
+                mediaPlayer.prepareAsync()
             }
-            mediaPlayer.prepareAsync()
         } catch (_: Exception) {
             // handle silently — file may not exist yet
         }
@@ -116,6 +115,12 @@ class CellAudioPlayerViewModel(
     private fun stopPositionPolling() {
         positionPollJob?.cancel()
         positionPollJob = null
+    }
+
+    private fun audioUri(): Uri? = when {
+        localPath != null -> Uri.fromFile(File(localPath))
+        contentUrl != null -> Uri.parse(contentUrl)
+        else -> null
     }
 
     override fun onCleared() {

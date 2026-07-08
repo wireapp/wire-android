@@ -445,7 +445,9 @@ fun ConversationScreen(
                 NavigationCommand(MessageDetailsScreenDestination(conversationInfoViewModel.conversationId, messageId, isSelfMessage))
             )
         },
-        onSendMessage = { sendMessageViewModel.trySendMessage(it.withPrefetchedLinkPreview(sendMessageViewModel.currentLinkPreview)) },
+        onSendMessage = {
+            sendMessageViewModel.trySendMessage(it.withPrefetchedLinkPreview(sendMessageViewModel.currentLinkPreview))
+        },
         onPingOptionClicked = {
             if (conversationCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_PING) {
                 showDialog.value = ConversationScreenDialogType.PING_CONFIRMATION

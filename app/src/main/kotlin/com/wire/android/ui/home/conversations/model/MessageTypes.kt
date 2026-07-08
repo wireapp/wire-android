@@ -88,7 +88,6 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_FOUND
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOAD_IN_PROGRESS
-import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import kotlinx.collections.immutable.PersistentList
 import okio.Path
 
@@ -106,7 +105,6 @@ internal fun MessageBody(
     searchQuery: String = "",
     clickable: Boolean = true,
     messageStyle: MessageStyle = MessageStyle.NORMAL,
-    linkPreviews: List<MessageLinkPreview> = emptyList()
 ) {
     val resources = LocalContext.current.resources
     val configuration = LocalConfiguration.current

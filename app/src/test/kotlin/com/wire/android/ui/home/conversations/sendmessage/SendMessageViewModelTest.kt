@@ -83,7 +83,6 @@ class SendMessageViewModelTest {
         val (arrangement, viewModel) = SendMessageViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withGeneratedLinkPreviewResult(preview)
-            .withDetectedLinkPreviewTarget(LinkPreviewTarget("https://wire.com", 0))
             .arrange()
 
         viewModel.updateLinkPreview("https://wire.com", emptyList())
@@ -208,7 +207,7 @@ class SendMessageViewModelTest {
     fun `given standalone link with preview when sending then raw link is removed from outgoing text`() = runTest {
         val preview = MessageLinkPreview(
             url = "https://wire.com",
-            urlOffset = 0,
+            urlOffset = 1,
             title = "Wire"
         )
         val (arrangement, viewModel) = SendMessageViewModelArrangement()

@@ -50,7 +50,6 @@ import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.getVideoMetaData
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AttachmentType
@@ -554,6 +553,7 @@ class SendMessageViewModel(
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }
 
+    @Suppress("ReturnCount")
     fun updateLinkPreview(text: String, mentions: List<MessageMention>) {
         val nextTarget = detectLinkPreviewTarget(text, mentions)
         val currentTarget = activeLinkPreviewTarget
@@ -601,6 +601,7 @@ class SendMessageViewModel(
         currentLinkPreview = null
     }
 
+    @Suppress("ReturnCount")
     private suspend fun resolveLinkPreviewsForSend(
         text: String,
         mentions: List<MessageMention>,
@@ -620,10 +621,11 @@ class SendMessageViewModel(
                 ?: emptyList()
         }
 
-        val generatedPreview = generateLinkPreview(text = text, mentions = mentions)
+        val generatedPreview = withContext(dispatchers.io()) { generateLinkPreview(text = text, mentions = mentions) }
         return generatedPreview?.let(::listOf) ?: emptyList()
     }
 
+    @Suppress("ReturnCount")
     private fun String.removeStandalonePreviewUrl(
         target: LinkPreviewTarget?,
         hasPreview: Boolean,

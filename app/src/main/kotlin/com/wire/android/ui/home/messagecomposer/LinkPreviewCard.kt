@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.colorsScheme
@@ -50,21 +51,7 @@ fun LinkPreviewCard(
     messageStyle: MessageStyle = MessageStyle.NORMAL,
     onClick: (() -> Unit)? = null,
 ) {
-
-    val color = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
-        MessageStyle.BUBBLE_OTHER -> when {
-            isAvailable -> colorsScheme().otherBubble.onPrimary
-            else -> MaterialTheme.wireColorScheme.secondaryText
-        }
-
-        MessageStyle.NORMAL -> {
-            when {
-                isAvailable -> MaterialTheme.colorScheme.onBackground
-                else -> MaterialTheme.wireColorScheme.secondaryText
-            }
-        }
-    }
+    val color = linkPreviewTextColor(messageStyle, isAvailable)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -133,9 +120,16 @@ fun LinkPreviewCard(
                 )
             )
         }
-
     }
 }
+
+@Composable
+private fun linkPreviewTextColor(messageStyle: MessageStyle, isAvailable: Boolean): Color =
+    when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
+        MessageStyle.BUBBLE_OTHER -> if (isAvailable) colorsScheme().otherBubble.onPrimary else MaterialTheme.wireColorScheme.secondaryText
+        MessageStyle.NORMAL -> if (isAvailable) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.secondaryText
+    }
 
 private val MessageLinkPreview.displayHost: String?
     get() {

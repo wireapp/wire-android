@@ -216,7 +216,11 @@ fun MessageBubbleItem(
                     Column {
                         val contentModifier = if (message.hasAssetParams) {
                             Modifier.padding(
-                                bottom = if (useSmallBottomPadding) dimensions().spacing0x else paddingValue
+                                bottom = if (useSmallBottomPadding && message.linkPreviewParams == null) {
+                                    dimensions().spacing0x
+                                } else {
+                                    paddingValue
+                                }
                             )
                         } else {
                             Modifier.padding(all = paddingValue)

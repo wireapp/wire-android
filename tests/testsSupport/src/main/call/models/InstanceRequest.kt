@@ -17,6 +17,9 @@
  */
 package call.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class InstanceRequest(
     val email: String,
     val password: String,

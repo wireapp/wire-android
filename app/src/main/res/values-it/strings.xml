@@ -90,7 +90,6 @@
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">Menziona qualcuno</string>
     <string name="content_description_send_button">Invia</string>
-    <string name="content_description_timed_message_button">Messaggi auto-cancellanti, pulsante</string>
     <string name="content_description_menu_button">Navigazione principale</string>
     <string name="content_description_drop_down_icon">Icona menù a tendina</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Elemento dispositivo</string>
@@ -129,7 +128,6 @@
     <string name="content_description_calling_call_unmuted">Chiamata non mutata</string>
     <string name="content_description_calling_call_paused_camera">Pausa della fotocamera</string>
     <string name="content_description_more_emojis">Altro emojis</string>
-    <string name="content_description_self_deletion_selector_button">Attiva/Disattiva modalità auto-eliminazione, pulsante</string>
     <string name="content_description_message_sending_status">Stato di invio del messaggio</string>
     <string name="content_description_message_sent_status">Stato messaggio inviato</string>
     <string name="content_description_message_error_status">Stato errore del messaggio</string>
@@ -717,9 +715,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="team_settings_changed">Impostazioni del team modificate</string>
     <string name="sharing_files_enabled">La condivisione e la ricezione di file di qualsiasi tipo sono ora abilitate</string>
     <string name="sharing_files_disabled">La condivisione e la ricezione di file di qualsiasi tipo sono ora disabilitate</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (predefinito)"</string>
-    <string name="wire_dropdown_placeholder">Seleziona un elemento</string>
     <string name="change">Cambia</string>
     <string name="allow_guests">Consenti ospiti</string>
     <string name="allow_guest_switch_description">Apri questa conversazione a persone esterne al tuo team. Puoi sempre cambiarla successivamente.</string>
@@ -1144,10 +1139,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="sure_about_calling_in_degraded_dialog_title">Conversazione non più verificata</string>
     <string name="sure_about_calling_in_degraded_dialog_body">Almeno un partecipante ha iniziato a utilizzare un nuovo dispositivo o ha un certificato non valido.\n\nDesideri comunque avviare la chiamata?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Chiama comunque</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">Autorizzazioni dell\'app</string>
-    <string name="app_permission_dialog_settings_positive_button">Impostazioni</string>
-    <string name="app_permission_dialog_settings_negative_button">Non adesso</string>
     <string name="call_permission_dialog_description">Per effettuare una chiamata, consenti a Wire l\'accesso al tuo microfono nelle impostazioni del tuo dispositivo.</string>
     <string name="record_video_permission_dialog_description">Per registrare un video, consenti a Wire di accedere alla tua fotocamera nelle impostazioni del tuo dispositivo.</string>
     <string name="take_picture_permission_dialog_description">Per scattare una foto, consenti a Wire di accedere alla tua fotocamera nelle impostazioni del tuo dispositivo.</string>
@@ -1163,7 +1154,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="location_loading_label">Ti preghiamo di attendere...</string>
     <string name="location_could_not_be_shared">Impossibile condividere la posizione</string>
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->

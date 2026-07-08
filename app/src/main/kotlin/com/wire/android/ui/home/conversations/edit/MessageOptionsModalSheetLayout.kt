@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
@@ -134,10 +135,14 @@ private fun MessageOptionsModalContent(
             isUploading = message.isPending,
             isComposite = message.messageContent is UIMessageContent.Composite,
             isEphemeral = isEphemeral,
-            isEditable = !isDeleted &&
-                    (message.messageContent?.isEditable() ?: false) &&
-                    isMyMessage &&
-                    (!isPending || !isNetworkAvailable),
+            isEditable = isMessageEditOptionAvailable(
+                isDeleted = isDeleted,
+                isContentEditable = message.messageContent?.isEditable() ?: false,
+                isMyMessage = isMyMessage,
+                isPending = isPending,
+                isNetworkAvailable = isNetworkAvailable,
+                pendingMessagesEnabled = BuildConfig.PENDING_MESSAGES
+            ),
             isCopyable = message.isCopyable(),
             isOpenable = true,
             onCopyClick = remember(message.messageContent) {
@@ -233,6 +238,20 @@ private fun MessageOptionsModalContent(
         )
     )
 }
+
+@Suppress("LongParameterList")
+internal fun isMessageEditOptionAvailable(
+    isDeleted: Boolean,
+    isContentEditable: Boolean,
+    isMyMessage: Boolean,
+    isPending: Boolean,
+    isNetworkAvailable: Boolean,
+    pendingMessagesEnabled: Boolean,
+): Boolean =
+    !isDeleted &&
+            isContentEditable &&
+            isMyMessage &&
+            (!isPending || pendingMessagesEnabled && !isNetworkAvailable)
 
 private fun UIMessage.Regular.isCopyable() =
     when {

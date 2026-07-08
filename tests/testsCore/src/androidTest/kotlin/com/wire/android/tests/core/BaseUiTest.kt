@@ -21,8 +21,8 @@ import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
+import backendUtils.BackendSetupHelper
 import backendUtils.team.deleteTeam
-import backendUtils.team.TeamHelper
 import backendUtils.user.deleteUser
 import backendUtils.user.removeBackendClients
 import com.wire.android.tests.core.di.testModule
@@ -31,8 +31,11 @@ import com.wire.android.tests.support.suite.AllureFailureScreenshotRule
 import com.wire.android.tests.support.suite.AllureLabelsRule
 import com.wire.android.tests.support.testiny.TestinySyncRule
 import io.qameta.allure.kotlin.Allure
-import org.junit.After
 import org.junit.Rule
+import org.junit.rules.RuleChain
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
@@ -44,7 +47,7 @@ import kotlin.getValue
 /**
  * Base class for all UI tests.
  * - Starts Koin with testModule
- * - Provides shared test helpers and default cleanup for users created through TeamHelper
+ * - Provides shared test helpers and default cleanup for users tracked by ClientUserManager
  */
 abstract class BaseUiTest : KoinTest {
 
@@ -58,9 +61,25 @@ abstract class BaseUiTest : KoinTest {
     @get:Rule
     val allureLabelsRule = AllureLabelsRule()
 
-    // Screenshot ONLY for real failures
+    // Keep cleanup outside @After so failure screenshots are captured before backend cleanup changes the app screen.
+    private val failureScreenshotRule = AllureFailureScreenshotRule()
+    private val commonCleanupRule = TestRule { base, _: Description ->
+        object : Statement() {
+            override fun evaluate() {
+                try {
+                    base.evaluate()
+                } finally {
+                    tearDownCommonTestHelpers()
+                }
+            }
+        }
+    }
+
+    // Screenshots must run before backend cleanup changes the app state.
     @get:Rule
-    val failureScreenshotRule = AllureFailureScreenshotRule()
+    val failureScreenshotAndCleanupRule: RuleChain = RuleChain
+        .outerRule(commonCleanupRule)
+        .around(failureScreenshotRule)
 
     // Report each finished test to Testiny.
     @get:Rule
@@ -85,8 +104,17 @@ abstract class BaseUiTest : KoinTest {
         runCatching { user?.removeBackendClients(backendClient) }
     }
 
+    protected fun trackCreatedUserForCleanup(user: ClientUser) {
+        clientUserManager.appendCustomUser(user)
+    }
+
+    protected fun trackCreatedTeamOwnerForCleanup(user: ClientUser) {
+        user.isTeamOwner = true
+        trackCreatedUserForCleanup(user)
+    }
+
     /**
-     * Shared teardown cleanup for users created through TeamHelper/ClientUserManager.
+     * Shared teardown cleanup for users created through ClientUserManager.
      *
      * What this method does:
      * 1. Removes backend clients/devices for every tracked created user.
@@ -96,22 +124,22 @@ abstract class BaseUiTest : KoinTest {
      */
     protected fun cleanupCreatedUsers(
         backendClient: BackendClient,
-        usersManager: ClientUserManager,
+        clientUserManager: ClientUserManager,
         deletePersonalUsers: Boolean = false
     ) {
         // Removes backend clients/devices only. This does not delete the user.
-        usersManager.createdUsers.forEach { user ->
+        clientUserManager.createdUsers.forEach { user ->
             cleanupBackendClient(backendClient, user)
         }
 
         // Deletes tracked teams. Deleting a team also removes its members on the backend.
-        usersManager.getAllTeamOwners().forEach { owner ->
+        clientUserManager.getAllTeamOwners().forEach { owner ->
             runCatching { owner.deleteTeam(backendClient) }
         }
 
         if (deletePersonalUsers) {
             // Deletes tracked personal users only when the test explicitly opts in.
-            usersManager.createdUsers
+            clientUserManager.createdUsers
                 .filter { it.teamId.isNullOrBlank() }
                 .forEach { user ->
                     runCatching { user.deleteUser(backendClient) }
@@ -123,14 +151,15 @@ abstract class BaseUiTest : KoinTest {
      * Shared UI test helper wiring.
      *
      * Provides common UI test fields such as `pages`, `device`, and instrumentation `context`.
-     * `TeamHelper` owns the `usersManager` used to create and track test users.
-     * `TestServiceHelper` must use that same manager so backend actions and cleanup operate on the same users.
+     * `ClientUserManager`, `BackendSetupHelper`, and `TestServiceHelper` must share the same user pool
+     * so setup, service actions, and cleanup operate on the same users.
      */
     protected val pages: AllPages by inject()
     protected lateinit var device: UiDevice
     protected lateinit var context: Context
     protected lateinit var backendClient: BackendClient
-    protected lateinit var teamHelper: TeamHelper
+    protected lateinit var clientUserManager: ClientUserManager
+    protected lateinit var backendSetupHelper: BackendSetupHelper
     protected lateinit var testServiceHelper: TestServiceHelper
 
     /**
@@ -139,21 +168,34 @@ abstract class BaseUiTest : KoinTest {
      */
     protected open val deletePersonalUsersAfterTest: Boolean = false
 
-    protected fun initCommonTestHelpers() {
-        context = InstrumentationRegistry.getInstrumentation().context
-        teamHelper = TeamHelper()
-        testServiceHelper = TestServiceHelper(teamHelper.usersManager)
+    protected fun initCommonTestHelpers(backendName: String = DEFAULT_BACKEND_NAME) {
+        initCommonTestHelpers(BackendClient.loadBackend(backendName))
     }
 
-    @After
-    fun tearDownCommonTestHelpers() {
-        if (::backendClient.isInitialized && ::teamHelper.isInitialized) {
-            // Shared cleanup for users tracked by TeamHelper.
+    protected fun initCommonTestHelpers(backendClient: BackendClient) {
+        context = InstrumentationRegistry.getInstrumentation().context
+        this.backendClient = backendClient
+        // The selected backend is passed into ClientUserManager, which stamps it onto generated users.
+        clientUserManager = ClientUserManager(
+            useSpecialEmail = false,
+            backendClient = backendClient
+        )
+        testServiceHelper = TestServiceHelper(clientUserManager)
+        backendSetupHelper = BackendSetupHelper(clientUserManager, testServiceHelper::addDevice)
+    }
+
+    private fun tearDownCommonTestHelpers() {
+        if (::backendClient.isInitialized && ::clientUserManager.isInitialized) {
+            // Shared cleanup for users tracked by ClientUserManager.
             cleanupCreatedUsers(
                 backendClient,
-                teamHelper.usersManager,
+                clientUserManager,
                 deletePersonalUsers = deletePersonalUsersAfterTest
             )
         }
+    }
+
+    private companion object {
+        const val DEFAULT_BACKEND_NAME = "STAGING"
     }
 }

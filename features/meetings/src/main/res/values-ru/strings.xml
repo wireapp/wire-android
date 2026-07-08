@@ -19,9 +19,10 @@
 <resources>
     <string name="all_meetings_tab_next">ДАЛЕЕ</string>
     <string name="all_meetings_tab_past">НАЗАД</string>
+    <string name="meeting_repeating_never">Никогда</string>
     <string name="meeting_repeating_daily">Ежедневно</string>
     <string name="meeting_repeating_weekly">Еженедельно</string>
-    <string name="meeting_repeating_biweekly">Каждые две недели</string>
+    <string name="meeting_repeating_biweekly">Каждые 2 недели</string>
     <string name="meeting_repeating_monthly">Ежемесячно</string>
     <string name="meeting_repeating_annually">Ежегодно</string>
     <string name="meeting_started_at">Начиная с %1$s</string>
@@ -52,11 +53,38 @@
     <string name="meetings_empty_text_next">"Начните встречу с членами команды, гостями или внешними участниками."</string>
     <string name="meetings_empty_text_past">Предыдущие встречи будут перечислены здесь.</string>
     <string name="new_meeting_title">Новая встреча</string>
+    <string name="new_meeting_participants_title">Выбрать участников</string>
     <string name="new_meeting_now">Встречи сейчас</string>
     <string name="new_meeting_schedule">Запланировать встречу</string>
     <string name="new_meeting_action_start">Начать встречу</string>
     <string name="new_meeting_action_schedule">Расписание</string>
     <string name="new_meeting_title_input_label">Название</string>
     <string name="new_meeting_title_input_placeholder">Введите название встречи</string>
+    <string name="new_meeting_participants_input_label">Участники</string>
+    <string name="new_meeting_participants_input_placeholder">Выбрать участников</string>
     <string name="content_description_new_meeting_back_icon">Закрыть вид новой встречи</string>
+    <string name="content_description_new_meeting_participants_back_icon">Закрыть вид выбора участников</string>
+    <string name="new_meeting_title_name_error_empty">Пожалуйста, введите название встречи</string>
+    <string name="new_meeting_title_name_error_exceeded_limit">Название встречи не должно превышать 64 символа</string>
+    <string name="new_meeting_starts_input_label">Начало</string>
+    <string name="new_meeting_start_date_input_placeholder">Выберите дату начала</string>
+    <string name="new_meeting_start_time_input_placeholder">Выберите время начала</string>
+    <string name="new_meeting_ends_input_label">Окончание</string>
+    <string name="new_meeting_end_date_input_placeholder">Выберите дату окончания</string>
+    <string name="new_meeting_end_time_input_placeholder">Выберите время окончания</string>
+    <string name="new_meeting_start_in_past_error">Время начала не может быть в прошлом</string>
+    <string name="new_meeting_end_in_past_error">Время окончания не может быть в прошлом</string>
+    <string name="new_meeting_end_before_start_error">Время окончания не может быть раньше времени начала</string>
+    <string name="new_meeting_repeats_input_label">Повторы</string>
+    <string name="content_description_new_meeting_repeating_options">Выберите опцию повтора</string>
+    <string name="new_meeting_allow_guests_label">Разрешить гостей</string>
+    <string name="content_description_join_meeting_label">присоединиться к встрече</string>
+    <string name="content_description_attending_meeting_label">вернуться к встрече</string>
+    <string name="meeting_audio_permission_dialog_description">Чтобы присоединиться к встрече, разрешите приложению Wire доступ к микрофону в настройках вашего устройства.</string>
+    <plurals name="new_meeting_participants_input_more_suffix">
+        <item quantity="one">Еще +%1$d</item>
+        <item quantity="few">Еще +%1$d</item>
+        <item quantity="many">Еще +%1$d</item>
+        <item quantity="other">Еще +%1$d</item>
+    </plurals>
 </resources>

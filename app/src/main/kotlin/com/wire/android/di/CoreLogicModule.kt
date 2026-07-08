@@ -93,6 +93,7 @@ import com.wire.kalium.logic.util.RandomPassword
 import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.runBlocking
 import dev.zacsweers.metro.Qualifier
 import dev.zacsweers.metro.AppScope
@@ -109,6 +110,18 @@ annotation class NoSession
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class DefaultWebSocketEnabledByDefault
+
+@SingleIn(AppScope::class)
+class LastKnownCurrentAccount @Inject constructor() {
+    @Volatile
+    private var userId: UserId? = null
+
+    fun update(userId: UserId) {
+        this.userId = userId
+    }
+
+    fun get(): UserId? = userId
+}
 
 @BindingContainer
 class CoreLogicModule {
@@ -186,16 +199,21 @@ class CoreLogicModule {
 
 @BindingContainer
 class SessionModule {
-    // TODO: can be improved by caching the current session in kalium or changing the scope to ActivityRetainedScoped
+    // TODO: remove this fallback once root/auth ViewModel graphs no longer include session ViewModel bindings.
 
     @CurrentAccount
     @Provides
-    fun provideCurrentSession(@KaliumCoreLogic coreLogic: CoreLogic): UserId {
+    fun provideCurrentSession(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        lastKnownCurrentAccount: LastKnownCurrentAccount,
+    ): UserId {
         return runBlocking {
             return@runBlocking when (val result = coreLogic.getGlobalScope().session.currentSession.invoke()) {
-                is CurrentSessionResult.Success -> result.accountInfo.userId
+                is CurrentSessionResult.Success -> result.accountInfo.userId.also(lastKnownCurrentAccount::update)
                 else -> {
-                    throw IllegalStateException("no current session was found")
+                    // During logout, Compose may still dispose/move old session content and ask the root factory for
+                    // account-scoped dependencies after Kalium has already cleared the current session.
+                    lastKnownCurrentAccount.get() ?: throw IllegalStateException("no current session was found")
                 }
             }
         }

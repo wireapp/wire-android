@@ -81,7 +81,6 @@
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_mention_someone">Nämn någon</string>
     <string name="content_description_send_button">Skicka</string>
-    <string name="content_description_timed_message_button">Självraderande meddelanden, knapp</string>
     <string name="content_description_remove_devices_screen_remove_icon">Ta bort enhet</string>
     <string name="content_description_avatar_preview">Förhandsgranskning av profilbild</string>
     <string name="content_description_choose_from_gallery">Välj från galleri</string>
@@ -422,7 +421,6 @@
     <!-- Gallery -->
     <!--sso dialog-->
     <!--prohibited asset messages -->
-    <!--wire dropdown-->
     <string name="change">Ändra</string>
     <string name="allow_guests">Tillåt gäster</string>
     <string name="read_receipts">Läskvitton</string>
@@ -600,13 +598,9 @@
     <string name="sure_about_messaging_dialog_positiv_button">Skicka ändå</string>
     <!-- Sure want to call Dialog -->
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Ring ändå</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_settings_positive_button">Inställningar</string>
-    <string name="app_permission_dialog_settings_negative_button">Inte nu</string>
     <!-- Share Location -->
     <string name="location_attachment_share_title">Dela plats</string>
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <string name="call_feedback_dialog_skip">Hoppa över</string>

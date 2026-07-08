@@ -34,6 +34,7 @@
     <string name="label_leave">Покинуть</string>
     <string name="label_add_device">Добавить устройство</string>
     <string name="label_learn_more">Подробнее</string>
+    <string name="label_learn_more_about_mls">Узнайте больше о MLS</string>
     <string name="label_removing">Удаление...</string>
     <string name="label_logging_in">Авторизация…</string>
     <string name="label_try_again">Повторить</string>
@@ -112,7 +113,7 @@
     <string name="content_description_new_meeting">Начните или запланируйте новую встречу Wire</string>
     <string name="content_description_back_button">Назад</string>
     <string name="content_description_send_button">Отправить</string>
-    <string name="content_description_timed_message_button">Самоудаляющиеся сообщения, кнопка</string>
+    <string name="content_description_timed_message_button">Самоудаляющиеся сообщения</string>
     <string name="content_description_close_button">Закрыть</string>
     <string name="content_description_menu_button">Основное меню</string>
     <string name="content_description_drop_down_icon">Курсор вниз</string>
@@ -210,13 +211,12 @@
     <string name="content_description_edit_label">редактировать</string>
     <string name="content_description_selected_label">выбрано</string>
     <string name="content_description_toggle_setting_label">переключить настройку</string>
+    <string name="content_description_switch_on">вкл</string>
+    <string name="content_description_switch_off">выкл</string>
     <string name="content_description_edit_guests_option_back_btn">Вернуться к сведениям о беседе</string>
     <string name="content_description_edit_self_delete_back_btn">Вернуться к сведениям о беседе</string>
     <string name="content_description_accept_or_ignore_connection_label">принять или игнорировать запрос</string>
-    <string name="content_description_change_it_label">изменить</string>
     <string name="content_description_alert">Оповещение</string>
-    <string name="content_description_drop_down">Раскрывающийся список</string>
-    <string name="content_description_close_dropdown">закрыть раскрывающийся список</string>
     <string name="content_description_open_notification_settings_label">открыть настройки уведомлений</string>
     <string name="content_description_new_conversation_close_btn">Закрыть просмотр новой беседы</string>
     <string name="content_description_new_conversation_back_btn">Вернуться к просмотру новой беседы</string>
@@ -1189,9 +1189,6 @@
     <string name="team_settings_changed">Настройки команды изменены</string>
     <string name="sharing_files_enabled">Обмен и получение файлов любого типа теперь включены</string>
     <string name="sharing_files_disabled">Обмен и получение файлов любого типа теперь отключены</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (по умолчанию)"</string>
-    <string name="wire_dropdown_placeholder">Выбрать элемент</string>
     <string name="change">Изменить</string>
     <string name="allow_guests">Разрешить гостей</string>
     <string name="allow_guest_switch_description">Открыть эту беседу для пользователей не из вашей команды. Вы всегда сможете изменить это позже.</string>
@@ -1323,6 +1320,8 @@
     <string name="nomad_account_blocks_login_title">Вход заблокирован</string>
     <string name="nomad_account_blocks_login_message">В данный момент в системе авторизован управляемый профиль. Перед добавлением другого аккаунта необходимо сначала осуществить выход.</string>
     <string name="cant_switch_account_in_call">Невозможно переключать аккаунты во время звонка</string>
+    <string name="cross_backend_login_blocked_title">Переключение бэкэндов заблокировано</string>
+    <string name="cross_backend_login_blocked_message">В данный момент вы не можете войти в другой бэкенд. Сначала необходимо осуществить выход, а затем войти в другой бэкенд.</string>
     <string name="deeplink_authorization_needed">Для выполнения этого действия необходимо авторизоваться</string>
     <string name="custom_backend_dialog_title">Перенаправить на локальный бэкэнд?</string>
     <string name="custom_backend_dialog_body">При продолжении вы будете перенаправлены на следующий локальный бэкэнд:</string>
@@ -1783,10 +1782,6 @@
     <string name="sure_about_calling_in_degraded_dialog_title">Беседа больше не является верифицированной</string>
     <string name="sure_about_calling_in_degraded_dialog_body">По крайней мере, один из участников начал использовать новое устройство или имеет недействительный сертификат.\n\nВы все еще хотите позвонить?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Все равно позвонить</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">Разрешения приложения</string>
-    <string name="app_permission_dialog_settings_positive_button">Настройки</string>
-    <string name="app_permission_dialog_settings_negative_button">Не сейчас</string>
     <string name="notifications_permission_dialog_description">Чтобы полноценно использовать приложение, получать сообщения и звонить по телефону, разрешите Wire отображать уведомления.</string>
     <string name="call_permission_dialog_description">Чтобы позвонить, разрешите Wire доступ к микрофону в настройках устройства.</string>
     <string name="record_video_permission_dialog_description">Чтобы записать видео, разрешите Wire доступ к камере в настройках устройства.</string>
@@ -1805,10 +1800,6 @@
     <!-- Asset Preview -->
     <string name="remove_asset_description">Удалить медиафайл</string>
     <string name="asset_attention_description">Уведомление</string>
-    <!-- No Activity Errors -->
-    <string name="no_camera_app">Не найдено приложение камеры для выполнения этого действия.</string>
-    <string name="no_gallery_app">Не найдена галерея для выполнения этого действия.</string>
-    <string name="no_file_manager_app">Не найден файловый менеджер для выполнения этого действия.</string>
     <string name="restricted_asset_error_toast_message">Отправка файлов запрещена из-за ограничений компании</string>
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">Отправить пинг</string>
@@ -1874,6 +1865,8 @@
     <string name="personal_to_team_migration_error_message_unknown_error">Wire не удалось завершить создание вашей команды из-за неизвестной ошибки.</string>
     <string name="reaction_sender_self">Вы</string>
     <string name="emoji_picker_select_reaction">Выбрать реакцию</string>
+    <string name="content_description_add_this_reaction">Нажмите дважды, чтобы добавить эту реакцию</string>
+    <string name="content_description_remove_your_reaction">Нажмите дважды, чтобы удалить реакцию</string>
     <string name="label_user_database_profile">Журнал базы данных</string>
     <!-- Move to Folder -->
     <string name="move_to_folder_success">“%1$s” был перемещен в “%2$s”</string>

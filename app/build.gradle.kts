@@ -261,7 +261,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewModelSavedState)
 
     // Compose
-    val composeBom = platform(libs.compose.bom)
+    val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
 

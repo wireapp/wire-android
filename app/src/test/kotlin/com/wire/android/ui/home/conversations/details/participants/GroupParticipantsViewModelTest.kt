@@ -109,11 +109,10 @@ internal class Arrangement {
     }
 
     fun arrange(maxNumberOfItems: Int = -1): Pair<Arrangement, GroupConversationParticipantsViewModel> =
-            this to object : GroupConversationParticipantsViewModel(
+            this to GroupConversationParticipantsViewModel(
                 savedStateHandle,
                 observeParticipantsForConversationUseCase,
                 refreshUsersWithoutMetadata,
-            ) {
-                override val maxNumberOfItems: Int get() = maxNumberOfItems
-            }
+                maxNumberOfItems,
+            )
 }

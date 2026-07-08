@@ -19,6 +19,7 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
@@ -46,6 +47,10 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val audioSeekBar = UiSelectorParams(className = "android.widget.SeekBar")
     private val audioInitialTime = UiSelectorParams(text = "00:00")
     private val playAudioButton = UiSelectorParams(description = "Play audio")
+    private val recordAudioButton = UiSelectorParams(description = "Record Audio")
+    private val stopRecordingAudioButton = UiSelectorParams(description = "Stop Recording Audio")
+    private val sendAudioRecordingButton = UiSelectorParams(description = "Send Audio Message")
+    private val applyAudioFilterCheckboxIndex = 0
 
     private val startCallButton = UiSelectorParams(description = "Start audio call")
     private val pauseAudioButton = UiSelectorParams(description = "Pause audio")
@@ -63,12 +68,17 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
 
-    private fun conversationDetails1On1(userName: String) = UiSelector().className("android.widget.TextView").text(userName)
+    private fun conversationDetails1On1(userName: String) = UiSelectorParams(
+        className = "android.widget.TextView",
+        text = userName
+    )
     private fun conversationDetailsGroup(userName: String) = UiSelectorParams(text = userName)
 
     private val sendButton = UiSelectorParams(description = "Send")
 
     private val backButton = UiSelectorParams(description = "Go back to conversation list")
+
+    private val conversationOptionsButton = UiSelectorParams(description = "Open conversation options")
 
     private val selfDeleteTimerButton = UiSelectorParams(description = "Set timer for self-deleting messages")
 
@@ -147,6 +157,44 @@ data class ConversationViewPage(private val device: UiDevice) {
         button.click()
         return this
     }
+
+    fun tapRecordAudioButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(recordAudioButton).click()
+        return this
+    }
+
+    fun tapStopRecordingAudioButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(stopRecordingAudioButton).click()
+        return this
+    }
+
+    fun assertAudioMessageWasRecorded(): ConversationViewPage {
+        val seekBar = UiWaitUtils.waitElement(audioSeekBar)
+        assertTrue("Audio message was not recorded.", !seekBar.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun sendRecordedAudioMessage(): ConversationViewPage {
+        UiWaitUtils.waitElement(sendAudioRecordingButton).click()
+        return this
+    }
+
+    fun tapApplyAudioFilterCheckbox(): ConversationViewPage {
+        val checkbox = applyAudioFilterCheckbox()
+        if (!checkbox.isChecked) {
+            checkbox.click()
+        }
+        return this
+    }
+
+    fun assertAudioFilterIsApplied(): ConversationViewPage {
+        assertTrue("Audio filter is not applied.", applyAudioFilterCheckbox().isChecked)
+        return this
+    }
+
+    private fun applyAudioFilterCheckbox() =
+        device.findObjects(By.clazz("android.widget.CheckBox")).getOrNull(applyAudioFilterCheckboxIndex)
+            ?: throw AssertionError("Apply audio filter checkbox is not visible.")
 
     fun longPressOnAudioSeekBar(): ConversationViewPage {
         val seekBar = UiWaitUtils.waitElement(audioSeekBar)
@@ -434,9 +482,34 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
     }
 
-    fun tapBackButtonToCloseConversationViewPage(): ConversationViewPage {
-        UiWaitUtils.waitElement(backButton).click()
+    fun tapBackButtonToCloseConversationViewPage(timeout: Duration = UiWaitUtils.SHORT_TIMEOUT): ConversationViewPage {
+        val closed = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            UiWaitUtils.clickWhenClickable(
+                backButton,
+                timeout = UiWaitUtils.POLLING_DEFAULT,
+                pollingInterval = UiWaitUtils.POLLING_FAST
+            )
+            !isConversationViewStillVisible()
+        }
+
+        if (!closed) {
+            throw AssertionError("Conversation view was still visible after tapping back within ${timeout.inWholeMilliseconds}ms")
+        }
+
         return this
+    }
+
+    private fun isConversationViewStillVisible(): Boolean {
+        return try {
+            val typeMessageVisible = findElementOrNull(typeMessageField)?.let { !it.visibleBounds.isEmpty } == true
+            val sendButtonVisible = findElementOrNull(sendButton)?.let { !it.visibleBounds.isEmpty } == true
+            typeMessageVisible || sendButtonVisible
+        } catch (_: StaleObjectException) {
+            false
+        }
     }
 
     fun tapMessageInInputField(): ConversationViewPage {
@@ -545,24 +618,46 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun click1On1ConversationDetails(userName: String): ConversationViewPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val userName = device.findObject(conversationDetails1On1(userName))
-        if (!userName.exists()) throw AssertionError("User '$userName' not found in current conversation")
-        userName.click()
+        val params = conversationDetails1On1(userName)
+        UiWaitUtils.waitElement(backButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
 
+        val detailsOpened = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            UiWaitUtils.clickWhenClickable(
+                params = params,
+                timeout = UiWaitUtils.POLLING_DEFAULT,
+                pollingInterval = UiWaitUtils.POLLING_FAST
+            )
+            findElementOrNull(conversationOptionsButton)?.let { !it.visibleBounds.isEmpty } == true
+        }
+
+        if (!detailsOpened) {
+            throw AssertionError("1:1 conversation details for user '$userName' did not open.")
+        }
         return this
     }
 
     fun clickOnGroupConversationDetails(userName: String): ConversationViewPage {
         val params = conversationDetailsGroup(userName)
+        UiWaitUtils.waitElement(backButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
 
-        UiWaitUtils.waitUntilVisible(
-            params = params,
-            timeout = 5.seconds,
-            errorMessage = "Group conversation details for user '$userName' not visible"
-        )
+        val detailsOpened = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            UiWaitUtils.clickWhenClickable(
+                params = params,
+                timeout = UiWaitUtils.POLLING_DEFAULT,
+                pollingInterval = UiWaitUtils.POLLING_FAST
+            )
+            findElementOrNull(conversationOptionsButton)?.let { !it.visibleBounds.isEmpty } == true
+        }
 
-        UiWaitUtils.waitElement(params).click()
+        if (!detailsOpened) {
+            throw AssertionError("Group conversation details for user '$userName' did not open.")
+        }
         return this
     }
 

@@ -1,5 +1,6 @@
 plugins {
     id(libs.plugins.wire.android.test.library.get().pluginId)
+    alias(libs.plugins.kotlin.serialization)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
 }
 
@@ -22,7 +23,7 @@ android {
 }
 dependencies {
     implementation(libs.androidx.rules)
-    val composeBom = platform(libs.compose.bom)
+    val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.compose.ui)
     androidTestImplementation(libs.androidx.test.runner)
@@ -36,7 +37,7 @@ dependencies {
     implementation(libs.datafaker)
     androidTestImplementation(libs.zxing.core)
     androidTestImplementation(libs.zxing.android.embedded)
-    androidTestImplementation(libs.gson)
+    androidTestImplementation(libs.ktx.serialization)
     androidTestImplementation(libs.allure.kotlin.android)
     androidTestUtil(libs.androidx.test.orchestrator)
     androidTestUtil(libs.androidx.test.services)

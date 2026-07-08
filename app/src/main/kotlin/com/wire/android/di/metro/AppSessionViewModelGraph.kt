@@ -28,6 +28,8 @@ import com.wire.android.ui.common.CommonViewModelFactory
 import com.wire.android.ui.common.CommonViewModelGraph
 import com.wire.android.ui.debug.DebugInfoViewModelFactory
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
+import com.wire.android.ui.home.HomeViewModelFactory
+import com.wire.android.ui.home.HomeViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.AppScope
@@ -48,6 +50,7 @@ interface AppSessionViewModelGraph :
     AuthenticationViewModelGraph,
     CallingViewModelGraph,
     DebugInfoViewModelGraph,
+    HomeViewModelGraph,
     CommonViewModelGraph {
     @get:CurrentAccount
     val currentAccount: UserId
@@ -60,6 +63,7 @@ interface AppSessionViewModelGraph :
     override val miscViewModelFactory: MiscViewModelFactory
     override val callingViewModelFactory: CallingViewModelFactory
     override val debugInfoViewModelFactory: DebugInfoViewModelFactory
+    override val homeViewModelFactory: HomeViewModelFactory
     override val commonViewModelFactory: CommonViewModelFactory
 
     @ContributesTo(AppScope::class)

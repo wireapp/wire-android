@@ -39,6 +39,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.appLogger
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
@@ -86,7 +87,7 @@ fun IncomingCallScreen(
         onPermanentPermissionDecline = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = R.string.call_permission_dialog_description
                 )
             )
@@ -151,7 +152,7 @@ fun IncomingCallScreen(
             onCameraPermissionPermanentlyDenied = {
                 permissionPermanentlyDeniedDialogState.show(
                     PermissionPermanentlyDeniedDialogState.Visible(
-                        title = R.string.app_permission_dialog_title,
+                        title = commonR.string.app_permission_dialog_title,
                         description = R.string.camera_permission_dialog_description
                     )
                 )

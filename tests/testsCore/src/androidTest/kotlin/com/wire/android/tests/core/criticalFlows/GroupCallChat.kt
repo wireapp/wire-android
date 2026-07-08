@@ -19,7 +19,6 @@ package com.wire.android.tests.core.criticalFlows
 
 import QrCodeTestUtils.createQrImageInDeviceDownloadsFolder
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseCallUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -43,7 +42,6 @@ class GroupCallChat : BaseCallUiTest() {
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
         initCallTestHelpers()
     }
 
@@ -59,7 +57,7 @@ class GroupCallChat : BaseCallUiTest() {
     @Test
     fun givenIStartGroupCall_whenParticipantShareMessageFileAndLocation_thenAllVisibleAndCallContinues() {
         step("Prepare team via backend (owner + members + conversation)") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "WeLikeCalling",
                 "en_US",
@@ -67,8 +65,8 @@ class GroupCallChat : BaseCallUiTest() {
                 backendClient,
                 context
             )
-            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-            teamHelper.userXAddsUsersToTeam(
+            teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
                 "WeLikeCalling",
@@ -78,7 +76,7 @@ class GroupCallChat : BaseCallUiTest() {
                 true
             )
 
-            testServiceHelper.userHasGroupConversationInTeam(
+            backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
                 "GroupCallChat",
                 "user2Name,user3Name",
@@ -156,11 +154,11 @@ class GroupCallChat : BaseCallUiTest() {
         step("Unmute participants and verify audio is sent & received") {
             runBlocking {
                 val callParticipants =
-                    teamHelper.usersManager.splitAliases("user2Name, user3Name")
+                    clientUserManager.splitAliases("user2Name, user3Name")
                 callingManager.unmuteMicrophone(callParticipants)
 
                 val callParticipantsAudio =
-                    teamHelper.usersManager.splitAliases("user2Name, user3Name")
+                    clientUserManager.splitAliases("user2Name, user3Name")
                 callingManager.verifySendAndReceiveAudio(callParticipantsAudio)
             }
         }
@@ -176,8 +174,7 @@ class GroupCallChat : BaseCallUiTest() {
                     "user2Name",
                     "Hello Friends",
                     "Device1",
-                    "GroupCallChat",
-                    false
+                    "GroupCallChat"
                 )
             }
         }
@@ -212,8 +209,7 @@ class GroupCallChat : BaseCallUiTest() {
             testServiceHelper.userXSharesLocationTo(
                 "user3Name",
                 "GroupCallChat",
-                "Device1",
-                false
+                "Device1"
             )
 
             pages.conversationViewPage.apply {

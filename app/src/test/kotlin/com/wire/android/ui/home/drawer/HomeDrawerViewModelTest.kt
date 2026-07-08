@@ -37,6 +37,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -92,6 +94,51 @@ class HomeDrawerViewModelTest {
         )
     }
 
+    @Test
+    fun `given cell disabled, when starts checking, then do not show cells drawer item`() =
+        runTest {
+            // Given
+            val (arrangement, viewModel) = Arrangement()
+                .withWireCellsEnabled(false)
+                .arrange()
+
+            // When
+            arrangement.unreadArchivedConversationsCountChannel.send(0L)
+            advanceUntilIdle()
+
+            // Then
+            assertFalse(
+                listOf(
+                    viewModel.drawerState.items.first,
+                    viewModel.drawerState.items.second
+                ).flatten()
+                    .filterIsInstance<DrawerUiItem.RegularItem>()
+                    .any { it.destination.toString().contains("Cells") }
+            )
+        }
+
+    @Test
+    fun `given cell enabled and no cell conversation, when starts checking, then show Cell drawer item`() = runTest {
+        // Given
+        val (arrangement, viewModel) = Arrangement()
+            .withWireCellsEnabled(true)
+            .arrange()
+
+        // When
+        arrangement.unreadArchivedConversationsCountChannel.send(0L)
+        advanceUntilIdle()
+
+        // Then
+        assertTrue(
+            listOf(
+                viewModel.drawerState.items.first,
+                viewModel.drawerState.items.second
+            ).flatten()
+                .filterIsInstance<DrawerUiItem.RegularItem>()
+                .any { it.destination.toString().contains("Cells") }
+        )
+    }
+
     private class Arrangement {
 
         @MockK
@@ -121,6 +168,10 @@ class HomeDrawerViewModelTest {
 
         fun withSelfUserType(type: UserType = UserType.INTERNAL) = apply {
             coEvery { observeSelfUserUseCase() } returns flowOf(TestUser.SELF_USER.copy(userType = UserTypeInfo.Regular(type)))
+        }
+
+        fun withWireCellsEnabled(enabled: Boolean) = apply {
+            coEvery { isWireCellsEnabled() } returns enabled
         }
 
         fun arrange() = this to HomeDrawerViewModel(

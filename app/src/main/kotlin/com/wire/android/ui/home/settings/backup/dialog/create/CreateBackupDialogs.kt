@@ -48,8 +48,8 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCreateFileFlow
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
-import java.util.Locale
 import kotlin.math.roundToInt
+import androidx.compose.ui.platform.LocalLocale
 
 @Composable
 fun SetBackupPasswordDialog(
@@ -79,7 +79,7 @@ fun SetBackupPasswordDialog(
     ) {
         WirePasswordTextField(
             modifier = Modifier.padding(bottom = dimensions().spacing16x),
-            labelText = stringResource(R.string.label_textfield_optional_password).uppercase(Locale.getDefault()),
+            labelText = stringResource(R.string.label_textfield_optional_password).uppercase(LocalLocale.current.platformLocale),
             descriptionText = stringResource(R.string.create_account_details_password_description),
             state = if (passwordValidation.isValid) WireTextFieldState.Default else WireTextFieldState.Error(),
             textState = backupPasswordTextState,

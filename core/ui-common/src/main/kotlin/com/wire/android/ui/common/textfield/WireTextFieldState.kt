@@ -31,7 +31,6 @@ sealed class WireTextFieldState {
 
     data object Success : WireTextFieldState()
     data object Disabled : WireTextFieldState()
-    data object ReadOnly : WireTextFieldState()
 
     fun icon(): Int? = when (this) {
         is Error -> R.drawable.ic_error_outline

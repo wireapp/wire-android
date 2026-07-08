@@ -107,16 +107,16 @@
     <string name="connection_label_ignore">Ignore</string>
     <string name="user_profile_unblock_user">Unblock User</string>
     <!-- Connections -->
-        <string name="connection_label_connect">Connect</string>
+    <string name="connection_label_connect">Connect</string>
     <!-- Missing keyPackages dialog -->
-        <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
+    <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
     <string name="missing_keypackage_dialog_body">You can\'t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
     <string name="connection_pending_label">pending</string>
     <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
     <string name="label_learn_more_searching_user">Learn more</string>
     <string name="url_learn_about_search" translatable="false">https://support.wire.com/hc/articles/203121850</string>
     <!-- Search Contact-->
-        <string name="label_selected">Selected (%1$d)</string>
+    <string name="label_selected">Selected (%1$d)</string>
     <string name="label_contacts">Contacts</string>
     <string name="label_public_wire">Public Wire</string>
     <string name="content_description_select_label">select</string>
@@ -124,4 +124,20 @@
     <string name="label_show_more">Show More</string>
     <string name="label_show_less">Show Less</string>
     <string name="label_select">Select</string>
+
+    <string name="content_description_empty" translatable="false"> </string>
+    <string name="content_description_change_it_label">change it</string>
+    <string name="wire_dropdown_placeholder">Select an Item</string>
+    <string name="content_description_drop_down">Dropdown</string>
+    <string name="content_description_close_dropdown">close dropdown</string>
+    <!--wire dropdown-->
+    <string name="wire_dropdown_default_indicator">" (default)"</string>
+    <!-- No Activity Errors -->
+    <string name="no_camera_app">No camera app found to complete this action.</string>
+    <string name="no_file_manager_app">No file manager app found to complete this action.</string>
+    <string name="no_gallery_app">No gallery app found to complete this action.</string>
+    <!-- Go to app settings permissions dialog -->
+    <string name="app_permission_dialog_title">App permissions</string>
+    <string name="app_permission_dialog_settings_positive_button">Settings</string>
+    <string name="app_permission_dialog_settings_negative_button">Not Now</string>
 </resources>

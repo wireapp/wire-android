@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +20,15 @@ package com.wire.android.util.permission
 import android.Manifest
 import android.os.Build
 import androidx.compose.runtime.Composable
+import kotlinx.collections.immutable.persistentSetOf
 
 @Composable
 fun rememberCameraPermissionFlow(
     onPermissionGranted: () -> Unit,
     onPermissionDenied: () -> Unit,
     onPermissionPermanentlyDenied: () -> Unit
-): RequestLauncher = rememberCheckPermissionsRequestFlow(
-    permissions = arrayOf(Manifest.permission.CAMERA),
+): RequestLauncher = rememberCheckPermissionsRequestFlow<Unit>(
+    permissions = persistentSetOf(Manifest.permission.CAMERA),
     onAllPermissionsGranted = onPermissionGranted,
     onAnyPermissionDenied = onPermissionDenied,
     onAnyPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
@@ -38,8 +39,8 @@ fun rememberRecordAudioPermissionFlow(
     onPermissionGranted: () -> Unit,
     onPermissionDenied: () -> Unit,
     onPermissionPermanentlyDenied: () -> Unit
-): RequestLauncher = rememberCheckPermissionsRequestFlow(
-    permissions = arrayOf(Manifest.permission.RECORD_AUDIO),
+): RequestLauncher = rememberCheckPermissionsRequestFlow<Unit>(
+    permissions = persistentSetOf(Manifest.permission.RECORD_AUDIO),
     onAllPermissionsGranted = onPermissionGranted,
     onAnyPermissionDenied = onPermissionDenied,
     onAnyPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
@@ -50,10 +51,10 @@ fun rememberWriteStoragePermissionFlow(
     onPermissionGranted: () -> Unit,
     onPermissionDenied: () -> Unit,
     onPermissionPermanentlyDenied: () -> Unit
-): RequestLauncher = rememberCheckPermissionsRequestFlow(
+): RequestLauncher = rememberCheckPermissionsRequestFlow<Unit>(
     permissions = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> emptyArray()
-        else -> arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> persistentSetOf()
+        else -> persistentSetOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     },
     onAllPermissionsGranted = onPermissionGranted,
     onAnyPermissionDenied = onPermissionDenied,
@@ -65,8 +66,8 @@ fun rememberCurrentLocationPermissionFlow(
     onAllPermissionsGranted: () -> Unit,
     onAnyPermissionDenied: () -> Unit,
     onAnyPermissionPermanentlyDenied: () -> Unit
-): RequestLauncher = rememberCheckPermissionsRequestFlow(
-    permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+): RequestLauncher = rememberCheckPermissionsRequestFlow<Unit>(
+    permissions = persistentSetOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
     onAllPermissionsGranted = onAllPermissionsGranted,
     onAnyPermissionDenied = onAnyPermissionDenied,
     onAnyPermissionPermanentlyDenied = onAnyPermissionPermanentlyDenied,
@@ -77,8 +78,8 @@ fun rememberShowNotificationsPermissionFlow(
     onPermissionGranted: () -> Unit,
     onPermissionDenied: () -> Unit,
     onPermissionPermanentlyDenied: () -> Unit
-): RequestLauncher = rememberCheckPermissionsRequestFlow(
-    permissions = arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+): RequestLauncher = rememberCheckPermissionsRequestFlow<Unit>(
+    permissions = persistentSetOf(Manifest.permission.POST_NOTIFICATIONS),
     onAllPermissionsGranted = onPermissionGranted,
     onAnyPermissionDenied = onPermissionDenied,
     onAnyPermissionPermanentlyDenied = onPermissionPermanentlyDenied,

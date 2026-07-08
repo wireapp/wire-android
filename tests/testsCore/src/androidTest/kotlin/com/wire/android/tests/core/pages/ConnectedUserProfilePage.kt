@@ -22,7 +22,6 @@ import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val startConversationButton = UiSelectorParams(text = "Start Conversation")
@@ -34,8 +33,13 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val blockedLabel = UiSelectorParams(text = "Blocked")
 
     private val unblockUserButton = UiSelectorParams(text = "Unblock User")
+    private val unblockOption = UiSelectorParams(text = "Unblock")
+    private val unblockButtonAlert = UiSelectorParams(text = "Unblock")
     private val blockButtonAlert = UiSelectorParams(text = "Block")
     private val participantRemoveFromConversationButton = UiSelectorParams(textContains = "Remove from conversation")
+    private val moveToArchiveButton = UiSelectorParams(text = "Move to Archive")
+    private val confirmArchiveConversationButton = UiSelectorParams(text = "Archive")
+    private val moveOutOfArchiveButton = UiSelectorParams(text = "Unarchive")
 
     private val removeConversationButtonOnModal = UiSelectorParams(text = "Remove")
 
@@ -60,7 +64,7 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     fun assertToastMessageIsDisplayed(
         expectedMessage: String,
-        timeout: Duration = 5.seconds
+        timeout: Duration = UiWaitUtils.SHORT_TIMEOUT
     ): ConnectedUserProfilePage {
         UiWaitUtils.waitUntilVisibleOrThrow(
             params = UiSelectorParams(text = expectedMessage),
@@ -86,6 +90,15 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         return this
     }
 
+    fun assertBlockOptionNotVisible(): ConnectedUserProfilePage {
+        val option = UiWaitUtils.findElementOrNull(blockOption)
+        assertTrue(
+            "Block option is visible",
+            option == null || option.visibleBounds.isEmpty
+        )
+        return this
+    }
+
     fun clickBlockButtonAlert(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(blockButtonAlert).click()
         return this
@@ -100,12 +113,60 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         return this
     }
 
+    fun assertBlockedLabelNotVisible(): ConnectedUserProfilePage {
+        val label = UiWaitUtils.findElementOrNull(blockedLabel)
+        assertTrue(
+            "Blocked label is visible",
+            label == null || label.visibleBounds.isEmpty
+        )
+        return this
+    }
+
     fun assertUnblockUserButtonVisible(): ConnectedUserProfilePage {
         try {
             UiWaitUtils.waitElement(unblockUserButton)
         } catch (e: AssertionError) {
             throw AssertionError("Unblock User button is not visible", e)
         }
+        return this
+    }
+
+    fun assertUnblockUserButtonNotVisible(): ConnectedUserProfilePage {
+        val button = UiWaitUtils.findElementOrNull(unblockUserButton)
+        assertTrue(
+            "Unblock User button is visible",
+            button == null || button.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun clickUnblockUserButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(unblockUserButton).click()
+        return this
+    }
+
+    fun clickUnblockOption(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(unblockOption).click()
+        return this
+    }
+
+    fun clickUnblockButtonAlert(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(unblockButtonAlert).click()
+        return this
+    }
+
+    fun tapMoveToArchiveButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(moveToArchiveButton).click()
+        return this
+    }
+
+    fun tapConfirmArchiveConversationButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(confirmArchiveConversationButton).click()
+        return this
+    }
+
+    fun tapMoveOutOfArchiveButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(moveOutOfArchiveButton).click()
         return this
     }
 

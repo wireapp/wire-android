@@ -18,6 +18,7 @@
 
 package com.wire.android.util.logging
 
+import android.util.Log
 import com.wire.android.appLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,9 +51,9 @@ import java.util.Locale
 import java.util.zip.GZIPOutputStream
 
 @Suppress("TooGenericExceptionCaught", "TooManyFunctions")
-class LogFileWriterV2Impl(
+class LogFileWriterImpl(
     private val logsDirectory: File,
-    private val config: LogFileWriterV2Config = LogFileWriterV2Config.default()
+    private val config: LogFileWriterConfig = LogFileWriterConfig.default()
 ) : LogFileWriter {
 
     private val logFileTimeFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
@@ -148,20 +149,27 @@ class LogFileWriterV2Impl(
      * @return A Flow that tells the current length, in bytes, of the log file.
      */
     private fun CoroutineScope.observeLogCatWritingToLoggingFile(): Flow<Long> = flow<Long> {
-        Runtime.getRuntime().exec("logcat -c")
-        logcatProcess = Runtime.getRuntime().exec("logcat")
+        Log.i(LOG_TAG, "Starting logcat capture: clearing buffer")
+        logcatProcess = try {
+            Runtime.getRuntime().exec("logcat -c")
+            Log.i(LOG_TAG, "Starting logcat capture process")
+            Runtime.getRuntime().exec("logcat")
+        } catch (t: Throwable) {
+            Log.e(LOG_TAG, "Failed to start logcat capture", t)
+            null
+        }
 
-        val reader = logcatProcess!!.inputStream.bufferedReader()
+        val reader = logcatProcess?.inputStream?.bufferedReader()
 
         appLogger.i("Starting to write log files, grabbing from logcat")
         while (isActive) {
-            val text = reader.readLine()
+            val text = reader?.readLine()
             if (!text.isNullOrBlank()) {
                 val fileSize = writeLineToFile(text)
                 emit(fileSize)
             }
         }
-        reader.close()
+        reader?.close()
         stopLogcatProcess()
     }.flowOn(Dispatchers.IO)
 
@@ -418,6 +426,7 @@ class LogFileWriterV2Impl(
     }
 
     companion object {
+        private const val LOG_TAG = "LogFileWriter"
         private const val LOG_FILE_PREFIX = "wire"
         private const val ACTIVE_LOGGING_FILE_NAME = "${LOG_FILE_PREFIX}_logs.txt"
         private const val LOG_COMPRESSED_FILES_MAX_COUNT = 10

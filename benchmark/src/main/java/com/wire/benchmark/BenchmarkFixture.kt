@@ -19,11 +19,10 @@ package com.wire.benchmark
 
 import android.content.Context
 import backendUtils.BackendClient
-import backendUtils.team.TeamHelper
+import backendUtils.BackendSetupHelper
 import backendUtils.team.TeamRoles
 import backendUtils.team.deleteTeam
 import backendUtils.user.removeBackendClients
-import service.TestServiceHelper
 import user.usermanager.ClientUserManager
 import java.util.UUID
 
@@ -32,13 +31,13 @@ data class BenchmarkFixture(
     val password: String,
     val conversationName: String,
     val backend: BackendClient,
-    private val usersManager: ClientUserManager,
+    private val clientUserManager: ClientUserManager,
 ) {
     fun cleanup() {
-        usersManager.createdUsers.forEach { user ->
+        clientUserManager.createdUsers.forEach { user ->
             runCatching { user.removeBackendClients(backend) }
         }
-        usersManager.getAllTeamOwners().forEach { owner ->
+        clientUserManager.getAllTeamOwners().forEach { owner ->
             runCatching { owner.deleteTeam(backend) }
         }
     }
@@ -53,21 +52,21 @@ object BenchmarkFixtureFactory {
         conversationNameOverride: String = "",
     ): BenchmarkFixture {
         val backend = BackendClient.loadBackend(backendName)
-        val teamHelper = TeamHelper()
-        val testServiceHelper = TestServiceHelper(teamHelper.usersManager)
+        val clientUserManager = ClientUserManager(useSpecialEmail = false)
+        val backendSetupHelper = BackendSetupHelper(clientUserManager)
         val suffix = UUID.randomUUID().toString().substring(0, 8)
         val teamName = "BaselineProfile$suffix"
         val conversationName = conversationNameOverride.ifEmpty { "BaselineConversation$suffix" }
 
-        teamHelper.usersManager.createTeamOwnerByAlias(
+        backendSetupHelper.createTeamOwnerByAlias(
             nameAlias = OWNER_ALIAS,
             teamName = teamName,
             locale = "en_US",
             updateHandle = true,
-            backend = backend,
+            backendClient = backend,
             context = context,
         )
-        teamHelper.userXAddsUsersToTeam(
+        backendSetupHelper.userXAddsUsersToTeam(
             ownerNameAlias = OWNER_ALIAS,
             userNameAliases = MEMBER_ALIAS,
             teamName = teamName,
@@ -76,20 +75,20 @@ object BenchmarkFixtureFactory {
             context = context,
             membersHaveHandles = true,
         )
-        testServiceHelper.userHasGroupConversationInTeam(
+        backendSetupHelper.userHasGroupConversationInTeam(
             chatOwnerNameAlias = OWNER_ALIAS,
             chatName = conversationName,
             otherParticipantsNameAlises = MEMBER_ALIAS,
             teamName = teamName,
         )
 
-        val owner = teamHelper.usersManager.findUserBy(OWNER_ALIAS, ClientUserManager.FindBy.NAME_ALIAS)
+        val owner = clientUserManager.findUserBy(OWNER_ALIAS, ClientUserManager.FindBy.NAME_ALIAS)
         return BenchmarkFixture(
             email = owner.email.orEmpty(),
             password = owner.password.orEmpty(),
             conversationName = conversationName,
             backend = backend,
-            usersManager = teamHelper.usersManager,
+            clientUserManager = clientUserManager,
         )
     }
 

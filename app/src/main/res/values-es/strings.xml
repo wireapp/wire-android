@@ -98,7 +98,6 @@
     <string name="content_description_conversation_back_btn">Volver a la lista de conversaciones</string>
     <string name="content_description_conversation_open_details_label">abrir detalles de conversación</string>
     <string name="content_description_send_button">Enviar</string>
-    <string name="content_description_timed_message_button">Botón, mensaje con autoborrado</string>
     <string name="content_description_menu_button">Navegación principal</string>
     <string name="content_description_drop_down_icon">Menú desplegable</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Dispositivo</string>
@@ -141,7 +140,6 @@
     <string name="content_description_calling_call_unmuted">Llamada reanudada</string>
     <string name="content_description_calling_call_paused_camera">C&#225;mara pausada</string>
     <string name="content_description_more_emojis">M&#225;s emojis</string>
-    <string name="content_description_self_deletion_selector_button">Cambiar modo de autoborrado, botón</string>
     <string name="content_description_message_sending_status">Estado de envío del mensaje</string>
     <string name="content_description_message_sent_status">Estado del mensaje enviado</string>
     <string name="content_description_message_error_status">Estado de error del mensaje</string>
@@ -685,9 +683,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="team_settings_changed">Configuraci&#243;n del equipo cambiada</string>
     <string name="sharing_files_enabled">Ahora est&#225; habilitada la compartici&#243;n y recepci&#243;n de todo tipo de archivos</string>
     <string name="sharing_files_disabled">Ahora est&#225; deshabilitada la compartici&#243;n y recepci&#243;n de todo tipo de archivos</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (predeterminado)"</string>
-    <string name="wire_dropdown_placeholder">Seleccionar una opci&#243;n</string>
     <string name="change">Cambiar</string>
     <string name="allow_guests">Permitir invitados</string>
     <string name="allow_guest_switch_description">Abra esta conversaci&#243;n a personas fuera de su equipo. Siempre puede cambiarlo m&#225;s tarde.</string>
@@ -954,17 +949,12 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!-- legal hold -->
     <!-- Sure want to send message Dialog -->
     <!-- Sure want to call Dialog -->
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">Permisos de aplicación</string>
-    <string name="app_permission_dialog_settings_positive_button">Ajustes</string>
-    <string name="app_permission_dialog_settings_negative_button">Ahora no</string>
     <!-- Share Location -->
     <string name="location_attachment_share_title">Compartir ubicación</string>
     <string name="location_app_permission_dialog_body">Permite a Wire acceder a la ubicación del dispositivo para enviar tu ubicación.</string>
     <string name="location_loading_label">Un momento...</string>
     <string name="location_could_not_be_shared">No se pudo compartir la ubicación</string>
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->

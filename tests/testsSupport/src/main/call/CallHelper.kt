@@ -36,19 +36,19 @@ import user.usermanager.ClientUserManager
 import kotlin.time.Duration.Companion.seconds
 
 class CallHelper {
-    lateinit var usersManager: ClientUserManager
+    private lateinit var clientUserManager: ClientUserManager
     lateinit var callingManager: CallingManager
 
-    fun init(usersManager: ClientUserManager) {
-        this.usersManager = usersManager
-        callingManager = CallingManager(usersManager)
+    fun init(clientUserManager: ClientUserManager) {
+        this.clientUserManager = clientUserManager
+        callingManager = CallingManager(clientUserManager)
     }
 
     suspend fun enableConferenceCallingFeatureViaBackdoorTeam(adminUserAlias: String, teamName: String) {
-        if ((::usersManager).isInitialized.not()) {
-            throw Exception("Users manager not intialized!")
+        if ((::clientUserManager).isInitialized.not()) {
+            throw Exception("ClientUserManager is not initialized.")
         }
-        val adminUser = usersManager.toClientUser(adminUserAlias)
+        val adminUser = clientUserManager.toClientUser(adminUserAlias)
         val backend = BackendClient.loadBackend(adminUser.backendName.orEmpty())
         val dstTeam = backend.getTeamByName(adminUser, teamName)
         backend.unlockConferenceCallingFeature(dstTeam)
@@ -58,7 +58,7 @@ class CallHelper {
     suspend fun userXStartsInstance(callees: String, callingServiceBackend: String) {
         UiAutomatorPinger.startPinging()
         callingManager.startInstances(
-            usersManager.splitAliases(callees),
+            clientUserManager.splitAliases(callees),
             callingServiceBackend,
             "Android",
             "Testing"
@@ -67,13 +67,13 @@ class CallHelper {
     }
 
     suspend fun userXAcceptsNextIncomingCallAutomatically(callees: String) {
-        callingManager.acceptNextCall(usersManager.splitAliases(callees))
+        callingManager.acceptNextCall(clientUserManager.splitAliases(callees))
     }
 
     suspend fun userVerifiesCallStatusToUserY(callees: String, expectedStatuses: String, timeoutSeconds: Int) {
         UiAutomatorPinger.startPinging()
         callingManager.verifyAcceptingCallStatus(
-            usersManager.splitAliases(callees),
+            clientUserManager.splitAliases(callees),
             expectedStatuses,
             timeoutSeconds.seconds
         )
@@ -82,7 +82,7 @@ class CallHelper {
 
     fun iSeeParticipantsInGroupCall(participants: String) {
         // 1. Resolve aliases into real usernames
-        val groupMember = usersManager.replaceAliasesOccurrences(
+        val groupMember = clientUserManager.replaceAliasesOccurrences(
             participants,
             ClientUserManager.FindBy.NAME_ALIAS
         )
@@ -105,7 +105,7 @@ class CallHelper {
 
     fun iSeeParticipantsInGroupVideoCall(participants: String) {
         // 1. Resolve aliases into real usernames
-        val resolvedParticipants = usersManager.replaceAliasesOccurrences(
+        val resolvedParticipants = clientUserManager.replaceAliasesOccurrences(
             participants,
             ClientUserManager.FindBy.NAME_ALIAS
         )

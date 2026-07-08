@@ -20,7 +20,9 @@ package com.wire.android.ui.common
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +40,8 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
@@ -71,6 +75,18 @@ fun Modifier.shimmerPlaceholder(
 )
 
 @Composable
+fun Modifier.focusedBorder(isFocused: Boolean): Modifier = this
+    .border(
+        width = MaterialTheme.wireDimensions.spacing1x,
+        color = if (isFocused) MaterialTheme.wireColorScheme.primary else Color.Transparent,
+        shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x)
+    )
+    .padding(
+        horizontal = MaterialTheme.wireDimensions.spacing4x,
+        vertical = MaterialTheme.wireDimensions.spacing2x
+    )
+
+@Composable
 fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: () -> Unit): () -> Unit {
     val syncStateObserver = LocalSyncStateObserver.current
     val context = LocalContext.current
@@ -95,7 +111,7 @@ fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: ()
 @SuppressLint("ComposeComposableModifier")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
+fun Modifier.clickable(clickable: Clickable?, role: Role? = null) = clickable?.let {
     if (clickable.enabled) {
         val onClick = rememberClickBlockAction(clickable.clickBlockParams, clickable.onClick)
         val onLongClick = clickable.onLongClick?.let { onLongClick ->
@@ -106,11 +122,14 @@ fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
             onClick = onClick,
             onLongClick = onLongClick,
             onClickLabel = clickable.onClickDescription,
-            onLongClickLabel = clickable.onLongClickDescription
+            onLongClickLabel = clickable.onLongClickDescription,
+            role = role
         )
     } else {
         // even though element is disabled we want to merge all inner elements into one for TalkBack
-        this.semantics(mergeDescendants = true) { }
+        this.semantics(mergeDescendants = true) {
+            role?.let { this.role = it }
+        }
     }
 } ?: this
 

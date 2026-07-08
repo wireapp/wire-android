@@ -39,8 +39,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.zIndex
 import com.wire.android.BuildConfig
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetDefaults
@@ -80,6 +83,7 @@ fun NewAuthContainer(
                 Surface(
                     color = WireBottomSheetDefaults.WireSheetContainerColor,
                     shadowElevation = scrollState.rememberTopBarElevationState().value,
+                    modifier = Modifier.zIndex(1f) // to ensure the header is above the column content when scrolled
                 ) {
                     header()
                 }
@@ -145,6 +149,7 @@ fun NewAuthTitle(
         textAlign = TextAlign.Center,
         modifier = modifier
             .padding(vertical = verticalPadding)
+            .semantics { heading() }
     )
 }
 

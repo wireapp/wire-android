@@ -37,12 +37,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -62,7 +66,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -102,8 +105,6 @@ import com.sebaslogen.resaca.rememberKeysInScope
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
-import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.cells.ui.dialog.IncompatibleFileNameDialog
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
@@ -115,10 +116,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.conversationCallViewModel
-import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
-import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.PageLoadingIndicator
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -129,15 +127,7 @@ import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog
 import com.wire.android.ui.common.dialogs.VisitLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureActivatedDialog
-import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
-import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableTeamAdminDialog
-import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableTeamMemberDialog
-import com.wire.android.ui.common.dialogs.calling.ConfirmStartCallDialog
-import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
-import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
-import com.wire.android.ui.common.dialogs.calling.SureAboutCallingInDegradedConversationDialog
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
@@ -151,9 +141,10 @@ import com.wire.android.ui.home.conversations.attachment.IncompatibleFileNameDia
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
-import com.wire.android.ui.home.conversations.call.ConversationCallViewActions
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
+import com.wire.android.ui.home.conversations.call.HandleActions
+import com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
@@ -201,8 +192,6 @@ import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
-import com.wire.kalium.common.error.NetworkFailure
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
@@ -210,9 +199,6 @@ import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
-import com.wire.kalium.logic.data.user.type.isInternal
-import com.wire.kalium.logic.data.user.type.isTeamAdmin
-import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -223,9 +209,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import java.util.Date
-import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 import com.wire.android.ui.common.R as commonR
+import androidx.compose.ui.platform.LocalLocale
 
 /**
  * The maximum number of messages the user can scroll while still
@@ -235,11 +221,6 @@ import com.wire.android.ui.common.R as commonR
 private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 
 private const val SCOPED_VIEW_MODEL_PREFETCH_WINDOW = 3
-
-/**
- * The maximum number of participants to start a call without showing a confirmation dialog.
- */
-private const val MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT = 5
 
 /**
  * The maximum number of participants to send a ping without showing a confirmation dialog.
@@ -310,8 +291,6 @@ fun ConversationScreen(
     // then ViewModel also detects it's removed and calls onNotFound which can execute navigateBack again and close the app
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
 
-    val context = LocalContext.current
-
     LaunchedEffect(conversationScreenState.isAnySheetVisible) {
         with(messageComposerStateHolder) {
             if (conversationScreenState.isAnySheetVisible) {
@@ -358,20 +337,6 @@ fun ConversationScreen(
         }
     }
 
-    HandleActions(conversationCallViewModel.actions) { action ->
-        when (action) {
-            is ConversationCallViewActions.InitiatedCall -> {
-                context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
-            }
-
-            is ConversationCallViewActions.JoinedCall -> {
-                context.startActivity(getOngoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-            }
-        }
-    }
-
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
         navigator.navigate(
             NavigationCommand(
@@ -381,57 +346,7 @@ fun ConversationScreen(
         )
     }
 
-    with(conversationCallViewModel) {
-        if (conversationCallViewState.shouldShowJoinAnywayDialog) {
-            appLogger.i("showing showJoinAnywayDialog..")
-            JoinAnywayDialog(
-                onDismiss = ::dismissJoinCallAnywayDialog,
-                onConfirm = ::joinAnyway,
-            )
-        }
-    }
-
     when (showDialog.value) {
-        ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
-            OngoingActiveCallDialog(
-                onInitiateCallAnyway = {
-                    conversationCallViewModel.initiateCall()
-                    showDialog.value = ConversationScreenDialogType.NONE
-                },
-                onDialogDismiss = {
-                    showDialog.value = ConversationScreenDialogType.NONE
-                }
-            )
-        }
-
-        ConversationScreenDialogType.NO_CONNECTIVITY -> {
-            CoreFailureErrorDialog(coreFailure = NetworkFailure.NoNetworkConnection(null)) {
-                showDialog.value = ConversationScreenDialogType.NONE
-            }
-        }
-
-        ConversationScreenDialogType.CALL_CONFIRMATION -> {
-            ConfirmStartCallDialog(
-                participantsCount = conversationCallViewModel.conversationCallViewState.participantsCount,
-                onConfirm = {
-                    startCallIfPossible(
-                        conversationCallViewModel,
-                        showDialog,
-                        coroutineScope,
-                        conversationInfoViewModel.conversationInfoViewState.conversationType,
-                        onOpenOngoingCallScreen = { conversationId, userId ->
-                            getOngoingCallIntent(context, conversationId.toString(), userId.toString()).run {
-                                context.startActivity(this)
-                            }
-                        }
-                    )
-                },
-                onDialogDismiss = {
-                    showDialog.value = ConversationScreenDialogType.NONE
-                }
-            )
-        }
-
         ConversationScreenDialogType.PING_CONFIRMATION -> {
             ConfirmSendingPingDialog(
                 participantsCount = conversationCallViewModel.conversationCallViewState.participantsCount,
@@ -445,55 +360,17 @@ fun ConversationScreen(
             )
         }
 
-        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE -> {
-            CallingFeatureUnavailableDialog {
-                showDialog.value = ConversationScreenDialogType.NONE
-            }
-        }
-
-        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER -> {
-            CallingFeatureUnavailableTeamMemberDialog {
-                showDialog.value = ConversationScreenDialogType.NONE
-            }
-        }
-
-        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN -> {
-            CallingFeatureUnavailableTeamAdminDialog(
-                onUpgradeAction = uriHandler::openUri,
-                onDialogDismiss = {
-                    showDialog.value = ConversationScreenDialogType.NONE
-                }
-            )
-        }
-
         ConversationScreenDialogType.CALLING_FEATURE_ACTIVATED -> {
             CallingFeatureActivatedDialog {
                 showDialog.value = ConversationScreenDialogType.NONE
             }
         }
 
-        ConversationScreenDialogType.VERIFICATION_DEGRADED -> {
-            SureAboutCallingInDegradedConversationDialog(
-                callAnyway = {
-                    conversationCallViewModel.onApplyConversationDegradation()
-                    startCallIfPossible(
-                        conversationCallViewModel,
-                        showDialog,
-                        coroutineScope,
-                        conversationInfoViewModel.conversationInfoViewState.conversationType,
-                        onOpenOngoingCallScreen = { conversationId, userId ->
-                            getOngoingCallIntent(context, conversationId.toString(), userId.toString()).run {
-                                context.startActivity(this)
-                            }
-                        }
-                    )
-                },
-                onDialogDismiss = { showDialog.value = ConversationScreenDialogType.NONE }
-            )
-        }
-
         ConversationScreenDialogType.NONE -> {}
     }
+
+    conversationCallViewModel.callManager.actions.HandleActions()
+    conversationCallViewModel.callManager.HandleJoinOrStartCallScreenDialogs()
 
     ConversationScreen(
         bannerMessage = conversationBannerViewModel.bannerState,
@@ -609,17 +486,7 @@ fun ConversationScreen(
             }
         },
         onStartCall = {
-            startCallIfPossible(
-                conversationCallViewModel,
-                showDialog,
-                coroutineScope,
-                conversationInfoViewModel.conversationInfoViewState.conversationType,
-                onOpenOngoingCallScreen = { conversationId, userId ->
-                    getOngoingCallIntent(context, conversationId.toString(), userId.toString()).run {
-                        context.startActivity(this)
-                    }
-                }
-            )
+            conversationCallViewModel.startCallIfPossible(conversationInfoViewModel.conversationInfoViewState.conversationType)
         },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
         onReactionClick = { messageId, emoji ->
@@ -688,7 +555,7 @@ fun ConversationScreen(
             }
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = description
                 )
             )
@@ -753,7 +620,7 @@ fun ConversationScreen(
         onPermissionPermanentlyDenied = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = R.string.save_permission_dialog_description
                 )
             )
@@ -905,56 +772,6 @@ private fun conversationScreenOnBackButtonClick(
 }
 
 @Suppress("LongParameterList")
-private fun startCallIfPossible(
-    conversationCallViewModel: ConversationCallViewModel,
-    showDialog: MutableState<ConversationScreenDialogType>,
-    coroutineScope: CoroutineScope,
-    conversationType: Conversation.Type,
-    onOpenOngoingCallScreen: (ConversationId, UserId) -> Unit
-) {
-    coroutineScope.launch {
-        if (!conversationCallViewModel.hasStableConnectivity()) {
-            showDialog.value = ConversationScreenDialogType.NO_CONNECTIVITY
-        } else if (conversationCallViewModel.shouldInformAboutVerification.value) {
-            showDialog.value = ConversationScreenDialogType.VERIFICATION_DEGRADED
-        } else {
-            val dialogValue = when (conversationCallViewModel.isConferenceCallingEnabled(conversationType)) {
-                ConferenceCallingResult.Enabled -> {
-                    if (
-                        showDialog.value != ConversationScreenDialogType.CALL_CONFIRMATION &&
-                        conversationCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT
-                    ) {
-                        ConversationScreenDialogType.CALL_CONFIRMATION
-                    } else {
-                        conversationCallViewModel.initiateCall()
-                        ConversationScreenDialogType.NONE
-                    }
-                }
-
-                ConferenceCallingResult.Disabled.Established -> {
-                    onOpenOngoingCallScreen(conversationCallViewModel.conversationId, conversationCallViewModel.currentAccount)
-                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                    ConversationScreenDialogType.NONE
-                }
-
-                ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL
-                ConferenceCallingResult.Disabled.Unavailable -> {
-                    val type = conversationCallViewModel.selfTeamRole.value
-                    when {
-                        type.isInternal() -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER
-                        type.isTeamAdmin() -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN
-                        else -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
-                    }
-                }
-
-                else -> ConversationScreenDialogType.NONE
-            }
-            showDialog.value = dialogValue
-        }
-    }
-}
-
-@Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
     bannerMessage: UIText?,
@@ -1058,6 +875,7 @@ private fun ConversationScreen(
                     }
                 )
             },
+            contentWindowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Vertical),
             content = { internalPadding ->
                 Box(
                     modifier = Modifier
@@ -1794,7 +1612,7 @@ private fun MessageGroupDateTime(
             HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
             HorizontalSpace.x4()
             Text(
-                text = timeString.uppercase(Locale.getDefault()),
+                text = timeString.uppercase(LocalLocale.current.platformLocale),
                 maxLines = 1,
                 color = colorsScheme().onBackground,
                 style = MaterialTheme.wireTypography.label02,
@@ -1818,7 +1636,7 @@ private fun MessageGroupDateTime(
                 )
         ) {
             Text(
-                text = timeString.uppercase(Locale.getDefault()),
+                text = timeString.uppercase(LocalLocale.current.platformLocale),
                 color = colorsScheme().secondaryText,
                 style = MaterialTheme.wireTypography.title03,
             )

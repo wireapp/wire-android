@@ -69,7 +69,7 @@ class HomeDrawerViewModel(
             combine(
                 flowOf(isWireCellsEnabled()),
                 observeArchivedUnreadConversationsCount.value.invoke(),
-                observeTeamManagementUrlForUser()
+                observeTeamManagementUrlForUser(),
             ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
                 buildList {
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))

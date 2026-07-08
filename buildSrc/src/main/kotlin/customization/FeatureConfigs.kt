@@ -111,6 +111,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC("limit_team_members_fetch_during_slow_sync", ConfigType.INT),
 
     PICTURE_IN_PICTURE_ENABLED("picture_in_picture_enabled", ConfigType.BOOLEAN),
+    PHONE_LANDSCAPE_ENABLED("phone_landscape_enabled", ConfigType.BOOLEAN),
     PAGINATED_CONVERSATION_LIST_ENABLED("paginated_conversation_list_enabled", ConfigType.BOOLEAN),
 
     PUBLIC_CHANNELS_ENABLED("public_channels_enabled", ConfigType.BOOLEAN),
@@ -126,8 +127,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     IS_MLS_RESET_ENABLED("is_mls_reset_enabled", ConfigType.BOOLEAN),
     USE_STRICT_MLS_FILTER("use_strict_mls_filter", ConfigType.BOOLEAN),
     MEETINGS_ENABLED("meetings_enabled", ConfigType.BOOLEAN),
-
-    USE_ASYNC_FLUSH_LOGGING("use_async_flush_logging", ConfigType.BOOLEAN),
 
     /**
      * Background notification retry logic
@@ -145,6 +144,10 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     COLLABORA_INTEGRATION_ENABLED("collabora_integration", ConfigType.BOOLEAN),
 
+    OFFLINE_FILES_ENABLED("offline_files_enabled", ConfigType.BOOLEAN),
+
+    IN_APP_IMAGE_VIEWER_ENABLED("in_app_image_viewer_enabled", ConfigType.BOOLEAN),
+
     DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN),
 
     CONFIGURATION_SIGNATURE_KEYS("configuration_signature_keys", ConfigType.MapOfStrings),
@@ -157,5 +160,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     CALL_REACTIONS_ENABLED("call_reactions_enabled", ConfigType.BOOLEAN),
 
-    BLOCK_CROSS_BACKEND_LOGIN("block_cross_backend_login", ConfigType.BOOLEAN)
+    BLOCK_CROSS_BACKEND_LOGIN("block_cross_backend_login", ConfigType.BOOLEAN),
+
+    PENDING_MESSAGES("pending_messages", ConfigType.BOOLEAN),
 }

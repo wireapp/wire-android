@@ -62,9 +62,8 @@ dependencyResolutionManagement {
     }
 }
 
-// A work-around where we define the included builds in a different file
-// so Reloaded's Dependabot doesn't try to look into Kalium's build.gradle.kts, which is inaccessible as it is a git submodule.
-// See: https://github.com/dependabot/dependabot-core/issues/7201#issuecomment-1571319655
+// Keep included builds in a separate file so dependency update automation in this repo
+// does not traverse Kalium's build scripts, which are owned by the Kalium submodule.
 apply(from = "include_builds.gradle.kts")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

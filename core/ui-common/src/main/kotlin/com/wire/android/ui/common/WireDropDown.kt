@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -62,8 +63,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import com.wire.android.R
-import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.textfield.WireLabel
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireColorScheme
@@ -71,16 +70,19 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
-internal fun WireDropDown(
-    items: List<String>,
+fun WireDropDown(
+    items: ImmutableList<String>,
     label: String?,
     modifier: Modifier = Modifier,
     defaultItemIndex: Int = -1,
     selectedItemIndex: Int = defaultItemIndex,
     autoUpdateSelection: Boolean = true,
     showDefaultTextIndicator: Boolean = true,
+    showSelectionFieldWhenExpanded: Boolean = true,
     leadingCompose: @Composable ((index: Int) -> Unit)? = null,
     onChangeClickDescription: String = stringResource(R.string.content_description_change_it_label),
     placeholder: String = stringResource(R.string.wire_dropdown_placeholder),
@@ -88,7 +90,7 @@ internal fun WireDropDown(
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedIndex by remember(selectedItemIndex) { mutableStateOf(selectedItemIndex) }
-    var selectionFieldWidth by remember { mutableStateOf(Size.Zero) }
+    var selectionFieldSize by remember { mutableStateOf(Size.Zero) }
     val arrowRotation: Float by animateFloatAsState(if (expanded) 180f else 0f)
     val selectionText = if (selectedIndex != -1) {
         items[selectedIndex] + LocalContext.current.defaultTextIndicator(
@@ -124,7 +126,7 @@ internal fun WireDropDown(
                     .onGloballyPositioned { coordinates ->
                         // This value is used to assign to
                         // the DropDown the same width
-                        selectionFieldWidth = coordinates.size.toSize()
+                        selectionFieldSize = coordinates.size.toSize()
                     }
                     .clickable(onClickLabel = onChangeClickDescription) { expanded = true },
                 leadingCompose = leadingCompose,
@@ -135,13 +137,14 @@ internal fun WireDropDown(
 
             MenuPopUp(
                 shape = shape,
-                textFieldWidth = selectionFieldWidth,
+                textFieldSize = selectionFieldSize,
                 expanded = expanded,
                 borderColor = borderColor,
                 leadingCompose = leadingCompose,
                 selectedIndex = selectedIndex,
                 items = items,
                 showDefaultTextIndicator = showDefaultTextIndicator,
+                showSelectionField = showSelectionFieldWhenExpanded,
                 defaultItemIndex = defaultItemIndex,
                 selectionText = selectionText,
                 arrowRotation = arrowRotation,
@@ -159,13 +162,14 @@ internal fun WireDropDown(
 @Composable
 private fun MenuPopUp(
     shape: RoundedCornerShape,
-    textFieldWidth: Size,
+    textFieldSize: Size,
     expanded: Boolean,
     borderColor: Color,
     leadingCompose: @Composable ((index: Int) -> Unit)?,
     selectedIndex: Int,
-    items: List<String>,
+    items: ImmutableList<String>,
     showDefaultTextIndicator: Boolean,
+    showSelectionField: Boolean,
     defaultItemIndex: Int,
     selectionText: String,
     arrowRotation: Float,
@@ -178,28 +182,30 @@ private fun MenuPopUp(
         // we want PopUp to cover the selection field, so we set this offset.
         // "- 8.dp" is because DropdownMenu has inner top padding, which can't be changed,
         // so without this additional 8.dp selection text will "jump" while opening/closing menu.
-        val popUpTopOffset = with(LocalDensity.current) { -textFieldWidth.height.toDp() - 8.dp }
+        val popUpTopOffset = with(LocalDensity.current) { -textFieldSize.height.toDp() - 8.dp }
 
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = hidePopUp,
             offset = DpOffset(0.dp, popUpTopOffset),
             modifier = Modifier
-                .width(with(LocalDensity.current) { textFieldWidth.width.toDp() })
+                .width(with(LocalDensity.current) { textFieldSize.width.toDp() })
                 .background(color = MaterialTheme.wireColorScheme.secondaryButtonEnabled)
                 .border(width = 1.dp, color = borderColor, shape)
                 .semantics { paneTitle = dropdownDescription }
         ) {
 
-            SelectionField(
-                leadingCompose = leadingCompose,
-                selectedIndex = selectedIndex,
-                text = selectionText,
-                arrowRotation = arrowRotation,
-                modifier = Modifier.clickable(onClickLabel = stringResource(R.string.content_description_close_dropdown)) {
-                    hidePopUp()
-                }
-            )
+            if (showSelectionField) {
+                SelectionField(
+                    leadingCompose = leadingCompose,
+                    selectedIndex = selectedIndex,
+                    text = selectionText,
+                    arrowRotation = arrowRotation,
+                    modifier = Modifier.clickable(onClickLabel = stringResource(R.string.content_description_close_dropdown)) {
+                        hidePopUp()
+                    }
+                )
+            }
 
             List(items.size) { index ->
                 HorizontalDivider(
@@ -232,12 +238,9 @@ private fun SelectionField(
     Row(
         modifier
             .padding(
-                start = dimensions().spacing16x,
-                end = dimensions().spacing16x,
-                top = dimensions().spacing12x,
-                bottom = dimensions().spacing12x
+                horizontal = dimensions().spacing16x,
+                vertical = dimensions().spacing12x,
             )
-
     ) {
         leadingCompose?.let {
             LeadingIcon { it(selectedIndex) }
@@ -255,7 +258,7 @@ private fun SelectionField(
             }
         )
         Icon(
-            painter = painterResource(commonR.drawable.ic_expand_more),
+            painter = painterResource(R.drawable.ic_arrow_drop_down),
             contentDescription = null,
             tint = MaterialTheme.wireColorScheme.secondaryText,
             modifier = Modifier
@@ -277,7 +280,7 @@ private fun DropdownItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val selectLabel = stringResource(commonR.string.content_description_select_label)
+    val selectLabel = stringResource(R.string.content_description_select_label)
     val closeDropdownLabel = stringResource(R.string.content_description_close_dropdown)
     return DropdownMenuItem(
         text = {
@@ -299,6 +302,10 @@ private fun DropdownItem(
             }
         },
         onClick = onClick,
+        contentPadding = PaddingValues(
+            horizontal = dimensions().spacing16x,
+            vertical = dimensions().spacing12x,
+        ),
         modifier = Modifier
             .semantics {
                 if (isSelected) {
@@ -333,7 +340,7 @@ private fun RowScope.LeadingIcon(convent: @Composable () -> Unit) {
 @Preview
 fun PreviewWireDropdownPreviewWithLabel() {
     WireDropDown(
-        items = CreateConversationParam.Protocol.entries.map { it.name },
+        items = CreateConversationParam.Protocol.entries.map { it.name }.toImmutableList(),
         defaultItemIndex = 0,
         selectedItemIndex = 0,
         label = "Protocol",

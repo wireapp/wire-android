@@ -47,7 +47,9 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -218,6 +220,37 @@ class GetConversationsFromSearchUseCaseTest {
             assertEquals(true, group.hasNewActivitiesToShow)
         }
 
+    @Test
+    fun givenJoinableCallsChange_whenGettingPaginatedList_thenDoNotReEmitSamePagingData() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val conversation = ConversationDetailsWithEvents(TestConversationDetails.GROUP)
+            val call = joinableCall(conversation.conversationDetails.conversation.id)
+            val (_, useCase) = Arrangement()
+                .withPaginatedResult(listOf(conversation))
+                .withJoinableCallsFlow(
+                    flowOf(
+                        mapOf(call.conversationId to call),
+                        emptyMap()
+                    )
+                )
+                .arrange()
+
+            // When
+            val result = with(ConversationQueryConfig("search")) {
+                useCase(
+                    searchQuery = searchQuery,
+                    fromArchive = fromArchive,
+                    newActivitiesOnTop = newActivitiesOnTop,
+                    onlyInteractionEnabled = onlyInteractionEnabled,
+                    useStrictMlsFilter = true
+                ).toList()
+            }
+
+            // Then
+            assertEquals(1, result.size)
+        }
+
     inner class Arrangement {
 
         @MockK
@@ -283,6 +316,10 @@ class GetConversationsFromSearchUseCaseTest {
 
         fun withJoinableCalls(calls: List<Call>) = apply {
             coEvery { observeJoinableCalls() } returns flowOf(calls.associateBy { it.conversationId })
+        }
+
+        fun withJoinableCallsFlow(result: Flow<Map<ConversationId, Call>>) = apply {
+            coEvery { observeJoinableCalls() } returns result
         }
 
         fun withSelfTeamId() = apply {

@@ -22,12 +22,14 @@ data class PlatformIndependentLogFileWriterConfig(
     val flushIntervalMs: Long = DEFAULT_FLUSH_INTERVAL_MS,
     val maxBufferSize: Int = DEFAULT_MAX_BUFFER_SIZE,
     val bufferSizeBytes: Int = DEFAULT_BUFFER_SIZE_BYTES,
+    val maxFileSize: Long = DEFAULT_MAX_FILE_SIZE_BYTES,
     val flushTimeoutMs: Long = DEFAULT_FLUSH_TIMEOUT_MS,
 ) {
     companion object {
         private const val DEFAULT_FLUSH_INTERVAL_MS = 5000L
         private const val DEFAULT_MAX_BUFFER_SIZE = 100
         private const val DEFAULT_BUFFER_SIZE_BYTES = 64 * 1024
+        private const val DEFAULT_MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024L // 25MB
         private const val DEFAULT_FLUSH_TIMEOUT_MS = 5000L // 5 seconds
 
         fun default() = PlatformIndependentLogFileWriterConfig()

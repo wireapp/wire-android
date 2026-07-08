@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.util.zip.GZIPInputStream
 
 class PlatformIndependentLogFileWriterTest {
 
@@ -128,6 +129,49 @@ class PlatformIndependentLogFileWriterTest {
     }
 
     @Test
+    fun givenActiveFileExceedsMaxSize_whenKermitEmitsLog_thenWorkerRotatesActiveFile() = runBlocking {
+        val writer = PlatformIndependentLogFileWriter(
+            logsDirectory = logsDirectory(),
+            config = PlatformIndependentLogFileWriterConfig.default().copy(
+                flushIntervalMs = ONE_MINUTE_MS,
+                maxBufferSize = ONE_LOG_LINE,
+                maxFileSize = SMALL_FILE_SIZE_BYTES
+            )
+        )
+
+        writer.start()
+        writer.logWriter.log(Severity.Info, "large-message-${"x".repeat(LARGE_MESSAGE_SIZE)}", "TestTag", null)
+        writer.forceFlush()
+
+        eventually { compressedLogFiles().size == 1 }
+        val compressedFile = compressedLogFiles().single()
+        val compressedText = GZIPInputStream(compressedFile.inputStream()).bufferedReader().use { it.readText() }
+        assertTrue(compressedText.contains("large-message"))
+        assertFalse(writer.activeLoggingFile.readText().contains("large-message"))
+        writer.stop()
+    }
+
+    @Test
+    fun givenFileWriterIsStarted_whenDeletingAllLogs_thenActiveAndCompressedLogsAreDeleted() = runBlocking {
+        val writer = PlatformIndependentLogFileWriter(
+            logsDirectory = logsDirectory(),
+            config = PlatformIndependentLogFileWriterConfig.default().copy(flushIntervalMs = ONE_MINUTE_MS)
+        )
+        val compressedFile = logsDirectory().resolve("old-log.gz")
+
+        writer.start()
+        writer.logWriter.log(Severity.Info, "to be deleted", "TestTag", null)
+        writer.forceFlush()
+        compressedFile.writeText("compressed")
+
+        writer.deleteAllLogFiles()
+
+        assertEquals("", writer.activeLoggingFile.readText())
+        assertFalse(compressedFile.exists())
+        writer.stop()
+    }
+
+    @Test
     fun givenFileWriterIsNotStarted_whenDeletingAllLogs_thenActiveAndCompressedLogsAreDeleted() = runBlocking {
         val writer = PlatformIndependentLogFileWriter(logsDirectory = logsDirectory())
         val compressedFile = logsDirectory().resolve("old-log.gz")
@@ -152,6 +196,9 @@ class PlatformIndependentLogFileWriterTest {
 
     private fun logsDirectory() = tempDir.resolve("logs")
 
+    private fun compressedLogFiles() = logsDirectory().listFiles().orEmpty()
+        .filter { it.extension == "gz" }
+
     private suspend fun eventually(assertion: () -> Boolean) {
         repeat(EVENTUALLY_RETRIES) {
             if (assertion()) return
@@ -168,7 +215,10 @@ class PlatformIndependentLogFileWriterTest {
 
     private companion object {
         const val ONE_MINUTE_MS = 60_000L
+        const val ONE_LOG_LINE = 1
         const val TWO_LOG_LINES = 2
+        const val SMALL_FILE_SIZE_BYTES = 64L
+        const val LARGE_MESSAGE_SIZE = 64
         const val WORKER_SETTLE_MS = 100L
         const val EVENTUALLY_RETRIES = 20
         const val EVENTUALLY_DELAY_MS = 50L

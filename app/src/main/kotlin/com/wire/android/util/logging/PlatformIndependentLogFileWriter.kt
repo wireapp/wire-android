@@ -43,8 +43,11 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.io.PrintWriter
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.zip.GZIPOutputStream
 
 @Suppress("TooGenericExceptionCaught", "TooManyFunctions")
 class PlatformIndependentLogFileWriter(
@@ -52,6 +55,7 @@ class PlatformIndependentLogFileWriter(
     private val config: PlatformIndependentLogFileWriterConfig = PlatformIndependentLogFileWriterConfig.default()
 ) : LogFileWriter {
 
+    private val logFileTimeFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
     private val timestampFormatter: ThreadLocal<LogLineTimestampFormatter> = ThreadLocal.withInitial {
         LogLineTimestampFormatter()
     }
@@ -67,8 +71,12 @@ class PlatformIndependentLogFileWriter(
     @Volatile
     private var logCommandChannel: Channel<LogCommand>? = null
 
+    @Volatile
+    private var deleteGeneration = 0L
+
     private val logBuffer = mutableListOf<String>()
     private var bufferedWriter: BufferedWriter? = null
+    private var currentFileSize = 0L
 
     private val isStarted = AtomicBoolean(false)
 
@@ -96,7 +104,9 @@ class PlatformIndependentLogFileWriter(
             try {
                 withContext(Dispatchers.IO) {
                     ensureLogDirectoryAndFileExistence()
+                    cleanupOrphanedTempFiles()
                 }
+                currentFileSize = activeLoggingFile.length()
                 val channel = Channel<LogCommand>(LOG_COMMAND_CHANNEL_CAPACITY)
                 val job = fileWriterCoroutineScope.launch {
                     processLogCommands(channel)
@@ -117,7 +127,7 @@ class PlatformIndependentLogFileWriter(
     }
 
     /**
-     * Stops processing logs and writing to files.
+     * Stops processing logs and writing to files
      */
     override suspend fun stop() {
         lifecycleMutex.withLock {
@@ -200,6 +210,7 @@ class PlatformIndependentLogFileWriter(
 
     private fun appendLogLine(text: String) {
         logBuffer.add(text)
+        currentFileSize += text.length + LINE_SEPARATOR_LENGTH
     }
 
     private suspend fun processLogCommands(channel: Channel<LogCommand>) {
@@ -228,7 +239,7 @@ class PlatformIndependentLogFileWriter(
         return withTimeoutOrNull(flushTimeout) { channel.receive() }
     }
 
-    private fun handleLogCommand(command: LogCommand, lastFlushTime: Long): LogCommandResult = when (command) {
+    private suspend fun handleLogCommand(command: LogCommand, lastFlushTime: Long): LogCommandResult = when (command) {
         is LogCommand.Entry -> LogCommandResult(handleEntryCommand(command, lastFlushTime))
         is LogCommand.Flush -> LogCommandResult(completeFlushCommand(command, lastFlushTime))
         is LogCommand.DeleteAll -> LogCommandResult(completeDeleteAllCommand(command, lastFlushTime))
@@ -238,13 +249,17 @@ class PlatformIndependentLogFileWriter(
         }
     }
 
-    private fun handleEntryCommand(command: LogCommand.Entry, lastFlushTime: Long): Long {
+    private suspend fun handleEntryCommand(command: LogCommand.Entry, lastFlushTime: Long): Long {
         var updatedFlushTime = lastFlushTime
         try {
             command.lines.forEach(::appendLogLine)
             command.throwable?.let { appendLogLine(it.stackTraceToString()) }
             if (logBuffer.size >= config.maxBufferSize) {
                 updatedFlushTime = flushBufferAndGetTime()
+            }
+            if (currentFileSize > config.maxFileSize) {
+                rotateActiveLogFileIfNeeded()
+                updatedFlushTime = System.currentTimeMillis()
             }
         } catch (e: IOException) {
             Log.e(LOG_TAG, "Failed to write log entry", e)
@@ -274,6 +289,7 @@ class PlatformIndependentLogFileWriter(
             logBuffer.clear()
             closeResources()
             clearActiveLoggingFileContent()
+            currentFileSize = 0L
         }
     }
 
@@ -295,6 +311,31 @@ class PlatformIndependentLogFileWriter(
             completion.complete(Unit)
         } catch (e: Exception) {
             completion.completeExceptionally(e)
+        }
+    }
+
+    private suspend fun rotateActiveLogFileIfNeeded() {
+        if (currentFileSize <= config.maxFileSize) return
+
+        val compressedFileName = compressedFileName()
+        flushBuffer()
+        closeResources()
+        val tempFile = copyActiveLogFileToTemp(compressedFileName)
+        clearActiveLoggingFileContent()
+        currentFileSize = 0L
+        val rotationDeleteGeneration = deleteGeneration
+
+        fileWriterCoroutineScope.launch {
+            val compressedFile = compressFileAsync(tempFile, compressedFileName)
+            try {
+                if (deleteGeneration != rotationDeleteGeneration) {
+                    compressedFile?.delete()
+                } else {
+                    deleteOldCompressedFiles()
+                }
+            } finally {
+                tempFile.delete()
+            }
         }
     }
 
@@ -328,18 +369,94 @@ class PlatformIndependentLogFileWriter(
     }
 
     private fun deleteAllLogFilesInternal() {
+        deleteGeneration += 1
         logBuffer.clear()
         closeResources()
         clearActiveLoggingFileContent()
+        currentFileSize = 0L
         logsDirectory.listFiles()?.filter {
-            it.extension.lowercase(Locale.ROOT) == LOG_COMPRESSED_FILE_EXTENSION
+            it.extension.lowercase(Locale.ROOT) == LOG_COMPRESSED_FILE_EXTENSION || it.name.endsWith(TEMP_FILE_EXTENSION)
         }?.forEach { it.delete() }
+    }
+
+    private fun getCompressedFilesList() = (logsDirectory.listFiles() ?: emptyArray()).filter {
+        it != activeLoggingFile && !it.name.endsWith(".tmp")
+    }
+
+    private fun compressedFileName(): String {
+        val currentDate = logFileTimeFormat.format(Date())
+        return "${LOG_FILE_PREFIX}_$currentDate.$LOG_COMPRESSED_FILE_EXTENSION"
+    }
+
+    private fun deleteOldCompressedFiles() = getCompressedFilesList()
+        .sortedBy { it.lastModified() }
+        .dropLast(LOG_COMPRESSED_FILES_MAX_COUNT)
+        .forEach {
+            it.delete()
+        }
+
+    private fun cleanupOrphanedTempFiles() {
+        getListOfOrphanedTempFiles().forEach { tempFile ->
+            appLogger.i("Found orphaned temp file: ${tempFile.name}, attempting to compress before cleanup")
+            try {
+                // Try to salvage the data by compressing it
+                // The temp file already has the timestamped name, just remove .tmp extension
+                val compressedFileName = tempFile.name.removeSuffix(".tmp")
+                val compressedFile = File(logsDirectory, compressedFileName)
+                compressFileToGzip(tempFile, compressedFile)
+                appLogger.i("Successfully salvaged orphaned temp file: ${tempFile.name} -> ${compressedFile.name}")
+            } catch (e: Exception) {
+                appLogger.w("Failed to compress orphaned temp file: ${tempFile.name}, will delete it", e)
+            } finally {
+                // Always delete the temp file after attempting compression
+                tempFile.delete()
+            }
+        }
+    }
+
+    private fun getListOfOrphanedTempFiles(): List<File> {
+        return try {
+            logsDirectory.listFiles()?.filter { it.name.endsWith(".tmp") } ?: emptyList()
+        } catch (e: SecurityException) {
+            appLogger.e("Error cleaning up orphaned temp files", e)
+            emptyList()
+        }
+    }
+
+    private fun copyActiveLogFileToTemp(compressedFileName: String): File {
+        // Temp file has the same name as final compressed file, but with .tmp extension
+        val tempFile = File(logsDirectory, "$compressedFileName.tmp")
+        activeLoggingFile.copyTo(tempFile, overwrite = true)
+        return tempFile
+    }
+
+    private suspend fun compressFileAsync(sourceFile: File, compressedFileName: String): File? = withContext(Dispatchers.IO) {
+        try {
+            // Just remove .tmp extension from temp file name to get final compressed filename
+            val compressedFile = File(logsDirectory, compressedFileName)
+            compressFileToGzip(sourceFile, compressedFile)
+
+            appLogger.i("Log file compressed: ${sourceFile.name} -> ${compressedFile.name}")
+            compressedFile
+        } catch (e: Exception) {
+            appLogger.e("Failed to compress log file: ${sourceFile.name}", e)
+            null
+        }
+    }
+
+    private fun compressFileToGzip(sourceFile: File, targetGzipFile: File) {
+        GZIPOutputStream(targetGzipFile.outputStream().buffered()).use { gzipOut ->
+            sourceFile.inputStream().buffered().use { input ->
+                input.copyTo(gzipOut, config.bufferSizeBytes)
+            }
+        }
     }
 
     @Throws(IOException::class)
     private fun flushBuffer() {
         if (logBuffer.isEmpty()) return
 
+        // Use BufferedWriter for efficient writing
         val writer = bufferedWriter ?: BufferedWriter(
             FileWriter(activeLoggingFile, true),
             config.bufferSizeBytes
@@ -369,7 +486,10 @@ class PlatformIndependentLogFileWriter(
         private const val LOG_TAG = "LogFileWriter"
         private const val LOG_FILE_PREFIX = "wire"
         private const val ACTIVE_LOGGING_FILE_NAME = "${LOG_FILE_PREFIX}_logs.txt"
+        private const val LOG_COMPRESSED_FILES_MAX_COUNT = 10
         private const val LOG_COMPRESSED_FILE_EXTENSION = "gz"
+        private const val TEMP_FILE_EXTENSION = ".tmp"
         private const val LOG_COMMAND_CHANNEL_CAPACITY = 10_000
+        private val LINE_SEPARATOR_LENGTH = System.lineSeparator().length
     }
 }

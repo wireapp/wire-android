@@ -79,6 +79,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
      * Development/Logging stuff
      */
     LOGGING_ENABLED("logging_enabled", ConfigType.BOOLEAN),
+    USE_PLATFORM_INDEPENDENT_FILE_LOGGER("use_platform_independent_file_logger", ConfigType.BOOLEAN),
     DEBUG_SCREEN_ENABLED("debug_screen_enabled", ConfigType.BOOLEAN),
     DEVELOPER_FEATURES_ENABLED("developer_features_enabled", ConfigType.BOOLEAN),
     DEVELOPMENT_API_ENABLED("development_api_enabled", ConfigType.BOOLEAN),

@@ -60,6 +60,7 @@ import com.wire.kalium.logic.feature.message.fetchOlderMessagesByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessageByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
+import com.wire.kalium.logic.feature.message.linkpreview.DetectLinkPreviewTargetUseCase
 import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
 import com.wire.kalium.logic.feature.message.observePaginatedImageAssetMessageByConversationId
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
@@ -106,6 +107,10 @@ class MessageModule {
     @Provides
     fun provideGenerateLinkPreviewUseCase(messageScope: MessageScope): GenerateLinkPreviewUseCase =
         messageScope.generateLinkPreview
+
+    @Provides
+    fun provideDetectLinkPreviewTargetUseCase(messageScope: MessageScope): DetectLinkPreviewTargetUseCase =
+        messageScope.detectLinkPreviewTarget
 
     @Provides
     fun provideSendEditTextMessageUseCase(messageScope: MessageScope): SendEditTextMessageUseCase =

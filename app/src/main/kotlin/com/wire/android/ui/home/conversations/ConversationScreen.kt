@@ -445,7 +445,7 @@ fun ConversationScreen(
                 NavigationCommand(MessageDetailsScreenDestination(conversationInfoViewModel.conversationId, messageId, isSelfMessage))
             )
         },
-        onSendMessage = { sendMessageViewModel.trySendMessage(it) },
+        onSendMessage = { sendMessageViewModel.trySendMessage(it.withPrefetchedLinkPreview(sendMessageViewModel.currentLinkPreview)) },
         onPingOptionClicked = {
             if (conversationCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_PING) {
                 showDialog.value = ConversationScreenDialogType.PING_CONFIRMATION
@@ -783,6 +783,15 @@ fun ConversationScreen(
                 )
             }
         }
+    }
+}
+
+private fun MessageBundle.withPrefetchedLinkPreview(
+    linkPreview: com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview?
+): MessageBundle {
+    return when (this) {
+        is ComposableMessageBundle.SendTextMessageBundle -> copy(prefetchedLinkPreview = linkPreview)
+        else -> this
     }
 }
 

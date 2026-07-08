@@ -76,7 +76,9 @@ import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.linkpreview.DetectLinkPreviewTargetUseCase
 import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
+import com.wire.kalium.logic.feature.message.linkpreview.LinkPreviewTarget
 import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import kotlinx.coroutines.CancellationException
@@ -113,7 +115,8 @@ class SendMessageViewModel(
     private val analyticsManager: AnonymousAnalyticsManager,
     private val isWireCellsEnabledForConversation: IsWireCellsEnabledForConversationUseCase,
     private val sharedState: MessageSharedState,
-    private val generateLinkPreview: GenerateLinkPreviewUseCase
+    private val generateLinkPreview: GenerateLinkPreviewUseCase,
+    private val detectLinkPreviewTarget: DetectLinkPreviewTargetUseCase,
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -133,7 +136,7 @@ class SendMessageViewModel(
     var currentLinkPreview: MessageLinkPreview? by mutableStateOf(null)
         private set
 
-    private var activeLinkPreviewTarget: ComposerLinkPreviewTarget? = null
+    private var activeLinkPreviewTarget: LinkPreviewTarget? = null
     private var activeLinkPreviewRequest: Job? = null
 
     init {
@@ -278,10 +281,11 @@ class SendMessageViewModel(
                 with(messageBundle) {
                     val linkPreviews = resolveLinkPreviewsForSend(
                         text = message,
-                        mentions = mentions.map { it.intoMessageMention() }
+                        mentions = mentions.map { it.intoMessageMention() },
+                        prefetchedLinkPreview = prefetchedLinkPreview,
                     )
                     val textToSend = message.removeStandalonePreviewUrl(
-                        target = ComposerLinkPreviewTargetDetector.detect(
+                        target = detectLinkPreviewTarget(
                             text = message,
                             mentions = mentions.map { it.intoMessageMention() }
                         ),
@@ -551,7 +555,7 @@ class SendMessageViewModel(
     }
 
     fun updateLinkPreview(text: String, mentions: List<MessageMention>) {
-        val nextTarget = ComposerLinkPreviewTargetDetector.detect(text, mentions)
+        val nextTarget = detectLinkPreviewTarget(text, mentions)
         val currentTarget = activeLinkPreviewTarget
 
         if (nextTarget == null) {
@@ -600,9 +604,14 @@ class SendMessageViewModel(
     private suspend fun resolveLinkPreviewsForSend(
         text: String,
         mentions: List<MessageMention>,
+        prefetchedLinkPreview: MessageLinkPreview?,
     ): List<MessageLinkPreview> {
-        val target = ComposerLinkPreviewTargetDetector.detect(text, mentions) ?: return emptyList()
+        val target = detectLinkPreviewTarget(text, mentions) ?: return emptyList()
         val activeTarget = activeLinkPreviewTarget
+
+        if (prefetchedLinkPreview?.url == target.url) {
+            return listOf(prefetchedLinkPreview.copy(urlOffset = target.position))
+        }
 
         if (activeTarget?.url == target.url) {
             return currentLinkPreview
@@ -616,7 +625,7 @@ class SendMessageViewModel(
     }
 
     private fun String.removeStandalonePreviewUrl(
-        target: ComposerLinkPreviewTarget?,
+        target: LinkPreviewTarget?,
         hasPreview: Boolean,
     ): String {
         if (!hasPreview || target == null) return this

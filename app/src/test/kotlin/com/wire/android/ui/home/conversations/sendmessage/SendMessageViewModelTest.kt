@@ -39,6 +39,7 @@ import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.upload.AssetUploadParams
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
+import com.wire.kalium.logic.feature.message.linkpreview.LinkPreviewTarget
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
@@ -82,6 +83,7 @@ class SendMessageViewModelTest {
         val (arrangement, viewModel) = SendMessageViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withGeneratedLinkPreviewResult(preview)
+            .withDetectedLinkPreviewTarget(LinkPreviewTarget("https://wire.com", 0))
             .arrange()
 
         viewModel.updateLinkPreview("https://wire.com", emptyList())
@@ -134,6 +136,7 @@ class SendMessageViewModelTest {
             .withSuccessfulViewModelInit()
             .withGeneratedLinkPreviewResult(preview)
             .withSuccessfulSendTextMessage()
+            .withDetectedLinkPreviewTarget(LinkPreviewTarget("https://wire.com", 0))
             .arrange()
 
         viewModel.updateLinkPreview("https://wire.com", emptyList())
@@ -154,7 +157,46 @@ class SendMessageViewModelTest {
         coVerify(exactly = 1) {
             arrangement.sendTextMessage(
                 conversationId = conversationId,
-                text = "https://wire.com",
+                text = "",
+                linkPreviews = listOf(preview),
+                mentions = emptyList(),
+                quotedMessageId = null
+            )
+        }
+    }
+
+    @Test
+    fun `given prefetched preview snapshot when live preview state is cleared then sending reuses snapshot`() = runTest {
+        val preview = MessageLinkPreview(
+            url = "https://wire.com",
+            urlOffset = 0,
+            title = "Wire"
+        )
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withSuccessfulSendTextMessage()
+            .withDetectedLinkPreviewTarget(LinkPreviewTarget("https://wire.com", 0))
+            .arrange()
+
+        viewModel.clearLinkPreview()
+
+        viewModel.trySendMessage(
+            ComposableMessageBundle.SendTextMessageBundle(
+                conversationId = conversationId,
+                message = "https://wire.com",
+                mentions = emptyList(),
+                prefetchedLinkPreview = preview,
+            )
+        )
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) {
+            arrangement.generateLinkPreview(any(), any())
+        }
+        coVerify {
+            arrangement.sendTextMessage(
+                conversationId = conversationId,
+                text = "",
                 linkPreviews = listOf(preview),
                 mentions = emptyList(),
                 quotedMessageId = null
@@ -173,6 +215,7 @@ class SendMessageViewModelTest {
             .withSuccessfulViewModelInit()
             .withGeneratedLinkPreviewResult(preview)
             .withSuccessfulSendTextMessage()
+            .withDetectedLinkPreviewTarget(LinkPreviewTarget("https://wire.com", 1))
             .arrange()
 
         viewModel.updateLinkPreview(" https://wire.com ", emptyList())
@@ -210,6 +253,7 @@ class SendMessageViewModelTest {
             .withSuccessfulViewModelInit()
             .withGeneratedLinkPreviewResult(preview)
             .withSuccessfulSendTextMessage()
+            .withDetectedLinkPreviewTarget(LinkPreviewTarget("https://wire.com", 6))
             .arrange()
 
         viewModel.updateLinkPreview(message, emptyList())

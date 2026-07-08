@@ -132,6 +132,7 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
@@ -205,6 +206,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -335,6 +338,28 @@ fun ConversationScreen(
         conversationCallViewModel.callingEnabled.collect {
             showDialog.value = ConversationScreenDialogType.CALLING_FEATURE_ACTIVATED
         }
+    }
+
+    LaunchedEffect(
+        messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState,
+        messageAttachmentsViewModel.attachments,
+    ) {
+        if (messageAttachmentsViewModel.attachments.isNotEmpty()) {
+            sendMessageViewModel.clearLinkPreview()
+            return@LaunchedEffect
+        }
+
+        messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState
+            .textAsFlow()
+            .distinctUntilChanged()
+            .collectLatest { text ->
+                sendMessageViewModel.updateLinkPreview(
+                    text = text.toString(),
+                    mentions = messageComposerStateHolder.messageComposition.value.selectedMentions.map {
+                        it.intoMessageMention()
+                    }
+                )
+            }
     }
 
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->

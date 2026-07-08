@@ -56,7 +56,9 @@ fun AllFilesScreen(
 ) {
 
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
-    val isOnline by viewModel.isOnline.collectAsState()
+    val isOnlineState by viewModel.isOnline.collectAsState()
+    // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
+    val isOnline = isOnlineState || !viewModel.offlineFilesEnabled
 
     WireScaffold(
         modifier = modifier,

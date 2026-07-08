@@ -105,7 +105,7 @@ fun loginSSOViewModel(
 ): LoginSSOViewModel =
     assistedMetroViewModel<LoginSSOViewModel, AuthenticationManualViewModelFactory>(
         viewModelStoreOwner = viewModelStoreOwner,
-        key = authenticationViewModelKey<LoginSSOViewModel>(viewModelStoreOwner, loginNavArgs.toString()),
+        key = authenticationViewModelKey<LoginSSOViewModel>(viewModelStoreOwner, loginNavArgs.ssoViewModelKey()),
     ) { extras ->
         loginSSOViewModel(loginNavArgs, extras)
     }
@@ -178,3 +178,5 @@ inline fun <reified VM : ViewModel> authenticationViewModelKey(
         key = listOfNotNull(key, viewModelStoreOwner.hashCode().toString()).joinToString(":"),
         scopeKey = LocalWireViewModelScopeKey.current,
     )
+
+private fun LoginNavArgs.ssoViewModelKey(): String = copy(ssoLoginResult = null).toString()

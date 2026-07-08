@@ -43,6 +43,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.NewConversati
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.PromoteAdminScreenDestination
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
@@ -82,7 +83,7 @@ import com.wire.kalium.logic.data.user.UserId
  * This is a base for creating screens for displaying list of conversations.
  * Can be used to create proper navigation destination for different sources of conversations, like archive.
  */
-@Suppress("ComplexMethod", "NestedBlockDepth", "Wrapping")
+@Suppress("ComplexMethod", "NestedBlockDepth", "Wrapping", "SlotReused")
 @Composable
 fun ConversationsScreenContent(
     navigator: Navigator,
@@ -199,7 +200,7 @@ fun ConversationsScreenContent(
                         onAudioPermissionPermanentlyDenied = {
                             permissionPermanentlyDeniedDialogState.show(
                                 PermissionPermanentlyDeniedDialogState.Visible(
-                                    R.string.app_permission_dialog_title,
+                                    commonR.string.app_permission_dialog_title,
                                     R.string.call_permission_dialog_description
                                 )
                             )
@@ -240,7 +241,7 @@ fun ConversationsScreenContent(
                         onAudioPermissionPermanentlyDenied = {
                             permissionPermanentlyDeniedDialogState.show(
                                 PermissionPermanentlyDeniedDialogState.Visible(
-                                    R.string.app_permission_dialog_title,
+                                    commonR.string.app_permission_dialog_title,
                                     R.string.call_permission_dialog_description
                                 )
                             )

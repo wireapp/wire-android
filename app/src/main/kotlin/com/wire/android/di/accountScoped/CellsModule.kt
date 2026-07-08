@@ -27,6 +27,7 @@ import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
@@ -34,6 +35,7 @@ import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedCellConversationsFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedNodesUseCase
+import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
@@ -53,6 +55,11 @@ import com.wire.kalium.cells.domain.usecase.create.CreatePresentationFileUseCase
 import com.wire.kalium.cells.domain.usecase.create.CreateSpreadsheetFileUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellVersionUseCase
+import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesByConversationUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
@@ -62,13 +69,6 @@ import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUs
 import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
-import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
-import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
-import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
-import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
-import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesByConversationUseCase
-import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
-import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
 import com.wire.kalium.cells.paginatedConversationsFlowUseCase
 import com.wire.kalium.cells.paginatedFilesFlowUseCase
 import com.wire.kalium.logic.CoreLogic

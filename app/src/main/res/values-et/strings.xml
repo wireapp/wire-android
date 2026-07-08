@@ -302,7 +302,6 @@
     <!-- Gallery -->
     <!--sso dialog-->
     <!--prohibited asset messages -->
-    <!--wire dropdown-->
     <!--block user dialog -->
     <string name="block_user_dialog_confirm_button">Blokeeri</string>
     <string name="other_user_devices_description">Wire annab igale seadmele unikaalse sõrmejälje. Võrdle neid kasutaja %1$s-ga ja kinnita oma vestluse turvalisus.</string>
@@ -421,10 +420,8 @@
     <!-- legal hold -->
     <!-- Sure want to send message Dialog -->
     <!-- Sure want to call Dialog -->
-    <!-- Go to app settings permissions dialog -->
     <!-- Share Location -->
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->

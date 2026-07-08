@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
 import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
@@ -36,6 +37,10 @@ import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
 interface HomeManualViewModelFactory : ManualViewModelAssistedFactory {
     fun conversationListViewModel(conversationsSource: ConversationsSource): ConversationListViewModelImpl
+}
+
+interface HomeViewModelGraph : MetroViewModelGraph {
+    val homeViewModelFactory: HomeViewModelFactory
 }
 
 @Composable

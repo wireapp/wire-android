@@ -19,7 +19,7 @@
 package com.wire.android.ui.home.conversations.details.participants
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
@@ -54,6 +54,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.mapper.UsernameMapper.fromExpirationToHandle
+import com.wire.android.ui.common.maxTitleLines
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.uiReadReceiptDateTime
@@ -85,11 +86,11 @@ fun ConversationParticipantItem(
         },
         titleStartPadding = dimensions().spacing0x,
         title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            FlowRow(itemVerticalAlignment = Alignment.CenterVertically) {
                 HighlightName(
                     name = if (uiParticipant.unavailable) stringResource(commonR.string.username_unavailable_label) else uiParticipant.name,
                     searchQuery = searchQuery,
-                    modifier = Modifier.weight(weight = 1f, fill = false)
+                    maxLines = maxTitleLines(),
                 )
                 if (uiParticipant.isSelf) {
                     Text(

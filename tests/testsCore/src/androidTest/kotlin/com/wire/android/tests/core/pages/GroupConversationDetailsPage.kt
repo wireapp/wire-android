@@ -21,6 +21,7 @@ import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.toBySelector
+import kotlin.time.Duration
 
 data class GroupConversationDetailsPage(private val device: UiDevice) {
     private val groupNameInputField = UiSelectorParams(className = "android.widget.EditText")
@@ -30,6 +31,12 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
     private val showMoreOptionsButton = UiSelectorParams(description = "Open conversation options")
 
     private val deleteConversationButton = UiSelectorParams(text = "Delete Conversation")
+
+    private val moveToArchiveButton = UiSelectorParams(text = "Move to Archive")
+
+    private val confirmArchiveConversationButton = UiSelectorParams(text = "Archive")
+
+    private val moveOutOfArchiveButton = UiSelectorParams(text = "Unarchive")
 
     private val removeGroupButton = UiSelectorParams(text = "Remove")
 
@@ -67,6 +74,34 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     fun tapDeleteConversationButton() {
         UiWaitUtils.waitElement(deleteConversationButton).click()
+    }
+
+    fun tapMoveToArchiveButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(moveToArchiveButton).click()
+        return this
+    }
+
+    fun tapConfirmArchiveConversationButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(confirmArchiveConversationButton).click()
+        return this
+    }
+
+    fun tapMoveOutOfArchiveButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(moveOutOfArchiveButton).click()
+        return this
+    }
+
+    fun assertToastMessageIsDisplayed(
+        expectedMessage: String,
+        timeout: Duration = UiWaitUtils.SHORT_TIMEOUT
+    ): GroupConversationDetailsPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(text = expectedMessage),
+            timeout = timeout,
+            errorMessage = "Toast message '$expectedMessage' was not displayed within ${timeout.inWholeMilliseconds}ms."
+        )
+
+        return this
     }
 
     fun tapRemoveGroupButton() {

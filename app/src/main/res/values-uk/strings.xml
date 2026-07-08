@@ -154,9 +154,6 @@
     <!--prohibited asset messages -->
     <string name="sharing_files_enabled">Отримання та надсилання файлів будь-якого типу було увімкнено</string>
     <string name="sharing_files_disabled">Отримання та надсилання файлів будь-якого типу було вимкнено</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (за замовчуванням)"</string>
-    <string name="wire_dropdown_placeholder">Виберіть елемент</string>
     <string name="change">Змінити</string>
     <string name="allow_guests">Дозволити гостям</string>
     <string name="allow_guest_switch_description">Відкрийте цю бесіду людям, які не належать до вашої команди. Ви завжди можете змінити це пізніше.</string>
@@ -200,10 +197,8 @@
     <!-- legal hold -->
     <!-- Sure want to send message Dialog -->
     <!-- Sure want to call Dialog -->
-    <!-- Go to app settings permissions dialog -->
     <!-- Share Location -->
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->

@@ -13,6 +13,7 @@ plugins {
 dependencies {
     implementation("com.wire.kalium:kalium-common")
     implementation("com.wire.kalium:kalium-logic")
+    implementation("com.wire.kalium:kalium-util")
     implementation(projects.core.di)
     implementation(projects.core.uiCommon)
     implementation(projects.core.search)
@@ -21,7 +22,7 @@ dependencies {
     implementation(libs.ktx.immutableCollections)
     implementation(libs.ktx.serialization)
 
-    val composeBom = platform(libs.compose.bom)
+    val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)

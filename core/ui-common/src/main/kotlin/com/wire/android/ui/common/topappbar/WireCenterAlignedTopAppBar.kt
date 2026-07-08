@@ -23,7 +23,11 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -123,6 +127,7 @@ fun WireCenterAlignedTopAppBar(
                 },
                 colors = wireTopAppBarColors(),
                 actions = actions,
+                windowInsets = WindowInsets.statusBars.only(WindowInsetsSides.Top),
                 modifier = Modifier
                     // TopAppBarHorizontalPadding is 4.dp so another 4.dp needs to be added to match 8.dp from designs
                     .padding(end = dimensions().spacing4x),

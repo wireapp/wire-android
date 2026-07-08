@@ -120,6 +120,14 @@ object AppModule {
     fun provideUseNewLoginForDefaultBackend(): Boolean = BuildConfig.USE_NEW_LOGIN_FOR_DEFAULT_BACKEND
 
     @Provides
+    @Named("offlineFilesEnabled")
+    fun provideOfflineFilesEnabled(): Boolean = BuildConfig.OFFLINE_FILES_ENABLED
+
+    @Provides
+    @Named("inAppImageViewerEnabled")
+    fun provideInAppImageViewerEnabled(): Boolean = BuildConfig.IN_APP_IMAGE_VIEWER_ENABLED
+
+    @Provides
     @SingleIn(AppScope::class)
     fun provideMessageSharedState(): MessageSharedState = MessageSharedState()
 

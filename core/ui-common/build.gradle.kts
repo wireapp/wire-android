@@ -29,8 +29,9 @@ dependencies {
     implementation(libs.ktx.serialization)
     implementation(libs.bundlizer.core)
     implementation(libs.coroutines.android)
+    implementation(libs.ktx.immutableCollections)
 
-    val composeBom = platform(libs.compose.bom)
+    val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)

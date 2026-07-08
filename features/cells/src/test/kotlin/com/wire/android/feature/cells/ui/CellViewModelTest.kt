@@ -24,11 +24,13 @@ import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
@@ -132,7 +134,18 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when image file clicked and local file is present then in-app viewer is opened`() = runTest {
+    fun `given search screen args when conversation files args are missing then conversation id is used`() = runTest {
+        val conversationId = "conversationId"
+        val (_, viewModel) = Arrangement()
+            .withConversationId(conversationId)
+            .withSearchScreenArgsOnly()
+            .arrange()
+
+        assertEquals(conversationId, viewModel.currentNodeUuid())
+    }
+
+    @Test
+    fun `given in-app image viewer disabled when image file clicked and local file is present then external app is opened`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
@@ -140,10 +153,25 @@ class CellViewModelTest {
         viewModel.actions.test {
             viewModel.sendIntent(CellViewIntent.OnItemClick(testFiles[0].toUiModel()))
 
+            expectNoEvents()
+        }
+        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given in-app image viewer enabled when image file clicked and local file is present then in-app viewer is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withInAppImageViewerEnabled()
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFiles[0].toUiModel()))
+
             val action = awaitItem()
             assert(action is OpenImageViewer)
-            coVerify(exactly = 0) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
         }
+        coVerify(exactly = 0) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
     @Test
@@ -160,7 +188,7 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when image file clicked and local file is not present and url is openable then in-app viewer is opened`() = runTest {
+    fun `given in-app image viewer disabled when image file clicked and local file is not present and url is openable then url is opened`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
@@ -173,11 +201,32 @@ class CellViewModelTest {
         viewModel.actions.test {
             viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
 
-            val action = awaitItem()
-            assert(action is OpenImageViewer)
+            expectNoEvents()
+        }
+        coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+    }
+
+    @Test
+    fun `given in-app image viewer enabled when image file clicked and local file is not present and url is openable then in-app viewer is opened`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withLoadSuccess()
+                .withInAppImageViewerEnabled()
+                .arrange()
+
+            val testFile = testFiles[0].copy(
+                localPath = null,
+                contentUrl = "https://example.com/file"
+            )
+
+            viewModel.actions.test {
+                viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+
+                val action = awaitItem()
+                assert(action is OpenImageViewer)
+            }
             coVerify(exactly = 0) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
         }
-    }
 
     @Test
     fun `given view model when non-image file clicked and local file is not present and url is openable then url is opened`() = runTest {
@@ -304,7 +353,10 @@ class CellViewModelTest {
         }
     }
 
-    private class Arrangement(conversationId: String? = null) {
+    private class Arrangement(
+        private var conversationId: String? = null,
+        private var inAppImageViewerEnabled: Boolean = false,
+    ) {
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -367,6 +419,8 @@ class CellViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
             mockkObject(ConversationFilesScreenDestination)
+            mockkObject(SearchScreenDestination)
+            every { SearchScreenDestination.argsFrom(savedStateHandle) } throws RuntimeException("Not a search screen")
             every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } returns CellFilesNavArgs(
                 conversationId = conversationId
             )
@@ -428,6 +482,23 @@ class CellViewModelTest {
             coEvery { isCellAvailableUseCase.invoke() } returns false.right()
         }
 
+        fun withInAppImageViewerEnabled() = apply {
+            inAppImageViewerEnabled = true
+        }
+
+        fun withConversationId(conversationId: String) = apply {
+            this.conversationId = conversationId
+            every { savedStateHandle.get<String>(any()) } returns conversationId
+            every { savedStateHandle.get<String>("conversationId") } returns conversationId
+        }
+
+        fun withSearchScreenArgsOnly() = apply {
+            every { SearchScreenDestination.argsFrom(savedStateHandle) } returns SearchNavArgs(
+                conversationId = conversationId
+            )
+            every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } throws RuntimeException("Not a files screen")
+        }
+
         fun arrange(): Pair<Arrangement, CellViewModel> {
 
             every { fileHelper.getExternalFilesDir() } returns File("")
@@ -470,6 +541,8 @@ class CellViewModelTest {
                 networkStateObserver = networkStateObserver,
                 getConversationName = getConversationNames,
                 getUserName = getUserNames,
+                offlineFilesEnabled = true,
+                inAppImageViewerEnabled = inAppImageViewerEnabled,
             )
         }
     }

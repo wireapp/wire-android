@@ -22,6 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -30,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import com.wire.android.ui.common.ClickableText
 import com.wire.android.ui.home.conversations.model.MessageSenderId
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.markdown.MarkdownConstants.TAG_MENTION
 import com.wire.android.ui.markdown.MarkdownConstants.TAG_URL
 
@@ -51,10 +56,19 @@ fun MarkdownText(
     onOpenProfile: ((senderId: MessageSenderId) -> Unit)? = null
 ) {
 
+    val mentionActions = annotatedString.getMentions(onOpenProfile)
+    val accessibilityModifier = if (clickable && mentionActions.isNotEmpty()) {
+        modifier.semantics {
+            customActions = mentionActions
+        }
+    } else {
+        modifier
+    }
+
     if (clickable) {
         ClickableText(
             text = annotatedString,
-            modifier = modifier,
+            modifier = accessibilityModifier,
             color = color,
             textAlign = textAlign,
             overflow = overflow,
@@ -95,4 +109,19 @@ fun MarkdownText(
             style = style
         )
     }
+}
+
+@Composable
+private fun AnnotatedString.getMentions(onOpenProfile: ((senderId: MessageSenderId) -> Unit)? = null): List<CustomAccessibilityAction> {
+    val openProfileDescription = stringResource(id = commonR.string.content_description_open_user_profile_label)
+    return getStringAnnotations(TAG_MENTION, 0, length)
+        .mapNotNull { annotation ->
+            onOpenProfile?.let {
+                val mentionText = text.substring(annotation.start, annotation.end)
+                CustomAccessibilityAction("$openProfileDescription $mentionText") {
+                    it(MessageSenderId.User(annotation.item))
+                    true
+                }
+            }
+        }
 }

@@ -38,6 +38,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.R
 import com.wire.android.ui.common.dimensions
@@ -67,7 +69,9 @@ fun SectionHeader(
 ) {
     Text(
         text = name.uppercase(),
-        modifier = modifier.padding(padding),
+        modifier = modifier
+            .padding(padding)
+            .semantics { heading() },
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         style = MaterialTheme.wireTypography.title03,
@@ -117,7 +121,9 @@ fun BigSectionHeader(
 ) {
     Text(
         text = name,
-        modifier = modifier.padding(padding),
+        modifier = modifier
+            .padding(padding)
+            .semantics { heading() },
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         style = MaterialTheme.wireTypography.body02,

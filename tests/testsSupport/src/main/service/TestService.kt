@@ -22,6 +22,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
 import backendUtils.BackendClient
+import backendUtils.user.getVerificationCode
+import backendUtils.user.isDevelopmentApiEnabled
 import logger.WireTestLogger
 import network.HttpRequestException
 import org.json.JSONArray

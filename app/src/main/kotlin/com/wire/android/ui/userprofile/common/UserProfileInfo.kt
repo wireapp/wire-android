@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
@@ -146,7 +147,7 @@ fun UserProfileInfo(
                 targetState = userAvatarData to showPlaceholderIfNoAsset.value,
                 label = "UserProfileInfoAvatar"
             ) { (userAvatarData, showPlaceholderIfNoAsset) ->
-                val onAvatarClickDescription = stringResource(R.string.content_description_change_it_label)
+                val onAvatarClickDescription = stringResource(commonR.string.content_description_change_it_label)
                 val contentDescription = if (editableState is EditableState.IsEditable) {
                     stringResource(R.string.content_description_self_profile_avatar)
                 } else {
@@ -211,7 +212,10 @@ fun UserProfileInfo(
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
-                    .semantics(mergeDescendants = true) { contentDescription = profileNameDescription },
+                    .semantics(mergeDescendants = true) {
+                        contentDescription = profileNameDescription
+                        heading()
+                    },
                 text = text,
                 // TODO. replace with MIDDLE_ELLIPSIS when available see https://issuetracker.google.com/issues/185418980
                 overflow = TextOverflow.Visible,

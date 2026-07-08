@@ -96,7 +96,6 @@
     <string name="content_description_conversation_back_btn">Voltar para a lista de conversas</string>
     <string name="content_description_conversation_open_details_label">abrir detalhes da conversa</string>
     <string name="content_description_send_button">Enviar</string>
-    <string name="content_description_timed_message_button">Mensagens autodestrutivas, botão</string>
     <string name="content_description_menu_button">Navegação principal</string>
     <string name="content_description_drop_down_icon">Seta para baixo</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Dispositivo</string>
@@ -139,7 +138,6 @@
     <string name="content_description_calling_call_unmuted">Chamada não-muda</string>
     <string name="content_description_calling_call_paused_camera">Câmera pausada</string>
     <string name="content_description_more_emojis">Mais emojis</string>
-    <string name="content_description_self_deletion_selector_button">Alterar modo de auto-exclusão</string>
     <string name="content_description_message_sending_status">Status de envio de mensagem</string>
     <string name="content_description_message_sent_status">Estado de mensagem enviada</string>
     <string name="content_description_message_error_status">Status de erro da mensagem</string>
@@ -178,10 +176,7 @@
     <string name="content_description_edit_guests_option_back_btn">Voltar para os detalhes da conversa</string>
     <string name="content_description_edit_self_delete_back_btn">Voltar para os detalhes da conversa</string>
     <string name="content_description_accept_or_ignore_connection_label">aceitar ou ignorar a solicitação</string>
-    <string name="content_description_change_it_label">alterar isto</string>
     <string name="content_description_alert">Alerta</string>
-    <string name="content_description_drop_down">Menu suspenso</string>
-    <string name="content_description_close_dropdown">fechar menu suspenso</string>
     <string name="content_description_open_notification_settings_label">abrir configurações de notificação</string>
     <string name="content_description_new_conversation_close_btn">Fechar visualização de novas conversas</string>
     <string name="content_description_new_conversation_name_back_btn">Voltar à visualização de nova conversa</string>
@@ -916,9 +911,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="team_settings_changed">Configurações do time mudaram</string>
     <string name="sharing_files_enabled">Compartilhar e receber arquivos de todos os tipos está habilitado</string>
     <string name="sharing_files_disabled">Compartilhar e receber arquivos de todos os tipos está desabilitado</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (padrão)"</string>
-    <string name="wire_dropdown_placeholder">Selecione um item</string>
     <string name="change">Trocar</string>
     <string name="allow_guests">Permitir convidados</string>
     <string name="allow_guest_switch_description">Abrir esta conversa para pessoas fora do seu time. Você pode sempre alterar isso depois.</string>
@@ -1402,10 +1394,6 @@ registrado. Tente novamente.</string>
     <string name="sure_about_calling_in_degraded_dialog_title">Conversa não mais verificada</string>
     <string name="sure_about_calling_in_degraded_dialog_body">Ao menos um participante começou a usar outro dispositivo ou tem um certificado inválido.\n\nAinda deseja iniciar a chamada?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Chamar Assim Mesmo</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">Permissões do app</string>
-    <string name="app_permission_dialog_settings_positive_button">Configurações</string>
-    <string name="app_permission_dialog_settings_negative_button">Agora Não</string>
     <string name="notifications_permission_dialog_description">Para fazer pleno uso do aplicativo, receber mensagens e responder chamadas, permita que o Wire mostre notificações.</string>
     <string name="call_permission_dialog_description">Para fazer uma chamada, permita que o Wire acesse seu microfone nas configurações do seu dispositivo.</string>
     <string name="record_video_permission_dialog_description">Para gravar um vídeo, permita que o Wire acesse sua câmera nas configurações do dispositivo.</string>
@@ -1424,10 +1412,6 @@ registrado. Tente novamente.</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Remover mídia</string>
     <string name="asset_attention_description">Ativo de atenção</string>
-    <!-- No Activity Errors -->
-    <string name="no_camera_app">Nenhum aplicativo de câmera encontrado para concluir esta ação.</string>
-    <string name="no_gallery_app">Nenhum app de galeria encontrado para concluir esta ação.</string>
-    <string name="no_file_manager_app">Nenhum aplicativo de gerenciador de arquivo foi encontrado para concluir esta ação.</string>
     <string name="restricted_asset_error_toast_message">O envio de arquivos é proibido devido a restrições da empresa</string>
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">Chamar a atenção</string>

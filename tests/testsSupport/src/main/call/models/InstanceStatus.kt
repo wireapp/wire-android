@@ -18,6 +18,9 @@
 
 package call.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class InstanceStatus {
     NON_EXISTENT,
     STARTING,

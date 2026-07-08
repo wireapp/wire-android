@@ -81,7 +81,9 @@ class UserDebugViewModel(
     }
 
     fun deleteLogs() {
-        logFileWriter.deleteAllLogFiles()
+        viewModelScope.launch {
+            logFileWriter.deleteAllLogFiles()
+        }
     }
 
     fun flushLogs(): Deferred<Unit> {

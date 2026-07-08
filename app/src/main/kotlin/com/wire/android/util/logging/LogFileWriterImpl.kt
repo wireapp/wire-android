@@ -19,6 +19,8 @@
 package com.wire.android.util.logging
 
 import android.util.Log
+import co.touchlab.kermit.LogWriter
+import co.touchlab.kermit.Severity
 import com.wire.android.appLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -72,6 +74,11 @@ class LogFileWriterImpl(
 
     // Process management
     private var logcatProcess: Process? = null
+
+    override val logWriter: LogWriter = object : LogWriter() {
+        @Suppress("UnusedParameter")
+        override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) = Unit
+    }
 
     /**
      * Initializes logging, waiting until the logger is actually initialized before returning.
@@ -324,11 +331,13 @@ class LogFileWriterImpl(
         }
     }
 
-    override fun deleteAllLogFiles() {
-        clearActiveLoggingFileContent()
-        logsDirectory.listFiles()?.filter {
-            it.extension.lowercase(Locale.ROOT) == LOG_COMPRESSED_FILE_EXTENSION
-        }?.forEach { it.delete() }
+    override suspend fun deleteAllLogFiles() {
+        withContext(Dispatchers.IO) {
+            clearActiveLoggingFileContent()
+            logsDirectory.listFiles()?.filter {
+                it.extension.lowercase(Locale.ROOT) == LOG_COMPRESSED_FILE_EXTENSION
+            }?.forEach { it.delete() }
+        }
     }
 
     private fun getCompressedFilesList() = (logsDirectory.listFiles() ?: emptyArray()).filter {

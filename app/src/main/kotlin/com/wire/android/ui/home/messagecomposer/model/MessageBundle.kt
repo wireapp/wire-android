@@ -22,6 +22,7 @@ import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 
 sealed class MessageBundle(open val conversationId: ConversationId)
 
@@ -44,7 +45,8 @@ sealed class ComposableMessageBundle(override val conversationId: ConversationId
         override val conversationId: ConversationId,
         val message: String,
         val mentions: List<UIMention>,
-        val quotedMessageId: String? = null
+        val quotedMessageId: String? = null,
+        val linkPreview: MessageLinkPreview? = null
     ) : ComposableMessageBundle(conversationId)
 
     data class SendMultipartMessageBundle(

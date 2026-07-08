@@ -32,6 +32,7 @@ import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ImageUtil
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageUseCase
@@ -300,6 +301,10 @@ internal class SendMessageViewModelArrangement {
 
     fun withCellsEnabledForConversation(result: Boolean) = apply {
         coEvery { isWireCellsEnabledForConversation.invoke(conversationId) } returns result
+    }
+
+    fun withGeneratedLinkPreviewResult(result: MessageLinkPreview?) = apply {
+        coEvery { generateLinkPreview(any(), any()) } returns result
     }
 
     fun arrange() = this to viewModel

@@ -20,12 +20,14 @@ package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -37,6 +39,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -62,6 +65,7 @@ import com.wire.android.ui.common.textfield.MessageComposerDefault
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.conversations.selfDeletingMessageActionViewModel
@@ -76,11 +80,14 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 
 @Composable
 fun ActiveMessageComposerInput(
     conversationId: ConversationId,
     messageComposition: MessageComposition,
+    currentLinkPreview: MessageLinkPreview?,
+    isLinkPreviewLoading: Boolean,
     messageTextState: TextFieldState,
     isTextExpanded: Boolean,
     inputType: InputType,
@@ -125,6 +132,18 @@ fun ActiveMessageComposerInput(
             }
         }
 
+        if (inputType is InputType.Composing) {
+            ComposerLinkPreview(
+                preview = currentLinkPreview,
+                isLoading = isLinkPreviewLoading,
+                modifier = Modifier.padding(
+                    start = dimensions().spacing8x,
+                    end = dimensions().spacing8x,
+                    top = dimensions().spacing8x,
+                )
+            )
+        }
+
         InputContent(
             conversationId = conversationId,
             messageTextState = messageTextState,
@@ -158,6 +177,46 @@ fun ActiveMessageComposerInput(
             }
 
             else -> {}
+        }
+    }
+}
+
+@Composable
+private fun ComposerLinkPreview(
+    preview: MessageLinkPreview?,
+    isLoading: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    if (!isLoading && preview == null) return
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(colorsScheme().surface)
+    ) {
+        if (preview != null) {
+            LinkPreviewCard(preview = preview)
+        } else {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
+                modifier = Modifier.padding(dimensions().spacing12x)
+            ) {
+                WireCircularProgressIndicator(
+                    progressColor = MaterialTheme.wireColorScheme.secondaryText,
+                    modifier = Modifier.size(dimensions().spacing20x)
+                )
+                Text(
+                    text = stringResource(R.string.location_loading_label),
+                    style = MaterialTheme.wireTypography.body05,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(dimensions().spacing12x)
+                        .background(colorsScheme().surfaceVariant)
+                )
+            }
         }
     }
 }
@@ -352,6 +411,8 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
     ActiveMessageComposerInput(
         conversationId = ConversationId("conversationId", "domain"),
         messageComposition = MessageComposition(ConversationId("conversationId", "domain")),
+        currentLinkPreview = null,
+        isLinkPreviewLoading = false,
         messageTextState = TextFieldState(""),
         isTextExpanded = isTextExpanded,
         inputType = inputType,

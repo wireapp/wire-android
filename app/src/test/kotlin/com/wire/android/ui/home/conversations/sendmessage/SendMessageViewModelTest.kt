@@ -35,6 +35,7 @@ import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.upload.AssetUploadParams
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
@@ -69,6 +70,155 @@ class SendMessageViewModelTest {
     @AfterEach
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `given a text with link when updating link preview then preview state is updated asynchronously`() = runTest {
+        val preview = MessageLinkPreview(
+            url = "https://wire.com",
+            urlOffset = 0,
+            title = "Wire"
+        )
+        val (_, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGeneratedLinkPreviewResult(preview)
+            .arrange()
+
+        viewModel.updateLinkPreview("https://wire.com", emptyList())
+
+        advanceUntilIdle()
+
+        assertEquals(preview, viewModel.currentLinkPreview)
+        assertEquals(false, viewModel.isLinkPreviewLoading)
+    }
+
+    @Test
+    fun `given a resolved link preview when typing more text around the same url then metadata is not refetched`() = runTest {
+        val url = "https://wire.com"
+        val preview = MessageLinkPreview(url = url, urlOffset = 0, title = "Wire")
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGeneratedLinkPreviewResult(preview)
+            .arrange()
+
+        viewModel.updateLinkPreview(url, emptyList())
+        advanceUntilIdle()
+
+        // Simulates typing a caption after the link, one character at a time.
+        "$url check".forEachIndexed { index, _ ->
+            viewModel.updateLinkPreview(url + " check".take(index), emptyList())
+        }
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.generateLinkPreview(text = any(), mentions = any())
+        }
+        assertEquals(preview, viewModel.currentLinkPreview)
+        assertEquals(false, viewModel.isLinkPreviewLoading)
+    }
+
+    @Test
+    fun `given a resolved link preview when text is inserted before the url then offset is realigned without refetching`() = runTest {
+        val url = "https://wire.com"
+        val preview = MessageLinkPreview(url = url, urlOffset = 0, title = "Wire")
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGeneratedLinkPreviewResult(preview)
+            .arrange()
+
+        viewModel.updateLinkPreview(url, emptyList())
+        advanceUntilIdle()
+
+        viewModel.updateLinkPreview("look at this $url", emptyList())
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.generateLinkPreview(text = any(), mentions = any())
+        }
+        assertEquals(preview.copy(urlOffset = "look at this ".length), viewModel.currentLinkPreview)
+    }
+
+    @Test
+    fun `given a prefetched link preview when sending a text message then the cached preview is reused`() = runTest {
+        val message = "https://wire.com"
+        val preview = MessageLinkPreview(
+            url = message,
+            urlOffset = 0,
+            title = "Wire"
+        )
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGeneratedLinkPreviewResult(preview)
+            .withSuccessfulSendTextMessage()
+            .arrange()
+
+        viewModel.updateLinkPreview(message, emptyList())
+        advanceUntilIdle()
+
+        viewModel.trySendMessage(
+            ComposableMessageBundle.SendTextMessageBundle(
+                conversationId = conversationId,
+                message = message,
+                mentions = emptyList(),
+            )
+        )
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.generateLinkPreview(text = any(), mentions = any())
+        }
+        coVerify(exactly = 1) {
+            arrangement.sendTextMessage(
+                conversationId = conversationId,
+                text = message,
+                linkPreviews = listOf(preview),
+                mentions = emptyList(),
+                quotedMessageId = null
+            )
+        }
+    }
+
+    @Test
+    fun `given a prefetched link preview when composer clears it right after send then the preview is still sent`() = runTest {
+        // Reproduces the composer's post-send flow: sending text clears the composer's text field,
+        // which asynchronously triggers clearLinkPreview() on the same view model. The resolved
+        // preview must be captured before that clear can race with it.
+        val message = "https://wire.com"
+        val preview = MessageLinkPreview(
+            url = message,
+            urlOffset = 0,
+            title = "Wire"
+        )
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGeneratedLinkPreviewResult(preview)
+            .withSuccessfulSendTextMessage()
+            .arrange()
+
+        viewModel.updateLinkPreview(message, emptyList())
+        advanceUntilIdle()
+
+        viewModel.trySendMessage(
+            ComposableMessageBundle.SendTextMessageBundle(
+                conversationId = conversationId,
+                message = message,
+                mentions = emptyList(),
+            )
+        )
+        // Simulates the composer clearing the text field right after dispatching send, before
+        // the queued send coroutine above has had a chance to run.
+        viewModel.clearLinkPreview()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.sendTextMessage(
+                conversationId = conversationId,
+                text = message,
+                linkPreviews = listOf(preview),
+                mentions = emptyList(),
+                quotedMessageId = null
+            )
+        }
     }
 
     @Test

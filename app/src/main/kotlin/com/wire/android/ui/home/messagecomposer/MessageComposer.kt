@@ -74,6 +74,7 @@ import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import kotlin.math.roundToInt
 
 @Composable
@@ -82,6 +83,8 @@ fun MessageComposer(
     bottomSheetVisible: Boolean,
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
+    currentLinkPreview: MessageLinkPreview?,
+    isLinkPreviewLoading: Boolean,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
@@ -142,6 +145,8 @@ fun MessageComposer(
                     bottomSheetVisible = bottomSheetVisible,
                     messageComposerStateHolder = messageComposerStateHolder,
                     attachments = attachments,
+                    currentLinkPreview = currentLinkPreview,
+                    isLinkPreviewLoading = isLinkPreviewLoading,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
                         onSendMessageBundle(messageCompositionHolder.value.toMessageBundle(conversationId, attachments))
@@ -299,6 +304,8 @@ private fun BaseComposerPreview(
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
         ),
         attachments = emptyList(),
+        currentLinkPreview = null,
+        isLinkPreviewLoading = false,
         onPingOptionClicked = { },
         messageListContent = { },
         onChangeSelfDeletionClicked = { },

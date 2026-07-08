@@ -101,6 +101,7 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.util.isImage
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
@@ -111,6 +112,8 @@ fun EnabledMessageComposer(
     bottomSheetVisible: Boolean,
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
+    currentLinkPreview: MessageLinkPreview?,
+    isLinkPreviewLoading: Boolean,
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onLocationClicked: () -> Unit,
@@ -263,6 +266,8 @@ fun EnabledMessageComposer(
                         ActiveMessageComposerInput(
                             conversationId = conversationId,
                             messageComposition = messageComposition.value,
+                            currentLinkPreview = currentLinkPreview.takeIf { attachments.isEmpty() },
+                            isLinkPreviewLoading = attachments.isEmpty() && isLinkPreviewLoading,
                             keyboardOptions = keyboardOptions,
                             onKeyboardAction = keyboardActionHandler,
                             canSendMessage = canSendMessage,

@@ -79,12 +79,15 @@ import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
 import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.data.message.mention.MessageMention
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class SendMessageViewModel(
@@ -130,6 +133,12 @@ class SendMessageViewModel(
 
     var currentLinkPreview: MessageLinkPreview? by mutableStateOf(null)
         private set
+
+    var isLinkPreviewLoading: Boolean by mutableStateOf(false)
+        private set
+
+    private var linkPreviewJob: Job? = null
+    private var prefetchedLinkPreviewText: String? = null
 
     init {
         conversationNavArgs.pendingTextBundle?.let { text ->
@@ -180,10 +189,12 @@ class SendMessageViewModel(
     }
 
     internal fun trySendMessages(messageBundleList: List<MessageBundle>) {
-        if (messageBundleList.size > MAX_LIMIT_MESSAGE_SEND) {
+        // Resolved synchronously to avoid racing the composer clearing currentLinkPreview right after send.
+        val resolvedMessageBundleList = messageBundleList.map(::attachPreloadedLinkPreview)
+        if (resolvedMessageBundleList.size > MAX_LIMIT_MESSAGE_SEND) {
             onSnackbarMessage(SendMessagesSnackbarMessages.MaxAmountOfAssetsReached)
         } else {
-            val messageBundleMap = messageBundleList.groupBy { it.conversationId }
+            val messageBundleMap = resolvedMessageBundleList.groupBy { it.conversationId }
             messageBundleMap.forEach { (conversationId, bundles) ->
                 viewModelScope.launch {
                     when {
@@ -195,10 +206,10 @@ class SendMessageViewModel(
                             sureAboutMessagingDialogState =
                                 SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(
                                     conversationId,
-                                    messageBundleList
+                                    resolvedMessageBundleList
                                 )
 
-                        else -> sendMessages(messageBundleList)
+                        else -> sendMessages(resolvedMessageBundleList)
                     }
                 }
             }
@@ -271,12 +282,7 @@ class SendMessageViewModel(
                 removeMessageDraft(messageBundle.conversationId)
                 sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
                 with(messageBundle) {
-                    // Generate link preview if present
-                    val linkPreviewResult = generateLinkPreview(
-                        text = message,
-                        mentions = mentions.map { it.intoMessageMention() }
-                    )
-                    val linkPreviews = linkPreviewResult?.let { listOf(it) } ?: emptyList()
+                    val linkPreviews = linkPreview?.let(::listOf) ?: emptyList()
 
                     sendTextMessage(
                         conversationId = conversationId,
@@ -541,9 +547,67 @@ class SendMessageViewModel(
     }
 
     fun updateLinkPreview(text: String, mentions: List<MessageMention>) {
-        viewModelScope.launch(dispatchers.io()) {
-            currentLinkPreview = generateLinkPreview(text = text, mentions = mentions)
+        val candidateText = text.trim()
+        linkPreviewJob?.cancel()
+
+        if (!candidateText.mayContainLinkPreviewCandidate()) {
+            clearLinkPreview()
+            return
         }
+
+        // Same url already resolved - reuse it instead of refetching, just realign the offset.
+        val resolvedPreview = currentLinkPreview
+        if (resolvedPreview != null && text.contains(resolvedPreview.url)) {
+            val newOffset = text.indexOf(resolvedPreview.url)
+            currentLinkPreview = resolvedPreview.takeIf { it.urlOffset == newOffset }
+                ?: resolvedPreview.copy(urlOffset = newOffset)
+            prefetchedLinkPreviewText = candidateText
+            isLinkPreviewLoading = false
+            return
+        }
+
+        currentLinkPreview = null
+        prefetchedLinkPreviewText = null
+        isLinkPreviewLoading = true
+        linkPreviewJob = viewModelScope.launch {
+            delay(LINK_PREVIEW_PREFETCH_DELAY_MS)
+            val preview = try {
+                withContext(dispatchers.io()) {
+                    generateLinkPreview(text = text, mentions = mentions)
+                }
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (_: Throwable) {
+                null
+            }
+
+            currentLinkPreview = preview
+            prefetchedLinkPreviewText = preview?.let { candidateText }
+            isLinkPreviewLoading = false
+        }
+    }
+
+    fun clearLinkPreview() {
+        linkPreviewJob?.cancel()
+        linkPreviewJob = null
+        currentLinkPreview = null
+        prefetchedLinkPreviewText = null
+        isLinkPreviewLoading = false
+    }
+
+    // Must run synchronously, before the composer's post-send clearLinkPreview() can fire.
+    private fun attachPreloadedLinkPreview(messageBundle: MessageBundle): MessageBundle =
+        if (messageBundle is ComposableMessageBundle.SendTextMessageBundle && messageBundle.linkPreview == null) {
+            messageBundle.copy(linkPreview = resolveLinkPreviewForSend(messageBundle.message))
+        } else {
+            messageBundle
+        }
+
+    private fun resolveLinkPreviewForSend(text: String): MessageLinkPreview? =
+        currentLinkPreview.takeIf { prefetchedLinkPreviewText == text.trim() }
+
+    private fun String.mayContainLinkPreviewCandidate(): Boolean {
+        return LINK_PREVIEW_CANDIDATE_REGEX.containsMatchIn(this)
     }
 
     private fun AssetBundle.uploadParams(
@@ -564,5 +628,10 @@ class SendMessageViewModel(
 
     private companion object {
         const val MAX_LIMIT_MESSAGE_SEND = 20
+        const val LINK_PREVIEW_PREFETCH_DELAY_MS = 300L
+        val LINK_PREVIEW_CANDIDATE_REGEX = Regex(
+            """(?:https?://|www\.|\b[\w.-]+\.[a-z]{2,})\S*""",
+            RegexOption.IGNORE_CASE
+        )
     }
 }

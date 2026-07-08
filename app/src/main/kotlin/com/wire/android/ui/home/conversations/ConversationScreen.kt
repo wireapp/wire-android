@@ -132,6 +132,7 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
@@ -197,6 +198,7 @@ import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import kotlinx.collections.immutable.PersistentMap
@@ -205,6 +207,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -337,6 +341,33 @@ fun ConversationScreen(
         }
     }
 
+    LaunchedEffect(messageAttachmentsViewModel.attachments) {
+        if (messageAttachmentsViewModel.attachments.isNotEmpty()) {
+            sendMessageViewModel.clearLinkPreview()
+        }
+    }
+
+    LaunchedEffect(
+        messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState,
+        messageAttachmentsViewModel.attachments,
+    ) {
+        if (messageAttachmentsViewModel.attachments.isNotEmpty()) {
+            return@LaunchedEffect
+        }
+
+        messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState
+            .textAsFlow()
+            .distinctUntilChanged()
+            .collectLatest { text ->
+                sendMessageViewModel.updateLinkPreview(
+                    text = text.toString(),
+                    mentions = messageComposerStateHolder.messageComposition.value.selectedMentions.map {
+                        it.intoMessageMention()
+                    }
+                )
+            }
+    }
+
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
         navigator.navigate(
             NavigationCommand(
@@ -380,6 +411,8 @@ fun ConversationScreen(
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
         attachments = messageAttachmentsViewModel.attachments,
+        currentLinkPreview = sendMessageViewModel.currentLinkPreview,
+        isLinkPreviewLoading = sendMessageViewModel.isLinkPreviewLoading,
         onOpenProfile = { senderId: MessageSenderId ->
             with(conversationInfoViewModel) {
                 val route = when (senderId) {
@@ -780,6 +813,8 @@ private fun ConversationScreen(
     conversationInfoViewState: ConversationInfoViewState,
     conversationMessagesViewState: ConversationMessagesViewState,
     attachments: List<AttachmentDraftUi>,
+    currentLinkPreview: MessageLinkPreview?,
+    isLinkPreviewLoading: Boolean,
     bottomSheetVisible: Boolean,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
@@ -893,6 +928,8 @@ private fun ConversationScreen(
                         selectedMessageId = conversationMessagesViewState.searchedMessageId,
                         messageComposerStateHolder = messageComposerStateHolder,
                         attachments = attachments,
+                        currentLinkPreview = currentLinkPreview,
+                        isLinkPreviewLoading = isLinkPreviewLoading,
                         messages = conversationMessagesViewState.messages,
                         onSendMessage = onSendMessage,
                         onPingOptionClicked = onPingOptionClicked,
@@ -981,6 +1018,8 @@ private fun ConversationScreenContent(
     selectedMessageId: String?,
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
+    currentLinkPreview: MessageLinkPreview?,
+    isLinkPreviewLoading: Boolean,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
@@ -1031,6 +1070,8 @@ private fun ConversationScreenContent(
         bottomSheetVisible = bottomSheetVisible,
         messageComposerStateHolder = messageComposerStateHolder,
         attachments = attachments,
+        currentLinkPreview = currentLinkPreview,
+        isLinkPreviewLoading = isLinkPreviewLoading,
         messageListContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,
@@ -1794,6 +1835,8 @@ fun PreviewConversationScreen() = WireTheme {
         ),
         conversationMessagesViewState = ConversationMessagesViewState(),
         attachments = emptyList(),
+        currentLinkPreview = null,
+        isLinkPreviewLoading = false,
         onOpenProfile = { },
         onMessageDetailsClick = { _, _ -> },
         onSendMessage = { },

@@ -594,6 +594,15 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertGroupConversationInForeground(conversationName: String): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(conversationDetailsGroup(conversationName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Group conversation '$conversationName' is not in foreground.", e)
+        }
+        return this
+    }
+
     fun assertGuestsAndAppsBannerVisible(): ConversationViewPage {
         try {
             UiWaitUtils.waitElement(guestsAndAppsBanner)
@@ -643,27 +652,25 @@ data class ConversationViewPage(private val device: UiDevice) {
         val params = conversationDetailsGroup(userName)
         UiWaitUtils.waitElement(backButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
 
-        val detailsOpened = UiWaitUtils.retryUntilTimeout(
+        val clicked = UiWaitUtils.clickWhenClickable(
+            params = params,
             timeout = UiWaitUtils.MEDIUM_TIMEOUT,
-            pollingInterval = UiWaitUtils.POLLING_DEFAULT
-        ) {
-            UiWaitUtils.clickWhenClickable(
-                params = params,
-                timeout = UiWaitUtils.POLLING_DEFAULT,
-                pollingInterval = UiWaitUtils.POLLING_FAST
-            )
-            findElementOrNull(conversationOptionsButton)?.let { !it.visibleBounds.isEmpty } == true
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        )
+
+        if (!clicked) {
+            throw AssertionError("Group conversation details for user '$userName' was not clickable.")
         }
 
-        if (!detailsOpened) {
-            throw AssertionError("Group conversation details for user '$userName' did not open.")
+        try {
+            UiWaitUtils.waitElement(conversationOptionsButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
+        } catch (e: AssertionError) {
+            throw AssertionError("Group conversation details for user '$userName' did not open.", e)
         }
         return this
     }
 
-    fun clickOnChannelConversationDetails(conversationName: String): ConversationViewPage {
-        return clickOnGroupConversationDetails(conversationName)
-    }
+    fun clickOnChannelConversationDetails(conversationName: String) = clickOnGroupConversationDetails(conversationName)
 
     fun iTapStartCallButton(): ConversationViewPage {
         UiWaitUtils.waitElement(startCallButton).click()

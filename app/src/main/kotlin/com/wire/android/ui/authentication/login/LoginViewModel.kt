@@ -47,8 +47,9 @@ open class LoginViewModel(
 
     var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig ?: defaultServerConfig)
         protected set
-    var isBackendConfigured: Boolean by mutableStateOf(isDefaultBackendConfigured ||
-            loginNavArgs.loginPasswordPath?.customServerConfig?.api?.isNotBlank() == true
+    var isBackendConfigured: Boolean by mutableStateOf(
+        isDefaultBackendConfigured ||
+                loginNavArgs.loginPasswordPath?.customServerConfig?.api?.isNotBlank() == true
     )
         protected set
 

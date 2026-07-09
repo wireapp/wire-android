@@ -29,6 +29,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
+import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
@@ -132,10 +133,18 @@ class NewLoginViewModel(
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
     private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
     private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
-    private val isCustomServerDeepLink = loginNavArgs.loginPasswordPath?.customServerConfig != null
-    private val shouldShowBackendConfigSuccess = loginNavArgs.showBackendConfigSuccess && isCustomServerDeepLink
-    private var canUseBackend by mutableStateOf(isCustomServerDeepLink || isDefaultBackendConfigured)
-    var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig ?: defaultServerConfig)
+    private val customServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig
+    private val isCustomServerConfigured = customServerConfig?.api?.isNotBlank() == true
+    private val isDefaultServerConfigured = isDefaultBackendConfigured && defaultServerConfig.api.isNotBlank()
+    private val shouldShowBackendConfigSuccess = loginNavArgs.showBackendConfigSuccess && isCustomServerConfigured
+    private var canUseBackend by mutableStateOf(
+        if (customServerConfig != null) {
+            isCustomServerConfigured
+        } else {
+            isDefaultServerConfigured
+        }
+    )
+    var serverConfig: ServerConfig.Links by mutableStateOf(customServerConfig ?: defaultServerConfig)
         private set
 
     var state by mutableStateOf(NewLoginScreenState())
@@ -146,7 +155,7 @@ class NewLoginViewModel(
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
                 preFilledUserIdentifier.userIdentifier
-            } else if (defaultSSOCodeConfig.isNotEmpty() && !isCustomServerDeepLink) {
+            } else if (defaultSSOCodeConfig.isNotEmpty() && customServerConfig == null) {
                 defaultSSOCodeConfig.ssoCodeWithPrefix()
             } else {
                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
@@ -187,6 +196,13 @@ class NewLoginViewModel(
         if (userIdentifierTextState.text.isEmpty() && preFilledUserIdentifier is PreFilledUserIdentifierType.None) {
             fetchDefaultSSOCodeIfNeeded()
         }
+    }
+
+    fun onNoBackendSelected() {
+        serverConfig = ServerConfigProvider.EmptyServerConfig
+        canUseBackend = false
+        CustomTabsHelper.setBackendWebsiteUrl(null)
+        updateLoginFlowState(NewLoginFlowState.MissingBackendConfig)
     }
 
     fun onBackendConfigLinkEntered(input: String) {

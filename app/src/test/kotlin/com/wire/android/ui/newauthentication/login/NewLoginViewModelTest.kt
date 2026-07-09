@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.config.ServerConfigProvider
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStoreProvider
@@ -872,6 +873,16 @@ class NewLoginViewModelTest {
             )
         }
 
+        fun withEmptyCustomServerConfig() = apply {
+            every {
+                savedStateHandle.navArgs<LoginNavArgs>()
+            } returns LoginNavArgs(
+                loginPasswordPath = LoginPasswordPath(
+                    customServerConfig = ServerConfigProvider.EmptyServerConfig
+                )
+            )
+        }
+
         fun withRestoreCryptoStateReturning(result: RestoreCryptoStateResult) = apply {
             every { coreLogic.getSessionScope(any()).backup.restoreCryptoState } returns restoreCryptoStateUseCase
             coEvery { restoreCryptoStateUseCase() } returns result
@@ -974,6 +985,48 @@ class NewLoginViewModelTest {
             }
             coVerify(exactly = 0) {
                 arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
+            }
+        }
+
+    @Test
+    fun `given configured backend, when no backend is selected, then switch to missing backend config`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withUserIdentifierAlreadySet("user@example.com")
+                .arrange()
+
+            viewModel.onNoBackendSelected()
+            advanceUntilIdle()
+            viewModel.onLoginStarted()
+            advanceUntilIdle()
+
+            assertEquals(ServerConfigProvider.EmptyServerConfig, viewModel.serverConfig)
+            assertEquals(NewLoginFlowState.MissingBackendConfig, viewModel.state.flowState)
+            assertEquals(false, viewModel.state.nextEnabled)
+            verify(exactly = 0) {
+                arrangement.validateEmailOrSSOCodeUseCase(any())
+            }
+            coVerify(exactly = 0) {
+                arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
+            }
+        }
+
+    @Test
+    fun `given empty custom server config, when initializing view model, then block login and do not fetch default SSO code`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withEmptyCustomServerConfig()
+                .withDefaultSSOCodeConfig("default-sso-code")
+                .withFetchDefaultSSOCodeSuccess("default-sso-code")
+                .arrange()
+
+            advanceUntilIdle()
+
+            assertEquals(ServerConfigProvider.EmptyServerConfig, viewModel.serverConfig)
+            assertEquals(NewLoginFlowState.MissingBackendConfig, viewModel.state.flowState)
+            assertEquals(String.EMPTY, viewModel.userIdentifierTextState.text.toString())
+            coVerify(exactly = 0) {
+                arrangement.loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any())
             }
         }
 

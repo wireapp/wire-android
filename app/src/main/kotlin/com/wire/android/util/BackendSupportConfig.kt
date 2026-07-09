@@ -57,6 +57,7 @@ object BackendSupportConfig {
         )
     }
 
+    @Suppress("ReturnCount")
     suspend fun resolveEmail(context: Context, staticSupportEmail: String): String? {
         val staticEmail = staticSupportEmail.trim()
         if (staticEmail.isNotBlank()) return staticEmail

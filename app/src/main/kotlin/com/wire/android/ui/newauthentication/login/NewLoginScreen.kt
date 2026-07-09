@@ -180,6 +180,7 @@ fun NewLoginScreen(
         },
         onBackendConfigLinkEntered = viewModel::onBackendConfigLinkEntered,
         onBackendConfigSuccessContinue = viewModel::onBackendConfigSuccessContinue,
+        onNoBackendSelected = viewModel::onNoBackendSelected,
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = navigator::navigateBack,
     )
@@ -197,6 +198,7 @@ private fun NewLoginAction.Success.NextStep.toDestination(): Direction = when (t
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
+@Suppress("CyclomaticComplexMethod")
 @Composable
 private fun LoginContent(
     loginEmailSSOState: NewLoginScreenState,
@@ -205,6 +207,7 @@ private fun LoginContent(
     onNextClicked: () -> Unit,
     onBackendConfigLinkEntered: (String) -> Unit,
     onBackendConfigSuccessContinue: () -> Unit,
+    onNoBackendSelected: () -> Unit = {},
     canNavigateBack: Boolean,
     navigateBack: () -> Unit,
 ) {
@@ -214,6 +217,8 @@ private fun LoginContent(
     val isBackendConfigSuccess = loginEmailSSOState.flowState == NewLoginFlowState.BackendConfigSuccess
     val showCredentialsSubtitle = !isBackendConfigSetup && !isBackendConfigSuccess
     NewAuthContainer(
+        showBackendSelector = true,
+        onNoBackendSelected = onNoBackendSelected,
         header = {
             NewAuthHeader(
                 title = {

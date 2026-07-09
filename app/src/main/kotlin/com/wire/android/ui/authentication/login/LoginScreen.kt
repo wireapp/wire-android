@@ -162,6 +162,7 @@ private fun LoginContent(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
+@Suppress("CyclomaticComplexMethod")
 @Composable
 private fun MainLoginContent(
     onBackPressed: () -> Unit,

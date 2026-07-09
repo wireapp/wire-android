@@ -92,6 +92,7 @@ class CellsViewModelFactory @Inject constructor(
     private val getConversationNameUseCase: GetConversationNameUseCase,
     private val getUserNameUseCase: GetUserNameUseCase,
     @Named("offlineFilesEnabled") private val offlineFilesEnabled: Boolean,
+    @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
     private val createPresentationFileUseCase: CreatePresentationFileUseCase,
     private val createDocumentFileUseCase: CreateDocumentFileUseCase,
     private val createSpreadsheetFileUseCase: CreateSpreadsheetFileUseCase,
@@ -139,6 +140,7 @@ class CellsViewModelFactory @Inject constructor(
         getConversationName = getConversationNameUseCase,
         getUserName = getUserNameUseCase,
         offlineFilesEnabled = offlineFilesEnabled,
+        inAppImageViewerEnabled = inAppImageViewerEnabled,
     )
 
     internal fun createFileViewModel(savedStateHandle: SavedStateHandle) = CreateFileViewModel(

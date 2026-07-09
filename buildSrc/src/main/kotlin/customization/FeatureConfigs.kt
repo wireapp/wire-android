@@ -128,8 +128,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     USE_STRICT_MLS_FILTER("use_strict_mls_filter", ConfigType.BOOLEAN),
     MEETINGS_ENABLED("meetings_enabled", ConfigType.BOOLEAN),
 
-    USE_ASYNC_FLUSH_LOGGING("use_async_flush_logging", ConfigType.BOOLEAN),
-
     /**
      * Background notification retry logic
      * Enables retry with exponential backoff for background notification sync failures
@@ -147,6 +145,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     COLLABORA_INTEGRATION_ENABLED("collabora_integration", ConfigType.BOOLEAN),
 
     OFFLINE_FILES_ENABLED("offline_files_enabled", ConfigType.BOOLEAN),
+
+    IN_APP_IMAGE_VIEWER_ENABLED("in_app_image_viewer_enabled", ConfigType.BOOLEAN),
 
     DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN),
 

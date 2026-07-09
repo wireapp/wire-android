@@ -35,7 +35,7 @@ jobs:
       security-events: write # required for SARIF upload
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
@@ -66,7 +66,7 @@ jobs:
     # Override JVM args from gradle.properties which sets 10GB heap
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
           submodules: recursive # Needed in order to fetch Kalium sources for building
@@ -104,7 +104,7 @@ jobs:
     runs-on: warp-ubuntu-2404-x64-2x
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
           submodules: recursive # Needed in order to fetch Kalium sources for building
@@ -140,7 +140,7 @@ jobs:
     runs-on: warp-ubuntu-2404-x64-8x
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
           submodules: recursive # Needed in order to fetch Kalium sources for building
@@ -210,7 +210,7 @@ jobs:
           echo "🚀 Building ${BUILD_FLAVOR}${BUILD_VARIANT}..." >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
           submodules: recursive
@@ -381,12 +381,12 @@ jobs:
           retention-days: 7
 
       - name: Generate SBOM
-        if: github.actor != 'dependabot[bot]'
+        if: github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]'
         continue-on-error: true
         run: ./gradlew generateSbom
 
       - name: Upload SBOM artifact
-        if: github.actor != 'dependabot[bot]'
+        if: github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]'
         continue-on-error: true
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:

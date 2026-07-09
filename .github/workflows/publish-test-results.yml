@@ -1,9 +1,8 @@
 name: Publish Test Results
 
 # Takes the artifacts uploaded by run-unit-tests and publishes them in PRs as a comment.
-# This is needed in order to support PRs created from forks, as PRs from Forks or Dependabot
-# run in read-only mode and can't comment on PRs, for example.
-# More context here: https://github.blog/changelog/2021-02-19-github-actions-workflows-triggered-by-dependabot-prs-will-run-with-read-only-permissions/
+# This is needed in order to support PRs created from forks or dependency update bots
+# that may run in read-only mode and can't comment on PRs, for example.
 # This work-around makes it so that:
 #   - this workflow is triggered by the end of the test workflow, instead
 #     of being triggered directly by the PR

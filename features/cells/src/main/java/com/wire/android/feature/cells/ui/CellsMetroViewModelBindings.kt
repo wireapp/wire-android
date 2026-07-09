@@ -22,6 +22,7 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
+import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkViewModel
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationScreenViewModel
@@ -104,6 +105,12 @@ object CellsMetroViewModelBindings {
     @ViewModelAssistedFactoryKey(VersionHistoryViewModel::class)
     fun versionHistoryViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
         savedStateViewModel { factory.versionHistoryViewModel(it.createSavedStateHandle()) }
+
+    @Provides
+    @IntoMap
+    @ViewModelAssistedFactoryKey(CellImageViewerViewModel::class)
+    fun cellImageViewerViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.cellImageViewerViewModel(it.createSavedStateHandle()) }
 
     private fun savedStateViewModel(create: (CreationExtras) -> ViewModel): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {

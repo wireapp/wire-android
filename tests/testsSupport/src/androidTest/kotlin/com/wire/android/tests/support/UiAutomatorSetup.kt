@@ -32,6 +32,7 @@ import androidx.test.uiautomator.Until
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
 import uiautomatorutils.PermissionUtils.grantRuntimePermsForApp
+import uiautomatorutils.PermissionUtils.grantStoragePermissionsIfSupported
 
 const val TIMEOUT_IN_MILLISECONDS = 20_000L
 
@@ -61,6 +62,7 @@ object UiAutomatorSetup {
         }
 
         grantNotificationPermissionIfSupported(selectedPackage)
+        grantStoragePermissionsIfSupported(selectedPackage)
 
         device.executeShellCommand("settings put secure show_ime_with_hard_keyboard 0")
         device.executeShellCommand("settings put global window_animation_scale 0")

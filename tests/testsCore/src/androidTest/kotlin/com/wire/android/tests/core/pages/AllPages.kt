@@ -24,7 +24,9 @@ class AllPages(val device: UiDevice) {
     val registrationPage = RegistrationPage(device)
     val loginPage = LoginPage(device)
     val settingsPage = SettingsPage(device)
+    val backupPage = BackupPage(device)
     val appLockPage = AppLockPage(device)
+    val archivePage = ArchivePage(device)
     val unconnectedUserProfilePage = UnconnectedUserProfilePage(device)
 
     val connectedUserProfilePage = ConnectedUserProfilePage(device)

@@ -19,8 +19,10 @@
 package backendUtils.user
 
 import backendUtils.BackendClient
-import backendUtils.team.defaultheaders
-import backendUtils.team.getAuthToken
+import backendUtils.client.getBackendClientIds
+import backendUtils.client.removeBackendClient
+import backendUtils.auth.defaultheaders
+import backendUtils.auth.getAuthToken
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
 import network.NetworkBackendClient

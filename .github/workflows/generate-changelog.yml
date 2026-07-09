@@ -61,7 +61,7 @@ jobs:
           npx generate-changelog@1.8.0 -t "$PREVIOUS_TAG...$CURRENT_TAG"
 
       - name: 'Create release with changelog'
-        uses: softprops/action-gh-release@v3.0.0
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
           tag_name: ${{env.CURRENT_TAG}}

@@ -19,7 +19,6 @@
 package com.wire.android.tests.core.criticalFlows
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -47,7 +46,6 @@ class FileSharingBetweenTeams : BaseUiTest() {
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
     }
 
     @After
@@ -61,7 +59,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
     @Test
     fun givenUserInAnotherTeam_whenFileIsSent_thenRecipientCanReceivePlayAndDownloadIt() {
         step("Prepare team via backend (sender team + receiver team) with owners and members") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "sendTeam",
                 "en_US",
@@ -70,7 +68,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
                 context
             )
 
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user3Name",
                 "receiveTeam",
                 "en_US",
@@ -79,7 +77,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
                 context
             )
 
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user3Name",
                 "user4Name",
                 "receiveTeam",
@@ -89,7 +87,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
                 true
             )
 
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
                 "sendTeam",
@@ -98,14 +96,14 @@ class FileSharingBetweenTeams : BaseUiTest() {
                 context,
                 true
             )
-            teamOwner1 = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-            teamOwner2 = teamHelper.usersManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamOwner1 = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamOwner2 = clientUserManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
         val connectionSenderFromSendTeam =
-            teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+            clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
         val connectionReceiverFromReceiveTeam =
-            teamHelper.usersManager.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
+            clientUserManager.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
         loggedInUser = connectionReceiverFromReceiveTeam
 
         step("Login as receiver team member in Android app") {
@@ -130,11 +128,9 @@ class FileSharingBetweenTeams : BaseUiTest() {
         }
 
         step("Register sender device and send connection request to receiver via backend") {
-            testServiceHelper.apply {
-                addDevice("user2Name", null, "Device1")
-                connectionRequestIsSentTo("user2Name", "user4Name")
-                runBlocking { usersSetUniqueUsername("user4Name") }
-            }
+            testServiceHelper.addDevice("user2Name", null, "Device1")
+            backendSetupHelper.connectionRequestIsSentTo("user2Name", "user4Name")
+            runBlocking { backendSetupHelper.usersSetUniqueUsername("user4Name") }
         }
 
         step("Assert sender connection request is visible and open the request from conversation list") {

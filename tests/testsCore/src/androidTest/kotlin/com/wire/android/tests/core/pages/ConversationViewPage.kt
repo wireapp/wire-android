@@ -68,12 +68,17 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
 
-    private fun conversationDetails1On1(userName: String) = UiSelector().className("android.widget.TextView").text(userName)
+    private fun conversationDetails1On1(userName: String) = UiSelectorParams(
+        className = "android.widget.TextView",
+        text = userName
+    )
     private fun conversationDetailsGroup(userName: String) = UiSelectorParams(text = userName)
 
     private val sendButton = UiSelectorParams(description = "Send")
 
     private val backButton = UiSelectorParams(description = "Go back to conversation list")
+
+    private val conversationOptionsButton = UiSelectorParams(description = "Open conversation options")
 
     private val selfDeleteTimerButton = UiSelectorParams(description = "Set timer for self-deleting messages")
 
@@ -477,7 +482,7 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
     }
 
-    fun tapBackButtonToCloseConversationViewPage(timeout: Duration = 5.seconds): ConversationViewPage {
+    fun tapBackButtonToCloseConversationViewPage(timeout: Duration = UiWaitUtils.SHORT_TIMEOUT): ConversationViewPage {
         val closed = UiWaitUtils.retryUntilTimeout(
             timeout = timeout,
             pollingInterval = UiWaitUtils.POLLING_DEFAULT
@@ -589,6 +594,15 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertGroupConversationInForeground(conversationName: String): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(conversationDetailsGroup(conversationName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Group conversation '$conversationName' is not in foreground.", e)
+        }
+        return this
+    }
+
     fun assertGuestsAndAppsBannerVisible(): ConversationViewPage {
         try {
             UiWaitUtils.waitElement(guestsAndAppsBanner)
@@ -613,30 +627,50 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun click1On1ConversationDetails(userName: String): ConversationViewPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val userName = device.findObject(conversationDetails1On1(userName))
-        if (!userName.exists()) throw AssertionError("User '$userName' not found in current conversation")
-        userName.click()
+        val params = conversationDetails1On1(userName)
+        UiWaitUtils.waitElement(backButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
 
+        val detailsOpened = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            UiWaitUtils.clickWhenClickable(
+                params = params,
+                timeout = UiWaitUtils.POLLING_DEFAULT,
+                pollingInterval = UiWaitUtils.POLLING_FAST
+            )
+            findElementOrNull(conversationOptionsButton)?.let { !it.visibleBounds.isEmpty } == true
+        }
+
+        if (!detailsOpened) {
+            throw AssertionError("1:1 conversation details for user '$userName' did not open.")
+        }
         return this
     }
 
     fun clickOnGroupConversationDetails(userName: String): ConversationViewPage {
         val params = conversationDetailsGroup(userName)
+        UiWaitUtils.waitElement(backButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
 
-        UiWaitUtils.waitUntilVisible(
+        val clicked = UiWaitUtils.clickWhenClickable(
             params = params,
-            timeout = 5.seconds,
-            errorMessage = "Group conversation details for user '$userName' not visible"
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = UiWaitUtils.POLLING_FAST
         )
 
-        UiWaitUtils.waitElement(params).click()
+        if (!clicked) {
+            throw AssertionError("Group conversation details for user '$userName' was not clickable.")
+        }
+
+        try {
+            UiWaitUtils.waitElement(conversationOptionsButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
+        } catch (e: AssertionError) {
+            throw AssertionError("Group conversation details for user '$userName' did not open.", e)
+        }
         return this
     }
 
-    fun clickOnChannelConversationDetails(conversationName: String): ConversationViewPage {
-        return clickOnGroupConversationDetails(conversationName)
-    }
+    fun clickOnChannelConversationDetails(conversationName: String) = clickOnGroupConversationDetails(conversationName)
 
     fun iTapStartCallButton(): ConversationViewPage {
         UiWaitUtils.waitElement(startCallButton).click()

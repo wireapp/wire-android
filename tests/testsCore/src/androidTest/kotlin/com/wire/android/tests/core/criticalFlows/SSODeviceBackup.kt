@@ -22,7 +22,6 @@ import SSOServiceHelper.thereIsASSOTeamOwnerForOkta
 import SSOServiceHelper.userAddsOktaUser
 import SSOServiceHelper.userXIsMe
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
@@ -49,8 +48,7 @@ class SSODeviceBackup : BaseUiTest() {
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
-        SSOServiceHelper.usersManager = teamHelper.usersManager
+        SSOServiceHelper.clientUserManager = clientUserManager
         oktaApiClient = OktaApiClient()
     }
 
@@ -73,7 +71,7 @@ class SSODeviceBackup : BaseUiTest() {
                     "Messaging",
                     oktaApiClient
                 )
-                teamOwner = teamHelper.usersManager.findUserBy(
+                teamOwner = clientUserManager.findUserBy(
                     "user1Name",
                     ClientUserManager.FindBy.NAME_ALIAS
                 )
@@ -82,7 +80,7 @@ class SSODeviceBackup : BaseUiTest() {
 
                 testServiceHelper.userXIsMe("user2Name")
 
-                member1 = teamHelper.usersManager.findUserBy(
+                member1 = clientUserManager.findUserBy(
                     "user2Name",
                     ClientUserManager.FindBy.NAME_ALIAS
                 )
@@ -136,7 +134,7 @@ class SSODeviceBackup : BaseUiTest() {
                 step("Search for team owner and open their profile from search results") {
                     pages.searchPage.apply {
                         tapSearchPeopleField()
-                        typeUniqueUserNameInSearchField(teamHelper, "user1Name")
+                        typeUniqueUserNameInSearchField(clientUserManager, "user1Name")
                         assertUsernameInSearchResultIs(teamOwner?.name ?: "")
                         tapUsernameInSearchResult(teamOwner?.name ?: "")
                     }
@@ -182,6 +180,8 @@ class SSODeviceBackup : BaseUiTest() {
                 step("Create backup and save backup file") {
                     pages.settingsPage.apply {
                         openBackupAndRestoreConversationsMenu()
+                    }
+                    pages.backupPage.apply {
                         iSeeBackupPageHeading()
                         clickCreateBackupButton()
                         clickBackUpNowButton()
@@ -189,6 +189,8 @@ class SSODeviceBackup : BaseUiTest() {
                         iTapSaveFileButton()
                         iTapSaveInOSMenuButton()
                         iSeeBackupPageHeading()
+                    }
+                    pages.settingsPage.apply {
                         clickBackButtonOnSettingsPage()
                     }
                 }
@@ -253,10 +255,12 @@ class SSODeviceBackup : BaseUiTest() {
                 step("Restore backup by selecting saved file and confirm restore completion") {
                     pages.settingsPage.apply {
                         openBackupAndRestoreConversationsMenu()
+                    }
+                    pages.backupPage.apply {
                         iSeeBackupPageHeading()
                         clickRestoreBackupButton()
                         clickChooseBackupFileButton()
-                        selectBackupFileInDocumentsUI(teamHelper, "user2Name")
+                        selectBackupFileInDocumentsUI(clientUserManager, "user2Name")
                         waitUntilThisTextIsDisplayedOnBackupAlert("Conversations have been restored")
                         clickOkButtonOnBackupAlert()
                     }

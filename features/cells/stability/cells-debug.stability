@@ -536,12 +536,12 @@ private fun com.wire.android.feature.cells.ui.dialog.ShowRecycleBinItem(title: k
 
 @Composable
 public fun com.wire.android.feature.cells.ui.imageviewer.CellImageViewerScreen(navigator: com.wire.android.navigation.WireNavigator, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel): kotlin.Unit
-  skippable: true
+  skippable: false
   restartable: true
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
-    - viewModel: STABLE (class with no mutable properties)
+    - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.imageviewer.CellImageViewerScreenContent(localPath: kotlin.String?, contentUrl: kotlin.String?, previewUrl: kotlin.String?, contentHash: kotlin.String?, fileName: kotlin.String?, onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit

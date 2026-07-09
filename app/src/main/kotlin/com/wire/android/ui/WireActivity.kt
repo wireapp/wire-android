@@ -22,6 +22,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -88,6 +90,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfi
 import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.BuildConfig
+import com.wire.android.WireApplication
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
@@ -210,8 +213,9 @@ class WireActivity : BaseActivity() {
     private var shouldKeepSplashOpen = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val startupAt = SystemClock.elapsedRealtime()
 
-        appLogger.i("$TAG splash install")
+        traceStartup("activity.onCreate.begin")
         // We need to keep the splash screen open until the first screen is drawn.
         // Otherwise a white screen is displayed.
         // It's an API limitation, at some point we may need to remove it
@@ -219,18 +223,19 @@ class WireActivity : BaseActivity() {
         wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
         splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
+        traceStartup("activity.onCreate.afterSuper", startupAt)
 
         enableEdgeToEdge()
         setupOrientationForDevice()
         shakeDetector = ShakeDetector(this)
 
         lifecycleScope.launch {
+            traceStartup("activity.startupCoroutine.begin", startupAt)
 
-            appLogger.i("$TAG persistent connection status")
+            traceStartup("activity.observePersistentConnectionStatus.start", startupAt)
             viewModel.observePersistentConnectionStatus()
 
-            appLogger.i("$TAG init login type selector")
-            appLogger.i("$TAG start destination")
+            traceStartup("activity.initialAppState.start", startupAt)
             val startDestination = when (val initialAppState = viewModel.initialAppState()) {
                 InitialAppState.NotLoggedIn -> when (loginTypeSelector.canUseNewLogin()) {
                     true -> NewWelcomeEmptyStartScreenDestination()
@@ -243,13 +248,18 @@ class WireActivity : BaseActivity() {
 
                 InitialAppState.LoggedIn -> HomeScreenDestination()
             }
-            appLogger.i("$TAG composable content")
+            traceStartup("activity.initialAppState.resolved:$startDestination", startupAt)
             setComposableContent(startDestination)
+            traceStartup("activity.setContent.done", startupAt)
 
-            appLogger.i("$TAG splash hide")
+            traceStartup("activity.splash.hide", startupAt)
             shouldKeepSplashOpen = false
+            traceStartup("activity.splash.dismissed", startupAt)
+            (application as? WireApplication)?.initializeDeferredLoggingAfterSplash()
+            traceStartup("activity.deferredLogging.triggered", startupAt)
 
             handleNewIntent(intent, savedInstanceState)
+            traceStartup("activity.initialIntent.dispatched", startupAt)
         }
     }
 
@@ -289,6 +299,11 @@ class WireActivity : BaseActivity() {
         setContent {
             WireActivityRoot(startDestination)
         }
+    }
+
+    private fun traceStartup(event: String, startedAt: Long? = null) {
+        val elapsed = startedAt?.let { " (+${SystemClock.elapsedRealtime() - it}ms)" }.orEmpty()
+        Log.i(TAG, "startup:$event$elapsed")
     }
 
     @Composable

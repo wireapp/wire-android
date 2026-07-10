@@ -22,7 +22,6 @@ import SSOServiceHelper.thereIsASSOTeamOwnerForOkta
 import SSOServiceHelper.userAddsOktaUser
 import SSOServiceHelper.userXIsMe
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
@@ -49,7 +48,6 @@ class SSODeviceBackup : BaseUiTest() {
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
         SSOServiceHelper.clientUserManager = clientUserManager
         oktaApiClient = OktaApiClient()
     }
@@ -182,6 +180,8 @@ class SSODeviceBackup : BaseUiTest() {
                 step("Create backup and save backup file") {
                     pages.settingsPage.apply {
                         openBackupAndRestoreConversationsMenu()
+                    }
+                    pages.backupPage.apply {
                         iSeeBackupPageHeading()
                         clickCreateBackupButton()
                         clickBackUpNowButton()
@@ -189,6 +189,8 @@ class SSODeviceBackup : BaseUiTest() {
                         iTapSaveFileButton()
                         iTapSaveInOSMenuButton()
                         iSeeBackupPageHeading()
+                    }
+                    pages.settingsPage.apply {
                         clickBackButtonOnSettingsPage()
                     }
                 }
@@ -253,6 +255,8 @@ class SSODeviceBackup : BaseUiTest() {
                 step("Restore backup by selecting saved file and confirm restore completion") {
                     pages.settingsPage.apply {
                         openBackupAndRestoreConversationsMenu()
+                    }
+                    pages.backupPage.apply {
                         iSeeBackupPageHeading()
                         clickRestoreBackupButton()
                         clickChooseBackupFileButton()

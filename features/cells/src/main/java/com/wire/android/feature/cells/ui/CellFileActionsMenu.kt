@@ -107,13 +107,11 @@ class CellFileActionsMenu @Inject constructor(
                     }
 
                     if (offlineFilesEnabled) {
-                        add(
-                            if (cellNode.isAvailableOffline) {
-                                NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS
-                            } else {
-                                NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE
-                            },
-                        )
+                        if (cellNode.isAvailableOffline) {
+                            add(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS)
+                        } else if (featureFlags.collaboraIntegration && !cellNode.isEditSupported()) {
+                            add(NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE)
+                        }
                     }
                 }
             }

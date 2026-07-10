@@ -27,6 +27,7 @@ import backendUtils.conversation.createChannelTeamConversation
 import backendUtils.conversation.createTeamConversation
 import backendUtils.conversation.getConversationByName
 import backendUtils.conversation.removeUserFromGroupConversation
+import backendUtils.conversation.setArchivedStateForConversation
 import backendUtils.team.addServiceToConversation
 import backendUtils.team.enableChannelFeatureViaBackdoorTeam
 import backendUtils.team.enableForceAppLockFeature
@@ -47,7 +48,8 @@ import user.utils.ClientUser
  * Test-facing helper for preparing backend state before UIAutomator continues in the app.
  */
 class BackendSetupHelper(
-    private val usersManager: ClientUserManager
+    private val usersManager: ClientUserManager,
+    private val addDevice: ((String, String?, String?) -> Unit)? = null
 ) {
 
     private fun backendFor(user: ClientUser): BackendClient {
@@ -311,10 +313,25 @@ class BackendSetupHelper(
             .map(this::toClientUser)
         val backend = backendFor(chatOwner)
 
+        usersManager.splitAliases(otherParticipantsNameAlises).forEach { addDevice?.invoke(it, null, "Device1") }
+        addDevice?.invoke(chatOwnerNameAlias, null, "Device1")
+
         runBlocking {
             val dstTeam = backend.getTeamByName(chatOwner, teamName)
             backend.createTeamConversation(chatOwner, participants, null, dstTeam)
         }
+    }
+
+    fun userArchivesConversation(
+        userAlias: String,
+        dstConvoName: String
+    ) {
+        val clientUser = toClientUser(userAlias)
+        backendFor(clientUser).setArchivedStateForConversation(
+            clientUser,
+            toConvoObj(clientUser, dstConvoName),
+            true
+        )
     }
 
     fun userRemovesUserFromGroupConversation(

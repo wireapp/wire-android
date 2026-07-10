@@ -18,7 +18,6 @@
 package com.wire.android.tests.core.e2eTests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -44,7 +43,6 @@ class ApplockTest : BaseUiTest() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
         appPackage = UiAutomatorSetup.appPackage
-        backendClient = BackendClient.loadBackend("STAGING")
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -61,7 +59,6 @@ class ApplockTest : BaseUiTest() {
                 backendClient,
                 context
             )
-
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name,user5Name",

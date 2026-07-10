@@ -110,7 +110,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     MAX_REMOTE_SEARCH_RESULT_COUNT("max_remote_search_result_count", ConfigType.INT),
     LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC("limit_team_members_fetch_during_slow_sync", ConfigType.INT),
 
-    PICTURE_IN_PICTURE_ENABLED("picture_in_picture_enabled", ConfigType.BOOLEAN),
     PHONE_LANDSCAPE_ENABLED("phone_landscape_enabled", ConfigType.BOOLEAN),
     PAGINATED_CONVERSATION_LIST_ENABLED("paginated_conversation_list_enabled", ConfigType.BOOLEAN),
 
@@ -127,8 +126,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     IS_MLS_RESET_ENABLED("is_mls_reset_enabled", ConfigType.BOOLEAN),
     USE_STRICT_MLS_FILTER("use_strict_mls_filter", ConfigType.BOOLEAN),
     MEETINGS_ENABLED("meetings_enabled", ConfigType.BOOLEAN),
-
-    USE_ASYNC_FLUSH_LOGGING("use_async_flush_logging", ConfigType.BOOLEAN),
 
     /**
      * Background notification retry logic

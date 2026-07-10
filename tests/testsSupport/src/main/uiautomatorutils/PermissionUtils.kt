@@ -17,6 +17,8 @@
  */
 package uiautomatorutils
 
+import android.Manifest
+import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 
@@ -35,5 +37,17 @@ object PermissionUtils {
     fun grantRuntimePermsForForegroundApp(device: UiDevice, vararg permissions: String) {
         val pkg = device.currentPackageName
         grantRuntimePermsForApp(pkg, *permissions)
+    }
+
+    // Accessing files on Android 12 (API 32) and below requires storage permissions.
+    fun grantStoragePermissionsIfSupported(appPackage: String) {
+        runCatching {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                grantRuntimePermsForApp(appPackage, Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                grantRuntimePermsForApp(appPackage, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+        }
     }
 }

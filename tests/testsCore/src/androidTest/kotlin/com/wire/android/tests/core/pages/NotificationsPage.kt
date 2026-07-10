@@ -19,6 +19,7 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import org.junit.Assert
 import uiautomatorutils.UiWaitUtils
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -39,5 +40,24 @@ class NotificationsPage(private val device: UiDevice) {
                 errorMessage = "Notification pop-up with 'Reply' did not disappear within ${timeout.inWholeMilliseconds} ms"
             )
         }
+    }
+
+    fun openNotificationCenter(): NotificationsPage {
+        Assert.assertTrue("Notification center did not open.", device.openNotification())
+        return this
+    }
+
+    fun assertMessageNotVisibleInNotificationCenter(
+        message: String,
+        timeout: Duration = UiWaitUtils.SHORT_TIMEOUT
+    ): NotificationsPage {
+        val messageAppeared = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            device.hasObject(By.text(message))
+        }
+        Assert.assertFalse("Message '$message' is visible in notification center.", messageAppeared)
+        return this
     }
 }

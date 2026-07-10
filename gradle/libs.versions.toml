@@ -68,7 +68,7 @@ compose-edgetoedge-preview = "0.9.0"
 accompanist = "0.32.0"
 material = "1.12.0"
 material3 = "1.4.0"
-coil = "3.4.0"
+coil = "3.5.0"
 commonmark = "0.28.0"
 
 # Countly
